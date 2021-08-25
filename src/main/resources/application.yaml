@@ -1,0 +1,4 @@
+"%test":
+  quarkus:
+    mongodb:
+      database: test

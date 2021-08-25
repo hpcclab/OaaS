@@ -11,8 +11,10 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObjectOrigin {
-  boolean root = false;
+
+  Boolean root;
   ObjectId parentId;
   String funcName;
-  Map<String, String> callingData = Map.of();
+  Map<String, String> args;
+
 }
