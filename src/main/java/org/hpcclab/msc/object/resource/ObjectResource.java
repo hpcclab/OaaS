@@ -2,8 +2,11 @@ package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
+import org.hpcclab.msc.object.entity.MscFuncMetadata;
+import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.MscObject;
 import org.hpcclab.msc.object.model.RootMscObjectCreating;
+import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
@@ -20,6 +23,8 @@ import java.util.Map;
 public class ObjectResource {
   @Inject
   MscObjectRepository objectRepo;
+  @Inject
+  MscFuncRepository funcRepo;
 
   @GET
   public Uni<List<MscObject>> list() {
@@ -35,12 +40,35 @@ public class ObjectResource {
   @Path("{id}")
   public Uni<Response> get(String id) {
     ObjectId oid = new ObjectId(id);
-    return objectRepo.findByIdOptional(oid)
-      .map(op -> {
-        if (op.isPresent())
-          return Response.ok(op.get()).build();
+    return objectRepo.findById(oid)
+      .map(o -> {
+        if (o != null)
+          return Response.ok(o).build();
         else
           return Response.status(404).build();
+      });
+  }
+
+  @POST
+  @Path("{id}/binds")
+  public Uni<MscObject> bindFunction(String id,
+                                     List<MscFuncMetadata> funcMetadata) {
+    ObjectId oid = new ObjectId(id);
+    var oUni = objectRepo.findById(oid);
+    var fmUni = funcRepo.listByMeta(funcMetadata);
+    return Uni.combine().all()
+      .unis(oUni,fmUni)
+      .asTuple()
+      .flatMap(tuple -> {
+        var o = tuple.getItem1();
+        var fm = tuple.getItem2();
+        if (o == null || fm == null)
+          throw new NotFoundException();
+        for (MscFunction value : fm.values()) {
+          o.getFunctions()
+            .put(value.getName(), value.toMeta());
+        }
+        return objectRepo.update(o);
       });
   }
 
@@ -50,7 +78,17 @@ public class ObjectResource {
                                      String funcName,
                                      Map<String, String> args) {
     ObjectId oid = new ObjectId(id);
-    return objectRepo.lazyFuncCall(oid, funcName, args);
+    var oUni = objectRepo.findById(oid);
+    var fUni = funcRepo.findByName(funcName);
+    return Uni.combine().all()
+      .unis(oUni,fUni)
+      .asTuple()
+      .flatMap(tuple -> {
+        if (tuple.getItem1() == null || tuple.getItem2() == null)
+          throw new NotFoundException();
+        return objectRepo.lazyFuncCall(tuple.getItem1(),
+          tuple.getItem2(), args);
+      });
   }
 
 

@@ -18,6 +18,8 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @TestHTTPEndpoint(ObjectResource.class)
 public class ObjectResourceTest {
+
+
   @BeforeAll
   static void setup() {
     RestAssured.filters(new RequestLoggingFilter(),
