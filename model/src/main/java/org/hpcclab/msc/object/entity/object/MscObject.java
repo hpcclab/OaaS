@@ -27,6 +27,7 @@ public class MscObject {
   //  Map<String, MscFuncMetadata> functions;
   List<String> functions;
   MscObjectState state;
+  Map<String, ObjectId> members;
 
   public enum Type {
     RESOURCE,
@@ -40,7 +41,8 @@ public class MscObject {
       type,
       labels == null? null :Map.copyOf(labels),
       functions == null? null: List.copyOf(functions),
-      state
+      state,
+      members == null? null :Map.copyOf(members)
     );
   }
 }
