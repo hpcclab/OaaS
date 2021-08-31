@@ -1,4 +1,20 @@
 "%test":
   quarkus:
-    mongodb:
-      database: test
+    log:
+      console:
+        color: true
+"%dev":
+  quarkus:
+    log:
+      console:
+        color: true
+
+quarkus:
+
+  http:
+    access-log:
+      enabled: true
+  mongodb:
+    devservices:
+      port: 27017
+    database: msc-object

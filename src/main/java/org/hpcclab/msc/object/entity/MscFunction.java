@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
+import org.hpcclab.msc.object.entity.object.MscObject;
+
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -15,9 +18,12 @@ public class MscFunction {
   ObjectId id;
   String name;
   String type;
-  boolean splittable = true;
+  boolean reactive = false;
+  List<MscObject> outputTemplate;
+
 
   public MscFuncMetadata toMeta() {
     return new MscFuncMetadata().setName(name);
   }
+
 }

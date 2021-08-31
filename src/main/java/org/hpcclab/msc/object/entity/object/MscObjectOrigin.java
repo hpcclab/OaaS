@@ -1,4 +1,4 @@
-package org.hpcclab.msc.object.entity;
+package org.hpcclab.msc.object.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

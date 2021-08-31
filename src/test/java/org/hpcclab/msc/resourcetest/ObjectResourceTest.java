@@ -6,6 +6,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hamcrest.Matchers;
+import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.RootMscObjectCreating;
 import org.hpcclab.msc.object.resource.ObjectResource;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +30,7 @@ public class ObjectResourceTest {
   @Test
   void test() {
     var root = new RootMscObjectCreating()
-      .setType("test")
+      .setType(MscObject.Type.RESOURCE)
       .setSourceUrl("http://test/test.m3u8");
     var id = given()
       .contentType(MediaType.APPLICATION_JSON)

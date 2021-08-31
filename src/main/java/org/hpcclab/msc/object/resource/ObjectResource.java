@@ -1,14 +1,19 @@
 package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import org.bson.types.ObjectId;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
-import org.hpcclab.msc.object.entity.MscObject;
+import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.RootMscObjectCreating;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -21,6 +26,7 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/objects")
 public class ObjectResource {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResource.class );
   @Inject
   MscObjectRepository objectRepo;
   @Inject
@@ -33,6 +39,7 @@ public class ObjectResource {
 
   @POST
   public Uni<MscObject> createRoot(RootMscObjectCreating creating) {
+    LOGGER.info("createRoot");
     return objectRepo.createRootAndPersist(creating);
   }
 
@@ -60,6 +67,7 @@ public class ObjectResource {
       .unis(oUni,fmUni)
       .asTuple()
       .flatMap(tuple -> {
+        LOGGER.info("get tuple {} {}", tuple.getItem1(), tuple.getItem2());
         var o = tuple.getItem1();
         var fm = tuple.getItem2();
         if (o == null || fm == null)
@@ -96,6 +104,8 @@ public class ObjectResource {
   @ServerExceptionMapper
   public Response exceptionMapper(IllegalArgumentException illegalArgumentException) {
     return Response.status(404)
+      .entity(new JsonObject()
+        .put("msg", illegalArgumentException.getMessage()))
       .build();
   }
 }

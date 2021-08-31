@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
+import org.hpcclab.msc.object.entity.object.MscObject;
 
 import java.util.Map;
 
@@ -13,6 +14,6 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RootMscObjectCreating {
   String sourceUrl;
-  String type;
+  MscObject.Type type;
   Map<String, MscFuncMetadata> functions = Map.of();
 }
