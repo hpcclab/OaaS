@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hamcrest.Matchers;
+import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.RootMscObjectCreating;
@@ -41,7 +42,7 @@ public class FunctionCallTest {
       .extract().body().as(MscObject.class);
 
     var baseFunc = new MscFunction()
-      .setName("buildIn.test")
+      .setName("buildin.test")
       .setType("test");
 
     var func = given()
@@ -51,13 +52,13 @@ public class FunctionCallTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.notNullValue())
       .extract().body().as(MscFunction.class);
+
 
     // bind function to object
     obj = given()
       .contentType(MediaType.APPLICATION_JSON)
-      .body(List.of(func.toMeta()))
+      .body(List.of(func.toMeta(), new MscFuncMetadata().setName("buildin.logical.copy")))
       .pathParam("oid", obj.getId().toString())
       .when().post("/api/objects/{oid}/binds")
       .then()
@@ -71,7 +72,35 @@ public class FunctionCallTest {
       .body(Map.of())
       .pathParam("oid", obj.getId().toString())
       .pathParam("funcName", func.getName())
-      .when().post("/api/objects/{oid}/lazy-func-call/{funcName}")
+      .when().post("/api/objects/{oid}/rf-call/{funcName}")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("id", Matchers.notNullValue())
+      .extract().body().as(MscObject.class);
+  }
+
+  @Test
+  void testCopy() {
+    var root = new RootMscObjectCreating()
+      .setSourceUrl("http://test/test.m3u8")
+      .setFunctions(List.of("buildin.logical.copy"));
+    var obj = given()
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(root)
+      .when().post("/api/objects")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("id", Matchers.notNullValue())
+      .extract().body().as(MscObject.class);
+
+    var newObj = given()
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(Map.of())
+      .pathParam("oid", obj.getId().toString())
+      .pathParam("funcName", "buildin.logical.copy")
+      .when().post("/api/objects/{oid}/rf-call/{funcName}")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)

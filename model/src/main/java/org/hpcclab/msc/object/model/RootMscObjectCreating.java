@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.object.MscObject;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -14,5 +15,6 @@ import java.util.Map;
 public class RootMscObjectCreating {
   String sourceUrl;
   MscObject.Type type;
-  Map<String, MscFuncMetadata> functions = Map.of();
+//  Map<String, MscFuncMetadata> functions = Map.of();
+  List<String> functions = List.of();
 }

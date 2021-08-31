@@ -26,20 +26,4 @@ public class MscObjectRepository implements ReactivePanacheMongoRepository<MscOb
     return this.persist(object);
   }
 
-  public Uni<MscObject> lazyFuncCall(MscObject mscObject,
-                                     MscFunction function,
-                                     Map<String, String> args) {
-    var canInvoke = mscObject.getFunctions()
-      .containsKey(function.getName());
-    if (!canInvoke)
-      return Uni.createFrom().failure(new NoStackTraceThrowable("Can not call this function"));
-    var newObj = new MscObject()
-      .setOrigin(new MscObjectOrigin()
-        .setFuncName(function.getName())
-        .setArgs(args)
-        .setParentId(mscObject.getId())
-        .setRootId(mscObject.getOrigin().getRootId())
-      );
-    return persist(newObj);
-  }
 }

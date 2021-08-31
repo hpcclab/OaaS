@@ -1,6 +1,7 @@
 package org.hpcclab.msc.object.repository;
 
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepository;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
@@ -12,10 +13,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class MscFuncRepository implements ReactivePanacheMongoRepository<MscFunction> {
+public class MscFuncRepository implements ReactivePanacheMongoRepositoryBase<MscFunction, String> {
 
   public Uni<MscFunction> findByName(String name) {
-    return find("name", name)
+    return find("_id", name)
       .firstResult();
   }
 
@@ -23,7 +24,7 @@ public class MscFuncRepository implements ReactivePanacheMongoRepository<MscFunc
     var names = funcMetadataList
       .stream().map(MscFuncMetadata::getName)
       .collect(Collectors.toList());
-    return find("name in ?1", names)
+    return find("_id in ?1", names)
       .list()
       .map(l ->
         l.stream().collect(Collectors.toMap(MscFunction::getName, Function.identity()))

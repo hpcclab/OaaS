@@ -15,12 +15,12 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscFunction {
   @BsonId
-  ObjectId id;
   String name;
   String type;
   boolean reactive = false;
-  List<MscObject> outputTemplate;
-
+  MscObject outputTemplate;
+  List<ObjectValidation> inputs;
+  Task task;
 
   public MscFuncMetadata toMeta() {
     return new MscFuncMetadata().setName(name);

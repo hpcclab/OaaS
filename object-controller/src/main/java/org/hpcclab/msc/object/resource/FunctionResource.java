@@ -24,7 +24,6 @@ public class FunctionResource {
 
   @POST
   public Uni<MscFunction> create(MscFunction mscFunction) {
-    mscFunction.setId(null);
     return funcRepo.persist(mscFunction);
   }
 

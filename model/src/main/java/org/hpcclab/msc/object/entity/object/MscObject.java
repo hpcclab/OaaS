@@ -1,15 +1,21 @@
 package org.hpcclab.msc.object.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObject {
@@ -17,11 +23,24 @@ public class MscObject {
   ObjectId id;
   MscObjectOrigin origin;
   Type type;
-  Map<String, MscFuncMetadata> functions;
+  Map<String, String> labels;
+  //  Map<String, MscFuncMetadata> functions;
+  List<String> functions;
   MscObjectState state;
 
-  public enum Type{
+  public enum Type {
     RESOURCE,
     COMPOUND
+  }
+
+  public MscObject copy() {
+    return new MscObject(
+      id,
+      origin.copy(),
+      type,
+      labels == null? null :Map.copyOf(labels),
+      functions == null? null: List.copyOf(functions),
+      state
+    );
   }
 }
