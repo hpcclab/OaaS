@@ -1,7 +1,6 @@
 package org.hpcclab.msc.object.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;

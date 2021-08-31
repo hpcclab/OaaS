@@ -1,10 +1,8 @@
 package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.bson.types.ObjectId;
-import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;

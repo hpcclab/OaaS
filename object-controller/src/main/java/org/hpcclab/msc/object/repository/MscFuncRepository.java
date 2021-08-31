@@ -22,7 +22,7 @@ public class MscFuncRepository implements ReactivePanacheMongoRepository<MscFunc
   public Uni<Map<String, MscFunction>> listByMeta(List<MscFuncMetadata> funcMetadataList) {
     var names = funcMetadataList
       .stream().map(MscFuncMetadata::getName)
-      .toList();
+      .collect(Collectors.toList());
     return find("name in ?1", names)
       .list()
       .map(l ->
