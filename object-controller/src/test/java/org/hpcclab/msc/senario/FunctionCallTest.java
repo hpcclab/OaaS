@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hamcrest.Matchers;
+import org.hpcclab.msc.TestUtils;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.FileState;
@@ -34,20 +35,12 @@ public class FunctionCallTest {
     var root = new MscObject()
       .setType(MscObject.Type.RESOURCE)
       .setState(new FileState().setFileUrl("http://test/test.m3u8"));
-    var obj = given()
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(root)
-      .when().post("/api/objects")
-      .then()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(MscObject.class);
+    root = TestUtils.create(root);
 
     var newObj = given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Map.of())
-      .pathParam("oid", obj.getId().toString())
+      .pathParam("oid", root.getId().toString())
       .pathParam("funcName", "buildin.logical.copy")
       .when().post("/api/objects/{oid}/rf-call/{funcName}")
       .then()

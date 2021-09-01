@@ -12,17 +12,17 @@ import javax.inject.Inject;
 import java.util.Map;
 
 @ApplicationScoped
-public class FunctionCaller {
+public class FunctionHandler {
 
   @Inject
   MscObjectRepository objectRepo;
   @Inject
-  BuildInFunctionCaller buildInFunctionCaller;
+  LogicalFunctionHandler buildInFunctionCaller;
 
   public Uni<MscObject> reactiveFuncCall(MscObject mscObject,
                                          MscFunction function,
                                          Map<String, String> args) {
-    var canInvoke = mscObject.getFunctions()
+    var canInvoke = mscObject.getFunctions() == null || mscObject.getFunctions()
       .contains(function.getName());
     if (!canInvoke)
       return Uni.createFrom().failure(new NoStackTraceThrowable("Can not call this function"));
@@ -31,6 +31,7 @@ public class FunctionCaller {
       var newObj = buildInFunctionCaller.call(mscObject, function, args);
       return objectRepo.persist(newObj);
     }
+
     var newObj = new MscObject()
       .setOrigin(new MscObjectOrigin()
         .setFuncName(function.getName())

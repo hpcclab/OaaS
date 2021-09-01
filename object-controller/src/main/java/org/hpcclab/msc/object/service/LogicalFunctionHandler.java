@@ -7,7 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.Map;
 
 @ApplicationScoped
-public class BuildInFunctionCaller {
+public class LogicalFunctionHandler {
   public MscObject call(MscObject mscObject,
                         MscFunction function,
                         Map<String, String> args) {

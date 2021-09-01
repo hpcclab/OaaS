@@ -34,12 +34,13 @@ public class MscObject {
     COMPOUND
   }
 
-  public void removeIgnored() {
+  public void format() {
     if (type == Type.COMPOUND) {
       state = null;
     } else {
       members = null;
     }
+    if (origin == null) origin = new MscObjectOrigin().setRoot(true).setRootId(id);
   }
 
   public MscObject copy() {

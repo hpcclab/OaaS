@@ -1,8 +1,8 @@
 ---
 openapi: 3.0.3
 info:
-  title: Generated API
-  version: "1.0"
+  title: object-controller API
+  version: 0.1.0-SNAPSHOT
 paths:
   /api/functions:
     get:
@@ -251,7 +251,7 @@ components:
         reactive:
           type: boolean
         task:
-          $ref: '#/components/schemas/Task'
+          $ref: '#/components/schemas/TaskTemplate'
         type:
           $ref: '#/components/schemas/Type1'
     MscObject:
@@ -417,7 +417,7 @@ components:
         statusCode:
           format: int32
           type: integer
-    Task:
+    TaskTemplate:
       type: object
       properties:
         type:

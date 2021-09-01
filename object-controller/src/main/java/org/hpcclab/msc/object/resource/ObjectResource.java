@@ -7,10 +7,10 @@ import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.model.RootMscObjectCreating;
+import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
-import org.hpcclab.msc.object.service.FunctionCaller;
+import org.hpcclab.msc.object.service.FunctionHandler;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class ObjectResource {
   @Inject
   MscFuncRepository funcRepo;
   @Inject
-  FunctionCaller functionCaller;
+  FunctionHandler functionCaller;
 
   @GET
   public Uni<List<MscObject>> list() {
@@ -146,6 +145,14 @@ public class ObjectResource {
     return Response.fromResponse(webApplicationException.getResponse())
       .entity(new JsonObject()
         .put("msg", webApplicationException.getMessage()))
+      .build();
+  }
+
+  @ServerExceptionMapper
+  public Response exceptionMapper(NoStackException noStackException) {
+    return Response.status(noStackException.getCode())
+      .entity(new JsonObject()
+        .put("msg", noStackException.getMessage()))
       .build();
   }
 }

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.ObjectValidation;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class MscFunction {
   boolean reactive = false;
   MscObject outputTemplate;
   List<ObjectValidation> inputs;
-  Task task;
+  TaskTemplate task;
   Map<String, String> macroMapping;
 
   public MscFuncMetadata toMeta() {
