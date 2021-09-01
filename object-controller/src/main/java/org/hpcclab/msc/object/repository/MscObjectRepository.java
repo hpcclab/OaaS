@@ -15,14 +15,10 @@ import java.util.Map;
 @ApplicationScoped
 public class MscObjectRepository implements ReactivePanacheMongoRepository<MscObject> {
 
-  public Uni<MscObject> createRootAndPersist(RootMscObjectCreating creating) {
-    var object = new MscObject();
-    object
-//      .setType(creating.getType())
-      .setState(new FileState()
-        .setFileUrl(creating.getSourceUrl()))
-      .setFunctions(creating.getFunctions())
-      .setOrigin(new MscObjectOrigin().setRoot(true));
+  public Uni<MscObject> createRootAndPersist(MscObject object) {
+    object.setOrigin(null);
+    object.setId(null);
+    object.removeIgnored();
     return this.persist(object);
   }
 

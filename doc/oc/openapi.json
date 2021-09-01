@@ -1,0 +1,668 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "title" : "Generated API",
+    "version" : "1.0"
+  },
+  "paths" : {
+    "/api/functions" : {
+      "get" : {
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MscFunction"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MscFunction"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/functions/{funcName}" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "funcName",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects" : {
+      "get" : {
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MscObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MscObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MscObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects/{id}" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects/{id}/binds" : {
+      "post" : {
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MscObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects/{id}/rf-call/{funcName}" : {
+      "post" : {
+        "parameters" : [ {
+          "name" : "funcName",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MscObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "EntityTag" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string"
+          },
+          "weak" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Family" : {
+        "enum" : [ "CLIENT_ERROR", "INFORMATIONAL", "OTHER", "REDIRECTION", "SERVER_ERROR", "SUCCESSFUL" ],
+        "type" : "string"
+      },
+      "Link" : {
+        "type" : "object",
+        "properties" : {
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "rel" : {
+            "type" : "string"
+          },
+          "rels" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "uri" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "uriBuilder" : {
+            "$ref" : "#/components/schemas/UriBuilder"
+          }
+        }
+      },
+      "Locale" : {
+        "type" : "object",
+        "properties" : {
+          "country" : {
+            "type" : "string"
+          },
+          "displayCountry" : {
+            "type" : "string"
+          },
+          "displayLanguage" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "displayScript" : {
+            "type" : "string"
+          },
+          "displayVariant" : {
+            "type" : "string"
+          },
+          "extensionKeys" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "format" : "byte",
+              "type" : "string"
+            }
+          },
+          "iSO3Country" : {
+            "type" : "string"
+          },
+          "iSO3Language" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          },
+          "script" : {
+            "type" : "string"
+          },
+          "unicodeLocaleAttributes" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "unicodeLocaleKeys" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "variant" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MediaType" : {
+        "type" : "object",
+        "properties" : {
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "subtype" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "wildcardSubtype" : {
+            "type" : "boolean"
+          },
+          "wildcardType" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "MscFunction" : {
+        "type" : "object",
+        "properties" : {
+          "inputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectValidation"
+            }
+          },
+          "macroMapping" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "outputTemplate" : {
+            "$ref" : "#/components/schemas/MscObject"
+          },
+          "reactive" : {
+            "type" : "boolean"
+          },
+          "task" : {
+            "$ref" : "#/components/schemas/Task"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type1"
+          }
+        }
+      },
+      "MscObject" : {
+        "type" : "object",
+        "properties" : {
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/ObjectId"
+          },
+          "labels" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "members" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ObjectId"
+            }
+          },
+          "origin" : {
+            "$ref" : "#/components/schemas/MscObjectOrigin"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/MscObjectState"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type"
+          }
+        }
+      },
+      "MscObjectOrigin" : {
+        "type" : "object",
+        "properties" : {
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "funcName" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "$ref" : "#/components/schemas/ObjectId"
+          },
+          "root" : {
+            "type" : "boolean"
+          },
+          "rootId" : {
+            "$ref" : "#/components/schemas/ObjectId"
+          }
+        }
+      },
+      "MscObjectState" : {
+        "type" : "object"
+      },
+      "MultivaluedMapStringObject" : {
+        "type" : "object",
+        "additionalProperties" : {
+          "type" : "array",
+          "items" : { }
+        }
+      },
+      "MultivaluedMapStringString" : {
+        "type" : "object",
+        "additionalProperties" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "NewCookie" : {
+        "type" : "object",
+        "properties" : {
+          "domain" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "comment" : {
+            "type" : "string"
+          },
+          "expiry" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "httpOnly" : {
+            "type" : "boolean"
+          },
+          "maxAge" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "secure" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ObjectId" : {
+        "type" : "object",
+        "properties" : {
+          "counter" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "randomValue1" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "randomValue2" : {
+            "type" : "integer"
+          },
+          "timestamp" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }
+      },
+      "ObjectValidation" : {
+        "type" : "object",
+        "properties" : {
+          "requiredLabel" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "requiredStateType" : {
+            "type" : "string"
+          },
+          "requiredType" : {
+            "$ref" : "#/components/schemas/Type"
+          }
+        }
+      },
+      "Response" : {
+        "type" : "object",
+        "properties" : {
+          "allowedMethods" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "cookies" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/NewCookie"
+            }
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "entity" : {
+            "type" : "object"
+          },
+          "entityTag" : {
+            "$ref" : "#/components/schemas/EntityTag"
+          },
+          "headers" : {
+            "$ref" : "#/components/schemas/MultivaluedMapStringObject"
+          },
+          "language" : {
+            "$ref" : "#/components/schemas/Locale"
+          },
+          "lastModified" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "length" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "links" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            }
+          },
+          "location" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "mediaType" : {
+            "$ref" : "#/components/schemas/MediaType"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/MultivaluedMapStringObject"
+          },
+          "status" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "statusInfo" : {
+            "$ref" : "#/components/schemas/StatusType"
+          },
+          "stringHeaders" : {
+            "$ref" : "#/components/schemas/MultivaluedMapStringString"
+          }
+        }
+      },
+      "StatusType" : {
+        "type" : "object",
+        "properties" : {
+          "family" : {
+            "$ref" : "#/components/schemas/Family"
+          },
+          "reasonPhrase" : {
+            "type" : "string"
+          },
+          "statusCode" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "Task" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "$ref" : "#/components/schemas/Type2"
+          },
+          "values" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Type" : {
+        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "type" : "string"
+      },
+      "Type1" : {
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "type" : "string"
+      },
+      "Type2" : {
+        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "type" : "string"
+      },
+      "UriBuilder" : {
+        "type" : "object"
+      }
+    }
+  }
+}

@@ -1,7 +1,0 @@
-[{
-  "name": "buildin.logical.copy",
-  "type": "logical",
-  "reactive": false,
-  "outputTemplate": {},
-  "inputs": [{}]
-}]

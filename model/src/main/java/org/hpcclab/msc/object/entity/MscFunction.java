@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.object.MscObject;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -16,14 +17,20 @@ import java.util.List;
 public class MscFunction {
   @BsonId
   String name;
-  String type;
+  Type type;
   boolean reactive = false;
   MscObject outputTemplate;
   List<ObjectValidation> inputs;
   Task task;
+  Map<String, String> macroMapping;
 
   public MscFuncMetadata toMeta() {
     return new MscFuncMetadata().setName(name);
   }
 
+  public enum Type{
+    TASK,
+    MACRO,
+    LOGICAL
+  }
 }

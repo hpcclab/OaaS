@@ -42,8 +42,7 @@ public class ObjectResource {
   }
 
   @POST
-  public Uni<MscObject> createRoot(RootMscObjectCreating creating) {
-    LOGGER.info("createRoot");
+  public Uni<MscObject> createRoot(MscObject creating) {
     return objectRepo.createRootAndPersist(creating);
   }
 

@@ -8,13 +8,23 @@
     log:
       console:
         color: true
+    mongodb:
+      devservices:
+        port: 27017
+    http:
+      port: 8088
 
 quarkus:
-
   http:
     access-log:
       enabled: true
   mongodb:
     devservices:
-      port: 27017
+      image-name: mongo:5
     database: msc-object
+  vertx:
+    prefer-native-transport: true
+  swagger-ui:
+    always-include: true
+  smallrye-openapi:
+    store-schema-directory: ../doc/oc

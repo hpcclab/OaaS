@@ -1,0 +1,27 @@
+- name: buildin.hls.ts.transcode
+  type: TASK
+  reactive: true
+  outputTemplate:
+    type: RESOURCE
+    labels: {}
+    state:
+      type: STREAM_FILES
+  inputs:
+    - requiredType: RESOURCE
+      requiredStateType: STREAM_FILES
+  task:
+    type: EPHEMERAL_WORKER
+    values:
+      image: ''
+- name: buildin.hls.macro.transcode
+  type: TASK
+  reactive: true
+  outputTemplate:
+    type: COMPOUND
+    labels: {}
+  inputs:
+    - requiredType: COMPOUND
+  task:
+    type: EPHEMERAL_WORKER
+    values:
+      image: ''

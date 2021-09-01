@@ -17,7 +17,7 @@ spec:
         app: oc-mongo
     spec:
       containers:
-        - image: mongo:4.0
+        - image: mongo:5
           livenessProbe:
             exec:
               command:

@@ -34,6 +34,14 @@ public class MscObject {
     COMPOUND
   }
 
+  public void removeIgnored() {
+    if (type == Type.COMPOUND) {
+      state = null;
+    } else {
+      members = null;
+    }
+  }
+
   public MscObject copy() {
     return new MscObject(
       id,

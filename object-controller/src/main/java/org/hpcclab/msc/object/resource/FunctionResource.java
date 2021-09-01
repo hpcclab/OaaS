@@ -1,7 +1,9 @@
 package org.hpcclab.msc.object.resource;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.model.ErrorMessage;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 
 import javax.inject.Inject;
@@ -23,8 +25,19 @@ public class FunctionResource {
   }
 
   @POST
-  public Uni<MscFunction> create(MscFunction mscFunction) {
-    return funcRepo.persist(mscFunction);
+  public Uni<Response> create(MscFunction mscFunction) {
+    return funcRepo.findByName(mscFunction.getName())
+      .flatMap(fn -> {
+        if (fn != null) {
+          return Uni.createFrom()
+            .item(Response.status(HttpResponseStatus.CONFLICT.code())
+              .entity(new ErrorMessage().setMsg("Function with this name already exist."))
+              .build()
+            );
+        }
+        return funcRepo.persist(mscFunction)
+          .map(f -> Response.ok(f).build());
+      });
   }
 
   @GET

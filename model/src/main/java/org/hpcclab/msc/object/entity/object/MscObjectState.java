@@ -14,7 +14,9 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
   use = JsonTypeInfo.Id.NAME,
   property = "type")
 @JsonSubTypes({
-  @JsonSubTypes.Type(value=FileState.class, name="FILE"),
+  @JsonSubTypes.Type(value=FileState.class, name=FileState.TYPE),
+  @JsonSubTypes.Type(value=RecordState.class, name=RecordState.TYPE),
+  @JsonSubTypes.Type(value=StreamFilesState.class, name=StreamFilesState.TYPE),
 })
 @BsonDiscriminator(key = "type")
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -7,10 +7,12 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import java.util.Map;
 
+
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@BsonDiscriminator(key = "type", value = "RECORD")
+@BsonDiscriminator(key = "type", value = RecordState.TYPE)
 public class RecordState extends MscObjectState{
+  public static final String TYPE = "RECORD";
   Map<String, String> records;
 }

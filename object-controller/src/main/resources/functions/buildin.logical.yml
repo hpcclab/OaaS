@@ -1,0 +1,6 @@
+- name: buildin.logical.copy
+  type: LOGICAL
+  reactive: false
+  outputTemplate: {}
+  inputs:
+    - {}
