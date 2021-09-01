@@ -10,6 +10,12 @@ variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
   DOCKERFILE: src/main/docker/Dockerfile.jvm
   NATIVE_DOCKERFILE: src/main/docker/Dockerfile.multistage
+  # Instruct Testcontainers to use the daemon of DinD.
+  DOCKER_HOST: "tcp://docker:2375"
+  # Instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  # Improve performance with overlayfs.
+  DOCKER_DRIVER: overlay2
 
 maven:
   cache:
