@@ -2,5 +2,5 @@
   type: LOGICAL
   reactive: false
   outputTemplate: {}
-  inputs:
-    - {}
+  bindingRequirement: {}
+  additionalInputs: []

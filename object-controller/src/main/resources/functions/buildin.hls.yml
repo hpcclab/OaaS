@@ -6,9 +6,10 @@
     labels: {}
     state:
       type: STREAM_FILES
-  inputs:
-    - requiredType: RESOURCE
-      requiredStateType: STREAM_FILES
+  bindingRequirement:
+    requiredType: RESOURCE
+    requiredStateType: STREAM_FILES
+  additionalInput: []
   task:
     type: EPHEMERAL_WORKER
     values:
@@ -19,8 +20,15 @@
   outputTemplate:
     type: COMPOUND
     labels: {}
-  inputs:
-    - requiredType: COMPOUND
+    memberToOutput:
+      m3u8: copy
+      segments: transode
+  bindingRequirement:
+    requiredType: COMPOUND
+  macroMapping:
+    m3u8: buildin.logical.copy
+    segments: buildin.hls.ts.transcode
+  additionalInput: [ ]
   task:
     type: EPHEMERAL_WORKER
     values:

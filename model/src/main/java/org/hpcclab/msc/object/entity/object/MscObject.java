@@ -2,13 +2,12 @@ package org.hpcclab.msc.object.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
-import org.hpcclab.msc.object.entity.MscFuncMetadata;
+import org.hpcclab.msc.object.entity.state.MscObjectState;
 
 import java.util.List;
 import java.util.Map;

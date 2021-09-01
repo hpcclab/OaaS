@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.object.ObjectValidation;
+import org.hpcclab.msc.object.entity.object.MscObjectRequirement;
+import org.hpcclab.msc.object.entity.object.MscObjectTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,11 @@ public class MscFunction {
   String name;
   Type type;
   boolean reactive = false;
-  MscObject outputTemplate;
-  List<ObjectValidation> inputs;
+  MscObjectTemplate outputTemplate;
+  MscObjectRequirement bindingRequirement;
+  List<MscObjectRequirement> additionalInputs = List.of();
   TaskTemplate task;
+  // memberToFunction
   Map<String, String> macroMapping;
 
   public MscFuncMetadata toMeta() {

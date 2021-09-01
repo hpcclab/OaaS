@@ -1,8 +1,8 @@
 ---
 openapi: 3.0.3
 info:
-  title: object-controller API
-  version: 0.1.0-SNAPSHOT
+  title: Generated API
+  version: "1.0"
 paths:
   /api/functions:
     get:
@@ -236,10 +236,12 @@ components:
     MscFunction:
       type: object
       properties:
-        inputs:
+        additionalInputs:
           type: array
           items:
-            $ref: '#/components/schemas/ObjectValidation'
+            $ref: '#/components/schemas/ObjectRequirement'
+        bindingRequirement:
+          $ref: '#/components/schemas/ObjectRequirement'
         macroMapping:
           type: object
           additionalProperties:
@@ -348,7 +350,7 @@ components:
         date:
           format: date
           type: string
-    ObjectValidation:
+    ObjectRequirement:
       type: object
       properties:
         requiredLabel:
