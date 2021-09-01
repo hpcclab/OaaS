@@ -1,0 +1,3 @@
+resources:
+  - oc.yml
+  - oc-mongo.yml

@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oc-mongo
+  name: oc-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oc-mongo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: oc-mongo
+    spec:
+      containers:
+        - image: mongo:4.0
+          livenessProbe:
+            exec:
+              command:
+                - echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+            failureThreshold: 2
+            periodSeconds: 15
+            timeoutSeconds: 5
+          name: oc-mongo
+          ports:
+            - containerPort: 27017
+          resources:
+            limits:
+              memory: 2G
+            requests:
+              cpu: 500m
+              memory: 256M
+          volumeMounts:
+            - mountPath: /data
+              name: oc-mongo-pvc
+      restartPolicy: Always
+      volumes:
+        - name: oc-mongo-pvc
+          persistentVolumeClaim:
+            claimName: oc-mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: oc-mongo
+  name: oc-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: askbyte-mongo
+  name: mongo
+spec:
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  selector:
+    app: askbyte-mongo
