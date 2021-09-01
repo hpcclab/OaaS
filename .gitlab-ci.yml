@@ -2,6 +2,10 @@ stages:
   - build
   - docker
 
+
+services:
+  - docker:dind
+
 variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
   DOCKERFILE: src/main/docker/Dockerfile.jvm
@@ -25,8 +29,6 @@ docker-build:
   # Use the official docker image.
   image: docker:latest
   stage: docker
-  services:
-    - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   # Default branch leaves tag empty (= latest tag)
