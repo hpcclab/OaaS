@@ -3,16 +3,20 @@ stages:
   - docker
 
 variables:
+  MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
   DOCKERFILE: src/main/docker/Dockerfile.jvm
   NATIVE_DOCKERFILE: src/main/docker/Dockerfile.multistage
 
 maven:
+  cache:
+    paths:
+      - .m2/repository
   stage: build
   image: maven:3.6-openjdk-16
   tags:
     - docker
   script:
-    - mvn package
+    - mvn $MAVEN_OPTS package
   artifacts:
     paths:
       - object-controller/target/
