@@ -9,7 +9,7 @@
   bindingRequirement:
     requiredType: RESOURCE
     requiredStateType: STREAM_FILES
-  additionalInput: []
+  additionalInputs: []
   task:
     type: EPHEMERAL_WORKER
     values:
@@ -28,7 +28,7 @@
   macroMapping:
     m3u8: buildin.logical.copy
     segments: buildin.hls.ts.transcode
-  additionalInput: [ ]
+  additionalInputs: []
   task:
     type: EPHEMERAL_WORKER
     values:

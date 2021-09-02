@@ -1,8 +1,8 @@
 ---
 openapi: 3.0.3
 info:
-  title: Generated API
-  version: "1.0"
+  title: object-controller API
+  version: 0.1.0-SNAPSHOT
 paths:
   /api/functions:
     get:
@@ -239,9 +239,9 @@ components:
         additionalInputs:
           type: array
           items:
-            $ref: '#/components/schemas/ObjectRequirement'
+            $ref: '#/components/schemas/MscObjectRequirement'
         bindingRequirement:
-          $ref: '#/components/schemas/ObjectRequirement'
+          $ref: '#/components/schemas/MscObjectRequirement'
         macroMapping:
           type: object
           additionalProperties:
@@ -249,13 +249,13 @@ components:
         name:
           type: string
         outputTemplate:
-          $ref: '#/components/schemas/MscObject'
+          $ref: '#/components/schemas/MscObjectTemplate'
         reactive:
           type: boolean
         task:
           $ref: '#/components/schemas/TaskTemplate'
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/Type'
     MscObject:
       type: object
       properties:
@@ -278,7 +278,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type2'
     MscObjectOrigin:
       type: object
       properties:
@@ -294,8 +294,50 @@ components:
           type: boolean
         rootId:
           $ref: '#/components/schemas/ObjectId'
+    MscObjectRequirement:
+      type: object
+      properties:
+        requiredLabel:
+          type: object
+          additionalProperties:
+            type: string
+        requiredStateType:
+          type: string
+        requiredType:
+          $ref: '#/components/schemas/Type2'
     MscObjectState:
       type: object
+    MscObjectTemplate:
+      type: object
+      properties:
+        functions:
+          type: array
+          items:
+            type: string
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+        members:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ObjectId'
+        origin:
+          $ref: '#/components/schemas/MscObjectOrigin'
+        state:
+          $ref: '#/components/schemas/MscObjectState'
+        type:
+          $ref: '#/components/schemas/Type2'
+        memberTemplate:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MscObject'
+        memberToOutput:
+          type: object
+          additionalProperties:
+            type: string
     MultivaluedMapStringObject:
       type: object
       additionalProperties:
@@ -350,17 +392,6 @@ components:
         date:
           format: date
           type: string
-    ObjectRequirement:
-      type: object
-      properties:
-        requiredLabel:
-          type: object
-          additionalProperties:
-            type: string
-        requiredStateType:
-          type: string
-        requiredType:
-          $ref: '#/components/schemas/Type'
     Response:
       type: object
       properties:
@@ -423,28 +454,28 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type1'
         values:
           type: object
           additionalProperties:
             type: string
     Type:
       enum:
-      - COMPOUND
-      - RESOURCE
-      type: string
-    Type1:
-      enum:
       - LOGICAL
       - MACRO
       - TASK
       type: string
-    Type2:
+    Type1:
       enum:
       - DURABLE_WORKER
       - EPHEMERAL_WORKER
       - HTTP
       - LOGICAL
+      type: string
+    Type2:
+      enum:
+      - COMPOUND
+      - RESOURCE
       type: string
     UriBuilder:
       type: object
