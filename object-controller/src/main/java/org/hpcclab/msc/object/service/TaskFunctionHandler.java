@@ -1,6 +1,5 @@
 package org.hpcclab.msc.object.service;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.object.MscObjectOrigin;

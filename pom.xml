@@ -8,8 +8,10 @@
   <packaging>pom</packaging>
   <version>0.1.0-SNAPSHOT</version>
   <modules>
-    <module>model</module>
+    <module>common/model</module>
+    <module>common/service-interface</module>
     <module>object-controller</module>
+    <module>task-generator</module>
   </modules>
 
   <properties>

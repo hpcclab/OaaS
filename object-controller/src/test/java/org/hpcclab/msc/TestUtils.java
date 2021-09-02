@@ -3,7 +3,6 @@ package org.hpcclab.msc;
 import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;
 import org.hamcrest.Matchers;
-import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 
@@ -11,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 

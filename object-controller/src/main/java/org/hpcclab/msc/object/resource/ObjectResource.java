@@ -10,10 +10,12 @@ import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.hpcclab.msc.object.service.FunctionRouter;
+import org.hpcclab.msc.object.service.ObjectService;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,10 +23,11 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-@Path("/api/objects")
-public class ObjectResource {
+//@Consumes(MediaType.APPLICATION_JSON)
+//@Produces(MediaType.APPLICATION_JSON)
+//@Path("/api/objects")
+@ApplicationScoped
+public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResource.class );
   @Inject
   MscObjectRepository objectRepo;
@@ -33,31 +36,30 @@ public class ObjectResource {
   @Inject
   FunctionRouter functionRouter;
 
-  @GET
+//  @GET
   public Uni<List<MscObject>> list() {
     return objectRepo.listAll();
   }
 
-  @POST
-  public Uni<MscObject> createRoot(MscObject creating) {
+//  @POST
+  public Uni<MscObject> create(MscObject creating) {
     return objectRepo.createRootAndPersist(creating);
   }
 
-  @GET
-  @Path("{id}")
-  public Uni<Response> get(String id) {
+//  @GET
+//  @Path("{id}")
+  public Uni<MscObject> get(String id) {
     ObjectId oid = new ObjectId(id);
     return objectRepo.findById(oid)
       .map(o -> {
         if (o != null)
-          return Response.ok(o).build();
-        else
-          return Response.status(404).build();
+          return o;
+        throw new NotFoundException();
       });
   }
 
-  @POST
-  @Path("{id}/binds")
+//  @POST
+//  @Path("{id}/binds")
   public Uni<MscObject> bindFunction(String id,
                                      List<String> funcNames) {
     ObjectId oid = new ObjectId(id);
@@ -104,8 +106,8 @@ public class ObjectResource {
 //      });
 //  }
 
-  @POST
-  @Path("{id}/rf-call")
+//  @POST
+//  @Path("{id}/rf-call")
   public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }

@@ -4,51 +4,42 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.model.ErrorMessage;
+import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
+import org.hpcclab.msc.object.service.FunctionService;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-@Path("/api/functions")
-public class FunctionResource {
+@ApplicationScoped
+public class FunctionResource implements FunctionService {
   @Inject
   MscFuncRepository funcRepo;
 
-  @GET
   public Uni<List<MscFunction>> list() {
     return funcRepo.listAll();
   }
 
-  @POST
-  public Uni<Response> create(MscFunction mscFunction) {
+  public Uni<MscFunction> create(MscFunction mscFunction) {
     return funcRepo.findByName(mscFunction.getName())
       .flatMap(fn -> {
         if (fn != null) {
-          return Uni.createFrom()
-            .item(Response.status(HttpResponseStatus.CONFLICT.code())
-              .entity(new ErrorMessage().setMsg("Function with this name already exist."))
-              .build()
-            );
+          throw new NoStackException("Function with this name already exist.")
+            .setCode(HttpResponseStatus.CONFLICT.code());
         }
-        return funcRepo.persist(mscFunction)
-          .map(f -> Response.ok(f).build());
+        return funcRepo.persist(mscFunction);
       });
   }
 
-  @GET
-  @Path("{funcName}")
-  public Uni<Response> get(String funcName) {
+  public Uni<MscFunction> get(String funcName) {
     return funcRepo.findByName(funcName)
-      .map(f -> {
-        if (f!=null)
-          return Response.ok(f).build();
-        else
-          return Response.status(404).build();
+      .invoke(f -> {
+        if (f==null)
+          throw new NotFoundException();
       });
   }
 }

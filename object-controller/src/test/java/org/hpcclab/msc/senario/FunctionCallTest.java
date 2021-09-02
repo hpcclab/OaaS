@@ -4,17 +4,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
-import org.hamcrest.Matchers;
 import org.hpcclab.msc.TestUtils;
 import org.hpcclab.msc.object.entity.state.FileState;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.MediaType;
-
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 

@@ -1,11 +1,9 @@
 package org.hpcclab.msc.object.service;
 
-import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.Map;
 
 @ApplicationScoped
 public class LogicalFunctionHandler {

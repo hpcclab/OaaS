@@ -3,7 +3,6 @@ package org.hpcclab.msc.object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.StartupEvent;
-import io.vertx.core.json.Json;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.slf4j.Logger;
@@ -11,8 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

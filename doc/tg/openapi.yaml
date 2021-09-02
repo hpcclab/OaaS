@@ -1,26 +1,11 @@
 ---
 openapi: 3.0.3
 info:
-  title: object-controller API
+  title: task-generator API
   version: 0.1.0-SNAPSHOT
 paths:
-  /api/functions:
+  /api/tasks:
     get:
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MscFunction'
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MscFunction'
       responses:
         "200":
           description: OK
@@ -28,110 +13,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MscFunction'
-  /api/functions/{funcName}:
-    get:
-      parameters:
-      - name: funcName
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscFunction'
-  /api/objects:
-    get:
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MscObject'
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MscObject'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscObject'
-  /api/objects/{id}:
-    get:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscObject'
-  /api/objects/{id}/binds:
-    post:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscObject'
-  /api/objects/{id}/rf-call:
-    post:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscObject'
 components:
   schemas:
     MscFunction:
@@ -157,29 +38,6 @@ components:
           $ref: '#/components/schemas/TaskTemplate'
         type:
           $ref: '#/components/schemas/Type'
-    MscObject:
-      type: object
-      properties:
-        functions:
-          type: array
-          items:
-            type: string
-        id:
-          $ref: '#/components/schemas/ObjectId'
-        labels:
-          type: object
-          additionalProperties:
-            type: string
-        members:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ObjectId'
-        origin:
-          $ref: '#/components/schemas/MscObjectOrigin'
-        state:
-          $ref: '#/components/schemas/MscObjectState'
-        type:
-          $ref: '#/components/schemas/Type2'
     MscObjectOrigin:
       type: object
       properties:
