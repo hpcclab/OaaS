@@ -7,10 +7,11 @@ import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
-import org.hpcclab.msc.object.service.FunctionHandler;
+import org.hpcclab.msc.object.service.FunctionRouter;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,7 +33,7 @@ public class ObjectResource {
   @Inject
   MscFuncRepository funcRepo;
   @Inject
-  FunctionHandler functionCaller;
+  FunctionRouter functionCaller;
 
   @GET
   public Uni<List<MscObject>> list() {
@@ -108,26 +108,9 @@ public class ObjectResource {
 //  }
 
   @POST
-  @Path("{id}/rf-call/{funcName}")
-  public Uni<MscObject> reactiveFuncCall(String id,
-                                     String funcName,
-                                     Map<String, String> args) {
-    ObjectId oid = new ObjectId(id);
-    var oUni = objectRepo.findById(oid);
-    var fUni = funcRepo.findByName(funcName);
-    return Uni.combine().all()
-      .unis(oUni,fUni)
-      .asTuple()
-      .flatMap(tuple -> {
-        if (tuple.getItem1() == null) {
-          throw new NotFoundException("Not found object");
-        }
-        if (tuple.getItem2() == null) {
-          throw new NotFoundException("Not found function");
-        }
-        return functionCaller.reactiveFuncCall(tuple.getItem1(),
-          tuple.getItem2(), args);
-      });
+  @Path("{id}/rf-call")
+  public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
+    return functionCaller.reactiveFuncCall(request.setTarget(new ObjectId(id)));
   }
 
 

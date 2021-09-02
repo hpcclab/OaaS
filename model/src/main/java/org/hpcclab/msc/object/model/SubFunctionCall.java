@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Map;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Macro2FunctionCall {
+public class SubFunctionCall {
   String funcName;
-  Map<String, Integer>  inputMap;
+  String target;
+  List<String> inputRefs = List.of();
 }

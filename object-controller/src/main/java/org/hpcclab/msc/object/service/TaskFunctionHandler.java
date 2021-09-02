@@ -1,18 +1,28 @@
 package org.hpcclab.msc.object.service;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.MscFunction;
+import io.vertx.core.impl.NoStackTraceThrowable;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.model.FunctionExecContext;
+import org.hpcclab.msc.object.model.NoStackException;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class TaskFunctionHandler {
-  public Uni<List<MscObject>> call(MscObject main,
-                                   MscFunction function,
-                                   Map<String, String> args) {
-    return null;
+
+  public void validate(FunctionExecContext context) {
+    if (!context.getTarget().getFunctions().contains(context.getFunction().getName()))
+      throw new NoStackException("Can not call this function")
+        .setCode(400);
+  }
+
+  public Uni<MscObject> call(FunctionExecContext context) {
+    throw new NoStackException("Not implemented").setCode(HttpResponseStatus.NOT_IMPLEMENTED.code());
+  }
+
+  public Uni<MscObject> subCall(FunctionExecContext context) {
+    throw new NoStackException("Not implemented").setCode(HttpResponseStatus.NOT_IMPLEMENTED.code());
   }
 }

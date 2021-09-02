@@ -12,6 +12,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObjectTemplate extends MscObject{
-  Map<String, MscObject> memberTemplate;
-  Map<String,String> memberToOutput;
+  public MscObject toObject() {
+    return this.copy();
+  }
 }

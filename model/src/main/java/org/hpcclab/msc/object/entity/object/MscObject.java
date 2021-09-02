@@ -24,7 +24,7 @@ public class MscObject {
   Type type;
   Map<String, String> labels;
   //  Map<String, MscFuncMetadata> functions;
-  List<String> functions;
+  List<String> functions = List.of();
   MscObjectState state;
   Map<String, ObjectId> members;
 
