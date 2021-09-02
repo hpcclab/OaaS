@@ -10,6 +10,6 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 @BsonDiscriminator(key = "type", value = FileState.TYPE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FileState extends MscObjectState{
-  public static final String TYPE = "RECORD";
+  public static final String TYPE = "FILE";
   String fileUrl;
 }

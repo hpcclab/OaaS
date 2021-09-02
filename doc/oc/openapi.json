@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
-    "version" : "0.1.0-SNAPSHOT"
+    "title" : "Generated API",
+    "version" : "1.0"
   },
   "paths" : {
     "/api/functions" : {
@@ -188,16 +188,9 @@
         }
       }
     },
-    "/api/objects/{id}/rf-call/{funcName}" : {
+    "/api/objects/{id}/rf-call" : {
       "post" : {
         "parameters" : [ {
-          "name" : "funcName",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
           "name" : "id",
           "in" : "path",
           "required" : true,
@@ -374,12 +367,6 @@
           "bindingRequirement" : {
             "$ref" : "#/components/schemas/MscObjectRequirement"
           },
-          "macroMapping" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
           "name" : {
             "type" : "string"
           },
@@ -389,11 +376,17 @@
           "reactive" : {
             "type" : "boolean"
           },
+          "subFunctions" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/SubFunctionCall"
+            }
+          },
           "task" : {
             "$ref" : "#/components/schemas/TaskTemplate"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type1"
           }
         }
       },
@@ -428,13 +421,19 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
       "MscObjectOrigin" : {
         "type" : "object",
         "properties" : {
+          "additionalInputRefs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectId"
+            }
+          },
           "args" : {
             "type" : "object",
             "additionalProperties" : {
@@ -468,7 +467,7 @@
             "type" : "string"
           },
           "requiredType" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -506,19 +505,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
-          },
-          "memberTemplate" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/MscObject"
-            }
-          },
-          "memberToOutput" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -684,11 +671,28 @@
           }
         }
       },
+      "SubFunctionCall" : {
+        "type" : "object",
+        "properties" : {
+          "funcName" : {
+            "type" : "string"
+          },
+          "inputRefs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "target" : {
+            "type" : "string"
+          }
+        }
+      },
       "TaskTemplate" : {
         "type" : "object",
         "properties" : {
           "type" : {
-            "$ref" : "#/components/schemas/Type1"
+            "$ref" : "#/components/schemas/Type2"
           },
           "values" : {
             "type" : "object",
@@ -699,15 +703,15 @@
         }
       },
       "Type" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "enum" : [ "COMPOUND", "RESOURCE" ],
         "type" : "string"
       },
       "Type1" : {
-        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
         "type" : "string"
       },
       "Type2" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
         "type" : "string"
       },
       "UriBuilder" : {

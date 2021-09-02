@@ -8,6 +8,7 @@ import org.hamcrest.Matchers;
 import org.hpcclab.msc.TestUtils;
 import org.hpcclab.msc.object.entity.state.FileState;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -32,16 +33,7 @@ public class FunctionCallTest {
       .setState(new FileState().setFileUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
 
-    var newObj = given()
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(Map.of())
-      .pathParam("oid", root.getId().toString())
-      .pathParam("funcName", "buildin.logical.copy")
-      .when().post("/api/objects/{oid}/rf-call/{funcName}")
-      .then()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(MscObject.class);
+    var newObj = TestUtils.fnCall(
+      new FunctionCallRequest().setFunctionName("buildin.logical.copy").setTarget(root.getId()));
   }
 }

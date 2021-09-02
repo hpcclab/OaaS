@@ -1,8 +1,8 @@
 ---
 openapi: 3.0.3
 info:
-  title: object-controller API
-  version: 0.1.0-SNAPSHOT
+  title: Generated API
+  version: "1.0"
 paths:
   /api/functions:
     get:
@@ -112,14 +112,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MscObject'
-  /api/objects/{id}/rf-call/{funcName}:
+  /api/objects/{id}/rf-call:
     post:
       parameters:
-      - name: funcName
-        in: path
-        required: true
-        schema:
-          type: string
       - name: id
         in: path
         required: true
@@ -242,20 +237,20 @@ components:
             $ref: '#/components/schemas/MscObjectRequirement'
         bindingRequirement:
           $ref: '#/components/schemas/MscObjectRequirement'
-        macroMapping:
-          type: object
-          additionalProperties:
-            type: string
         name:
           type: string
         outputTemplate:
           $ref: '#/components/schemas/MscObjectTemplate'
         reactive:
           type: boolean
+        subFunctions:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SubFunctionCall'
         task:
           $ref: '#/components/schemas/TaskTemplate'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type1'
     MscObject:
       type: object
       properties:
@@ -278,10 +273,14 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectOrigin:
       type: object
       properties:
+        additionalInputRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectId'
         args:
           type: object
           additionalProperties:
@@ -304,7 +303,7 @@ components:
         requiredStateType:
           type: string
         requiredType:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectState:
       type: object
     MscObjectTemplate:
@@ -329,15 +328,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
-        memberTemplate:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/MscObject'
-        memberToOutput:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/Type'
     MultivaluedMapStringObject:
       type: object
       additionalProperties:
@@ -450,32 +441,43 @@ components:
         statusCode:
           format: int32
           type: integer
+    SubFunctionCall:
+      type: object
+      properties:
+        funcName:
+          type: string
+        inputRefs:
+          type: array
+          items:
+            type: string
+        target:
+          type: string
     TaskTemplate:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/Type2'
         values:
           type: object
           additionalProperties:
             type: string
     Type:
       enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    Type1:
+      enum:
       - LOGICAL
       - MACRO
       - TASK
       type: string
-    Type1:
+    Type2:
       enum:
       - DURABLE_WORKER
       - EPHEMERAL_WORKER
       - HTTP
       - LOGICAL
-      type: string
-    Type2:
-      enum:
-      - COMPOUND
-      - RESOURCE
       type: string
     UriBuilder:
       type: object

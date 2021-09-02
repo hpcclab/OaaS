@@ -15,7 +15,6 @@ import java.util.function.Function;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext {
-  FunctionCallRequest request;
   MscObject target;
   MscObject compound;
   Map<String, MscObject> members = Map.of();

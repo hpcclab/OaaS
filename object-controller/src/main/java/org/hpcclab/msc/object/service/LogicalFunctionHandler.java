@@ -16,4 +16,8 @@ public class LogicalFunctionHandler {
       return null;
     }
   }
+
+  public void validate(FunctionExecContext context) {
+
+  }
 }

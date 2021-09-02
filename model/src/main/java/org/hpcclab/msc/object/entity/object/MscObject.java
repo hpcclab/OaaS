@@ -34,23 +34,23 @@ public class MscObject {
   }
 
   public void format() {
-    if (type == Type.COMPOUND) {
+    if (type==Type.COMPOUND) {
       state = null;
     } else {
       members = null;
     }
-    if (origin == null) origin = new MscObjectOrigin().setRoot(true).setRootId(id);
+    if (origin==null) origin = new MscObjectOrigin().setRoot(true).setRootId(id);
   }
 
   public MscObject copy() {
     return new MscObject(
       id,
-      origin.copy(),
+      origin==null ? null:origin.copy(),
       type,
-      labels == null? null :Map.copyOf(labels),
-      functions == null? null: List.copyOf(functions),
+      labels==null ? null:Map.copyOf(labels),
+      functions==null ? null:List.copyOf(functions),
       state,
-      members == null? null :Map.copyOf(members)
+      members==null ? null:Map.copyOf(members)
     );
   }
 }

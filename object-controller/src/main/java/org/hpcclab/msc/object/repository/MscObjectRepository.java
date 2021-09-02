@@ -20,6 +20,6 @@ public class MscObjectRepository implements ReactivePanacheMongoRepository<MscOb
   }
 
   public Uni<List<MscObject>> listByIds(Collection<ObjectId> ids) {
-    return find("id in ?1", ids).list();
+    return find("_id in ?1", ids).list();
   }
 }

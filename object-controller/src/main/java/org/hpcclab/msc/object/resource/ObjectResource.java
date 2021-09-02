@@ -1,10 +1,8 @@
 package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.bson.types.ObjectId;
-import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
@@ -33,7 +31,7 @@ public class ObjectResource {
   @Inject
   MscFuncRepository funcRepo;
   @Inject
-  FunctionRouter functionCaller;
+  FunctionRouter functionRouter;
 
   @GET
   public Uni<List<MscObject>> list() {
@@ -61,10 +59,10 @@ public class ObjectResource {
   @POST
   @Path("{id}/binds")
   public Uni<MscObject> bindFunction(String id,
-                                     List<MscFuncMetadata> funcMetadata) {
+                                     List<String> funcNames) {
     ObjectId oid = new ObjectId(id);
     var oUni = objectRepo.findById(oid);
-    var fmUni = funcRepo.listByMeta(funcMetadata);
+    var fmUni = funcRepo.listByNames(funcNames);
     return Uni.combine().all()
       .unis(oUni,fmUni)
       .asTuple()
@@ -79,11 +77,10 @@ public class ObjectResource {
           throw new NotFoundException("Not found function");
         }
         if (o.getFunctions()== null) o.setFunctions(new ArrayList<>());
-        for (MscFunction value : fm.values()) {
+        for (MscFunction value : fm) {
           o.getFunctions()
             .add(value.getName());
         }
-        LOGGER.info("object \n{}", Json.encodePrettily(o));
         return objectRepo.update(o);
       });
   }
@@ -110,7 +107,7 @@ public class ObjectResource {
   @POST
   @Path("{id}/rf-call")
   public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
-    return functionCaller.reactiveFuncCall(request.setTarget(new ObjectId(id)));
+    return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }
 
 
