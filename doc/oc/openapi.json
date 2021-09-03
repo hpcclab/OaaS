@@ -255,7 +255,7 @@
             "$ref" : "#/components/schemas/TaskTemplate"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type1"
           }
         }
       },
@@ -290,7 +290,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -336,7 +336,7 @@
             "type" : "string"
           },
           "requiredType" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -374,7 +374,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -423,7 +423,7 @@
         "type" : "object",
         "properties" : {
           "type" : {
-            "$ref" : "#/components/schemas/Type1"
+            "$ref" : "#/components/schemas/Type2"
           },
           "values" : {
             "type" : "object",
@@ -434,15 +434,15 @@
         }
       },
       "Type" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "enum" : [ "COMPOUND", "RESOURCE" ],
         "type" : "string"
       },
       "Type1" : {
-        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
         "type" : "string"
       },
       "Type2" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
         "type" : "string"
       }
     }

@@ -156,7 +156,7 @@ components:
         task:
           $ref: '#/components/schemas/TaskTemplate'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type1'
     MscObject:
       type: object
       properties:
@@ -179,7 +179,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectOrigin:
       type: object
       properties:
@@ -209,7 +209,7 @@ components:
         requiredStateType:
           type: string
         requiredType:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectState:
       type: object
     MscObjectTemplate:
@@ -234,7 +234,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     ObjectId:
       type: object
       properties:
@@ -267,26 +267,26 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/Type2'
         values:
           type: object
           additionalProperties:
             type: string
     Type:
       enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    Type1:
+      enum:
       - LOGICAL
       - MACRO
       - TASK
       type: string
-    Type1:
+    Type2:
       enum:
       - DURABLE_WORKER
       - EPHEMERAL_WORKER
       - HTTP
       - LOGICAL
-      type: string
-    Type2:
-      enum:
-      - COMPOUND
-      - RESOURCE
       type: string
