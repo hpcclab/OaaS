@@ -37,11 +37,13 @@ maven:
       mvn $MAVEN_OPTS package \
       -Dquarkus.container-image.image=${CI_REGISTRY_IMAGE}${tag} \
       -Dquarkus.container-image.username=${CI_REGISTRY_USER} \
-      -Dquarkus.container-image.password=${CI_REGISTRY_PASSWORD}
+      -Dquarkus.container-image.password=${CI_REGISTRY_PASSWORD} \
+      -Dquarkus.container-image.build=true \
+      -Dquarkus.container-image.push=true
 
-  artifacts:
-    paths:
-      - object-controller/target/
+#  artifacts:
+#    paths:
+#      - object-controller/target/
 
 #docker-build:
 #  # Use the official docker image.
