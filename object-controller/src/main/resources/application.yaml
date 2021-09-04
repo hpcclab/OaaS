@@ -33,3 +33,5 @@ quarkus:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
 
+  jib:
+    base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
