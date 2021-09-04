@@ -76,14 +76,14 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.11</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-container-image-jib</artifactId>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-docker</artifactId>
+      <artifactId>quarkus-container-image-jib</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-container-image-docker</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.msc</groupId>
       <artifactId>model</artifactId>
