@@ -62,6 +62,10 @@
       <artifactId>quarkus-smallrye-reactive-messaging-amqp</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-container-image-jib</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hpcclab.msc</groupId>
       <artifactId>model</artifactId>
       <version>${project.version}</version>
