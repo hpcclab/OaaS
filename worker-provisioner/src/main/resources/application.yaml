@@ -1,0 +1,11 @@
+quarkus:
+  http:
+    access-log:
+      enabled: true
+  vertx:
+    prefer-native-transport: true
+
+  container-image:
+    image: ${$CI_REGISTRY_IMAGE}/worker-provisioner${tag}
+  jib:
+    base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
