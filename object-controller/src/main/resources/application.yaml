@@ -32,4 +32,6 @@ quarkus:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
+  container-image:
+    image: ${$CI_REGISTRY_IMAGE}${tag}
 

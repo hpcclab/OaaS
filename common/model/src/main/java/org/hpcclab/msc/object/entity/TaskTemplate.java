@@ -13,6 +13,7 @@ public class TaskTemplate {
 
   Type type;
   Map<String, String> values;
+  boolean argsToEnv = true;
 
   public enum Type{
     LOGICAL, HTTP, DURABLE_WORKER, EPHEMERAL_WORKER
