@@ -6,19 +6,21 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
+import org.eclipse.microprofile.openapi.annotations.media.DiscriminatorMapping;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value=FileState.class, name=FileState.TYPE),
-  @JsonSubTypes.Type(value=RecordState.class, name=RecordState.TYPE),
-  @JsonSubTypes.Type(value=StreamFilesState.class, name=StreamFilesState.TYPE),
-})
-@BsonDiscriminator(key = "type")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class MscObjectState {
+public class MscObjectState {
+  Type type;
+  String url;
+  Map<String, String> records;
+  String groupId;
 
+  public enum Type {
+    FILE, STREAM_FILES, RECORD
+  }
 }

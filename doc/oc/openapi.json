@@ -188,6 +188,39 @@
         }
       }
     },
+    "/api/objects/{id}/exec-context" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FunctionExecContext"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/objects/{id}/rf-call" : {
       "post" : {
         "parameters" : [ {
@@ -224,6 +257,44 @@
   },
   "components" : {
     "schemas" : {
+      "FunctionExecContext" : {
+        "type" : "object",
+        "properties" : {
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MscObject"
+            }
+          },
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "compound" : {
+            "$ref" : "#/components/schemas/MscObject"
+          },
+          "function" : {
+            "$ref" : "#/components/schemas/MscFunction"
+          },
+          "members" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/MscObject"
+            }
+          },
+          "subFunctions" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/MscFunction"
+            }
+          },
+          "target" : {
+            "$ref" : "#/components/schemas/MscObject"
+          }
+        }
+      },
       "MscFunction" : {
         "type" : "object",
         "properties" : {
@@ -255,7 +326,7 @@
             "$ref" : "#/components/schemas/TaskTemplate"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type1"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -290,7 +361,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -315,9 +386,6 @@
           "parentId" : {
             "$ref" : "#/components/schemas/ObjectId"
           },
-          "root" : {
-            "type" : "boolean"
-          },
           "rootId" : {
             "$ref" : "#/components/schemas/ObjectId"
           }
@@ -336,12 +404,29 @@
             "type" : "string"
           },
           "requiredType" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
       "MscObjectState" : {
-        "type" : "object"
+        "type" : "object",
+        "properties" : {
+          "groupId" : {
+            "type" : "string"
+          },
+          "records" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type3"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        }
       },
       "MscObjectTemplate" : {
         "type" : "object",
@@ -374,7 +459,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -422,27 +507,43 @@
       "TaskTemplate" : {
         "type" : "object",
         "properties" : {
-          "type" : {
-            "$ref" : "#/components/schemas/Type2"
+          "argsToEnv" : {
+            "type" : "boolean"
           },
-          "values" : {
-            "type" : "object",
-            "additionalProperties" : {
+          "commands" : {
+            "type" : "array",
+            "items" : {
               "type" : "string"
             }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "image" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type1"
           }
         }
       },
       "Type" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
-        "type" : "string"
-      },
-      "Type1" : {
         "enum" : [ "LOGICAL", "MACRO", "TASK" ],
         "type" : "string"
       },
-      "Type2" : {
+      "Type1" : {
         "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "type" : "string"
+      },
+      "Type2" : {
+        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "type" : "string"
+      },
+      "Type3" : {
+        "enum" : [ "FILE", "RECORD", "STREAM_FILES" ],
         "type" : "string"
       }
     }

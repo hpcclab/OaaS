@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObjectOrigin {
-  Boolean root;
   ObjectId rootId;
   ObjectId parentId;
   String funcName;
@@ -27,7 +26,6 @@ public class MscObjectOrigin {
 
   public MscObjectOrigin copy() {
     return new MscObjectOrigin(
-      root,
       rootId,
       parentId,
       funcName,

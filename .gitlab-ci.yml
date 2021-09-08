@@ -35,7 +35,8 @@ maven:
       fi
     - |
       mvn $MAVEN_OPTS package \
-      -Dquarkus.container-image.image=${CI_REGISTRY_IMAGE}${tag} \
+      -Dci.registry.image=${CI_REGISTRY_IMAGE} \
+      -Dtag=${tag} \
       -Dquarkus.container-image.username=${CI_REGISTRY_USER} \
       -Dquarkus.container-image.password=${CI_REGISTRY_PASSWORD} \
       -Dquarkus.container-image.build=true \

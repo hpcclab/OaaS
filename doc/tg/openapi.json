@@ -19,6 +19,29 @@
             }
           }
         }
+      },
+      "post" : {
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ObjectStateRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Task"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -80,9 +103,6 @@
           "parentId" : {
             "$ref" : "#/components/schemas/ObjectId"
           },
-          "root" : {
-            "type" : "boolean"
-          },
           "rootId" : {
             "$ref" : "#/components/schemas/ObjectId"
           }
@@ -106,7 +126,24 @@
         }
       },
       "MscObjectState" : {
-        "type" : "object"
+        "type" : "object",
+        "properties" : {
+          "groupId" : {
+            "type" : "string"
+          },
+          "records" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type3"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        }
       },
       "MscObjectTemplate" : {
         "type" : "object",
@@ -167,6 +204,17 @@
           }
         }
       },
+      "ObjectStateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "objectId" : {
+            "type" : "string"
+          },
+          "requestFile" : {
+            "type" : "string"
+          }
+        }
+      },
       "SubFunctionCall" : {
         "type" : "object",
         "properties" : {
@@ -184,17 +232,61 @@
           }
         }
       },
-      "TaskTemplate" : {
+      "Task" : {
         "type" : "object",
         "properties" : {
-          "type" : {
-            "$ref" : "#/components/schemas/Type1"
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
-          "values" : {
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "env" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "functionName" : {
+            "type" : "string"
+          },
+          "image" : {
+            "type" : "string"
+          },
+          "objectId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TaskTemplate" : {
+        "type" : "object",
+        "properties" : {
+          "argsToEnv" : {
+            "type" : "boolean"
+          },
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "image" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type1"
           }
         }
       },
@@ -208,6 +300,10 @@
       },
       "Type2" : {
         "enum" : [ "COMPOUND", "RESOURCE" ],
+        "type" : "string"
+      },
+      "Type3" : {
+        "enum" : [ "FILE", "RECORD", "STREAM_FILES" ],
         "type" : "string"
       }
     }

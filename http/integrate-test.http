@@ -1,0 +1,89 @@
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "RESOURCE",
+  "state": {
+    "type": "FILE",
+    "url": "{{m3u8_url}}"
+  }
+}
+
+> {%
+client.global.set("m3u8_id", response.body.id)
+%}
+
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "RESOURCE",
+  "functions": [
+    "buildin.hls.ts.transcode"
+  ],
+  "state": {
+    "type": "STREAM_FILES",
+    "url": "http://test/segment",
+    "groupId": "test"
+  }
+}
+
+> {%
+client.global.set("segments_id", response.body.id)
+%}
+
+###
+
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "COMPOUND",
+  "functions": [
+    "buildin.hls.macro.transcode"
+  ],
+  "members": {
+    "m3u8": "{{m3u8_id}}",
+    "segments": "{{segments_id}}"
+  }
+}
+
+> {%
+client.global.set("hls_id", response.body.id)
+%}
+
+###
+
+
+POST {{oc}}/api/objects/{{hls_id}}/rf-call
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target": "{{hls_id}}",
+  "functionName": "buildin.hls.macro.transcode"
+}
+
+> {%
+client.global.set("hls2_id", response.body.id)
+client.global.set("hls2_m3u8", response.body.members.m3u8)
+client.global.set("hls2_segments", response.body.members.segments)
+%}
+
+###
+GET {{oc}}/api/objects/{{hls2_segments}}
+
+###
+POST {{tg}}/api/tasks
+Accept: application/json
+Content-Type: application/json
+
+{
+  "objectId": "{{hls2_segments}}",
+  "statePath": "test-1.ts"
+}

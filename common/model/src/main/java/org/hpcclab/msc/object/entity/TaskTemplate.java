@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -12,7 +13,9 @@ import java.util.Map;
 public class TaskTemplate {
 
   Type type;
-  Map<String, String> values;
+  String image;
+  List<String> commands;
+  List<String> containerArgs;
   boolean argsToEnv = true;
 
   public enum Type{

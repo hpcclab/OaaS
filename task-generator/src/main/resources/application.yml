@@ -3,6 +3,9 @@
   quarkus:
     http:
       port: 8090
+  amqp-host: localhost
+  amqp-port: 5672
+  amqp-username: hpcclab
 
 objectControllerUrl: http://localhost:8088
 
@@ -26,8 +29,17 @@ quarkus:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
-
+  console:
+    color: true
   container-image:
-    image: ${$CI_REGISTRY_IMAGE}/task-generator${tag}
+    image: ${$ci.registry.image:oaas}/task-generator${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
+
+mp:
+  messaging:
+    outgoing:
+      tasks:
+        connector: smallrye-amqp
+        address: msc-tasks
+        use-anonymous-sender: false

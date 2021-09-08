@@ -25,6 +25,7 @@ public class MscObject {
   Map<String, String> labels;
   //  Map<String, MscFuncMetadata> functions;
   List<String> functions = List.of();
+
   MscObjectState state;
   Map<String, ObjectId> members;
 
@@ -39,7 +40,7 @@ public class MscObject {
     } else {
       members = null;
     }
-    if (origin==null) origin = new MscObjectOrigin().setRoot(true).setRootId(id);
+    if (origin==null) origin = new MscObjectOrigin().setRootId(id);
   }
 
   public MscObject copy() {

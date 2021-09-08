@@ -9,5 +9,5 @@ import lombok.experimental.Accessors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectStateRequest {
   String objectId;
-  String statePath;
+  String requestFile;
 }

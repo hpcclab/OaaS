@@ -6,9 +6,11 @@ import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.service.ContextLoader;
 import org.hpcclab.msc.object.service.FunctionRouter;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -23,9 +25,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Consumes(MediaType.APPLICATION_JSON)
-//@Produces(MediaType.APPLICATION_JSON)
-//@Path("/api/objects")
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResource.class );
@@ -35,19 +34,18 @@ public class ObjectResource implements ObjectService {
   MscFuncRepository funcRepo;
   @Inject
   FunctionRouter functionRouter;
+  @Inject
+  ContextLoader contextLoader;
 
-//  @GET
   public Uni<List<MscObject>> list() {
     return objectRepo.listAll();
   }
 
-//  @POST
   public Uni<MscObject> create(MscObject creating) {
     return objectRepo.createRootAndPersist(creating);
   }
 
-//  @GET
-//  @Path("{id}")
+
   public Uni<MscObject> get(String id) {
     ObjectId oid = new ObjectId(id);
     return objectRepo.findById(oid)
@@ -58,8 +56,7 @@ public class ObjectResource implements ObjectService {
       });
   }
 
-//  @POST
-//  @Path("{id}/binds")
+
   public Uni<MscObject> bindFunction(String id,
                                      List<String> funcNames) {
     ObjectId oid = new ObjectId(id);
@@ -87,54 +84,18 @@ public class ObjectResource implements ObjectService {
       });
   }
 
-//  @POST
-//  @Path("{id}/af-call/{funcName}")
-//  public Uni<MscObject> activeFuncCall(String id,
-//                                         String funcName,
-//                                         Map<String, String> args) {
-//    ObjectId oid = new ObjectId(id);
-//    var oUni = objectRepo.findById(oid);
-//    var fUni = funcRepo.findByName(funcName);
-//    return Uni.combine().all()
-//      .unis(oUni,fUni)
-//      .asTuple()
-//      .flatMap(tuple -> {
-//        if (tuple.getItem1() == null || tuple.getItem2() == null)
-//          throw new NotFoundException();
-//        return functionCaller.activeFuncCall(tuple.getItem1(),
-//          tuple.getItem2(), args);
-//      });
-//  }
-
-//  @POST
-//  @Path("{id}/rf-call")
   public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }
 
-
-
-  @ServerExceptionMapper
-  public Response exceptionMapper(IllegalArgumentException illegalArgumentException) {
-    return Response.status(404)
-      .entity(new JsonObject()
-        .put("msg", illegalArgumentException.getMessage()))
-      .build();
-  }
-
-  @ServerExceptionMapper
-  public Response exceptionMapper(WebApplicationException webApplicationException) {
-    return Response.fromResponse(webApplicationException.getResponse())
-      .entity(new JsonObject()
-        .put("msg", webApplicationException.getMessage()))
-      .build();
-  }
-
-  @ServerExceptionMapper
-  public Response exceptionMapper(NoStackException noStackException) {
-    return Response.status(noStackException.getCode())
-      .entity(new JsonObject()
-        .put("msg", noStackException.getMessage()))
-      .build();
+  @Override
+  public Uni<FunctionExecContext> loadExecutionContext(String id) {
+    ObjectId oid = new ObjectId(id);
+    return objectRepo.findById(oid)
+      .flatMap(obj -> {
+        if (obj == null) throw new NotFoundException();
+        var origin = obj.getOrigin();
+        return contextLoader.load(FunctionCallRequest.from(origin));
+      });
   }
 }

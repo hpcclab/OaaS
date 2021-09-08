@@ -3,6 +3,7 @@ package org.hpcclab.msc.object.service;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.FunctionExecContext;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -30,4 +31,8 @@ public interface ObjectService {
   @POST
   @Path("{id}/rf-call")
   Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request);
+
+  @GET
+  @Path("{id}/exec-context")
+  Uni<FunctionExecContext> loadExecutionContext(String id);
 }

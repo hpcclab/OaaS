@@ -1,11 +1,32 @@
+
+"%dev":
+  quarkus:
+    http:
+      port: 8091
+  amqp-host: localhost
+  amqp-port: 5672
+  amqp-username: hpcclab
+
 quarkus:
   http:
     access-log:
       enabled: true
   vertx:
     prefer-native-transport: true
-
   container-image:
-    image: ${$CI_REGISTRY_IMAGE}/worker-provisioner${tag}
+    image: ${$ci.registry.image:oaas}/worker-provisioner${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
+  index-dependency:
+    service-interface:
+      artifact-id: model
+      group-id: org.hpcclab.msc
+  console:
+    color: true
+mp:
+  messaging:
+    incoming:
+      tasks:
+        connector: smallrye-amqp
+        address: msc-tasks
+        durable: false

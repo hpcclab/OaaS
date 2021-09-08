@@ -1,6 +1,7 @@
 package org.hpcclab.msc.object.service;
 
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -9,7 +10,8 @@ import javax.enterprise.context.ApplicationScoped;
 public class LogicalFunctionHandler {
   public MscObject call(FunctionExecContext context) {
     if (context.getFunction().getName().equals("buildin.logical.copy")) {
-      return context.getTarget().copy().setId(null);
+      return context.getTarget().copy().setId(null)
+        .setOrigin(new MscObjectOrigin(context));
     } else {
       return null;
     }

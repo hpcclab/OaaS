@@ -5,9 +5,8 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hpcclab.msc.TestUtils;
-import org.hpcclab.msc.object.entity.state.FileState;
 import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.state.StreamFilesState;
+import org.hpcclab.msc.object.entity.state.MscObjectState;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,12 +29,12 @@ public class HlsTest {
   void test() {
     var m3u8Obj = new MscObject()
       .setType(MscObject.Type.RESOURCE)
-      .setState(new FileState().setFileUrl("http://test/test.m3u8"));
+      .setState(new MscObjectState().setUrl("http://test/test.m3u8"));
     var segmentsObj = new MscObject()
       .setType(MscObject.Type.RESOURCE)
-      .setState(new StreamFilesState()
+      .setState(new MscObjectState()
         .setGroupId("test")
-        .setFileUrl("http://test/segment")
+        .setUrl("http://test/segment")
       )
       .setFunctions(List.of("buildin.hls.ts.transcode"));
 
