@@ -32,7 +32,7 @@ quarkus:
   console:
     color: true
   container-image:
-    image: ${$ci.registry.image:oaas}/task-generator${tag:}
+    image: ${ci.registry.image:oaas}/task-generator${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
 

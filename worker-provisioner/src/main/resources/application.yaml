@@ -14,7 +14,7 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
-    image: ${$ci.registry.image:oaas}/worker-provisioner${tag:}
+    image: ${ci.registry.image:oaas}/worker-provisioner${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
   index-dependency:
