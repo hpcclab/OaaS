@@ -34,6 +34,7 @@ spec:
             requests:
               cpu: 500m
               memory: 256M
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service

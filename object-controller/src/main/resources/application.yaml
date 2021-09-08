@@ -15,6 +15,8 @@
       port: 8088
 
 quarkus:
+  console:
+    color: true
   http:
     access-log:
       enabled: true

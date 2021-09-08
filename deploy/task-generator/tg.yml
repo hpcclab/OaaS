@@ -19,13 +19,17 @@ spec:
           env:
             - name: JAVA_OPTIONS
               value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-            - name: QUARKUS_MONGODB_CONNECTION_STRING
-              value: mongodb://oc-mongo:27017
-            - name: QUARKUS_MONGODB_DATABASE
-              value: task-generator
-            - name: QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE
-              value: "true"
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-task-generator:latest
+            - name: AMQP_HOST
+              value: msc-rmq
+            - name: AMQP_PORT
+              value: '5672'
+            - name: AMQP_USERNAME
+              value: 'hpcclab'
+            - name: AMQP_PASSWORD
+              value: 'hpcclab'
+            - name: OBJECTCONTROLLERURL
+              value: http://object-controller
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-object-controller/task-generator
           ports:
             - containerPort: 8080
           resources:
@@ -34,6 +38,7 @@ spec:
             requests:
               cpu: 500m
               memory: 256M
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service

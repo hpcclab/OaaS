@@ -1,31 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: object-controller
+  name: worker-provisioner
   labels:
-    app: object-controller
+    app: worker-provisioner
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: object-controller
+      app: worker-provisioner
   template:
     metadata:
       labels:
-        app: object-controller
+        app: worker-provisioner
     spec:
       containers:
-        - name: object-controller
+        - name: worker-provisioner
           env:
             - name: JAVA_OPTIONS
               value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-            - name: QUARKUS_MONGODB_CONNECTION_STRING
-              value: mongodb://oc-mongo:27017
-            - name: QUARKUS_MONGODB_DATABASE
-              value: object-controller
-            - name: QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE
-              value: "true"
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-object-controller:latest
+            - name: AMQP_HOST
+              value: msc-rmq
+            - name: AMQP_PORT
+              value: '5672'
+            - name: AMQP_USERNAME
+              value: 'hpcclab'
+            - name: AMQP_PASSWORD
+              value: 'hpcclab'
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-object-controller/worker-provisioner
           ports:
             - containerPort: 8080
           resources:
@@ -34,14 +36,15 @@ spec:
             requests:
               cpu: 500m
               memory: 256M
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: object-controller
+  name: worker-provisioner
 spec:
   selector:
-    app: object-controller
+    app: worker-provisioner
   ports:
     - protocol: TCP
       port: 80
