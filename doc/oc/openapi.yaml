@@ -201,7 +201,7 @@ components:
         task:
           $ref: '#/components/schemas/TaskTemplate'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type2'
     MscObject:
       type: object
       properties:
@@ -224,7 +224,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectOrigin:
       type: object
       properties:
@@ -252,7 +252,7 @@ components:
         requiredStateType:
           type: string
         requiredType:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObjectState:
       type: object
       properties:
@@ -263,7 +263,7 @@ components:
           additionalProperties:
             type: string
         type:
-          $ref: '#/components/schemas/Type3'
+          $ref: '#/components/schemas/Type1'
         url:
           type: string
     MscObjectTemplate:
@@ -288,7 +288,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     ObjectId:
       type: object
       properties:
@@ -333,28 +333,28 @@ components:
         image:
           type: string
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/Type3'
     Type:
+      enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    Type1:
+      enum:
+      - FILE
+      - RECORD
+      - STREAM_FILES
+      type: string
+    Type2:
       enum:
       - LOGICAL
       - MACRO
       - TASK
       type: string
-    Type1:
+    Type3:
       enum:
       - DURABLE_WORKER
       - EPHEMERAL_WORKER
       - HTTP
       - LOGICAL
-      type: string
-    Type2:
-      enum:
-      - COMPOUND
-      - RESOURCE
-      type: string
-    Type3:
-      enum:
-      - FILE
-      - RECORD
-      - STREAM_FILES
       type: string

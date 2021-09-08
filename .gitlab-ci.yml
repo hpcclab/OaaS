@@ -27,16 +27,15 @@ maven:
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        tag=""
+        export tag=""
         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
       else
-        tag=":$CI_COMMIT_REF_SLUG"
+        export tag=":$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
+    - export CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}
     - |
       mvn $MAVEN_OPTS package \
-      -Dci.registry.image=${CI_REGISTRY_IMAGE} \
-      -Dtag=${tag} \
       -Dquarkus.container-image.username=${CI_REGISTRY_USER} \
       -Dquarkus.container-image.password=${CI_REGISTRY_PASSWORD} \
       -Dquarkus.container-image.build=true \

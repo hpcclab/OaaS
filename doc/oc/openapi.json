@@ -326,7 +326,7 @@
             "$ref" : "#/components/schemas/TaskTemplate"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -361,7 +361,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -404,7 +404,7 @@
             "type" : "string"
           },
           "requiredType" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -421,7 +421,7 @@
             }
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type3"
+            "$ref" : "#/components/schemas/Type1"
           },
           "url" : {
             "type" : "string"
@@ -459,7 +459,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -526,24 +526,24 @@
             "type" : "string"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type1"
+            "$ref" : "#/components/schemas/Type3"
           }
         }
       },
       "Type" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
-        "type" : "string"
-      },
-      "Type1" : {
-        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
-        "type" : "string"
-      },
-      "Type2" : {
         "enum" : [ "COMPOUND", "RESOURCE" ],
         "type" : "string"
       },
-      "Type3" : {
+      "Type1" : {
         "enum" : [ "FILE", "RECORD", "STREAM_FILES" ],
+        "type" : "string"
+      },
+      "Type2" : {
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "type" : "string"
+      },
+      "Type3" : {
+        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
         "type" : "string"
       }
     }
