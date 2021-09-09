@@ -14,6 +14,7 @@ spec:
       labels:
         app: worker-provisioner
     spec:
+      serviceAccountName: wp-sa
       containers:
         - name: worker-provisioner
           env:
@@ -24,9 +25,15 @@ spec:
             - name: AMQP_PORT
               value: '5672'
             - name: AMQP_USERNAME
-              value: 'hpcclab'
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: msc-rmq-default-user
             - name: AMQP_PASSWORD
-              value: 'hpcclab'
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: msc-rmq-default-user
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/worker-provisioner
           ports:
             - containerPort: 8080

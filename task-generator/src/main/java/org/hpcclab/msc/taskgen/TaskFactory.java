@@ -19,6 +19,8 @@ public class TaskFactory {
     var template = function.getTask();
     var task = new Task();
     task.setFunctionName(function.getName());
+    task.setMainObj(object.getId().toString());
+    task.setOutputObj(request.getObjectId());
     task.setImage(template.getImage());
     task.setCommands(template.getCommands());
     task.setContainerArgs(template.getContainerArgs());

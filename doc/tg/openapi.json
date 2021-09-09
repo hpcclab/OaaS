@@ -259,7 +259,10 @@
           "image" : {
             "type" : "string"
           },
-          "objectId" : {
+          "mainObj" : {
+            "type" : "string"
+          },
+          "outputObj" : {
             "type" : "string"
           }
         }

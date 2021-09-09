@@ -27,7 +27,7 @@ Content-Type: application/json
   ],
   "state": {
     "type": "STREAM_FILES",
-    "url": "http://test/segment",
+    "url": "{{segments_url}}",
     "groupId": "test"
   }
 }
@@ -85,5 +85,5 @@ Content-Type: application/json
 
 {
   "objectId": "{{hls2_segments}}",
-  "statePath": "test-1.ts"
+  "requestFile": "segment-0000.ts"
 }

@@ -14,11 +14,11 @@
     type: EPHEMERAL_WORKER
     image: jrottenberg/ffmpeg:4.1-alpine
     commands:
-      - /bin/bash
+      - /bin/sh
       - '-c'
     containerArgs:
       - |
-        ffprobe $MAIN_STATE_URL
+        ffprobe $MAIN_STATE_URL/$REQUEST_FILE
     argsToEnv: true
 
 - name: buildin.hls.macro.transcode

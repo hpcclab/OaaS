@@ -24,9 +24,15 @@ spec:
             - name: AMQP_PORT
               value: '5672'
             - name: AMQP_USERNAME
-              value: 'hpcclab'
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: msc-rmq-default-user
             - name: AMQP_PASSWORD
-              value: 'hpcclab'
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: msc-rmq-default-user
             - name: OBJECTCONTROLLERURL
               value: http://object-controller
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator

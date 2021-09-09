@@ -11,7 +11,8 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Task {
-  String objectId;
+  String mainObj;
+  String outputObj;
   String functionName;
   String image;
   List<String> commands;

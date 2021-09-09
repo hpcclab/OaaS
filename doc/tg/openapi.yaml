@@ -169,7 +169,9 @@ components:
           type: string
         image:
           type: string
-        objectId:
+        mainObj:
+          type: string
+        outputObj:
           type: string
     TaskTemplate:
       type: object

@@ -2,6 +2,7 @@ resources:
   - ../object-controller
   - ../task-generator
   - ../worker-provisioner
+  - rmq.yml
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
