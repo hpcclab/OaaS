@@ -36,6 +36,6 @@ quarkus:
       group-id: org.hpcclab.msc
 
   container-image:
-    image: ${ci.registry.image:oaas}${tag:}
+    image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre

@@ -27,7 +27,7 @@ spec:
               value: 'hpcclab'
             - name: AMQP_PASSWORD
               value: 'hpcclab'
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-object-controller/worker-provisioner
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/worker-provisioner
           ports:
             - containerPort: 8080
           resources:

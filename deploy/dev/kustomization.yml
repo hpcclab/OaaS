@@ -1,0 +1,15 @@
+resources:
+  - ../object-controller
+  - ../task-generator
+  - ../worker-provisioner
+
+images:
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
+    newName: core.harbor.OAACluster01/oaas/object-controller
+    newTag: latest
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
+    newName: core.harbor.OAACluster01/oaas/task-generator
+    newTag: latest
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/worker-provisioner
+    newName: core.harbor.OAACluster01/oaas/worker-provisioner
+    newTag: latest

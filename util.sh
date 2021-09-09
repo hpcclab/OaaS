@@ -2,7 +2,7 @@
 
 kubectl port-forward -n msc svc/msc-rmq 5672:5672
 
-export CI_REGISTRY_IMAGE=registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-object-controller
+export CI_REGISTRY_IMAGE=registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas
 export JAVA_HOME=~/.jdks/openjdk-16.0.2/
 
 ./mvnw package -DskipTests\
@@ -10,3 +10,14 @@ export JAVA_HOME=~/.jdks/openjdk-16.0.2/
     -Dquarkus.container-image.password=u7pC_JXyVe7g69vxoht8 \
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true
+
+
+export CI_REGISTRY_IMAGE=core.harbor.OAACluster01/oaas
+export JAVA_HOME=~/.jdks/openjdk-16.0.2/
+
+./mvnw package -DskipTests\
+    -Dquarkus.container-image.username=hpcclab \
+    -Dquarkus.container-image.password=Hpcclab123 \
+    -Dquarkus.container-image.build=true \
+    -Dquarkus.container-image.push=true \
+    -Dquarkus.container-image.insecure=true
