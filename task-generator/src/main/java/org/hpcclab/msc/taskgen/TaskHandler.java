@@ -1,6 +1,7 @@
 package org.hpcclab.msc.taskgen;
 
 import io.smallrye.mutiny.Uni;
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import java.net.URI;
 
 @ApplicationScoped
@@ -45,12 +47,22 @@ public class TaskHandler {
   }
 
   public Uni<Task> handle(ObjectResourceRequest request) {
+    if (!ObjectId.isValid(request.getOwnerObjectId())) {
+      LOGGER.warn("receive request with invalid ownerObjectId. [{}]",request);
+      return Uni.createFrom().nullItem();
+    }
     return objectService.loadExecutionContext(request.getOwnerObjectId())
       .map(context -> taskFactory
         .genTask(request, context.getTarget(), context.getAdditionalInputs(), context.getFunction())
       )
       .invoke(t -> LOGGER.info("task {}", t))
-      .call(t -> Uni.createFrom().completionStage(tasksEmitter.send(t)));
-
+      .call(t -> Uni.createFrom().completionStage(tasksEmitter.send(t)))
+      .onFailure(f -> {
+        if (f instanceof WebApplicationException exception) {
+          return exception.getResponse().getStatus() == 404;
+        }
+        return false;
+      })
+      .recoverWithNull();
   }
 }
