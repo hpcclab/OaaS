@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ObjectStateRequest {
-  String objectId;
+public class ObjectResourceRequest {
+  String ownerObjectId;
   String requestFile;
 }

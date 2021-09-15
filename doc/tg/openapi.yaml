@@ -5,20 +5,12 @@ info:
   version: 0.1.0-SNAPSHOT
 paths:
   /api/tasks:
-    get:
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MscFunction'
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectStateRequest'
+              $ref: '#/components/schemas/ObjectResourceRequest'
       responses:
         "200":
           description: OK
@@ -28,127 +20,12 @@ paths:
                 $ref: '#/components/schemas/Task'
 components:
   schemas:
-    MscFunction:
+    ObjectResourceRequest:
       type: object
       properties:
-        additionalInputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/MscObjectRequirement'
-        bindingRequirement:
-          $ref: '#/components/schemas/MscObjectRequirement'
-        name:
-          type: string
-        outputTemplate:
-          $ref: '#/components/schemas/MscObjectTemplate'
-        reactive:
-          type: boolean
-        subFunctions:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/SubFunctionCall'
-        task:
-          $ref: '#/components/schemas/TaskTemplate'
-        type:
-          $ref: '#/components/schemas/Type'
-    MscObjectOrigin:
-      type: object
-      properties:
-        additionalInputRefs:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectId'
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        funcName:
-          type: string
-        parentId:
-          $ref: '#/components/schemas/ObjectId'
-        rootId:
-          $ref: '#/components/schemas/ObjectId'
-    MscObjectRequirement:
-      type: object
-      properties:
-        requiredLabel:
-          type: object
-          additionalProperties:
-            type: string
-        requiredStateType:
-          type: string
-        requiredType:
-          $ref: '#/components/schemas/Type2'
-    MscObjectState:
-      type: object
-      properties:
-        groupId:
-          type: string
-        records:
-          type: object
-          additionalProperties:
-            type: string
-        type:
-          $ref: '#/components/schemas/Type3'
-        url:
-          type: string
-    MscObjectTemplate:
-      type: object
-      properties:
-        functions:
-          type: array
-          items:
-            type: string
-        id:
-          $ref: '#/components/schemas/ObjectId'
-        labels:
-          type: object
-          additionalProperties:
-            type: string
-        members:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ObjectId'
-        origin:
-          $ref: '#/components/schemas/MscObjectOrigin'
-        state:
-          $ref: '#/components/schemas/MscObjectState'
-        type:
-          $ref: '#/components/schemas/Type2'
-    ObjectId:
-      type: object
-      properties:
-        counter:
-          format: int32
-          type: integer
-        randomValue1:
-          format: int32
-          type: integer
-        randomValue2:
-          type: integer
-        timestamp:
-          format: int32
-          type: integer
-        date:
-          format: date
-          type: string
-    ObjectStateRequest:
-      type: object
-      properties:
-        objectId:
+        ownerObjectId:
           type: string
         requestFile:
-          type: string
-    SubFunctionCall:
-      type: object
-      properties:
-        funcName:
-          type: string
-        inputRefs:
-          type: array
-          items:
-            type: string
-        target:
           type: string
     Task:
       type: object
@@ -173,44 +50,3 @@ components:
           type: string
         outputObj:
           type: string
-    TaskTemplate:
-      type: object
-      properties:
-        argsToEnv:
-          type: boolean
-        commands:
-          type: array
-          items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        image:
-          type: string
-        type:
-          $ref: '#/components/schemas/Type1'
-    Type:
-      enum:
-      - LOGICAL
-      - MACRO
-      - TASK
-      type: string
-    Type1:
-      enum:
-      - DURABLE_WORKER
-      - EPHEMERAL_WORKER
-      - HTTP
-      - LOGICAL
-      type: string
-    Type2:
-      enum:
-      - COMPOUND
-      - RESOURCE
-      type: string
-    Type3:
-      enum:
-      - FILE
-      - RECORD
-      - STREAM_FILES
-      type: string

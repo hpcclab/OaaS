@@ -34,9 +34,11 @@ metadata:
     app: ksqldb-server
   name: ksqldb-server
 spec:
+  type: NodePort
   ports:
     - name: "http"
       port: 80
       targetPort: 8088
+      nodePort: 31222
   selector:
     app: ksqldb-server

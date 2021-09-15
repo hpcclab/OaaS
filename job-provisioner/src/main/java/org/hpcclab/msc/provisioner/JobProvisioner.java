@@ -1,4 +1,4 @@
-package org.hpcclab.msc;
+package org.hpcclab.msc.provisioner;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;

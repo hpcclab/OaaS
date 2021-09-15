@@ -14,6 +14,7 @@ public class TaskCompletion {
   Status status;
   String startTime;
   String completionTime;
+  String requestFile;
   String debugMessage;
 
   public enum Status {

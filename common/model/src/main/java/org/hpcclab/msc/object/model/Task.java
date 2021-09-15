@@ -17,5 +17,5 @@ public class Task {
   String image;
   List<String> commands;
   List<String> containerArgs;
-  Map<String, String> env;
+  Map<String, String> env = Map.of();
 }

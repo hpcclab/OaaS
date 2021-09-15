@@ -2,7 +2,7 @@ package org.hpcclab.msc.taskgen;
 
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.model.ObjectStateRequest;
+import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.object.model.Task;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,7 +12,7 @@ import java.util.List;
 @ApplicationScoped
 public class TaskFactory {
 
-  public Task genTask(ObjectStateRequest request,
+  public Task genTask(ObjectResourceRequest request,
                       MscObject object,
                       List<MscObject> inputs,
                       MscFunction function) {
@@ -20,7 +20,7 @@ public class TaskFactory {
     var task = new Task();
     task.setFunctionName(function.getName());
     task.setMainObj(object.getId().toString());
-    task.setOutputObj(request.getObjectId());
+    task.setOutputObj(request.getOwnerObjectId());
     task.setImage(template.getImage());
     task.setCommands(template.getCommands());
     task.setContainerArgs(template.getContainerArgs());

@@ -1,4 +1,4 @@
-package org.hpcclab.msc;
+package org.hpcclab.msc.provisioner;
 
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -10,7 +10,6 @@ import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
-import org.apache.kafka.common.protocol.types.Field;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -77,6 +76,7 @@ public class JobWatcher {
       .setStatus(succeeded? TaskCompletion.Status.SUCCEEDED: TaskCompletion.Status.FAILED)
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
+      .setRequestFile(task.getEnv().get("REQUEST_FILE"))
       .setDebugMessage(Json.encode(job.getStatus()));
     tasksCompletionEmitter.send(Message.of(Record.of(completion.getOutputObj(),completion)));
     LOGGER.info("{} is submitted", completion);

@@ -28,7 +28,7 @@ spec:
               value: http://0.0.0.0:8081
             - name: SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL
               value: PLAINTEXT
-          image: confluentinc/cp-schema-registry:5.5.0
+          image: confluentinc/cp-schema-registry:6.2.0
           ports:
             - containerPort: 8081
 ---

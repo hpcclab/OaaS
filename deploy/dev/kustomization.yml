@@ -2,6 +2,7 @@ resources:
   - ../object-controller
   - ../task-generator
   - ../job-provisioner
+  - ../stream-controller
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
@@ -12,4 +13,7 @@ images:
     newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/job-provisioner
     newName: core.harbor.OAACluster01/oaas/job-provisioner
+    newTag: latest
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller
+    newName: core.harbor.OAACluster01/oaas/stream-controller
     newTag: latest

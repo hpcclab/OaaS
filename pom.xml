@@ -9,6 +9,7 @@
   <modules>
     <module>common</module>
     <module>object-controller</module>
+    <module>stream-controller</module>
     <module>task-generator</module>
     <module>job-provisioner</module>
   </modules>

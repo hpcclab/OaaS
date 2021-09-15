@@ -1,0 +1,47 @@
+###
+POST http://ksqldb-server/ksql
+Accept: application/vnd.ksql.v1+json
+Content-Type: application/json
+
+{
+  "ksql": "create stream resourceRequests (ownerObjectId VARCHAR, requestFile VARCHAR) WITH (kafka_topic='msc-resource-requests', value_format='json');",
+  "streamsProperties": {}
+}
+
+###
+POST http://ksqldb-server/ksql
+Accept: application/vnd.ksql.v1+json
+Content-Type: application/json
+
+{
+  "ksql": "create stream resourceRequests (ownerObjectId VARCHAR, requestFile VARCHAR) WITH (kafka_topic='msc-resource-requests', value_format='json');",
+  "streamsProperties": {}
+}
+###
+POST http://ksqldb-server/ksql
+Accept: application/vnd.ksql.v1+json
+Content-Type: application/json
+
+{
+  "ksql": "create stream resourceRequests (ownerObjectId VARCHAR, requestFile VARCHAR) WITH (kafka_topic='msc-resource-requests', value_format='json');",
+  "streamsProperties": {}
+}
+###
+POST http://ksqldb-server/ksql
+Accept: application/vnd.ksql.v1+json
+Content-Type: application/json
+
+{
+  "ksql": "list streams;",
+  "streamsProperties": {}
+}
+
+###
+POST http://10.131.36.28:31222/query
+Content-Type: application/json
+
+{
+  "ksql": "print 'msc-tasks' FROM BEGINNING;",
+  "streamsProperties": {
+  }
+}

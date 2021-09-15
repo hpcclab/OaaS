@@ -84,6 +84,6 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "objectId": "{{hls2_segments}}",
+  "ownerObjectId": "{{hls2_segments}}",
   "requestFile": "segment-0000.ts"
 }

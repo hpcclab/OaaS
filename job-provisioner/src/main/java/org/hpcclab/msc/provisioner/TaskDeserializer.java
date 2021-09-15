@@ -1,4 +1,4 @@
-package org.hpcclab.msc;
+package org.hpcclab.msc.provisioner;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 import org.hpcclab.msc.object.model.Task;

@@ -1,0 +1,11 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: msc
+  name: msc-resource-requests
+spec:
+  config: {}
+  partitions: 10
+  replicas: 1
+  topicName: msc-resource-requests
