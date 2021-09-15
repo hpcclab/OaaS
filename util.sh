@@ -13,7 +13,7 @@ export JAVA_HOME=~/.jdks/openjdk-16.0.2/
 
 
 export CI_REGISTRY_IMAGE=core.harbor.OAACluster01/oaas
-export JAVA_HOME=~/.jdks/openjdk-16.0.2/
+export JAVA_HOME=~/.jdks/openjdk-17/
 
 ./mvnw package -DskipTests\
     -Dquarkus.container-image.username=hpcclab \

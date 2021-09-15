@@ -29,4 +29,9 @@ mp:
         auto:
           offset:
             reset: earliest
-
+    outgoing:
+      task-completions:
+        connector: smallrye-kafka
+        topic: msc-task-completions
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

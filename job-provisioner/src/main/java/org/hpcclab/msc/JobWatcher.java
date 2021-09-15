@@ -8,8 +8,14 @@ import io.fabric8.kubernetes.client.WatcherException;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
+import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
+import org.apache.kafka.common.protocol.types.Field;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.msc.object.model.Task;
+import org.hpcclab.msc.object.model.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +28,8 @@ public class JobWatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger( JobWatcher.class );
   @Inject
   KubernetesClient client;
+  @Channel("task-completions")
+  Emitter<Record<String,TaskCompletion>> tasksCompletionEmitter;
   private Watch watch;
 
   void startup(@Observes StartupEvent startupEvent) {
@@ -36,24 +44,16 @@ public class JobWatcher {
             }
             if (action == Action.DELETED || action == Action.ADDED) return;
             Task task = Json.decodeValue(resource.getMetadata().getAnnotations().get("oaas.task"), Task.class);
+
             if (resource.getStatus().getSucceeded() != null &&
                 resource.getStatus().getSucceeded() >= 1) {
-              LOGGER.info("object[id={}, parent={}, func={}] is succeeded",
-                task.getOutputObj(),
-                task.getMainObj(),
-                task.getFunctionName()
-              );
+              submitTaskCompletion(resource,task, true);
               client.batch().v1().jobs()
                 .delete(resource);
             }
             else if (resource.getStatus().getFailed()!= null &&
               resource.getStatus().getFailed() >= 1) {
-              LOGGER.info("object[id={}, parent={}, func={}] is failed. {}",
-                task.getOutputObj(),
-                task.getMainObj(),
-                task.getFunctionName(),
-                resource.getStatus()
-              );
+              submitTaskCompletion(resource,task, false);
               client.batch().v1().jobs()
                 .delete(resource);
             }
@@ -67,6 +67,20 @@ public class JobWatcher {
     }
   }
 
+  void submitTaskCompletion(Job job,
+                            Task task,
+                            boolean succeeded) {
+    var completion = new TaskCompletion()
+      .setMainObj(task.getMainObj())
+      .setOutputObj(task.getOutputObj())
+      .setFunctionName(task.getFunctionName())
+      .setStatus(succeeded? TaskCompletion.Status.SUCCEEDED: TaskCompletion.Status.FAILED)
+      .setStartTime(job.getStatus().getStartTime())
+      .setCompletionTime(job.getStatus().getCompletionTime())
+      .setDebugMessage(Json.encode(job.getStatus()));
+    tasksCompletionEmitter.send(Message.of(Record.of(completion.getOutputObj(),completion)));
+    LOGGER.info("{} is submitted", completion);
+  }
 
   void onShutdown(@Observes ShutdownEvent shutdownEvent) {
     if (watch != null) {

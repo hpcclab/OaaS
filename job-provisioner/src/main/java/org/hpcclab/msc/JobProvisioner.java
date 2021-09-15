@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.msc.object.model.Task;
 import org.slf4j.Logger;
@@ -16,16 +17,16 @@ import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class WorkerProvisioner {
+public class JobProvisioner {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger( WorkerProvisioner.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger( JobProvisioner.class );
   @Inject
   KubernetesClient kubernetesClient;
 
   @Incoming("tasks")
-  public void provision(JsonObject t) {
-    LOGGER.info("task: {}", t.encodePrettily());
-    Task task = t.mapTo(Task.class);
+  public void provision(Task task) {
+//    LOGGER.info("task: {}", t.encodePrettily());
+//    Task task = t.mapTo(Task.class);
 //    LOGGER.info("task: {}", task.getFunctionName());
     var envList = task
       .getEnv()
