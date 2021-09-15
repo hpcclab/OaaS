@@ -3,9 +3,6 @@
   quarkus:
     http:
       port: 8091
-  amqp-host: localhost
-  amqp-port: 5672
-  amqp-username: hpcclab
 
 quarkus:
   http:
@@ -14,7 +11,7 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
-    image: ${ci.registry.image:oaas}/worker-provisioner${tag:}
+    image: ${ci.registry.image:oaas}/job-provisioner${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
   index-dependency:
@@ -27,6 +24,9 @@ mp:
   messaging:
     incoming:
       tasks:
-        connector: smallrye-amqp
-        address: msc-tasks
-        durable: false
+        connector: smallrye-kafka
+        topic: msc-tasks
+        auto:
+          offset:
+            reset: earliest
+

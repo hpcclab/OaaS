@@ -3,9 +3,6 @@
   quarkus:
     http:
       port: 8090
-  amqp-host: localhost
-  amqp-port: 5672
-  amqp-username: hpcclab
 
 objectControllerUrl: http://localhost:8088
 
@@ -40,6 +37,7 @@ mp:
   messaging:
     outgoing:
       tasks:
-        connector: smallrye-amqp
-        address: msc-tasks
-        use-anonymous-sender: false
+        connector: smallrye-kafka
+        topic: msc-tasks
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

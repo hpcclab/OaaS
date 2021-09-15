@@ -1,9 +1,0 @@
-apiVersion: rabbitmq.com/v1beta1
-kind: RabbitmqCluster
-metadata:
-  name: msc-rmq
-spec:
-  replicas: 1
-  rabbitmq:
-    additionalPlugins:
-      - rabbitmq_amqp1_0

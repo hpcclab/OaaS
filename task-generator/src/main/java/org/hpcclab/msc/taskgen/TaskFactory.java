@@ -31,12 +31,12 @@ public class TaskFactory {
     }
     var env = task.getEnv();
     env.put("MAIN_ID", object.getId().toString());
-    env.put("MAIN_STATE_URL", object.getState().getUrl());
+    env.put("MAIN_RESOURCE_URL", object.getState().getUrl());
     for (int i = 0; i < inputs.size(); i++) {
       MscObject inputObj = inputs.get(i);
       var prefix = "INPUT_"+i;
       env.put(prefix+"_ID", inputObj.getId().toString());
-      env.put(prefix+"_STATE_URL", inputObj.getState().getUrl());
+      env.put(prefix+"_RESOURCE_URL", inputObj.getState().getUrl());
     }
     env.put("REQUEST_FILE", request.getRequestFile());
     return task;

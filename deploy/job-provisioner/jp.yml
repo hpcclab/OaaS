@@ -1,29 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task-generator
+  name: job-provisioner
   labels:
-    app: task-generator
+    app: job-provisioner
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: task-generator
+      app: job-provisioner
   template:
     metadata:
       labels:
-        app: task-generator
+        app: job-provisioner
     spec:
+      serviceAccountName: jp-sa
       containers:
-        - name: task-generator
+        - name: job-provisioner
           env:
             - name: JAVA_OPTIONS
               value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: msc-kafka-bootstrap:9092
-            - name: OBJECTCONTROLLERURL
-              value: http://object-controller
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/job-provisioner
           ports:
             - containerPort: 8080
           resources:
@@ -37,10 +36,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: task-generator
+  name: job-provisioner
 spec:
   selector:
-    app: task-generator
+    app: job-provisioner
   ports:
     - protocol: TCP
       port: 80

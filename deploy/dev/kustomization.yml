@@ -1,8 +1,7 @@
 resources:
   - ../object-controller
   - ../task-generator
-  - ../worker-provisioner
-  - rmq.yml
+  - ../job-provisioner
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
@@ -11,6 +10,6 @@ images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
     newName: core.harbor.OAACluster01/oaas/task-generator
     newTag: latest
-  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/worker-provisioner
-    newName: core.harbor.OAACluster01/oaas/worker-provisioner
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/job-provisioner
+    newName: core.harbor.OAACluster01/oaas/job-provisioner
     newTag: latest

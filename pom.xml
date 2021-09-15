@@ -10,7 +10,7 @@
     <module>common</module>
     <module>object-controller</module>
     <module>task-generator</module>
-    <module>worker-provisioner</module>
+    <module>job-provisioner</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>

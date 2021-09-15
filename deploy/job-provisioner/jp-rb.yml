@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: wp-sa
+  name: jp-sa
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: wp-role
+  name: jp-role
 rules:
   - apiGroups: ["batch"]
     resources: ["jobs"]
@@ -16,11 +16,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: wp-rb
+  name: jp-rb
 roleRef:
   kind: Role
-  name: wp-role
+  name: jp-role
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
-    name: wp-sa
+    name: jp-sa

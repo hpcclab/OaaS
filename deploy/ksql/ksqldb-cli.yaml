@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ksqldb-cli
+  name: ksqldb-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ksqldb-cli
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ksqldb-cli
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+          image: confluentinc/ksqldb-cli:0.20.0
+          name: ksqldb-cli
+          resources: {}
+          tty: true
+      restartPolicy: Always

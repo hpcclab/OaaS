@@ -7,7 +7,7 @@
     <artifactId>oaas</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>worker-provisioner</artifactId>
+  <artifactId>job-provisioner</artifactId>
   <properties>
   </properties>
   <dependencyManagement>
@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-reactive-messaging-amqp</artifactId>
+      <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

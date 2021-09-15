@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ksqldb-server
+  name: ksqldb-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ksqldb-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ksqldb-server
+    spec:
+      containers:
+        - name: ksqldb-server
+          envFrom:
+            - configMapRef:
+                name: ksql-env
+          image: confluentinc/ksqldb-server:0.20.0
+          ports:
+            - containerPort: 8088
+          resources: {}
+      hostname: ksqldb-server
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ksqldb-server
+  name: ksqldb-server
+spec:
+  ports:
+    - name: "http"
+      port: 80
+      targetPort: 8088
+  selector:
+    app: ksqldb-server
