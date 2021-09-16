@@ -20,6 +20,7 @@ export JAVA_HOME=~/.jdks/openjdk-17/
     -Dquarkus.container-image.password=Hpcclab123 \
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
+    -Dquarkus.jib.always-cache-base-image=true \
     -Dquarkus.container-image.insecure=true
 
 $ENV:JAVA_HOME="C:\Program Files\Java\jdk-17"
