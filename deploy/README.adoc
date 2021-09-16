@@ -9,28 +9,14 @@
 
 == Prerequisites
 
-=== Artemis Operator
+* Strimzi Operator
+
+== Deploy
 [source,bash]
 ----
-git clone https://github.com/artemiscloud/activemq-artemis-operator.git
-
-git checkout tags/v0.20.0
-
 NAMESPACE="msc"
+kubectl apply -n $NAMESPACE -f kafka -f ksql
 
-cd activemq-artemis-operator
-kubectl apply -f deploy/service_account.yaml -n $NAMESPACE
-kubectl apply -f deploy/role.yaml -n $NAMESPACE
-kubectl apply -f deploy/role_binding.yaml -n $NAMESPACE
-
-# Broker CRD
-kubectl apply -f deploy/crds/broker_activemqartemis_crd.yaml
-# Address CRD
-kubectl apply -f deploy/crds/broker_activemqartemisaddress_crd.yaml
-# Scaledown CRD
-kubectl apply -f deploy/crds/broker_activemqartemisscaledown_crd.yaml
-# security CRD
-kubectl apply -f deploy/crds/broker_activemqartemissecurity_crd.yaml
-
-kubectl apply -f deploy/operator.yaml -n $NAMESPACE
+helm repo add kafka-ui https://provectus.github.io/kafka-ui
+helm install -n $NAMESPACE -f kafka-ui/values.yml kafka-ui kafka-ui/kafka-ui
 ----

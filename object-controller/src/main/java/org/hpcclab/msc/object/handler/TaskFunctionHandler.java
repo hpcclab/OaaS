@@ -1,4 +1,4 @@
-package org.hpcclab.msc.object.service;
+package org.hpcclab.msc.object.handler;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.object.MscObject;
@@ -6,6 +6,7 @@ import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.service.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +16,8 @@ public class TaskFunctionHandler {
 
   @Inject
   MscObjectRepository objectRepo;
+  @Inject
+  StorageAllocator storageAllocator;
 
   public void validate(FunctionExecContext context) {
     if (!context.getTarget().getFunctions().contains(context.getFunction().getName()))
@@ -27,6 +30,7 @@ public class TaskFunctionHandler {
     var func = context.getFunction();
     var output = func.getOutputTemplate().toObject();
     output.setOrigin(new MscObjectOrigin(context));
+    storageAllocator.allocate(output);
     return objectRepo.persist(output);
   }
 

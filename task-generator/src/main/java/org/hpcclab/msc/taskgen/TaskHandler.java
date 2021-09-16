@@ -32,7 +32,7 @@ public class TaskHandler {
   FunctionService functionService;
   ObjectService objectService;
 
-  @ConfigProperty(name = "objectControllerUrl")
+  @ConfigProperty(name = "oaas.tg.objectControllerUrl")
   String objectControllerUrl;
 
 
@@ -47,7 +47,7 @@ public class TaskHandler {
   }
 
   public Uni<Task> handle(ObjectResourceRequest request) {
-    if (!ObjectId.isValid(request.getOwnerObjectId())) {
+    if (request.getOwnerObjectId() == null || !ObjectId.isValid(request.getOwnerObjectId())) {
       LOGGER.warn("receive request with invalid ownerObjectId. [{}]",request);
       return Uni.createFrom().nullItem();
     }

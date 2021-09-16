@@ -16,13 +16,9 @@ spec:
     spec:
       containers:
         - name: task-generator
-          env:
-            - name: JAVA_OPTIONS
-              value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: msc-kafka-bootstrap:9092
-            - name: OBJECTCONTROLLERURL
-              value: http://object-controller
+          envFrom:
+            - configMapRef:
+                name: oaas-env
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
           ports:
             - containerPort: 8080

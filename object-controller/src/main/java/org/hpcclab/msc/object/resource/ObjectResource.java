@@ -1,27 +1,22 @@
 package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.JsonObject;
 import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
-import org.hpcclab.msc.object.service.FunctionRouter;
+import org.hpcclab.msc.object.handler.FunctionRouter;
 import org.hpcclab.msc.object.service.ObjectService;
-import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 

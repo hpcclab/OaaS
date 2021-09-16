@@ -10,22 +10,24 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 @ApplicationScoped
 public class KsqlClientProducer {
 
-  @ConfigProperty(name = "ksqlhost", defaultValue = "localhost")
-  String host;
-  @ConfigProperty(name = "ksqlport", defaultValue = "8088")
-  int port;
+  @ConfigProperty(name = "oaas.sc.ksqlUrl", defaultValue = "localhost")
+  String ksqlurl;
 
   @Inject
   Vertx vertx;
 
   @Produces
-  public WebClient webclient() {
-    return WebClient.create(vertx, new WebClientOptions().setDefaultHost(host)
-      .setDefaultPort(port));
+  public WebClient webclient() throws MalformedURLException {
+    URL uri = new URL(ksqlurl);
+    return WebClient.create(vertx, new WebClientOptions().setDefaultHost(uri.getHost())
+      .setDefaultPort(uri.getPort() > 0 ? uri.getPort() : uri.getDefaultPort()));
   }
 
 

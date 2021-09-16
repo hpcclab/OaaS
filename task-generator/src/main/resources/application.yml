@@ -3,7 +3,11 @@
     http:
       port: 8090
 
-objectControllerUrl: http://localhost:8088
+oaas:
+  tg:
+    objectControllerUrl: http://localhost:8088
+    taskTopic: msc-tasks
+    resourceRequestTopic: msc-resource-requests
 
 quarkus:
   http:
@@ -31,13 +35,13 @@ mp:
     outgoing:
       tasks:
         connector: smallrye-kafka
-        topic: msc-tasks
+        topic: ${oaas.tg.taskTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
     incoming:
       resource-requests:
         connector: smallrye-kafka
-        topic: msc-resource-requests
+        topic: ${oaas.tg.resourceRequestTopic}
         auto:
           offset:
             reset: earliest

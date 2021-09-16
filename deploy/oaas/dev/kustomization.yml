@@ -1,8 +1,5 @@
 resources:
-  - ../object-controller
-  - ../task-generator
-  - ../job-provisioner
-  - ../stream-controller
+  - ../base
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller

@@ -16,13 +16,9 @@ spec:
     spec:
       containers:
         - name: stream-controller
-          env:
-            - name: JAVA_OPTIONS
-              value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-            - name: KSQLHOST
-              value: ksqldb-server
-            - name: KSQLPORT
-              value: '80'
+          envFrom:
+            - configMapRef:
+                name: oaas-env
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller:latest
           ports:
             - containerPort: 8080

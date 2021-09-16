@@ -1,0 +1,15 @@
+resources:
+  - env-configmap.yaml
+#job provisioner
+  - jp.yml
+  - jp-rb.yml
+  - task-completion-topic.yml
+#task generator
+  - tg.yml
+  - task-topic.yml
+  - request-topic.yml
+#stream controller
+  - sc.yml
+#object controller
+  - oc-mongo.yml
+  - oc.yml

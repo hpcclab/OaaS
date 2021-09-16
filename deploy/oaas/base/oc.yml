@@ -16,15 +16,14 @@ spec:
     spec:
       containers:
         - name: object-controller
+          envFrom:
+            - configMapRef:
+                name: oaas-env
           env:
-            - name: JAVA_OPTIONS
-              value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
             - name: QUARKUS_MONGODB_CONNECTION_STRING
               value: mongodb://oc-mongo:27017
             - name: QUARKUS_MONGODB_DATABASE
               value: object-controller
-            - name: QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE
-              value: "true"
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
           ports:
             - containerPort: 8080

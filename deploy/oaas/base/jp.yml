@@ -17,11 +17,9 @@ spec:
       serviceAccountName: jp-sa
       containers:
         - name: job-provisioner
-          env:
-            - name: JAVA_OPTIONS
-              value: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: msc-kafka-bootstrap:9092
+          envFrom:
+            - configMapRef:
+                name: oaas-env
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/job-provisioner
           ports:
             - containerPort: 8080

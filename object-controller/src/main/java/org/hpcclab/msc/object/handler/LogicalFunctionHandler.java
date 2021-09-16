@@ -1,4 +1,4 @@
-package org.hpcclab.msc.object.service;
+package org.hpcclab.msc.object.handler;
 
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.object.MscObjectOrigin;

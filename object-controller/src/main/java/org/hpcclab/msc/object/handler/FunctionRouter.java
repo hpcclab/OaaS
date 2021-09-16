@@ -1,4 +1,4 @@
-package org.hpcclab.msc.object.service;
+package org.hpcclab.msc.object.handler;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
@@ -8,6 +8,7 @@ import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.service.ContextLoader;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

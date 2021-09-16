@@ -4,6 +4,12 @@
     http:
       port: 8091
 
+oaas:
+  jp:
+    taskTopic: msc-tasks
+    taskCompletionTopic: msc-task-completions
+
+
 quarkus:
   http:
     access-log:
@@ -25,13 +31,13 @@ mp:
     incoming:
       tasks:
         connector: smallrye-kafka
-        topic: msc-tasks
+        topic: ${oaas.jp.taskTopic}
         auto:
           offset:
             reset: earliest
     outgoing:
       task-completions:
         connector: smallrye-kafka
-        topic: msc-task-completions
+        topic: ${oaas.jp.taskCompletionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

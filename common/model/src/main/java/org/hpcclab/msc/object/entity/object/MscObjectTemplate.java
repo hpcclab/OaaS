@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObjectTemplate extends MscObject{
+
   public MscObject toObject() {
     return this.copy();
   }
