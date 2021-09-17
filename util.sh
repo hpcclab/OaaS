@@ -25,4 +25,4 @@ export JAVA_HOME=~/.jdks/openjdk-17/
 
 $ENV:JAVA_HOME="C:\Program Files\Java\jdk-17"
 $ENV:CI_REGISTRY_IMAGE="core.harbor.OAACluster01/oaas"
-mvn package -DskipTests "-Dquarkus.container-image.username=hpcclab"    "-Dquarkus.container-image.password=Hpcclab123"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true"
+mvn package -DskipTests "-Dquarkus.container-image.username=hpcclab"    "-Dquarkus.container-image.password=Hpcclab123"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true" "-Dquarkus.jib.base-jvm-image=core.harbor.OAACluster01/other/adoptopenjdk/openjdk16:ubi-minimal-jre"

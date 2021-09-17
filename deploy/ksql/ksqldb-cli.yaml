@@ -18,7 +18,8 @@ spec:
       containers:
         - command:
             - /bin/sh
-          image: confluentinc/ksqldb-cli:0.20.0
+#          image: confluentinc/ksqldb-cli:0.20.0
+          image: core.harbor.OAACluster01/proxy/confluentinc/ksqldb-cli:0.20.0
           name: ksqldb-cli
           resources: {}
           tty: true

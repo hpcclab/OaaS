@@ -20,7 +20,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: ksql-env
-          image: confluentinc/ksqldb-server:0.20.0
+#          image: confluentinc/ksqldb-server:0.20.0
+          image: core.harbor.OAACluster01/proxy/confluentinc/ksqldb-server:0.20.0
           ports:
             - containerPort: 8088
           resources: {}
