@@ -22,4 +22,22 @@ public class MscObjectRepository implements ReactivePanacheMongoRepository<MscOb
   public Uni<List<MscObject>> listByIds(Collection<ObjectId> ids) {
     return find("_id in ?1", ids).list();
   }
+
+  @Override
+  public Uni<MscObject> persist(MscObject mscObject) {
+    mscObject.updateHash();
+    return ReactivePanacheMongoRepository.super.persist(mscObject);
+  }
+
+  @Override
+  public Uni<MscObject> persistOrUpdate(MscObject mscObject) {
+    mscObject.updateHash();
+    return ReactivePanacheMongoRepository.super.persistOrUpdate(mscObject);
+  }
+
+  @Override
+  public Uni<MscObject> update(MscObject mscObject) {
+    mscObject.updateHash();
+    return ReactivePanacheMongoRepository.super.update(mscObject);
+  }
 }

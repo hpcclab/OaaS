@@ -21,9 +21,9 @@ public class MscObject {
   @BsonId
   ObjectId id;
   MscObjectOrigin origin;
+  long originHash;
   Type type;
   Map<String, String> labels;
-  //  Map<String, MscFuncMetadata> functions;
   List<String> functions = List.of();
 
   MscObjectState state;
@@ -40,18 +40,23 @@ public class MscObject {
     } else {
       members = null;
     }
-    if (origin==null) origin = new MscObjectOrigin().setRootId(id);
+    if (origin==null) origin =new MscObjectOrigin().setRootId(id);
   }
 
   public MscObject copy() {
     return new MscObject(
       id,
       origin==null ? null:origin.copy(),
+      originHash,
       type,
       labels==null ? null:Map.copyOf(labels),
       functions==null ? null:List.copyOf(functions),
       state,
       members==null ? null:Map.copyOf(members)
     );
+  }
+
+  public void updateHash() {
+    this.originHash = origin.hash();
   }
 }
