@@ -16,7 +16,7 @@ public class StreamCreator {
   @Inject
   KsqlService ksqlService;
 
-  void onStart(@Observes StartupEvent startupEvent) {
+  public void create() {
     var streams = ksqlService.executeStatement("list streams;")
       .getJsonObject(0).getJsonArray("streams");
     var streamNames = streams.stream()
@@ -82,7 +82,7 @@ public class StreamCreator {
             requestFile AS KEY2,
             AS_VALUE(ownerObjectId) AS ownerObjectId,
             AS_VALUE(requestFile) AS requestFile
-        FROM RESOURCEREQUESTS WINDOW TUMBLING (SIZE 2 MINUTES, RETENTION 1000 DAYS)
+        FROM RESOURCEREQUESTS WINDOW TUMBLING (SIZE 1 HOURS, RETENTION 1000 DAYS)
         GROUP BY ownerObjectId, requestFile
         HAVING COUNT(ownerObjectId) = 1;
         """,
@@ -92,7 +92,11 @@ public class StreamCreator {
 
     if (!streamNames.contains("RAW_DISTINCT_RESOURCEREQUESTS")) {
       ksqlService.executeStatement("""
-        CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS (ownerObjectId string, requestFile string)
+        CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS
+        (
+          ownerObjectId string,
+          requestFile string
+        )
         WITH (KAFKA_TOPIC = 'DETECTED_RESOURCEREQUESTS',
               FORMAT = 'JSON');
         """,

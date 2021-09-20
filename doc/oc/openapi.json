@@ -357,6 +357,10 @@
           "origin" : {
             "$ref" : "#/components/schemas/MscObjectOrigin"
           },
+          "originHash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "state" : {
             "$ref" : "#/components/schemas/MscObjectState"
           },
@@ -454,6 +458,10 @@
           },
           "origin" : {
             "$ref" : "#/components/schemas/MscObjectOrigin"
+          },
+          "originHash" : {
+            "format" : "int64",
+            "type" : "integer"
           },
           "state" : {
             "$ref" : "#/components/schemas/MscObjectState"

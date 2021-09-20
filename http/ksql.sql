@@ -1,7 +1,24 @@
-create stream resourceRequests (ownerObjectId VARCHAR, requestFile VARCHAR)
-WITH (kafka_topic='msc-resource-requests', value_format='json');
+insert into resourcerequests (ownerObjectId, requestFile) values ('test', 'test.ts');
 
-create table resourceRequestView AS select * from resourceRequests;
+select * from detected_resourcerequests;
+print DISTINCT_RESOURCEREQUESTS from beginning;
+select * from DISTINCT_RESOURCEREQUESTS emit changes;
 
 
-select * from tasks emit changes;
+CREATE STREAM test
+(
+  k string key,
+  test VARCHAR,
+  test2 VARCHAR
+)
+WITH (kafka_topic='test', FORMAT='json', PARTITIONS=1);
+INSERT into test (k, test, test2) values ('te', 'aa', 'bb');
+
+CREATE table test_table
+(
+  k string PRIMARY key,
+  test VARCHAR,
+  test2 VARCHAR
+)
+WITH (kafka_topic='test', FORMAT='json');
+select * from test_table;

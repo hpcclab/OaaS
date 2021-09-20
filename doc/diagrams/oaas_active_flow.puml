@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor client
+participant objectController
+participant contentDeliveryServer
+participant TaskGenerator
+queue taskQueue
+queue taskCompletionBroker
+participant JobProvisioner
+participant K8sApiServer
+collections JobPod
+database storage
+
+client -> objectController: function call request
+objectController -> objectController: update state
+objectController -> TaskGenerator: submit function call
+TaskGenerator -> taskQueue: create task
+taskQueue -> JobProvisioner: receive task
+JobProvisioner -> K8sApiServer: submit job
+K8sApiServer -> JobPod: create job pod
+JobPod -> storage: load input resource
+storage -> JobPod
+JobPod -> JobPod: execute task
+JobPod -> storage: put output resource
+JobPod -> K8sApiServer: acknowledge job completion
+K8sApiServer -> JobProvisioner: receive job completion event
+JobProvisioner -> taskCompletionBroker: submit event
+taskCompletionBroker -> contentDeliveryServer:
+...
+client -> contentDeliveryServer: request resource file
+contentDeliveryServer -> storage: load resource
+storage -> contentDeliveryServer:
+contentDeliveryServer -> client: reply with resource
+@enduml

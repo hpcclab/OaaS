@@ -14,6 +14,12 @@ spec:
       labels:
         app: task-generator
     spec:
+      initContainers:
+        - name: stream-controller
+          envFrom:
+              - configMapRef:
+                  name: oaas-env
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller:latest
       containers:
         - name: task-generator
           envFrom:
