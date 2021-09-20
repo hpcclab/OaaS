@@ -69,6 +69,11 @@ public class JobWatcher {
   void submitTaskCompletion(Job job,
                             Task task,
                             boolean succeeded) {
+    var url = task.getEnv().get("OUTPUT_RESOURCE_URL");
+    if (task.getResourceType().endsWith("FILES")) {
+      url = url + "/" + task.getEnv().get("REQUEST_FILE");
+    }
+
     var completion = new TaskCompletion()
       .setMainObj(task.getMainObj())
       .setOutputObj(task.getOutputObj())
@@ -77,8 +82,11 @@ public class JobWatcher {
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
       .setRequestFile(task.getEnv().get("REQUEST_FILE"))
-      .setDebugMessage(Json.encode(job.getStatus()));
-    tasksCompletionEmitter.send(Message.of(Record.of(completion.getOutputObj(),completion)));
+      .setDebugMessage(Json.encode(job.getStatus()))
+      .setResourceUrl(url);
+    tasksCompletionEmitter.send(
+      Message.of(Record.of(completion.getOutputObj() + "/" + completion.getRequestFile(),completion))
+    );
     LOGGER.info("{} is submitted", completion);
   }
 

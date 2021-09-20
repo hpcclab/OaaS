@@ -69,7 +69,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))
       .pathParam("oid", request.getTarget().toString())
-      .when().post("/api/objects/{oid}/rf-call")
+      .when().post("/api/objects/{oid}/r-exec")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)

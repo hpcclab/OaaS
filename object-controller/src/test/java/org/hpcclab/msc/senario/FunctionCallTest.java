@@ -29,6 +29,6 @@ public class FunctionCallTest {
     root = TestUtils.create(root);
 
     var newObj = TestUtils.fnCall(
-      new FunctionCallRequest().setFunctionName("buildin.logical.copy").setTarget(root.getId()));
+      new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(root.getId()));
   }
 }

@@ -53,7 +53,7 @@ public class TaskHandler {
     }
     return objectService.loadExecutionContext(request.getOwnerObjectId())
       .map(context -> taskFactory
-        .genTask(request, context.getTarget(), context.getAdditionalInputs(), context.getFunction())
+        .genTask(request, context)
       )
       .invoke(t -> LOGGER.info("task {}", t))
       .call(t -> Uni.createFrom().completionStage(tasksEmitter.send(t)))

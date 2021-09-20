@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
-    "version" : "0.1.0-SNAPSHOT"
+    "title" : "Generated API",
+    "version" : "1.0"
   },
   "paths" : {
     "/api/functions" : {
@@ -221,7 +221,7 @@
         }
       }
     },
-    "/api/objects/{id}/rf-call" : {
+    "/api/objects/{id}/r-exec" : {
       "post" : {
         "parameters" : [ {
           "name" : "id",
@@ -326,7 +326,7 @@
             "$ref" : "#/components/schemas/TaskTemplate"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "$ref" : "#/components/schemas/Type"
           }
         }
       },
@@ -365,7 +365,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -408,7 +408,7 @@
             "type" : "string"
           },
           "requiredType" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -425,7 +425,7 @@
             }
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type1"
+            "$ref" : "#/components/schemas/Type3"
           },
           "url" : {
             "type" : "string"
@@ -467,7 +467,7 @@
             "$ref" : "#/components/schemas/MscObjectState"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/Type2"
           }
         }
       },
@@ -534,24 +534,24 @@
             "type" : "string"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type3"
+            "$ref" : "#/components/schemas/Type1"
           }
         }
       },
       "Type" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
-        "type" : "string"
-      },
-      "Type1" : {
-        "enum" : [ "FILE", "RECORD", "STREAM_FILES" ],
-        "type" : "string"
-      },
-      "Type2" : {
         "enum" : [ "LOGICAL", "MACRO", "TASK" ],
         "type" : "string"
       },
-      "Type3" : {
+      "Type1" : {
         "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "type" : "string"
+      },
+      "Type2" : {
+        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "type" : "string"
+      },
+      "Type3" : {
+        "enum" : [ "FILE", "FILES", "RECORD", "STREAM_FILES" ],
         "type" : "string"
       }
     }

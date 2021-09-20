@@ -21,6 +21,6 @@ public class MscObjectState {
   String groupId;
 
   public enum Type {
-    FILE, STREAM_FILES, RECORD
+    FILE, FILES, STREAM_FILES, RECORD
   }
 }

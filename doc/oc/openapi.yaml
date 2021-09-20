@@ -1,8 +1,8 @@
 ---
 openapi: 3.0.3
 info:
-  title: object-controller API
-  version: 0.1.0-SNAPSHOT
+  title: Generated API
+  version: "1.0"
 paths:
   /api/functions:
     get:
@@ -132,7 +132,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FunctionExecContext'
-  /api/objects/{id}/rf-call:
+  /api/objects/{id}/r-exec:
     post:
       parameters:
       - name: id
@@ -201,7 +201,7 @@ components:
         task:
           $ref: '#/components/schemas/TaskTemplate'
         type:
-          $ref: '#/components/schemas/Type2'
+          $ref: '#/components/schemas/Type'
     MscObject:
       type: object
       properties:
@@ -227,7 +227,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type2'
     MscObjectOrigin:
       type: object
       properties:
@@ -255,7 +255,7 @@ components:
         requiredStateType:
           type: string
         requiredType:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type2'
     MscObjectState:
       type: object
       properties:
@@ -266,7 +266,7 @@ components:
           additionalProperties:
             type: string
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/Type3'
         url:
           type: string
     MscObjectTemplate:
@@ -294,7 +294,7 @@ components:
         state:
           $ref: '#/components/schemas/MscObjectState'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/Type2'
     ObjectId:
       type: object
       properties:
@@ -339,28 +339,29 @@ components:
         image:
           type: string
         type:
-          $ref: '#/components/schemas/Type3'
+          $ref: '#/components/schemas/Type1'
     Type:
-      enum:
-      - COMPOUND
-      - RESOURCE
-      type: string
-    Type1:
-      enum:
-      - FILE
-      - RECORD
-      - STREAM_FILES
-      type: string
-    Type2:
       enum:
       - LOGICAL
       - MACRO
       - TASK
       type: string
-    Type3:
+    Type1:
       enum:
       - DURABLE_WORKER
       - EPHEMERAL_WORKER
       - HTTP
       - LOGICAL
+      type: string
+    Type2:
+      enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    Type3:
+      enum:
+      - FILE
+      - FILES
+      - RECORD
+      - STREAM_FILES
       type: string

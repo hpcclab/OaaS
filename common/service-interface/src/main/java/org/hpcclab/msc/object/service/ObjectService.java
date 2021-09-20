@@ -29,7 +29,7 @@ public interface ObjectService {
                               List<String> funcNames);
 
   @POST
-  @Path("{id}/rf-call")
+  @Path("{id}/r-exec")
   Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request);
 
   @GET

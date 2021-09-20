@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -94,9 +95,16 @@ public class ContextLoader {
       .map(SubFunctionCall::getFuncName)
       .collect(Collectors.toSet());
     return funcRepo.listByNames(funcNames)
-      .map(objList -> objList.stream()
-        .map(f -> Map.entry(f.getName(), f))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+      .map(objList -> {
+        if (objList.size() != funcNames.size()) {
+          var l = new HashSet<>(funcNames);
+          l.removeAll(objList.stream().map(MscFunction::getName).collect(Collectors.toSet()));
+          throw new NoStackException("Can not load function " + l);
+        }
+        return objList.stream()
+            .map(f -> Map.entry(f.getName(), f))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      }
       );
   }
 }

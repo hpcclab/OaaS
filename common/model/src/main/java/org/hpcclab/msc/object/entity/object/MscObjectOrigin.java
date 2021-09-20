@@ -49,7 +49,7 @@ public class MscObjectOrigin {
 
   public long hash() {
     StringBuilder sb = new StringBuilder()
-      .append(parentId.toHexString())
+      .append(parentId == null? "null" :parentId.toHexString())
       .append(funcName);
     if (args != null && !args.isEmpty()) {
       args.entrySet()

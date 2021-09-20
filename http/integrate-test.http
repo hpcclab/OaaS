@@ -60,7 +60,7 @@ client.global.set("hls_id", response.body.id)
 ###
 
 
-POST {{oc}}/api/objects/{{hls_id}}/rf-call
+POST {{oc}}/api/objects/{{hls_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 

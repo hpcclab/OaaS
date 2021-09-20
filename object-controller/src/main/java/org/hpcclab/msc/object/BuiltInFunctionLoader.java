@@ -13,8 +13,8 @@ import javax.inject.Inject;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class BuildInFunctionLoader {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BuildInFunctionLoader.class);
+public class BuiltInFunctionLoader {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInFunctionLoader.class);
 
   ObjectMapper mapper;
   @Inject
@@ -24,8 +24,8 @@ public class BuildInFunctionLoader {
     mapper = new ObjectMapper(new YAMLFactory());
 
     var functions = Stream.of(
-        "/functions/buildin.logical.yml",
-        "/functions/buildin.hls.yml"
+        "/functions/builtin.logical.yml",
+        "/functions/builtin.hls.yml"
       )
       .flatMap(file -> {
         try {

@@ -17,7 +17,7 @@ public class FunctionResourceTest {
   @Test
   void find() {
     var map = funcRepo.listByMeta(
-      List.of(new MscFuncMetadata().setName("buildin.logical.copy"))
+      List.of(new MscFuncMetadata().setName("builtin.logical.copy"))
     ).await().indefinitely();
     Assertions.assertEquals(1, map.size());
   }

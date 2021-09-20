@@ -14,6 +14,7 @@ public class Task {
   String mainObj;
   String outputObj;
   String functionName;
+  String resourceType;
   String image;
   List<String> commands;
   List<String> containerArgs;

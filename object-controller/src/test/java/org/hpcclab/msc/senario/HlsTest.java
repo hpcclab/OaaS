@@ -36,7 +36,7 @@ public class HlsTest {
         .setGroupId("test")
         .setUrl("http://test/segment")
       )
-      .setFunctions(List.of("buildin.hls.ts.transcode"));
+      .setFunctions(List.of("builtin.hls.ts.transcode"));
 
     m3u8Obj = TestUtils.create(m3u8Obj);
     segmentsObj = TestUtils.create(segmentsObj);
@@ -49,8 +49,8 @@ public class HlsTest {
       );
 
     hlsObject = TestUtils.create(hlsObject);
-    hlsObject = TestUtils.bind(hlsObject, List.of("buildin.hls.macro.transcode"));
-    var hls2 = TestUtils.fnCall(new FunctionCallRequest().setFunctionName("buildin.hls.macro.transcode")
+    hlsObject = TestUtils.bind(hlsObject, List.of("builtin.hls.macro.transcode"));
+    var hls2 = TestUtils.fnCall(new FunctionCallRequest().setFunctionName("builtin.hls.macro.transcode")
       .setTarget(hlsObject.getId()));
     hls2.getMembers()
       .values().forEach(TestUtils::getObject);

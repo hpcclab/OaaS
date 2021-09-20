@@ -1,4 +1,4 @@
-- name: buildin.logical.copy
+- name: builtin.logical.copy
   type: LOGICAL
   reactive: false
   outputTemplate: {}

@@ -47,6 +47,7 @@ public class StreamCreator {
           mainObj string,
           outputObj string,
           functionName string,
+          functionName resourceType,
           image string,
           commands ARRAY<string>,
           containerArgs ARRAY<string>,
@@ -67,6 +68,8 @@ public class StreamCreator {
           status string,
           startTime string,
           completionTime string,
+          requestFile string,
+          resourceUrl string,
           debugMessage string
         )
         WITH (kafka_topic='msc-task-completions', FORMAT='json');
@@ -74,48 +77,48 @@ public class StreamCreator {
       LOGGER.info("CREATE STREAM taskCompletions");
     }
 
-    if (!tableNames.contains("DETECTED_RESOURCEREQUESTS")) {
-      ksqlService.executeStatement("""
-        CREATE TABLE DETECTED_RESOURCEREQUESTS AS
-        SELECT
-            ownerObjectId AS KEY1,
-            requestFile AS KEY2,
-            AS_VALUE(ownerObjectId) AS ownerObjectId,
-            AS_VALUE(requestFile) AS requestFile
-        FROM RESOURCEREQUESTS WINDOW TUMBLING (SIZE 1 HOURS, RETENTION 1000 DAYS)
-        GROUP BY ownerObjectId, requestFile
-        HAVING COUNT(ownerObjectId) = 1;
-        """,
-        Map.of("auto.offset.reset", "earliest"));
-      LOGGER.info("CREATE TABLE DETECTED_RESOURCEREQUESTS");
-    }
-
-    if (!streamNames.contains("RAW_DISTINCT_RESOURCEREQUESTS")) {
-      ksqlService.executeStatement("""
-        CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS
-        (
-          ownerObjectId string,
-          requestFile string
-        )
-        WITH (KAFKA_TOPIC = 'DETECTED_RESOURCEREQUESTS',
-              FORMAT = 'JSON');
-        """,
-        Map.of("auto.offset.reset", "earliest"));
-      LOGGER.info("CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS");
-    }
-
-    if (!streamNames.contains("DISTINCT_RESOURCEREQUESTS")) {
-      ksqlService.executeStatement("""
-          CREATE STREAM DISTINCT_RESOURCEREQUESTS AS
-          SELECT
-              ownerObjectId,
-              requestFile
-          FROM RAW_DISTINCT_RESOURCEREQUESTS
-          WHERE ownerObjectId IS NOT NULL;
-          """,
-        Map.of("auto.offset.reset", "earliest"));
-      LOGGER.info("CREATE STREAM DISTINCT_RESOURCEREQUESTS");
-    }
+//    if (!tableNames.contains("DETECTED_RESOURCEREQUESTS")) {
+//      ksqlService.executeStatement("""
+//        CREATE TABLE DETECTED_RESOURCEREQUESTS AS
+//        SELECT
+//            ownerObjectId AS KEY1,
+//            requestFile AS KEY2,
+//            AS_VALUE(ownerObjectId) AS ownerObjectId,
+//            AS_VALUE(requestFile) AS requestFile
+//        FROM RESOURCEREQUESTS WINDOW TUMBLING (SIZE 1 HOURS, RETENTION 1000 DAYS)
+//        GROUP BY ownerObjectId, requestFile
+//        HAVING COUNT(ownerObjectId) = 1;
+//        """,
+//        Map.of("auto.offset.reset", "earliest"));
+//      LOGGER.info("CREATE TABLE DETECTED_RESOURCEREQUESTS");
+//    }
+//
+//    if (!streamNames.contains("RAW_DISTINCT_RESOURCEREQUESTS")) {
+//      ksqlService.executeStatement("""
+//        CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS
+//        (
+//          ownerObjectId string,
+//          requestFile string
+//        )
+//        WITH (KAFKA_TOPIC = 'DETECTED_RESOURCEREQUESTS',
+//              FORMAT = 'JSON');
+//        """,
+//        Map.of("auto.offset.reset", "earliest"));
+//      LOGGER.info("CREATE STREAM RAW_DISTINCT_RESOURCEREQUESTS");
+//    }
+//
+//    if (!streamNames.contains("DISTINCT_RESOURCEREQUESTS")) {
+//      ksqlService.executeStatement("""
+//          CREATE STREAM DISTINCT_RESOURCEREQUESTS AS
+//          SELECT
+//              ownerObjectId,
+//              requestFile
+//          FROM RAW_DISTINCT_RESOURCEREQUESTS
+//          WHERE ownerObjectId IS NOT NULL;
+//          """,
+//        Map.of("auto.offset.reset", "earliest"));
+//      LOGGER.info("CREATE STREAM DISTINCT_RESOURCEREQUESTS");
+//    }
   }
 
 }

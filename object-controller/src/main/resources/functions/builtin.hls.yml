@@ -1,4 +1,4 @@
-- name: buildin.hls.ts.transcode
+- name: builtin.hls.ts.transcode
   type: TASK
   reactive: true
   outputTemplate:
@@ -18,10 +18,11 @@
       - '-c'
     containerArgs:
       - |
-        ffprobe $MAIN_RESOURCE_URL/$REQUEST_FILE
+        ffmpeg -i $MAIN_RESOURCE_URL/$REQUEST_FILE -s 720x480 -c:a copy $REQUEST_FILE && \
+        curl -T $REQUEST_FILE $OUTPUT_RESOURCE_URL/$REQUEST_FILE
     argsToEnv: true
 
-- name: buildin.hls.macro.transcode
+- name: builtin.hls.macro.transcode
   type: MACRO
   reactive: true
   outputTemplate:
@@ -31,11 +32,11 @@
     requiredType: COMPOUND
   subFunctions:
     m3u8:
-      funcName: buildin.logical.copy
+      funcName: builtin.logical.copy
       target: m3u8
       inputRefs: []
     segments:
-      funcName: buildin.hls.ts.transcode
+      funcName: builtin.hls.ts.transcode
       target: segments
       inputRefs: []
   additionalInputs: []
