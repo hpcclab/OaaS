@@ -16,16 +16,16 @@ export CI_REGISTRY_IMAGE=core.harbor.OAACluster01/oaas
 export JAVA_HOME=~/.jdks/openjdk-17/
 
 ./mvnw package -DskipTests\
-    -Dquarkus.container-image.username=hpcclab \
-    -Dquarkus.container-image.password=Hpcclab123 \
+    -Dquarkus.container-image.username=admin \
+    -Dquarkus.container-image.password=Harbor12345 \
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
     -Dquarkus.jib.always-cache-base-image=true \
     -Dquarkus.container-image.insecure=true
 
 $ENV:JAVA_HOME="C:\Program Files\Java\jdk-17"
-$ENV:CI_REGISTRY_IMAGE="core.harbor.OAACluster01/oaas"
-mvn package -DskipTests "-Dquarkus.container-image.username=hpcclab"    "-Dquarkus.container-image.password=Hpcclab123"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true" "-Dquarkus.jib.base-jvm-image=core.harbor.OAACluster01/proxy/adoptopenjdk/openjdk16:ubi-minimal-jre"
+$ENV:CI_REGISTRY_IMAGE="core.harbor.10.131.36.27.nip.io/oaas"
+mvn package -DskipTests "-Dquarkus.container-image.username=admin"    "-Dquarkus.container-image.password=Harbor12345"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true" "-Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/adoptopenjdk/openjdk16:ubi-minimal-jre"
 
 NAMESPACE="msc"
 kubectl -n $NAMESPACE apply -f kafka -f ksql

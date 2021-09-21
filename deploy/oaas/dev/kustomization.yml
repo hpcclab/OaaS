@@ -3,14 +3,14 @@ resources:
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
-    newName: core.harbor.OAACluster01/oaas/object-controller
+    newName: core.harbor.10.131.36.27.nip.io/oaas/object-controller
     newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
-    newName: core.harbor.OAACluster01/oaas/task-generator
+    newName: core.harbor.10.131.36.27.nip.io/oaas/task-generator
     newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/job-provisioner
-    newName: core.harbor.OAACluster01/oaas/job-provisioner
+    newName: core.harbor.10.131.36.27.nip.io/oaas/job-provisioner
     newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller
-    newName: core.harbor.OAACluster01/oaas/stream-controller
+    newName: core.harbor.10.131.36.27.nip.io/oaas/stream-controller
     newTag: latest

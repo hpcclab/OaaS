@@ -50,3 +50,5 @@ components:
           type: string
         outputObj:
           type: string
+        resourceType:
+          type: string
