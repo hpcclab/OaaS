@@ -23,7 +23,7 @@ Content-Type: application/json
 {
   "type": "RESOURCE",
   "functions": [
-    "buildin.hls.ts.transcode"
+    "builtin.hls.ts.transcode"
   ],
   "state": {
     "type": "STREAM_FILES",
@@ -45,7 +45,7 @@ Content-Type: application/json
 {
   "type": "COMPOUND",
   "functions": [
-    "buildin.hls.macro.transcode"
+    "builtin.hls.macro.transcode"
   ],
   "members": {
     "m3u8": "{{m3u8_id}}",
@@ -66,7 +66,7 @@ Content-Type: application/json
 
 {
   "target": "{{hls_id}}",
-  "functionName": "buildin.hls.macro.transcode"
+  "functionName": "builtin.hls.macro.transcode"
 }
 
 > {%

@@ -20,3 +20,12 @@ kubectl apply -n $NAMESPACE -f kafka -f ksql
 helm repo add kafka-ui https://provectus.github.io/kafka-ui
 helm install -n $NAMESPACE -f kafka-ui/values.yml kafka-ui kafka-ui/kafka-ui
 ----
+
+== Extras
+=== Rook-Ceph
+[source,bash]
+----
+helm repo add rook-release https://charts.rook.io/release
+helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph
+helm install --create-namespace --namespace rook-ceph rook-ceph-cluster rook-release/rook-ceph-cluster
+----

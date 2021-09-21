@@ -16,7 +16,8 @@ public class TaskCompletion {
   String completionTime;
   String requestFile;
   String resourceUrl;
-  String debugMessage;
+  String debugCondition;
+  String debugLog;
 
   public enum Status {
     SUCCEEDED, FAILED

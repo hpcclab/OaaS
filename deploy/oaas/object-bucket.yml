@@ -10,7 +10,7 @@ spec:
   # `generateBucketName` must be omitted in the OBC.
   #bucketName:
   generateBucketName: msc-bkt
-  storageClassName: rook-ceph-delete-bucket
+  storageClassName: ceph-bucket
   additionalConfig:
   # To set for quota for OBC
   #maxObjects: "1000"

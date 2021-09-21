@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 
 @ApplicationScoped
 public class StorageAllocator {
@@ -17,10 +18,7 @@ public class StorageAllocator {
 
   public void allocate(MscObject object) {
     if (object.getId() == null) object.setId(new ObjectId());
-    try {
-      object.getState().setUrl(new URL(config.s3PrefixUrl(), object.getId().toHexString()).toString());
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+    object.getState().setUrl(Path.of(config.s3PrefixUrl())
+      .resolve( object.getId().toHexString()).toString());
   }
 }

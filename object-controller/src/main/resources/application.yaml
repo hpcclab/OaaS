@@ -39,7 +39,10 @@ quarkus:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
-
+  log:
+    category:
+      "org.hpcclab.msc":
+        level: DEBUG
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:

@@ -1,5 +1,6 @@
 resources:
   - ../base
+  - oaas-ingress.yml
 
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller

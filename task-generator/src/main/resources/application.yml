@@ -29,6 +29,10 @@ quarkus:
     image: ${ci.registry.image:oaas}/task-generator${tag:}
   jib:
     base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
+  log:
+    category:
+      "org.hpcclab.msc":
+        level: DEBUG
 
 mp:
   messaging:

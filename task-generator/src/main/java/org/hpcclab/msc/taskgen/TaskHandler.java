@@ -51,11 +51,11 @@ public class TaskHandler {
       LOGGER.warn("receive request with invalid ownerObjectId. [{}]",request);
       return Uni.createFrom().nullItem();
     }
-    return objectService.loadExecutionContext(request.getOwnerObjectId())
-      .map(context -> taskFactory
-        .genTask(request, context)
+    return objectService.get(request.getOwnerObjectId())
+      .flatMap(outputObj -> objectService.loadExecutionContext(request.getOwnerObjectId())
+        .map(context -> taskFactory.genTask(outputObj, request, context))
       )
-      .invoke(t -> LOGGER.info("task {}", t))
+      .invoke(t -> LOGGER.debug("task {}", t))
       .call(t -> Uni.createFrom().completionStage(tasksEmitter.send(t)))
       .onFailure(f -> {
         if (f instanceof WebApplicationException exception) {

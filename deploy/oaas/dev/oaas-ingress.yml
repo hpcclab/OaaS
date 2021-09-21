@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: oaas-ingress
+spec:
+  rules:
+    - host: "oaas.10.131.36.27.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /oc(/|$)(.*)
+            backend:
+              service:
+                name: object-controller
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /tg(/|$)(.*)
+            backend:
+              service:
+                name: task-generator
+                port:
+                  number: 80

@@ -24,11 +24,11 @@ import javax.inject.Inject;
 
 @ApplicationScoped
 public class JobWatcher {
-  private static final Logger LOGGER = LoggerFactory.getLogger( JobWatcher.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(JobWatcher.class);
   @Inject
   KubernetesClient client;
   @Channel("task-completions")
-  Emitter<Record<String,TaskCompletion>> tasksCompletionEmitter;
+  Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
   private Watch watch;
 
   void startup(@Observes StartupEvent startupEvent) {
@@ -37,22 +37,21 @@ public class JobWatcher {
         .watch(new Watcher<Job>() {
           @Override
           public void eventReceived(Action action, Job resource) {
-            if (resource.getMetadata().getAnnotations() == null ||
+            if (resource.getMetadata().getAnnotations()==null ||
               !resource.getMetadata().getAnnotations().containsKey("oaas.task")) {
               return;
             }
-            if (action == Action.DELETED || action == Action.ADDED) return;
+            if (action==Action.DELETED || action==Action.ADDED) return;
             Task task = Json.decodeValue(resource.getMetadata().getAnnotations().get("oaas.task"), Task.class);
 
-            if (resource.getStatus().getSucceeded() != null &&
-                resource.getStatus().getSucceeded() >= 1) {
-              submitTaskCompletion(resource,task, true);
+            if (resource.getStatus().getSucceeded()!=null &&
+              resource.getStatus().getSucceeded() >= 1) {
+              submitTaskCompletion(resource, task, true);
               client.batch().v1().jobs()
                 .delete(resource);
-            }
-            else if (resource.getStatus().getFailed()!= null &&
+            } else if (resource.getStatus().getFailed()!=null &&
               resource.getStatus().getFailed() >= 1) {
-              submitTaskCompletion(resource,task, false);
+              submitTaskCompletion(resource, task, false);
               client.batch().v1().jobs()
                 .delete(resource);
             }
@@ -78,20 +77,28 @@ public class JobWatcher {
       .setMainObj(task.getMainObj())
       .setOutputObj(task.getOutputObj())
       .setFunctionName(task.getFunctionName())
-      .setStatus(succeeded? TaskCompletion.Status.SUCCEEDED: TaskCompletion.Status.FAILED)
+      .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
       .setRequestFile(task.getEnv().get("REQUEST_FILE"))
-      .setDebugMessage(Json.encode(job.getStatus()))
-      .setResourceUrl(url);
+      .setResourceUrl(url)
+      .setDebugCondition(Json.encode(job.getStatus()));
+    var items = client.pods().withLabelSelector(job.getSpec().getSelector())
+      .list().getItems();
+    if (items.size() > 0) {
+      var pod = items.get(0);
+      var log = client.pods().withName(pod.getMetadata().getName())
+        .getLog();
+      completion.setDebugLog(log);
+    }
     tasksCompletionEmitter.send(
-      Message.of(Record.of(completion.getOutputObj() + "/" + completion.getRequestFile(),completion))
+      Message.of(Record.of(completion.getOutputObj() + "/" + completion.getRequestFile(), completion))
     );
-    LOGGER.info("{} is submitted", completion);
+    LOGGER.debug("{} is submitted", completion);
   }
 
   void onShutdown(@Observes ShutdownEvent shutdownEvent) {
-    if (watch != null) {
+    if (watch!=null) {
       watch.close();
     }
   }

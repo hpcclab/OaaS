@@ -19,11 +19,15 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
+            - configMapRef:
+                name: msc-bucket
           env:
             - name: QUARKUS_MONGODB_CONNECTION_STRING
               value: mongodb://oc-mongo:27017
             - name: QUARKUS_MONGODB_DATABASE
               value: object-controller
+            - name: OAAS_OC_S3PREFIXURL
+              value: 'http://${BUCKET_HOST}/${BUCKET_NAME}'
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
           ports:
             - containerPort: 8080

@@ -47,7 +47,7 @@ public class StreamCreator {
           mainObj string,
           outputObj string,
           functionName string,
-          functionName resourceType,
+          resourceType string,
           image string,
           commands ARRAY<string>,
           containerArgs ARRAY<string>,

@@ -12,14 +12,15 @@
   additionalInputs: []
   task:
     type: EPHEMERAL_WORKER
-    image: jrottenberg/ffmpeg:4.1-alpine
+    image: jrottenberg/ffmpeg:4.4-alpine
     commands:
       - /bin/sh
       - '-c'
     containerArgs:
       - |
-        ffmpeg -i $MAIN_RESOURCE_URL/$REQUEST_FILE -s 720x480 -c:a copy $REQUEST_FILE && \
-        curl -T $REQUEST_FILE $OUTPUT_RESOURCE_URL/$REQUEST_FILE
+        CMD="ffmpeg -i $MAIN_RESOURCE_URL/$REQUEST_FILE -s 720x480 -c:a copy -method PUT -f mpegts $OUTPUT_RESOURCE_URL/$REQUEST_FILE"
+        echo "COMMAND: '$CMD'"
+        $CMD
     argsToEnv: true
 
 - name: builtin.hls.macro.transcode

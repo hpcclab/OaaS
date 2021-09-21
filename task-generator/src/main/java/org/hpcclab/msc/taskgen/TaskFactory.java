@@ -13,11 +13,11 @@ import java.util.List;
 @ApplicationScoped
 public class TaskFactory {
 
-  public Task genTask(ObjectResourceRequest request,
+  public Task genTask(MscObject outputObj,
+                      ObjectResourceRequest request,
                       FunctionExecContext context) {
     var function = context.getFunction();
     var mainObj = context.getTarget();
-    var outputObj = context.getTarget();
     var inputs = context.getAdditionalInputs();
     var template = function.getTask();
     var task = new Task();

@@ -26,6 +26,10 @@ quarkus:
       group-id: org.hpcclab.msc
   console:
     color: true
+  log:
+    category:
+      "org.hpcclab.msc":
+        level: DEBUG
 mp:
   messaging:
     incoming:
