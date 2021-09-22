@@ -87,3 +87,7 @@ Content-Type: application/json
   "ownerObjectId": "{{hls2_segments}}",
   "requestFile": "segment-0000.ts"
 }
+
+
+###
+GET {{s3}}/{{hls2_segments}}/segment-0000.ts

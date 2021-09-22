@@ -18,7 +18,10 @@
       - '-c'
     containerArgs:
       - |
-        CMD="ffmpeg -i $MAIN_RESOURCE_URL/$REQUEST_FILE -s 720x480 -c:a copy -method PUT -f mpegts $OUTPUT_RESOURCE_URL/$REQUEST_FILE"
+        CMD="ffmpeg -i $MAIN_RESOURCE_URL/$REQUEST_FILE -s 720x480 -c:a copy -method PUT -f mpegts $REQUEST_FILE"
+        echo "COMMAND: '$CMD'"
+        $CMD
+        CMD="curl -T $REQUEST_FILE $OUTPUT_RESOURCE_URL/$REQUEST_FILE"
         echo "COMMAND: '$CMD'"
         $CMD
     argsToEnv: true
