@@ -3,7 +3,7 @@ package org.hpcclab.msc.object.repository;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.MscFuncMetadata;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;

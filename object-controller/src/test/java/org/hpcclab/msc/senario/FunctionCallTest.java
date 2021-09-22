@@ -25,7 +25,7 @@ public class FunctionCallTest {
   void testCopy() {
     var root = new MscObject()
       .setType(MscObject.Type.RESOURCE)
-      .setState(new MscObjectState().setUrl("http://test/test.m3u8"));
+      .setState(new MscObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
 
     var newObj = TestUtils.fnCall(

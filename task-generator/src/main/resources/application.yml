@@ -8,6 +8,7 @@ oaas:
     objectControllerUrl: http://localhost:8088
     taskTopic: msc-tasks
     resourceRequestTopic: msc-resource-requests
+    taskCompletionTopic: msc-task-completions
 
 quarkus:
   http:
@@ -33,6 +34,8 @@ quarkus:
     category:
       "org.hpcclab.msc":
         level: DEBUG
+  mongodb:
+    database: msc-task
 
 mp:
   messaging:
@@ -46,6 +49,12 @@ mp:
       resource-requests:
         connector: smallrye-kafka
         topic: ${oaas.tg.resourceRequestTopic}
+        auto:
+          offset:
+            reset: earliest
+      task-completion:
+        connector: smallrye-kafka
+        topic: ${oaas.tg.taskCompletionTopic}
         auto:
           offset:
             reset: earliest

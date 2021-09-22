@@ -1,5 +1,6 @@
 package org.hpcclab.msc.object;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -31,6 +32,13 @@ public class ExceptionMapper {
     return Response.status(noStackException.getCode())
       .entity(new JsonObject()
         .put("msg", noStackException.getMessage()))
+      .build();
+  }
+  @ServerExceptionMapper(JsonMappingException.class)
+  public Response exceptionMapper(JsonMappingException jsonMappingException) {
+    return Response.status(400)
+      .entity(new JsonObject()
+        .put("msg", jsonMappingException.getMessage()))
       .build();
   }
 }

@@ -14,7 +14,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.msc.object.model.Task;
-import org.hpcclab.msc.object.model.TaskCompletion;
+import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class JobWatcher {
   void submitTaskCompletion(Job job,
                             Task task,
                             boolean succeeded) {
-    var url = task.getEnv().get("OUTPUT_RESOURCE_URL");
+    var url = task.getEnv().get("OUTPUT_RESOURCE_BASE_URL");
     if (task.getResourceType().endsWith("FILES")) {
       url = url + "/" + task.getEnv().get("REQUEST_FILE");
     }

@@ -415,6 +415,18 @@
       "MscObjectState" : {
         "type" : "object",
         "properties" : {
+          "baseUrl" : {
+            "type" : "string"
+          },
+          "file" : {
+            "type" : "string"
+          },
+          "files" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "groupId" : {
             "type" : "string"
           },
@@ -426,9 +438,6 @@
           },
           "type" : {
             "$ref" : "#/components/schemas/Type1"
-          },
-          "url" : {
-            "type" : "string"
           }
         }
       },
@@ -543,7 +552,7 @@
         "type" : "string"
       },
       "Type1" : {
-        "enum" : [ "FILE", "FILES", "RECORD", "STREAM_FILES" ],
+        "enum" : [ "FILE", "FILES", "RECORD", "SEGMENTABLE" ],
         "type" : "string"
       },
       "Type2" : {

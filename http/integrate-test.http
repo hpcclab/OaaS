@@ -26,7 +26,7 @@ Content-Type: application/json
     "builtin.hls.ts.transcode"
   ],
   "state": {
-    "type": "STREAM_FILES",
+    "type": "SEGMENTABLE",
     "url": "{{segments_url}}",
     "groupId": "test"
   }

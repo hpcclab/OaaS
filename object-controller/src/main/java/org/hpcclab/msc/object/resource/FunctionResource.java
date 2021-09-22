@@ -2,8 +2,7 @@ package org.hpcclab.msc.object.resource;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.MscFunction;
-import org.hpcclab.msc.object.model.ErrorMessage;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.model.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.service.FunctionService;
@@ -11,8 +10,6 @@ import org.hpcclab.msc.object.service.FunctionService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @ApplicationScoped

@@ -3,7 +3,7 @@ package org.hpcclab.msc.object.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 
 import java.util.List;

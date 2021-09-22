@@ -1,13 +1,14 @@
-package org.hpcclab.msc.object.entity;
+package org.hpcclab.msc.object.entity.function;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
+import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.entity.object.MscObjectRequirement;
 import org.hpcclab.msc.object.entity.object.MscObjectTemplate;
-import org.hpcclab.msc.object.model.SubFunctionCall;
+import org.hpcclab.msc.object.entity.task.TaskTemplate;
 
 import java.util.List;
 import java.util.Map;

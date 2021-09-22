@@ -1,8 +1,9 @@
-package org.hpcclab.msc.taskgen;
+package org.hpcclab.msc.taskgen.resource;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
-import org.hpcclab.msc.object.model.Task;
+import org.hpcclab.msc.taskgen.TaskHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public class TaskResource {
   TaskHandler taskHandler;
 
   @POST
-  public Uni<Task> task(ObjectResourceRequest request) {
+  public Uni<TaskFlow> task(ObjectResourceRequest request) {
     return taskHandler.handle(request);
   }
 }

@@ -3,7 +3,7 @@ package org.hpcclab.msc.object.handler;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;

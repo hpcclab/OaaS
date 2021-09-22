@@ -70,11 +70,28 @@ public class StreamCreator {
           completionTime string,
           requestFile string,
           resourceUrl string,
-          debugMessage string
+          debugCondition string,
+          debugLog string
         )
         WITH (kafka_topic='msc-task-completions', FORMAT='json');
         """);
       LOGGER.info("CREATE STREAM taskCompletions");
+    }
+
+
+    if (!tableNames.contains("TASKCOMPTABLE")) {
+      ksqlService.executeStatement("""
+        CREATE TABLE taskCompTable AS SELECT
+          outputObj,
+          requestFile,
+          LATEST_BY_OFFSET(status) AS status,
+          LATEST_BY_OFFSET(resourceUrl) AS resourceUrl
+        FROM taskCompletions
+        WINDOW TUMBLING (SIZE 1 HOUR)
+        GROUP BY outputObj, requestFile
+        EMIT CHANGES;
+        """);
+      LOGGER.info("CREATE TABLE TASKCOMPTABLE");
     }
 
 //    if (!tableNames.contains("DETECTED_RESOURCEREQUESTS")) {

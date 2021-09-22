@@ -1,11 +1,10 @@
 package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)

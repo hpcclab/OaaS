@@ -29,12 +29,12 @@ public class HlsTest {
   void test() {
     var m3u8Obj = new MscObject()
       .setType(MscObject.Type.RESOURCE)
-      .setState(new MscObjectState().setUrl("http://test/test.m3u8"));
+      .setState(new MscObjectState().setBaseUrl("http://test/test.m3u8"));
     var segmentsObj = new MscObject()
       .setType(MscObject.Type.RESOURCE)
       .setState(new MscObjectState()
         .setGroupId("test")
-        .setUrl("http://test/segment")
+        .setBaseUrl("http://test/segment")
       )
       .setFunctions(List.of("builtin.hls.ts.transcode"));
 

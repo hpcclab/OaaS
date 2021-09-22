@@ -27,7 +27,7 @@ public class ObjectResourceTest {
   void test() {
     var root = new MscObject()
       .setType(MscObject.Type.RESOURCE)
-      .setState(new MscObjectState().setUrl("http://test/test.m3u8"));
+      .setState(new MscObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
     Assertions.assertTrue(TestUtils.listObject().size() >=1);
     TestUtils.getObject(root.getId());

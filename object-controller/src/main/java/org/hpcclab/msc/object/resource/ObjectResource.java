@@ -2,7 +2,7 @@ package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;

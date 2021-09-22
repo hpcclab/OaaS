@@ -3,7 +3,7 @@ package org.hpcclab.msc.object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.StartupEvent;
-import org.hpcclab.msc.object.entity.MscFunction;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,8 @@ public class BuiltInFunctionLoader {
 
     var functions = Stream.of(
         "/functions/builtin.logical.yml",
-        "/functions/builtin.hls.yml"
+        "/functions/builtin.hls.yml",
+        "/functions/builtin.media.yml"
       )
       .flatMap(file -> {
         try {
@@ -36,8 +37,8 @@ public class BuiltInFunctionLoader {
         }
       })
       .peek(func -> {
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("import build-in function {}", func);
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("import build-in function {}", func);
         } else {
           LOGGER.info("import build-in function {}", func.getName());
         }

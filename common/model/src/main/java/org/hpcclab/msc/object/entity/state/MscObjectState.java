@@ -9,6 +9,7 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.eclipse.microprofile.openapi.annotations.media.DiscriminatorMapping;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -16,11 +17,13 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MscObjectState {
   Type type;
-  String url;
+  String baseUrl;
+  String file;
+  List<String> files;
   Map<String, String> records;
   String groupId;
 
   public enum Type {
-    FILE, FILES, STREAM_FILES, RECORD
+    FILE, FILES, SEGMENTABLE, RECORD
   }
 }
