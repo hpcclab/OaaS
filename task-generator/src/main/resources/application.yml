@@ -52,7 +52,7 @@ mp:
         auto:
           offset:
             reset: earliest
-      task-completion:
+      task-completions:
         connector: smallrye-kafka
         topic: ${oaas.tg.taskCompletionTopic}
         auto:

@@ -5,7 +5,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 
 import javax.inject.Inject;
 
-@QuarkusMain
+//@QuarkusMain
 public class Main implements QuarkusApplication {
   @Inject StreamCreator creator;
 

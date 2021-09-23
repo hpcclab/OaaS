@@ -1,0 +1,23 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: msc
+  name: request
+spec:
+  config: {}
+  partitions: 10
+  replicas: 1
+  topicName: request
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: msc
+  name: distinct-request
+spec:
+  config: {}
+  partitions: 10
+  replicas: 1
+  topicName: distinct-request

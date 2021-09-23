@@ -16,7 +16,7 @@ public class TaskCompletionConsumer {
   @Inject
   TaskCompletionRepository taskCompletionRepo;
 
-  @Incoming("resource-requests")
+  @Incoming("task-completions")
   public Uni<TaskCompletion> handle(TaskCompletion taskCompletion) {
     return taskCompletionRepo.persist(taskCompletion);
   }

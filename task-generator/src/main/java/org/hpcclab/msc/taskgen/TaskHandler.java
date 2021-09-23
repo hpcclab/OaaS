@@ -40,23 +40,8 @@ public class TaskHandler {
 
   @Channel("tasks")
   Emitter<Task> tasksEmitter;
-
-  FunctionService functionService;
+  @Inject
   ObjectService objectService;
-
-  @ConfigProperty(name = "oaas.tg.objectControllerUrl")
-  String objectControllerUrl;
-
-
-  @PostConstruct
-  void setup() {
-    this.functionService = RestClientBuilder.newBuilder()
-      .baseUri(URI.create(objectControllerUrl))
-      .build(FunctionService.class);
-    this.objectService = RestClientBuilder.newBuilder()
-      .baseUri(URI.create(objectControllerUrl))
-      .build(ObjectService.class);
-  }
 
   public Uni<TaskFlow> handle(ObjectResourceRequest request) {
     if (request.getOwnerObjectId()==null || !ObjectId.isValid(request.getOwnerObjectId())) {
@@ -69,7 +54,7 @@ public class TaskHandler {
   }
 
   private Uni<TaskFlow> createFlow(MscObject outputObj, String requestFile) {
-    if (outputObj.getOrigin().getParentId() == null) {
+    if (outputObj.getOrigin().getParentId()==null) {
       return Uni.createFrom().nullItem();
     }
     return taskSequenceRepo.find(outputObj, requestFile)
@@ -79,7 +64,7 @@ public class TaskHandler {
           .persist(taskFactory.genTaskSequence(outputObj, requestFile, context))
           .flatMap(this::checkSubmittable)
           .flatMap(submitted -> {
-            if(!submitted) {
+            if (!submitted) {
               var l = new ArrayList<MscObject>();
               l.add(context.getTarget());
               l.addAll(context.getAdditionalInputs());

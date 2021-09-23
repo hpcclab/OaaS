@@ -2,3 +2,4 @@ resources:
   - request-topic.yml
   - task-completion-topic.yml
   - task-topic.yml
+  - test-topic.yml

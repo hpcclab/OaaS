@@ -22,7 +22,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Task"
+                  "$ref" : "#/components/schemas/TaskFlow"
                 }
               }
             }
@@ -79,6 +79,26 @@
           },
           "resourceType" : {
             "type" : "string"
+          }
+        }
+      },
+      "TaskFlow" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "prerequisiteTasks" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "submitted" : {
+            "type" : "boolean"
+          },
+          "task" : {
+            "$ref" : "#/components/schemas/Task"
           }
         }
       }
