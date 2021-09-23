@@ -13,6 +13,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Task {
+  String id;
   String mainObj;
   String outputObj;
   String functionName;

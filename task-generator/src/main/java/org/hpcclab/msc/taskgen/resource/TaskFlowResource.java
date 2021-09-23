@@ -1,18 +1,22 @@
 package org.hpcclab.msc.taskgen.resource;
 
-//@ResourceProperties(path = "/api/flows")
-//public interface TaskFlowResource extends PanacheMongoRepositoryResource<TaskFlowResource.InternalTaskFlowRepository, TaskFlow, String> {
-//
-////  @MethodProperties(exposed = false)
-////  TaskFlow add(TaskFlow entity);
-////
-////  @MethodProperties(exposed = false)
-////  TaskFlow update(String id, TaskFlow entity);
-////
-////  @MethodProperties(exposed = false)
-////  boolean delete(String id);
-//
-//  class InternalTaskFlowRepository implements PanacheMongoRepositoryBase<TaskFlow, String>{
-//
-//  }
-//}
+import io.smallrye.mutiny.Multi;
+import org.hpcclab.msc.object.entity.task.TaskFlow;
+import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
+
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+@Path("/api/flows")
+public class TaskFlowResource  {
+
+  @Inject
+  TaskFlowRepository taskFlowRepo;
+
+  @GET
+  public Multi<TaskFlow> list() {
+    return taskFlowRepo.findAll()
+      .stream();
+  }
+}

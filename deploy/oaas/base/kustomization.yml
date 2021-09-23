@@ -1,14 +1,14 @@
 resources:
   - env-configmap.yaml
-#job provisioner
+  #job provisioner
   - jp.yml
   - jp-rb.yml
-#task generator
+  #task generator
   - tg.yml
-#stream controller
-  - sc.yml
-#object controller
+  #object controller
   - oc-mongo.yml
   - oc.yml
-# Topics
+  # Topics
   - topics
+  #stream controller
+#  - sc

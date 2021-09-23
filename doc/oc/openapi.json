@@ -30,6 +30,11 @@
               "schema" : {
                 "$ref" : "#/components/schemas/MscFunction"
               }
+            },
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
             }
           }
         },

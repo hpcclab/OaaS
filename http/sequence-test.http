@@ -1,0 +1,102 @@
+###
+POST {{oc}}/api/functions
+Content-Type: text/x-yaml
+
+name: example.concat
+type: TASK
+reactive: true
+outputTemplate:
+  type: RESOURCE
+  functions:
+    - example.concat
+  labels: {}
+  state:
+    type: FILE
+bindingRequirement:
+  requiredType: RESOURCE
+  requiredStateType: FILE
+additionalInputs: []
+task:
+  type: EPHEMERAL_WORKER
+  image: registry.access.redhat.com/ubi8/ubi:8.4-211
+  #    image: curlimages/curl
+  commands:
+    - /bin/sh
+    - '-c'
+  containerArgs:
+    - |
+      curl -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
+      echo "$TEXT" >> tmp_file
+      curl -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
+
+  argsToEnv: true
+
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "RESOURCE",
+  "functions": [
+    "example.concat"
+  ],
+  "state": {
+    "type": "FILE",
+    "baseUrl": "http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/msc-bkt-75e7fed6-684a-428f-b4fa-dac605f10bb9/test2",
+    "file": "root"
+  }
+}
+
+> {%
+client.global.set("root_id", response.body.id)
+%}
+
+###
+POST {{oc}}/api/objects/{{root_id}}/r-exec
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target": "{{root_id}}",
+  "functionName": "example.concat",
+  "args": {
+    "TEXT": "ROOT -> O1"
+  }
+}
+
+> {%
+client.global.set("o1_id", response.body.id)
+%}
+###
+POST {{oc}}/api/objects/{{o1_id}}/r-exec
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target": "{{o1_id}}",
+  "functionName": "example.concat",
+  "args": {
+    "TEXT": "O1 -> O2"
+  }
+}
+
+> {%
+client.global.set("o2_id", response.body.id)
+%}
+###
+POST {{tg}}/api/tasks
+Accept: application/json
+Content-Type: application/json
+
+{
+  "ownerObjectId": "{{o2_id}}",
+  "requestFile": "root"
+}
+###
+GET {{tg}}/api/flows
+Accept: application/json
+
+###
+GET {{tg}}/api/task-completions
+Accept: application/json

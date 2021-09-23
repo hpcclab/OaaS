@@ -4,6 +4,28 @@ info:
   title: task-generator API
   version: 0.1.0-SNAPSHOT
 paths:
+  /api/flows:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskFlow'
+  /api/task-completions:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskCompletion'
   /api/tasks:
     post:
       requestBody:
@@ -27,6 +49,11 @@ components:
           type: string
         requestFile:
           type: string
+    Status:
+      enum:
+      - FAILED
+      - SUCCEEDED
+      type: string
     Task:
       type: object
       properties:
@@ -44,6 +71,8 @@ components:
             type: string
         functionName:
           type: string
+        id:
+          type: string
         image:
           type: string
         mainObj:
@@ -52,6 +81,31 @@ components:
           type: string
         resourceType:
           type: string
+    TaskCompletion:
+      type: object
+      properties:
+        completionTime:
+          type: string
+        debugCondition:
+          type: string
+        debugLog:
+          type: string
+        functionName:
+          type: string
+        id:
+          type: string
+        mainObj:
+          type: string
+        outputObj:
+          type: string
+        requestFile:
+          type: string
+        resourceUrl:
+          type: string
+        startTime:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
     TaskFlow:
       type: object
       properties:

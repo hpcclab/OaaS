@@ -7,7 +7,8 @@ Content-Type: application/json
   "type": "RESOURCE",
   "state": {
     "type": "FILE",
-    "url": "{{m3u8_url}}"
+    "baseUrl": "{{base_url}}",
+    "file": "playlist.m3u8"
   }
 }
 
@@ -27,7 +28,7 @@ Content-Type: application/json
   ],
   "state": {
     "type": "SEGMENTABLE",
-    "url": "{{segments_url}}",
+    "baseUrl": "{{base_url}}",
     "groupId": "test"
   }
 }
@@ -87,7 +88,7 @@ Content-Type: application/json
   "ownerObjectId": "{{hls2_segments}}",
   "requestFile": "segment-0000.ts"
 }
-
-
 ###
-GET {{s3}}/{{hls2_segments}}/segment-0000.ts
+GET {{tg}}/api/flows
+Accept: application/json
+

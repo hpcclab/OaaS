@@ -1,5 +1,8 @@
 package org.hpcclab.msc.object.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.MscFunction;
@@ -16,6 +19,7 @@ import java.util.List;
 public class FunctionResource implements FunctionService {
   @Inject
   MscFuncRepository funcRepo;
+  ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   public Uni<List<MscFunction>> list() {
     return funcRepo.listAll();
@@ -30,6 +34,16 @@ public class FunctionResource implements FunctionService {
         }
         return funcRepo.persist(mscFunction);
       });
+  }
+
+  @Override
+  public Uni<MscFunction> createByYaml(String body) {
+    try {
+      var func = mapper.readValue(body, MscFunction.class);
+      return create(func);
+    } catch (JsonProcessingException e) {
+      throw new BadRequestException(e);
+    }
   }
 
   public Uni<MscFunction> get(String funcName) {

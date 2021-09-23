@@ -79,9 +79,14 @@ public class TaskHandler {
   }
 
   private Uni<Boolean> checkSubmittable(TaskFlow taskFlow) {
+    if (taskFlow.getPrerequisiteTasks().size() == 0) {
+      return submitTask(taskFlow)
+        .map(f -> true);
+    }
     return taskCompletionRepo.find("id in ?1", taskFlow.getPrerequisiteTasks())
       .count()
       .flatMap(count -> {
+        LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), count);
         if (taskFlow.getPrerequisiteTasks().size() <= count) {
           return submitTask(taskFlow)
             .map(f -> true);

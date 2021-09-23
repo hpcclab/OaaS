@@ -74,6 +74,7 @@ public class JobWatcher {
     }
 
     var completion = new TaskCompletion()
+      .setId(task.getId())
       .setMainObj(task.getMainObj())
       .setOutputObj(task.getOutputObj())
       .setFunctionName(task.getFunctionName())

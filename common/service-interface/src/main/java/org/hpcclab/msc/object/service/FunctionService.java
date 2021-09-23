@@ -15,6 +15,10 @@ public interface FunctionService {
   Uni<List<MscFunction>> list();
   @POST
   Uni<MscFunction> create(MscFunction mscFunction);
+  @POST
+  @Consumes("text/x-yaml")
+  @Produces(MediaType.APPLICATION_JSON)
+  Uni<MscFunction> createByYaml(String body);
   @GET
   @Path("{funcName}")
   Uni<MscFunction> get(String funcName);

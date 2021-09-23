@@ -1,0 +1,3 @@
+resources:
+  - sc.yml
+  - test-topic.yml

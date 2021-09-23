@@ -1,0 +1,28 @@
+- name: builtin.common.sh
+  type: TASK
+  reactive: true
+  outputTemplate:
+    type: RESOURCE
+    labels: {}
+    state:
+      type: FILE
+  bindingRequirement:
+    requiredType: RESOURCE
+    requiredStateType: FILE
+  additionalInputs: []
+  task:
+    type: EPHEMERAL_WORKER
+    image: core.harbor.10.131.36.27.nip.io/proxy/curlimages/curl
+#    image: curlimages/curl
+    commands:
+      - /bin/sh
+      - '-c'
+    containerArgs:
+      - |
+        CMD="curl -O $MAIN_RESOURCE_BASE_URL/$REQUEST_FILE"
+        echo "COMMAND: '$CMD'"
+        $CMD
+        CMD="curl -T tmp $OUTPUT_RESOURCE_BASE_URL/${REQUEST_FILE}.log"
+        echo "COMMAND: '$CMD'"
+        $CMD
+    argsToEnv: true
