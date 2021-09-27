@@ -6,6 +6,7 @@ import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
+import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,10 +16,24 @@ public class TaskCompletionConsumer {
 
   @Inject
   TaskCompletionRepository taskCompletionRepo;
+  @Inject
+  TaskFlowRepository taskFlowRepo;
+  @Inject
+  TaskHandler taskHandler;
 
   @Incoming("task-completions")
   public Uni<TaskCompletion> handle(TaskCompletion taskCompletion) {
-    return taskCompletionRepo.persist(taskCompletion);
+    return taskCompletionRepo.persist(taskCompletion)
+      .call(this::submitNextTask);
   }
 
+  private Uni<Void> submitNextTask(TaskCompletion taskCompletion) {
+    return taskFlowRepo.find("{'prerequisiteTasks':?1}", taskCompletion.getId())
+      .stream()
+      .onItem().transformToUniAndConcatenate(
+        flow -> taskHandler.checkSubmittable(flow)
+      )
+      .collect().last()
+      .map(b -> null);
+  }
 }

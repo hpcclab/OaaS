@@ -8,6 +8,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.object.model.Task;
@@ -78,20 +79,26 @@ public class TaskHandler {
       );
   }
 
-  private Uni<Boolean> checkSubmittable(TaskFlow taskFlow) {
-    if (taskFlow.getPrerequisiteTasks().size() == 0) {
+  public Uni<Boolean> checkSubmittable(TaskFlow taskFlow) {
+    if (taskFlow.getPrerequisiteTasks().size()==0) {
       return submitTask(taskFlow)
         .map(f -> true);
     }
     return taskCompletionRepo.find("id in ?1", taskFlow.getPrerequisiteTasks())
-      .count()
-      .flatMap(count -> {
-        LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), count);
-        if (taskFlow.getPrerequisiteTasks().size() <= count) {
-          return submitTask(taskFlow)
-            .map(f -> true);
-        } else
-          return Uni.createFrom().item(false);
+      .list()
+      .flatMap(taskCompletions -> {
+        LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), taskCompletions.size());
+        if (taskFlow.getPrerequisiteTasks().size() <= taskCompletions.size()) {
+          boolean succeeded = true;
+          for (TaskCompletion taskCompletion : taskCompletions) {
+            succeeded &= taskCompletion.getStatus()==TaskCompletion.Status.SUCCEEDED;
+          }
+          if (succeeded) {
+            return submitTask(taskFlow)
+              .map(f -> true);
+          }
+        }
+        return Uni.createFrom().item(false);
       });
   }
 

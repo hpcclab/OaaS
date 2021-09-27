@@ -9,7 +9,7 @@ export JAVA_HOME=~/.jdks/openjdk-17/
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
     -Dquarkus.jib.always-cache-base-image=true \
-    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/adoptopenjdk/openjdk16:ubi-minimal-jre \
+    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/amazoncorretto:17.0.0 \
     -Dquarkus.container-image.insecure=true
 
 $ENV:JAVA_HOME="C:\Program Files\Java\jdk-17"
