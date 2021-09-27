@@ -2,41 +2,41 @@
 'https://plantuml.com/sequence-diagram
 
 
-actor client
-participant objectController
-participant contentDeliveryServer
+actor Client
+participant ObjectController
+participant ContentDeliveryServer
 queue ResourceRequestQueue
 participant TaskGenerator
-queue taskQueue
-queue taskCompletionBroker
-participant JobProvisioner
+queue TaskQueue
+queue TaskCompletionBroker
+participant TaskProvisioner
 participant K8sApiServer
 collections JobPod
-database storage
+database Storage
 
 
-client -> objectController: function call request
-objectController -> objectController: update state
-objectController -> client:
+Client -> ObjectController: function call request
+ObjectController -> ObjectController: update state
+ObjectController -> Client:
 ...
-client -> contentDeliveryServer: request resource file
-contentDeliveryServer -> ResourceRequestQueue: put to queue
+Client -> ContentDeliveryServer: request resource file
+ContentDeliveryServer -> ResourceRequestQueue: put to queue
 ResourceRequestQueue -> TaskGenerator: receive request
-TaskGenerator -> objectController: load context
-objectController -> TaskGenerator:
-TaskGenerator -> taskQueue: create task
-taskQueue -> JobProvisioner: receive task
-JobProvisioner -> K8sApiServer: submit job
+TaskGenerator -> ObjectController: load context
+ObjectController -> TaskGenerator:
+TaskGenerator -> TaskQueue: create task
+TaskQueue -> TaskProvisioner: receive task
+TaskProvisioner -> K8sApiServer: submit job
 K8sApiServer -> JobPod: create job pod
-JobPod -> storage: load input resource
-storage -> JobPod
+JobPod -> Storage: load input resource
+Storage -> JobPod
 JobPod -> JobPod: execute task
-JobPod -> storage: put output resource
+JobPod -> Storage: persist output resource
 JobPod -> K8sApiServer: acknowledge job completion
-K8sApiServer -> JobProvisioner: receive job completion event
-JobProvisioner -> taskCompletionBroker: submit event
-taskCompletionBroker -> contentDeliveryServer: receive event
-contentDeliveryServer -> storage: load resource
-storage -> contentDeliveryServer:
-contentDeliveryServer -> client: reply with resource
+K8sApiServer -> TaskProvisioner: receive job completion event
+TaskProvisioner -> TaskCompletionBroker: submit event
+TaskCompletionBroker -> ContentDeliveryServer: receive event
+ContentDeliveryServer -> Storage: load resource
+Storage -> ContentDeliveryServer:
+ContentDeliveryServer -> Client: reply with resource
 @enduml

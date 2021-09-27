@@ -62,7 +62,6 @@ public class DeduplicatedTopology {
       .filter((k, v) -> v!=null)
       .to(outputTopic, Produced.with(Serdes.String(), orrSerde));
 
-
     return builder.build();
   }
 }
