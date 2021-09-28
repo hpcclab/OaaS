@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.MscFunction;
-import org.hpcclab.msc.object.model.NoStackException;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.service.FunctionService;
 
@@ -25,22 +25,25 @@ public class FunctionResource implements FunctionService {
     return funcRepo.listAll();
   }
 
-  public Uni<MscFunction> create(MscFunction mscFunction) {
+  public Uni<MscFunction> create(boolean update, MscFunction mscFunction) {
     return funcRepo.findByName(mscFunction.getName())
       .flatMap(fn -> {
         if (fn != null) {
           throw new NoStackException("Function with this name already exist.")
             .setCode(HttpResponseStatus.CONFLICT.code());
         }
+        if (update) {
+          return funcRepo.persistOrUpdate(mscFunction);
+        }
         return funcRepo.persist(mscFunction);
       });
   }
 
   @Override
-  public Uni<MscFunction> createByYaml(String body) {
+  public Uni<MscFunction> createByYaml(boolean update, String body) {
     try {
       var func = mapper.readValue(body, MscFunction.class);
-      return create(func);
+      return create(update, func);
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
     }

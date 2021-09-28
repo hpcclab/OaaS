@@ -7,7 +7,7 @@ import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.NoStackException;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class MacroFunctionHandler {
 
     return Multi.createFrom().iterable(subContexts.entrySet())
       .onItem().transformToUniAndConcatenate(entry -> router
-        .reactiveCall(entry.getValue())
+        .functionCall(entry.getValue())
         .map(v -> Map.entry(entry.getKey(),v))
       )
       .invoke(entry -> output.getMembers().put(entry.getKey(), entry.getValue().getId()))

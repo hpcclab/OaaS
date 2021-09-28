@@ -79,6 +79,11 @@ public class ObjectResource implements ObjectService {
       });
   }
 
+  @Override
+  public Uni<MscObject> activeFuncCall(String id, FunctionCallRequest request) {
+    return functionRouter.activeCall(request.setTarget(new ObjectId(id)));
+  }
+
   public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }

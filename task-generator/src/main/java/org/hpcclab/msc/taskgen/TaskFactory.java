@@ -1,5 +1,6 @@
 package org.hpcclab.msc.taskgen;
 
+import org.apache.kafka.common.protocol.types.Field;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.state.MscObjectState;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
@@ -30,12 +31,10 @@ public class TaskFactory {
     task.setCommands(template.getCommands());
     task.setResourceType(outputObj.getState().getType().toString());
     task.setContainerArgs(template.getContainerArgs());
-    if (function.getTask().isArgsToEnv() && mainObj.getOrigin().getArgs()!=null) {
-      task.setEnv(mainObj.getOrigin().getArgs());
-    } else {
-      task.setEnv(new HashMap<>());
+    var env  = new HashMap<String, String>();
+    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
+      env.putAll(outputObj.getOrigin().getArgs());
     }
-    var env = task.getEnv();
     env.put("TASK_ID", Task.createId(outputObj,requestFile));
     putEnv(env, mainObj, "MAIN");
     for (int i = 0; i < inputs.size(); i++) {
@@ -45,6 +44,7 @@ public class TaskFactory {
     }
     env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
     env.put("REQUEST_FILE", requestFile);
+    task.setEnv(env);
     return task;
   }
 

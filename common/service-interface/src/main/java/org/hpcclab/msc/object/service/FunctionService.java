@@ -13,12 +13,17 @@ import java.util.List;
 public interface FunctionService {
   @GET
   Uni<List<MscFunction>> list();
+
   @POST
-  Uni<MscFunction> create(MscFunction mscFunction);
+  Uni<MscFunction> create(@DefaultValue("false") @QueryParam("") boolean update,
+                          MscFunction mscFunction);
+
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
-  Uni<MscFunction> createByYaml(String body);
+  Uni<MscFunction> createByYaml(@DefaultValue("false") @QueryParam("") boolean update,
+                                String body);
+
   @GET
   @Path("{funcName}")
   Uni<MscFunction> get(String funcName);

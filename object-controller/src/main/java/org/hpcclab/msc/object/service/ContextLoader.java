@@ -6,7 +6,7 @@ import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.NoStackException;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.entity.function.SubFunctionCall;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.repository.MscObjectRepository;

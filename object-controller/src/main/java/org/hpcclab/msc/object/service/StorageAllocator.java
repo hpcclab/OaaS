@@ -16,7 +16,8 @@ public class StorageAllocator {
 
   public void allocate(MscObject object) {
     if (object.getId() == null) object.setId(new ObjectId());
-    object.getState().setBaseUrl(Path.of(config.s3PrefixUrl())
-      .resolve( object.getId().toHexString()).toString());
+    object.getState().setBaseUrl(
+      Path.of(config.s3PrefixUrl()).resolve(object.getId().toHexString()).toString()
+    );
   }
 }

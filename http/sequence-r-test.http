@@ -1,5 +1,5 @@
 ###
-POST {{oc}}/api/functions?update=true
+POST {{oc}}/api/functions
 Content-Type: text/x-yaml
 
 name: example.concat
@@ -25,9 +25,9 @@ task:
     - '-c'
   containerArgs:
     - |
-      curl -o tmp_file $MAIN_RESOURCE_BASE_URL/$TARGET
+      curl -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
       echo "$TEXT" >> tmp_file
-      curl -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$TARGET
+      curl -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
 
   argsToEnv: true
 
@@ -53,7 +53,7 @@ client.global.set("root_id", response.body.id)
 %}
 
 ###
-POST {{oc}}/api/objects/{{root_id}}/exec
+POST {{oc}}/api/objects/{{root_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 
@@ -61,8 +61,7 @@ Content-Type: application/json
   "target": "{{root_id}}",
   "functionName": "example.concat",
   "args": {
-    "TEXT": "ROOT -> O1",
-    "TARGET": "root"
+    "TEXT": "ROOT -> O1"
   }
 }
 
@@ -70,7 +69,7 @@ Content-Type: application/json
 client.global.set("o1_id", response.body.id)
 %}
 ###
-POST {{oc}}/api/objects/{{o1_id}}/exec
+POST {{oc}}/api/objects/{{o1_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 
@@ -78,8 +77,7 @@ Content-Type: application/json
   "target": "{{o1_id}}",
   "functionName": "example.concat",
   "args": {
-    "TEXT": "O1 -> O2",
-    "TARGET": "root"
+    "TEXT": "O1 -> O2"
   }
 }
 

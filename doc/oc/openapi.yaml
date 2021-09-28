@@ -16,6 +16,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/MscFunction'
     post:
+      parameters:
+      - name: update
+        in: query
+        schema:
+          default: false
+          type: boolean
       requestBody:
         content:
           application/json:
@@ -115,6 +121,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MscObject'
+  /api/objects/{id}/exec:
+    post:
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MscObject'
   /api/objects/{id}/exec-context:
     get:
       parameters:
@@ -176,6 +202,8 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/MscObject'
+        reactive:
+          type: boolean
         subFunctions:
           type: object
           additionalProperties:

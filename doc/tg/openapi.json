@@ -24,26 +24,7 @@
         }
       }
     },
-    "/api/task-completions" : {
-      "get" : {
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/TaskCompletion"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tasks" : {
+    "/api/resource-requests" : {
       "post" : {
         "requestBody" : {
           "content" : {
@@ -61,6 +42,25 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TaskFlow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/task-completions" : {
+      "get" : {
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TaskCompletion"
+                  }
                 }
               }
             }

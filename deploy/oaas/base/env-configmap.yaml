@@ -5,6 +5,7 @@ data:
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
 #  OAAS_OC_S3PREFIXURL: http://rook-ceph-rgw-my-store.rook-ceph.svc/msc-bkt-e77c2ec2-7ce9-4295-b59a-756cca179266/
+  OAAS_OC_TASKGENERATORURL: http://task-generator
   OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TG_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TG_TASKTOPIC: msc-tasks

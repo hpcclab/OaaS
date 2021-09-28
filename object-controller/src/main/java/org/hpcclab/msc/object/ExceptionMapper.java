@@ -2,7 +2,7 @@ package org.hpcclab.msc.object;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
-import org.hpcclab.msc.object.model.NoStackException;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import javax.enterprise.context.ApplicationScoped;

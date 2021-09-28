@@ -15,6 +15,7 @@ import java.util.Map;
 public class FunctionExecContext {
   MscObject target;
   MscObject compound;
+  boolean reactive = true;
   Map<String, MscObject> members = Map.of();
   Map<String, MscFunction> subFunctions = Map.of();
   MscFunction function;

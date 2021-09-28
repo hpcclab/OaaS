@@ -28,6 +28,11 @@ public interface ObjectService {
   Uni<MscObject> bindFunction(String id,
                               List<String> funcNames);
 
+
+  @POST
+  @Path("{id}/exec")
+  Uni<MscObject> activeFuncCall(String id, FunctionCallRequest request);
+
   @POST
   @Path("{id}/r-exec")
   Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request);

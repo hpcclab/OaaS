@@ -84,7 +84,8 @@ public class TaskHandler {
       return submitTask(taskFlow)
         .map(f -> true);
     }
-    return taskCompletionRepo.find("id in ?1", taskFlow.getPrerequisiteTasks())
+//    LOGGER.debug("flow {}, require {}", taskFlow.getId(), taskFlow.getPrerequisiteTasks());
+    return taskCompletionRepo.find("_id in ?1", taskFlow.getPrerequisiteTasks())
       .list()
       .flatMap(taskCompletions -> {
         LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), taskCompletions.size());

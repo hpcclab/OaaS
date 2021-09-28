@@ -7,12 +7,15 @@ import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
 import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class TaskCompletionConsumer {
+  private static final Logger LOGGER = LoggerFactory.getLogger( TaskCompletionConsumer.class );
 
   @Inject
   TaskCompletionRepository taskCompletionRepo;
@@ -30,6 +33,7 @@ public class TaskCompletionConsumer {
   private Uni<Void> submitNextTask(TaskCompletion taskCompletion) {
     return taskFlowRepo.find("{'prerequisiteTasks':?1}", taskCompletion.getId())
       .stream()
+      .invoke(flow -> LOGGER.debug("Checking on flow {}", flow.getId()))
       .onItem().transformToUniAndConcatenate(
         flow -> taskHandler.checkSubmittable(flow)
       )

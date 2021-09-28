@@ -1,4 +1,4 @@
-package org.hpcclab.msc.object.model;
+package org.hpcclab.msc.object.exception;
 
 public class NoStackException extends RuntimeException{
 

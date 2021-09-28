@@ -25,8 +25,7 @@ public class BuiltInFunctionLoader {
 
     var functions = Stream.of(
         "/functions/builtin.logical.yml",
-        "/functions/builtin.hls.yml",
-        "/functions/builtin.media.yml"
+        "/functions/builtin.hls.yml"
       )
       .flatMap(file -> {
         try {

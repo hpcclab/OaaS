@@ -6,7 +6,7 @@ import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.NoStackException;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class FunctionRouter {
   ContextLoader contextLoader;
 
 
-  public Uni<MscObject> reactiveCall(FunctionExecContext context) {
+  public Uni<MscObject> functionCall(FunctionExecContext context) {
     if (context.getFunction().getType()==MscFunction.Type.LOGICAL) {
       var newObj = logicalFunctionHandler.call(context);
       return objectRepo.persist(newObj);
@@ -42,17 +42,20 @@ public class FunctionRouter {
     if (context.getFunction().getType()==MscFunction.Type.TASK) {
       return taskFunctionHandler.call(context);
     }
-    LOGGER.warn("receive function with type {} which is not supported", context.getFunction().getType());
+    LOGGER.warn("Receive function with type {} which is not supported", context.getFunction().getType());
     throw new NoStackException("Not implemented").setCode(HttpResponseStatus.NOT_IMPLEMENTED.code());
   }
 
   public Uni<MscObject> reactiveCall(FunctionCallRequest request) {
     return contextLoader.load(request)
-      .flatMap(this::reactiveCall);
+      .invoke(ctx -> ctx.setReactive(true))
+      .flatMap(this::functionCall);
   }
 
   public Uni<MscObject> activeCall(FunctionCallRequest request) {
-    throw new NoStackException("Not implemented").setCode(HttpResponseStatus.NOT_IMPLEMENTED.code());
+    return contextLoader.load(request)
+      .invoke(ctx -> ctx.setReactive(false))
+      .flatMap(this::functionCall);
   }
 
 

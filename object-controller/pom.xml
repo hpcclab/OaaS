@@ -63,10 +63,10 @@
       <artifactId>netty-transport-native-epoll</artifactId>
       <classifier>linux-x86_64</classifier>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.fasterxml.jackson.dataformat</groupId>-->
-<!--      <artifactId>jackson-dataformat-yaml</artifactId>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-openapi</artifactId>
