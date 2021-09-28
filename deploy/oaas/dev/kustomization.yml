@@ -15,3 +15,5 @@ images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller
     newName: core.harbor.10.131.36.27.nip.io/oaas/stream-controller
     newTag: latest
+patches:
+  - path: oc-patch.yml
