@@ -84,3 +84,12 @@ Content-Type: application/json
 > {%
 client.global.set("o2_id", response.body.id)
 %}
+###
+POST {{tg}}/api/resource-requests
+Accept: application/json
+Content-Type: application/json
+
+{
+  "ownerObjectId": "{{o2_id}}",
+  "requestFile": "root"
+}

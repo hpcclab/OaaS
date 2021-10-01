@@ -93,7 +93,7 @@ public class JobWatcher {
       completion.setDebugLog(log);
     }
     tasksCompletionEmitter.send(
-      Message.of(Record.of(completion.getOutputObj() + "/" + completion.getRequestFile(), completion))
+      Message.of(Record.of(completion.getId(), completion))
     );
     LOGGER.debug("{} is submitted", completion);
   }

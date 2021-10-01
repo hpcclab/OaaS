@@ -45,6 +45,8 @@ mp:
         topic: ${oaas.tg.taskTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+        cloud-events-source: ${quarkus.application.name}
+        cloud-events-type: oaas.task
     incoming:
       resource-requests:
         connector: smallrye-kafka

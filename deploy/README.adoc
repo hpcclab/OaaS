@@ -29,3 +29,35 @@ helm repo add rook-release https://charts.rook.io/release
 helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph
 helm install --create-namespace --namespace rook-ceph rook-ceph-cluster rook-release/rook-ceph-cluster
 ----
+=== KNative
+
+[source,bash]
+----
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.26.0/serving-crds.yaml
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.26.0/serving-core.yaml
+
+kubectl apply -f https://github.com/knative/net-kourier/releases/download/v0.26.0/kourier.yaml
+kubectl patch configmap/config-network \
+  --namespace knative-serving \
+  --type merge \
+  --patch '{"data":{"ingress.class":"kourier.ingress.networking.knative.dev"}}'
+kubectl patch svc/kourier \
+  --namespace kourier-system \
+  --type merge \
+  --patch '{"spec": {"type":"ClusterIP"}}'
+# Replace knative.example.com with your domain suffix
+kubectl patch configmap/config-domain \
+  --namespace knative-serving \
+  --type merge \
+  --patch '{"data":{"knative.example.com":""}}'
+
+# EVENTING
+
+kubectl apply -f https://github.com/knative/eventing/releases/download/v0.26.0/eventing-crds.yaml
+
+kubectl apply -f https://github.com/knative/eventing/releases/download/v0.26.0/eventing-core.yaml
+
+kubectl apply --filename https://github.com/knative-sandbox/eventing-kafka-broker/releases/download/v0.26.0/eventing-kafka-controller.yaml
+
+kubectl apply --filename https://github.com/knative-sandbox/eventing-kafka-broker/releases/download/v0.26.0/eventing-kafka-broker.yaml
+----
