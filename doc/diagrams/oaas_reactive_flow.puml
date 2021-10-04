@@ -8,7 +8,7 @@ participant ContentDeliveryServer
 queue ResourceRequestQueue
 participant TaskGenerator
 queue TaskQueue
-queue TaskCompletionBroker
+queue TaskCompletionEvents
 participant TaskProvisioner
 participant K8sApiServer
 collections JobPod
@@ -34,8 +34,8 @@ JobPod -> JobPod: execute task
 JobPod -> Storage: persist output resource
 JobPod -> K8sApiServer: acknowledge job completion
 K8sApiServer -> TaskProvisioner: receive job completion event
-TaskProvisioner -> TaskCompletionBroker: submit event
-TaskCompletionBroker -> ContentDeliveryServer: receive event
+TaskProvisioner -> TaskCompletionEvents: submit event
+TaskCompletionEvents -> ContentDeliveryServer: receive event
 ContentDeliveryServer -> Storage: load resource
 Storage -> ContentDeliveryServer:
 ContentDeliveryServer -> Client: reply with resource
