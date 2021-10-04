@@ -7,7 +7,6 @@ oaas:
   tg:
     objectControllerUrl: http://localhost:8088
     taskTopic: msc-tasks
-    resourceRequestTopic: msc-resource-requests
     taskCompletionTopic: msc-task-completions
 
 quarkus:
@@ -48,12 +47,6 @@ mp:
         cloud-events-source: ${quarkus.application.name}
         cloud-events-type: oaas.task
     incoming:
-      resource-requests:
-        connector: smallrye-kafka
-        topic: ${oaas.tg.resourceRequestTopic}
-        auto:
-          offset:
-            reset: earliest
       task-completions:
         connector: smallrye-kafka
         topic: ${oaas.tg.taskCompletionTopic}

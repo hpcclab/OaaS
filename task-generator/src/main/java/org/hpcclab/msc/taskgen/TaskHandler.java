@@ -11,6 +11,7 @@ import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.object.model.Task;
+import io.smallrye.reactive.messaging.kafka.Record;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
 import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
@@ -35,7 +36,7 @@ public class TaskHandler {
   TaskCompletionRepository taskCompletionRepo;
 
   @Channel("tasks")
-  Emitter<Task> tasksEmitter;
+  Emitter<Record<String,Task>> tasksEmitter;
   @Inject
   ObjectService objectService;
 
@@ -105,7 +106,9 @@ public class TaskHandler {
   }
 
   private Uni<TaskFlow> submitTask(TaskFlow flow) {
-    return Uni.createFrom().completionStage(tasksEmitter.send(flow.getTask()))
+    var record = Record.of(flow.getId(), flow.getTask());
+    return Uni.createFrom()
+      .completionStage(tasksEmitter.send(record))
       .flatMap(v -> {
         flow.setSubmitted(true);
         return taskFlowRepo.update(flow);

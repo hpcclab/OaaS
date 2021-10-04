@@ -9,9 +9,9 @@ kind: Role
 metadata:
   name: jp-role
 rules:
-  - apiGroups: ["batch"]
+  - apiGroups: ["batch", "extensions"]
     resources: ["jobs"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: [""]
     resources: ["pods", "pods/log"]
     verbs: ["list", "get"]

@@ -8,7 +8,6 @@ data:
   OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TG_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TG_TASKTOPIC: msc-tasks
-  OAAS_TG_RESOURCEREQUESTTOPIC: msc-resource-requests
   OAAS_JP_TASKTOPIC: msc-tasks
   OAAS_JP_TASKCOMPLETIONTOPIC: msc-task-completions
 kind: ConfigMap

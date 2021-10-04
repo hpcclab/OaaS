@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
@@ -33,35 +34,70 @@ public class JobWatcher {
 
   void startup(@Observes StartupEvent startupEvent) {
     if (!ProfileManager.getLaunchMode().isDevOrTest()) {
-      watch = client.batch().v1().jobs()
-        .watch(new Watcher<Job>() {
-          @Override
-          public void eventReceived(Action action, Job resource) {
-            if (resource.getMetadata().getAnnotations()==null ||
-              !resource.getMetadata().getAnnotations().containsKey("oaas.task")) {
-              return;
-            }
-            if (action==Action.DELETED || action==Action.ADDED) return;
-            Task task = Json.decodeValue(resource.getMetadata().getAnnotations().get("oaas.task"), Task.class);
+      client.batch().v1().jobs().inform(new ResourceEventHandler<>() {
+        @Override
+        public void onAdd(Job obj) {
+          LOGGER.debug("job {} created", obj.getMetadata().getName());
 
-            if (resource.getStatus().getSucceeded()!=null &&
-              resource.getStatus().getSucceeded() >= 1) {
-              submitTaskCompletion(resource, task, true);
-              client.batch().v1().jobs()
-                .delete(resource);
-            } else if (resource.getStatus().getFailed()!=null &&
-              resource.getStatus().getFailed() >= 1) {
-              submitTaskCompletion(resource, task, false);
-              client.batch().v1().jobs()
-                .delete(resource);
-            }
-          }
+        }
 
-          @Override
-          public void onClose(WatcherException cause) {
-            LOGGER.error("Job watcher unexpectedly close", cause);
+        @Override
+        public void onUpdate(Job oldObj, Job newObj) {
+          LOGGER.debug("job {} updated", newObj.getMetadata().getName());
+          if (!oldObj.getMetadata().getAnnotations()
+            .containsKey("oaas.task")) {
+            return;
           }
-        });
+          Task task = Json.decodeValue(oldObj
+            .getMetadata().getAnnotations().get("oaas.task"), Task.class);
+          if (newObj.getStatus().getSucceeded()!=null &&
+            newObj.getStatus().getSucceeded() >= 1) {
+            submitTaskCompletion(newObj, task, true);
+            client.batch().v1().jobs()
+              .delete(newObj);
+          } else if (newObj.getStatus().getFailed()!=null &&
+            newObj.getStatus().getFailed() >= 1) {
+            submitTaskCompletion(newObj, task, false);
+            client.batch().v1().jobs()
+              .delete(newObj);
+          }
+        }
+
+        @Override
+        public void onDelete(Job obj, boolean deletedFinalStateUnknown) {
+          LOGGER.debug("job {} deleted", obj.getMetadata().getName());
+        }
+      }, 30 * 1000L);
+
+//      watch = client.batch().v1().jobs()
+//        .watch(new Watcher<Job>() {
+//          @Override
+//          public void eventReceived(Action action, Job resource) {
+//            if (resource.getMetadata().getAnnotations()==null ||
+//              !resource.getMetadata().getAnnotations().containsKey("oaas.task")) {
+//              return;
+//            }
+//            if (action==Action.DELETED || action==Action.ADDED) return;
+//            Task task = Json.decodeValue(resource.getMetadata().getAnnotations().get("oaas.task"), Task.class);
+//
+//            if (resource.getStatus().getSucceeded()!=null &&
+//              resource.getStatus().getSucceeded() >= 1) {
+//              submitTaskCompletion(resource, task, true);
+//              client.batch().v1().jobs()
+//                .delete(resource);
+//            } else if (resource.getStatus().getFailed()!=null &&
+//              resource.getStatus().getFailed() >= 1) {
+//              submitTaskCompletion(resource, task, false);
+//              client.batch().v1().jobs()
+//                .delete(resource);
+//            }
+//          }
+//
+//          @Override
+//          public void onClose(WatcherException cause) {
+//            LOGGER.error("Job watcher unexpectedly close", cause);
+//          }
+//        });
     }
   }
 
