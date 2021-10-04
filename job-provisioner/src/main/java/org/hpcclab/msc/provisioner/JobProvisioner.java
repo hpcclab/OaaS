@@ -49,7 +49,7 @@ public class JobProvisioner {
       .withNewSpec()
       .addNewContainer()
       .withEnv(envList)
-      .withName("ffmpeg")
+      .withName("worker")
       .withImage(task.getImage())
       .withCommand(task.getCommands())
       .withArgs(task.getContainerArgs())

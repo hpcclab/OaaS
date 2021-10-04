@@ -15,13 +15,13 @@ public interface FunctionService {
   Uni<List<MscFunction>> list();
 
   @POST
-  Uni<MscFunction> create(@DefaultValue("false") @QueryParam("") boolean update,
+  Uni<MscFunction> create(@DefaultValue("false") @QueryParam("update") boolean update,
                           MscFunction mscFunction);
 
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
-  Uni<MscFunction> createByYaml(@DefaultValue("false") @QueryParam("") boolean update,
+  Uni<MscFunction> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                 String body);
 
   @GET

@@ -26,8 +26,8 @@ envs:
   config:
     KAFKA_CLUSTERS_0_NAME: msc
     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: msc-kafka-bootstrap:9092
-    KAFKA_CLUSTERS_0_KSQLDBSERVER: http://ksqldb-server:80
-    KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://msc-schema-registry
+#    KAFKA_CLUSTERS_0_KSQLDBSERVER: http://ksqldb-server:80
+#    KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://msc-schema-registry
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: redis
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-redis:28082
 

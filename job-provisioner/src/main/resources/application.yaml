@@ -19,7 +19,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/job-provisioner${tag:}
   jib:
-    base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
+    base-jvm-image: eclipse-temurin:17-alpine
   index-dependency:
     service-interface:
       artifact-id: model

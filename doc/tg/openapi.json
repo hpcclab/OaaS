@@ -7,6 +7,7 @@
   "paths" : {
     "/api/flows" : {
       "get" : {
+        "tags" : [ "Task Flow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -26,6 +27,7 @@
     },
     "/api/resource-requests" : {
       "post" : {
+        "tags" : [ "Resource Request Service" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -51,6 +53,7 @@
     },
     "/api/task-completions" : {
       "get" : {
+        "tags" : [ "Task Completion Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",

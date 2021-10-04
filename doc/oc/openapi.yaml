@@ -6,6 +6,8 @@ info:
 paths:
   /api/functions:
     get:
+      tags:
+      - Function Service
       responses:
         "200":
           description: OK
@@ -16,6 +18,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/MscFunction'
     post:
+      tags:
+      - Function Service
       parameters:
       - name: update
         in: query
@@ -39,17 +43,14 @@ paths:
                 $ref: '#/components/schemas/MscFunction'
   /api/functions/{funcName}:
     get:
+      tags:
+      - Function Service
       parameters:
       - name: funcName
         in: path
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
       responses:
         "200":
           description: OK
@@ -59,6 +60,8 @@ paths:
                 $ref: '#/components/schemas/MscFunction'
   /api/objects:
     get:
+      tags:
+      - Object Service
       responses:
         "200":
           description: OK
@@ -69,6 +72,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/MscObject'
     post:
+      tags:
+      - Object Service
       requestBody:
         content:
           application/json:
@@ -83,17 +88,14 @@ paths:
                 $ref: '#/components/schemas/MscObject'
   /api/objects/{id}:
     get:
+      tags:
+      - Object Service
       parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
       responses:
         "200":
           description: OK
@@ -103,6 +105,8 @@ paths:
                 $ref: '#/components/schemas/MscObject'
   /api/objects/{id}/binds:
     post:
+      tags:
+      - Object Service
       parameters:
       - name: id
         in: path
@@ -113,7 +117,9 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              type: array
+              items:
+                type: string
       responses:
         "200":
           description: OK
@@ -123,6 +129,8 @@ paths:
                 $ref: '#/components/schemas/MscObject'
   /api/objects/{id}/exec:
     post:
+      tags:
+      - Object Service
       parameters:
       - name: id
         in: path
@@ -133,7 +141,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/FunctionCallRequest'
       responses:
         "200":
           description: OK
@@ -143,17 +151,14 @@ paths:
                 $ref: '#/components/schemas/MscObject'
   /api/objects/{id}/exec-context:
     get:
+      tags:
+      - Object Service
       parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
       responses:
         "200":
           description: OK
@@ -163,6 +168,8 @@ paths:
                 $ref: '#/components/schemas/FunctionExecContext'
   /api/objects/{id}/r-exec:
     post:
+      tags:
+      - Object Service
       parameters:
       - name: id
         in: path
@@ -173,7 +180,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/FunctionCallRequest'
       responses:
         "200":
           description: OK
@@ -183,6 +190,21 @@ paths:
                 $ref: '#/components/schemas/MscObject'
 components:
   schemas:
+    FunctionCallRequest:
+      type: object
+      properties:
+        additionalInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectId'
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        functionName:
+          type: string
+        target:
+          $ref: '#/components/schemas/ObjectId'
     FunctionExecContext:
       type: object
       properties:
@@ -335,6 +357,9 @@ components:
     ObjectId:
       type: object
       properties:
+        timestamp:
+          format: int32
+          type: integer
         counter:
           format: int32
           type: integer
@@ -342,9 +367,6 @@ components:
           format: int32
           type: integer
         randomValue2:
-          type: integer
-        timestamp:
-          format: int32
           type: integer
         date:
           format: date

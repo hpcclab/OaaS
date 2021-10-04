@@ -86,3 +86,5 @@ Content-Type: application/json
 > {%
 client.global.set("o2_id", response.body.id)
 %}
+###
+GET {{cdn}}/{{o2_id}}/root

@@ -29,7 +29,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/task-generator${tag:}
   jib:
-    base-jvm-image: adoptopenjdk/openjdk16:ubi-minimal-jre
+    base-jvm-image: eclipse-temurin:17-alpine
   log:
     category:
       "org.hpcclab.msc":

@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: knative-serving
+---
+apiVersion: operator.knative.dev/v1alpha1
+kind: KnativeServing
+metadata:
+  name: knative-serving
+  namespace: knative-serving
+spec:
+  ingress:
+    kourier:
+      enabled: true
+  config:
+    network:
+      ingress.class: "kourier.ingress.networking.knative.dev"
+    domain:
+      knative.10.131.36.27.nip.io: ""
+  controller-custom-certs:
+    name: registry-ca
+    type: ConfigMap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-ca
+  namespace: knative-serving
+data:
+  ca.crt: |-
+    -----BEGIN CERTIFICATE-----
+    MIIDFDCCAfygAwIBAgIRALK1xK9A8YVswTfBTiGYBnEwDQYJKoZIhvcNAQELBQAw
+    FDESMBAGA1UEAxMJaGFyYm9yLWNhMB4XDTIxMDkyMTA0NDUwN1oXDTIyMDkyMTA0
+    NDUwN1owFDESMBAGA1UEAxMJaGFyYm9yLWNhMIIBIjANBgkqhkiG9w0BAQEFAAOC
+    AQ8AMIIBCgKCAQEAqfrHiLqLrhNDCDAZVO2cIUs6tLHgYo4qpunYCORqESSKkCCC
+    PEuqflpvYWweZ6xcu4O0k8gmHM54+MOWCr8zHMqWsJDbIXX/hEISJy/LvVZeNQQb
+    qnmjrjy1PeH1M+d2v2zLvl0JRWUzUvdDp2ZuekPBsZJzmsZQKC1eYoGV0qhh1bTm
+    V6pzsDh9wvXG4I/lNqUMUCDaEYRAe3TxILoHZ4LXsB5hUwZUdX5ziZAmEfUXTffX
+    WAUE5pqDiVCXrAUdDFE1oO7uFZB/mLIt+zmDwokbLLJpmFrs2863KK0tetmdudGO
+    bzNH7VmXotBRM7q/ZLRnWBcjnFZmpMRUbl5KZQIDAQABo2EwXzAOBgNVHQ8BAf8E
+    BAMCAqQwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA8GA1UdEwEB/wQF
+    MAMBAf8wHQYDVR0OBBYEFLJPYt/O8ZPiSXN0ma4ErrvxaMJBMA0GCSqGSIb3DQEB
+    CwUAA4IBAQAimCXKCvGvQFY4npuXm9Y+2ToRDzVnW1LdVypCrpZhxWT7iGW42BFh
+    +YMXhqweWVR2cqqM7J5wvI1R0w4Dic2voCZPEkVkYJqLTl8QQyrsgE76m9ICyFtp
+    LsThHVlddZQcn5gLA5bcbh7g/OLEUcWlkWckzHQxq6uohNYl4oue5vn0u4OGVStT
+    QfxIg8tAZoOeK0dahypBiSvEruv9plH72xKvgKqsUUniqzD/6tLsI2nto/o3bvLq
+    Zs4Q6fQxS/DPh2m+kYOcWuXEvYsPp/gdbhMggislytlPjX90HAJJqaUPqdrCms6q
+    h/8AnOrY1IJCwkMNFsARJhwLlDdvbQGQ
+    -----END CERTIFICATE-----
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kourier-ingress
+  namespace: knative-serving
+spec:
+  rules:
+    - host: "*.default.knative.10.131.36.27.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: kourier
+                port:
+                  number: 80
+    - host: "*.msc.knative.10.131.36.27.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: kourier
+                port:
+                  number: 80

@@ -26,14 +26,14 @@ public class FunctionResource implements FunctionService {
   }
 
   public Uni<MscFunction> create(boolean update, MscFunction mscFunction) {
+    if (update) {
+      return funcRepo.persistOrUpdate(mscFunction);
+    }
     return funcRepo.findByName(mscFunction.getName())
       .flatMap(fn -> {
         if (fn != null) {
           throw new NoStackException("Function with this name already exist.")
             .setCode(HttpResponseStatus.CONFLICT.code());
-        }
-        if (update) {
-          return funcRepo.persistOrUpdate(mscFunction);
         }
         return funcRepo.persist(mscFunction);
       });

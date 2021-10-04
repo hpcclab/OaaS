@@ -3,29 +3,24 @@ package org.hpcclab.msc.taskgen;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
+import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.object.model.Task;
-import org.hpcclab.msc.object.service.FunctionService;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
 import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
-import java.net.URI;
 import java.util.ArrayList;
 
 @ApplicationScoped
@@ -35,7 +30,7 @@ public class TaskHandler {
   @Inject
   TaskFactory taskFactory;
   @Inject
-  TaskFlowRepository taskSequenceRepo;
+  TaskFlowRepository taskFlowRepo;
   @Inject
   TaskCompletionRepository taskCompletionRepo;
 
@@ -58,24 +53,30 @@ public class TaskHandler {
     if (outputObj.getOrigin().getParentId()==null) {
       return Uni.createFrom().nullItem();
     }
-    return taskSequenceRepo.find(outputObj, requestFile)
+    return taskFlowRepo.find(outputObj, requestFile)
       .onItem().ifNull()
       .switchTo(() -> objectService.loadExecutionContext(outputObj.getId().toString())
-        .flatMap(context -> taskSequenceRepo
-          .persist(taskFactory.genTaskSequence(outputObj, requestFile, context))
-          .flatMap(this::checkSubmittable)
-          .flatMap(submitted -> {
-            if (!submitted) {
-              var l = new ArrayList<MscObject>();
-              l.add(context.getTarget());
-              l.addAll(context.getAdditionalInputs());
-              return Multi.createFrom().iterable(l)
-                .onItem().transformToUniAndConcatenate(o -> createFlow(o, requestFile))
-                .collect().last();
-            }
-            return Uni.createFrom().nullItem();
-          })
-        )
+        .flatMap(context -> recursiveCreateFlow(context, outputObj, requestFile))
+      );
+  }
+
+  private Uni<TaskFlow> recursiveCreateFlow(FunctionExecContext context,
+                                            MscObject outputObj,
+                                            String requestFile) {
+    return taskFlowRepo
+      .persist(taskFactory.genTaskSequence(outputObj, requestFile, context))
+      .call(flow -> checkSubmittable(flow)
+        .flatMap(submitted -> {
+          if (!submitted) {
+            var l = new ArrayList<MscObject>();
+            l.add(context.getTarget());
+            l.addAll(context.getAdditionalInputs());
+            return Multi.createFrom().iterable(l)
+              .onItem().transformToUniAndConcatenate(o -> createFlow(o, requestFile))
+              .collect().last();
+          }
+          return Uni.createFrom().nullItem();
+        })
       );
   }
 
@@ -107,7 +108,7 @@ public class TaskHandler {
     return Uni.createFrom().completionStage(tasksEmitter.send(flow.getTask()))
       .flatMap(v -> {
         flow.setSubmitted(true);
-        return taskSequenceRepo.update(flow);
+        return taskFlowRepo.update(flow);
       });
   }
 }
