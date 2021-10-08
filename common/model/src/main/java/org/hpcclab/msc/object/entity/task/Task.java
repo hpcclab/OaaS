@@ -1,8 +1,9 @@
-package org.hpcclab.msc.object.model;
+package org.hpcclab.msc.object.entity.task;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.state.MscObjectState;
 
@@ -14,14 +15,12 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Task {
   String id;
-  String mainObj;
-  String outputObj;
-  String functionName;
-  String resourceType;
-  String image;
-  List<String> commands;
-  List<String> containerArgs;
-  Map<String, String> env = Map.of();
+  MscObject main;
+  MscObject output;
+  MscFunction function;
+  String requestFile;
+  Map<String, String> args= Map.of();
+  List<MscObject> additionalInputs = List.of();
 
   public static String createId(MscObject outputObj, String requestFile) {
     if (outputObj.getState().getType() == MscObjectState.Type.SEGMENTABLE )

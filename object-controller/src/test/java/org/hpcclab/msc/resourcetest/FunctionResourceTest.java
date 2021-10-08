@@ -1,7 +1,6 @@
 package org.hpcclab.msc.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.hpcclab.msc.object.entity.MscFuncMetadata;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,9 +15,9 @@ public class FunctionResourceTest {
 
   @Test
   void find() {
-    var map = funcRepo.listByMeta(
-      List.of(new MscFuncMetadata().setName("builtin.logical.copy"))
+    var functions = funcRepo.listByNames(
+      List.of("builtin.logical.copy")
     ).await().indefinitely();
-    Assertions.assertEquals(1, map.size());
+    Assertions.assertEquals(1, functions.size());
   }
 }

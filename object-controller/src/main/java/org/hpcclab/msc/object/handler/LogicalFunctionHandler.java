@@ -10,7 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 public class LogicalFunctionHandler {
   public MscObject call(FunctionExecContext context) {
     if (context.getFunction().getName().equals("builtin.logical.copy")) {
-      return context.getTarget().copy().setId(null)
+      return context.getMain().copy().setId(null)
         .setOrigin(new MscObjectOrigin(context));
     } else {
       return null;

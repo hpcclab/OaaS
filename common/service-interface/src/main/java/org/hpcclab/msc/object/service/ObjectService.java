@@ -5,6 +5,7 @@ import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface ObjectService {
   Uni<List<MscObject>> list();
 
   @POST
-  Uni<MscObject> create(MscObject creating);
+  Uni<MscObject> create(@Valid MscObject creating);
 
   @GET
   @Path("{id}")
@@ -31,11 +32,11 @@ public interface ObjectService {
 
   @POST
   @Path("{id}/exec")
-  Uni<MscObject> activeFuncCall(String id, FunctionCallRequest request);
+  Uni<MscObject> activeFuncCall(String id,@Valid  FunctionCallRequest request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request);
+  Uni<MscObject> reactiveFuncCall(String id,@Valid  FunctionCallRequest request);
 
   @GET
   @Path("{id}/exec-context")

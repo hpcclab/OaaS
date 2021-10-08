@@ -290,6 +290,7 @@
   "components" : {
     "schemas" : {
       "FunctionCallRequest" : {
+        "required" : [ "functionName" ],
         "type" : "object",
         "properties" : {
           "additionalInputs" : {
@@ -305,7 +306,9 @@
             }
           },
           "functionName" : {
-            "type" : "string"
+            "pattern" : "\\S",
+            "type" : "string",
+            "nullable" : false
           },
           "target" : {
             "$ref" : "#/components/schemas/ObjectId"
@@ -333,6 +336,9 @@
           "function" : {
             "$ref" : "#/components/schemas/MscFunction"
           },
+          "main" : {
+            "$ref" : "#/components/schemas/MscObject"
+          },
           "members" : {
             "type" : "object",
             "additionalProperties" : {
@@ -347,13 +353,11 @@
             "additionalProperties" : {
               "$ref" : "#/components/schemas/MscFunction"
             }
-          },
-          "target" : {
-            "$ref" : "#/components/schemas/MscObject"
           }
         }
       },
       "MscFunction" : {
+        "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
           "additionalInputs" : {
@@ -366,7 +370,9 @@
             "$ref" : "#/components/schemas/MscObjectRequirement"
           },
           "name" : {
-            "type" : "string"
+            "pattern" : "\\S",
+            "type" : "string",
+            "nullable" : false
           },
           "outputTemplate" : {
             "$ref" : "#/components/schemas/MscObjectTemplate"
@@ -381,10 +387,14 @@
             }
           },
           "task" : {
-            "$ref" : "#/components/schemas/TaskTemplate"
+            "$ref" : "#/components/schemas/TaskConfiguration"
           },
           "type" : {
-            "$ref" : "#/components/schemas/Type2"
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Type2"
+            }, {
+              "nullable" : false
+            } ]
           }
         }
       },
@@ -579,7 +589,7 @@
           }
         }
       },
-      "TaskTemplate" : {
+      "TaskConfiguration" : {
         "type" : "object",
         "properties" : {
           "argsToEnv" : {
@@ -618,7 +628,7 @@
         "type" : "string"
       },
       "Type3" : {
-        "enum" : [ "DURABLE_WORKER", "EPHEMERAL_WORKER", "HTTP", "LOGICAL" ],
+        "enum" : [ "DURABLE", "EPHEMERAL", "LOGICAL" ],
         "type" : "string"
       }
     }

@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaskTemplate {
+public class TaskConfiguration {
 
   Type type;
   String image;
@@ -19,6 +19,6 @@ public class TaskTemplate {
   boolean argsToEnv = true;
 
   public enum Type{
-    LOGICAL, HTTP, DURABLE_WORKER, EPHEMERAL_WORKER
+    LOGICAL, DURABLE, EPHEMERAL
   }
 }

@@ -28,7 +28,7 @@ public class MacroFunctionHandler {
   FunctionRouter router;
 
   public void validate(FunctionExecContext context) {
-    if (context.getTarget().getType()!=MscObject.Type.COMPOUND)
+    if (context.getMain().getType()!=MscObject.Type.COMPOUND)
       throw new NoStackException("Object must be COMPOUND").setCode(400);
     if (context.getFunction().getType()!=MscFunction.Type.MACRO)
       throw new NoStackException("Function must be MACRO").setCode(400);
@@ -51,7 +51,7 @@ public class MacroFunctionHandler {
           .map(entry ->  {
             var subFunc = entry.getValue();
             var subContext = new FunctionExecContext()
-              .setTarget(resolveTarget(context, subFunc.getTarget()))
+              .setMain(resolveTarget(context, subFunc.getTarget()))
               .setArgs(context.getArgs())
               .setFunction(context.getSubFunctions().get(subFunc.getFuncName()))
               .setAdditionalInputs(subFunc.getInputRefs().stream()

@@ -35,20 +35,20 @@ public class ContextLoader {
     var aUni = objectRepo.listByIds(request.getAdditionalInputs());
     return Uni.combine().all().unis(oUni,fUni,aUni)
       .combinedWith((o,f,a) -> new FunctionExecContext()
-        .setTarget(o)
+        .setMain(o)
         .setFunction(f)
         .setAdditionalInputs(a)
         .setArgs(request.getArgs())
       )
       .invoke(context -> {
-        if (context.getTarget() == null)
+        if (context.getMain() == null)
           throw new NoStackException("Not found object with id = " + request.getTarget().toString());
         if (context.getFunction() == null)
           throw new NoStackException("Not found function with name = " + request.getFunctionName());
       })
       .flatMap(context -> {
-        if (context.getTarget().getType() == MscObject.Type.COMPOUND) {
-          return loadMembers(context.getTarget())
+        if (context.getMain().getType() == MscObject.Type.COMPOUND) {
+          return loadMembers(context.getMain())
             .map(context::setMembers);
         } else {
           return Uni.createFrom().item(context);

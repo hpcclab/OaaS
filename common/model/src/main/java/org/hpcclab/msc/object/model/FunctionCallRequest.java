@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionCallRequest {
   ObjectId target;
+  @NotBlank
   String functionName;
   Map<String, String> args;
   List<ObjectId> additionalInputs;

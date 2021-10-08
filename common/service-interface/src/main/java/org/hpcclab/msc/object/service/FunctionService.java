@@ -3,6 +3,7 @@ package org.hpcclab.msc.object.service;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.MscFunction;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface FunctionService {
 
   @POST
   Uni<MscFunction> create(@DefaultValue("false") @QueryParam("update") boolean update,
-                          MscFunction mscFunction);
+                          @Valid MscFunction function);
 
   @POST
   @Consumes("text/x-yaml")

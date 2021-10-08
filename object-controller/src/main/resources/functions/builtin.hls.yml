@@ -11,7 +11,7 @@
     requiredStateType: SEGMENTABLE
   additionalInputs: []
   task:
-    type: EPHEMERAL_WORKER
+    type: EPHEMERAL
 #    image: jrottenberg/ffmpeg:4.4-alpine
     image: core.harbor.10.131.36.27.nip.io/oaas/ffmpeg
     commands:

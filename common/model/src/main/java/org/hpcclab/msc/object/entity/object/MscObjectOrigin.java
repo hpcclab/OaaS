@@ -37,8 +37,8 @@ public class MscObjectOrigin {
   }
 
   public MscObjectOrigin(FunctionExecContext context) {
-    rootId = context.getTarget().getOrigin().getRootId();
-    parentId = context.getTarget().getId();
+    rootId = context.getMain().getOrigin().getRootId();
+    parentId = context.getMain().getId();
     funcName = context.getFunction().getName();
     args = context.getArgs();
     additionalInputRefs = context.getAdditionalInputs()

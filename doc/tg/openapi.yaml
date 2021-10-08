@@ -48,6 +48,152 @@ paths:
                   $ref: '#/components/schemas/TaskCompletion'
 components:
   schemas:
+    MscFunction:
+      required:
+      - name
+      - type
+      type: object
+      properties:
+        additionalInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MscObjectRequirement'
+        bindingRequirement:
+          $ref: '#/components/schemas/MscObjectRequirement'
+        name:
+          pattern: \S
+          type: string
+          nullable: false
+        outputTemplate:
+          $ref: '#/components/schemas/MscObjectTemplate'
+        reactive:
+          type: boolean
+        subFunctions:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SubFunctionCall'
+        task:
+          $ref: '#/components/schemas/TaskConfiguration'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type2'
+          - nullable: false
+    MscObject:
+      type: object
+      properties:
+        functions:
+          type: array
+          items:
+            type: string
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+        members:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ObjectId'
+        origin:
+          $ref: '#/components/schemas/MscObjectOrigin'
+        originHash:
+          format: int64
+          type: integer
+        state:
+          $ref: '#/components/schemas/MscObjectState'
+        type:
+          $ref: '#/components/schemas/Type'
+    MscObjectOrigin:
+      type: object
+      properties:
+        additionalInputRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectId'
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        funcName:
+          type: string
+        parentId:
+          $ref: '#/components/schemas/ObjectId'
+        rootId:
+          $ref: '#/components/schemas/ObjectId'
+    MscObjectRequirement:
+      type: object
+      properties:
+        requiredLabel:
+          type: object
+          additionalProperties:
+            type: string
+        requiredStateType:
+          type: string
+        requiredType:
+          $ref: '#/components/schemas/Type'
+    MscObjectState:
+      type: object
+      properties:
+        baseUrl:
+          type: string
+        file:
+          type: string
+        files:
+          type: array
+          items:
+            type: string
+        groupId:
+          type: string
+        records:
+          type: object
+          additionalProperties:
+            type: string
+        type:
+          $ref: '#/components/schemas/Type1'
+    MscObjectTemplate:
+      type: object
+      properties:
+        functions:
+          type: array
+          items:
+            type: string
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+        members:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ObjectId'
+        origin:
+          $ref: '#/components/schemas/MscObjectOrigin'
+        originHash:
+          format: int64
+          type: integer
+        state:
+          $ref: '#/components/schemas/MscObjectState'
+        type:
+          $ref: '#/components/schemas/Type'
+    ObjectId:
+      type: object
+      properties:
+        timestamp:
+          format: int32
+          type: integer
+        counter:
+          format: int32
+          type: integer
+        randomValue1:
+          format: int32
+          type: integer
+        randomValue2:
+          type: integer
+        date:
+          format: date
+          type: string
     ObjectResourceRequest:
       type: object
       properties:
@@ -60,32 +206,37 @@ components:
       - FAILED
       - SUCCEEDED
       type: string
+    SubFunctionCall:
+      type: object
+      properties:
+        funcName:
+          type: string
+        inputRefs:
+          type: array
+          items:
+            type: string
+        target:
+          type: string
     Task:
       type: object
       properties:
-        commands:
+        additionalInputs:
           type: array
           items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        env:
+            $ref: '#/components/schemas/MscObject'
+        args:
           type: object
           additionalProperties:
             type: string
-        functionName:
-          type: string
+        function:
+          $ref: '#/components/schemas/MscFunction'
         id:
           type: string
-        image:
-          type: string
-        mainObj:
-          type: string
-        outputObj:
-          type: string
-        resourceType:
+        main:
+          $ref: '#/components/schemas/MscObject'
+        output:
+          $ref: '#/components/schemas/MscObject'
+        requestFile:
           type: string
     TaskCompletion:
       type: object
@@ -112,6 +263,23 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/Status'
+    TaskConfiguration:
+      type: object
+      properties:
+        argsToEnv:
+          type: boolean
+        commands:
+          type: array
+          items:
+            type: string
+        containerArgs:
+          type: array
+          items:
+            type: string
+        image:
+          type: string
+        type:
+          $ref: '#/components/schemas/Type3'
     TaskFlow:
       type: object
       properties:
@@ -125,3 +293,27 @@ components:
           type: boolean
         task:
           $ref: '#/components/schemas/Task'
+    Type:
+      enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    Type1:
+      enum:
+      - FILE
+      - FILES
+      - RECORD
+      - SEGMENTABLE
+      type: string
+    Type2:
+      enum:
+      - LOGICAL
+      - MACRO
+      - TASK
+      type: string
+    Type3:
+      enum:
+      - DURABLE
+      - EPHEMERAL
+      - LOGICAL
+      type: string

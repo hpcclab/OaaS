@@ -4,16 +4,18 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.msc.object.model.Task;
+import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -28,18 +30,19 @@ public class JobProvisioner {
 //    LOGGER.info("task: {}", t.encodePrettily());
 //    Task task = t.mapTo(Task.class);
 //    LOGGER.info("task: {}", task.getFunctionName());
-    var envList = task
-      .getEnv()
+    var envList = createEnv(task)
       .entrySet()
       .stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
       .collect(Collectors.toList());
 
+    var function = task.getFunction();
+
     var job = new JobBuilder()
       .withNewMetadata()
-      .withName(task.getFunctionName().replaceAll("/", "-") + "-" + RandomStringUtils.randomNumeric(6))
-      .addToLabels("oaas.function", task.getFunctionName())
-      .addToLabels("oaas.object.main", task.getMainObj())
-      .addToLabels("oaas.object.output", task.getOutputObj())
+      .withName(function.getName().replaceAll("/", "-") + "-" + RandomStringUtils.randomNumeric(6))
+      .addToLabels("oaas.function", function.getName())
+      .addToLabels("oaas.object.main", task.getMain().getId().toString())
+      .addToLabels("oaas.object.output", task.getOutput().getId().toString())
       .addToAnnotations("oaas.task", Json.encode(task))
       .endMetadata()
       .withNewSpec()
@@ -50,9 +53,9 @@ public class JobProvisioner {
       .addNewContainer()
       .withEnv(envList)
       .withName("worker")
-      .withImage(task.getImage())
-      .withCommand(task.getCommands())
-      .withArgs(task.getContainerArgs())
+      .withImage(function.getTask().getImage())
+      .withCommand(function.getTask().getCommands())
+      .withArgs(function.getTask().getContainerArgs())
       .endContainer()
       .withRestartPolicy("Never")
       .endSpec()
@@ -62,6 +65,38 @@ public class JobProvisioner {
     job = kubernetesClient.batch().v1().jobs().create(job);
     LOGGER.info("job {}", Json.encodePrettily(job));
 
+  }
+
+  private Map<String,String> createEnv(Task task) {
+    var function = task.getFunction();
+    var mainObj = task.getMain();
+    var outputObj = task.getOutput();
+    var inputs = task.getAdditionalInputs();
+    var requestFile = task.getRequestFile();
+    var env  = new HashMap<String, String>();
+    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
+      env.putAll(outputObj.getOrigin().getArgs());
+    }
+    env.put("TASK_ID", task.getId());
+    putEnv(env, mainObj, "MAIN");
+    for (int i = 0; i < inputs.size(); i++) {
+      MscObject inputObj = inputs.get(i);
+      var prefix = "INPUT_" + i;
+      putEnv(env, inputObj, prefix);
+    }
+    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
+    env.put("REQUEST_FILE", requestFile);
+    return env;
+  }
+
+  private void putEnv(Map<String, String> env, MscObject obj, String prefix) {
+    env.put(prefix + "_ID", obj.getId().toString());
+    env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
+    env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
+    if (obj.getState().getType() == MscObjectState.Type.FILE)
+      env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
+    if (obj.getState().getType() == MscObjectState.Type.FILES)
+      env.put(prefix + "_RESOURCE_FILES", String.join(", ",obj.getState().getFiles()));
   }
 
 }

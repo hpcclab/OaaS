@@ -13,7 +13,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext {
-  MscObject target;
+  MscObject main;
   MscObject compound;
   boolean reactive = true;
   Map<String, MscObject> members = Map.of();

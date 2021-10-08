@@ -3,8 +3,6 @@ package org.hpcclab.msc.provisioner;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
@@ -14,8 +12,8 @@ import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.hpcclab.msc.object.model.Task;
 import org.hpcclab.msc.object.entity.task.TaskCompletion;
+import org.hpcclab.msc.object.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,20 +102,23 @@ public class JobWatcher {
   void submitTaskCompletion(Job job,
                             Task task,
                             boolean succeeded) {
-    var url = task.getEnv().get("OUTPUT_RESOURCE_BASE_URL");
-    if (task.getResourceType().endsWith("FILES")) {
-      url = url + "/" + task.getEnv().get("REQUEST_FILE");
-    }
+    var url = task.getOutput().getState().getBaseUrl();
+//    var stateType =task.getOutput().getState().getType();
+//    if (stateType == MscObjectState.Type.SEGMENTABLE) {
+//      url = url + "/" + task.getRequestFile();
+//    } else if (stateType == MscObjectState.Type.FILE) {
+//      url = url + "/" + task.getOutput().getState().getFile();
+//    }
 
     var completion = new TaskCompletion()
       .setId(task.getId())
-      .setMainObj(task.getMainObj())
-      .setOutputObj(task.getOutputObj())
-      .setFunctionName(task.getFunctionName())
+      .setMainObj(task.getMain().getId().toString())
+      .setOutputObj(task.getOutput().getId().toString())
+      .setFunctionName(task.getFunction().getName())
       .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
-      .setRequestFile(task.getEnv().get("REQUEST_FILE"))
+      .setRequestFile(task.getRequestFile())
       .setResourceUrl(url)
       .setDebugCondition(Json.encode(job.getStatus()));
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())

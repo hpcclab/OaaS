@@ -3,7 +3,7 @@ package org.hpcclab.msc.taskgen.repository;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.model.Task;
+import org.hpcclab.msc.object.entity.task.Task;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
 

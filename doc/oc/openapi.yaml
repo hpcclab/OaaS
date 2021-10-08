@@ -191,6 +191,8 @@ paths:
 components:
   schemas:
     FunctionCallRequest:
+      required:
+      - functionName
       type: object
       properties:
         additionalInputs:
@@ -202,7 +204,9 @@ components:
           additionalProperties:
             type: string
         functionName:
+          pattern: \S
           type: string
+          nullable: false
         target:
           $ref: '#/components/schemas/ObjectId'
     FunctionExecContext:
@@ -220,6 +224,8 @@ components:
           $ref: '#/components/schemas/MscObject'
         function:
           $ref: '#/components/schemas/MscFunction'
+        main:
+          $ref: '#/components/schemas/MscObject'
         members:
           type: object
           additionalProperties:
@@ -230,9 +236,10 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/MscFunction'
-        target:
-          $ref: '#/components/schemas/MscObject'
     MscFunction:
+      required:
+      - name
+      - type
       type: object
       properties:
         additionalInputs:
@@ -242,7 +249,9 @@ components:
         bindingRequirement:
           $ref: '#/components/schemas/MscObjectRequirement'
         name:
+          pattern: \S
           type: string
+          nullable: false
         outputTemplate:
           $ref: '#/components/schemas/MscObjectTemplate'
         reactive:
@@ -252,9 +261,11 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/SubFunctionCall'
         task:
-          $ref: '#/components/schemas/TaskTemplate'
+          $ref: '#/components/schemas/TaskConfiguration'
         type:
-          $ref: '#/components/schemas/Type2'
+          allOf:
+          - $ref: '#/components/schemas/Type2'
+          - nullable: false
     MscObject:
       type: object
       properties:
@@ -382,7 +393,7 @@ components:
             type: string
         target:
           type: string
-    TaskTemplate:
+    TaskConfiguration:
       type: object
       properties:
         argsToEnv:
@@ -419,8 +430,7 @@ components:
       type: string
     Type3:
       enum:
-      - DURABLE_WORKER
-      - EPHEMERAL_WORKER
-      - HTTP
+      - DURABLE
+      - EPHEMERAL
       - LOGICAL
       type: string

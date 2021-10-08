@@ -6,7 +6,6 @@ import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
 import org.hpcclab.msc.object.entity.state.MscObjectState;
 import org.hpcclab.msc.object.exception.FunctionValidationException;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
 import org.hpcclab.msc.object.service.ResourceRequestService;
@@ -26,10 +25,10 @@ public class TaskFunctionHandler {
   ResourceRequestService resourceRequestService;
 
   public void validate(FunctionExecContext context) {
-    if (!context.getTarget().getFunctions().contains(context.getFunction().getName()))
+    if (!context.getMain().getFunctions().contains(context.getFunction().getName()))
       throw new FunctionValidationException(
         "Object(id=%s) Can not be executed by function(name=%s)"
-          .formatted(context.getTarget().getId(), context.getFunction().getName())
+          .formatted(context.getMain().getId(), context.getFunction().getName())
       );
     if (!context.isReactive()) {
       if (context.getFunction().getOutputTemplate().getState().getType()==MscObjectState.Type.SEGMENTABLE) {
@@ -44,9 +43,9 @@ public class TaskFunctionHandler {
     output.setOrigin(new MscObjectOrigin(context));
     if (output.getState().getType() == MscObjectState.Type.FILE
       && output.getState().getFile() == null
-      && context.getTarget().getState().getType() == MscObjectState.Type.FILE) {
+      && context.getMain().getState().getType() == MscObjectState.Type.FILE) {
       output.getState()
-        .setFile(context.getTarget().getState().getFile());
+        .setFile(context.getMain().getState().getFile());
     }
     storageAllocator.allocate(output);
     if (!context.isReactive()) {

@@ -6,8 +6,11 @@ import org.hpcclab.msc.object.exception.NoStackException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ExceptionMapper {
@@ -39,6 +42,18 @@ public class ExceptionMapper {
     return Response.status(400)
       .entity(new JsonObject()
         .put("msg", jsonMappingException.getMessage()))
+      .build();
+  }
+  @ServerExceptionMapper(ConstraintViolationException.class)
+  public Response exceptionMapper(ConstraintViolationException exception) {
+    return Response.status(400)
+      .entity(new JsonObject()
+        .put("msg", "Message body is not valid")
+        .put("violations", exception.getConstraintViolations()
+          .stream()
+          .map(cv -> cv.getPropertyPath().toString() + " " + cv.getMessage())
+          .collect(Collectors.toList())
+        ))
       .build();
   }
 }

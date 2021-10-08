@@ -8,9 +8,9 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.hpcclab.msc.object.entity.object.MscObject;
 import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
+import org.hpcclab.msc.object.entity.task.Task;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
-import org.hpcclab.msc.object.model.Task;
 import io.smallrye.reactive.messaging.kafka.Record;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
@@ -36,7 +36,7 @@ public class TaskHandler {
   TaskCompletionRepository taskCompletionRepo;
 
   @Channel("tasks")
-  Emitter<Record<String,Task>> tasksEmitter;
+  Emitter<Record<String, Task>> tasksEmitter;
   @Inject
   ObjectService objectService;
 
@@ -70,7 +70,7 @@ public class TaskHandler {
         .flatMap(submitted -> {
           if (!submitted) {
             var l = new ArrayList<MscObject>();
-            l.add(context.getTarget());
+            l.add(context.getMain());
             l.addAll(context.getAdditionalInputs());
             return Multi.createFrom().iterable(l)
               .onItem().transformToUniAndConcatenate(o -> createFlow(o, requestFile))

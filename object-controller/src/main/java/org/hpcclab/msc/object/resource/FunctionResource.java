@@ -12,6 +12,7 @@ import org.hpcclab.msc.object.service.FunctionService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import java.util.List;
 
@@ -25,17 +26,17 @@ public class FunctionResource implements FunctionService {
     return funcRepo.listAll();
   }
 
-  public Uni<MscFunction> create(boolean update, MscFunction mscFunction) {
+  public Uni<MscFunction> create(boolean update,MscFunction function) {
     if (update) {
-      return funcRepo.persistOrUpdate(mscFunction);
+      return funcRepo.persistOrUpdate(function);
     }
-    return funcRepo.findByName(mscFunction.getName())
+    return funcRepo.findByName(function.getName())
       .flatMap(fn -> {
         if (fn != null) {
           throw new NoStackException("Function with this name already exist.")
             .setCode(HttpResponseStatus.CONFLICT.code());
         }
-        return funcRepo.persist(mscFunction);
+        return funcRepo.persist(function);
       });
   }
 

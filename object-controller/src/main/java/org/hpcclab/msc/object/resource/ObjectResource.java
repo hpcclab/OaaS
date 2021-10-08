@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.function.MscFunction;
 import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
@@ -16,13 +17,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResource.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
   MscObjectRepository objectRepo;
   @Inject
@@ -45,7 +47,7 @@ public class ObjectResource implements ObjectService {
     ObjectId oid = new ObjectId(id);
     return objectRepo.findById(oid)
       .map(o -> {
-        if (o != null)
+        if (o!=null)
           return o;
         throw new NotFoundException();
       });
@@ -58,19 +60,16 @@ public class ObjectResource implements ObjectService {
     var oUni = objectRepo.findById(oid);
     var fmUni = funcRepo.listByNames(funcNames);
     return Uni.combine().all()
-      .unis(oUni,fmUni)
+      .unis(oUni, fmUni)
       .asTuple()
       .flatMap(tuple -> {
         LOGGER.info("get tuple {} {}", tuple.getItem1(), tuple.getItem2());
         var o = tuple.getItem1();
         var fm = tuple.getItem2();
-        if (tuple.getItem1() == null) {
+        if (o==null) {
           throw new NotFoundException("Not found object");
         }
-        if (tuple.getItem2() == null) {
-          throw new NotFoundException("Not found function");
-        }
-        if (o.getFunctions()== null) o.setFunctions(new ArrayList<>());
+        if (o.getFunctions()==null) o.setFunctions(new ArrayList<>());
         for (MscFunction value : fm) {
           o.getFunctions()
             .add(value.getName());
@@ -80,11 +79,11 @@ public class ObjectResource implements ObjectService {
   }
 
   @Override
-  public Uni<MscObject> activeFuncCall(String id, FunctionCallRequest request) {
+  public Uni<MscObject> activeFuncCall(String id,  FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(new ObjectId(id)));
   }
 
-  public Uni<MscObject> reactiveFuncCall(String id, FunctionCallRequest request) {
+  public Uni<MscObject> reactiveFuncCall(String id,  FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }
 
@@ -93,7 +92,7 @@ public class ObjectResource implements ObjectService {
     ObjectId oid = new ObjectId(id);
     return objectRepo.findById(oid)
       .flatMap(obj -> {
-        if (obj == null) throw new NotFoundException();
+        if (obj==null) throw new NotFoundException();
         var origin = obj.getOrigin();
         return contextLoader.load(FunctionCallRequest.from(origin));
       });
