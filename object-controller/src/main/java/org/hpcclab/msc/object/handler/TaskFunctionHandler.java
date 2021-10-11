@@ -1,9 +1,9 @@
 package org.hpcclab.msc.object.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
-import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.object.OaasObject;
+import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
+import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.exception.FunctionValidationException;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
@@ -31,19 +31,19 @@ public class TaskFunctionHandler {
           .formatted(context.getMain().getId(), context.getFunction().getName())
       );
     if (!context.isReactive()) {
-      if (context.getFunction().getOutputTemplate().getState().getType()==MscObjectState.Type.SEGMENTABLE) {
+      if (context.getFunction().getOutputTemplate().getState().getType()==OaasObjectState.Type.SEGMENTABLE) {
         throw new FunctionValidationException("Can not execute actively the function with the output as segmentable resource type");
       }
     }
   }
 
-  public Uni<MscObject> call(FunctionExecContext context) {
+  public Uni<OaasObject> call(FunctionExecContext context) {
     var func = context.getFunction();
     var output = func.getOutputTemplate().toObject();
-    output.setOrigin(new MscObjectOrigin(context));
-    if (output.getState().getType() == MscObjectState.Type.FILE
+    output.setOrigin(new OaasObjectOrigin(context));
+    if (output.getState().getType() == OaasObjectState.Type.FILE
       && output.getState().getFile() == null
-      && context.getMain().getState().getType() == MscObjectState.Type.FILE) {
+      && context.getMain().getState().getType() == OaasObjectState.Type.FILE) {
       output.getState()
         .setFile(context.getMain().getState().getFile());
     }

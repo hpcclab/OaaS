@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.function.MscFunction;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.hpcclab.msc.object.service.FunctionService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import java.util.List;
 
@@ -22,11 +21,11 @@ public class FunctionResource implements FunctionService {
   MscFuncRepository funcRepo;
   ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-  public Uni<List<MscFunction>> list() {
+  public Uni<List<OaasFunction>> list() {
     return funcRepo.listAll();
   }
 
-  public Uni<MscFunction> create(boolean update,MscFunction function) {
+  public Uni<OaasFunction> create(boolean update, OaasFunction function) {
     if (update) {
       return funcRepo.persistOrUpdate(function);
     }
@@ -41,16 +40,16 @@ public class FunctionResource implements FunctionService {
   }
 
   @Override
-  public Uni<MscFunction> createByYaml(boolean update, String body) {
+  public Uni<OaasFunction> createByYaml(boolean update, String body) {
     try {
-      var func = mapper.readValue(body, MscFunction.class);
+      var func = mapper.readValue(body, OaasFunction.class);
       return create(update, func);
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
     }
   }
 
-  public Uni<MscFunction> get(String funcName) {
+  public Uni<OaasFunction> get(String funcName) {
     return funcRepo.findByName(funcName)
       .invoke(f -> {
         if (f==null)

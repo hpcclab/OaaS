@@ -1,7 +1,7 @@
 package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
@@ -15,28 +15,28 @@ import java.util.List;
 @Path("/api/objects")
 public interface ObjectService {
   @GET
-  Uni<List<MscObject>> list();
+  Uni<List<OaasObject>> list();
 
   @POST
-  Uni<MscObject> create(@Valid MscObject creating);
+  Uni<OaasObject> create(@Valid OaasObject creating);
 
   @GET
   @Path("{id}")
-  Uni<MscObject> get(String id);
+  Uni<OaasObject> get(String id);
 
   @POST
   @Path("{id}/binds")
-  Uni<MscObject> bindFunction(String id,
-                              List<String> funcNames);
+  Uni<OaasObject> bindFunction(String id,
+                               List<String> funcNames);
 
 
   @POST
   @Path("{id}/exec")
-  Uni<MscObject> activeFuncCall(String id,@Valid  FunctionCallRequest request);
+  Uni<OaasObject> activeFuncCall(String id, @Valid  FunctionCallRequest request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<MscObject> reactiveFuncCall(String id,@Valid  FunctionCallRequest request);
+  Uni<OaasObject> reactiveFuncCall(String id, @Valid  FunctionCallRequest request);
 
   @GET
   @Path("{id}/exec-context")

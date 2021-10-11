@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
-import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import java.util.List;
 import java.util.Map;
@@ -17,21 +17,28 @@ import java.util.Map;
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MscObject {
+public class OaasObject {
   @BsonId
   ObjectId id;
-  MscObjectOrigin origin;
+  OaasObjectOrigin origin;
   long originHash;
   Type type;
+  AccessModifier access;
   Map<String, String> labels;
   List<String> functions = List.of();
 
-  MscObjectState state;
+  OaasObjectState state;
   Map<String, ObjectId> members;
 
   public enum Type {
     RESOURCE,
     COMPOUND
+  }
+
+  public enum AccessModifier {
+    PUBLIC,
+    INTERNAL,
+    FINAL
   }
 
   public void format() {
@@ -40,15 +47,16 @@ public class MscObject {
     } else {
       members = null;
     }
-    if (origin==null) origin =new MscObjectOrigin().setRootId(id);
+    if (origin==null) origin =new OaasObjectOrigin().setRootId(id);
   }
 
-  public MscObject copy() {
-    return new MscObject(
+  public OaasObject copy() {
+    return new OaasObject(
       id,
       origin==null ? null:origin.copy(),
       originHash,
       type,
+      access,
       labels==null ? null:Map.copyOf(labels),
       functions==null ? null:List.copyOf(functions),
       state,

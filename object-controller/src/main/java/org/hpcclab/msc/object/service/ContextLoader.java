@@ -2,8 +2,8 @@ package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.function.MscFunction;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
@@ -47,7 +47,7 @@ public class ContextLoader {
           throw new NoStackException("Not found function with name = " + request.getFunctionName());
       })
       .flatMap(context -> {
-        if (context.getMain().getType() == MscObject.Type.COMPOUND) {
+        if (context.getMain().getType() == OaasObject.Type.COMPOUND) {
           return loadMembers(context.getMain())
             .map(context::setMembers);
         } else {
@@ -55,7 +55,7 @@ public class ContextLoader {
         }
       })
       .flatMap(context -> {
-        if (context.getFunction().getType() == MscFunction.Type.MACRO) {
+        if (context.getFunction().getType() == OaasFunction.Type.MACRO) {
           return loadMembers(context.getFunction())
             .map(context::setSubFunctions);
         } else {
@@ -64,7 +64,7 @@ public class ContextLoader {
       });
   }
 
-  public Uni<Map<String, MscObject>> loadMembers(MscObject main) {
+  public Uni<Map<String, OaasObject>> loadMembers(OaasObject main) {
     return Multi.createFrom().iterable(main.getMembers().entrySet())
       .onItem().transformToUniAndMerge(entry -> objectRepo.findById(entry.getValue())
         .map(object -> {
@@ -88,7 +88,7 @@ public class ContextLoader {
 //      );
   }
 
-  public Uni<Map<String, MscFunction>> loadMembers(MscFunction function) {
+  public Uni<Map<String, OaasFunction>> loadMembers(OaasFunction function) {
     var funcNames = function.getSubFunctions()
       .values()
       .stream()
@@ -98,7 +98,7 @@ public class ContextLoader {
       .map(objList -> {
         if (objList.size() != funcNames.size()) {
           var l = new HashSet<>(funcNames);
-          l.removeAll(objList.stream().map(MscFunction::getName).collect(Collectors.toSet()));
+          l.removeAll(objList.stream().map(OaasFunction::getName).collect(Collectors.toSet()));
           throw new NoStackException("Can not load function " + l);
         }
         return objList.stream()

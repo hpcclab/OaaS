@@ -1,19 +1,17 @@
 package org.hpcclab.msc.taskgen;
 
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.entity.task.Task;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
-import java.util.Map;
 
 @ApplicationScoped
 public class TaskFactory {
 
-  public Task genTask(MscObject outputObj,
+  public Task genTask(OaasObject outputObj,
                       String requestFile,
                       FunctionExecContext context) {
     var function = context.getFunction();
@@ -29,7 +27,7 @@ public class TaskFactory {
     return task;
   }
 
-  public TaskFlow genTaskSequence(MscObject outputObj,
+  public TaskFlow genTaskSequence(OaasObject outputObj,
                                   String requestFile,
                                   FunctionExecContext context) {
     var task = genTask(outputObj, requestFile, context);
@@ -40,7 +38,7 @@ public class TaskFactory {
     if (context.getMain().getOrigin().getParentId() != null) {
       pre.add(Task.createId(context.getMain(), requestFile));
     }
-    for (MscObject additionalInput : context.getAdditionalInputs()) {
+    for (OaasObject additionalInput : context.getAdditionalInputs()) {
       if (additionalInput.getOrigin().getParentId() != null) {
         pre.add(Task.createId(additionalInput, requestFile));
       }

@@ -6,8 +6,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.object.OaasObject;
+import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public class JobProvisioner {
     env.put("TASK_ID", task.getId());
     putEnv(env, mainObj, "MAIN");
     for (int i = 0; i < inputs.size(); i++) {
-      MscObject inputObj = inputs.get(i);
+      OaasObject inputObj = inputs.get(i);
       var prefix = "INPUT_" + i;
       putEnv(env, inputObj, prefix);
     }
@@ -89,13 +89,13 @@ public class JobProvisioner {
     return env;
   }
 
-  private void putEnv(Map<String, String> env, MscObject obj, String prefix) {
+  private void putEnv(Map<String, String> env, OaasObject obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
-    if (obj.getState().getType() == MscObjectState.Type.FILE)
+    if (obj.getState().getType() == OaasObjectState.Type.FILE)
       env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
-    if (obj.getState().getType() == MscObjectState.Type.FILES)
+    if (obj.getState().getType() == OaasObjectState.Type.FILES)
       env.put(prefix + "_RESOURCE_FILES", String.join(", ",obj.getState().getFiles()));
   }
 

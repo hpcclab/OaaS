@@ -3,9 +3,9 @@ package org.hpcclab.msc.object.handler;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hpcclab.msc.object.entity.function.MscFunction;
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.object.MscObjectOrigin;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.object.OaasObject;
+import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.MscObjectRepository;
@@ -28,13 +28,13 @@ public class MacroFunctionHandler {
   FunctionRouter router;
 
   public void validate(FunctionExecContext context) {
-    if (context.getMain().getType()!=MscObject.Type.COMPOUND)
+    if (context.getMain().getType()!=OaasObject.Type.COMPOUND)
       throw new NoStackException("Object must be COMPOUND").setCode(400);
-    if (context.getFunction().getType()!=MscFunction.Type.MACRO)
+    if (context.getFunction().getType()!=OaasFunction.Type.MACRO)
       throw new NoStackException("Function must be MACRO").setCode(400);
   }
 
-  private MscObject resolveTarget(FunctionExecContext context, String value) {
+  private OaasObject resolveTarget(FunctionExecContext context, String value) {
     if (NumberUtils.isDigits(value)) {
       var i = Integer.parseInt(value);
       return context.getAdditionalInputs().get(i);
@@ -42,7 +42,7 @@ public class MacroFunctionHandler {
     return context.getMembers().get(value);
   }
 
-  public Uni<MscObject> call(FunctionExecContext context) {
+  public Uni<OaasObject> call(FunctionExecContext context) {
     validate(context);
 
     var func = context.getFunction();
@@ -66,7 +66,7 @@ public class MacroFunctionHandler {
     var templateObj = context.getFunction().getOutputTemplate();
 
     var output = templateObj.toObject();
-    output.setOrigin(new MscObjectOrigin(context))
+    output.setOrigin(new OaasObjectOrigin(context))
       .setMembers(new HashMap<>());
 
     return Multi.createFrom().iterable(subContexts.entrySet())

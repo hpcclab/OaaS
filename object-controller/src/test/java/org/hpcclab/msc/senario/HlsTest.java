@@ -5,8 +5,8 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hpcclab.msc.TestUtils;
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.entity.state.MscObjectState;
+import org.hpcclab.msc.object.entity.object.OaasObject;
+import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,12 +27,12 @@ public class HlsTest {
 
   @Test
   void test() {
-    var m3u8Obj = new MscObject()
-      .setType(MscObject.Type.RESOURCE)
-      .setState(new MscObjectState().setBaseUrl("http://test/test.m3u8"));
-    var segmentsObj = new MscObject()
-      .setType(MscObject.Type.RESOURCE)
-      .setState(new MscObjectState()
+    var m3u8Obj = new OaasObject()
+      .setType(OaasObject.Type.RESOURCE)
+      .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
+    var segmentsObj = new OaasObject()
+      .setType(OaasObject.Type.RESOURCE)
+      .setState(new OaasObjectState()
         .setGroupId("test")
         .setBaseUrl("http://test/segment")
       )
@@ -40,8 +40,8 @@ public class HlsTest {
 
     m3u8Obj = TestUtils.create(m3u8Obj);
     segmentsObj = TestUtils.create(segmentsObj);
-    var hlsObject = new MscObject()
-      .setType(MscObject.Type.COMPOUND)
+    var hlsObject = new OaasObject()
+      .setType(OaasObject.Type.COMPOUND)
       .setMembers(
         Map.of("m3u8", m3u8Obj.getId(),
           "segments", segmentsObj.getId()

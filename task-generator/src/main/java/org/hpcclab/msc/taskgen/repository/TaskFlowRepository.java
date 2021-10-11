@@ -2,7 +2,7 @@ package org.hpcclab.msc.taskgen.repository;
 
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.task.Task;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
@@ -16,7 +16,7 @@ public class TaskFlowRepository implements ReactivePanacheMongoRepositoryBase<Ta
   @Inject
   ObjectService objectService;
 
-  public Uni<TaskFlow> find(MscObject object, String requestFile) {
+  public Uni<TaskFlow> find(OaasObject object, String requestFile) {
     var id = Task.createId(object, requestFile);
     return findById(id);
   }

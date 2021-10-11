@@ -3,7 +3,7 @@ package org.hpcclab.msc.object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.StartupEvent;
-import org.hpcclab.msc.object.entity.function.MscFunction;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class BuiltInFunctionLoader {
       .flatMap(file -> {
         try {
           var is = getClass().getResourceAsStream(file);
-          return Stream.of(mapper.readValue(is, MscFunction[].class));
+          return Stream.of(mapper.readValue(is, OaasFunction[].class));
         } catch (Throwable e) {
           throw new RuntimeException("get error on file " + file, e);
         }

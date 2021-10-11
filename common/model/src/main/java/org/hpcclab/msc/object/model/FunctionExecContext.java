@@ -3,8 +3,8 @@ package org.hpcclab.msc.object.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.msc.object.entity.function.MscFunction;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 
 import java.util.List;
 import java.util.Map;
@@ -13,12 +13,12 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext {
-  MscObject main;
-  MscObject compound;
+  OaasObject main;
+  OaasObject compound;
   boolean reactive = true;
-  Map<String, MscObject> members = Map.of();
-  Map<String, MscFunction> subFunctions = Map.of();
-  MscFunction function;
+  Map<String, OaasObject> members = Map.of();
+  Map<String, OaasFunction> subFunctions = Map.of();
+  OaasFunction function;
   Map<String, String> args= Map.of();
-  List<MscObject> additionalInputs = List.of();
+  List<OaasObject> additionalInputs = List.of();
 }

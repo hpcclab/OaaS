@@ -9,8 +9,8 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MscObjectRequirement {
+public class OaasObjectRequirement {
   Map<String, String> requiredLabel;
-  MscObject.Type requiredType;
+  OaasObject.Type requiredType;
   String requiredStateType;
 }

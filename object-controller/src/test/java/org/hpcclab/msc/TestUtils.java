@@ -3,7 +3,7 @@ package org.hpcclab.msc;
 import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;
 import org.hamcrest.Matchers;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 
 import javax.ws.rs.core.MediaType;
@@ -16,16 +16,16 @@ import static io.restassured.RestAssured.given;
 
 public class TestUtils {
 
-  public static List<MscObject> listObject() {
+  public static List<OaasObject> listObject() {
     return Arrays.asList(given()
       .when().get("/api/objects")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(MscObject[].class));
+      .extract().body().as(OaasObject[].class));
   }
 
-  public static MscObject create(MscObject o) {
+  public static OaasObject create(OaasObject o) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(o))
@@ -34,10 +34,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(MscObject.class);
+      .extract().body().as(OaasObject.class);
   }
 
-  public static MscObject getObject(ObjectId id) {
+  public static OaasObject getObject(ObjectId id) {
     return given()
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}")
@@ -45,10 +45,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
-      .extract().body().as(MscObject.class);
+      .extract().body().as(OaasObject.class);
   }
 
-  public static MscObject bind(MscObject obj, List<String> functionNames) {
+  public static OaasObject bind(OaasObject obj, List<String> functionNames) {
 //    var meta = functionNames.stream()
 //      .map(MscFuncMetadata::new)
 //      .collect(Collectors.toList());
@@ -61,10 +61,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(MscObject.class);
+      .extract().body().as(OaasObject.class);
   }
 
-  public static MscObject fnCall(FunctionCallRequest request) {
+  public static OaasObject fnCall(FunctionCallRequest request) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))
@@ -74,6 +74,6 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(MscObject.class);
+      .extract().body().as(OaasObject.class);
   }
 }

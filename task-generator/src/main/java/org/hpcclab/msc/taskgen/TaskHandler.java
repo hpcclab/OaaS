@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.task.TaskCompletion;
 import org.hpcclab.msc.object.entity.task.TaskFlow;
 import org.hpcclab.msc.object.entity.task.Task;
@@ -50,7 +50,7 @@ public class TaskHandler {
       .flatMap(outputObj -> createFlow(outputObj, request.getRequestFile()));
   }
 
-  private Uni<TaskFlow> createFlow(MscObject outputObj, String requestFile) {
+  private Uni<TaskFlow> createFlow(OaasObject outputObj, String requestFile) {
     if (outputObj.getOrigin().getParentId()==null) {
       return Uni.createFrom().nullItem();
     }
@@ -62,14 +62,14 @@ public class TaskHandler {
   }
 
   private Uni<TaskFlow> recursiveCreateFlow(FunctionExecContext context,
-                                            MscObject outputObj,
+                                            OaasObject outputObj,
                                             String requestFile) {
     return taskFlowRepo
       .persist(taskFactory.genTaskSequence(outputObj, requestFile, context))
       .call(flow -> checkSubmittable(flow)
         .flatMap(submitted -> {
           if (!submitted) {
-            var l = new ArrayList<MscObject>();
+            var l = new ArrayList<OaasObject>();
             l.add(context.getMain());
             l.addAll(context.getAdditionalInputs());
             return Multi.createFrom().iterable(l)

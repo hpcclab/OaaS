@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MscObjectOrigin {
+public class OaasObjectOrigin {
   ObjectId rootId;
   ObjectId parentId;
   String funcName;
   Map<String, String> args;
   List<ObjectId> additionalInputRefs;
 
-  public MscObjectOrigin copy() {
-    return new MscObjectOrigin(
+  public OaasObjectOrigin copy() {
+    return new OaasObjectOrigin(
       rootId,
       parentId,
       funcName,
@@ -36,13 +36,13 @@ public class MscObjectOrigin {
     );
   }
 
-  public MscObjectOrigin(FunctionExecContext context) {
+  public OaasObjectOrigin(FunctionExecContext context) {
     rootId = context.getMain().getOrigin().getRootId();
     parentId = context.getMain().getId();
     funcName = context.getFunction().getName();
     args = context.getArgs();
     additionalInputRefs = context.getAdditionalInputs()
-      .stream().map(MscObject::getId)
+      .stream().map(OaasObject::getId)
       .collect(Collectors.toList());
   }
 

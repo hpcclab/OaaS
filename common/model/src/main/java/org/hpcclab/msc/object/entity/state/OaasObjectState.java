@@ -15,7 +15,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MscObjectState {
+public class OaasObjectState {
   Type type;
   String baseUrl;
   String file;

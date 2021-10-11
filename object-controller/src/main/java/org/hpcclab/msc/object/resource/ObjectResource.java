@@ -2,9 +2,8 @@ package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
 import org.bson.types.ObjectId;
-import org.hpcclab.msc.object.entity.function.MscFunction;
-import org.hpcclab.msc.object.entity.object.MscObject;
-import org.hpcclab.msc.object.exception.NoStackException;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.repository.MscFuncRepository;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +32,16 @@ public class ObjectResource implements ObjectService {
   @Inject
   ContextLoader contextLoader;
 
-  public Uni<List<MscObject>> list() {
+  public Uni<List<OaasObject>> list() {
     return objectRepo.listAll();
   }
 
-  public Uni<MscObject> create(MscObject creating) {
+  public Uni<OaasObject> create(OaasObject creating) {
     return objectRepo.createRootAndPersist(creating);
   }
 
 
-  public Uni<MscObject> get(String id) {
+  public Uni<OaasObject> get(String id) {
     ObjectId oid = new ObjectId(id);
     return objectRepo.findById(oid)
       .map(o -> {
@@ -54,8 +52,8 @@ public class ObjectResource implements ObjectService {
   }
 
 
-  public Uni<MscObject> bindFunction(String id,
-                                     List<String> funcNames) {
+  public Uni<OaasObject> bindFunction(String id,
+                                      List<String> funcNames) {
     ObjectId oid = new ObjectId(id);
     var oUni = objectRepo.findById(oid);
     var fmUni = funcRepo.listByNames(funcNames);
@@ -70,7 +68,7 @@ public class ObjectResource implements ObjectService {
           throw new NotFoundException("Not found object");
         }
         if (o.getFunctions()==null) o.setFunctions(new ArrayList<>());
-        for (MscFunction value : fm) {
+        for (OaasFunction value : fm) {
           o.getFunctions()
             .add(value.getName());
         }
@@ -79,11 +77,11 @@ public class ObjectResource implements ObjectService {
   }
 
   @Override
-  public Uni<MscObject> activeFuncCall(String id,  FunctionCallRequest request) {
+  public Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(new ObjectId(id)));
   }
 
-  public Uni<MscObject> reactiveFuncCall(String id,  FunctionCallRequest request) {
+  public Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
   }
 

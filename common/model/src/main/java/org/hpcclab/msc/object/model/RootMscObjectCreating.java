@@ -3,7 +3,7 @@ package org.hpcclab.msc.object.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.msc.object.entity.object.MscObject;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RootMscObjectCreating {
   String sourceUrl;
-  MscObject.Type type;
+  OaasObject.Type type;
 //  Map<String, MscFuncMetadata> functions = Map.of();
   List<String> functions = List.of();
 }
