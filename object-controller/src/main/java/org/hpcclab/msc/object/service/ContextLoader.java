@@ -1,6 +1,5 @@
 package org.hpcclab.msc.object.service;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
@@ -8,8 +7,8 @@ import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.entity.function.SubFunctionCall;
-import org.hpcclab.msc.object.repository.MscFuncRepository;
-import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.repository.OaasFuncRepository;
+import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +22,9 @@ import java.util.stream.Collectors;
 public class ContextLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger( ContextLoader.class );
   @Inject
-  MscObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
-  MscFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
 
 
 
@@ -47,7 +46,7 @@ public class ContextLoader {
           throw new NoStackException("Not found function with name = " + request.getFunctionName());
       })
       .flatMap(context -> {
-        if (context.getMain().getType() == OaasObject.Type.COMPOUND) {
+        if (context.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
           return loadMembers(context.getMain())
             .map(context::setMembers);
         } else {
@@ -55,7 +54,7 @@ public class ContextLoader {
         }
       })
       .flatMap(context -> {
-        if (context.getFunction().getType() == OaasFunction.Type.MACRO) {
+        if (context.getFunction().getType() == OaasFunction.FuncType.MACRO) {
           return loadMembers(context.getFunction())
             .map(context::setSubFunctions);
         } else {
@@ -65,16 +64,17 @@ public class ContextLoader {
   }
 
   public Uni<Map<String, OaasObject>> loadMembers(OaasObject main) {
-    return Multi.createFrom().iterable(main.getMembers().entrySet())
-      .onItem().transformToUniAndMerge(entry -> objectRepo.findById(entry.getValue())
-        .map(object -> {
-          if (object == null)
-            throw new NoStackException("Not found object with id " + entry.getValue().toString());
-          return Map.entry(entry.getKey(), object);
-        }))
-      .collect()
-      .asList()
-      .map(l -> l.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    return null;
+//    return Multi.createFrom().iterable(main.getMembers())
+//      .onItem().transformToUniAndMerge(member -> objectRepo.findById(member)
+//        .map(object -> {
+//          if (object == null)
+//            throw new NoStackException("Not found object with id " + entry.getValue().toString());
+//          return Map.entry(entry.getKey(), object);
+//        }))
+//      .collect()
+//      .asList()
+//      .map(l -> l.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 //
 //    return objectRepo.listByIds(main.getMembers().values())
 //      .map(objList -> {

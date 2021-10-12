@@ -1,6 +1,6 @@
 package org.hpcclab.msc.object.repository;
 
-import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 
@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 @ApplicationScoped
-public class MscFuncRepository implements ReactivePanacheMongoRepositoryBase<OaasFunction, String> {
+public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, String> {
 
   public Uni<OaasFunction> findByName(String name) {
     return find("_id", name)

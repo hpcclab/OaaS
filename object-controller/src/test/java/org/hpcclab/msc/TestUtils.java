@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
@@ -37,7 +38,7 @@ public class TestUtils {
       .extract().body().as(OaasObject.class);
   }
 
-  public static OaasObject getObject(ObjectId id) {
+  public static OaasObject getObject(UUID id) {
     return given()
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}")

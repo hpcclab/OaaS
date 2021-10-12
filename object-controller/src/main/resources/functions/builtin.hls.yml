@@ -1,11 +1,10 @@
 - name: builtin.hls.ts.transcode
   type: TASK
   reactive: true
-  outputTemplate:
-    type: RESOURCE
-    labels: {}
-    state:
-      type: SEGMENTABLE
+#  outputTemplate:
+#    type: RESOURCE
+#    state:
+#      type: SEGMENTABLE
   bindingRequirement:
     requiredType: RESOURCE
     requiredStateType: SEGMENTABLE
@@ -30,9 +29,8 @@
 - name: builtin.hls.macro.transcode
   type: MACRO
   reactive: true
-  outputTemplate:
-    type: COMPOUND
-    labels: {}
+#  outputTemplate:
+#    type: COMPOUND
   bindingRequirement:
     requiredType: COMPOUND
   subFunctions:

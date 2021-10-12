@@ -24,7 +24,7 @@ public class FunctionCallTest {
   @Test
   void testCopy() {
     var root = new OaasObject()
-      .setType(OaasObject.Type.RESOURCE)
+      .setType(OaasObject.ObjectType.RESOURCE)
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
 

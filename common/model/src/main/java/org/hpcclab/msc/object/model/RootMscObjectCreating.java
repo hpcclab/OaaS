@@ -12,7 +12,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RootMscObjectCreating {
   String sourceUrl;
-  OaasObject.Type type;
+  OaasObject.ObjectType type;
 //  Map<String, MscFuncMetadata> functions = Map.of();
   List<String> functions = List.of();
 }

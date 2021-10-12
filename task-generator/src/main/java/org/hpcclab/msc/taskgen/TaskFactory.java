@@ -7,6 +7,7 @@ import org.hpcclab.msc.object.model.FunctionExecContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @ApplicationScoped
 public class TaskFactory {
@@ -34,7 +35,7 @@ public class TaskFactory {
     var seq = new TaskFlow()
       .setTask(task)
       .setId(Task.createId(outputObj, requestFile));
-    var pre = new ArrayList<String>();
+    var pre = new HashSet<String>();
     if (context.getMain().getOrigin().getParentId() != null) {
       pre.add(Task.createId(context.getMain(), requestFile));
     }

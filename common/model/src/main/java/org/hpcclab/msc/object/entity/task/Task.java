@@ -7,8 +7,10 @@ import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
+import javax.persistence.Embeddable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @Accessors(chain = true)

@@ -7,7 +7,7 @@ import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.exception.FunctionValidationException;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.model.ObjectResourceRequest;
-import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.hpcclab.msc.object.service.ResourceRequestService;
 import org.hpcclab.msc.object.service.StorageAllocator;
 
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 public class TaskFunctionHandler {
 
   @Inject
-  MscObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
   StorageAllocator storageAllocator;
   @Inject
@@ -31,7 +31,8 @@ public class TaskFunctionHandler {
           .formatted(context.getMain().getId(), context.getFunction().getName())
       );
     if (!context.isReactive()) {
-      if (context.getFunction().getOutputTemplate().getState().getType()==OaasObjectState.Type.SEGMENTABLE) {
+      if (context.getFunction().getOutputClass().get(0).getStateType()
+        ==OaasObjectState.Type.SEGMENTABLE) {
         throw new FunctionValidationException("Can not execute actively the function with the output as segmentable resource type");
       }
     }
@@ -39,7 +40,7 @@ public class TaskFunctionHandler {
 
   public Uni<OaasObject> call(FunctionExecContext context) {
     var func = context.getFunction();
-    var output = func.getOutputTemplate().toObject();
+    var output = OaasObject.createFromClasses(func.getOutputClass());
     output.setOrigin(new OaasObjectOrigin(context));
     if (output.getState().getType() == OaasObjectState.Type.FILE
       && output.getState().getFile() == null

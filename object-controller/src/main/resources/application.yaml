@@ -3,6 +3,9 @@
     log:
       console:
         color: true
+    hibernate-orm:
+      database:
+        generation: drop-and-create
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket
@@ -14,11 +17,18 @@
     mongodb:
       devservices:
         port: 27017
+    hibernate-orm:
+      database:
+        generation: drop-and-create
+      log:
+        sql: true
     http:
       port: 8088
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket
+
+
 quarkus:
   console:
     color: true
@@ -47,3 +57,5 @@ quarkus:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
+  datasource:
+    db-kind: postgresql

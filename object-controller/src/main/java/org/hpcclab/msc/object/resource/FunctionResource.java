@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.exception.NoStackException;
-import org.hpcclab.msc.object.repository.MscFuncRepository;
+import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.service.FunctionService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,7 +18,7 @@ import java.util.List;
 @ApplicationScoped
 public class FunctionResource implements FunctionService {
   @Inject
-  MscFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
   ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   public Uni<List<OaasFunction>> list() {
@@ -27,7 +27,7 @@ public class FunctionResource implements FunctionService {
 
   public Uni<OaasFunction> create(boolean update, OaasFunction function) {
     if (update) {
-      return funcRepo.persistOrUpdate(function);
+      return funcRepo.persistAndFlush(function);
     }
     return funcRepo.findByName(function.getName())
       .flatMap(fn -> {

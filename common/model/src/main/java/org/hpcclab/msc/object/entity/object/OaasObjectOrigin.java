@@ -9,9 +9,11 @@ import org.apache.commons.codec.digest.PureJavaCrc32;
 import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
+import javax.persistence.Embeddable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
@@ -20,11 +22,11 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectOrigin {
-  ObjectId rootId;
-  ObjectId parentId;
+  UUID rootId;
+  UUID parentId;
   String funcName;
   Map<String, String> args;
-  List<ObjectId> additionalInputRefs;
+  List<UUID> additionalInputRefs;
 
   public OaasObjectOrigin copy() {
     return new OaasObjectOrigin(
@@ -49,7 +51,7 @@ public class OaasObjectOrigin {
 
   public long hash() {
     StringBuilder sb = new StringBuilder()
-      .append(parentId == null? "null" :parentId.toHexString())
+      .append(parentId == null? "null" :parentId.toString())
       .append(funcName);
     if (args != null && !args.isEmpty()) {
       args.entrySet()

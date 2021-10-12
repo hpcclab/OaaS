@@ -2,25 +2,32 @@ package org.hpcclab.msc.object;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.runtime.StartupEvent;
+import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
-import org.hpcclab.msc.object.repository.MscFuncRepository;
+import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@ApplicationScoped
 public class BuiltInFunctionLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInFunctionLoader.class);
 
   ObjectMapper mapper;
   @Inject
-  MscFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
 
-  void onStart(@Observes StartupEvent ev) {
+  @ReactiveTransactional
+  void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException {
     mapper = new ObjectMapper(new YAMLFactory());
 
     var functions = Stream.of(
@@ -43,7 +50,8 @@ public class BuiltInFunctionLoader {
         }
       })
       .collect(Collectors.toList());
-    funcRepo.persistOrUpdate(functions)
-      .await().indefinitely();
+    funcRepo.persist(functions)
+      .subscribeAsCompletionStage()
+      .get();
   }
 }

@@ -7,7 +7,7 @@ import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
-import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class FunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
 
   @Inject
-  MscObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
   LogicalFunctionHandler logicalFunctionHandler;
   @Inject
@@ -32,14 +32,14 @@ public class FunctionRouter {
 
 
   public Uni<OaasObject> functionCall(FunctionExecContext context) {
-    if (context.getFunction().getType()==OaasFunction.Type.LOGICAL) {
+    if (context.getFunction().getType()==OaasFunction.FuncType.LOGICAL) {
       var newObj = logicalFunctionHandler.call(context);
       return objectRepo.persist(newObj);
     }
-    if (context.getFunction().getType()==OaasFunction.Type.MACRO) {
+    if (context.getFunction().getType()==OaasFunction.FuncType.MACRO) {
       return macroFunctionHandler.call(context);
     }
-    if (context.getFunction().getType()==OaasFunction.Type.TASK) {
+    if (context.getFunction().getType()==OaasFunction.FuncType.TASK) {
       return taskFunctionHandler.call(context);
     }
     LOGGER.warn("Receive function with type {} which is not supported", context.getFunction().getType());
@@ -63,10 +63,10 @@ public class FunctionRouter {
     if (context.getFunction().getName().startsWith("builtin.logical")) {
       logicalFunctionHandler.validate(context);
     }
-    if (context.getFunction().getType()==OaasFunction.Type.MACRO) {
+    if (context.getFunction().getType()==OaasFunction.FuncType.MACRO) {
       macroFunctionHandler.validate(context);
     }
-    if (context.getFunction().getType()==OaasFunction.Type.TASK) {
+    if (context.getFunction().getType()==OaasFunction.FuncType.TASK) {
       taskFunctionHandler.validate(context);
     }
   }

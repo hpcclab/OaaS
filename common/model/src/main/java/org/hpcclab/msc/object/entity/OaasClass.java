@@ -11,16 +11,21 @@ import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.function.SubFunctionCall;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.List;
 
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasClass {
-  @BsonId
+  @Id
   String name;
   OaasObjectState.Type stateType;
+  @ElementCollection
   List<OaasFunctionBinding> functions;
 }

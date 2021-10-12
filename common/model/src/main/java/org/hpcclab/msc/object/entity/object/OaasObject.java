@@ -1,36 +1,59 @@
 package org.hpcclab.msc.object.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hpcclab.msc.object.entity.OaasClass;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
+import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Entity
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class OaasObject {
-  @BsonId
-  ObjectId id;
+  //  @BsonId
+//  ObjectId id;
+  @Id
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+    name = "UUID",
+    strategy = "org.hibernate.id.UUIDGenerator"
+  )
+  UUID id;
+  @Type(type = "json")
+  @Column(columnDefinition = "jsonb")
   OaasObjectOrigin origin;
   long originHash;
-  Type type;
+  @Enumerated
+  ObjectType type;
+  @Enumerated
   AccessModifier access;
-  Map<String, String> labels;
-  List<String> functions = List.of();
 
+  //  Map<String, String> labels;
+  @ManyToMany
+  Set<OaasFunction> functions = Set.of();
+  @Type(type = "json")
+  @Column(columnDefinition = "jsonb")
   OaasObjectState state;
-  Map<String, ObjectId> members;
+  @ElementCollection
+  Set<OaasCompoundMember> members;
 
-  public enum Type {
+  public enum ObjectType {
     RESOURCE,
     COMPOUND
   }
@@ -42,12 +65,12 @@ public class OaasObject {
   }
 
   public void format() {
-    if (type==Type.COMPOUND) {
+    if (type==ObjectType.COMPOUND) {
       state = null;
     } else {
       members = null;
     }
-    if (origin==null) origin =new OaasObjectOrigin().setRootId(id);
+    if (origin==null) origin = new OaasObjectOrigin().setRootId(id);
   }
 
   public OaasObject copy() {
@@ -57,11 +80,16 @@ public class OaasObject {
       originHash,
       type,
       access,
-      labels==null ? null:Map.copyOf(labels),
-      functions==null ? null:List.copyOf(functions),
+//      labels==null ? null:Map.copyOf(labels),
+      functions==null ? null:Set.copyOf(functions),
       state,
-      members==null ? null:Map.copyOf(members)
+      members==null ? null:Set.copyOf(members)
     );
+  }
+
+  public static OaasObject createFromClasses(List<OaasClass> classList) {
+    // TODO
+    return new OaasObject();
   }
 
   public void updateHash() {

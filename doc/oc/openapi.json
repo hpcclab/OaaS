@@ -16,7 +16,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/MscFunction"
+                    "$ref" : "#/components/schemas/OaasFunction"
                   }
                 }
               }
@@ -38,7 +38,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/MscFunction"
+                "$ref" : "#/components/schemas/OaasFunction"
               }
             },
             "text/x-yaml" : {
@@ -54,7 +54,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscFunction"
+                  "$ref" : "#/components/schemas/OaasFunction"
                 }
               }
             }
@@ -79,7 +79,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscFunction"
+                  "$ref" : "#/components/schemas/OaasFunction"
                 }
               }
             }
@@ -98,7 +98,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/MscObject"
+                    "$ref" : "#/components/schemas/OaasObject"
                   }
                 }
               }
@@ -112,7 +112,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/MscObject"
+                "$ref" : "#/components/schemas/OaasObject"
               }
             }
           }
@@ -123,7 +123,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscObject"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -148,7 +148,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscObject"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -185,7 +185,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscObject"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -219,7 +219,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscObject"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -278,7 +278,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MscObject"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -289,40 +289,72 @@
   },
   "components" : {
     "schemas" : {
+      "AccessModifier" : {
+        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
+        "type" : "string"
+      },
+      "AccessModifier1" : {
+        "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
+        "type" : "string"
+      },
+      "FuncType" : {
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "type" : "string"
+      },
       "FunctionCallRequest" : {
         "required" : [ "functionName" ],
         "type" : "object",
         "properties" : {
-          "additionalInputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectId"
-            }
-          },
-          "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+          "target" : {
+            "$ref" : "#/components/schemas/UUID"
           },
           "functionName" : {
             "pattern" : "\\S",
             "type" : "string",
             "nullable" : false
           },
-          "target" : {
-            "$ref" : "#/components/schemas/ObjectId"
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+              "type" : "string"
+            }
           }
         }
       },
       "FunctionExecContext" : {
         "type" : "object",
         "properties" : {
-          "additionalInputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/MscObject"
+          "main" : {
+            "$ref" : "#/components/schemas/OaasObject"
+          },
+          "compound" : {
+            "$ref" : "#/components/schemas/OaasObject"
+          },
+          "reactive" : {
+            "type" : "boolean"
+          },
+          "members" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/OaasObject"
             }
+          },
+          "subFunctions" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/OaasFunction"
+            }
+          },
+          "function" : {
+            "$ref" : "#/components/schemas/OaasFunction"
           },
           "args" : {
             "type" : "object",
@@ -330,121 +362,147 @@
               "type" : "string"
             }
           },
-          "compound" : {
-            "$ref" : "#/components/schemas/MscObject"
-          },
-          "function" : {
-            "$ref" : "#/components/schemas/MscFunction"
-          },
-          "main" : {
-            "$ref" : "#/components/schemas/MscObject"
-          },
-          "members" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/MscObject"
-            }
-          },
-          "reactive" : {
-            "type" : "boolean"
-          },
-          "subFunctions" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/MscFunction"
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasObject"
             }
           }
         }
       },
-      "MscFunction" : {
+      "OaasClass" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/Type1"
+          },
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasFunctionBinding"
+            }
+          }
+        }
+      },
+      "OaasCompoundMember" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "object" : {
+            "$ref" : "#/components/schemas/OaasObject"
+          }
+        }
+      },
+      "OaasFunction" : {
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
-          "additionalInputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/MscObjectRequirement"
-            }
-          },
-          "bindingRequirement" : {
-            "$ref" : "#/components/schemas/MscObjectRequirement"
-          },
           "name" : {
             "pattern" : "\\S",
             "type" : "string",
             "nullable" : false
           },
-          "outputTemplate" : {
-            "$ref" : "#/components/schemas/MscObjectTemplate"
+          "type" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/FuncType"
+            }, {
+              "nullable" : false
+            } ]
           },
           "reactive" : {
             "type" : "boolean"
+          },
+          "outputClass" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasClass"
+            }
+          },
+          "bindingRequirement" : {
+            "$ref" : "#/components/schemas/OaasObjectRequirement"
+          },
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasObjectRequirement"
+            }
+          },
+          "task" : {
+            "$ref" : "#/components/schemas/TaskConfiguration"
           },
           "subFunctions" : {
             "type" : "object",
             "additionalProperties" : {
               "$ref" : "#/components/schemas/SubFunctionCall"
             }
-          },
-          "task" : {
-            "$ref" : "#/components/schemas/TaskConfiguration"
-          },
-          "type" : {
-            "allOf" : [ {
-              "$ref" : "#/components/schemas/Type2"
-            }, {
-              "nullable" : false
-            } ]
           }
         }
       },
-      "MscObject" : {
+      "OaasFunctionBinding" : {
         "type" : "object",
         "properties" : {
-          "functions" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "access" : {
+            "$ref" : "#/components/schemas/AccessModifier"
           },
+          "functionName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasObject" : {
+        "type" : "object",
+        "properties" : {
           "id" : {
-            "$ref" : "#/components/schemas/ObjectId"
-          },
-          "labels" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "members" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/ObjectId"
-            }
+            "$ref" : "#/components/schemas/UUID"
           },
           "origin" : {
-            "$ref" : "#/components/schemas/MscObjectOrigin"
+            "$ref" : "#/components/schemas/OaasObjectOrigin"
           },
           "originHash" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "state" : {
-            "$ref" : "#/components/schemas/MscObjectState"
-          },
           "type" : {
-            "$ref" : "#/components/schemas/Type"
+            "$ref" : "#/components/schemas/ObjectType"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/AccessModifier1"
+          },
+          "functions" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasFunction"
+            }
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/OaasObjectState"
+          },
+          "members" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasCompoundMember"
+            }
           }
         }
       },
-      "MscObjectOrigin" : {
+      "OaasObjectOrigin" : {
         "type" : "object",
         "properties" : {
-          "additionalInputRefs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectId"
-            }
+          "rootId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "parentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "funcName" : {
+            "type" : "string"
           },
           "args" : {
             "type" : "object",
@@ -452,18 +510,17 @@
               "type" : "string"
             }
           },
-          "funcName" : {
-            "type" : "string"
-          },
-          "parentId" : {
-            "$ref" : "#/components/schemas/ObjectId"
-          },
-          "rootId" : {
-            "$ref" : "#/components/schemas/ObjectId"
+          "additionalInputRefs" : {
+            "type" : "array",
+            "items" : {
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+              "type" : "string"
+            }
           }
         }
       },
-      "MscObjectRequirement" : {
+      "OaasObjectRequirement" : {
         "type" : "object",
         "properties" : {
           "requiredLabel" : {
@@ -472,17 +529,20 @@
               "type" : "string"
             }
           },
+          "requiredType" : {
+            "$ref" : "#/components/schemas/ObjectType"
+          },
           "requiredStateType" : {
             "type" : "string"
-          },
-          "requiredType" : {
-            "$ref" : "#/components/schemas/Type"
           }
         }
       },
-      "MscObjectState" : {
+      "OaasObjectState" : {
         "type" : "object",
         "properties" : {
+          "type" : {
+            "$ref" : "#/components/schemas/Type1"
+          },
           "baseUrl" : {
             "type" : "string"
           },
@@ -495,82 +555,20 @@
               "type" : "string"
             }
           },
-          "groupId" : {
-            "type" : "string"
-          },
           "records" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
           },
-          "type" : {
-            "$ref" : "#/components/schemas/Type1"
-          }
-        }
-      },
-      "MscObjectTemplate" : {
-        "type" : "object",
-        "properties" : {
-          "functions" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "id" : {
-            "$ref" : "#/components/schemas/ObjectId"
-          },
-          "labels" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "members" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/ObjectId"
-            }
-          },
-          "origin" : {
-            "$ref" : "#/components/schemas/MscObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/MscObjectState"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/Type"
-          }
-        }
-      },
-      "ObjectId" : {
-        "type" : "object",
-        "properties" : {
-          "timestamp" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "counter" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "randomValue1" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "randomValue2" : {
-            "type" : "integer"
-          },
-          "date" : {
-            "format" : "date",
+          "groupId" : {
             "type" : "string"
           }
         }
+      },
+      "ObjectType" : {
+        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "type" : "string"
       },
       "SubFunctionCall" : {
         "type" : "object",
@@ -578,22 +576,25 @@
           "funcName" : {
             "type" : "string"
           },
+          "target" : {
+            "type" : "string"
+          },
           "inputRefs" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
-          },
-          "target" : {
-            "type" : "string"
           }
         }
       },
       "TaskConfiguration" : {
         "type" : "object",
         "properties" : {
-          "argsToEnv" : {
-            "type" : "boolean"
+          "type" : {
+            "$ref" : "#/components/schemas/Type"
+          },
+          "image" : {
+            "type" : "string"
           },
           "commands" : {
             "type" : "array",
@@ -607,28 +608,22 @@
               "type" : "string"
             }
           },
-          "image" : {
-            "type" : "string"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/Type3"
+          "argsToEnv" : {
+            "type" : "boolean"
           }
         }
       },
       "Type" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "enum" : [ "DURABLE", "EPHEMERAL", "LOGICAL" ],
         "type" : "string"
       },
       "Type1" : {
         "enum" : [ "FILE", "FILES", "RECORD", "SEGMENTABLE" ],
         "type" : "string"
       },
-      "Type2" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
-        "type" : "string"
-      },
-      "Type3" : {
-        "enum" : [ "DURABLE", "EPHEMERAL", "LOGICAL" ],
+      "UUID" : {
+        "format" : "uuid",
+        "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
         "type" : "string"
       }
     }

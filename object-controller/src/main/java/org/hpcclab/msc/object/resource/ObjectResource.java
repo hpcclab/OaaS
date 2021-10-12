@@ -6,8 +6,8 @@ import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.repository.MscFuncRepository;
-import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.repository.OaasFuncRepository;
+import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
 import org.hpcclab.msc.object.handler.FunctionRouter;
 import org.hpcclab.msc.object.service.ObjectService;
@@ -18,15 +18,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
-  MscObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
-  MscFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
   @Inject
   FunctionRouter functionRouter;
   @Inject
@@ -42,8 +44,9 @@ public class ObjectResource implements ObjectService {
 
 
   public Uni<OaasObject> get(String id) {
-    ObjectId oid = new ObjectId(id);
-    return objectRepo.findById(oid)
+//    ObjectId oid = new ObjectId(id);
+    var uuid = UUID.fromString(id);
+    return objectRepo.findById(uuid)
       .map(o -> {
         if (o!=null)
           return o;
@@ -54,8 +57,9 @@ public class ObjectResource implements ObjectService {
 
   public Uni<OaasObject> bindFunction(String id,
                                       List<String> funcNames) {
-    ObjectId oid = new ObjectId(id);
-    var oUni = objectRepo.findById(oid);
+
+    var uuid = UUID.fromString(id);
+    var oUni = objectRepo.findById(uuid);
     var fmUni = funcRepo.listByNames(funcNames);
     return Uni.combine().all()
       .unis(oUni, fmUni)
@@ -67,28 +71,27 @@ public class ObjectResource implements ObjectService {
         if (o==null) {
           throw new NotFoundException("Not found object");
         }
-        if (o.getFunctions()==null) o.setFunctions(new ArrayList<>());
+        if (o.getFunctions()==null) o.setFunctions(new HashSet<>());
         for (OaasFunction value : fm) {
           o.getFunctions()
-            .add(value.getName());
+            .add(value);
         }
-        return objectRepo.update(o);
+        return objectRepo.persistAndFlush(o);
       });
   }
 
   @Override
   public Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.activeCall(request.setTarget(new ObjectId(id)));
+    return functionRouter.activeCall(request.setTarget(UUID.fromString(id)));
   }
 
   public Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.reactiveCall(request.setTarget(new ObjectId(id)));
+    return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)));
   }
 
   @Override
   public Uni<FunctionExecContext> loadExecutionContext(String id) {
-    ObjectId oid = new ObjectId(id);
-    return objectRepo.findById(oid)
+    return objectRepo.findById(UUID.fromString(id))
       .flatMap(obj -> {
         if (obj==null) throw new NotFoundException();
         var origin = obj.getOrigin();

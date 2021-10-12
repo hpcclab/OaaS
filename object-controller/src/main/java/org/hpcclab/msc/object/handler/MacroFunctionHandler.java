@@ -8,14 +8,14 @@ import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
-import org.hpcclab.msc.object.repository.MscObjectRepository;
+import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -23,14 +23,14 @@ public class MacroFunctionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger( MacroFunctionHandler.class );
 
   @Inject
-  MscObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
   FunctionRouter router;
 
   public void validate(FunctionExecContext context) {
-    if (context.getMain().getType()!=OaasObject.Type.COMPOUND)
+    if (context.getMain().getType()!=OaasObject.ObjectType.COMPOUND)
       throw new NoStackException("Object must be COMPOUND").setCode(400);
-    if (context.getFunction().getType()!=OaasFunction.Type.MACRO)
+    if (context.getFunction().getType()!=OaasFunction.FuncType.MACRO)
       throw new NoStackException("Function must be MACRO").setCode(400);
   }
 
@@ -63,18 +63,17 @@ public class MacroFunctionHandler {
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     subContexts.values().forEach(router::validate);
 
-    var templateObj = context.getFunction().getOutputTemplate();
+    var output = OaasObject.createFromClasses(context.getFunction().getOutputClass());
 
-    var output = templateObj.toObject();
     output.setOrigin(new OaasObjectOrigin(context))
-      .setMembers(new HashMap<>());
+      .setMembers(Set.of());
 
     return Multi.createFrom().iterable(subContexts.entrySet())
       .onItem().transformToUniAndConcatenate(entry -> router
         .functionCall(entry.getValue())
         .map(v -> Map.entry(entry.getKey(),v))
       )
-      .invoke(entry -> output.getMembers().put(entry.getKey(), entry.getValue().getId()))
+//      .invoke(entry -> output.getMembers().put(entry.getKey(), entry.getValue().getId()))
       .collect().last()
       .flatMap(l -> objectRepo.persist(output))
 //      .invoke(o -> LOGGER.info("get output {}", Json.encodePrettily(o)))

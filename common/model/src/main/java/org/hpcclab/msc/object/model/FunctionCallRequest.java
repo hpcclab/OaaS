@@ -9,16 +9,17 @@ import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionCallRequest {
-  ObjectId target;
+  UUID target;
   @NotBlank
   String functionName;
   Map<String, String> args;
-  List<ObjectId> additionalInputs;
+  List<UUID> additionalInputs;
 
   public static FunctionCallRequest from(OaasObjectOrigin origin) {
     return new FunctionCallRequest()
