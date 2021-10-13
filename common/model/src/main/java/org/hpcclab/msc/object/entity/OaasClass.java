@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
-import org.hpcclab.msc.object.entity.function.SubFunctionCall;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.ElementCollection;
@@ -25,7 +22,8 @@ import java.util.List;
 public class OaasClass {
   @Id
   String name;
-  OaasObjectState.Type stateType;
+
+  OaasObjectState.StateType stateType;
   @ElementCollection
   List<OaasFunctionBinding> functions;
 }

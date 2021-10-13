@@ -14,7 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-public class WorkflowStep {
+public class OaasWorkflowStep {
   @Id
   @GeneratedValue
   Long id;

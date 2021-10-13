@@ -14,8 +14,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Embeddable
 public class OaasObjectRequirement implements Serializable{
-  @ElementCollection
-  Map<String, String> requiredLabel;
+//  @ElementCollection
+//  Map<String, String> requiredLabel;
   OaasObject.ObjectType requiredType;
   String requiredStateType;
 }

@@ -89,22 +89,23 @@ public class ContextLoader {
   }
 
   public Uni<Map<String, OaasFunction>> loadMembers(OaasFunction function) {
-    var funcNames = function.getSubFunctions()
-      .values()
-      .stream()
-      .map(SubFunctionCall::getFuncName)
-      .collect(Collectors.toSet());
-    return funcRepo.listByNames(funcNames)
-      .map(objList -> {
-        if (objList.size() != funcNames.size()) {
-          var l = new HashSet<>(funcNames);
-          l.removeAll(objList.stream().map(OaasFunction::getName).collect(Collectors.toSet()));
-          throw new NoStackException("Can not load function " + l);
-        }
-        return objList.stream()
-            .map(f -> Map.entry(f.getName(), f))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      }
-      );
+//    var funcNames = function.getSubFunctions()
+//      .values()
+//      .stream()
+//      .map(SubFunctionCall::getFuncName)
+//      .collect(Collectors.toSet());
+//    return funcRepo.listByNames(funcNames)
+//      .map(objList -> {
+//        if (objList.size() != funcNames.size()) {
+//          var l = new HashSet<>(funcNames);
+//          l.removeAll(objList.stream().map(OaasFunction::getName).collect(Collectors.toSet()));
+//          throw new NoStackException("Can not load function " + l);
+//        }
+//        return objList.stream()
+//            .map(f -> Map.entry(f.getName(), f))
+//            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//      }
+//      );
+    return null;
   }
 }

@@ -1,15 +1,10 @@
 package org.hpcclab.msc.object.entity.state;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.bson.codecs.pojo.annotations.BsonDiscriminator;
-import org.eclipse.microprofile.openapi.annotations.media.DiscriminatorMapping;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import javax.persistence.Embeddable;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +12,15 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectState {
-  Type type;
+  StateType type;
   String baseUrl;
   String file;
   List<String> files;
-  Map<String, String> records;
+  @JsonRawValue
+  String records;
   String groupId;
 
-  public enum Type {
+  public enum StateType {
     FILE, FILES, SEGMENTABLE, RECORD
   }
 }

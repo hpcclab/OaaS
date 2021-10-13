@@ -4,6 +4,8 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.function.OaasWorkflow;
+import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 import org.hpcclab.msc.object.model.FunctionExecContext;
@@ -46,37 +48,25 @@ public class MacroFunctionHandler {
     validate(context);
 
     var func = context.getFunction();
-    var subContexts =
-      func.getSubFunctions().entrySet().stream()
-          .map(entry ->  {
-            var subFunc = entry.getValue();
-            var subContext = new FunctionExecContext()
-              .setMain(resolveTarget(context, subFunc.getTarget()))
-              .setArgs(context.getArgs())
-              .setFunction(context.getSubFunctions().get(subFunc.getFuncName()))
-              .setAdditionalInputs(subFunc.getInputRefs().stream()
-                .map(ref -> resolveTarget(context, ref))
-                .collect(Collectors.toList())
-              );
-            return Map.entry(entry.getKey(), subContext);
-          })
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    subContexts.values().forEach(router::validate);
 
     var output = OaasObject.createFromClasses(context.getFunction().getOutputClass());
 
     output.setOrigin(new OaasObjectOrigin(context))
       .setMembers(Set.of());
 
-    return Multi.createFrom().iterable(subContexts.entrySet())
-      .onItem().transformToUniAndConcatenate(entry -> router
-        .functionCall(entry.getValue())
-        .map(v -> Map.entry(entry.getKey(),v))
-      )
-//      .invoke(entry -> output.getMembers().put(entry.getKey(), entry.getValue().getId()))
-      .collect().last()
-      .flatMap(l -> objectRepo.persist(output))
-//      .invoke(o -> LOGGER.info("get output {}", Json.encodePrettily(o)))
-      ;
+    return execWorkflow(context, func.getMacro())
+      .flatMap(wfResults -> {
+        var mem = func.getMacro().getExports()
+          .stream()
+          .map(export -> new OaasCompoundMember(export.getAs(),wfResults.get(export.getFrom())))
+          .collect(Collectors.toSet());
+        output.setMembers(mem);
+        return objectRepo.persistAndFlush(output);
+      });
+  }
+
+  private Uni<Map<String, OaasObject>> execWorkflow(FunctionExecContext context,
+                                       OaasWorkflow workflow) {
+    return null;
   }
 }

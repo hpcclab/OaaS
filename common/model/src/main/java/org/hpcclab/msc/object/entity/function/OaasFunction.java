@@ -7,6 +7,7 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -26,7 +27,6 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-//@TypeDef(name = "json", typeClass = JsonType.class)
 public class OaasFunction {
   //  @BsonId
   @NotBlank
@@ -35,23 +35,23 @@ public class OaasFunction {
   @NotNull
   OaasFunction.FuncType type;
   boolean reactive = false;
-//  @Type(type = "json")
-//  @Column(columnDefinition = "jsonb")
-//  OaasObjectTemplate outputTemplate;
+
   @ManyToMany
   List<OaasClass> outputClass;
   OaasObjectRequirement bindingRequirement;
-//  @Type(type = "json")
-//  @Column(columnDefinition = "jsonb")
+
   @ElementCollection
   List<OaasObjectRequirement> additionalInputs = List.of();
-//  @Type(type = "json")
-//  @Column(columnDefinition = "jsonb")
+
   TaskConfiguration task;
 //  @Type(type = "json")
 //  @Column(columnDefinition = "jsonb")
 //  @ElementCollection
 //  Map<String, SubFunctionCall> subFunctions = Map.of();
+  @ManyToOne(
+    cascade = CascadeType.ALL,
+    fetch = FetchType.EAGER
+  )
   OaasWorkflow macro;
 
 

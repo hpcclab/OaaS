@@ -93,9 +93,9 @@ public class JobProvisioner {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
-    if (obj.getState().getType() == OaasObjectState.Type.FILE)
+    if (obj.getState().getType() == OaasObjectState.StateType.FILE)
       env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
-    if (obj.getState().getType() == OaasObjectState.Type.FILES)
+    if (obj.getState().getType() == OaasObjectState.StateType.FILES)
       env.put(prefix + "_RESOURCE_FILES", String.join(", ",obj.getState().getFiles()));
   }
 
