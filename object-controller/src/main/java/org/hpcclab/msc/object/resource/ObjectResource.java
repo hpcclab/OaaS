@@ -1,7 +1,6 @@
 package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;

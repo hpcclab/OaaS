@@ -112,8 +112,8 @@ public class JobWatcher {
 
     var completion = new TaskCompletion()
       .setId(task.getId())
-      .setMainObj(task.getMain().getId().toString())
-      .setOutputObj(task.getOutput().getId().toString())
+      .setMainObj(task.getMain().getId())
+      .setOutputObj(task.getOutput().getId())
       .setFunctionName(task.getFunction().getName())
       .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
       .setStartTime(job.getStatus().getStartTime())

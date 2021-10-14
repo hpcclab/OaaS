@@ -1,9 +1,7 @@
 package org.hpcclab.msc.object.repository;
 
-import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 
 import javax.enterprise.context.ApplicationScoped;

@@ -12,10 +12,8 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Embeddable
 public class OaasObjectRequirement implements Serializable{
-//  @ElementCollection
-//  Map<String, String> requiredLabel;
-  OaasObject.ObjectType requiredType;
-  String requiredStateType;
+  private Map<String, String> requiredLabels = Map.of();
+  private OaasObject.ObjectType requiredType;
+  private String requiredStateType;
 }

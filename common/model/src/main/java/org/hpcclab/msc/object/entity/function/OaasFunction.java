@@ -2,56 +2,48 @@ package org.hpcclab.msc.object.entity.function;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.vladmihalcea.hibernate.type.json.JsonType;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+import org.hibernate.annotations.NaturalId;
+import org.hpcclab.msc.object.EntityConverters;
+import org.hpcclab.msc.object.entity.BaseUuidEntity;
 import org.hpcclab.msc.object.entity.OaasClass;
-import org.hpcclab.msc.object.entity.object.OaasObjectRequirement;
-import org.hpcclab.msc.object.entity.object.OaasObjectTemplate;
 import org.hpcclab.msc.object.entity.task.TaskConfiguration;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-public class OaasFunction {
+public class OaasFunction extends BaseUuidEntity {
   //  @BsonId
   @NotBlank
-  @Id
+  @NaturalId
   String name;
+
   @NotNull
+  @Enumerated
   OaasFunction.FuncType type;
-  boolean reactive = false;
 
   @ManyToMany
-  List<OaasClass> outputClass;
-  OaasObjectRequirement bindingRequirement;
+  Set<OaasClass> outputClasses;
 
-  @ElementCollection
-  List<OaasObjectRequirement> additionalInputs = List.of();
+  @Convert(converter = EntityConverters.ValidationConverter.class)
+  @Column(columnDefinition = "jsonb")
+  OaasFunctionValidation validation;
 
+  @Convert(converter = EntityConverters.TaskConfigConverter.class)
+  @Column(columnDefinition = "jsonb")
   TaskConfiguration task;
-//  @Type(type = "json")
-//  @Column(columnDefinition = "jsonb")
-//  @ElementCollection
-//  Map<String, SubFunctionCall> subFunctions = Map.of();
-  @ManyToOne(
-    cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER
-  )
+
+  @Convert(converter = EntityConverters.WorkflowConverter.class)
+  @Column(columnDefinition = "jsonb")
   OaasWorkflow macro;
 
 

@@ -10,8 +10,10 @@ import javax.enterprise.context.ApplicationScoped;
 public class LogicalFunctionHandler {
   public OaasObject call(FunctionExecContext context) {
     if (context.getFunction().getName().equals("builtin.logical.copy")) {
-      return context.getMain().copy().setId(null)
+      var o = context.getMain().copy()
         .setOrigin(new OaasObjectOrigin(context));
+      o.setId(null);
+      return o;
     } else {
       return null;
     }

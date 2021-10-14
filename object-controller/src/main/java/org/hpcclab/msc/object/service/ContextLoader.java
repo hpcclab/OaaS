@@ -26,8 +26,6 @@ public class ContextLoader {
   @Inject
   OaasFuncRepository funcRepo;
 
-
-
   public Uni<FunctionExecContext> load(FunctionCallRequest request) {
     var oUni = objectRepo.findById(request.getTarget());
     var fUni = funcRepo.findByName(request.getFunctionName());

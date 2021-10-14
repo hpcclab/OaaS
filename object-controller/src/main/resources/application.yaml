@@ -1,8 +1,5 @@
 "%test":
   quarkus:
-    log:
-      console:
-        color: true
     hibernate-orm:
       database:
         generation: drop-and-create
@@ -11,12 +8,6 @@
       s3PrefixUrl: http://localhost:8888/bucket
 "%dev":
   quarkus:
-    log:
-      console:
-        color: true
-    mongodb:
-      devservices:
-        port: 27017
     hibernate-orm:
       database:
         generation: drop-and-create
@@ -24,6 +15,9 @@
         sql: true
     http:
       port: 8088
+    datasource:
+      devservices:
+        port: 5432
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket
@@ -35,10 +29,6 @@ quarkus:
   http:
     access-log:
       enabled: true
-  mongodb:
-    devservices:
-      image-name: mongo:5
-    database: msc-object
   vertx:
     prefer-native-transport: true
   swagger-ui:

@@ -34,7 +34,6 @@ public class HlsTest {
     var segmentsObj = new OaasObject()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setState(new OaasObjectState()
-        .setGroupId("test")
         .setBaseUrl("http://test/segment")
       )
 //      .setFunctions(Set.of("builtin.hls.ts.transcode"))

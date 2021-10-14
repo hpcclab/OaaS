@@ -18,7 +18,6 @@ public class OaasObjectState {
   List<String> files;
   @JsonRawValue
   String records;
-  String groupId;
 
   public enum StateType {
     FILE, FILES, SEGMENTABLE, RECORD

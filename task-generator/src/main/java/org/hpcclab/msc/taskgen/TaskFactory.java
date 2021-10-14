@@ -24,7 +24,6 @@ public class TaskFactory {
     task.setOutput(outputObj);
     task.setFunction(function);
     task.setAdditionalInputs(inputs);
-    task.setArgs(context.getArgs());
     return task;
   }
 
@@ -44,7 +43,8 @@ public class TaskFactory {
         pre.add(Task.createId(additionalInput, requestFile));
       }
     }
-    seq.setPrerequisiteTasks(pre);
+//    seq.setPrerequisiteTasks(pre);
+    // TODO
     return seq;
   }
 }

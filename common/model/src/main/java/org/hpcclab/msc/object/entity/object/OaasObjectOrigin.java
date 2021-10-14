@@ -6,10 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.digest.PureJavaCrc32;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 
-import javax.persistence.Embeddable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,7 @@ public class OaasObjectOrigin {
   UUID parentId;
   String funcName;
   Map<String, String> args;
-  List<UUID> additionalInputRefs;
+  List<UUID> additionalInputs;
 
   public OaasObjectOrigin copy() {
     return new OaasObjectOrigin(
@@ -34,7 +32,7 @@ public class OaasObjectOrigin {
       parentId,
       funcName,
       args==null ? null:Map.copyOf(args),
-      additionalInputRefs==null ? null:List.copyOf(additionalInputRefs)
+      additionalInputs==null ? null:List.copyOf(additionalInputs)
     );
   }
 
@@ -43,7 +41,7 @@ public class OaasObjectOrigin {
     parentId = context.getMain().getId();
     funcName = context.getFunction().getName();
     args = context.getArgs();
-    additionalInputRefs = context.getAdditionalInputs()
+    additionalInputs = context.getAdditionalInputs()
       .stream().map(OaasObject::getId)
       .collect(Collectors.toList());
   }
@@ -61,8 +59,8 @@ public class OaasObjectOrigin {
           .append(e.getValue())
         );
     }
-    if (additionalInputRefs!= null) {
-      additionalInputRefs.forEach(sb::append);
+    if (additionalInputs!= null) {
+      additionalInputs.forEach(sb::append);
     }
     var crc = new PureJavaCrc32();
       crc.update(sb.toString().getBytes(StandardCharsets.UTF_8));

@@ -16,7 +16,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OaasFunction'
+                  $ref: '#/components/schemas/OaasFunctionDto'
     post:
       tags:
       - Function Service
@@ -30,7 +30,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasFunction'
+              $ref: '#/components/schemas/OaasFunctionDto'
           text/x-yaml:
             schema:
               type: string
@@ -40,7 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasFunction'
+                $ref: '#/components/schemas/OaasFunctionDto'
   /api/functions/{funcName}:
     get:
       tags:
@@ -57,7 +57,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasFunction'
+                $ref: '#/components/schemas/OaasFunctionDto'
   /api/objects:
     get:
       tags:
@@ -192,14 +192,14 @@ components:
   schemas:
     AccessModifier:
       enum:
+      - FINAL
       - INTERNAL
-      - PRIVATE
       - PUBLIC
       type: string
     AccessModifier1:
       enum:
-      - FINAL
       - INTERNAL
+      - PRIVATE
       - PUBLIC
       type: string
     FuncType:
@@ -259,11 +259,14 @@ components:
     OaasClass:
       type: object
       properties:
+        id:
+          $ref: '#/components/schemas/UUID'
         name:
           type: string
         stateType:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/StateType'
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBinding'
@@ -280,6 +283,8 @@ components:
       - type
       type: object
       properties:
+        id:
+          $ref: '#/components/schemas/UUID'
         name:
           pattern: \S
           type: string
@@ -288,31 +293,58 @@ components:
           allOf:
           - $ref: '#/components/schemas/FuncType'
           - nullable: false
-        reactive:
-          type: boolean
-        outputClass:
+        outputClasses:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasClass'
+        validation:
+          $ref: '#/components/schemas/OaasFunctionValidation'
+        task:
+          $ref: '#/components/schemas/TaskConfiguration'
+        macro:
+          $ref: '#/components/schemas/OaasWorkflow'
+    OaasFunctionBinding:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/AccessModifier1'
+        functionName:
+          type: string
+    OaasFunctionDto:
+      required:
+      - name
+      - type
+      type: object
+      properties:
+        name:
+          pattern: \S
+          type: string
+          nullable: false
+        type:
+          allOf:
+          - $ref: '#/components/schemas/FuncType'
+          - nullable: false
+        outputClasses:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        bindingPredicate:
+          $ref: '#/components/schemas/OaasFunctionValidation'
+        task:
+          $ref: '#/components/schemas/TaskConfiguration'
+        macro:
+          $ref: '#/components/schemas/OaasWorkflow'
+    OaasFunctionValidation:
+      type: object
+      properties:
         bindingRequirement:
           $ref: '#/components/schemas/OaasObjectRequirement'
         additionalInputs:
           type: array
           items:
             $ref: '#/components/schemas/OaasObjectRequirement'
-        task:
-          $ref: '#/components/schemas/TaskConfiguration'
-        subFunctions:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/SubFunctionCall'
-    OaasFunctionBinding:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/AccessModifier'
-        functionName:
-          type: string
     OaasObject:
       type: object
       properties:
@@ -326,7 +358,11 @@ components:
         type:
           $ref: '#/components/schemas/ObjectType'
         access:
-          $ref: '#/components/schemas/AccessModifier1'
+          $ref: '#/components/schemas/AccessModifier'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
         functions:
           uniqueItems: true
           type: array
@@ -352,7 +388,7 @@ components:
           type: object
           additionalProperties:
             type: string
-        additionalInputRefs:
+        additionalInputs:
           type: array
           items:
             format: uuid
@@ -361,7 +397,7 @@ components:
     OaasObjectRequirement:
       type: object
       properties:
-        requiredLabel:
+        requiredLabels:
           type: object
           additionalProperties:
             type: string
@@ -373,7 +409,7 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/Type1'
+          $ref: '#/components/schemas/StateType'
         baseUrl:
           type: string
         file:
@@ -383,27 +419,51 @@ components:
           items:
             type: string
         records:
-          type: object
-          additionalProperties:
-            type: string
-        groupId:
           type: string
-    ObjectType:
-      enum:
-      - COMPOUND
-      - RESOURCE
-      type: string
-    SubFunctionCall:
+    OaasWorkflow:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasWorkflowStep'
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasWorkflowExport'
+    OaasWorkflowExport:
+      type: object
+      properties:
+        from:
+          type: string
+        as:
+          type: string
+    OaasWorkflowStep:
       type: object
       properties:
         funcName:
           type: string
         target:
           type: string
+        as:
+          type: string
         inputRefs:
           type: array
           items:
             type: string
+    ObjectType:
+      enum:
+      - COMPOUND
+      - RESOURCE
+      type: string
+    StateType:
+      enum:
+      - FILE
+      - FILES
+      - RECORD
+      - SEGMENTABLE
+      type: string
     TaskConfiguration:
       type: object
       properties:
@@ -426,13 +486,6 @@ components:
       - DURABLE
       - EPHEMERAL
       - LOGICAL
-      type: string
-    Type1:
-      enum:
-      - FILE
-      - FILES
-      - RECORD
-      - SEGMENTABLE
       type: string
     UUID:
       format: uuid

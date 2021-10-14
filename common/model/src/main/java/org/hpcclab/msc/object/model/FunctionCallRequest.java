@@ -3,7 +3,6 @@ package org.hpcclab.msc.object.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 
 import javax.validation.constraints.NotBlank;
@@ -26,6 +25,6 @@ public class FunctionCallRequest {
       .setTarget(origin.getParentId())
       .setFunctionName(origin.getFuncName())
       .setArgs(origin.getArgs())
-      .setAdditionalInputs(origin.getAdditionalInputRefs());
+      .setAdditionalInputs(origin.getAdditionalInputs());
   }
 }

@@ -82,27 +82,29 @@ public class TaskHandler {
   }
 
   public Uni<Boolean> checkSubmittable(TaskFlow taskFlow) {
-    if (taskFlow.getPrerequisiteTasks().size()==0) {
-      return submitTask(taskFlow)
-        .map(f -> true);
-    }
-//    LOGGER.debug("flow {}, require {}", taskFlow.getId(), taskFlow.getPrerequisiteTasks());
-    return taskCompletionRepo.find("_id in ?1", taskFlow.getPrerequisiteTasks())
-      .list()
-      .flatMap(taskCompletions -> {
-        LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), taskCompletions.size());
-        if (taskFlow.getPrerequisiteTasks().size() <= taskCompletions.size()) {
-          boolean succeeded = true;
-          for (TaskCompletion taskCompletion : taskCompletions) {
-            succeeded &= taskCompletion.getStatus()==TaskCompletion.Status.SUCCEEDED;
-          }
-          if (succeeded) {
-            return submitTask(taskFlow)
-              .map(f -> true);
-          }
-        }
-        return Uni.createFrom().item(false);
-      });
+    //TODO
+    return Uni.createFrom().item(false);
+//    if (taskFlow.getPrerequisiteTasks().size()==0) {
+//      return submitTask(taskFlow)
+//        .map(f -> true);
+//    }
+////    LOGGER.debug("flow {}, require {}", taskFlow.getId(), taskFlow.getPrerequisiteTasks());
+//    return taskCompletionRepo.find("_id in ?1", taskFlow.getPrerequisiteTasks())
+//      .list()
+//      .flatMap(taskCompletions -> {
+//        LOGGER.debug("checkSubmittable {} count: {}", taskFlow.getId(), taskCompletions.size());
+//        if (taskFlow.getPrerequisiteTasks().size() <= taskCompletions.size()) {
+//          boolean succeeded = true;
+//          for (TaskCompletion taskCompletion : taskCompletions) {
+//            succeeded &= taskCompletion.getStatus()==TaskCompletion.Status.SUCCEEDED;
+//          }
+//          if (succeeded) {
+//            return submitTask(taskFlow)
+//              .map(f -> true);
+//          }
+//        }
+//        return Uni.createFrom().item(false);
+//      });
   }
 
   private Uni<TaskFlow> submitTask(TaskFlow flow) {

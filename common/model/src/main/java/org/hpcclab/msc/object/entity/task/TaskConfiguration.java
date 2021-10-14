@@ -13,14 +13,11 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Embeddable
-public class TaskConfiguration implements Serializable {
+public class TaskConfiguration {
 
   Type type;
   String image;
-  @ElementCollection
   List<String> commands;
-  @ElementCollection
   List<String> containerArgs;
   boolean argsToEnv = true;
 

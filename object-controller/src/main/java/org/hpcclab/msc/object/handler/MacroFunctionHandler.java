@@ -49,7 +49,7 @@ public class MacroFunctionHandler {
 
     var func = context.getFunction();
 
-    var output = OaasObject.createFromClasses(context.getFunction().getOutputClass());
+    var output = OaasObject.createFromClasses(context.getFunction().getOutputClasses());
 
     output.setOrigin(new OaasObjectOrigin(context))
       .setMembers(Set.of());

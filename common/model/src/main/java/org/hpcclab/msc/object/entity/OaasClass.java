@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.NaturalId;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
@@ -12,6 +13,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -19,11 +21,10 @@ import java.util.List;
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasClass {
-  @Id
+public class OaasClass extends BaseUuidEntity{
+  @NaturalId
   String name;
-
   OaasObjectState.StateType stateType;
   @ElementCollection
-  List<OaasFunctionBinding> functions;
+  Set<OaasFunctionBinding> functions;
 }

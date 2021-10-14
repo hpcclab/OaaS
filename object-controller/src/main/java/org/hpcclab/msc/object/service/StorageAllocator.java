@@ -1,6 +1,5 @@
 package org.hpcclab.msc.object.service;
 
-import org.bson.types.ObjectId;
 import org.hpcclab.msc.object.OcConfig;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 

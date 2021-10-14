@@ -1,14 +1,7 @@
 - name: builtin.hls.ts.transcode
   type: TASK
-  reactive: true
-#  outputTemplate:
-#    type: RESOURCE
-#    state:
-#      type: SEGMENTABLE
-  bindingRequirement:
-    requiredType: RESOURCE
-    requiredStateType: SEGMENTABLE
-  additionalInputs: []
+  outputClasses: []
+  validation: {}
   task:
     type: EPHEMERAL
 #    image: jrottenberg/ffmpeg:4.4-alpine
@@ -28,18 +21,20 @@
 
 - name: builtin.hls.macro.transcode
   type: MACRO
-  reactive: true
-#  outputTemplate:
-#    type: COMPOUND
-  bindingRequirement:
-    requiredType: COMPOUND
-  subFunctions:
-    m3u8:
-      funcName: builtin.logical.copy
-      target: m3u8
-      inputRefs: []
-    segments:
-      funcName: builtin.hls.ts.transcode
-      target: segments
-      inputRefs: []
-  additionalInputs: []
+  outputClasses: []
+  validation: {}
+  macro:
+    steps:
+      - funcName: builtin.logical.copy
+        target: m3u8
+        as: new_m3u8
+        inputRefs: []
+      - funcName: builtin.hls.ts.transcode
+        target: segments
+        as: new_segments
+        inputRefs: []
+    exports:
+      - from: new_m3u8
+        as: m3u8
+      - from: new_segments
+        as: segments

@@ -14,22 +14,20 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Embeddable
+//@Embeddable
 public class Task {
-  @Id
+//  @Id
   String id;
-  @ManyToOne(fetch = FetchType.EAGER)
+//  @ManyToOne(fetch = FetchType.EAGER)
   OaasObject main;
-  @ManyToOne(fetch = FetchType.EAGER)
+//  @ManyToOne(fetch = FetchType.EAGER)
   OaasObject output;
-  @ManyToOne(fetch = FetchType.EAGER)
+//  @ManyToOne(fetch = FetchType.EAGER)
   OaasFunction function;
-  String requestFile;
-  @ElementCollection
-  Map<String, String> args= Map.of();
-  @ManyToMany(fetch = FetchType.EAGER)
-  @OrderColumn
+//  @ManyToMany(fetch = FetchType.LAZY)
+//  @OrderColumn
   List<OaasObject> additionalInputs = List.of();
+  String requestFile;
 
   public static String createId(OaasObject outputObj, String requestFile) {
     if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )

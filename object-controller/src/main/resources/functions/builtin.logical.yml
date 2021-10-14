@@ -1,6 +1,4 @@
 - name: builtin.logical.copy
   type: LOGICAL
-  reactive: false
-  outputTemplate: {}
-  bindingRequirement: {}
-  additionalInputs: []
+  validation: {}
+  outputClasses: []
