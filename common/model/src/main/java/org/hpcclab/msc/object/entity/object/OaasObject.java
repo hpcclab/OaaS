@@ -9,10 +9,10 @@ import org.hpcclab.msc.object.EntityConverters;
 import org.hpcclab.msc.object.entity.BaseUuidEntity;
 import org.hpcclab.msc.object.entity.OaasClass;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -43,8 +43,8 @@ public class OaasObject extends BaseUuidEntity {
   @Column(columnDefinition = "jsonb")
   Map<String, String> labels;
 
-  @ManyToMany
-  Set<OaasFunction> functions = Set.of();
+  @ElementCollection
+  Set<OaasFunctionBinding> functions = Set.of();
 
   @Convert(converter = EntityConverters.StateConverter.class)
   @Column(columnDefinition = "jsonb")

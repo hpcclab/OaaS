@@ -21,10 +21,10 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-public class OaasFunction extends BaseUuidEntity {
+public class OaasFunction {
   //  @BsonId
   @NotBlank
-  @NaturalId
+  @Id
   String name;
 
   @NotNull

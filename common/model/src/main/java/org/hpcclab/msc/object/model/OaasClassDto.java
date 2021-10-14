@@ -1,28 +1,20 @@
-package org.hpcclab.msc.object.entity;
+package org.hpcclab.msc.object.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.NaturalId;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Set;
 
-@Entity
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasClass {
-  @Id
+public class OaasClassDto {
   String name;
   OaasObjectState.StateType stateType;
-  @ElementCollection
-  Set<OaasFunctionBinding> functions;
+  Set<OaasFunctionBindingDto> functions;
 }

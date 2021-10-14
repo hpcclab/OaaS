@@ -1,13 +1,18 @@
 package org.hpcclab.msc.object.entity.function;
 
-import org.hpcclab.msc.object.entity.object.OaasObject;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Embeddable;
+import javax.persistence.ManyToOne;
 
 @Embeddable
+@Data
+@Accessors(chain = true)
 public class OaasFunctionBinding {
   AccessModifier access;
-  String functionName;
+  @ManyToOne
+  OaasFunction function;
 
   public enum AccessModifier {
     PUBLIC,

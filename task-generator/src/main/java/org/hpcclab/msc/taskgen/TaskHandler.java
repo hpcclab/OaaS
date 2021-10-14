@@ -41,24 +41,28 @@ public class TaskHandler {
   ObjectService objectService;
 
   public Uni<TaskFlow> handle(ObjectResourceRequest request) {
-    if (request.getOwnerObjectId()==null || !ObjectId.isValid(request.getOwnerObjectId())) {
-      LOGGER.warn("receive request with invalid ownerObjectId. [{}]", request);
-      return Uni.createFrom().failure(new BadRequestException());
-    }
-    return objectService.get(request.getOwnerObjectId())
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .flatMap(outputObj -> createFlow(outputObj, request.getRequestFile()));
+//    if (request.getOwnerObjectId()==null || !ObjectId.isValid(request.getOwnerObjectId())) {
+//      LOGGER.warn("receive request with invalid ownerObjectId. [{}]", request);
+//      return Uni.createFrom().failure(new BadRequestException());
+//    }
+//    return objectService.get(request.getOwnerObjectId())
+//      .onItem().ifNull().failWith(NotFoundException::new)
+//      .flatMap(outputObj -> createFlow(outputObj, request.getRequestFile()));
+    //TODO
+    return null;
   }
 
   private Uni<TaskFlow> createFlow(OaasObject outputObj, String requestFile) {
-    if (outputObj.getOrigin().getParentId()==null) {
-      return Uni.createFrom().nullItem();
-    }
-    return taskFlowRepo.find(outputObj, requestFile)
-      .onItem().ifNull()
-      .switchTo(() -> objectService.loadExecutionContext(outputObj.getId().toString())
-        .flatMap(context -> recursiveCreateFlow(context, outputObj, requestFile))
-      );
+//    if (outputObj.getOrigin().getParentId()==null) {
+//      return Uni.createFrom().nullItem();
+//    }
+//    return taskFlowRepo.find(outputObj, requestFile)
+//      .onItem().ifNull()
+//      .switchTo(() -> objectService.loadExecutionContext(outputObj.getId().toString())
+//        .flatMap(context -> recursiveCreateFlow(context, outputObj, requestFile))
+//      );
+    //TODO
+    return null;
   }
 
   private Uni<TaskFlow> recursiveCreateFlow(FunctionExecContext context,

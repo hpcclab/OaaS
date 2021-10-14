@@ -1,0 +1,5 @@
+- name: builtin.basic.file
+  stateType: FILE
+  functions:
+    - access: PUBLIC
+      function: builtin.logical.copy

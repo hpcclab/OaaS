@@ -1,5 +1,6 @@
 package org.hpcclab.msc.object.service;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.model.OaasFunctionDto;
@@ -23,8 +24,8 @@ public interface FunctionService {
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
-  Uni<OaasFunctionDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
-                                 String body);
+  Multi<OaasFunctionDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
+                                      String body);
 
   @GET
   @Path("{funcName}")

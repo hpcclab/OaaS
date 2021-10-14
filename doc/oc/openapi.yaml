@@ -119,7 +119,7 @@ paths:
             schema:
               type: array
               items:
-                type: string
+                $ref: '#/components/schemas/OaasFunctionBindingDto'
       responses:
         "200":
           description: OK
@@ -197,6 +197,12 @@ components:
       - PUBLIC
       type: string
     AccessModifier1:
+      enum:
+      - INTERNAL
+      - PRIVATE
+      - PUBLIC
+      type: string
+    AccessModifier2:
       enum:
       - INTERNAL
       - PRIVATE
@@ -283,8 +289,6 @@ components:
       - type
       type: object
       properties:
-        id:
-          $ref: '#/components/schemas/UUID'
         name:
           pattern: \S
           type: string
@@ -309,7 +313,14 @@ components:
       properties:
         access:
           $ref: '#/components/schemas/AccessModifier1'
-        functionName:
+        function:
+          $ref: '#/components/schemas/OaasFunction'
+    OaasFunctionBindingDto:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/AccessModifier2'
+        function:
           type: string
     OaasFunctionDto:
       required:
@@ -367,7 +378,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/OaasFunction'
+            $ref: '#/components/schemas/OaasFunctionBinding'
         state:
           $ref: '#/components/schemas/OaasObjectState'
         members:

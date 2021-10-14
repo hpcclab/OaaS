@@ -1,9 +1,11 @@
 package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -15,30 +17,30 @@ import java.util.List;
 @Path("/api/objects")
 public interface ObjectService {
   @GET
-  Uni<List<OaasObject>> list();
+  Uni<List<OaasObjectDto>> list();
 
   @POST
-  Uni<OaasObject> create(@Valid OaasObject creating);
+  Uni<OaasObjectDto> create(@Valid OaasObjectDto creating);
 
   @GET
   @Path("{id}")
-  Uni<OaasObject> get(String id);
+  Uni<OaasObjectDto> get(String id);
 
   @POST
   @Path("{id}/binds")
-  Uni<OaasObject> bindFunction(String id,
-                               List<String> funcNames);
+  Uni<OaasObjectDto> bindFunction(String id,
+                               List<OaasFunctionBindingDto> funcNames);
 
 
   @POST
   @Path("{id}/exec")
-  Uni<OaasObject> activeFuncCall(String id, @Valid  FunctionCallRequest request);
+  Uni<OaasObjectDto> activeFuncCall(String id, @Valid  FunctionCallRequest request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<OaasObject> reactiveFuncCall(String id, @Valid  FunctionCallRequest request);
+  Uni<OaasObjectDto> reactiveFuncCall(String id, @Valid  FunctionCallRequest request);
 
-  @GET
-  @Path("{id}/exec-context")
-  Uni<FunctionExecContext> loadExecutionContext(String id);
+//  @GET
+//  @Path("{id}/exec-context")
+//  Uni<FunctionExecContext> loadExecutionContext(String id);
 }

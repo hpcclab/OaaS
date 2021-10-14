@@ -2,9 +2,13 @@ package org.hpcclab.msc.object.resource;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
+import org.hpcclab.msc.object.mapper.OaasMapper;
+import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
 import org.hpcclab.msc.object.model.FunctionExecContext;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
@@ -16,10 +20,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
@@ -32,69 +35,68 @@ public class ObjectResource implements ObjectService {
   FunctionRouter functionRouter;
   @Inject
   ContextLoader contextLoader;
+  @Inject
+  OaasMapper oaasMapper;
 
-  public Uni<List<OaasObject>> list() {
-    return objectRepo.listAll();
+  public Uni<List<OaasObjectDto>> list() {
+    return objectRepo.listAll()
+      .map(oaasMapper::toObject);
   }
 
-  public Uni<OaasObject> create(OaasObject creating) {
-    return objectRepo.createRootAndPersist(creating);
+  public Uni<OaasObjectDto> create(OaasObjectDto creating) {
+    return objectRepo.createRootAndPersist(creating)
+      .map(oaasMapper::toObject);
   }
 
 
-  public Uni<OaasObject> get(String id) {
+  public Uni<OaasObjectDto> get(String id) {
 //    ObjectId oid = new ObjectId(id);
     var uuid = UUID.fromString(id);
     return objectRepo.findById(uuid)
-      .map(o -> {
-        if (o!=null)
-          return o;
-        throw new NotFoundException();
-      });
+      .onItem().ifNull().failWith(NotFoundException::new)
+      .map(oaasMapper::toObject);
   }
 
 
-  public Uni<OaasObject> bindFunction(String id,
-                                      List<String> funcNames) {
+  public Uni<OaasObjectDto> bindFunction(String id,
+                                      List<OaasFunctionBindingDto> bindingDtoList) {
 
-    var uuid = UUID.fromString(id);
-    var oUni = objectRepo.findById(uuid);
-    var fmUni = funcRepo.listByNames(funcNames);
-    return Uni.combine().all()
-      .unis(oUni, fmUni)
-      .asTuple()
-      .flatMap(tuple -> {
-        LOGGER.info("get tuple {} {}", tuple.getItem1(), tuple.getItem2());
-        var o = tuple.getItem1();
-        var fm = tuple.getItem2();
-        if (o==null) {
-          throw new NotFoundException("Not found object");
-        }
-        if (o.getFunctions()==null) o.setFunctions(new HashSet<>());
-        for (OaasFunction value : fm) {
-          o.getFunctions()
-            .add(value);
-        }
-        return objectRepo.persistAndFlush(o);
-      });
+//    var uuid = UUID.fromString(id);
+//    var oUni = objectRepo.findById(uuid);
+//    return oUni
+//      .onItem().ifNull().failWith(() -> new NotFoundException("Not found object"))
+//      .flatMap(o -> {
+//      var bindings = bindingDtoList.stream()
+//        .map(b -> new OaasFunctionBinding()
+//          .setFunction(new OaasFunction().setName(b.getFunction()))
+//          .setAccess(b.getAccess())
+//        )
+//        .collect(Collectors.toSet());
+//      o.setFunctions(bindings);
+//      return objectRepo.persist(o);
+//    });
+    //TODO
+    return null;
   }
 
   @Override
-  public Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.activeCall(request.setTarget(UUID.fromString(id)));
+  public Uni<OaasObjectDto> activeFuncCall(String id, FunctionCallRequest request) {
+    return functionRouter.activeCall(request.setTarget(UUID.fromString(id)))
+      .map(oaasMapper::toObject);
   }
 
-  public Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)));
+  public Uni<OaasObjectDto> reactiveFuncCall(String id, FunctionCallRequest request) {
+    return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)))
+      .map(oaasMapper::toObject);
   }
 
-  @Override
-  public Uni<FunctionExecContext> loadExecutionContext(String id) {
-    return objectRepo.findById(UUID.fromString(id))
-      .flatMap(obj -> {
-        if (obj==null) throw new NotFoundException();
-        var origin = obj.getOrigin();
-        return contextLoader.load(FunctionCallRequest.from(origin));
-      });
-  }
+//  @Override
+//  public Uni<FunctionExecContext> loadExecutionContext(String id) {
+//    return objectRepo.findById(UUID.fromString(id))
+//      .flatMap(obj -> {
+//        if (obj==null) throw new NotFoundException();
+//        var origin = obj.getOrigin();
+//        return contextLoader.load(FunctionCallRequest.from(origin));
+//      });
+//  }
 }
