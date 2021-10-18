@@ -10,6 +10,7 @@ import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import java.util.Set;
 
@@ -25,6 +26,6 @@ public class OaasClass {
   String name;
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.LAZY)
   Set<OaasFunctionBinding> functions;
 }

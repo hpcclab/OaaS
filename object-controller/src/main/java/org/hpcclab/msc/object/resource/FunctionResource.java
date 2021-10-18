@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.OaasFunctionDto;
@@ -32,7 +33,9 @@ public class FunctionResource implements FunctionService {
   OaasMapper oaasMapper;
 
   public Uni<List<OaasFunctionDto>> list() {
-    return funcRepo.listAll()
+    return funcRepo.find(
+        "select f from OaasFunction f left join fetch f.outputClasses")
+      .list()
       .map(oaasMapper::toFunc);
   }
 
@@ -40,7 +43,7 @@ public class FunctionResource implements FunctionService {
   public Uni<OaasFunctionDto> create(boolean update, OaasFunctionDto functionDto) {
     return funcRepo.findById(functionDto.getName())
       .flatMap(fn -> {
-        if (fn != null && !update) {
+        if (fn!=null && !update) {
           if (update) {
             oaasMapper.set(functionDto, fn);
             return funcRepo.persist(fn);
@@ -52,7 +55,7 @@ public class FunctionResource implements FunctionService {
         return classRepo.listByNames(functionDto.getOutputClasses())
           .flatMap(classes -> {
             var func = oaasMapper.toFunc(functionDto);
-            func.setOutputClasses(Set.copyOf(classes));
+            func.setOutputClasses(List.copyOf(classes));
             return funcRepo.persist(func);
           });
       })
@@ -60,7 +63,6 @@ public class FunctionResource implements FunctionService {
       .map(oaasMapper::toFunc);
   }
 
-  @Override
   @Transactional
   public Multi<OaasFunctionDto> createByYaml(boolean update, String body) {
     try {

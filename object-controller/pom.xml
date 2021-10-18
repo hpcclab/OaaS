@@ -82,6 +82,10 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.11</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
 <!--    <dependency>-->
 <!--      <groupId>org.reflections</groupId>-->
 <!--      <artifactId>reflections</artifactId>-->

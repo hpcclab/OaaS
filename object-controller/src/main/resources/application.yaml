@@ -35,6 +35,8 @@ quarkus:
     always-include: true
   smallrye-openapi:
     store-schema-directory: ../doc/oc
+
+    enable: true
   index-dependency:
     service-interface:
       artifact-id: service-interface

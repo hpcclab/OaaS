@@ -74,18 +74,19 @@ public class JobProvisioner {
     var inputs = task.getAdditionalInputs();
     var requestFile = task.getRequestFile();
     var env  = new HashMap<String, String>();
-    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
-      env.putAll(outputObj.getOrigin().getArgs());
-    }
-    env.put("TASK_ID", task.getId());
-    putEnv(env, mainObj, "MAIN");
-    for (int i = 0; i < inputs.size(); i++) {
-      OaasObject inputObj = inputs.get(i);
-      var prefix = "INPUT_" + i;
-      putEnv(env, inputObj, prefix);
-    }
-    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
-    env.put("REQUEST_FILE", requestFile);
+//    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
+//      env.putAll(outputObj.getOrigin().getArgs());
+//    }
+//    env.put("TASK_ID", task.getId());
+//    putEnv(env, mainObj, "MAIN");
+//    for (int i = 0; i < inputs.size(); i++) {
+//      OaasObject inputObj = inputs.get(i);
+//      var prefix = "INPUT_" + i;
+//      putEnv(env, inputObj, prefix);
+//    }
+//    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
+//    env.put("REQUEST_FILE", requestFile);
+    //TODO
     return env;
   }
 

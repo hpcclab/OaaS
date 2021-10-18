@@ -23,8 +23,14 @@ public class ResourceRequestResource implements ResourceRequestService {
   @Inject
   TaskHandler taskHandler;
 
+//  @Override
+//  public Uni<TaskFlow> request(ObjectResourceRequest request) {
+//    return taskHandler.handle(request);
+//  }
+//
+
   @Override
-  public Uni<TaskFlow> request(ObjectResourceRequest request) {
-    return taskHandler.handle(request);
+  public Uni<Void> request(ObjectResourceRequest request) {
+    return null;
   }
 }

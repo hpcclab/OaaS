@@ -1,11 +1,8 @@
 package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
+import org.hpcclab.msc.object.model.*;
 import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.model.FunctionCallRequest;
-import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.OaasObjectDto;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -25,6 +22,10 @@ public interface ObjectService {
   @GET
   @Path("{id}")
   Uni<OaasObjectDto> get(String id);
+
+  @GET
+  @Path("{id}/deep")
+  Uni<DeepOaasObjectDto> getDeep(String id);
 
   @POST
   @Path("{id}/binds")

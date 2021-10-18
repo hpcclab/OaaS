@@ -4,11 +4,8 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.mapper.OaasMapper;
-import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
+import org.hpcclab.msc.object.model.*;
 import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.model.FunctionCallRequest;
-import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.OaasObjectDto;
 import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.repository.OaasObjectRepository;
 import org.hpcclab.msc.object.service.ContextLoader;
@@ -57,29 +54,17 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::toObject);
   }
 
-
-  public Uni<OaasObjectDto> bindFunction(String id,
-                                      List<OaasFunctionBindingDto> bindingDtoList) {
-
-//    var uuid = UUID.fromString(id);
-//    var oUni = objectRepo.findById(uuid);
-//    return oUni
-//      .onItem().ifNull().failWith(() -> new NotFoundException("Not found object"))
-//      .flatMap(o -> {
-//      var bindings = bindingDtoList.stream()
-//        .map(b -> new OaasFunctionBinding()
-//          .setFunction(new OaasFunction().setName(b.getFunction()))
-//          .setAccess(b.getAccess())
-//        )
-//        .collect(Collectors.toSet());
-//      o.setFunctions(bindings);
-//      return objectRepo.persist(o);
-//    });
-    //TODO
-    return null;
+  public Uni<DeepOaasObjectDto> getDeep(String id) {
+    return objectRepo.getTree(UUID.fromString(id))
+      .map(oaasMapper::deep);
   }
 
-  @Override
+  public Uni<OaasObjectDto> bindFunction(String id,
+                                         List<OaasFunctionBindingDto> bindingDtoList) {
+    return objectRepo.bindFunction(UUID.fromString(id), bindingDtoList)
+      .map(oaasMapper::toObject);
+  }
+
   public Uni<OaasObjectDto> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(UUID.fromString(id)))
       .map(oaasMapper::toObject);

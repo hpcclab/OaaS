@@ -3,8 +3,10 @@ package org.hpcclab.msc.object.resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.OaasClass;
+import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.OaasClassDto;
 import org.hpcclab.msc.object.model.OaasFunctionDto;
@@ -29,19 +31,21 @@ public class ClassResource implements ClassService {
 
   @Override
   public Uni<List<OaasClassDto>> list() {
-    return classRepo.listAll()
+    return classRepo.find(
+      "select c from OaasClass c left join fetch c.functions")
+      .list()
       .map(oaasMapper::toClass);
   }
 
   @Override
-  @Transactional
+  @ReactiveTransactional
   public Uni<OaasClassDto> create(boolean update, OaasClassDto classDto) {
     return classRepo.persist(oaasMapper.toClass(classDto))
       .map(oaasMapper::toClass);
   }
 
   @Override
-  @Transactional
+  @ReactiveTransactional
   public Uni<OaasClassDto> patch(String name, OaasClassDto classDto) {
     return classRepo.findById(name)
       .onItem().ifNull().failWith(NotFoundException::new)

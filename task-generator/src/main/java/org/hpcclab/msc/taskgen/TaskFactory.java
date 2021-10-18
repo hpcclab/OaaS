@@ -20,10 +20,10 @@ public class TaskFactory {
     var inputs = context.getAdditionalInputs();
     var task = new Task();
     task.setId(Task.createId(outputObj, requestFile));
-    task.setMain(mainObj);
-    task.setOutput(outputObj);
-    task.setFunction(function);
-    task.setAdditionalInputs(inputs);
+//    task.setMain(mainObj);
+//    task.setOutput(outputObj);
+//    task.setFunction(function);
+//    task.setAdditionalInputs(inputs);
     return task;
   }
 

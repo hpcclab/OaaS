@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 @Path("/api/resource-requests/")
 public interface ResourceRequestService {
 
+//  @POST
+//  Uni<TaskFlow> request(ObjectResourceRequest request);
   @POST
-  Uni<TaskFlow> request(ObjectResourceRequest request);
+  Uni<Void> request(ObjectResourceRequest request);
 }

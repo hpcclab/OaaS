@@ -23,6 +23,11 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
+//@NamedEntityGraph(
+//  name = "oaas.function.allClasses",
+//  attributeNodes = {
+//    @NamedAttributeNode(value = "outputClasses"),
+//  })
 public class OaasFunction {
   //  @BsonId
   @NotBlank
@@ -33,7 +38,9 @@ public class OaasFunction {
   @Enumerated
   OaasFunction.FuncType type;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany(fetch = FetchType.LAZY
+//  cascade = CascadeType.PERSIST
+  )
   List<OaasClass> outputClasses;
 
   @Convert(converter = EntityConverters.ValidationConverter.class)

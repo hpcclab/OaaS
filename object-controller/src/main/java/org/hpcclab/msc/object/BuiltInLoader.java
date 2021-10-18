@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.runtime.StartupEvent;
+import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +35,8 @@ public class BuiltInLoader {
   @Inject
   OaasClassRepository classRepository;
 
-  @ReactiveTransactional
+  @Transactional
+  @Blocking
   void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException {
     mapper = new ObjectMapper(new YAMLFactory());
 
@@ -50,7 +53,7 @@ public class BuiltInLoader {
         return funcRepository.save(func);
       })
       .collect().last()
-      .call(funcRepository::flush)
+//      .call(funcRepository::flush)
       .subscribeAsCompletionStage()
       .get();
 

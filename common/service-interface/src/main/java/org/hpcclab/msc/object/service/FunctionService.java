@@ -2,6 +2,7 @@ package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.model.OaasFunctionDto;
 
@@ -18,10 +19,13 @@ public interface FunctionService {
   Uni<List<OaasFunctionDto>> list();
 
   @POST
-  Uni<OaasFunctionDto> create(@DefaultValue("false") @QueryParam("update") boolean update,
-                           @Valid OaasFunctionDto function);
+  Uni<OaasFunctionDto> create(
+    @DefaultValue("false") @QueryParam("update") boolean update,
+    @Valid OaasFunctionDto function
+  );
 
   @POST
+  @Path("-/yaml")
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
   Multi<OaasFunctionDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,

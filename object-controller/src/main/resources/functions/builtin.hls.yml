@@ -1,6 +1,7 @@
 - name: builtin.hls.ts.transcode
   type: TASK
-  outputClasses: []
+  outputClasses:
+    - builtin.basic.file
   validation: {}
   task:
     type: EPHEMERAL

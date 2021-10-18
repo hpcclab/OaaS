@@ -44,7 +44,7 @@ public class HlsTest {
     var hlsObject = new OaasObject()
       .setType(OaasObject.ObjectType.COMPOUND)
       .setMembers(
-        Set.of(
+        List.of(
           new OaasCompoundMember("m3u8", m3u8Obj),
           new OaasCompoundMember("segments", segmentsObj)
       ));

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,14 +53,14 @@ public class MacroFunctionHandler {
     var output = OaasObject.createFromClasses(context.getFunction().getOutputClasses());
 
     output.setOrigin(new OaasObjectOrigin(context))
-      .setMembers(Set.of());
+      .setMembers(List.of());
 
     return execWorkflow(context, func.getMacro())
       .flatMap(wfResults -> {
         var mem = func.getMacro().getExports()
           .stream()
           .map(export -> new OaasCompoundMember(export.getAs(),wfResults.get(export.getFrom())))
-          .collect(Collectors.toSet());
+          .toList();
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);
       });
