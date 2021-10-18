@@ -10,6 +10,7 @@ import org.hpcclab.msc.object.entity.task.TaskConfiguration;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,9 +23,10 @@ public class OaasFunctionDto {
   @NotNull
   OaasFunction.FuncType type;
 
-  Set<String> outputClasses;
+  @NotNull
+  List<String> outputClasses;
 
-  OaasFunctionValidation bindingPredicate;
+  OaasFunctionValidation validation;
 
   TaskConfiguration task;
 

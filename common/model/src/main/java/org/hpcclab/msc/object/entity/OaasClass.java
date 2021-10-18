@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.NaturalId;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
+import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.ElementCollection;
@@ -22,6 +23,7 @@ import java.util.Set;
 public class OaasClass {
   @Id
   String name;
+  OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
   @ElementCollection
   Set<OaasFunctionBinding> functions;

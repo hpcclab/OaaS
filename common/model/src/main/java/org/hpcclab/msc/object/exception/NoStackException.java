@@ -8,6 +8,12 @@ public class NoStackException extends RuntimeException{
     super(message, null, true, true);
   }
 
+
+  public NoStackException(String message, int code) {
+    super(message, null, true, true);
+    code = code;
+  }
+
   public NoStackException(String message, Throwable cause) {
     super(message, cause, false, false);
   }

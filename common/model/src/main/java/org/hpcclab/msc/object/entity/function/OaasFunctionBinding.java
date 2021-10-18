@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Embeddable
@@ -11,7 +12,8 @@ import javax.persistence.ManyToOne;
 @Accessors(chain = true)
 public class OaasFunctionBinding {
   AccessModifier access;
-  @ManyToOne
+  @JoinColumn
+  @ManyToOne(fetch = javax.persistence.FetchType.LAZY)
   OaasFunction function;
 
   public enum AccessModifier {

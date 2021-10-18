@@ -6,6 +6,8 @@ import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
+import org.hpcclab.msc.object.model.OaasFunctionDto;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,19 +16,12 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@Embeddable
 public class Task {
-//  @Id
   String id;
-//  @ManyToOne(fetch = FetchType.EAGER)
-  OaasObject main;
-//  @ManyToOne(fetch = FetchType.EAGER)
-  OaasObject output;
-//  @ManyToOne(fetch = FetchType.EAGER)
-  OaasFunction function;
-//  @ManyToMany(fetch = FetchType.LAZY)
-//  @OrderColumn
-  List<OaasObject> additionalInputs = List.of();
+  OaasObjectDto main;
+  OaasObjectDto output;
+  OaasFunctionDto function;
+  List<OaasObjectDto> additionalInputs = List.of();
   String requestFile;
 
   public static String createId(OaasObject outputObj, String requestFile) {

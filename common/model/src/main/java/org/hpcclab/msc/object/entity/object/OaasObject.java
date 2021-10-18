@@ -1,6 +1,8 @@
 package org.hpcclab.msc.object.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,7 @@ import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +26,20 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
+@NamedEntityGraph(
+  name = "oaas.object.tree",
+  attributeNodes = {
+    @NamedAttributeNode(value = "classes", subgraph = "oaas.classes.tree"),
+    @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree"),
+  },
+  subgraphs = {
+    @NamedSubgraph(name = "oaas.classes.tree",
+      attributeNodes = @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree")),
+    @NamedSubgraph(name = "oaas.functionBinding.tree",
+      attributeNodes = @NamedAttributeNode(value = "function", subgraph = "oaas.function.tree")) ,
+    @NamedSubgraph(name = "oaas.function.tree",
+      attributeNodes = @NamedAttributeNode(value = "outputClasses"))
+  })
 public class OaasObject extends BaseUuidEntity {
 
 
@@ -38,20 +55,24 @@ public class OaasObject extends BaseUuidEntity {
   @Enumerated
   AccessModifier access;
 
+  @JoinColumn
+  @ManyToMany(fetch = FetchType.LAZY)
+  List<OaasClass> classes;
+
   @SuppressWarnings("JpaAttributeTypeInspection")
   @Convert(converter = EntityConverters.MapConverter.class)
   @Column(columnDefinition = "jsonb")
   Map<String, String> labels;
 
   @ElementCollection
-  Set<OaasFunctionBinding> functions = Set.of();
+  List<OaasFunctionBinding> functions = List.of();
 
   @Convert(converter = EntityConverters.StateConverter.class)
   @Column(columnDefinition = "jsonb")
   OaasObjectState state;
 
   @ElementCollection
-  Set<OaasCompoundMember> members;
+  List<OaasCompoundMember> members;
 
   public enum ObjectType {
     RESOURCE,
@@ -79,18 +100,23 @@ public class OaasObject extends BaseUuidEntity {
       originHash,
       type,
       access,
+      classes,
       labels==null ? null:Map.copyOf(labels),
-      functions==null ? null:Set.copyOf(functions),
+      functions==null ? null:List.copyOf(functions),
       state,
-      members==null ? null:Set.copyOf(members)
+      members==null ? null:List.copyOf(members)
     );
     o.setId(getId());
     return o;
   }
 
-  public static OaasObject createFromClasses(Set<OaasClass> classList) {
-    // TODO
-    return new OaasObject();
+  public static OaasObject createFromClasses(List<OaasClass> classList) {
+    var type = classList.get(0).getObjectType();
+    var stateType = classList.get(0).getStateType();
+    return new OaasObject()
+      .setType(type)
+      .setClasses(classList)
+      .setState(new OaasObjectState().setType(stateType));
   }
 
   public void updateHash() {

@@ -2,10 +2,9 @@ package org.hpcclab.msc.object.mapper;
 
 import org.hpcclab.msc.object.entity.OaasClass;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
+import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
 import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.model.OaasClassDto;
-import org.hpcclab.msc.object.model.OaasFunctionDto;
-import org.hpcclab.msc.object.model.OaasObjectDto;
+import org.hpcclab.msc.object.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -57,4 +56,22 @@ public interface OaasMapper {
 
   void set(OaasObjectDto objectDto, @MappingTarget OaasObject object);
 
+  default OaasFunctionBinding toBinding(OaasFunctionBindingDto bindingDto) {
+    return new OaasFunctionBinding().setAccess(bindingDto.getAccess())
+      .setFunction(new OaasFunction().setName(bindingDto.getFunction()));
+  }
+
+  List<OaasFunctionBinding> toBinding(List<OaasFunctionBindingDto> bindingDto);
+
+  default OaasFunctionBindingDto toBindingDto(OaasFunctionBinding binding) {
+    return new OaasFunctionBindingDto().setAccess(binding.getAccess())
+      .setFunction(binding.getFunction().getName());
+  }
+
+  List<OaasFunctionBindingDto> toBindingDto(List<OaasFunctionBinding> bindingDto);
+
+
+  DeepOaasObjectDto deep(OaasObject object);
+  DeepOaasClassDto deep(OaasClass cls);
+  DeepOaasFunctionBindingDto deep(OaasFunctionBinding binding);
 }

@@ -14,6 +14,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -32,8 +33,8 @@ public class OaasFunction {
   @Enumerated
   OaasFunction.FuncType type;
 
-  @ManyToMany
-  Set<OaasClass> outputClasses;
+  @ManyToMany(fetch = FetchType.LAZY)
+  List<OaasClass> outputClasses;
 
   @Convert(converter = EntityConverters.ValidationConverter.class)
   @Column(columnDefinition = "jsonb")

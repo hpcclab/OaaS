@@ -16,10 +16,6 @@ import javax.persistence.*;
 @Accessors(chain = true)
 public class OaasCompoundMember {
   String name;
-  @ManyToOne
-  @JsonIdentityInfo(
-    generator = ObjectIdGenerators.PropertyGenerator.class,
-    property = "id"
-  )
+  @ManyToOne(fetch = FetchType.LAZY)
   OaasObject object;
 }
