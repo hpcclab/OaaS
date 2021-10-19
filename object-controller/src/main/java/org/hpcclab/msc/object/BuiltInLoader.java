@@ -70,7 +70,7 @@ public class BuiltInLoader {
       }).collect().last()
       .call(classRepository::flush)
       .subscribeAsCompletionStage()
-      .get();;
+      .get();
   }
 
   <T> Multi<T> loadFile(Class<T> cls, String... files) {

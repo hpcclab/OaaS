@@ -1,7 +1,6 @@
 - name: builtin.hls.ts.transcode
   type: TASK
-  outputClasses:
-    - builtin.basic.file
+  outputCls: builtin.basic.file
   validation: {}
   task:
     type: EPHEMERAL
@@ -22,7 +21,7 @@
 
 - name: builtin.hls.macro.transcode
   type: MACRO
-  outputClasses: []
+  outputCls: null
   validation: {}
   macro:
     steps:

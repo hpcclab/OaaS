@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hpcclab.msc.object.EntityConverters;
 import org.hpcclab.msc.object.entity.BaseUuidEntity;
 import org.hpcclab.msc.object.entity.OaasClass;
@@ -29,7 +31,7 @@ import java.util.UUID;
 @NamedEntityGraph(
   name = "oaas.object.tree",
   attributeNodes = {
-    @NamedAttributeNode(value = "classes", subgraph = "oaas.classes.tree"),
+    @NamedAttributeNode(value = "cls", subgraph = "oaas.classes.tree"),
     @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree"),
   },
   subgraphs = {
@@ -38,7 +40,7 @@ import java.util.UUID;
     @NamedSubgraph(name = "oaas.functionBinding.tree",
       attributeNodes = @NamedAttributeNode(value = "function", subgraph = "oaas.function.tree")) ,
     @NamedSubgraph(name = "oaas.function.tree",
-      attributeNodes = @NamedAttributeNode(value = "outputClasses"))
+      attributeNodes = @NamedAttributeNode(value = "outputCls"))
   })
 public class OaasObject extends BaseUuidEntity {
 
@@ -55,9 +57,8 @@ public class OaasObject extends BaseUuidEntity {
   @Enumerated
   AccessModifier access;
 
-  @JoinColumn
-  @ManyToMany(fetch = FetchType.LAZY)
-  List<OaasClass> classes;
+  @ManyToOne(fetch = FetchType.LAZY)
+  OaasClass cls;
 
   @SuppressWarnings("JpaAttributeTypeInspection")
   @Convert(converter = EntityConverters.MapConverter.class)
@@ -72,6 +73,7 @@ public class OaasObject extends BaseUuidEntity {
   OaasObjectState state;
 
   @ElementCollection
+  @LazyCollection(LazyCollectionOption.FALSE)
   List<OaasCompoundMember> members;
 
   public enum ObjectType {
@@ -100,7 +102,7 @@ public class OaasObject extends BaseUuidEntity {
       originHash,
       type,
       access,
-      classes,
+      cls,
       labels==null ? null:Map.copyOf(labels),
       functions==null ? null:List.copyOf(functions),
       state,
@@ -110,13 +112,11 @@ public class OaasObject extends BaseUuidEntity {
     return o;
   }
 
-  public static OaasObject createFromClasses(List<OaasClass> classList) {
-    var type = classList.get(0).getObjectType();
-    var stateType = classList.get(0).getStateType();
+  public static OaasObject createFromClasses(OaasClass cls) {
     return new OaasObject()
-      .setType(type)
-      .setClasses(classList)
-      .setState(new OaasObjectState().setType(stateType));
+      .setType(cls.getObjectType())
+      .setCls(cls)
+      .setState(new OaasObjectState().setType(cls.getStateType()));
   }
 
   public void updateHash() {

@@ -38,10 +38,8 @@ public class OaasFunction {
   @Enumerated
   OaasFunction.FuncType type;
 
-  @ManyToMany(fetch = FetchType.LAZY
-//  cascade = CascadeType.PERSIST
-  )
-  List<OaasClass> outputClasses;
+  @ManyToOne(fetch = FetchType.LAZY)
+  OaasClass outputCls;
 
   @Convert(converter = EntityConverters.ValidationConverter.class)
   @Column(columnDefinition = "jsonb")

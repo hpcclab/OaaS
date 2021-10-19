@@ -1,6 +1,8 @@
 package org.hpcclab.msc.object.service;
 
 import io.smallrye.mutiny.Uni;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.model.OaasClassDto;
 import org.hpcclab.msc.object.model.OaasFunctionDto;
 
@@ -23,6 +25,8 @@ public interface BatchService {
   @Consumes("text/x-yaml")
   Uni<Batch> createByYaml(String body);
 
+  @Data
+  @Accessors(chain = true)
   public static class Batch{
     List<OaasClassDto> classes = List.of();
     List<OaasFunctionDto> functions = List.of();

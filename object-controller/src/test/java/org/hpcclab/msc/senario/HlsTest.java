@@ -9,6 +9,8 @@ import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.OaasCompoundMemberDto;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -28,10 +30,10 @@ public class HlsTest {
 
   @Test
   void test() {
-    var m3u8Obj = new OaasObject()
+    var m3u8Obj = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
-    var segmentsObj = new OaasObject()
+    var segmentsObj = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setState(new OaasObjectState()
         .setBaseUrl("http://test/segment")
@@ -41,12 +43,12 @@ public class HlsTest {
 
     m3u8Obj = TestUtils.create(m3u8Obj);
     segmentsObj = TestUtils.create(segmentsObj);
-    var hlsObject = new OaasObject()
+    var hlsObject = new OaasObjectDto()
       .setType(OaasObject.ObjectType.COMPOUND)
       .setMembers(
         List.of(
-          new OaasCompoundMember("m3u8", m3u8Obj),
-          new OaasCompoundMember("segments", segmentsObj)
+          new OaasCompoundMemberDto("m3u8", m3u8Obj.getId()),
+          new OaasCompoundMemberDto("segments", segmentsObj.getId())
       ));
 
     hlsObject = TestUtils.create(hlsObject);
@@ -54,8 +56,7 @@ public class HlsTest {
     var hls2 = TestUtils.fnCall(new FunctionCallRequest().setFunctionName("builtin.hls.macro.transcode")
       .setTarget(hlsObject.getId()));
     hls2.getMembers().stream()
-      .map(OaasCompoundMember::getObject)
-      .map(OaasObject::getId)
+      .map(OaasCompoundMemberDto::getObject)
       .forEach(TestUtils::getObject);
   }
 

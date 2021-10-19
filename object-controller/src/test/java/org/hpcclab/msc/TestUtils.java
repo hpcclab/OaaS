@@ -3,7 +3,9 @@ package org.hpcclab.msc;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.msc.object.entity.object.OaasObject;
+import org.hpcclab.msc.object.model.DeepOaasObjectDto;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 
 import javax.ws.rs.core.MediaType;
 
@@ -16,16 +18,16 @@ import static io.restassured.RestAssured.given;
 
 public class TestUtils {
 
-  public static List<OaasObject> listObject() {
+  public static List<OaasObjectDto> listObject() {
     return Arrays.asList(given()
       .when().get("/api/objects")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(OaasObject[].class));
+      .extract().body().as(OaasObjectDto[].class));
   }
 
-  public static OaasObject create(OaasObject o) {
+  public static OaasObjectDto create(OaasObjectDto o) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(o))
@@ -34,10 +36,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+      .extract().body().as(OaasObjectDto.class);
   }
 
-  public static OaasObject getObject(UUID id) {
+  public static OaasObjectDto getObject(UUID id) {
     return given()
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}")
@@ -45,10 +47,22 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
-      .extract().body().as(OaasObject.class);
+      .extract().body().as(OaasObjectDto.class);
   }
 
-  public static OaasObject bind(OaasObject obj, List<String> functionNames) {
+
+  public static DeepOaasObjectDto getObjectDeep(UUID id) {
+    return given()
+      .pathParam("id", id.toString())
+      .when().get("/api/objects/{id}/deep")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("id", Matchers.equalTo(id.toString()))
+      .extract().body().as(DeepOaasObjectDto.class);
+  }
+
+  public static OaasObjectDto bind(OaasObjectDto obj, List<String> functionNames) {
 //    var meta = functionNames.stream()
 //      .map(MscFuncMetadata::new)
 //      .collect(Collectors.toList());
@@ -61,10 +75,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+      .extract().body().as(OaasObjectDto.class);
   }
 
-  public static OaasObject fnCall(FunctionCallRequest request) {
+  public static OaasObjectDto fnCall(FunctionCallRequest request) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))
@@ -74,6 +88,6 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+      .extract().body().as(OaasObjectDto.class);
   }
 }

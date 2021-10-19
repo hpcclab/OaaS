@@ -10,10 +10,13 @@ import org.hpcclab.msc.object.entity.object.OaasObject;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
+import java.util.UUID;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class OaasCompoundMemberDto {
   String name;
-  OaasObjectDto object;
+  UUID object;
 }

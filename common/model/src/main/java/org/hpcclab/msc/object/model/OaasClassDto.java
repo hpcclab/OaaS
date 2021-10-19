@@ -9,6 +9,7 @@ import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Id;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,5 +19,5 @@ public class OaasClassDto {
   String name;
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
-  Set<OaasFunctionBindingDto> functions;
+  List<OaasFunctionBindingDto> functions;
 }

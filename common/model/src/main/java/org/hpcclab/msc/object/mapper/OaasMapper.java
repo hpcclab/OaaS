@@ -3,6 +3,7 @@ package org.hpcclab.msc.object.mapper;
 import org.hpcclab.msc.object.entity.OaasClass;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
+import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.*;
 import org.mapstruct.Mapper;
@@ -19,9 +20,10 @@ public interface OaasMapper {
 
   OaasFunctionDto toFunc(OaasFunction function);
 
-  List<OaasFunctionDto> toFunc(List<OaasFunction> function);
+  List<OaasFunctionDto> toFuncDto(List<OaasFunction> function);
+  List<OaasFunction> toFunc(List<OaasFunctionDto> function);
 
-  @Mapping(target = "outputClasses", ignore = true)
+  @Mapping(target = "outputCls", ignore = true)
   void set(OaasFunctionDto functionDto, @MappingTarget OaasFunction function);
 
   default String toName(OaasFunction function) {
@@ -36,7 +38,9 @@ public interface OaasMapper {
 
   OaasClass toClass(OaasClassDto oaasClass);
 
-  List<OaasClassDto> toClass(List<OaasClass> function);
+  List<OaasClassDto> toClassDto(List<OaasClass> function);
+  List<OaasClass> toClass(List<OaasClassDto> function);
+
 
   void set(OaasClassDto oaasClassDto, @MappingTarget OaasClass oaasClass);
 
@@ -53,6 +57,16 @@ public interface OaasMapper {
   OaasObject toObject(OaasObjectDto object);
 
   List<OaasObjectDto> toObject(List<OaasObject> function);
+
+  OaasCompoundMemberDto toMember(OaasCompoundMember member);
+  OaasCompoundMember toMember(OaasCompoundMemberDto member);
+
+  default UUID toUuid(OaasObject object) {
+    return object.getId();
+  }
+  default OaasObject toObject(UUID value){
+    return new OaasObject().setId(value);
+  }
 
   void set(OaasObjectDto objectDto, @MappingTarget OaasObject object);
 

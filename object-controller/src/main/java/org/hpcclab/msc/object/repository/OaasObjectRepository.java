@@ -49,7 +49,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
     }
   }
 
-  public Uni<OaasObject> getTree(UUID id) {
+  public Uni<OaasObject> getDeep(UUID id) {
     return getSession().flatMap(session -> {
       var graph=session.getEntityGraph(OaasObject.class, "oaas.object.tree");
       return session.find(graph, id);

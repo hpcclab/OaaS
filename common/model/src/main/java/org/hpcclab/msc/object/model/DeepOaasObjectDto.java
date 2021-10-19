@@ -3,6 +3,7 @@ package org.hpcclab.msc.object.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
@@ -21,9 +22,9 @@ public class DeepOaasObjectDto {
   Long originHash;
   OaasObject.ObjectType type;
   OaasObject.AccessModifier access;
-  List<OaasClassDto> classes;
+  OaasClassDto cls;
   Map<String, String> labels;
-  Set<OaasFunctionDto> functions = Set.of();
+  List<DeepOaasFunctionBindingDto> functions = List.of();
   OaasObjectState state;
-  Set<OaasCompoundMemberDto> members;
+  List<DeepOaasCompoundMemberDto> members;
 }

@@ -1,10 +1,41 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
-    "version" : "0.1.0-SNAPSHOT"
+    "title" : "Generated API",
+    "version" : "1.0"
   },
   "paths" : {
+    "/api/batch" : {
+      "post" : {
+        "tags" : [ "Batch Service" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Batch"
+              }
+            },
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/classes" : {
       "get" : {
         "tags" : [ "Class Service" ],
@@ -466,6 +497,45 @@
         "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
         "type" : "string"
       },
+      "Batch" : {
+        "type" : "object",
+        "properties" : {
+          "classes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasClassDto"
+            }
+          },
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasFunctionDto"
+            }
+          }
+        }
+      },
+      "DeepOaasCompoundMemberDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "object" : {
+            "$ref" : "#/components/schemas/OaasObjectDto"
+          }
+        }
+      },
+      "DeepOaasFunctionBindingDto" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/AccessModifier"
+          },
+          "function" : {
+            "$ref" : "#/components/schemas/OaasFunctionDto"
+          }
+        }
+      },
       "DeepOaasObjectDto" : {
         "type" : "object",
         "properties" : {
@@ -485,11 +555,8 @@
           "access" : {
             "$ref" : "#/components/schemas/AccessModifier1"
           },
-          "classes" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasClassDto"
-            }
+          "cls" : {
+            "$ref" : "#/components/schemas/OaasClassDto"
           },
           "labels" : {
             "type" : "object",
@@ -498,20 +565,18 @@
             }
           },
           "functions" : {
-            "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunctionDto"
+              "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
             }
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
           },
           "members" : {
-            "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMemberDto"
+              "$ref" : "#/components/schemas/DeepOaasCompoundMemberDto"
             }
           }
         }
@@ -561,7 +626,6 @@
             "$ref" : "#/components/schemas/StateType"
           },
           "functions" : {
-            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunctionBindingDto"
@@ -576,7 +640,7 @@
             "type" : "string"
           },
           "object" : {
-            "$ref" : "#/components/schemas/OaasObjectDto"
+            "$ref" : "#/components/schemas/UUID"
           }
         }
       },
@@ -607,11 +671,8 @@
               "nullable" : false
             } ]
           },
-          "outputClasses" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "outputCls" : {
+            "type" : "string"
           },
           "validation" : {
             "$ref" : "#/components/schemas/OaasFunctionValidation"
@@ -672,7 +733,7 @@
           "functions" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunctionDto"
+              "$ref" : "#/components/schemas/OaasFunctionBindingDto"
             }
           },
           "state" : {

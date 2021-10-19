@@ -34,7 +34,7 @@ public class ClassResource implements ClassService {
     return classRepo.find(
       "select c from OaasClass c left join fetch c.functions")
       .list()
-      .map(oaasMapper::toClass);
+      .map(oaasMapper::toClassDto);
   }
 
   @Override

@@ -3,6 +3,8 @@
     hibernate-orm:
       database:
         generation: drop-and-create
+      log:
+        sql: true
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket

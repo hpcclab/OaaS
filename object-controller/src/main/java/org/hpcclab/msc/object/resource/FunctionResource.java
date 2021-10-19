@@ -36,7 +36,7 @@ public class FunctionResource implements FunctionService {
     return funcRepo.find(
         "select f from OaasFunction f left join fetch f.outputClasses")
       .list()
-      .map(oaasMapper::toFunc);
+      .map(oaasMapper::toFuncDto);
   }
 
   @Transactional
@@ -52,12 +52,14 @@ public class FunctionResource implements FunctionService {
               .setCode(HttpResponseStatus.CONFLICT.code());
           }
         }
-        return classRepo.listByNames(functionDto.getOutputClasses())
-          .flatMap(classes -> {
-            var func = oaasMapper.toFunc(functionDto);
-            func.setOutputClasses(List.copyOf(classes));
-            return funcRepo.persist(func);
-          });
+//        return classRepo.listByNames(functionDto.getOutputClasses())
+//          .flatMap(classes -> {
+//            var func = oaasMapper.toFunc(functionDto);
+//            func.setOutputClasses(List.copyOf(classes));
+//            return funcRepo.persist(func);
+//          });
+
+        return funcRepo.save(functionDto);
       })
       .call(funcRepo::flush)
       .map(oaasMapper::toFunc);

@@ -1,14 +1,12 @@
 package org.hpcclab.msc.object.resource;
 
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.function.OaasFunction;
-import org.hpcclab.msc.object.entity.function.OaasFunctionBinding;
+import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.*;
-import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.repository.OaasObjectRepository;
-import org.hpcclab.msc.object.service.ContextLoader;
 import org.hpcclab.msc.object.handler.FunctionRouter;
 import org.hpcclab.msc.object.service.ObjectService;
 import org.slf4j.Logger;
@@ -19,7 +17,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
@@ -31,15 +28,19 @@ public class ObjectResource implements ObjectService {
   @Inject
   FunctionRouter functionRouter;
   @Inject
-  ContextLoader contextLoader;
-  @Inject
   OaasMapper oaasMapper;
 
   public Uni<List<OaasObjectDto>> list() {
-    return objectRepo.listAll()
+    return objectRepo.find(
+        """
+          select o
+          from OaasObject o
+          left join fetch o.functions
+          """).list()
       .map(oaasMapper::toObject);
   }
 
+  @ReactiveTransactional
   public Uni<OaasObjectDto> create(OaasObjectDto creating) {
     return objectRepo.createRootAndPersist(creating)
       .map(oaasMapper::toObject);
@@ -47,15 +48,21 @@ public class ObjectResource implements ObjectService {
 
 
   public Uni<OaasObjectDto> get(String id) {
-//    ObjectId oid = new ObjectId(id);
     var uuid = UUID.fromString(id);
-    return objectRepo.findById(uuid)
+    return objectRepo.find(
+        """
+          select o
+          from OaasObject o
+          left join fetch o.functions
+          where o.id = ?1
+          """, uuid)
+      .singleResult()
       .onItem().ifNull().failWith(NotFoundException::new)
       .map(oaasMapper::toObject);
   }
 
   public Uni<DeepOaasObjectDto> getDeep(String id) {
-    return objectRepo.getTree(UUID.fromString(id))
+    return objectRepo.getDeep(UUID.fromString(id))
       .map(oaasMapper::deep);
   }
 

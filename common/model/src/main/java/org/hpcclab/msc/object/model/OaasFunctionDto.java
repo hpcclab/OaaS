@@ -23,7 +23,7 @@ public class OaasFunctionDto {
   @NotNull
   OaasFunction.FuncType type;
 
-  List<String> outputClasses;
+  String outputCls;
 
   OaasFunctionValidation validation;
 

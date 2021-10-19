@@ -31,7 +31,7 @@ public class TaskFunctionHandler {
           .formatted(context.getMain().getId(), context.getFunction().getName())
       );
     if (!context.isReactive()) {
-      if (context.getFunction().getOutputClasses().iterator().next().getStateType()
+      if (context.getFunction().getOutputCls().getStateType()
         ==OaasObjectState.StateType.SEGMENTABLE) {
         throw new FunctionValidationException("Can not execute actively the function with the output as segmentable resource type");
       }
@@ -40,7 +40,7 @@ public class TaskFunctionHandler {
 
   public Uni<OaasObject> call(FunctionExecContext context) {
     var func = context.getFunction();
-    var output = OaasObject.createFromClasses(func.getOutputClasses());
+    var output = OaasObject.createFromClasses(func.getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
     if (output.getState().getType() == OaasObjectState.StateType.FILE
       && output.getState().getFile() == null

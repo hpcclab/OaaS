@@ -30,7 +30,7 @@ public class OaasObjectDto {
   OaasObject.AccessModifier access;
   List<String> classes;
   Map<String, String> labels;
-  List<OaasFunctionDto> functions = List.of();
+  List<OaasFunctionBindingDto> functions = List.of();
   OaasObjectState state;
   List<OaasCompoundMemberDto> members;
 }

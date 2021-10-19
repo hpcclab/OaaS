@@ -8,6 +8,7 @@ import org.hpcclab.msc.TestUtils;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,7 @@ public class FunctionCallTest {
 
   @Test
   void testCopy() {
-    var root = new OaasObject()
+    var root = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
