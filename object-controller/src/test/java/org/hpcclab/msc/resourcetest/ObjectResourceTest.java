@@ -30,7 +30,7 @@ public class ObjectResourceTest {
   void testCreate() {
     var root = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
-      .setClasses(List.of("builtin.basic.file"))
+      .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
     TestUtils.getObject(root.getId());

@@ -16,14 +16,16 @@ import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface OaasMapper {
+  @Mapping(target = "outputCls", ignore = true)
   OaasFunction toFunc(OaasFunctionDto functionDto);
 
   OaasFunctionDto toFunc(OaasFunction function);
 
   List<OaasFunctionDto> toFuncDto(List<OaasFunction> function);
-  List<OaasFunction> toFunc(List<OaasFunctionDto> function);
 
   @Mapping(target = "outputCls", ignore = true)
+  List<OaasFunction> toFunc(List<OaasFunctionDto> function);
+
   void set(OaasFunctionDto functionDto, @MappingTarget OaasFunction function);
 
   default String toName(OaasFunction function) {
@@ -39,13 +41,16 @@ public interface OaasMapper {
   OaasClass toClass(OaasClassDto oaasClass);
 
   List<OaasClassDto> toClassDto(List<OaasClass> function);
+
   List<OaasClass> toClass(List<OaasClassDto> function);
 
 
   void set(OaasClassDto oaasClassDto, @MappingTarget OaasClass oaasClass);
 
   default String toName(OaasClass oaasClass) {
-    return oaasClass.getName();
+    if (oaasClass!=null)
+      return oaasClass.getName();
+    return null;
   }
 
   default OaasClass nameToClass(String value) {
@@ -59,12 +64,14 @@ public interface OaasMapper {
   List<OaasObjectDto> toObject(List<OaasObject> function);
 
   OaasCompoundMemberDto toMember(OaasCompoundMember member);
+
   OaasCompoundMember toMember(OaasCompoundMemberDto member);
 
   default UUID toUuid(OaasObject object) {
     return object.getId();
   }
-  default OaasObject toObject(UUID value){
+
+  default OaasObject toObject(UUID value) {
     return new OaasObject().setId(value);
   }
 
@@ -86,6 +93,8 @@ public interface OaasMapper {
 
 
   DeepOaasObjectDto deep(OaasObject object);
+
   DeepOaasClassDto deep(OaasClass cls);
+
   DeepOaasFunctionBindingDto deep(OaasFunctionBinding binding);
 }

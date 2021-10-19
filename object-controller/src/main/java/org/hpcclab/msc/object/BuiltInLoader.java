@@ -14,6 +14,7 @@ import org.hpcclab.msc.object.repository.OaasClassRepository;
 import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.resource.ClassResource;
 import org.hpcclab.msc.object.resource.FunctionResource;
+import org.hpcclab.msc.object.service.BatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,50 +32,47 @@ public class BuiltInLoader {
 
   ObjectMapper mapper;
   @Inject
-  OaasFuncRepository funcRepository;
-  @Inject
-  OaasClassRepository classRepository;
+  BatchService batchService;
 
   @Transactional
   @Blocking
   void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException {
     mapper = new ObjectMapper(new YAMLFactory());
 
-    loadFile(OaasFunctionDto.class,
+    var functions = loadFile(OaasFunctionDto.class,
       "/functions/builtin.logical.yml",
       "/functions/builtin.hls.yml"
     )
-      .onItem().transformToUniAndConcatenate(func -> {
+      .peek(func -> {
         if (LOGGER.isTraceEnabled()) {
           LOGGER.trace("import build-in function {}", func);
         } else {
           LOGGER.info("import build-in function {}", func.getName());
         }
-        return funcRepository.save(func);
       })
-      .collect().last()
-//      .call(funcRepository::flush)
-      .subscribeAsCompletionStage()
-      .get();
-
-    loadFile(OaasClassDto.class,
+      .toList();
+    var classes = loadFile(OaasClassDto.class,
       "/classes/builtin.basic.yml"
     )
-      .onItem().transformToUniAndConcatenate(classDto -> {
+      .peek(cls -> {
         if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("import build-in class {}", classDto);
+          LOGGER.trace("import build-in class {}", cls);
         } else {
-          LOGGER.info("import build-in class {}", classDto.getName());
+          LOGGER.info("import build-in class {}", cls.getName());
         }
-        return classRepository.save(classDto);
-      }).collect().last()
-      .call(classRepository::flush)
-      .subscribeAsCompletionStage()
-      .get();
+      })
+      .toList();
+
+    BatchService.Batch batch = new BatchService.Batch()
+      .setClasses(classes)
+      .setFunctions(functions);
+
+    batchService.create(batch)
+      .subscribeAsCompletionStage().get();
   }
 
-  <T> Multi<T> loadFile(Class<T> cls, String... files) {
-    return Multi.createFrom().items(
+  <T> Stream<T> loadFile(Class<T> cls, String... files) {
+    return
       Stream.of(files)
         .flatMap(file -> {
           try {
@@ -83,7 +81,6 @@ public class BuiltInLoader {
           } catch (Throwable e) {
             throw new RuntimeException("get error on file " + file, e);
           }
-        })
-    );
+        });
   }
 }

@@ -514,6 +514,27 @@
           }
         }
       },
+      "DeepOaasClassDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "objectType" : {
+            "$ref" : "#/components/schemas/ObjectType"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/StateType"
+          },
+          "functions" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
+            }
+          }
+        }
+      },
       "DeepOaasCompoundMemberDto" : {
         "type" : "object",
         "properties" : {
@@ -556,7 +577,7 @@
             "$ref" : "#/components/schemas/AccessModifier1"
           },
           "cls" : {
-            "$ref" : "#/components/schemas/OaasClassDto"
+            "$ref" : "#/components/schemas/DeepOaasClassDto"
           },
           "labels" : {
             "type" : "object",
@@ -718,11 +739,8 @@
           "access" : {
             "$ref" : "#/components/schemas/AccessModifier1"
           },
-          "classes" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "cls" : {
+            "type" : "string"
           },
           "labels" : {
             "type" : "object",

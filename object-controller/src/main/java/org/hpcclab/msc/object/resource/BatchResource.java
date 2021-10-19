@@ -12,13 +12,17 @@ import org.hpcclab.msc.object.model.OaasFunctionDto;
 import org.hpcclab.msc.object.repository.OaasClassRepository;
 import org.hpcclab.msc.object.repository.OaasFuncRepository;
 import org.hpcclab.msc.object.service.BatchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BatchResource implements BatchService {
-
+private static final Logger LOGGER = LoggerFactory.getLogger( BatchResource.class );
   @Inject
   OaasFuncRepository funcRepo;
   @Inject
@@ -30,12 +34,33 @@ public class BatchResource implements BatchService {
   @Override
   @ReactiveTransactional
   public Uni<Batch> create(Batch batch) {
-    var functions = oaasMapper.toFunc(batch.getFunctions());
-    var classes = oaasMapper.toClass(batch.getClasses());
-    return Uni.combine().all().unis(
-      funcRepo.persist(functions),
-      classRepo.persist(classes)
-    ).combinedWith(l -> batch);
+    return funcRepo.getSession()
+      .flatMap(session -> {
+        var classes = oaasMapper.toClass(batch.getClasses());
+        var classMap = classes.stream().collect(Collectors.toMap(OaasClass::getName, Function.identity()));
+        LOGGER.info("cls {}", classMap);
+        var functions = batch.getFunctions().stream()
+          .map(fd -> {
+            var func = oaasMapper.toFunc(fd);
+
+            if (fd.getOutputCls()!=null) {
+              if (classMap.containsKey(fd.getOutputCls())) {
+                func.setOutputCls(classMap.get(fd.getOutputCls()));
+              } else {
+                func.setOutputCls(session.getReference(OaasClass.class, fd.getOutputCls()));
+              }
+            } else {
+              func.setOutputCls(null);
+            }
+            return func;
+          })
+          .toList();
+        LOGGER.info("functions {}", functions);
+        return session.persistAll(classes.toArray())
+          .flatMap(v -> session.persistAll(functions.toArray()))
+          .call(session::flush);
+      })
+      .map(l -> batch);
   }
 
   @Override

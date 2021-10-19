@@ -19,6 +19,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 @RequiredArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)

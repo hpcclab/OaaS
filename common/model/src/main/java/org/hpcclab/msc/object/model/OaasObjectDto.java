@@ -28,7 +28,7 @@ public class OaasObjectDto {
   Long originHash;
   OaasObject.ObjectType type;
   OaasObject.AccessModifier access;
-  List<String> classes;
+  String cls;
   Map<String, String> labels;
   List<OaasFunctionBindingDto> functions = List.of();
   OaasObjectState state;

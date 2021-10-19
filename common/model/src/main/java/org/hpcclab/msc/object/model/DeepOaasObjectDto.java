@@ -22,7 +22,7 @@ public class DeepOaasObjectDto {
   Long originHash;
   OaasObject.ObjectType type;
   OaasObject.AccessModifier access;
-  OaasClassDto cls;
+  DeepOaasClassDto cls;
   Map<String, String> labels;
   List<DeepOaasFunctionBindingDto> functions = List.of();
   OaasObjectState state;
