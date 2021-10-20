@@ -31,12 +31,7 @@ public class ObjectResource implements ObjectService {
   OaasMapper oaasMapper;
 
   public Uni<List<OaasObjectDto>> list() {
-    return objectRepo.find(
-        """
-          select o
-          from OaasObject o
-          left join fetch o.functions
-          """).list()
+    return objectRepo.list()
       .map(oaasMapper::toObject);
   }
 
@@ -49,14 +44,7 @@ public class ObjectResource implements ObjectService {
 
   public Uni<OaasObjectDto> get(String id) {
     var uuid = UUID.fromString(id);
-    return objectRepo.find(
-        """
-          select o
-          from OaasObject o
-          left join fetch o.functions
-          where o.id = ?1
-          """, uuid)
-      .singleResult()
+    return objectRepo.getById(uuid)
       .onItem().ifNull().failWith(NotFoundException::new)
       .map(oaasMapper::toObject);
   }

@@ -12,10 +12,7 @@ import org.hpcclab.msc.object.entity.task.TaskConfiguration;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -24,13 +21,7 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-//@NamedEntityGraph(
-//  name = "oaas.function.allClasses",
-//  attributeNodes = {
-//    @NamedAttributeNode(value = "outputClasses"),
-//  })
 public class OaasFunction {
-  //  @BsonId
   @NotBlank
   @Id
   String name;
@@ -40,6 +31,7 @@ public class OaasFunction {
   OaasFunction.FuncType type;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
   OaasClass outputCls;
 
   @Convert(converter = EntityConverters.ValidationConverter.class)

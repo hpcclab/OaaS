@@ -17,76 +17,43 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ContextLoader {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ContextLoader.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(ContextLoader.class);
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
   OaasFuncRepository funcRepo;
 
-  public Uni<FunctionExecContext> load(FunctionCallRequest request) {
-    var oUni = objectRepo.findById(request.getTarget());
-    var fUni = funcRepo.findByName(request.getFunctionName());
-    var aUni = objectRepo.listByIds(request.getAdditionalInputs());
-    return Uni.combine().all().unis(oUni,fUni,aUni)
-      .combinedWith((o,f,a) -> new FunctionExecContext()
-        .setMain(o)
-        .setFunction(f)
-        .setAdditionalInputs(a)
-        .setArgs(request.getArgs())
-      )
-      .invoke(context -> {
-        if (context.getMain() == null)
-          throw new NoStackException("Not found object with id = " + request.getTarget().toString());
-        if (context.getFunction() == null)
-          throw new NoStackException("Not found function with name = " + request.getFunctionName());
+  public Uni<FunctionExecContext> loadCtx(FunctionCallRequest request) {
+    return objectRepo
+      .getDeep(request.getTarget())
+      .flatMap(object -> {
+        var fec = new FunctionExecContext().setEntry(object)
+          .setMain(object)
+          .setArgs(request.getArgs());
+        return objectRepo.listByIds(request.getAdditionalInputs())
+          .map(fec::setAdditionalInputs);
       })
-      .flatMap(context -> {
-        if (context.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
-          return loadMembers(context.getMain())
-            .map(context::setMembers);
-        } else {
-          return Uni.createFrom().item(context);
-        }
-      })
-      .flatMap(context -> {
-        if (context.getFunction().getType() == OaasFunction.FuncType.MACRO) {
-          return loadMembers(context.getFunction())
-            .map(context::setSubFunctions);
-        } else {
-          return Uni.createFrom().item(context);
-        }
+      .map(fec -> {
+        var fnName = request.getFunctionName();
+        var binding = Stream.concat(
+            fec.getMain().getFunctions().stream(),
+            fec.getMain().getCls().getFunctions().stream()
+          )
+          .filter(fb -> fb.getFunction().getName().equals(fnName))
+          .findAny()
+          .orElseThrow(() -> new NoStackException("No function with name '%s' available in object '%s'"
+            .formatted(fnName, fec.getMain().getId().toString())
+          ));
+        return fec.setFunction(binding.getFunction())
+          .setFunctionAccess(binding.getAccess());
       });
   }
 
-  public Uni<Map<String, OaasObject>> loadMembers(OaasObject main) {
-    return null;
-//    return Multi.createFrom().iterable(main.getMembers())
-//      .onItem().transformToUniAndMerge(member -> objectRepo.findById(member)
-//        .map(object -> {
-//          if (object == null)
-//            throw new NoStackException("Not found object with id " + entry.getValue().toString());
-//          return Map.entry(entry.getKey(), object);
-//        }))
-//      .collect()
-//      .asList()
-//      .map(l -> l.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-//
-//    return objectRepo.listByIds(main.getMembers().values())
-//      .map(objList -> {
-//        LOGGER.info("objList {}", Json.encodePrettily(objList));
-//        LOGGER.info("members {}", Json.encodePrettily(main.getMembers()));
-//        return main.getMembers().entrySet()
-//            .stream()
-//            .map(e -> Map.entry(e.getKey(), objList.stream().filter(o -> o.getId().equals(e.getValue())).findFirst(). orElseThrow()))
-//            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-//        }
-//      );
-  }
-
-  public Uni<Map<String, OaasFunction>> loadMembers(OaasFunction function) {
+  public Uni<Map<String, OaasFunction>> loadWorkflow(OaasFunction function) {
 //    var funcNames = function.getSubFunctions()
 //      .values()
 //      .stream()

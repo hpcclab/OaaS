@@ -42,12 +42,12 @@ public class TaskFunctionHandler {
     var func = context.getFunction();
     var output = OaasObject.createFromClasses(func.getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
-    if (output.getState().getType() == OaasObjectState.StateType.FILE
-      && output.getState().getFile() == null
-      && context.getMain().getState().getType() == OaasObjectState.StateType.FILE) {
-      output.getState()
-        .setFile(context.getMain().getState().getFile());
-    }
+//    if (output.getState().getType() == OaasObjectState.StateType.FILE
+//      && output.getState().getFile() == null
+//      && context.getMain().getState().getType() == OaasObjectState.StateType.FILE) {
+//      output.getState()
+//        .setFile(context.getMain().getState().getFile());
+//    }
     storageAllocator.allocate(output);
     if (!context.isReactive()) {
       var request = new ObjectResourceRequest()

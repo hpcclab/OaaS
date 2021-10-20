@@ -32,29 +32,28 @@ public class FunctionRouter {
 
 
   public Uni<OaasObject> functionCall(FunctionExecContext context) {
-    if (context.getFunction().getType()==OaasFunction.FuncType.LOGICAL) {
-      var newObj = logicalFunctionHandler.call(context);
-      return objectRepo.persist(newObj);
-    }
-    if (context.getFunction().getType()==OaasFunction.FuncType.MACRO) {
-      return macroFunctionHandler.call(context);
-    }
-    if (context.getFunction().getType()==OaasFunction.FuncType.TASK) {
-      return taskFunctionHandler.call(context);
-    }
-    LOGGER.warn("Receive function with type {} which is not supported", context.getFunction().getType());
-    throw new NoStackException("Not implemented").setCode(HttpResponseStatus.NOT_IMPLEMENTED.code());
+    var type = context.getFunction().getType();
+    return switch (type) {
+      case LOGICAL -> {
+        var newObj = logicalFunctionHandler.call(context);
+        yield objectRepo.persist(newObj);
+      }
+      case TASK -> taskFunctionHandler.call(context);
+      case MACRO -> macroFunctionHandler.call(context);
+    };
   }
 
   public Uni<OaasObject> reactiveCall(FunctionCallRequest request) {
-    return contextLoader.load(request)
+    return contextLoader.loadCtx(request)
       .invoke(ctx -> ctx.setReactive(true))
+      .invoke(this::validate)
       .flatMap(this::functionCall);
   }
 
   public Uni<OaasObject> activeCall(FunctionCallRequest request) {
-    return contextLoader.load(request)
+    return contextLoader.loadCtx(request)
       .invoke(ctx -> ctx.setReactive(false))
+      .invoke(this::validate)
       .flatMap(this::functionCall);
   }
 

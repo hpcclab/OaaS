@@ -5,6 +5,7 @@ import org.hamcrest.Matchers;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.model.DeepOaasObjectDto;
 import org.hpcclab.msc.object.model.FunctionCallRequest;
+import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
 import org.hpcclab.msc.object.model.OaasObjectDto;
 
 import javax.ws.rs.core.MediaType;
@@ -62,13 +63,10 @@ public class TestUtils {
       .extract().body().as(DeepOaasObjectDto.class);
   }
 
-  public static OaasObjectDto bind(OaasObjectDto obj, List<String> functionNames) {
-//    var meta = functionNames.stream()
-//      .map(MscFuncMetadata::new)
-//      .collect(Collectors.toList());
+  public static OaasObjectDto bind(OaasObjectDto obj, List<OaasFunctionBindingDto> fd) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
-      .body(Json.encodePrettily(functionNames))
+      .body(Json.encodePrettily(fd))
       .pathParam("oid", obj.getId().toString())
       .when().post("/api/objects/{oid}/binds")
       .then()
@@ -78,7 +76,7 @@ public class TestUtils {
       .extract().body().as(OaasObjectDto.class);
   }
 
-  public static OaasObjectDto fnCall(FunctionCallRequest request) {
+  public static OaasObjectDto reactiveCall(FunctionCallRequest request) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))

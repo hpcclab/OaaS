@@ -52,12 +52,12 @@ public class HlsTest {
       ));
 
     hlsObject = TestUtils.create(hlsObject);
-    hlsObject = TestUtils.bind(hlsObject, List.of("builtin.hls.macro.transcode"));
-    var hls2 = TestUtils.fnCall(new FunctionCallRequest().setFunctionName("builtin.hls.macro.transcode")
-      .setTarget(hlsObject.getId()));
-    hls2.getMembers().stream()
-      .map(OaasCompoundMemberDto::getObject)
-      .forEach(TestUtils::getObject);
+//    hlsObject = TestUtils.bind(hlsObject, List.of("builtin.hls.macro.transcode"));
+//    var hls2 = TestUtils.fnCall(new FunctionCallRequest().setFunctionName("builtin.hls.macro.transcode")
+//      .setTarget(hlsObject.getId()));
+//    hls2.getMembers().stream()
+//      .map(OaasCompoundMemberDto::getObject)
+//      .forEach(TestUtils::getObject);
   }
 
 }

@@ -55,7 +55,7 @@ public class OaasObject extends BaseUuidEntity {
   ObjectType type;
 
   @Enumerated
-  AccessModifier access;
+  AccessModifier access = AccessModifier.PUBLIC;
 
   @ManyToOne(fetch = FetchType.LAZY)
   OaasClass cls;

@@ -12,6 +12,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,5 +28,5 @@ public class OaasClass {
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
   @ElementCollection(fetch = FetchType.LAZY)
-  Set<OaasFunctionBinding> functions;
+  List<OaasFunctionBinding> functions;
 }

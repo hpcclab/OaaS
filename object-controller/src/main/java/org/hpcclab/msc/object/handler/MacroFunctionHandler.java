@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,18 +43,19 @@ public class MacroFunctionHandler {
       var i = Integer.parseInt(value);
       return context.getAdditionalInputs().get(i);
     }
-    return context.getMembers().get(value);
+    return context.getMain().getMembers()
+      .stream()
+      .filter(cm -> cm.getName().equals(value))
+      .findAny().orElseThrow(() -> new NoStackException("Can not resolve '"+value+"'"))
+      .getObject();
   }
 
   public Uni<OaasObject> call(FunctionExecContext context) {
     validate(context);
 
     var func = context.getFunction();
-
     var output = OaasObject.createFromClasses(context.getFunction().getOutputCls());
-
-    output.setOrigin(new OaasObjectOrigin(context))
-      .setMembers(List.of());
+    output.setOrigin(new OaasObjectOrigin(context));
 
     return execWorkflow(context, func.getMacro())
       .flatMap(wfResults -> {
@@ -68,6 +70,16 @@ public class MacroFunctionHandler {
 
   private Uni<Map<String, OaasObject>> execWorkflow(FunctionExecContext context,
                                        OaasWorkflow workflow) {
-    return null;
+    var map = new HashMap<String, OaasObject>();
+    return Multi.createFrom().iterable(workflow.getSteps())
+      .flatMap(step -> {
+        var target = resolveTarget(context, step.getTarget());
+        var function = target.getFunctions()
+          .stream()
+          .filter(fb -> fb.getFunction().getName().equals(step.getFuncName()))
+          .findAny().orElseThrow();
+        //TODO
+      })
+      .collect().last();
   }
 }
