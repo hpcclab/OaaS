@@ -2,6 +2,7 @@ package org.hpcclab.msc.object.repository;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
+import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.msc.object.entity.OaasClass;
 import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.entity.object.OaasObject;
@@ -20,6 +21,7 @@ public class OaasClassRepository implements PanacheRepositoryBase<OaasClass, Str
   @Inject
   OaasMapper oaasMapper;
 
+
   public Uni<OaasClass> findByName(String name) {
     return find("name", name)
       .firstResult();
@@ -33,21 +35,20 @@ public class OaasClassRepository implements PanacheRepositoryBase<OaasClass, Str
     return persist(oaasMapper.toClass(classDto));
   }
 
-  public Uni<OaasClass> getDeep2(String name) {
+  public Uni<OaasClass> getDeep(String name) {
     return getSession().flatMap(session -> {
       var clsGraph = session.getEntityGraph(OaasClass.class, "oaas.class.deep");
       return session.find(clsGraph, name);
     });
   }
-
-  public Uni<OaasClass> getDeep(String name) {
-    return find("""
-      select c
-      from OaasClass c
-      left join fetch c.functions as fb
-      join fetch fb.function
-      where c.name = ?1
-      """, name).singleResult();
-  }
+//
+//  public Uni<OaasClass> getDeep(String name) {
+//    return find("""
+//      select c
+//      from OaasClass c
+//      left join fetch c.functions
+//      where c.name = ?1
+//      """, name).singleResult();
+//  }
 
 }

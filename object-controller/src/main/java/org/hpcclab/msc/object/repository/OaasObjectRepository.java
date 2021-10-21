@@ -2,8 +2,7 @@ package org.hpcclab.msc.object.repository;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
-import org.hibernate.reactive.mutiny.Mutiny;
-import org.hpcclab.msc.object.entity.OaasClass;
+import io.vertx.core.json.Json;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.exception.ObjectValidationException;
@@ -15,9 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -82,16 +79,6 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
     });
   }
 
-
-  public Uni<OaasObject> getDeep2(UUID id) {
-    return find("""
-    select o
-    from OaasObject o
-    left join fetch o.functions as fb
-    left join fetch o.cls.functions
-    where o.id = ?1
-    """, id).singleResult();
-  }
 
   public Uni<OaasObject> getById(UUID id) {
     return find(

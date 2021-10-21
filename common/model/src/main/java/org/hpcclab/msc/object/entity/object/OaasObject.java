@@ -32,8 +32,8 @@ import java.util.UUID;
   name = "oaas.object.deep",
   attributeNodes = {
 //    @NamedAttributeNode(
-//      value = "cls"
-////      subgraph = "oaas.classes.tree"
+//      value = "cls",
+//      subgraph = "oaas.classes.deep"
 //    ),
     @NamedAttributeNode(
       value = "functions",
@@ -41,12 +41,18 @@ import java.util.UUID;
     ),
   },
   subgraphs = {
-//    @NamedSubgraph(name = "oaas.classes.tree",
-//      attributeNodes = @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree")),
-    @NamedSubgraph(name = "oaas.functionBinding.tree",
-      attributeNodes = @NamedAttributeNode(value = "function", subgraph = "oaas.function.tree")),
-    @NamedSubgraph(name = "oaas.function.tree",
-      attributeNodes = @NamedAttributeNode(value = "outputCls"))
+//    @NamedSubgraph(name = "oaas.classes.deep",
+//      attributeNodes = @NamedAttributeNode(value = "functions"
+////        ,
+////        subgraph = "oaas.functionBinding.tree"
+//      )),
+    @NamedSubgraph(name = "oaas.functionBinding.deep",
+      attributeNodes = @NamedAttributeNode(value = "function"
+//        , subgraph = "oaas.function.tree"
+      ))
+//    ,
+//    @NamedSubgraph(name = "oaas.function.tree",
+//      attributeNodes = @NamedAttributeNode(value = "outputCls"))
   })
 public class OaasObject extends BaseUuidEntity {
 
@@ -63,7 +69,7 @@ public class OaasObject extends BaseUuidEntity {
   @Enumerated
   AccessModifier access = AccessModifier.PUBLIC;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
   OaasClass cls;
 
   @SuppressWarnings("JpaAttributeTypeInspection")

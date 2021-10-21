@@ -5,17 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.OaasClass;
-import org.hpcclab.msc.object.entity.function.OaasFunction;
 import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.OaasClassDto;
-import org.hpcclab.msc.object.model.OaasFunctionDto;
 import org.hpcclab.msc.object.repository.OaasClassRepository;
 import org.hpcclab.msc.object.service.ClassService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.util.List;
