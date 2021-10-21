@@ -3,10 +3,7 @@ package org.hpcclab.msc;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.model.DeepOaasObjectDto;
-import org.hpcclab.msc.object.model.FunctionCallRequest;
-import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
-import org.hpcclab.msc.object.model.OaasObjectDto;
+import org.hpcclab.msc.object.model.*;
 
 import javax.ws.rs.core.MediaType;
 
@@ -49,6 +46,17 @@ public class TestUtils {
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
       .extract().body().as(OaasObjectDto.class);
+  }
+
+  public static OaasClassDto getClass(String name) {
+    return given()
+      .pathParam("name", name)
+      .when().get("/api/classes/{name}")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("name", Matchers.equalTo(name))
+      .extract().body().as(OaasClassDto.class);
   }
 
 

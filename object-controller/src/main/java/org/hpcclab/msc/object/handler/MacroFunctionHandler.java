@@ -8,6 +8,7 @@ import org.hpcclab.msc.object.entity.function.OaasWorkflow;
 import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.object.OaasObjectOrigin;
+import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.FunctionExecContext;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.repository.OaasObjectRepository;
@@ -24,12 +25,14 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MacroFunctionHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger( MacroFunctionHandler.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(MacroFunctionHandler.class);
 
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
   FunctionRouter router;
+  @Inject
+  OaasMapper oaasMapper;
 
   public void validate(FunctionExecContext context) {
     if (context.getMain().getType()!=OaasObject.ObjectType.COMPOUND)
@@ -38,7 +41,10 @@ public class MacroFunctionHandler {
       throw new NoStackException("Function must be MACRO").setCode(400);
   }
 
-  private OaasObject resolveTarget(FunctionExecContext context, String value) {
+  private OaasObject resolveTarget(FunctionExecContext context, Map<String, OaasObject> workflowMap, String value) {
+    if (workflowMap.containsKey(value)) {
+      return workflowMap.get(value);
+    }
     if (NumberUtils.isDigits(value)) {
       var i = Integer.parseInt(value);
       return context.getAdditionalInputs().get(i);
@@ -46,7 +52,7 @@ public class MacroFunctionHandler {
     return context.getMain().getMembers()
       .stream()
       .filter(cm -> cm.getName().equals(value))
-      .findAny().orElseThrow(() -> new NoStackException("Can not resolve '"+value+"'"))
+      .findAny().orElseThrow(() -> new NoStackException("Can not resolve '" + value + "'"))
       .getObject();
   }
 
@@ -61,7 +67,7 @@ public class MacroFunctionHandler {
       .flatMap(wfResults -> {
         var mem = func.getMacro().getExports()
           .stream()
-          .map(export -> new OaasCompoundMember(export.getAs(),wfResults.get(export.getFrom())))
+          .map(export -> new OaasCompoundMember(export.getAs(), wfResults.get(export.getFrom())))
           .toList();
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);
@@ -69,17 +75,27 @@ public class MacroFunctionHandler {
   }
 
   private Uni<Map<String, OaasObject>> execWorkflow(FunctionExecContext context,
-                                       OaasWorkflow workflow) {
+                                                    OaasWorkflow workflow) {
     var map = new HashMap<String, OaasObject>();
     return Multi.createFrom().iterable(workflow.getSteps())
-      .flatMap(step -> {
-        var target = resolveTarget(context, step.getTarget());
-        var function = target.getFunctions()
+      .call(step -> {
+        var target = resolveTarget(context, map, step.getTarget());
+        var functionBinding = target.getFunctions()
           .stream()
           .filter(fb -> fb.getFunction().getName().equals(step.getFuncName()))
           .findAny().orElseThrow();
-        //TODO
+        var inputRefs = step.getInputRefs()
+          .stream()
+          .map(ir -> resolveTarget(context, map, ir))
+          .toList();
+        var newCtx = oaasMapper.copy(context)
+          .setFunction(functionBinding.getFunction())
+          .setMain(target)
+          .setAdditionalInputs(inputRefs);
+        return router.functionCall(newCtx)
+          .invoke(obj -> map.put(step.getAs(), obj));
       })
-      .collect().last();
+      .collect().last()
+      .map(l -> map);
   }
 }

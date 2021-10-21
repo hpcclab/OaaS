@@ -2,12 +2,16 @@ package org.hpcclab.msc.object.repository;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
+import org.hibernate.reactive.mutiny.Mutiny;
+import org.hpcclab.msc.object.entity.OaasClass;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.exception.NoStackException;
 import org.hpcclab.msc.object.exception.ObjectValidationException;
 import org.hpcclab.msc.object.mapper.OaasMapper;
 import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
 import org.hpcclab.msc.object.model.OaasObjectDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,8 +25,11 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, UUID> {
+  private static final Logger LOGGER = LoggerFactory.getLogger( OaasObjectRepository.class );
   @Inject
   OaasMapper oaasMapper;
+  @Inject
+  OaasClassRepository classRepo;
 
 
   public Uni<OaasObject> createRootAndPersist(OaasObjectDto object) {
@@ -66,9 +73,24 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
   public Uni<OaasObject> getDeep(UUID id) {
     return getSession().flatMap(session -> {
-      var graph = session.getEntityGraph(OaasObject.class, "oaas.object.tree");
-      return session.find(graph, id);
+      var objGraph = session.getEntityGraph(OaasObject.class, "oaas.object.deep");
+      return session.find(objGraph, id)
+        .invoke(session::detach)
+        .flatMap(obj -> classRepo.getDeep(obj.getCls().getName())
+          .map(obj::setCls)
+        );
     });
+  }
+
+
+  public Uni<OaasObject> getDeep2(UUID id) {
+    return find("""
+    select o
+    from OaasObject o
+    left join fetch o.functions as fb
+    left join fetch o.cls.functions
+    where o.id = ?1
+    """, id).singleResult();
   }
 
   public Uni<OaasObject> getById(UUID id) {

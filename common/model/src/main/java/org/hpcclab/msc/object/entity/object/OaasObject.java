@@ -29,16 +29,22 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @NamedEntityGraph(
-  name = "oaas.object.tree",
+  name = "oaas.object.deep",
   attributeNodes = {
-    @NamedAttributeNode(value = "cls", subgraph = "oaas.classes.tree"),
-    @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree"),
+//    @NamedAttributeNode(
+//      value = "cls"
+////      subgraph = "oaas.classes.tree"
+//    ),
+    @NamedAttributeNode(
+      value = "functions",
+      subgraph = "oaas.functionBinding.deep"
+    ),
   },
   subgraphs = {
-    @NamedSubgraph(name = "oaas.classes.tree",
-      attributeNodes = @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree")),
+//    @NamedSubgraph(name = "oaas.classes.tree",
+//      attributeNodes = @NamedAttributeNode(value = "functions", subgraph = "oaas.functionBinding.tree")),
     @NamedSubgraph(name = "oaas.functionBinding.tree",
-      attributeNodes = @NamedAttributeNode(value = "function", subgraph = "oaas.function.tree")) ,
+      attributeNodes = @NamedAttributeNode(value = "function", subgraph = "oaas.function.tree")),
     @NamedSubgraph(name = "oaas.function.tree",
       attributeNodes = @NamedAttributeNode(value = "outputCls"))
   })

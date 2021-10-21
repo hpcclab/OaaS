@@ -354,7 +354,6 @@ components:
         stateType:
           $ref: '#/components/schemas/StateType'
         functions:
-          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/DeepOaasFunctionBindingDto'
@@ -554,12 +553,6 @@ components:
           $ref: '#/components/schemas/StateType'
         baseUrl:
           type: string
-        file:
-          type: string
-        files:
-          type: array
-          items:
-            type: string
         records:
           type: string
     OaasWorkflow:

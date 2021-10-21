@@ -41,6 +41,7 @@ public class ObjectResourceTest {
     TestUtils.getObject(root.getId());
     assertTrue(TestUtils.listObject().size() >=1);
     TestUtils.getObjectDeep(root.getId());
+  TestUtils.getClass("builtin.basic.file");
   }
 
   @Test
@@ -81,6 +82,7 @@ public class ObjectResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(400);
+    TestUtils.getObjectDeep(obj.getId());
   }
 
 

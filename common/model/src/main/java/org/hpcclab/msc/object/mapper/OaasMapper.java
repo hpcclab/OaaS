@@ -97,4 +97,6 @@ public interface OaasMapper {
   DeepOaasClassDto deep(OaasClass cls);
 
   DeepOaasFunctionBindingDto deep(OaasFunctionBinding binding);
+
+  FunctionExecContext copy(FunctionExecContext ctx);
 }

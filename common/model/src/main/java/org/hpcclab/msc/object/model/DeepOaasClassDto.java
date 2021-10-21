@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -15,5 +16,5 @@ public class DeepOaasClassDto {
   String name;
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
-  Set<DeepOaasFunctionBindingDto> functions;
+  List<DeepOaasFunctionBindingDto> functions;
 }

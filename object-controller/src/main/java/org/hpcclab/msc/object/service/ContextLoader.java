@@ -50,7 +50,8 @@ public class ContextLoader {
           ));
         return fec.setFunction(binding.getFunction())
           .setFunctionAccess(binding.getAccess());
-      });
+      })
+      .invoke(()-> LOGGER.debug("successfully load context of '{}'", request.getTarget()));
   }
 
   public Uni<Map<String, OaasFunction>> loadWorkflow(OaasFunction function) {

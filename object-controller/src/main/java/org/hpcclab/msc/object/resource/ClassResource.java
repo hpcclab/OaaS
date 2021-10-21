@@ -68,7 +68,7 @@ public class ClassResource implements ClassService {
 
   @Override
   public Uni<OaasClassDto> get(String name) {
-    return classRepo.findById(name)
+    return classRepo.getDeep(name)
       .onItem().ifNull().failWith(NotFoundException::new)
       .map(oaasMapper::toClass);
   }

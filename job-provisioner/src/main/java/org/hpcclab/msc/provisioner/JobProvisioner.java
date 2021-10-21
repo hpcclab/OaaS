@@ -9,6 +9,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.msc.object.entity.object.OaasObject;
 import org.hpcclab.msc.object.entity.state.OaasObjectState;
 import org.hpcclab.msc.object.entity.task.Task;
+import org.hpcclab.msc.object.model.OaasObjectDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,6 @@ public class JobProvisioner {
 
   @Incoming("tasks")
   public void provision(Task task) {
-//    LOGGER.info("task: {}", t.encodePrettily());
-//    Task task = t.mapTo(Task.class);
-//    LOGGER.info("task: {}", task.getFunctionName());
     var envList = createEnv(task)
       .entrySet()
       .stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
@@ -74,30 +72,25 @@ public class JobProvisioner {
     var inputs = task.getAdditionalInputs();
     var requestFile = task.getRequestFile();
     var env  = new HashMap<String, String>();
-//    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
-//      env.putAll(outputObj.getOrigin().getArgs());
-//    }
-//    env.put("TASK_ID", task.getId());
-//    putEnv(env, mainObj, "MAIN");
-//    for (int i = 0; i < inputs.size(); i++) {
-//      OaasObject inputObj = inputs.get(i);
-//      var prefix = "INPUT_" + i;
-//      putEnv(env, inputObj, prefix);
-//    }
-//    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
-//    env.put("REQUEST_FILE", requestFile);
-    //TODO
+    if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
+      env.putAll(outputObj.getOrigin().getArgs());
+    }
+    env.put("TASK_ID", task.getId());
+    putEnv(env, mainObj, "MAIN");
+    for (int i = 0; i < inputs.size(); i++) {
+      var inputObj = inputs.get(i);
+      var prefix = "INPUT_" + i;
+      putEnv(env, inputObj, prefix);
+    }
+    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
+    env.put("REQUEST_FILE", requestFile);
     return env;
   }
 
-  private void putEnv(Map<String, String> env, OaasObject obj, String prefix) {
+  private void putEnv(Map<String, String> env, OaasObjectDto obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
-    if (obj.getState().getType() == OaasObjectState.StateType.FILE)
-      env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
-    if (obj.getState().getType() == OaasObjectState.StateType.FILES)
-      env.put(prefix + "_RESOURCE_FILES", String.join(", ",obj.getState().getFiles()));
   }
 
 }

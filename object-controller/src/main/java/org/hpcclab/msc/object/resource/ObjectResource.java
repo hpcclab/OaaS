@@ -49,8 +49,9 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::toObject);
   }
 
+  @ReactiveTransactional
   public Uni<DeepOaasObjectDto> getDeep(String id) {
-    return objectRepo.getDeep(UUID.fromString(id))
+    return objectRepo.getDeep2(UUID.fromString(id))
       .map(oaasMapper::deep);
   }
 
