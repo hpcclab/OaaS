@@ -5,17 +5,14 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hpcclab.msc.TestUtils;
-import org.hpcclab.msc.object.entity.object.OaasCompoundMember;
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.entity.state.OaasObjectState;
-import org.hpcclab.msc.object.model.FunctionCallRequest;
-import org.hpcclab.msc.object.model.OaasCompoundMemberDto;
-import org.hpcclab.msc.object.model.OaasObjectDto;
+import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.state.OaasObjectState;
+import org.hpcclab.oaas.model.OaasCompoundMemberDto;
+import org.hpcclab.oaas.model.OaasObjectDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 

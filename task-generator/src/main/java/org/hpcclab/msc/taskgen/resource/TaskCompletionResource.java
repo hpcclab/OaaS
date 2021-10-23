@@ -1,10 +1,8 @@
 package org.hpcclab.msc.taskgen.resource;
 
 import io.smallrye.mutiny.Multi;
-import org.hpcclab.msc.object.entity.task.TaskCompletion;
-import org.hpcclab.msc.object.entity.task.TaskFlow;
+import org.hpcclab.oaas.entity.task.TaskCompletion;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
-import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;

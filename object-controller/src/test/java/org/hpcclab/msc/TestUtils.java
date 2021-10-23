@@ -2,8 +2,7 @@ package org.hpcclab.msc;
 
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.model.*;
+import org.hpcclab.oaas.model.*;
 
 import javax.ws.rs.core.MediaType;
 

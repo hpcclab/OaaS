@@ -12,8 +12,8 @@ import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.hpcclab.msc.object.entity.task.TaskCompletion;
-import org.hpcclab.msc.object.entity.task.Task;
+import org.hpcclab.oaas.entity.task.TaskCompletion;
+import org.hpcclab.oaas.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

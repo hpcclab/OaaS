@@ -1,12 +1,11 @@
 package org.hpcclab.msc.taskgen;
 
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.entity.task.TaskFlow;
-import org.hpcclab.msc.object.entity.task.Task;
-import org.hpcclab.msc.object.model.FunctionExecContext;
+import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.task.TaskFlow;
+import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.model.FunctionExecContext;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 @ApplicationScoped

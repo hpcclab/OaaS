@@ -2,7 +2,7 @@ package org.hpcclab.msc.taskgen;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.msc.object.entity.task.TaskCompletion;
+import org.hpcclab.oaas.entity.task.TaskCompletion;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
 import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
 import org.slf4j.Logger;

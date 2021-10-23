@@ -6,12 +6,12 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.vertx.core.json.Json;
 import org.hpcclab.msc.TestUtils;
-import org.hpcclab.msc.object.entity.function.OaasFunctionBinding.AccessModifier;
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.entity.state.OaasObjectState;
-import org.hpcclab.msc.object.model.FunctionCallRequest;
-import org.hpcclab.msc.object.model.OaasFunctionBindingDto;
-import org.hpcclab.msc.object.model.OaasObjectDto;
+import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
+import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.state.OaasObjectState;
+import org.hpcclab.oaas.model.FunctionCallRequest;
+import org.hpcclab.oaas.model.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.OaasObjectDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

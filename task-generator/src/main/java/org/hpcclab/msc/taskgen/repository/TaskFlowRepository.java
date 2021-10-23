@@ -2,10 +2,10 @@ package org.hpcclab.msc.taskgen.repository;
 
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepositoryBase;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.entity.task.Task;
-import org.hpcclab.msc.object.service.ObjectService;
-import org.hpcclab.msc.object.entity.task.TaskFlow;
+import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.service.ObjectService;
+import org.hpcclab.oaas.entity.task.TaskFlow;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

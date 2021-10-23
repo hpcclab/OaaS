@@ -10,7 +10,7 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
-import org.hpcclab.msc.object.model.ObjectResourceRequest;
+import org.hpcclab.oaas.model.ObjectResourceRequest;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

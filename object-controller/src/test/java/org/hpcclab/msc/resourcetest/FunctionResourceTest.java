@@ -1,7 +1,7 @@
 package org.hpcclab.msc.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.hpcclab.msc.object.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

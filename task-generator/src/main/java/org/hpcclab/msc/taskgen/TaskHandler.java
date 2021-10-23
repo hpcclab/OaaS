@@ -2,17 +2,15 @@ package org.hpcclab.msc.taskgen;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.bson.types.ObjectId;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.hpcclab.msc.object.entity.object.OaasObject;
-import org.hpcclab.msc.object.entity.task.TaskCompletion;
-import org.hpcclab.msc.object.entity.task.TaskFlow;
-import org.hpcclab.msc.object.entity.task.Task;
-import org.hpcclab.msc.object.model.FunctionExecContext;
-import org.hpcclab.msc.object.model.ObjectResourceRequest;
+import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.task.TaskFlow;
+import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.model.FunctionExecContext;
+import org.hpcclab.oaas.model.ObjectResourceRequest;
 import io.smallrye.reactive.messaging.kafka.Record;
-import org.hpcclab.msc.object.service.ObjectService;
+import org.hpcclab.oaas.service.ObjectService;
 import org.hpcclab.msc.taskgen.repository.TaskCompletionRepository;
 import org.hpcclab.msc.taskgen.repository.TaskFlowRepository;
 import org.slf4j.Logger;
@@ -20,8 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 
 @ApplicationScoped
