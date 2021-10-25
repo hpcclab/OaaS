@@ -26,8 +26,8 @@ public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
   OaasObjectRepository objectRepo;
-  @Inject
-  OaasFuncRepository funcRepo;
+//  @Inject
+//  OaasFuncRepository funcRepo;
   @Inject
   FunctionRouter functionRouter;
   @Inject
@@ -58,17 +58,20 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::deep);
   }
 
+
   public Uni<OaasObjectDto> bindFunction(String id,
                                          List<OaasFunctionBindingDto> bindingDtoList) {
     return objectRepo.bindFunction(UUID.fromString(id), bindingDtoList)
       .map(oaasMapper::toObject);
   }
 
+  @ReactiveTransactional
   public Uni<OaasObjectDto> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(UUID.fromString(id)))
       .map(oaasMapper::toObject);
   }
 
+  @ReactiveTransactional
   public Uni<OaasObjectDto> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)))
       .map(oaasMapper::toObject);

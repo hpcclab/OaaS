@@ -17,15 +17,14 @@ public interface FunctionService {
   Uni<List<OaasFunctionDto>> list();
 
   @POST
-  Uni<OaasFunctionDto> create(
+  Multi<OaasFunctionDto> create(
     @DefaultValue("false") @QueryParam("update") boolean update,
-    @Valid OaasFunctionDto function
+    @Valid List<OaasFunctionDto> function
   );
 
   @POST
-  @Path("-/yaml")
+//  @Path("-/yaml")
   @Consumes("text/x-yaml")
-  @Produces(MediaType.APPLICATION_JSON)
   Multi<OaasFunctionDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                       String body);
 

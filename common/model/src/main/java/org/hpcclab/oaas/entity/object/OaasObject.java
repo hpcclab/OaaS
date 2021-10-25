@@ -34,7 +34,7 @@ import java.util.UUID;
     @NamedAttributeNode(
       value = "functions",
       subgraph = "oaas.functionBinding.deep"
-    ),
+    )
   },
   subgraphs = {
 //    @NamedSubgraph(name = "oaas.classes.deep",

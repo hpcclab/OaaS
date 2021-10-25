@@ -1,7 +1,10 @@
 package org.hpcclab.oaas.service;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.function.OaasFunction;
+import org.hpcclab.oaas.entity.object.OaasCompoundMember;
+import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.FunctionCallRequest;
 import org.hpcclab.oaas.model.FunctionExecContext;
 import org.hpcclab.oaas.exception.NoStackException;
@@ -30,8 +33,23 @@ public class ContextLoader {
         var fec = new FunctionExecContext().setEntry(object)
           .setMain(object)
           .setArgs(request.getArgs());
-        return objectRepo.listByIds(request.getAdditionalInputs())
-          .map(fec::setAdditionalInputs);
+        if (request.getAdditionalInputs() != null && !request.getAdditionalInputs().isEmpty()) {
+          return objectRepo.listByIds(request.getAdditionalInputs())
+            .map(fec::setAdditionalInputs);
+        } else{
+          return Uni.createFrom().item(fec);
+        }
+      })
+      .flatMap(fec -> {
+        if (fec.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
+         return Multi.createFrom().iterable(fec.getMain().getMembers())
+            .onItem().transformToUniAndMerge(member -> objectRepo.refreshWithDeep(member.getObject())
+               .map(obj -> new OaasCompoundMember().setName(member.getName()).setObject(obj))
+            )
+            .collect().last().map(member -> fec);
+        } else {
+          return Uni.createFrom().item(fec);
+        }
       })
       .map(fec -> {
         var fnName = request.getFunctionName();

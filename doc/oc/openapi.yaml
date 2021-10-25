@@ -140,26 +140,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasFunctionDto'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
+              type: array
+              items:
                 $ref: '#/components/schemas/OaasFunctionDto'
-  /api/functions/-/yaml:
-    post:
-      tags:
-      - Function Service
-      parameters:
-      - name: update
-        in: query
-        schema:
-          default: false
-          type: boolean
-      requestBody:
-        content:
           text/x-yaml:
             schema:
               type: string
@@ -357,13 +340,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DeepOaasFunctionBindingDto'
-    DeepOaasCompoundMemberDto:
-      type: object
-      properties:
-        name:
-          type: string
-        object:
-          $ref: '#/components/schemas/OaasObjectDto'
     DeepOaasFunctionBindingDto:
       type: object
       properties:
@@ -400,7 +376,7 @@ components:
         members:
           type: array
           items:
-            $ref: '#/components/schemas/DeepOaasCompoundMemberDto'
+            $ref: '#/components/schemas/OaasCompoundMemberDto'
     FuncType:
       enum:
       - LOGICAL
@@ -552,6 +528,8 @@ components:
         type:
           $ref: '#/components/schemas/StateType'
         baseUrl:
+          type: string
+        file:
           type: string
         records:
           type: string

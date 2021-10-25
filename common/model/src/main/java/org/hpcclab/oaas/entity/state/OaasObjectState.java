@@ -14,7 +14,7 @@ import java.util.Map;
 public class OaasObjectState {
   StateType type;
   String baseUrl;
-//  String file;
+  String file;
 //  List<String> files;
   @JsonRawValue
   String records;

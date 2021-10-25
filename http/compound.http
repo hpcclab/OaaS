@@ -1,0 +1,65 @@
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "RESOURCE",
+  "cls": "builtin.basic.file",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "http://test/test.ts"
+  }
+}
+
+> {%
+client.global.set("obj1_id", response.body.id)
+%}
+
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "RESOURCE",
+  "cls": "builtin.basic.file",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "http://test/test.ts"
+  }
+}
+
+> {%
+client.global.set("obj2_id", response.body.id)
+%}
+
+###
+
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "COMPOUND",
+  "cls": "builtin.basic.compound",
+  "members": [
+    {
+      "name": "obj1",
+      "object": "{{obj1_id}}"
+    },
+    {
+      "name": "obj2",
+      "object": "{{obj2_id}}"
+    }
+  ]
+}
+
+> {%
+client.global.set("compound_id", response.body.id)
+%}
+
+###
+
+GET {{oc}}/api/objects/{{compound_id}}/deep
+Accept: application/json

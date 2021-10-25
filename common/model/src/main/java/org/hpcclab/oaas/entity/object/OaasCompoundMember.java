@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Embeddable
 @Data
@@ -14,6 +15,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 public class OaasCompoundMember {
   String name;
+  @NotNull
+  @JoinColumn
   @ManyToOne(fetch = FetchType.LAZY)
   OaasObject object;
 }

@@ -24,5 +24,5 @@ public class DeepOaasObjectDto {
   Map<String, String> labels;
   List<DeepOaasFunctionBindingDto> functions = List.of();
   OaasObjectState state;
-  List<DeepOaasCompoundMemberDto> members;
+  List<OaasCompoundMemberDto> members;
 }

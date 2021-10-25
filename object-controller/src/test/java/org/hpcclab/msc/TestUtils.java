@@ -1,5 +1,6 @@
 package org.hpcclab.msc;
 
+import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.*;
@@ -94,5 +95,17 @@ public class TestUtils {
       .statusCode(200)
       .body("id", Matchers.notNullValue())
       .extract().body().as(OaasObjectDto.class);
+  }
+
+  public static List<OaasFunctionDto> createFunctionYaml(String function) {
+    return given()
+      .contentType("text/x-yaml")
+      .body(function)
+      .when().post("/api/functions/")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .extract().body().as(new TypeRef<List<OaasFunctionDto>>(){});
+
   }
 }

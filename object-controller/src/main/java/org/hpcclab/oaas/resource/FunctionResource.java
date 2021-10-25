@@ -32,43 +32,37 @@ public class FunctionResource implements FunctionService {
 
   public Uni<List<OaasFunctionDto>> list() {
     return funcRepo.find(
-        "select f from OaasFunction f left join fetch f.outputClasses")
+        "select f from OaasFunction f left join fetch f.outputCls")
       .list()
       .map(oaasMapper::toFuncDto);
   }
 
   @Transactional
-  public Uni<OaasFunctionDto> create(boolean update, OaasFunctionDto functionDto) {
-    return funcRepo.findById(functionDto.getName())
-      .flatMap(fn -> {
-        if (fn!=null && !update) {
-          if (update) {
-            oaasMapper.set(functionDto, fn);
-            return funcRepo.persist(fn);
-          } else {
-            throw new NoStackException("Function with this name already exist.")
-              .setCode(HttpResponseStatus.CONFLICT.code());
-          }
-        }
-//        return classRepo.listByNames(functionDto.getOutputClasses())
-//          .flatMap(classes -> {
-//            var func = oaasMapper.toFunc(functionDto);
-//            func.setOutputClasses(List.copyOf(classes));
-//            return funcRepo.persist(func);
-//          });
-
-        return funcRepo.save(functionDto);
-      })
-      .call(funcRepo::flush)
-      .map(oaasMapper::toFunc);
+  public Multi<OaasFunctionDto> create(boolean update, List<OaasFunctionDto> functionDtos) {
+    return Multi.createFrom().iterable(functionDtos)
+      .call(funcDto -> funcRepo.findById(funcDto.getName())
+          .flatMap(fn -> {
+            if (fn!=null && !update) {
+              if (update) {
+                oaasMapper.set(funcDto, fn);
+                return funcRepo.persist(fn);
+              } else {
+                throw new NoStackException("Function with this name already exist.")
+                  .setCode(HttpResponseStatus.CONFLICT.code());
+              }
+            }
+            return funcRepo.save(funcDto);
+          })
+          .call(funcRepo::flush)
+          .map(oaasMapper::toFunc)
+      );
   }
 
   @Transactional
   public Multi<OaasFunctionDto> createByYaml(boolean update, String body) {
     try {
       var funcs = yamlMapper.readValue(body, OaasFunctionDto[].class);
-      return Multi.createFrom().iterable(Arrays.asList(funcs))
-        .onItem().transformToUniAndConcatenate(f -> create(update, f));
+      return create(update, Arrays.asList(funcs));
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
     }
