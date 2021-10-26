@@ -13,7 +13,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.oaas.entity.task.TaskCompletion;
-import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.entity.task.OaasTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +46,8 @@ public class JobWatcher {
             .containsKey("oaas.task")) {
             return;
           }
-          Task task = Json.decodeValue(oldObj
-            .getMetadata().getAnnotations().get("oaas.task"), Task.class);
+          OaasTask task = Json.decodeValue(oldObj
+            .getMetadata().getAnnotations().get("oaas.task"), OaasTask.class);
           if (newObj.getStatus().getSucceeded()!=null &&
             newObj.getStatus().getSucceeded() >= 1) {
             submitTaskCompletion(newObj, task, true);
@@ -100,7 +100,7 @@ public class JobWatcher {
   }
 
   void submitTaskCompletion(Job job,
-                            Task task,
+                            OaasTask task,
                             boolean succeeded) {
     var url = task.getOutput().getState().getBaseUrl();
 //    var stateType =task.getOutput().getState().getType();

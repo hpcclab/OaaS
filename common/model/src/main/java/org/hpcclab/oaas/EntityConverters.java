@@ -6,7 +6,7 @@ import org.hpcclab.oaas.entity.function.OaasWorkflow;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.entity.object.OaasObjectRequirement;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
-import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.entity.task.OaasTask;
 import org.hpcclab.oaas.entity.task.TaskConfiguration;
 
 import javax.persistence.AttributeConverter;
@@ -89,15 +89,15 @@ public class EntityConverters {
     }
   }
   @Converter
-  public static class TaskConverter implements AttributeConverter<Task,String> {
+  public static class TaskConverter implements AttributeConverter<OaasTask,String> {
     @Override
-    public String convertToDatabaseColumn(Task attribute) {
+    public String convertToDatabaseColumn(OaasTask attribute) {
       return toJson(attribute);
     }
 
     @Override
-    public Task convertToEntityAttribute(String dbData) {
-      return fromJson(dbData, Task.class);
+    public OaasTask convertToEntityAttribute(String dbData) {
+      return fromJson(dbData, OaasTask.class);
     }
   }
   @Converter

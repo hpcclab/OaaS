@@ -6,7 +6,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.task.TaskFlow;
-import org.hpcclab.oaas.entity.task.Task;
+import org.hpcclab.oaas.entity.task.OaasTask;
 import org.hpcclab.oaas.model.FunctionExecContext;
 import org.hpcclab.oaas.model.ObjectResourceRequest;
 import io.smallrye.reactive.messaging.kafka.Record;
@@ -32,7 +32,7 @@ public class TaskHandler {
   TaskCompletionRepository taskCompletionRepo;
 
   @Channel("tasks")
-  Emitter<Record<String, Task>> tasksEmitter;
+  Emitter<Record<String, OaasTask>> tasksEmitter;
   @Inject
   ObjectService objectService;
 

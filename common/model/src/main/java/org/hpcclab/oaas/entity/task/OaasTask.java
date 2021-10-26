@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Task {
+public class OaasTask {
   String id;
   OaasObjectDto main;
   OaasObjectDto output;

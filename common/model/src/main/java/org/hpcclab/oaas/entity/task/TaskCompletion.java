@@ -15,7 +15,6 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
-//  @BsonId
   @Id
   String id;
   UUID mainObj;

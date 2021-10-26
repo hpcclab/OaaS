@@ -1,7 +1,5 @@
 package org.hpcclab.oaas.entity.task;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -20,12 +18,10 @@ import javax.persistence.*;
 public class TaskFlow {
   @Id
   String id;
-  @JsonIgnore
   @OneToOne
   OaasObject output;
   @Convert(converter = EntityConverters.TaskConverter.class)
   @Column(columnDefinition = "jsonb")
-  Task task;
+  OaasTask task;
   Boolean submitted = false;
-
 }
