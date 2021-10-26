@@ -52,10 +52,9 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
       var funcs = objectDto.getFunctions()
         .stream()
-        .map(fb -> new OaasFunctionBinding())
-        .peek(fb -> fb
-          .setAccess(fb.getAccess())
-          .setFunction(session.getReference(OaasFunction.class, fb.getFunction()))
+        .map(fbDto ->  new OaasFunctionBinding()
+              .setAccess(fbDto.getAccess())
+              .setFunction(session.getReference(OaasFunction.class, fbDto.getFunction()))
         )
         .collect(Collectors.toSet());
       root.setFunctions(funcs);
@@ -175,6 +174,8 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         """, id)
       .singleResult();
   }
+
+
 
   public Uni<List<OaasObject>> list() {
     return find(

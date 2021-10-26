@@ -90,10 +90,6 @@ public class MacroFunctionHandler {
           .stream()
           .map(ir -> resolveTarget(context, map, ir))
           .toList();
-//        var newCtx = oaasMapper.copy(context)
-//          .setFunction(functionBinding.getFunction())
-//          .setMain(target)
-//          .setAdditionalInputs(inputRefs);
         return contextLoader.loadCtx(context, target, step)
           .invoke(ctx -> ctx.setAdditionalInputs(inputRefs))
           .flatMap(ctx -> router.functionCall(ctx))

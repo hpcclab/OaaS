@@ -37,43 +37,45 @@ public class ContextLoader {
 
   public Uni<FunctionExecContext> loadCtx(FunctionCallRequest request) {
     return objectRepo
-      .findById(request.getTarget())
-      .call(obj -> Mutiny.fetch(obj.getCls()))
-      .call(obj -> Mutiny.fetch(obj.getCls().getFunctions()))
-      .call(obj -> Mutiny.fetch(obj.getFunctions()))
+      .getDeep(request.getTarget())
       .flatMap(object -> {
-        var ctx = new FunctionExecContext().setEntry(object)
+        var fec = new FunctionExecContext().setEntry(object)
           .setMain(object)
           .setArgs(request.getArgs());
         if (request.getAdditionalInputs()!=null && !request.getAdditionalInputs().isEmpty()) {
           return objectRepo.listByIds(request.getAdditionalInputs())
-            .map(ctx::setAdditionalInputs);
+            .map(fec::setAdditionalInputs);
         } else {
-          return Uni.createFrom().item(ctx);
+          return Uni.createFrom().item(fec);
         }
       })
-      .call(ctx -> {
-        if (ctx.getMain().getType() == OaasObject.ObjectType.COMPOUND){
-          return Mutiny.fetch(ctx.getMain().getMembers());
-        }
-        return Uni.createFrom().item(ctx);
-      })
-      .map(ctx -> {
+//      .flatMap(fec -> {
+//        if (fec.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
+//         return Multi.createFrom().iterable(fec.getMain().getMembers())
+//            .onItem().transformToUniAndMerge(member -> objectRepo.refreshWithDeep(member.getObject())
+//               .map(obj -> new OaasCompoundMember().setName(member.getName()).setObject(obj))
+//            )
+//            .collect().last().map(member -> fec);
+//        } else {
+//          return Uni.createFrom().item(fec);
+//        }
+//      })
+      .map(fec -> {
         var fnName = request.getFunctionName();
         var binding = Stream.concat(
-            ctx.getMain().getFunctions().stream(),
-            ctx.getMain().getCls().getFunctions().stream()
+            fec.getMain().getFunctions().stream(),
+            fec.getMain().getCls().getFunctions().stream()
           )
           .filter(fb -> fb.getFunction().getName().equals(fnName))
           .findAny()
           .orElseThrow(() -> new NoStackException("No function with name '%s' available in object '%s'"
-            .formatted(fnName, ctx.getMain().getId().toString())
+            .formatted(fnName, fec.getMain().getId().toString())
           ));
-        return ctx.setFunction(binding.getFunction())
+        return fec.setFunction(binding.getFunction())
           .setFunctionAccess(binding.getAccess());
       })
-      .call(fec -> Mutiny.fetch(fec.getFunction()))
       .call(fec -> Mutiny.fetch(fec.getFunction().getOutputCls()))
+      .invoke(fec -> session.clear())
       .invoke(() -> LOGGER.debug("successfully load context of '{}'", request.getTarget()));
   }
 
@@ -83,20 +85,17 @@ public class ContextLoader {
     var newCtx = oaasMapper.copy(baseCtx);
     return objectRepo.getSession()
       .flatMap(ss -> objectRepo.getDeep(main.getId())
-//        .invoke(newMain -> LOGGER.info("main {}", newMain.getCls()))
-//        .call(newMain -> ss.refresh(newMain))
-//        .call(newMain -> ss.fetch(newMain.getCls()))
-//        .call(newMain -> ss.fetch(newMain.getCls().getFunctions()))
-//        .call(newMain -> ss.fetch(newMain.getFunctions()))
         .flatMap(newMain -> {
-          LOGGER.info("main (after fetch) {} {}", newMain, newMain.getCls());
-          newCtx.setMain(main);
+          LOGGER.info("main (after fetch) {}", Json.encodePrettily(newMain));
+          newCtx.setMain(newMain);
           var functionBinding = Stream.concat(
-              main.getFunctions().stream(),
-              main.getCls().getFunctions().stream()
+              newMain.getFunctions().stream(),
+              newMain.getCls().getFunctions().stream()
             )
             .filter(fb -> fb.getFunction().getName().equals(step.getFuncName()))
             .findFirst().orElseThrow();
+          newCtx.setFunction(functionBinding.getFunction());
+          newCtx.setFunctionAccess(functionBinding.getAccess());
           return Mutiny.fetch(functionBinding.getFunction().getOutputCls());
         })
         .map(o -> newCtx)
