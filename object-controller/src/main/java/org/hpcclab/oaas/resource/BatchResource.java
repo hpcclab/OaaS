@@ -7,7 +7,11 @@ import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactiona
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
+import org.hpcclab.oaas.entity.function.OaasFunction;
+import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.model.OaasClassDto;
+import org.hpcclab.oaas.model.OaasFunctionBindingDto;
 import org.hpcclab.oaas.service.BatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +54,26 @@ public class BatchResource implements BatchService {
         return func;
       })
       .toList();
+    var functionMap = functions.stream()
+      .collect(Collectors.toMap(OaasFunction::getName, Function.identity()));
+    for (OaasClassDto clsDto : batch.getClasses()) {
+      for (OaasFunctionBindingDto bindingDto : clsDto.getFunctions()) {
+        if (functionMap.containsKey(bindingDto.getFunction())) {
+          var fb =new OaasFunctionBinding();
+          fb.setAccess(bindingDto.getAccess())
+            .setFunction(functionMap.get(bindingDto.getFunction()));
+          classMap.get(clsDto.getName()).getFunctions()
+            .add(fb);
+        } else {
+          var fb =new OaasFunctionBinding();
+          fb.setAccess(bindingDto.getAccess())
+            .setFunction(session.getReference(OaasFunction.class,
+              bindingDto.getFunction()));
+          classMap.get(clsDto.getName()).getFunctions()
+            .add(fb);
+        }
+      }
+    }
     return session.persistAll(classes.toArray())
       .flatMap(v -> session.persistAll(functions.toArray()))
       .call(session::flush)

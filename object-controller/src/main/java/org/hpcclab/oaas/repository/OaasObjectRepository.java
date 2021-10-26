@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.repository;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.function.OaasFunction;
@@ -19,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityGraph;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,7 +52,9 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
       var funcs = objectDto.getFunctions()
         .stream()
-        .map(fb -> new OaasFunctionBinding().setAccess(fb.getAccess())
+        .map(fb -> new OaasFunctionBinding())
+        .peek(fb -> fb
+          .setAccess(fb.getAccess())
           .setFunction(session.getReference(OaasFunction.class, fb.getFunction()))
         )
         .collect(Collectors.toSet());
@@ -184,16 +185,5 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         left join fetch o.members
         """)
       .list();
-  }
-
-  public Uni<OaasObject> resolveFunction(UUID id) {
-    return getSession().flatMap(session -> getDeep(id)
-      .invoke(session::detach)
-      .invoke(o -> {
-        var fns = new HashSet<>(o.getCls().getFunctions());
-        fns.addAll(o.getFunctions());
-        o.setFunctions(fns);
-      })
-    );
   }
 }

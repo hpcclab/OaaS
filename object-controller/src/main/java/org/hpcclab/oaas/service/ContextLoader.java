@@ -37,45 +37,43 @@ public class ContextLoader {
 
   public Uni<FunctionExecContext> loadCtx(FunctionCallRequest request) {
     return objectRepo
-      .getDeep(request.getTarget())
+      .findById(request.getTarget())
+      .call(obj -> Mutiny.fetch(obj.getCls()))
+      .call(obj -> Mutiny.fetch(obj.getCls().getFunctions()))
+      .call(obj -> Mutiny.fetch(obj.getFunctions()))
       .flatMap(object -> {
-        var fec = new FunctionExecContext().setEntry(object)
+        var ctx = new FunctionExecContext().setEntry(object)
           .setMain(object)
           .setArgs(request.getArgs());
         if (request.getAdditionalInputs()!=null && !request.getAdditionalInputs().isEmpty()) {
           return objectRepo.listByIds(request.getAdditionalInputs())
-            .map(fec::setAdditionalInputs);
+            .map(ctx::setAdditionalInputs);
         } else {
-          return Uni.createFrom().item(fec);
+          return Uni.createFrom().item(ctx);
         }
       })
-//      .flatMap(fec -> {
-//        if (fec.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
-//         return Multi.createFrom().iterable(fec.getMain().getMembers())
-//            .onItem().transformToUniAndMerge(member -> objectRepo.refreshWithDeep(member.getObject())
-//               .map(obj -> new OaasCompoundMember().setName(member.getName()).setObject(obj))
-//            )
-//            .collect().last().map(member -> fec);
-//        } else {
-//          return Uni.createFrom().item(fec);
-//        }
-//      })
-      .map(fec -> {
+      .call(ctx -> {
+        if (ctx.getMain().getType() == OaasObject.ObjectType.COMPOUND){
+          return Mutiny.fetch(ctx.getMain().getMembers());
+        }
+        return Uni.createFrom().item(ctx);
+      })
+      .map(ctx -> {
         var fnName = request.getFunctionName();
         var binding = Stream.concat(
-            fec.getMain().getFunctions().stream(),
-            fec.getMain().getCls().getFunctions().stream()
+            ctx.getMain().getFunctions().stream(),
+            ctx.getMain().getCls().getFunctions().stream()
           )
           .filter(fb -> fb.getFunction().getName().equals(fnName))
           .findAny()
           .orElseThrow(() -> new NoStackException("No function with name '%s' available in object '%s'"
-            .formatted(fnName, fec.getMain().getId().toString())
+            .formatted(fnName, ctx.getMain().getId().toString())
           ));
-        return fec.setFunction(binding.getFunction())
+        return ctx.setFunction(binding.getFunction())
           .setFunctionAccess(binding.getAccess());
       })
+      .call(fec -> Mutiny.fetch(fec.getFunction()))
       .call(fec -> Mutiny.fetch(fec.getFunction().getOutputCls()))
-      .invoke(fec -> session.clear())
       .invoke(() -> LOGGER.debug("successfully load context of '{}'", request.getTarget()));
   }
 
@@ -84,15 +82,14 @@ public class ContextLoader {
                                           OaasWorkflowStep step) {
     var newCtx = oaasMapper.copy(baseCtx);
     return objectRepo.getSession()
-      .invoke(Mutiny.Session::clear)
-      .flatMap(ss -> objectRepo.findById(main.getId())
-        .invoke(newMain -> LOGGER.info("main {}", newMain.getCls()))
-        .call(newMain -> ss.refresh(newMain))
-        .call(newMain -> ss.fetch(newMain.getCls()))
-        .call(newMain -> ss.fetch(newMain.getCls().getFunctions()))
-        .call(newMain -> ss.fetch(newMain.getFunctions()))
+      .flatMap(ss -> objectRepo.getDeep(main.getId())
+//        .invoke(newMain -> LOGGER.info("main {}", newMain.getCls()))
+//        .call(newMain -> ss.refresh(newMain))
+//        .call(newMain -> ss.fetch(newMain.getCls()))
+//        .call(newMain -> ss.fetch(newMain.getCls().getFunctions()))
+//        .call(newMain -> ss.fetch(newMain.getFunctions()))
         .flatMap(newMain -> {
-          LOGGER.info("main (after fetch) {}", Json.encodePrettily(newMain));
+          LOGGER.info("main (after fetch) {} {}", newMain, newMain.getCls());
           newCtx.setMain(main);
           var functionBinding = Stream.concat(
               main.getFunctions().stream(),

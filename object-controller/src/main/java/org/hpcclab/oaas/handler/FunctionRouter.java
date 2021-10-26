@@ -30,6 +30,7 @@ public class FunctionRouter {
 
 
   public Uni<OaasObject> functionCall(FunctionExecContext context) {
+    LOGGER.debug("functionCall context.function {}", context.getFunction());
     var type = context.getFunction().getType();
     return switch (type) {
       case LOGICAL -> {

@@ -45,7 +45,7 @@ quarkus:
       group-id: org.hpcclab.msc
   log:
     category:
-      "org.hpcclab.msc":
+      "org.hpcclab.oaas":
         level: DEBUG
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}

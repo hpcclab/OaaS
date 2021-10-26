@@ -3,6 +3,7 @@ package org.hpcclab.oaas.entity.object;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
+import org.hpcclab.oaas.entity.BaseEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,10 +15,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class OaasCompoundMember {
-  @Id
-  @GeneratedValue
-  Long id;
+public class OaasCompoundMember extends BaseEntity {
 
   String name;
 

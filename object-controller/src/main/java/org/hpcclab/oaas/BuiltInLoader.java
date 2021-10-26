@@ -2,6 +2,7 @@ package org.hpcclab.oaas;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
 import org.hpcclab.oaas.model.OaasClassDto;
@@ -26,7 +27,6 @@ public class BuiltInLoader {
   BatchService batchService;
 
   @Transactional
-  @Blocking
   void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException {
     mapper = new ObjectMapper(new YAMLFactory());
 
@@ -59,7 +59,7 @@ public class BuiltInLoader {
       .setFunctions(functions);
 
     batchService.create(batch)
-      .subscribeAsCompletionStage().join();
+      .subscribeAsCompletionStage().get();
   }
 
   <T> Stream<T> loadFile(Class<T> cls, String... files) {

@@ -8,7 +8,6 @@ import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 @Entity

@@ -7,6 +7,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.msc.TestUtils;
+import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
@@ -73,7 +74,8 @@ public class ObjectResourceTest {
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
     var fb = List.of(
-      new OaasFunctionBindingDto(AccessModifier.PUBLIC,"builtin.hls.ts.transcode")
+      new OaasFunctionBindingDto(AccessModifier.PUBLIC,
+        "builtin.hls.ts.transcode")
     );
     given()
       .contentType(MediaType.APPLICATION_JSON)

@@ -78,11 +78,6 @@ public interface OaasMapper {
 
   void set(OaasObjectDto objectDto, @MappingTarget OaasObject object);
 
-  default OaasFunctionBinding toBinding(OaasFunctionBindingDto bindingDto) {
-    return new OaasFunctionBinding().setAccess(bindingDto.getAccess())
-      .setFunction(new OaasFunction().setName(bindingDto.getFunction()));
-  }
-
   List<OaasFunctionBinding> toBinding(List<OaasFunctionBindingDto> bindingDto);
 
   default OaasFunctionBindingDto toBindingDto(OaasFunctionBinding binding) {

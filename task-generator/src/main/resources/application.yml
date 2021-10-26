@@ -31,7 +31,7 @@ quarkus:
     base-jvm-image: eclipse-temurin:17-alpine
   log:
     category:
-      "org.hpcclab.msc":
+      "org.hpcclab.oaas":
         level: DEBUG
   mongodb:
     database: msc-task

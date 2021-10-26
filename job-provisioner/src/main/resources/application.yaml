@@ -28,7 +28,7 @@ quarkus:
     color: true
   log:
     category:
-      "org.hpcclab.msc":
+      "org.hpcclab.oaas":
         level: DEBUG
 mp:
   messaging:
