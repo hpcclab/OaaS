@@ -80,7 +80,7 @@ public class OaasObject extends BaseUuidEntity {
   @Column(columnDefinition = "jsonb")
   OaasObjectState state;
 
-  @ElementCollection
+  @ElementCollection()
   @LazyCollection(LazyCollectionOption.FALSE)
   List<OaasCompoundMember> members;
 

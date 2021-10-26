@@ -3,9 +3,9 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.impl.verticle.JavaSourceContext;
-import io.vertx.core.json.Json;
 import org.hibernate.reactive.mutiny.Mutiny;
+import org.hpcclab.oaas.entity.function.OaasFunction;
+import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.exception.NoStackException;
@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityGraph;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,14 +34,14 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
   OaasClassRepository classRepo;
 
 
-  public Uni<OaasObject> createRootAndPersist(OaasObjectDto object) {
-    var root = oaasMapper.toObject(object);
+  public Uni<OaasObject> createRootAndPersist(OaasObjectDto objectDto) {
+    var root = oaasMapper.toObject(objectDto);
     root.setOrigin(null);
     root.setId(null);
     root.format();
     return getSession().flatMap(session -> {
       if (root.getType()==OaasObject.ObjectType.COMPOUND) {
-        var newMembers = object.getMembers().stream()
+        var newMembers = objectDto.getMembers().stream()
           .map(member -> {
             return new OaasCompoundMember().setName(member.getName())
               .setObject(session.getReference(OaasObject.class, member.getObject()));
@@ -48,6 +49,13 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
           .toList();
         root.setMembers(newMembers);
       }
+
+      var funcs = objectDto.getFunctions()
+        .stream()
+        .map(fb -> new OaasFunctionBinding().setAccess(fb.getAccess())
+          .setFunction(session.getReference(OaasFunction.class, fb.getFunction()))
+        ).toList();
+      root.setFunctions(funcs);
       return this.persist(root);
     });
   }
@@ -62,7 +70,12 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         var map = objs.stream()
           .collect(Collectors.toMap(OaasObject::getId, Function.identity()));
         return ids.stream()
-          .map(map::get)
+          .map(id -> {
+            if (!map.containsKey(id))
+              throw new NoStackException("Not found object(id='" + id + "')", 400);
+            else
+              return map.get(id);
+          })
           .toList();
       });
   }
@@ -86,39 +99,65 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
   public Uni<OaasObject> getDeep(UUID id) {
     return getSession().flatMap(session -> {
       var objGraph = session.getEntityGraph(OaasObject.class, "oaas.object.deep");
+      return findWithGraph(id, session, objGraph);
+    });
+  }
+
+  public Uni<OaasObject> getDeepWithMembers(UUID id) {
+    return getSession().flatMap(session -> {
+      var objGraph = session.getEntityGraph(OaasObject.class, "oaas.object.deep");
       return session.find(objGraph, id)
         .onItem().ifNull().failWith(() -> new NoStackException("Not found object(id='" + id + "')", 404))
         .invoke(session::detach)
         .flatMap(obj -> {
-//            if (obj.getCls()==null) {
-//              return Uni.createFrom().item(obj);
-//            }
-//            session.detach(obj.getCls());
+            if (obj.getCls()==null) {
+              return Uni.createFrom().item(obj);
+            }
+            session.detach(obj.getCls());
             return classRepo.getDeep(obj.getCls().getName())
               .map(obj::setCls);
           }
-        );
+        )
+        .flatMap(obj -> {
+          if (obj.getType()!=OaasObject.ObjectType.COMPOUND) {
+            return Uni.createFrom().item(obj);
+          }
+          return Multi.createFrom().iterable(obj.getMembers())
+            .call(member -> {
+              session.detach(member.getObject());
+              return getDeepWithMembers(member.getObject().getId())
+                .invoke(member::setObject);
+            })
+            .collect().last()
+            .map(ignore -> obj);
+        });
     });
   }
 
   public Uni<OaasObject> refreshWithDeep(OaasObject oaasObject) {
-    var id =oaasObject.getId();
     return getSession().flatMap(session -> {
       var objGraph = session.getEntityGraph(OaasObject.class, "oaas.object.deep");
+      var id = oaasObject.getId();
       session.detach(oaasObject);
-      return session.find(objGraph, id)
-        .onItem().ifNull().failWith(() -> new NoStackException("Not found object(id='" + id + "')", 404))
-        .invoke(session::detach)
-        .flatMap(obj -> {
-//            if (obj.getCls()==null) {
-//              return Uni.createFrom().item(obj);
-//            }
-//            session.detach(obj.getCls());
-            return classRepo.getDeep(obj.getCls().getName())
-              .map(obj::setCls);
-          }
-        );
+      return findWithGraph(id, session, objGraph);
     });
+  }
+
+  private Uni<? extends OaasObject> findWithGraph(UUID id,
+                                                  Mutiny.Session session,
+                                                  EntityGraph<OaasObject> objGraph) {
+    return session.find(objGraph, id)
+      .onItem().ifNull()
+      .failWith(() -> new NoStackException("Not found object(id='" + id + "')", 404))
+      .flatMap(obj -> {
+          if (obj.getCls()==null) {
+            return Uni.createFrom().item(obj);
+          }
+          session.detach(obj.getCls());
+          return classRepo.getDeep(obj.getCls().getName())
+            .map(obj::setCls);
+        }
+      );
   }
 
 

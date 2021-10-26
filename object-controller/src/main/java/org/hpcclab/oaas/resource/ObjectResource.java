@@ -2,6 +2,8 @@ package org.hpcclab.oaas.resource;
 
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
+import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
@@ -40,8 +42,10 @@ public class ObjectResource implements ObjectService {
 
   @ReactiveTransactional
   public Uni<OaasObjectDto> create(OaasObjectDto creating) {
+    LOGGER.info("create {} ", Json.encodePrettily(creating));
     return objectRepo.createRootAndPersist(creating)
-      .map(oaasMapper::toObject);
+      .map(oaasMapper::toObject)
+      .onFailure().invoke(e -> LOGGER.error("error",e));
   }
 
 
@@ -58,6 +62,9 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::deep);
   }
 
+  public Uni<OaasObject> getFullGraph(String id) {
+    return objectRepo.getDeep(UUID.fromString(id));
+  }
 
   public Uni<OaasObjectDto> bindFunction(String id,
                                          List<OaasFunctionBindingDto> bindingDtoList) {

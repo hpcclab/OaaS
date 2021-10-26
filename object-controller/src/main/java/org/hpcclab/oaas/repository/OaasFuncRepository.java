@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
+import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.OaasFunctionDto;
@@ -10,12 +11,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, String> {
 
   @Inject
   OaasMapper oaasMapper;
+  @Inject
+  Mutiny.SessionFactory sessionFactory;
 
   public Uni<OaasFunction> findByName(String name) {
     return findById(name);
@@ -27,5 +31,13 @@ public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, S
 
   public Uni<OaasFunction> save(OaasFunctionDto functionDto) {
     return persist(oaasMapper.toFunc(functionDto));
+  }
+
+  public Uni<OaasFunction> findWithClass(String name) {
+    return find("""
+      select f from OaasFunction f
+      left join fetch f.outputCls
+      where f.name = ?1
+      """, name).firstResult();
   }
 }

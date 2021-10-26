@@ -17,6 +17,6 @@ public class OaasCompoundMember {
   String name;
   @NotNull
   @JoinColumn
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
   OaasObject object;
 }

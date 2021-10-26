@@ -17,7 +17,7 @@ public interface FunctionService {
   Uni<List<OaasFunctionDto>> list();
 
   @POST
-  Multi<OaasFunctionDto> create(
+  Uni<List<OaasFunctionDto>> create(
     @DefaultValue("false") @QueryParam("update") boolean update,
     @Valid List<OaasFunctionDto> function
   );
@@ -25,7 +25,7 @@ public interface FunctionService {
   @POST
 //  @Path("-/yaml")
   @Consumes("text/x-yaml")
-  Multi<OaasFunctionDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
+  Uni<List<OaasFunctionDto>> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                       String body);
 
   @GET

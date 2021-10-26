@@ -131,10 +131,12 @@ public class ObjectResourceTest {
       .body("members.name", hasItems("obj1","obj2"))
       .body("members.object", hasItems(obj1.getId().toString(),obj2.getId().toString()));
 
+    compound = TestUtils.bind(compound, List.of(
+      new OaasFunctionBindingDto().setFunction("test.dummy.compound")
+    ));
+
     var newObj = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(compound.getId()));
-
-
+      new FunctionCallRequest().setFunctionName("test.dummy.compound").setTarget(compound.getId()));
   }
 
 }

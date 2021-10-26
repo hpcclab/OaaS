@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.FunctionCallRequest;
 import org.hpcclab.oaas.model.OaasFunctionBindingDto;
@@ -28,6 +29,10 @@ public interface ObjectService {
   @GET
   @Path("{id}/deep")
   Uni<DeepOaasObjectDto> getDeep(String id);
+
+  @GET
+  @Path("{id}/full-graph")
+  Uni<OaasObject> getFullGraph(String id);
 
   @POST
   @Path("{id}/binds")

@@ -7,6 +7,7 @@ import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,4 +22,5 @@ public class FunctionExecContext {
   OaasFunctionBinding.AccessModifier functionAccess;
   Map<String, String> args= Map.of();
   List<OaasObject> additionalInputs = List.of();
+//  List<OaasObject> outputObjects = new ArrayList<>();
 }

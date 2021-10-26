@@ -2,6 +2,7 @@ package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasWorkflow;
@@ -12,6 +13,7 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.FunctionExecContext;
 import org.hpcclab.oaas.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.service.ContextLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,8 @@ public class MacroFunctionHandler {
   @Inject
   FunctionRouter router;
   @Inject
+  ContextLoader contextLoader;
+  @Inject
   OaasMapper oaasMapper;
 
   public void validate(FunctionExecContext context) {
@@ -39,6 +43,7 @@ public class MacroFunctionHandler {
   }
 
   private OaasObject resolveTarget(FunctionExecContext context, Map<String, OaasObject> workflowMap, String value) {
+    if (value.equals("$self")) return context.getMain();
     if (workflowMap.containsKey(value)) {
       return workflowMap.get(value);
     }
@@ -57,6 +62,7 @@ public class MacroFunctionHandler {
     validate(context);
 
     var func = context.getFunction();
+    LOGGER.info("func {}", Json.encodePrettily(func));
     var output = OaasObject.createFromClasses(context.getFunction().getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
 
@@ -77,19 +83,17 @@ public class MacroFunctionHandler {
     return Multi.createFrom().iterable(workflow.getSteps())
       .call(step -> {
         var target = resolveTarget(context, map, step.getTarget());
-        var functionBinding = target.getFunctions()
-          .stream()
-          .filter(fb -> fb.getFunction().getName().equals(step.getFuncName()))
-          .findAny().orElseThrow();
         var inputRefs = step.getInputRefs()
           .stream()
           .map(ir -> resolveTarget(context, map, ir))
           .toList();
-        var newCtx = oaasMapper.copy(context)
-          .setFunction(functionBinding.getFunction())
-          .setMain(target)
-          .setAdditionalInputs(inputRefs);
-        return router.functionCall(newCtx)
+//        var newCtx = oaasMapper.copy(context)
+//          .setFunction(functionBinding.getFunction())
+//          .setMain(target)
+//          .setAdditionalInputs(inputRefs);
+        return contextLoader.loadCtx(context, target, step)
+          .invoke(ctx -> ctx.setAdditionalInputs(inputRefs))
+          .flatMap(ctx -> router.functionCall(ctx))
           .invoke(obj -> map.put(step.getAs(), obj));
       })
       .collect().last()

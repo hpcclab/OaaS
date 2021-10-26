@@ -2,6 +2,7 @@ package org.hpcclab.msc.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.Json;
+import org.hamcrest.Matchers;
 import org.hpcclab.msc.TestUtils;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.hasItems;
 
 @QuarkusTest
 public class FunctionResourceTest {
@@ -57,6 +62,11 @@ public class FunctionResourceTest {
   @Test
   void create() {
     var functionList = TestUtils.createFunctionYaml(DUMMY_FUNCTION);
-//    LOGGER.debug("functionList {}", Json.encodePrettily(functionList));
+    given()
+      .when().get("/api/functions")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("name", hasItems("test.dummy.resource","test.dummy.compound"));
   }
 }
