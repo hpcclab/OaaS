@@ -457,6 +457,9 @@ components:
       - object
       type: object
       properties:
+        id:
+          format: int64
+          type: integer
         name:
           type: string
         object:

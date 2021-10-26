@@ -15,9 +15,8 @@ import java.util.UUID;
 @MappedSuperclass
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class BaseEntity {
   @Id
   @GeneratedValue()
-  Long id;
+  protected Long id;
 }

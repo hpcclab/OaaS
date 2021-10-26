@@ -23,5 +23,5 @@ public class BaseUuidEntity {
     name = "UUID",
     strategy = "org.hibernate.id.UUIDGenerator"
   )
-  UUID id;
+  protected UUID id;
 }

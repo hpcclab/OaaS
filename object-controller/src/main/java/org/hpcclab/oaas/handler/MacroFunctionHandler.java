@@ -71,7 +71,9 @@ public class MacroFunctionHandler {
       .flatMap(wfResults -> {
         var mem = func.getMacro().getExports()
           .stream()
-          .map(export -> new OaasCompoundMember(export.getAs(), wfResults.get(export.getFrom())))
+          .map(export -> new OaasCompoundMember()
+            .setName(export.getAs())
+            .setObject(wfResults.get(export.getFrom())))
           .collect(Collectors.toUnmodifiableSet());
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);

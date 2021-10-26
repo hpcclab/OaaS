@@ -59,7 +59,7 @@ public class BuiltInLoader {
       .setFunctions(functions);
 
     batchService.create(batch)
-      .subscribeAsCompletionStage().get();
+      .subscribeAsCompletionStage().join();
   }
 
   <T> Stream<T> loadFile(Class<T> cls, String... files) {

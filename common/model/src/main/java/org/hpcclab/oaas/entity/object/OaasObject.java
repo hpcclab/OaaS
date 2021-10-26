@@ -1,12 +1,9 @@
 package org.hpcclab.oaas.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.Hibernate;
 import org.hpcclab.oaas.EntityConverters;
 import org.hpcclab.oaas.entity.BaseUuidEntity;
 import org.hpcclab.oaas.entity.OaasClass;
@@ -14,12 +11,14 @@ import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
@@ -28,25 +27,29 @@ import java.util.UUID;
 @NamedEntityGraph(
   name = "oaas.object.deep",
   attributeNodes = {
-//    @NamedAttributeNode(
-//      value = "cls",
-//      subgraph = "oaas.classes.deep"
-//    ),
+    @NamedAttributeNode(
+      value = "cls",
+      subgraph = "oaas.classes.deep"
+    ),
+    @NamedAttributeNode(
+      value = "members"
+    ),
     @NamedAttributeNode(
       value = "functions",
       subgraph = "oaas.functionBinding.deep"
     )
   },
   subgraphs = {
-//    @NamedSubgraph(name = "oaas.classes.deep",
-//      attributeNodes = @NamedAttributeNode(value = "functions"
-////        ,
-////        subgraph = "oaas.functionBinding.tree"
-//      )),
+    @NamedSubgraph(name = "oaas.classes.deep",
+      attributeNodes = @NamedAttributeNode(value = "functions"
+//        ,
+//        subgraph = "oaas.functionBinding.tree"
+      )),
     @NamedSubgraph(name = "oaas.functionBinding.deep",
       attributeNodes = @NamedAttributeNode(value = "function"
 //        , subgraph = "oaas.function.tree"
-      ))
+      )),
+
 //    ,
 //    @NamedSubgraph(name = "oaas.function.tree",
 //      attributeNodes = @NamedAttributeNode(value = "outputCls"))
@@ -67,6 +70,7 @@ public class OaasObject extends BaseUuidEntity {
   AccessModifier access = AccessModifier.PUBLIC;
 
   @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+  @ToString.Exclude
   OaasClass cls;
 
   @SuppressWarnings("JpaAttributeTypeInspection")
@@ -81,8 +85,9 @@ public class OaasObject extends BaseUuidEntity {
   @Column(columnDefinition = "jsonb")
   OaasObjectState state;
 
-  @ElementCollection
-  @LazyCollection(LazyCollectionOption.FALSE)
+  @OneToMany(cascade = CascadeType.ALL)
+  @JoinColumn(name = "owner_id")
+  @ToString.Exclude
   Set<OaasCompoundMember> members;
 
   public enum ObjectType {
@@ -135,5 +140,18 @@ public class OaasObject extends BaseUuidEntity {
   @Override
   public OaasObject setId(UUID id) {
     return (OaasObject) super.setId(id);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this==o) return true;
+    if (o==null || Hibernate.getClass(this)!=Hibernate.getClass(o)) return false;
+    OaasObject that = (OaasObject) o;
+    return id!=null && Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

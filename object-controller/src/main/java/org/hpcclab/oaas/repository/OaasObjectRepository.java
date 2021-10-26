@@ -110,29 +110,29 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
       var objGraph = session.getEntityGraph(OaasObject.class, "oaas.object.deep");
       return session.find(objGraph, id)
         .onItem().ifNull().failWith(() -> new NoStackException("Not found object(id='" + id + "')", 404))
-        .invoke(session::detach)
-        .flatMap(obj -> {
-            if (obj.getCls()==null) {
-              return Uni.createFrom().item(obj);
-            }
-            session.detach(obj.getCls());
-            return classRepo.getDeep(obj.getCls().getName())
-              .map(obj::setCls);
-          }
-        )
-        .flatMap(obj -> {
-          if (obj.getType()!=OaasObject.ObjectType.COMPOUND) {
-            return Uni.createFrom().item(obj);
-          }
-          return Multi.createFrom().iterable(obj.getMembers())
-            .call(member -> {
-              session.detach(member.getObject());
-              return getDeepWithMembers(member.getObject().getId())
-                .invoke(member::setObject);
-            })
-            .collect().last()
-            .map(ignore -> obj);
-        });
+        .invoke(session::detach);
+//        .flatMap(obj -> {
+//            if (obj.getCls()==null) {
+//              return Uni.createFrom().item(obj);
+//            }
+//            session.detach(obj.getCls());
+//            return classRepo.getDeep(obj.getCls().getName())
+//              .map(obj::setCls);
+//          }
+//        )
+//        .flatMap(obj -> {
+//          if (obj.getType()!=OaasObject.ObjectType.COMPOUND) {
+//            return Uni.createFrom().item(obj);
+//          }
+//          return Multi.createFrom().iterable(obj.getMembers())
+//            .call(member -> {
+//              session.detach(member.getObject());
+//              return getDeepWithMembers(member.getObject().getId())
+//                .invoke(member::setObject);
+//            })
+//            .collect().last()
+//            .map(ignore -> obj);
+//        });
     });
   }
 
@@ -169,6 +169,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         select o
         from OaasObject o
         left join fetch o.functions
+        left join fetch o.members
         where o.id = ?1
         """, id)
       .singleResult();
@@ -180,6 +181,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         select o
         from OaasObject o
         left join fetch o.functions
+        left join fetch o.members
         """)
       .list();
   }
