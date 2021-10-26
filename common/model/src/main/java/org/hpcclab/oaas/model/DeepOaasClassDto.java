@@ -7,6 +7,7 @@ import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Accessors(chain = true)
@@ -15,5 +16,5 @@ public class DeepOaasClassDto {
   String name;
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
-  List<DeepOaasFunctionBindingDto> functions;
+  Set<DeepOaasFunctionBindingDto> functions;
 }

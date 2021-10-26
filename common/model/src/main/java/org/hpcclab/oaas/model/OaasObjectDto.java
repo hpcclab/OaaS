@@ -7,10 +7,7 @@ import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Accessors(chain = true)
@@ -23,7 +20,7 @@ public class OaasObjectDto {
   OaasObject.AccessModifier access = OaasObject.AccessModifier.PUBLIC;
   String cls;
   Map<String, String> labels;
-  List<OaasFunctionBindingDto> functions = new ArrayList<>();
+  Set<OaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
-  List<OaasCompoundMemberDto> members;
+  Set<OaasCompoundMemberDto> members;
 }

@@ -354,6 +354,7 @@ components:
         stateType:
           $ref: '#/components/schemas/StateType'
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/DeepOaasFunctionBindingDto'
@@ -385,12 +386,14 @@ components:
           additionalProperties:
             type: string
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/DeepOaasFunctionBindingDto'
         state:
           $ref: '#/components/schemas/OaasObjectState'
         members:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasCompoundMemberDto'
@@ -431,6 +434,7 @@ components:
         stateType:
           $ref: '#/components/schemas/StateType'
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBinding'
@@ -444,6 +448,7 @@ components:
         stateType:
           $ref: '#/components/schemas/StateType'
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBindingDto'
@@ -563,12 +568,14 @@ components:
           additionalProperties:
             type: string
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBinding'
         state:
           $ref: '#/components/schemas/OaasObjectState'
         members:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasCompoundMember'
@@ -593,12 +600,14 @@ components:
           additionalProperties:
             type: string
         functions:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBindingDto'
         state:
           $ref: '#/components/schemas/OaasObjectState'
         members:
+          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasCompoundMemberDto'

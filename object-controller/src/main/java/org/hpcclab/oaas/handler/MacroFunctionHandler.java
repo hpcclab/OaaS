@@ -21,6 +21,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MacroFunctionHandler {
@@ -71,7 +72,7 @@ public class MacroFunctionHandler {
         var mem = func.getMacro().getExports()
           .stream()
           .map(export -> new OaasCompoundMember(export.getAs(), wfResults.get(export.getFrom())))
-          .toList();
+          .collect(Collectors.toUnmodifiableSet());
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);
       });

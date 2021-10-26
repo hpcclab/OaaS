@@ -5,9 +5,12 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
+
+import static javax.persistence.CascadeType.*;
 
 @Embeddable
 @Data
@@ -16,7 +19,9 @@ public class OaasFunctionBinding {
   @NotNull
   @Column(nullable = false)
   AccessModifier access = AccessModifier.PUBLIC;
-  @ManyToOne(fetch = javax.persistence.FetchType.LAZY)
+
+  @JoinColumn
+  @ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {DETACH, REFRESH})
   @NotNull
   OaasFunction function;
 

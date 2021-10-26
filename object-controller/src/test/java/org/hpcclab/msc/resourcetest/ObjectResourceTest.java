@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -115,7 +116,7 @@ public class ObjectResourceTest {
     var compound = new OaasObjectDto()
       .setType(OaasObject.ObjectType.COMPOUND)
       .setCls("builtin.basic.compound")
-      .setMembers(List.of(
+      .setMembers(Set.of(
          new OaasCompoundMemberDto().setName("obj1").setObject(obj1.getId()),
          new OaasCompoundMemberDto().setName("obj2").setObject(obj2.getId())
         )

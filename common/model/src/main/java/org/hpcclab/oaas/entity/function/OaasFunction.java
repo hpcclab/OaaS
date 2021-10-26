@@ -12,6 +12,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import static javax.persistence.CascadeType.*;
+
 @Getter
 @Setter
 @ToString
@@ -28,7 +30,7 @@ public class OaasFunction {
   @Enumerated
   OaasFunction.FuncType type;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = {DETACH, REFRESH})
   @ToString.Exclude
   OaasClass outputCls;
 

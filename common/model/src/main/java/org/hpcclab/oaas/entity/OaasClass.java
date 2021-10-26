@@ -9,6 +9,7 @@ import org.hpcclab.oaas.entity.state.OaasObjectState;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -42,5 +43,5 @@ public class OaasClass {
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
   @ElementCollection()
-  List<OaasFunctionBinding> functions;
+  Set<OaasFunctionBinding> functions = Set.of();
 }

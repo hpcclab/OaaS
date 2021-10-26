@@ -30,8 +30,8 @@ public class ContextLoader {
   OaasObjectRepository objectRepo;
   @Inject
   OaasFuncRepository funcRepo;
-  //  @Inject
-//  Mutiny.Session session;
+  @Inject
+  Mutiny.Session session;
   @Inject
   OaasMapper oaasMapper;
 
@@ -75,6 +75,7 @@ public class ContextLoader {
           .setFunctionAccess(binding.getAccess());
       })
       .call(fec -> Mutiny.fetch(fec.getFunction().getOutputCls()))
+      .invoke(fec -> session.clear())
       .invoke(() -> LOGGER.debug("successfully load context of '{}'", request.getTarget()));
   }
 
@@ -83,11 +84,13 @@ public class ContextLoader {
                                           OaasWorkflowStep step) {
     var newCtx = oaasMapper.copy(baseCtx);
     return objectRepo.getSession()
-      .invoke(session -> session.detach(main))
-      .flatMap(session -> objectRepo.findById(main.getId())
-        .call(newMain -> session.fetch(newMain.getCls()))
-        .call(newMain -> session.fetch(newMain.getCls().getFunctions()))
-        .call(newMain -> session.fetch(newMain.getFunctions()))
+      .invoke(Mutiny.Session::clear)
+      .flatMap(ss -> objectRepo.findById(main.getId())
+        .invoke(newMain -> LOGGER.info("main {}", newMain.getCls()))
+        .call(newMain -> ss.refresh(newMain))
+        .call(newMain -> ss.fetch(newMain.getCls()))
+        .call(newMain -> ss.fetch(newMain.getCls().getFunctions()))
+        .call(newMain -> ss.fetch(newMain.getFunctions()))
         .flatMap(newMain -> {
           LOGGER.info("main (after fetch) {}", Json.encodePrettily(newMain));
           newCtx.setMain(main);

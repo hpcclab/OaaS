@@ -16,6 +16,7 @@ import org.hpcclab.oaas.entity.state.OaasObjectState;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -74,15 +75,15 @@ public class OaasObject extends BaseUuidEntity {
   Map<String, String> labels;
 
   @ElementCollection
-  List<OaasFunctionBinding> functions = List.of();
+  Set<OaasFunctionBinding> functions = Set.of();
 
   @Convert(converter = EntityConverters.StateConverter.class)
   @Column(columnDefinition = "jsonb")
   OaasObjectState state;
 
-  @ElementCollection()
+  @ElementCollection
   @LazyCollection(LazyCollectionOption.FALSE)
-  List<OaasCompoundMember> members;
+  Set<OaasCompoundMember> members;
 
   public enum ObjectType {
     RESOURCE,
@@ -112,9 +113,9 @@ public class OaasObject extends BaseUuidEntity {
       access,
       cls,
       labels==null ? null:Map.copyOf(labels),
-      functions==null ? null:List.copyOf(functions),
+      functions==null ? null:Set.copyOf(functions),
       state,
-      members==null ? null:List.copyOf(members)
+      members==null ? null:Set.copyOf(members)
     );
     o.setId(getId());
     return o;

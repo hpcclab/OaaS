@@ -9,6 +9,7 @@ import org.hpcclab.oaas.entity.state.OaasObjectState;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -22,7 +23,7 @@ public class DeepOaasObjectDto {
   OaasObject.AccessModifier access;
   DeepOaasClassDto cls;
   Map<String, String> labels;
-  List<DeepOaasFunctionBindingDto> functions = List.of();
+  Set<DeepOaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
-  List<OaasCompoundMemberDto> members;
+  Set<OaasCompoundMemberDto> members;
 }

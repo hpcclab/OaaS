@@ -526,6 +526,7 @@
             "$ref" : "#/components/schemas/StateType"
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
@@ -573,6 +574,7 @@
             }
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
@@ -582,6 +584,7 @@
             "$ref" : "#/components/schemas/OaasObjectState"
           },
           "members" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasCompoundMemberDto"
@@ -634,6 +637,7 @@
             "$ref" : "#/components/schemas/StateType"
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunctionBinding"
@@ -654,6 +658,7 @@
             "$ref" : "#/components/schemas/StateType"
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunctionBindingDto"
@@ -824,6 +829,7 @@
             }
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunctionBinding"
@@ -833,6 +839,7 @@
             "$ref" : "#/components/schemas/OaasObjectState"
           },
           "members" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasCompoundMember"
@@ -869,6 +876,7 @@
             }
           },
           "functions" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunctionBindingDto"
@@ -878,6 +886,7 @@
             "$ref" : "#/components/schemas/OaasObjectState"
           },
           "members" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasCompoundMemberDto"

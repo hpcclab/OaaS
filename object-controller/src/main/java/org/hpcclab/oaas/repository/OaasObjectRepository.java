@@ -20,6 +20,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityGraph;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -46,7 +47,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
             return new OaasCompoundMember().setName(member.getName())
               .setObject(session.getReference(OaasObject.class, member.getObject()));
           })
-          .toList();
+          .collect(Collectors.toSet());
         root.setMembers(newMembers);
       }
 
@@ -54,7 +55,8 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         .stream()
         .map(fb -> new OaasFunctionBinding().setAccess(fb.getAccess())
           .setFunction(session.getReference(OaasFunction.class, fb.getFunction()))
-        ).toList();
+        )
+        .collect(Collectors.toSet());
       root.setFunctions(funcs);
       return this.persist(root);
     });
@@ -186,7 +188,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
     return getSession().flatMap(session -> getDeep(id)
       .invoke(session::detach)
       .invoke(o -> {
-        var fns = new ArrayList<>(o.getCls().getFunctions());
+        var fns = new HashSet<>(o.getCls().getFunctions());
         fns.addAll(o.getFunctions());
         o.setFunctions(fns);
       })

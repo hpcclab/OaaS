@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 
@@ -43,7 +44,7 @@ public class HlsTest {
     var hlsObject = new OaasObjectDto()
       .setType(OaasObject.ObjectType.COMPOUND)
       .setMembers(
-        List.of(
+        Set.of(
           new OaasCompoundMemberDto("m3u8", m3u8Obj.getId()),
           new OaasCompoundMemberDto("segments", segmentsObj.getId())
       ));
