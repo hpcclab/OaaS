@@ -16,7 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.time.Duration;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class DeduplicatedTopology {
 
 
@@ -24,7 +24,7 @@ public class DeduplicatedTopology {
   final String inputTopic = "request";
   final String outputTopic = "distinct-request";
 
-  @Produces
+//  @Produces
   public Topology buildTopology() {
     final StreamsBuilder builder = new StreamsBuilder();
     ObjectMapperSerde<ObjectResourceRequest> orrSerde = new ObjectMapperSerde<>(
