@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
-    "version" : "0.1.0-SNAPSHOT"
+    "title" : "Generated API",
+    "version" : "1.0"
   },
   "paths" : {
     "/api/batch" : {
@@ -444,6 +444,45 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/OaasObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects/{id}/origin" : {
+      "get" : {
+        "tags" : [ "Object Service" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "deep",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "default" : "1",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "additionalProperties" : {
+                      "$ref" : "#/components/schemas/OaasObjectOrigin"
+                    }
+                  }
                 }
               }
             }

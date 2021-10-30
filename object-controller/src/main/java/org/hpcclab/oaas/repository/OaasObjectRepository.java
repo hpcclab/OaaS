@@ -62,6 +62,16 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
     });
   }
 
+
+  public Uni<List<OaasObject>> listByIds(Set<UUID> ids) {
+    return find("""
+      select o
+      from OaasObject o
+      where o.id in ?1
+      """, ids)
+      .list();
+  }
+
   public Uni<List<OaasObject>> listByIds(List<UUID> ids) {
     return find("""
       select o

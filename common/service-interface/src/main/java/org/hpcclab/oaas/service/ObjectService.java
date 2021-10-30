@@ -2,6 +2,7 @@ package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.FunctionCallRequest;
 import org.hpcclab.oaas.model.OaasFunctionBindingDto;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,6 +27,13 @@ public interface ObjectService {
   @GET
   @Path("{id}")
   Uni<OaasObjectDto> get(String id);
+
+
+  @GET
+  @Path("{id}/origin")
+  Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id,
+                                                   @DefaultValue("1")
+                               @QueryParam("deep") Integer deep);
 
   @GET
   @Path("{id}/deep")

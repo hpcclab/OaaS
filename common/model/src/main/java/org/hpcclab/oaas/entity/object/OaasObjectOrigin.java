@@ -24,7 +24,8 @@ public class OaasObjectOrigin {
   UUID parentId;
   String funcName;
   Map<String, String> args;
-  List<UUID> additionalInputs;
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  List<UUID> additionalInputs = List.of();
 
   public OaasObjectOrigin copy() {
     return new OaasObjectOrigin(

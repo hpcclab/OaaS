@@ -1,9 +1,11 @@
 package org.hpcclab.oaas.resource;
 
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import org.hpcclab.oaas.entity.object.OaasObject;
+import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
@@ -20,8 +22,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ObjectResource implements ObjectService {
@@ -56,7 +59,42 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::toObject);
   }
 
-//  @ReactiveTransactional
+  @Override
+  public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
+    List<Map<String, OaasObjectOrigin>> results = new ArrayList<>();
+    return Multi.createFrom().range(0, deep)
+      .call( i -> {
+        if (i == 0) {
+          return get(id)
+            .map(o -> Map.of(id, o.getOrigin()))
+            .invoke(map -> results.add(i, map));
+        } else {
+          Set<UUID> ids = results.get(i-1).values()
+            .stream()
+            .filter(o -> o.getParentId() != null)
+            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()),origin.getAdditionalInputs()
+              .stream())
+            )
+            .collect(Collectors.toSet());
+
+          if (ids.isEmpty()) {
+            results.add(i, Map.of());
+            return Uni.createFrom().item(Map.of());
+          }
+
+          return objectRepo.listByIds(ids)
+            .map(objs -> objs.stream()
+              .map(o -> Map.entry(o.getId().toString(), o.getOrigin()))
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+            )
+            .invoke(map -> results.add(i, map));
+        }
+      })
+      .collect().last()
+      .map(v -> results);
+  }
+
+  //  @ReactiveTransactional
   public Uni<DeepOaasObjectDto> getDeep(String id) {
     return objectRepo.getDeep(UUID.fromString(id))
       .map(oaasMapper::deep);

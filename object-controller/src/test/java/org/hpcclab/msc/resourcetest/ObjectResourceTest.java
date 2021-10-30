@@ -7,7 +7,6 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.msc.TestUtils;
-import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
@@ -100,6 +99,56 @@ public class ObjectResourceTest {
     var newObj = TestUtils.reactiveCall(
       new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(obj.getId()));
     TestUtils.getObjectDeep(newObj.getId());
+  }
+
+  @Test
+  void testGetOrigin() {
+    TestUtils.createFunctionYaml(FunctionResourceTest.DUMMY_FUNCTION);
+    var obj = new OaasObjectDto()
+      .setType(OaasObject.ObjectType.RESOURCE)
+      .setCls("builtin.basic.file")
+      .setFunctions(Set.of(
+          new OaasFunctionBindingDto().setFunction("test.dummy.resource")
+        )
+      )
+      .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
+    obj = TestUtils.create(obj);
+
+    var obj1 = TestUtils.reactiveCall(
+      new FunctionCallRequest().setFunctionName("test.dummy.resource").setTarget(obj.getId()));
+    obj1 = TestUtils.bind(obj1, List.of(new OaasFunctionBindingDto().setFunction("test.dummy.resource")));
+    var obj2 = TestUtils.reactiveCall(
+      new FunctionCallRequest().setFunctionName("test.dummy.resource").setTarget(obj1.getId()));
+    obj2 = TestUtils.bind(obj2, List.of(new OaasFunctionBindingDto().setFunction("test.dummy.resource")));
+    var obj3 = TestUtils.reactiveCall(
+      new FunctionCallRequest().setFunctionName("test.dummy.resource").setTarget(obj2.getId()));
+
+    given()
+      .pathParam("id", obj3.getId().toString())
+      .queryParam("deep", 1)
+      .when().get("/api/objects/{id}/origin")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("size()", Matchers.equalTo(1));
+
+    given()
+      .pathParam("id", obj3.getId().toString())
+      .queryParam("deep", 2)
+      .when().get("/api/objects/{id}/origin")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("size()", Matchers.equalTo(2));
+
+    given()
+      .pathParam("id", obj3.getId().toString())
+      .queryParam("deep", 5)
+      .when().get("/api/objects/{id}/origin")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("size()", Matchers.equalTo(5));
   }
 
   @Test
