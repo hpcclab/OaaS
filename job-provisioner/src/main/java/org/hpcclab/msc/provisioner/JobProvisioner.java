@@ -29,13 +29,13 @@ public class JobProvisioner {
     var envList = createEnv(task)
       .entrySet()
       .stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
-      .collect(Collectors.toList());
+      .toList();
 
     var function = task.getFunction();
 
     var job = new JobBuilder()
       .withNewMetadata()
-      .withName(function.getName().replaceAll("/", "-") + "-" + RandomStringUtils.randomNumeric(6))
+      .withName(function.getName().replace("/", "-") + "-" + RandomStringUtils.randomNumeric(6))
       .addToLabels("oaas.function", function.getName())
       .addToLabels("oaas.object.main", task.getMain().getId().toString())
       .addToLabels("oaas.object.output", task.getOutput().getId().toString())

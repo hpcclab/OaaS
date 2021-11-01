@@ -31,6 +31,7 @@ quarkus:
   hibernate-orm:
     database:
       generation: create
+#      generation: update
   http:
     access-log:
       enabled: true

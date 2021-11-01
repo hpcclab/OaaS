@@ -31,7 +31,7 @@ public class ClassResource implements ClassService {
   @Override
   public Uni<List<OaasClassDto>> list() {
     return classRepo.find(
-      "select c from OaasClass c left join fetch c.functions")
+      "select distinct c from OaasClass c left join fetch c.functions")
       .list()
       .invoke(l -> LOGGER.debug("l.size() = {}", l.size()))
       .map(oaasMapper::toClassDto);

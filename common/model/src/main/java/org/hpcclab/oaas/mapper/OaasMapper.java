@@ -38,13 +38,14 @@ public interface OaasMapper {
 
   OaasClassDto toClass(OaasClass oaasClass);
 
+  @Mapping(target = "functions", ignore = true)
   OaasClass toClass(OaasClassDto oaasClass);
 
   List<OaasClassDto> toClassDto(List<OaasClass> function);
 
   List<OaasClass> toClass(List<OaasClassDto> function);
 
-
+  @Mapping(target = "functions", ignore = true)
   void set(OaasClassDto oaasClassDto, @MappingTarget OaasClass oaasClass);
 
   default String toName(OaasClass oaasClass) {

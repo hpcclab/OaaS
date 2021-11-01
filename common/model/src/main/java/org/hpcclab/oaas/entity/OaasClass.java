@@ -42,5 +42,5 @@ public class OaasClass {
   OaasObject.ObjectType objectType;
   OaasObjectState.StateType stateType;
   @ElementCollection()
-  Set<OaasFunctionBinding> functions = Set.of();
+  Set<OaasFunctionBinding> functions;
 }

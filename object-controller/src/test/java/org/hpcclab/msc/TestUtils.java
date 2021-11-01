@@ -16,6 +16,33 @@ import static io.restassured.RestAssured.given;
 
 public class TestUtils {
 
+  public static final String DUMMY_FUNCTION = """
+    - name: test.dummy.resource
+      type: TASK
+      outputCls: builtin.basic.file
+      validation: {}
+      task: {}
+    - name: test.dummy.compound
+      type: MACRO
+      outputCls: builtin.basic.compound
+      validation: {}
+      macro:
+          steps:
+            - funcName: builtin.logical.copy
+              target: obj1
+              as: new_obj1
+              inputRefs: []
+            - funcName: builtin.logical.copy
+              target: obj2
+              as: new_obj2
+              inputRefs: []
+          exports:
+            - from: new_obj1
+              as: obj1
+            - from: new_obj2
+              as: obj2
+    """;
+
   public static List<OaasObjectDto> listObject() {
     return Arrays.asList(given()
       .when().get("/api/objects")

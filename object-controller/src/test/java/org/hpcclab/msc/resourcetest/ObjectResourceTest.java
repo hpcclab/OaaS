@@ -11,6 +11,7 @@ import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 import org.hpcclab.oaas.model.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -105,12 +106,13 @@ public class ObjectResourceTest {
 
     var newObj = TestUtils.reactiveCall(
       new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(obj.getId()));
-    TestUtils.getTaskContext(newObj.getId());
+    var taskCtx = TestUtils.getTaskContext(newObj.getId());
+    Assertions.assertEquals("builtin.logical.copy", taskCtx.getFunction().getName());
   }
 
   @Test
   void testGetOrigin() {
-    TestUtils.createFunctionYaml(FunctionResourceTest.DUMMY_FUNCTION);
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
@@ -160,7 +162,7 @@ public class ObjectResourceTest {
 
   @Test
   void testCompound(){
-    TestUtils.createFunctionYaml(FunctionResourceTest.DUMMY_FUNCTION);
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj1 = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")

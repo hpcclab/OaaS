@@ -3,25 +3,20 @@ package org.hpcclab.oaas.resource;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
+import org.hpcclab.oaas.handler.FunctionRouter;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.handler.FunctionRouter;
 import org.hpcclab.oaas.service.ObjectService;
-import org.hpcclab.oaas.model.DeepOaasObjectDto;
-import org.hpcclab.oaas.model.FunctionCallRequest;
-import org.hpcclab.oaas.model.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.OaasObjectDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,10 +40,10 @@ public class ObjectResource implements ObjectService {
 
   @ReactiveTransactional
   public Uni<OaasObjectDto> create(OaasObjectDto creating) {
-    if (creating == null) throw new BadRequestException();
+    if (creating==null) throw new BadRequestException();
     return objectRepo.createRootAndPersist(creating)
       .map(oaasMapper::toObject)
-      .onFailure().invoke(e -> LOGGER.error("error",e));
+      .onFailure().invoke(e -> LOGGER.error("error", e));
   }
 
 
@@ -63,16 +58,16 @@ public class ObjectResource implements ObjectService {
   public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
     List<Map<String, OaasObjectOrigin>> results = new ArrayList<>();
     return Multi.createFrom().range(0, deep)
-      .call( i -> {
-        if (i == 0) {
+      .call(i -> {
+        if (i==0) {
           return get(id)
             .map(o -> Map.of(id, o.getOrigin()))
             .invoke(map -> results.add(i, map));
         } else {
-          Set<UUID> ids = results.get(i-1).values()
+          Set<UUID> ids = results.get(i - 1).values()
             .stream()
-            .filter(o -> o.getParentId() != null)
-            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()),origin.getAdditionalInputs()
+            .filter(o -> o.getParentId()!=null)
+            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getAdditionalInputs()
               .stream())
             )
             .collect(Collectors.toSet());
@@ -108,14 +103,14 @@ public class ObjectResource implements ObjectService {
         var funcName = main.getOrigin().getFuncName();
         var uni = funcRepo.findByName(funcName)
           .map(func -> tc.setFunction(oaasMapper.toFunc(func)));
-        if (main.getOrigin().getParentId() != null) {
+        if (main.getOrigin().getParentId()!=null) {
           uni = uni.flatMap(t -> objectRepo.getById(main.getOrigin().getParentId()))
             .map(parent -> tc.setParent(oaasMapper.toObject(parent)));
         }
         uni = uni.flatMap(t -> objectRepo.listByIds(main.getOrigin().getAdditionalInputs()))
           .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
         return uni
-          .map( f -> tc);
+          .map(f -> tc);
       });
   }
 
