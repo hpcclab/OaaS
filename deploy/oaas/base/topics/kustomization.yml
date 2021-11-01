@@ -1,3 +1,4 @@
 resources:
   - task-completion-topic.yml
   - task-topic.yml
+  - task-event-topic.yml

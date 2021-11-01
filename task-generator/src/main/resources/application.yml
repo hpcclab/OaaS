@@ -31,7 +31,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/task-generator${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-alpine
+    base-jvm-image: eclipse-temurin:17-focal
   log:
     category:
       "org.hpcclab.oaas":
@@ -40,6 +40,7 @@ quarkus:
     bootstrap-servers: ${kafka.bootstrap.servers}
     application-server: ${hostname:localhost}:${quarkus.http.port}
     topics: ${oaas.tg.taskEventTopic}
+    application-id: ${quarkus.application.name}-stream
 
 mp:
   messaging:

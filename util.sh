@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export CI_REGISTRY_IMAGE=core.harbor.10.131.36.27.nip.io/oaas
-export JAVA_HOME=~/.jdks/openjdk-17/
+export JAVA_HOME=~/.jdks/temurin-17/
 
 ./mvnw package -DskipTests\
     -Dquarkus.container-image.username=admin \
@@ -9,7 +9,7 @@ export JAVA_HOME=~/.jdks/openjdk-17/
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
     -Dquarkus.jib.always-cache-base-image=true \
-    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-alpine \
+    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-focal \
     -Dquarkus.container-image.insecure=true
 
 $ENV:JAVA_HOME="C:\Program Files\Java\jdk-17"
@@ -23,7 +23,7 @@ kubectl -n $NAMESPACE apply -k oaas/dev
 kubectl exec -n msc  deployment/ksqldb-cli -ti -- bash -c "ksql http://ksqldb-server"
 
 kubectl -n $NAMESPACE delete -k oaas/dev
-kubectl -n $NAMESPACE delete -f kafka -f ksql
+kubectl -n $NAMESPACE delete -f kafka
 kubectl -n $NAMESPACE delete $(kubectl -n $NAMESPACE get kafkatopic -o name)
 
 

@@ -6,9 +6,7 @@ resources:
   #task generator
   - tg.yml
   #object controller
-  - oc-mongo.yml
+  - oc-postgres.yml
   - oc.yml
   # Topics
   - topics
-  #stream controller
-#  - sc

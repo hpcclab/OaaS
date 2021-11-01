@@ -10,12 +10,16 @@ spec:
     matchLabels:
       app: oc-postgres
   strategy:
-    type: Recreate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: oc-postgres
     spec:
+
       containers:
         - image: postgres
           env:
@@ -25,9 +29,11 @@ spec:
               value: oaas
             - name: POSTGRES_DB
               value: oaas
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           name: oc-mongo
           ports:
-            - containerPort: 27017
+            - containerPort: 5432
           resources:
             limits:
               memory: 2G
