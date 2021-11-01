@@ -63,7 +63,7 @@ public class FunctionResourceTest {
   void create() {
     var functionList = TestUtils.createFunctionYaml(DUMMY_FUNCTION);
     given()
-      .when().get("/api/functions")
+      .when().get("/api/functions?update=true")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)

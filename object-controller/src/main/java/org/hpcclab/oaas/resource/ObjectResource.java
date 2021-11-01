@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class ObjectResource implements ObjectService {
 
   @ReactiveTransactional
   public Uni<OaasObjectDto> create(OaasObjectDto creating) {
-    LOGGER.info("create {} ", Json.encodePrettily(creating));
+    if (creating == null) throw new BadRequestException();
     return objectRepo.createRootAndPersist(creating)
       .map(oaasMapper::toObject)
       .onFailure().invoke(e -> LOGGER.error("error",e));

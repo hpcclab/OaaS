@@ -112,7 +112,7 @@ public class TestUtils {
     return given()
       .contentType("text/x-yaml")
       .body(function)
-      .when().post("/api/functions/")
+      .when().post("/api/functions?update=true")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)

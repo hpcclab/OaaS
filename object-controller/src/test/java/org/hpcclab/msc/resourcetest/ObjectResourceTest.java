@@ -42,6 +42,13 @@ public class ObjectResourceTest {
     TestUtils.getObject(root.getId());
     assertTrue(TestUtils.listObject().size() >=1);
     TestUtils.getObjectDeep(root.getId());
+
+  given()
+    .contentType(MediaType.APPLICATION_JSON)
+    .when().post("/api/objects")
+    .then()
+    .contentType(MediaType.APPLICATION_JSON)
+    .body("size()", Matchers.greaterThan(0));
   }
 
   @Test

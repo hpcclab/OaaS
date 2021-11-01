@@ -9,6 +9,8 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.OaasClassDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.service.ClassService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,6 +20,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class ClassResource implements ClassService {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ClassResource.class );
   @Inject
   OaasClassRepository classRepo;
   @Inject
@@ -30,6 +33,7 @@ public class ClassResource implements ClassService {
     return classRepo.find(
       "select c from OaasClass c left join fetch c.functions")
       .list()
+      .invoke(l -> LOGGER.debug("l.size() = {}", l.size()))
       .map(oaasMapper::toClassDto);
   }
 

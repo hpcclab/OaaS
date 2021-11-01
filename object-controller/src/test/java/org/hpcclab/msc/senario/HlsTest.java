@@ -20,13 +20,13 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 public class HlsTest {
 
-  @BeforeAll
+//  @BeforeAll
   static void setup() {
     RestAssured.filters(new RequestLoggingFilter(),
       new ResponseLoggingFilter());
   }
 
-  @Test
+//  @Test
   void test() {
     var m3u8Obj = new OaasObjectDto()
       .setType(OaasObject.ObjectType.RESOURCE)

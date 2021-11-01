@@ -10,3 +10,7 @@ resources:
   - oc.yml
   # Topics
   - topics
+  # Redis
+  - redis.yml
+  - kafka-connect.yml
+  - kafka-connector.yml

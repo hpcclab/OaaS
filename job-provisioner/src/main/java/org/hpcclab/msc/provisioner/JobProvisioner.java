@@ -88,6 +88,9 @@ public class JobProvisioner {
   private void putEnv(Map<String, String> env, OaasObjectDto obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
+    if (obj.getState().getFile() != null) {
+      env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
+    }
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
   }
 
