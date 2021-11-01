@@ -41,6 +41,10 @@ quarkus:
     application-server: ${hostname:localhost}:${quarkus.http.port}
     topics: ${oaas.tg.taskEventTopic}
     application-id: ${quarkus.application.name}-stream
+  micrometer:
+    export:
+      json:
+        enabled: true
 
 mp:
   messaging:
