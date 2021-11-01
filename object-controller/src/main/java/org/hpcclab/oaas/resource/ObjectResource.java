@@ -4,7 +4,6 @@ import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactiona
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
-import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.*;
@@ -31,8 +30,8 @@ public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
   OaasObjectRepository objectRepo;
-//  @Inject
-//  OaasFuncRepository funcRepo;
+  @Inject
+  OaasFuncRepository funcRepo;
   @Inject
   FunctionRouter functionRouter;
   @Inject
@@ -100,9 +99,28 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::deep);
   }
 
-  public Uni<OaasObject> getFullGraph(String id) {
-    return objectRepo.getDeep(UUID.fromString(id));
+  public Uni<TaskContext> getTaskContext(String id) {
+    return objectRepo.getById(UUID.fromString(id))
+      .flatMap(main -> {
+        var tc = new TaskContext();
+        tc.setOutput(oaasMapper.toObject(main));
+        var funcName = main.getOrigin().getFuncName();
+        var uni = funcRepo.findByName(funcName)
+          .map(func -> tc.setFunction(oaasMapper.toFunc(func)));
+        if (main.getOrigin().getParentId() != null) {
+          uni = uni.flatMap(t -> objectRepo.getById(main.getOrigin().getParentId()))
+            .map(parent -> tc.setParent(oaasMapper.toObject(parent)));
+        }
+        uni = uni.flatMap(t -> objectRepo.listByIds(main.getOrigin().getAdditionalInputs()))
+          .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
+        return uni
+          .map( f -> tc);
+      });
   }
+
+  //  public Uni<OaasObject> getFullGraph(String id) {
+//    return objectRepo.getDeep(UUID.fromString(id));
+//  }
 
   public Uni<OaasObjectDto> bindFunction(String id,
                                          List<OaasFunctionBindingDto> bindingDtoList) {

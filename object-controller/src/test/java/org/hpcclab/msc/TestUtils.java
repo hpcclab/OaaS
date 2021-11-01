@@ -71,6 +71,17 @@ public class TestUtils {
       .extract().body().as(DeepOaasObjectDto.class);
   }
 
+  public static TaskContext getTaskContext(UUID id) {
+    return given()
+      .pathParam("id", id.toString())
+      .when().get("/api/objects/{id}/context")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("output.id", Matchers.equalTo(id.toString()))
+      .extract().body().as(TaskContext.class);
+  }
+
   public static OaasObjectDto bind(OaasObjectDto obj, List<OaasFunctionBindingDto> fd) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
+import org.hpcclab.oaas.model.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.OaasFunctionDto;
 import org.hpcclab.oaas.model.OaasObjectDto;
 
@@ -26,5 +27,22 @@ public class OaasTask {
       return outputObj.getId().toString() + "/" + requestFile;
     else
       return outputObj.getId().toString();
+  }
+  public static String createId(OaasObjectDto outputObj, String requestFile) {
+    if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
+      return outputObj.getId().toString() + "/" + requestFile;
+    else
+      return outputObj.getId().toString();
+  }
+  public static String createId(DeepOaasObjectDto outputObj, String requestFile) {
+    if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
+      return outputObj.getId().toString() + "/" + requestFile;
+    else
+      return outputObj.getId().toString();
+  }
+
+  public static String createId(String oid, String requestFile) {
+    if (requestFile == null) return oid;
+    return oid+'/' + requestFile;
   }
 }

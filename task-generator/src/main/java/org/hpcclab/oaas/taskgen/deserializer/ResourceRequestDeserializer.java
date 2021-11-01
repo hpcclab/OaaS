@@ -1,4 +1,4 @@
-package org.hpcclab.msc.taskgen.deserializer;
+package org.hpcclab.oaas.taskgen.deserializer;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 import org.hpcclab.oaas.model.ObjectResourceRequest;

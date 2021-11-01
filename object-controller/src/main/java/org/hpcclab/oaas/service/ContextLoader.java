@@ -40,8 +40,7 @@ public class ContextLoader {
       .getDeep(request.getTarget())
       .flatMap(object -> {
         var fec = new FunctionExecContext().setEntry(object)
-          .setMain(object)
-          .setArgs(request.getArgs());
+          .setMain(object);
         if (request.getAdditionalInputs()!=null && !request.getAdditionalInputs().isEmpty()) {
           return objectRepo.listByIds(request.getAdditionalInputs())
             .map(fec::setAdditionalInputs);
@@ -49,17 +48,7 @@ public class ContextLoader {
           return Uni.createFrom().item(fec);
         }
       })
-//      .flatMap(fec -> {
-//        if (fec.getMain().getType() == OaasObject.ObjectType.COMPOUND) {
-//         return Multi.createFrom().iterable(fec.getMain().getMembers())
-//            .onItem().transformToUniAndMerge(member -> objectRepo.refreshWithDeep(member.getObject())
-//               .map(obj -> new OaasCompoundMember().setName(member.getName()).setObject(obj))
-//            )
-//            .collect().last().map(member -> fec);
-//        } else {
-//          return Uni.createFrom().item(fec);
-//        }
-//      })
+
       .map(fec -> {
         var fnName = request.getFunctionName();
         var binding = Stream.concat(

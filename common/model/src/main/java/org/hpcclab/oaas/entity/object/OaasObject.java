@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -153,5 +154,11 @@ public class OaasObject extends BaseUuidEntity {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  public OaasFunctionBinding findFunction(String name) {
+    return Stream.concat(functions.stream(), cls.getFunctions().stream())
+      .filter(fb -> fb.getFunction().getName().equals(name))
+      .findFirst().orElse(null);
   }
 }

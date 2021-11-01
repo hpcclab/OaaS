@@ -1,12 +1,8 @@
-package org.hpcclab.msc.stream;
+package org.hpcclab.oaas.taskgen.stream;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
-import org.apache.kafka.clients.KafkaClient;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -14,6 +10,8 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
 import org.hpcclab.oaas.model.TaskEvent;
 import org.hpcclab.oaas.model.TaskState;
+import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.hpcclab.oaas.taskgen.TaskGeneratorConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -23,9 +21,9 @@ import javax.inject.Inject;
 public class FlowControlTopology {
 
   @Inject
-  FlowControlConfig config;
+  TaskGeneratorConfig config;
   @Inject
-  KafkaStreams streams;
+  TaskEventManager taskEventManager;
 
   @Produces
   public Topology buildTopology() {
@@ -48,7 +46,7 @@ public class FlowControlTopology {
       .addStateStore(tsStoreBuilder)
       .stream(teTopic, Consumed.with(Serdes.String(), teSerde))
       .flatTransform(
-        () -> new TaskEventTransformer(storeName),
+        () -> new TaskEventTransformer(storeName,taskEventManager),
         storeName
       )
       .to(teTopic, Produced.with(Serdes.String(), teSerde));

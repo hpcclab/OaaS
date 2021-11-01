@@ -1,29 +1,29 @@
-package org.hpcclab.msc.taskgen;
+package org.hpcclab.oaas.taskgen;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.hpcclab.oaas.service.FunctionService;
 import org.hpcclab.oaas.service.ObjectService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import java.net.URI;
 
 @ApplicationScoped
 public class ClientProducer {
-  @ConfigProperty(name = "oaas.tg.objectControllerUrl")
-  String objectControllerUrl;
+  @Inject
+  TaskGeneratorConfig config;
 
   @Produces
   public ObjectService objectService() {
     return RestClientBuilder.newBuilder()
-        .baseUri(URI.create(objectControllerUrl))
+        .baseUri(URI.create(config.objectControllerUrl()))
         .build(ObjectService.class);
   }
   @Produces
   public FunctionService functionService() {
     return RestClientBuilder.newBuilder()
-      .baseUri(URI.create(objectControllerUrl))
+      .baseUri(URI.create(config.objectControllerUrl()))
       .build(FunctionService.class);
   }
 

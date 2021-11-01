@@ -28,6 +28,9 @@
 quarkus:
   console:
     color: true
+  hibernate-orm:
+    database:
+      generation: create
   http:
     access-log:
       enabled: true
@@ -53,3 +56,4 @@ quarkus:
     base-jvm-image: eclipse-temurin:17-alpine
   datasource:
     db-kind: postgresql
+

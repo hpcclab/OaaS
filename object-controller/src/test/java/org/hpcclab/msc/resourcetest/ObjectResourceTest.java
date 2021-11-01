@@ -98,7 +98,7 @@ public class ObjectResourceTest {
 
     var newObj = TestUtils.reactiveCall(
       new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(obj.getId()));
-    TestUtils.getObjectDeep(newObj.getId());
+    TestUtils.getTaskContext(newObj.getId());
   }
 
   @Test

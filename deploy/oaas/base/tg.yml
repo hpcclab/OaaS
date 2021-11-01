@@ -19,22 +19,11 @@ spec:
       labels:
         app: task-generator
     spec:
-#      initContainers:
-#        - name: stream-controller
-#          envFrom:
-#              - configMapRef:
-#                  name: oaas-env
-#          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller:latest
       containers:
         - name: task-generator
           envFrom:
             - configMapRef:
                 name: oaas-env
-          env:
-            - name: QUARKUS_MONGODB_CONNECTION_STRING
-              value: mongodb://oc-mongo:27017
-            - name: QUARKUS_MONGODB_DATABASE
-              value: task-generator
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-generator
           ports:
             - containerPort: 8080

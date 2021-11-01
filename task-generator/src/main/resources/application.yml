@@ -6,8 +6,11 @@
 oaas:
   tg:
     objectControllerUrl: http://localhost:8088
-    taskTopic: msc-tasks
-    taskCompletionTopic: msc-task-completions
+    taskEventTopic: oaas-task-events
+    taskTopic: oaas-tasks
+    taskCompletionTopic: oaas-task-completions
+    defaultTraverse: 3
+    stateStoreName: task-state
 
 quarkus:
   http:
@@ -33,8 +36,10 @@ quarkus:
     category:
       "org.hpcclab.oaas":
         level: DEBUG
-  mongodb:
-    database: msc-task
+  kafka-streams:
+    bootstrap-servers: ${kafka.bootstrap.servers}
+    application-server: ${hostname:localhost}:${quarkus.http.port}
+    topics: ${oaas.tg.taskEventTopic}
 
 mp:
   messaging:
@@ -46,6 +51,11 @@ mp:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
         cloud-events-source: ${quarkus.application.name}
         cloud-events-type: oaas.task
+      task-events:
+        connector: smallrye-kafka
+        topic: ${oaas.tg.taskEventTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
     incoming:
       task-completions:
         connector: smallrye-kafka

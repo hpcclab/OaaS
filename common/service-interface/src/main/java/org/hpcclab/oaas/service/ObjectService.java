@@ -3,10 +3,7 @@ package org.hpcclab.oaas.service;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.DeepOaasObjectDto;
-import org.hpcclab.oaas.model.FunctionCallRequest;
-import org.hpcclab.oaas.model.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.OaasObjectDto;
+import org.hpcclab.oaas.model.*;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -40,8 +37,12 @@ public interface ObjectService {
   Uni<DeepOaasObjectDto> getDeep(String id);
 
   @GET
-  @Path("{id}/full-graph")
-  Uni<OaasObject> getFullGraph(String id);
+  @Path("{id}/context")
+  Uni<TaskContext> getTaskContext(String id);
+
+//  @GET
+//  @Path("{id}/full-graph")
+//  Uni<OaasObject> getFullGraph(String id);
 
   @POST
   @Path("{id}/binds")
