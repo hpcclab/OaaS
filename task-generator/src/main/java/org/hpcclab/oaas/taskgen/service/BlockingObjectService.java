@@ -15,7 +15,7 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/objects")
-@RegisterRestClient
+@RegisterRestClient(configKey = "BlockingObjectService")
 public interface BlockingObjectService {
 
   @GET

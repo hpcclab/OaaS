@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.taskgen.resource;
 
+import io.smallrye.common.annotation.Blocking;
 import org.hpcclab.oaas.entity.task.OaasTask;
 import org.hpcclab.oaas.model.ObjectResourceRequest;
 import org.hpcclab.oaas.model.TaskEvent;
@@ -29,10 +30,12 @@ public class ResourceRequestResource {
   TaskGeneratorConfig config;
 
   @POST
+  @Blocking
   public void request(ObjectResourceRequest request) {
     var taskId = OaasTask.createId(request.getOwnerObjectId(), request.getRequestFile());
     taskEventManager.submitEventWithTraversal(taskId,
       config.defaultTraverse(),
-      TaskEvent.Type.EXEC);
+      true,
+      TaskEvent.Type.CREATE);
   }
 }

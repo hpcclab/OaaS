@@ -3,6 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
+import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
@@ -58,6 +59,9 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         )
         .collect(Collectors.toSet());
       root.setFunctions(funcs);
+
+      var cls = session.getReference(OaasClass.class, objectDto.getCls());
+      root.setCls(cls);
       return this.persist(root);
     });
   }
@@ -77,19 +81,38 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
       select o
       from OaasObject o
       where o.id in ?1
-      """, ids).list()
-      .map(objs -> {
-        var map = objs.stream()
-          .collect(Collectors.toMap(OaasObject::getId, Function.identity()));
+      """, ids).stream()
+      .collect().asMap(OaasObject::getId)
+      .map(map -> {
         return ids.stream()
           .map(id -> {
             if (!map.containsKey(id))
-              throw new NoStackException("Not found object(id='" + id + "')", 400);
+              throw NoStackException.notFoundObject400(id);
             else
               return map.get(id);
           })
           .toList();
       });
+  }
+
+
+  public Uni<List<OaasObject>> listFetchByIds(List<UUID> ids) {
+    return find("""
+      select o
+      from OaasObject o
+      left join fetch o.members
+      left join fetch o.functions
+      where o.id in ?1
+      """, ids).stream()
+      .collect().asMap(OaasObject::getId)
+      .map(map -> ids.stream()
+        .map(id -> {
+          if (!map.containsKey(id))
+            throw NoStackException.notFoundObject400(id);
+          else
+            return map.get(id);
+        })
+        .toList());
   }
 
   public Uni<OaasObject> bindFunction(UUID id, List<OaasFunctionBindingDto> bindingDtoList) {

@@ -61,6 +61,7 @@ public interface OaasMapper {
   OaasObjectDto toObject(OaasObject object);
 
   @Mapping(target = "members", ignore = true)
+  @Mapping(target = "cls", ignore = true)
   OaasObject toObject(OaasObjectDto object);
 
   List<OaasObjectDto> toObject(List<OaasObject> function);

@@ -8,13 +8,15 @@ import org.hpcclab.oaas.entity.state.OaasObjectState;
 import org.hpcclab.oaas.exception.FunctionValidationException;
 import org.hpcclab.oaas.exception.NoStackException;
 import org.hpcclab.oaas.model.FunctionExecContext;
-import org.hpcclab.oaas.model.ObjectResourceRequest;
+import org.hpcclab.oaas.model.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.ResourceRequestService;
+import org.hpcclab.oaas.service.TaskExecutionService;
 import org.hpcclab.oaas.service.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -25,7 +27,7 @@ public class TaskFunctionHandler {
   @Inject
   StorageAllocator storageAllocator;
   @Inject
-  ResourceRequestService resourceRequestService;
+  TaskExecutionService resourceRequestService;
 
   public void validate(FunctionExecContext context) {
     var main = context.getMain();
@@ -74,10 +76,14 @@ public class TaskFunctionHandler {
       .invoke(o -> storageAllocator.allocate(o));
 
     if (!context.isReactive()) {
-      var request = new ObjectResourceRequest()
-        .setOwnerObjectId(output.getId().toString())
-        .setRequestFile("*");
-      resUni = resUni.call(o -> resourceRequestService.request(request));
+      resUni = resUni.call(o -> {
+        var request = new TaskExecRequest()
+          .setId(o.getId().toString())
+          .setOriginList(List.of(
+            Map.of(o.getId().toString(), o.getOrigin())
+          ));
+        return resourceRequestService.request(request);
+      });
     }
     return resUni;
   }

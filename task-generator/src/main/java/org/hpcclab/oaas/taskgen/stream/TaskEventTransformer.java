@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.taskgen.stream;
 
+import io.vertx.core.json.Json;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -7,13 +8,14 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.hpcclab.oaas.model.TaskEvent;
 import org.hpcclab.oaas.model.TaskState;
 import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.HashSet;
 import java.util.List;
 
 public class TaskEventTransformer implements Transformer<String, TaskEvent, Iterable<KeyValue<String, TaskEvent>>> {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventTransformer.class);
   final String storeName;
   final TaskEventManager taskEventManager;
   KeyValueStore<String, TaskState> tsStore;
@@ -37,7 +39,6 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
                                                      TaskEvent taskEvent) {
     return switch (taskEvent.getType()) {
       case CREATE -> handleCreate(key, taskEvent);
-      case EXEC -> handleExec(key, taskEvent);
       case NOTIFY -> handleNotify(key, taskEvent);
       case COMPLETE -> handleComplete(key, taskEvent);
     };
@@ -45,22 +46,6 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
 
   @Override
   public void close() {
-  }
-
-  private List<KeyValue<String, TaskEvent>> handleExec(String key,
-                                                       TaskEvent taskEvent) {
-
-    var list = handleCreate(key, taskEvent);
-    if (list.isEmpty()) {
-      var taskState = tsStore.get(key);
-      if (taskState.getPrevTasks().isEmpty() &&
-        !taskState.isSubmitted()) {
-        taskEventManager.submitTask(key);
-        taskState.setSubmitted(true);
-      }
-      tsStore.put(key, taskState);
-    }
-    return list;
   }
 
   private List<KeyValue<String, TaskEvent>> handleCreate(String key,
@@ -73,26 +58,49 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
       taskState.getNextTasks().addAll(taskEvent.getNextTasks());
     }
 
-    if (taskEvent.getPrevTasks()!=null &&
-      taskState.getPrevTasks()==null) {
+    if (taskEvent.getPrevTasks()!=null && taskState.getPrevTasks()==null) {
       taskState.setPrevTasks(taskEvent.getPrevTasks());
     }
 
+    if (taskState.getCompletedPrevTasks() == null) {
+      taskState.setCompletedPrevTasks(new HashSet<>());
+    }
+    taskState.getCompletedPrevTasks().addAll(taskEvent.getRoots());
+
     List<KeyValue<String, TaskEvent>> kvList = List.of();
 
-    if (taskState.isComplete()) {
-      kvList = notifyNext(key, taskState);
+    if (taskState.getPrevTasks()==null || taskState.getPrevTasks().isEmpty()) {
+      kvList = notifyNext(key, taskEvent.isExec(), taskState);
+    } else if (taskState.isComplete()) {
+      kvList = notifyNext(key, taskEvent.isExec(), taskState);
     } else if (taskEvent.getTraverse() > 0) {
-      kvList = taskEventManager.createEventWithTraversal(
+      var eventList = taskEventManager.createEventWithTraversal(
           key,
           taskEvent.getTraverse(),
+          taskEvent.isExec(),
           taskEvent.getType()
-        )
-        .stream().map(te -> KeyValue.pair(te.getId(), te))
+        );
+
+      if (!eventList.isEmpty()) {
+        taskState.getCompletedPrevTasks()
+          .addAll(eventList.get(0).getRoots());
+      }
+
+      kvList = eventList.stream()
+        .skip(1)
+        .map(te -> KeyValue.pair(te.getId(), te))
         .toList();
     }
 
+    if (taskEvent.isExec()) {
+      if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())) {
+        taskEventManager.submitTask(key);
+      }
+    }
+
     tsStore.put(key, taskState);
+    LOGGER.debug("taskState {}", Json.encodePrettily(taskState));
+    LOGGER.debug("Send new event {}", Json.encodePrettily(kvList));
     return kvList;
   }
 
@@ -106,7 +114,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
     List<KeyValue<String, TaskEvent>> kvList = List.of();
 
     if (taskState.isComplete()) {
-      kvList = notifyNext(key, taskState);
+      kvList = notifyNext(key, taskEvent.isExec(), taskState);
     } else if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())) {
       taskEventManager.submitTask(key);
       taskState.setSubmitted(true);
@@ -121,16 +129,18 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
     var taskState = tsStore.get(key);
     taskState.setComplete(true);
     tsStore.put(key, taskState);
-    return notifyNext(key, taskState);
+    return notifyNext(key, taskEvent.isExec(), taskState);
   }
 
   private List<KeyValue<String, TaskEvent>> notifyNext(String key,
+                                                       boolean exec,
                                                        TaskState taskState) {
     return taskState.getNextTasks()
       .stream()
       .map(id -> new TaskEvent()
         .setId(id)
         .setType(TaskEvent.Type.NOTIFY)
+        .setExec(exec)
         .setNotifyFrom(key))
       .map(te -> KeyValue.pair(te.getId(), te))
       .toList();

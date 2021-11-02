@@ -45,6 +45,9 @@ quarkus:
     export:
       json:
         enabled: true
+  rest-client:
+    BlockingObjectService:
+      url: ${oaas.tg.objectControllerUrl}
 
 mp:
   messaging:
@@ -68,3 +71,4 @@ mp:
         auto:
           offset:
             reset: earliest
+

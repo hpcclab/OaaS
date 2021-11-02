@@ -1,7 +1,7 @@
 package org.hpcclab.oaas;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.hpcclab.oaas.service.ResourceRequestService;
+import org.hpcclab.oaas.service.TaskExecutionService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -14,10 +14,10 @@ public class ClientProducer {
   OcConfig ocConfig;
 
   @Produces
-  public ResourceRequestService resourceRequestService() {
+  public TaskExecutionService taskExecutionService() {
     return RestClientBuilder.newBuilder()
       .baseUri(URI.create(ocConfig.taskGeneratorUrl()))
-      .build(ResourceRequestService.class);
+      .build(TaskExecutionService.class);
   }
 
 }

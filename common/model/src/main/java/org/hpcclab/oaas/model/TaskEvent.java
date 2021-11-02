@@ -13,11 +13,13 @@ public class TaskEvent {
   String id;
   Set<String> nextTasks;
   Set<String> prevTasks;
+  Set<String> roots;
   String notifyFrom;
   int traverse = 0;
+  boolean exec = true;
 
 
   public enum Type {
-    CREATE, EXEC, NOTIFY, COMPLETE
+    CREATE, NOTIFY, COMPLETE
   }
 }

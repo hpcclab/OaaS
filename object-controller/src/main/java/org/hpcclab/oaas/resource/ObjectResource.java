@@ -107,7 +107,7 @@ public class ObjectResource implements ObjectService {
           uni = uni.flatMap(t -> objectRepo.getById(main.getOrigin().getParentId()))
             .map(parent -> tc.setParent(oaasMapper.toObject(parent)));
         }
-        uni = uni.flatMap(t -> objectRepo.listByIds(main.getOrigin().getAdditionalInputs()))
+        uni = uni.flatMap(t -> objectRepo.listFetchByIds(main.getOrigin().getAdditionalInputs()))
           .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
         return uni
           .map(f -> tc);

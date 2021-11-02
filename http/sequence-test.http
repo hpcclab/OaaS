@@ -93,7 +93,8 @@ Content-Type: application/json
   "functionName": "example.concat",
   "args": {
     "TARGET": "text"
-  }
+  },
+  "additionalInputs": ["{{obj_1_id}}"]
 }
 
 > {%
