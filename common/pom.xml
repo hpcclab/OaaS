@@ -7,7 +7,7 @@
   <parent>
     <artifactId>oaas</artifactId>
     <groupId>org.hpcclab.msc</groupId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
   <packaging>pom</packaging>
   <artifactId>common</artifactId>
