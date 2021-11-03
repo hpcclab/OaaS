@@ -29,7 +29,7 @@ envs:
 #    KAFKA_CLUSTERS_0_KSQLDBSERVER: http://ksqldb-server:80
 #    KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://msc-schema-registry
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: redis
-    KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-redis-connect-api.msc.svc:8083
+    KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-redis-connect-api:8083
 
 podAnnotations: {}
 
