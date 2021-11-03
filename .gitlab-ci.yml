@@ -21,7 +21,7 @@ maven:
     paths:
       - .m2/repository
   stage: build
-  image: maven:3.6-openjdk-16
+  image: maven:3.6-openjdk-17
   tags:
     - docker
   script:
