@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TaskEventTransformer implements Transformer<String, TaskEvent, Iterable<KeyValue<String, BaseTaskMessage>>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventTransformer.class);
@@ -113,6 +114,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
   private List<KeyValue<String, BaseTaskMessage>> handleNotify(String key,
                                                          TaskEvent taskEvent) {
     var taskState = tsStore.get(key);
+    if (taskState==null) taskState = new TaskState();
     if (taskState.getCompletedPrevTasks()==null)
       taskState.setCompletedPrevTasks(new HashSet<>());
     taskState.getCompletedPrevTasks().add(taskEvent.getNotifyFrom());
@@ -134,6 +136,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
   private List<KeyValue<String, BaseTaskMessage>> handleComplete(String key,
                                                            TaskEvent taskEvent) {
     var taskState = tsStore.get(key);
+    if (taskState==null) taskState = new TaskState();
     taskState.setComplete(true);
     tsStore.put(key, taskState);
     return notifyNext(key, taskEvent.isExec(), taskState);
@@ -142,6 +145,10 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
   private List<KeyValue<String, BaseTaskMessage>> notifyNext(String key,
                                                        boolean exec,
                                                        TaskState taskState) {
+    if (taskState.getNextTasks() == null) {
+      taskState.setNextTasks(Set.of());
+      return List.of();
+    }
     return taskState.getNextTasks()
       .stream()
       .<BaseTaskMessage>map(id -> new TaskEvent()
