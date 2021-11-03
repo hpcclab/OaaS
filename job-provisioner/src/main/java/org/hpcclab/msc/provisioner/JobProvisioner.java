@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.entity.task.OaasTask;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.OaasObjectDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class JobProvisioner {

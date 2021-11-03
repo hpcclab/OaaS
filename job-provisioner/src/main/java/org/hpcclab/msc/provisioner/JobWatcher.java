@@ -12,8 +12,8 @@ import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.hpcclab.oaas.entity.task.TaskCompletion;
-import org.hpcclab.oaas.entity.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class JobWatcher {
   KubernetesClient client;
   @Channel("task-completions")
   Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
-  private Watch watch;
+
 
   void startup(@Observes StartupEvent startupEvent) {
     if (!ProfileManager.getLaunchMode().isDevOrTest()) {
@@ -66,36 +66,6 @@ public class JobWatcher {
           LOGGER.debug("job {} deleted", obj.getMetadata().getName());
         }
       }, 30 * 1000L);
-
-//      watch = client.batch().v1().jobs()
-//        .watch(new Watcher<Job>() {
-//          @Override
-//          public void eventReceived(Action action, Job resource) {
-//            if (resource.getMetadata().getAnnotations()==null ||
-//              !resource.getMetadata().getAnnotations().containsKey("oaas.task")) {
-//              return;
-//            }
-//            if (action==Action.DELETED || action==Action.ADDED) return;
-//            Task task = Json.decodeValue(resource.getMetadata().getAnnotations().get("oaas.task"), Task.class);
-//
-//            if (resource.getStatus().getSucceeded()!=null &&
-//              resource.getStatus().getSucceeded() >= 1) {
-//              submitTaskCompletion(resource, task, true);
-//              client.batch().v1().jobs()
-//                .delete(resource);
-//            } else if (resource.getStatus().getFailed()!=null &&
-//              resource.getStatus().getFailed() >= 1) {
-//              submitTaskCompletion(resource, task, false);
-//              client.batch().v1().jobs()
-//                .delete(resource);
-//            }
-//          }
-//
-//          @Override
-//          public void onClose(WatcherException cause) {
-//            LOGGER.error("Job watcher unexpectedly close", cause);
-//          }
-//        });
     }
   }
 
@@ -136,8 +106,6 @@ public class JobWatcher {
   }
 
   void onShutdown(@Observes ShutdownEvent shutdownEvent) {
-    if (watch!=null) {
-      watch.close();
-    }
+
   }
 }

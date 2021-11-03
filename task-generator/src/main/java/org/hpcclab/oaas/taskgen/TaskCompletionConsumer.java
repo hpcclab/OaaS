@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.taskgen;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.entity.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

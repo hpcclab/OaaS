@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

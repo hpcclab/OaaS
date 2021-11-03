@@ -5,8 +5,8 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.hpcclab.oaas.model.TaskEvent;
-import org.hpcclab.oaas.model.TaskState;
+import org.hpcclab.oaas.model.task.TaskEvent;
+import org.hpcclab.oaas.model.task.TaskState;
 import org.hpcclab.oaas.taskgen.TaskEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +95,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
     if (taskEvent.isExec()) {
       if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())) {
         taskEventManager.submitTask(key);
+        taskState.setSubmitted(true);
       }
     }
 

@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.taskgen;
 
-import org.hpcclab.oaas.entity.task.OaasTask;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.TaskContext;
 
 import javax.enterprise.context.ApplicationScoped;

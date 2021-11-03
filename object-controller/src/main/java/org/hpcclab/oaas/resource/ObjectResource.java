@@ -60,7 +60,8 @@ public class ObjectResource implements ObjectService {
     return Multi.createFrom().range(0, deep)
       .call(i -> {
         if (i==0) {
-          return get(id)
+          return objectRepo.findById(UUID.fromString(id))
+            .onItem().ifNull().failWith(NotFoundException::new)
             .map(o -> Map.of(id, o.getOrigin()))
             .invoke(map -> results.add(i, map));
         } else {

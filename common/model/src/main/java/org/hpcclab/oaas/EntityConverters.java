@@ -6,7 +6,7 @@ import org.hpcclab.oaas.entity.function.OaasWorkflow;
 import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.entity.object.OaasObjectRequirement;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
-import org.hpcclab.oaas.entity.task.OaasTask;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.entity.task.TaskConfiguration;
 
 import javax.persistence.AttributeConverter;

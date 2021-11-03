@@ -8,7 +8,7 @@ import org.hpcclab.oaas.entity.state.OaasObjectState;
 import org.hpcclab.oaas.exception.FunctionValidationException;
 import org.hpcclab.oaas.exception.NoStackException;
 import org.hpcclab.oaas.model.FunctionExecContext;
-import org.hpcclab.oaas.model.TaskExecRequest;
+import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.TaskExecutionService;
 import org.hpcclab.oaas.service.StorageAllocator;

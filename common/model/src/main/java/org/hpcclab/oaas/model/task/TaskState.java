@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.task;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

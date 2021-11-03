@@ -69,7 +69,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
   public Uni<List<OaasObject>> listByIds(Set<UUID> ids) {
     return find("""
-      select o
+      select distinct o
       from OaasObject o
       where o.id in ?1
       """, ids)
@@ -98,7 +98,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
   public Uni<List<OaasObject>> listFetchByIds(List<UUID> ids) {
     return find("""
-      select o
+      select distinct o
       from OaasObject o
       left join fetch o.members
       left join fetch o.functions

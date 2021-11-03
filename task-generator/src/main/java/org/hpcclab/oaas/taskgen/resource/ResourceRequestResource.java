@@ -1,9 +1,9 @@
 package org.hpcclab.oaas.taskgen.resource;
 
 import io.smallrye.common.annotation.Blocking;
-import org.hpcclab.oaas.entity.task.OaasTask;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.ObjectResourceRequest;
-import org.hpcclab.oaas.model.TaskEvent;
+import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.taskgen.TaskGeneratorConfig;
 import org.hpcclab.oaas.taskgen.TaskEventManager;
 import org.slf4j.Logger;

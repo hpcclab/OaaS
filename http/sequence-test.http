@@ -18,10 +18,14 @@ functions:
         - '-c'
       containerArgs:
         - |
-          curl -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
-          curl -o input_0_file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE
+          curl -s -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
+          echo "Download main file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE"
+          curl -s -o input_0_file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE
+          echo "Download input 0 file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE"
           cat input_0_file >> tmp_file
-          curl -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$TARGET
+          echo "concat string"
+          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$TARGET
+          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/$TARGET"
       argsToEnv: true
 classes:
   - name: example.text
@@ -102,7 +106,7 @@ client.global.set("obj_2_id", response.body.id)
 %}
 
 ###
-GET {{cdn}}/{{obj_2_id}}/text
+#GET {{cdn}}/{{obj_2_id}}/text
 
 ###
-GET {{s3}}/{{obj_2_id}}/text
+#GET {{s3}}/{{obj_2_id}}/text

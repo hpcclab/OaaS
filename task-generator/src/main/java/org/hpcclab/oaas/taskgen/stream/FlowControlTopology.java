@@ -2,14 +2,13 @@ package org.hpcclab.oaas.taskgen.stream;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
-import org.hpcclab.oaas.model.TaskEvent;
-import org.hpcclab.oaas.model.TaskState;
+import org.hpcclab.oaas.model.task.TaskEvent;
+import org.hpcclab.oaas.model.task.TaskState;
 import org.hpcclab.oaas.taskgen.TaskEventManager;
 import org.hpcclab.oaas.taskgen.TaskGeneratorConfig;
 

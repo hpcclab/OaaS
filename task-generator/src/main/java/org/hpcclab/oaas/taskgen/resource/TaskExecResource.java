@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.taskgen.resource;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.TaskExecRequest;
+import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.service.TaskExecutionService;
 import org.hpcclab.oaas.taskgen.TaskEventManager;
 import org.slf4j.Logger;

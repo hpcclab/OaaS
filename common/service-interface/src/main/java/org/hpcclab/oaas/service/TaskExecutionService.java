@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.TaskExecRequest;
+import org.hpcclab.oaas.model.task.TaskExecRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

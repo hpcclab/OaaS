@@ -1,14 +1,14 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.task;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.task.BaseTaskMessage;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
 @Accessors(chain = true)
-public class TaskEvent {
+public class TaskEvent extends BaseTaskMessage {
   Type type;
   String id;
   Set<String> nextTasks;
