@@ -1,4 +1,4 @@
-package org.hpcclab.msc.resourcetest;
+package org.hpcclab.oaas.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -6,7 +6,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.msc.TestUtils;
+import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;

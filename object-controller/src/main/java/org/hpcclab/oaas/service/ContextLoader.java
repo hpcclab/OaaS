@@ -40,7 +40,8 @@ public class ContextLoader {
       .getDeep(request.getTarget())
       .flatMap(object -> {
         var fec = new FunctionExecContext().setEntry(object)
-          .setMain(object);
+          .setMain(object)
+          .setArgs(request.getArgs());
         if (request.getAdditionalInputs()!=null && !request.getAdditionalInputs().isEmpty()) {
           return objectRepo.listByIds(request.getAdditionalInputs())
             .map(fec::setAdditionalInputs);
@@ -64,7 +65,7 @@ public class ContextLoader {
           .setFunctionAccess(binding.getAccess());
       })
       .call(fec -> Mutiny.fetch(fec.getFunction().getOutputCls()))
-      .invoke(fec -> session.clear())
+//      .invoke(fec -> session.clear())
       .invoke(() -> LOGGER.debug("successfully load context of '{}'", request.getTarget()));
   }
 

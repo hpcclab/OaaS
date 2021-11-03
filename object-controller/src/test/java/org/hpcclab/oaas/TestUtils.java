@@ -1,4 +1,4 @@
-package org.hpcclab.msc;
+package org.hpcclab.oaas;
 
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;

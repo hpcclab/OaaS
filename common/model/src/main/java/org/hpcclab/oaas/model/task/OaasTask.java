@@ -15,12 +15,17 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasTask extends BaseTaskMessage{
-  String id;
+//  String id;
   OaasObjectDto main;
   OaasObjectDto output;
   OaasFunctionDto function;
   List<OaasObjectDto> additionalInputs = List.of();
   String requestFile;
+
+  public OaasTask setId(String id) {
+    this.id = id;
+    return this;
+  }
 
   public static String createId(OaasObject outputObj, String requestFile) {
     if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )

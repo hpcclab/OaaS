@@ -1,34 +1,53 @@
 ###
-POST {{oc}}/api/functions?update=true
+POST {{oc}}/api/batch
 Content-Type: text/x-yaml
 
-name: example.concat
-type: TASK
-reactive: true
-outputTemplate:
-  type: RESOURCE
-  functions:
-    - example.concat
-  labels: {}
-  state:
-    type: FILE
-bindingRequirement:
-  requiredType: RESOURCE
-  requiredStateType: FILE
-additionalInputs: []
-task:
-  type: EPHEMERAL
-  image: core.harbor.10.131.36.27.nip.io/oaas/ubi
-  commands:
-    - /bin/sh
-    - '-c'
-  containerArgs:
-    - |
-      curl -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
-      echo "$TEXT" >> tmp_file
-      curl -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
+functions:
+  - name: example.concat
+    type: TASK
+    outputCls: example.text
+    validation:
+      additionalInputs:
+        - requiredClass: example.text
+    task:
+      type: EPHEMERAL
+      image: core.harbor.10.131.36.27.nip.io/oaas/ubi
+      #    image: curlimages/curl
+      commands:
+        - /bin/sh
+        - '-c'
+      containerArgs:
+        - |
+          curl -s -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
+          echo "Download main file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE"
+          curl -s -o input_0_file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE
+          echo "Download input 0 file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE"
+          cat input_0_file >> tmp_file
+          echo "concat string"
+          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}
+          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}"
+      argsToEnv: true
+classes:
+  - name: example.text
+    stateType: FILE
+    objectType: RESOURCE
+    functions:
+    - access: PUBLIC
+      function: builtin.logical.copy
+    - access: PUBLIC
+      function: example.concat
 
-  argsToEnv: true
+###
+PUT  {{s3}}/test-resource/obj_0
+Content-Type: text/plain
+
+OBJECT 0 TEXT |
+
+###
+PUT  {{s3}}/test-resource/obj_1
+Content-Type: text/plain
+
+OBJECT 1 TEXT |
 
 ###
 POST {{oc}}/api/objects
@@ -37,61 +56,54 @@ Content-Type: application/json
 
 {
   "type": "RESOURCE",
-  "functions": [
-    "example.concat"
-  ],
+  "cls": "example.text",
   "state": {
     "type": "FILE",
-    "baseUrl": "http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc/msc-bkt-75e7fed6-684a-428f-b4fa-dac605f10bb9/test2",
-    "file": "root"
+    "baseUrl": "{{s3}}/test-resource",
+    "file": "obj_0"
   }
 }
 
 > {%
-client.global.set("root_id", response.body.id)
+client.global.set("obj_0_id", response.body.id)
 %}
-
 ###
-POST {{oc}}/api/objects/{{root_id}}/r-exec
+
+POST {{oc}}/api/objects
 Accept: application/json
 Content-Type: application/json
 
 {
-  "target": "{{root_id}}",
-  "functionName": "example.concat",
-  "args": {
-    "TEXT": "ROOT -> O1"
+  "type": "RESOURCE",
+  "cls": "example.text",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "{{s3}}/test-resource",
+    "file": "obj_1"
   }
 }
 
 > {%
-client.global.set("o1_id", response.body.id)
+client.global.set("obj_1_id", response.body.id)
 %}
+
 ###
-POST {{oc}}/api/objects/{{o1_id}}/r-exec
+POST {{oc}}/api/objects/{{obj_0_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 
 {
-  "target": "{{o1_id}}",
+  "target": "{{obj_0_id}}",
   "functionName": "example.concat",
   "args": {
-    "TEXT": "O1 -> O2"
-  }
+    "TARGET": "txt"
+  },
+  "additionalInputs": ["{{obj_1_id}}"]
 }
 
 > {%
-client.global.set("o2_id", response.body.id)
+client.global.set("obj_2_id", response.body.id)
 %}
-####
-#POST {{tg}}/api/resource-requests
-#Accept: application/json
-#Content-Type: application/json
-#
-#{
-#  "ownerObjectId": "{{o2_id}}",
-#  "requestFile": "root"
-#}
 
 ###
-GET {{cdn}}/{{o2_id}}/root
+GET {{cdn}}/{{obj_2_id}}/txt

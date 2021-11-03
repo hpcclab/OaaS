@@ -1,18 +1,15 @@
-package org.hpcclab.msc.senario;
+package org.hpcclab.oaas.senario;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
-import org.hpcclab.msc.TestUtils;
+import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.entity.state.OaasObjectState;
 import org.hpcclab.oaas.model.OaasCompoundMemberDto;
 import org.hpcclab.oaas.model.OaasObjectDto;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;

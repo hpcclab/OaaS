@@ -19,7 +19,7 @@ public class FunctionExecContext {
   boolean reactive = true;
   OaasFunction function;
   OaasFunctionBinding.AccessModifier functionAccess;
-//  Map<String, String> args= Map.of();
+  Map<String, String> args= Map.of();
   List<OaasObject> additionalInputs = List.of();
 
 }

@@ -10,7 +10,6 @@ import java.util.Set;
 @Accessors(chain = true)
 public class TaskEvent extends BaseTaskMessage {
   Type type;
-  String id;
   Set<String> nextTasks;
   Set<String> prevTasks;
   Set<String> roots;
@@ -18,6 +17,10 @@ public class TaskEvent extends BaseTaskMessage {
   int traverse = 0;
   boolean exec = true;
 
+  public TaskEvent setId(String id) {
+    this.id = id;
+    return this;
+  }
 
   public enum Type {
     CREATE, NOTIFY, COMPLETE

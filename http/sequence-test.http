@@ -24,8 +24,8 @@ functions:
           echo "Download input 0 file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE"
           cat input_0_file >> tmp_file
           echo "concat string"
-          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$TARGET
-          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/$TARGET"
+          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}
+          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}"
       argsToEnv: true
 classes:
   - name: example.text
@@ -96,7 +96,7 @@ Content-Type: application/json
   "target": "{{obj_0_id}}",
   "functionName": "example.concat",
   "args": {
-    "TARGET": "text"
+    "TARGET": "txt"
   },
   "additionalInputs": ["{{obj_1_id}}"]
 }
@@ -109,4 +109,7 @@ client.global.set("obj_2_id", response.body.id)
 #GET {{cdn}}/{{obj_2_id}}/text
 
 ###
-#GET {{s3}}/{{obj_2_id}}/text
+GET {{s3}}/{{obj_2_id}}/text
+
+###
+GET {{s3}}/{{obj_2_id}}/txt

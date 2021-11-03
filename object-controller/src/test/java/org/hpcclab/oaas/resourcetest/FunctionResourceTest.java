@@ -1,9 +1,7 @@
-package org.hpcclab.msc.resourcetest;
+package org.hpcclab.oaas.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.vertx.core.json.Json;
-import org.hamcrest.Matchers;
-import org.hpcclab.msc.TestUtils;
+import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

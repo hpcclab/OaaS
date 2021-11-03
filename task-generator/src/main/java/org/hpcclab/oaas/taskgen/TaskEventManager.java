@@ -39,13 +39,18 @@ public class TaskEventManager {
 
 
   public void submitTask(String taskId) {
+    OaasTask task = createTask(taskId);
+    LOGGER.debug("submitTask {}", taskId);
+    tasksEmitter.send(Record.of(task.getId(), task));
+  }
+
+  public OaasTask createTask(String taskId) {
     var tmp = taskId.indexOf('/');
     var objId = tmp > 0 ? taskId.substring(0, tmp):taskId;
     var subTaskId = tmp > 0 ? taskId.substring(tmp + 1): null;
+    LOGGER.debug("getTaskContext {}", taskId);
     var context = originService.getTaskContext(objId);
-    OaasTask task = taskFactory.genTask(context, subTaskId);
-    LOGGER.debug("submitTask {}", taskId);
-    tasksEmitter.send(Record.of(task.getId(), task));
+    return taskFactory.genTask(context, subTaskId);
   }
 
   public void submitCompletionEvent(String taskId) {
@@ -101,7 +106,9 @@ public class TaskEventManager {
                                                        String subTaskId,
                                                        TaskEvent.Type type) {
     List< TaskEvent> results = new ArrayList<>();
-    LOGGER.debug("createTaskEventFromOriginList originList={}", Json.encodePrettily(originList));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("createTaskEventFromOriginList originList={}", Json.encodePrettily(originList));
+    }
     for (int i = 0; i < originList.size(); i++) {
       var map = originList.get(i);
       Map<String, OaasObjectOrigin> nextMap = i > 0? originList.get(i - 1) : Map.of();

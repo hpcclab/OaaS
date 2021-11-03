@@ -1,8 +1,7 @@
-package org.hpcclab.msc.provisioner;
+package org.hpcclab.oaas.provisioner;
 
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;

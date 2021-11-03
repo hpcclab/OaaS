@@ -2,6 +2,8 @@ package org.hpcclab.oaas.service;
 
 import org.hpcclab.oaas.OcConfig;
 import org.hpcclab.oaas.entity.object.OaasObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,6 +13,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class StorageAllocator {
+  private static final Logger LOGGER = LoggerFactory.getLogger( StorageAllocator.class );
 
   @Inject
   OcConfig config;
@@ -18,7 +21,7 @@ public class StorageAllocator {
   public void allocate(OaasObject object) {
     if (object.getId() == null) object.setId(UUID.randomUUID());
     object.getState().setBaseUrl(
-      URI.create(config.s3PrefixUrl()).resolve(object.getId().toString()).toString()
+      Path.of(config.s3PrefixUrl()).resolve(object.getId().toString()).toString()
     );
   }
 }

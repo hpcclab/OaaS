@@ -41,7 +41,7 @@ public class OaasObjectOrigin {
     rootId = context.getMain().getOrigin().getRootId();
     parentId = context.getMain().getId();
     funcName = context.getFunction().getName();
-    args = context.getMain().getOrigin().getArgs();
+    args = context.getArgs();
     additionalInputs = context.getAdditionalInputs()
       .stream().map(OaasObject::getId)
       .toList();

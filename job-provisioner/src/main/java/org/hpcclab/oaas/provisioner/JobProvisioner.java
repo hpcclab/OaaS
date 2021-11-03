@@ -1,4 +1,4 @@
-package org.hpcclab.msc.provisioner;
+package org.hpcclab.oaas.provisioner;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
@@ -58,8 +58,9 @@ public class JobProvisioner {
       .endSpec()
       .build();
     job = kubernetesClient.batch().v1().jobs().create(job);
-    LOGGER.info("job {}", Json.encodePrettily(job));
-
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("job {}", Json.encodePrettily(job));
+    }
   }
 
   private Map<String,String> createEnv(OaasTask task) {
