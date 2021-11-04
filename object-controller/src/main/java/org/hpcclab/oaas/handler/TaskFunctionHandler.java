@@ -26,8 +26,6 @@ public class TaskFunctionHandler {
   OaasObjectRepository objectRepo;
   @Inject
   StorageAllocator storageAllocator;
-  @Inject
-  TaskExecutionService resourceRequestService;
 
   public void validate(FunctionExecContext context) {
     var main = context.getMain();
@@ -60,34 +58,23 @@ public class TaskFunctionHandler {
     }
   }
 
-  public Uni<OaasObject> call(FunctionExecContext context) {
+  public Uni<FunctionExecContext> call(FunctionExecContext context) {
     var func = context.getFunction();
     var output = OaasObject.createFromClasses(func.getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
     if (func.getTask().getOutputFileNames()!=null) {
       output.getState().setFiles(func.getTask().getOutputFileNames());
     }
-//    if (output.getState().getType() == OaasObjectState.StateType.FILE
-//      && output.getState().getFile() == null
-//      && context.getMain().getState().getType() == OaasObjectState.StateType.FILE) {
-//      output.getState()
-//        .setFile(context.getMain().getState().getFile());
-//    }
-//    storageAllocator.allocate(output);
 
     var resUni = objectRepo.persist(output)
       .invoke(o -> storageAllocator.allocate(o));
 
-    if (!context.isReactive()) {
-      resUni = resUni.call(o -> {
-        var request = new TaskExecRequest()
-          .setId(o.getId().toString())
-          .setOriginList(List.of(
-            Map.of(o.getId().toString(), o.getOrigin())
-          ));
-        return resourceRequestService.request(request);
-      });
+    var rootCtx = context;
+    while (rootCtx.getParent() != null) {
+//      rootCtx.getTaskOutputs().add(output);
+      rootCtx = rootCtx.getParent();
     }
-    return resUni;
+    rootCtx.getTaskOutputs().add(output);
+    return resUni.map(context::setOutput);
   }
 }

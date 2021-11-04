@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.provisioner;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
@@ -51,6 +52,9 @@ public class JobProvisioner {
       .withImage(function.getTask().getImage())
       .withCommand(function.getTask().getCommands())
       .withArgs(function.getTask().getContainerArgs())
+      .withNewResources()
+      .withRequests(Map.of("cpu", Quantity.parse("0.5")))
+      .endResources()
       .endContainer()
       .withRestartPolicy("Never")
       .endSpec()

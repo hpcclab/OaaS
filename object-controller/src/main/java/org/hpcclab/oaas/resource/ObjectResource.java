@@ -125,13 +125,11 @@ public class ObjectResource implements ObjectService {
       .map(oaasMapper::toObject);
   }
 
-  @ReactiveTransactional
   public Uni<OaasObjectDto> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(UUID.fromString(id)))
       .map(oaasMapper::toObject);
   }
 
-  @ReactiveTransactional
   public Uni<OaasObjectDto> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)))
       .map(oaasMapper::toObject);

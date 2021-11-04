@@ -96,7 +96,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
     }
 
     if (taskEvent.isExec()) {
-      if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())) {
+      if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks()) && !taskState.isSubmitted()) {
 //        taskEventManager.submitTask(key);
         kvList.add(KeyValue.pair(key,taskEventManager.createTask(key)));
         taskState.setSubmitted(true);
@@ -123,7 +123,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
 
     if (taskState.isComplete()) {
       kvList = notifyNext(key, taskEvent.isExec(), taskState);
-    } else if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())) {
+    } else if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks()) && !taskState.isSubmitted()) {
 //      taskEventManager.submitTask(key);
       kvList = List.of(KeyValue.pair(key,taskEventManager.createTask(key)));
       taskState.setSubmitted(true);
