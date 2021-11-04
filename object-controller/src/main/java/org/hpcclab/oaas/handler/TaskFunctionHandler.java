@@ -10,8 +10,8 @@ import org.hpcclab.oaas.exception.NoStackException;
 import org.hpcclab.oaas.model.FunctionExecContext;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.TaskExecutionService;
 import org.hpcclab.oaas.service.StorageAllocator;
+import org.hpcclab.oaas.service.TaskExecutionService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,6 +64,9 @@ public class TaskFunctionHandler {
     var func = context.getFunction();
     var output = OaasObject.createFromClasses(func.getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
+    if (func.getTask().getOutputFileNames()!=null) {
+      output.getState().setFiles(func.getTask().getOutputFileNames());
+    }
 //    if (output.getState().getType() == OaasObjectState.StateType.FILE
 //      && output.getState().getFile() == null
 //      && context.getMain().getState().getType() == OaasObjectState.StateType.FILE) {

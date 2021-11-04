@@ -3,7 +3,7 @@ POST {{oc}}/api/batch
 Content-Type: text/x-yaml
 
 functions:
-  - name: example.concat
+  - name: example.text.concat
     type: TASK
     outputCls: example.text
     validation:
@@ -12,30 +12,31 @@ functions:
     task:
       type: EPHEMERAL
       image: core.harbor.10.131.36.27.nip.io/oaas/ubi
-      #    image: curlimages/curl
       commands:
         - /bin/sh
         - '-c'
+      outputFileNames:
+        - text
       containerArgs:
         - |
-          curl -s -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE
-          echo "Download main file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE"
-          curl -s -o input_0_file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE
-          echo "Download input 0 file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE"
+          curl -s -o tmp_file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0
+          echo "Download main file $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0"
+          curl -s -o input_0_file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE_0
+          echo "Download input 0 file $INPUT_0_RESOURCE_BASE_URL/$INPUT_0_RESOURCE_FILE_0"
           cat input_0_file >> tmp_file
           echo "concat string"
-          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}
-          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/${TARGET:-text}"
+          curl -s -T tmp_file $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0
+          echo "Upload file to $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
       argsToEnv: true
 classes:
   - name: example.text
     stateType: FILE
     objectType: RESOURCE
     functions:
-    - access: PUBLIC
-      function: builtin.logical.copy
-    - access: PUBLIC
-      function: example.concat
+      - access: PUBLIC
+        function: builtin.logical.copy
+      - access: PUBLIC
+        function: example.text.concat
 
 ###
 PUT  {{s3}}/test-resource/obj_0
@@ -60,7 +61,7 @@ Content-Type: application/json
   "state": {
     "type": "FILE",
     "baseUrl": "{{s3}}/test-resource",
-    "file": "obj_0"
+    "files": ["obj_0"]
   }
 }
 
@@ -79,7 +80,7 @@ Content-Type: application/json
   "state": {
     "type": "FILE",
     "baseUrl": "{{s3}}/test-resource",
-    "file": "obj_1"
+    "files": ["obj_1"]
   }
 }
 
@@ -94,7 +95,7 @@ Content-Type: application/json
 
 {
   "target": "{{obj_0_id}}",
-  "functionName": "example.concat",
+  "functionName": "example.text.concat",
   "args": {
     "TARGET": "txt"
   },
@@ -111,5 +112,3 @@ client.global.set("obj_2_id", response.body.id)
 ###
 GET {{s3}}/{{obj_2_id}}/text
 
-###
-GET {{s3}}/{{obj_2_id}}/txt

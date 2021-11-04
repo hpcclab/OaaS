@@ -2,9 +2,7 @@ package org.hpcclab.oaas;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.runtime.StartupEvent;
-import io.smallrye.common.annotation.Blocking;
 import org.hpcclab.oaas.model.OaasClassDto;
 import org.hpcclab.oaas.model.OaasFunctionDto;
 import org.hpcclab.oaas.service.BatchService;
@@ -15,6 +13,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
@@ -27,32 +28,27 @@ public class BuiltInLoader {
   BatchService batchService;
 
   @Transactional
-  void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException {
+  void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException, IOException {
     mapper = new ObjectMapper(new YAMLFactory());
 
-    var functions = loadFile(OaasFunctionDto.class,
-      "/functions/builtin.logical.yml",
-      "/functions/builtin.hls.yml"
-    )
-      .peek(func -> {
-        if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("import build-in function {}", func);
-        } else {
-          LOGGER.info("import build-in function {}", func.getName());
-        }
-      })
-      .toList();
-    var classes = loadFile(OaasClassDto.class,
-      "/classes/builtin.basic.yml"
-    )
-      .peek(cls -> {
-        if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("import build-in class {}", cls);
-        } else {
-          LOGGER.info("import build-in class {}", cls.getName());
-        }
-      })
-      .toList();
+    List<OaasClassDto> classes = new ArrayList<>();
+    List<OaasFunctionDto> functions = new ArrayList<>();
+
+    var files = List.of(
+      "/builtin/builtin.logical.yml",
+      "/builtin/builtin.basic.yml",
+      "/builtin/builtin.text.yml"
+    );
+
+    for (String file : files) {
+      var is = getClass().getResourceAsStream(file);
+      var batch = mapper.readValue(is, BatchService.Batch.class);
+      var funcNames = batch.getFunctions().stream().map(OaasFunctionDto::getName).toList();
+      var clsNames = batch.getClasses().stream().map(OaasClassDto::getName).toList();
+      LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
+      classes.addAll(batch.getClasses());
+      functions.addAll(batch.getFunctions());
+    }
 
     BatchService.Batch batch = new BatchService.Batch()
       .setClasses(classes)
@@ -62,14 +58,15 @@ public class BuiltInLoader {
       .subscribeAsCompletionStage().get();
   }
 
+
   <T> Stream<T> loadFile(Class<T> cls, String... files) {
     return
       Stream.of(files)
-        .flatMap(file -> {
+        .map(file -> {
           try {
             var is = getClass().getResourceAsStream(file);
-            return Stream.of((T[]) mapper.readValue(is, cls.arrayType()));
-          } catch (Throwable e) {
+            return mapper.readValue(is, cls);
+          } catch (IOException e) {
             throw new RuntimeException("get error on file " + file, e);
           }
         });

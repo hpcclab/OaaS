@@ -80,7 +80,7 @@ public class JobProvisioner {
       var prefix = "INPUT_" + i;
       putEnv(env, inputObj, prefix);
     }
-    env.put("OUTPUT_RESOURCE_BASE_URL", outputObj.getState().getBaseUrl());
+    putEnv(env, outputObj, "OUTPUT");
     env.put("REQUEST_FILE", requestFile);
     return env;
   }
@@ -88,8 +88,10 @@ public class JobProvisioner {
   private void putEnv(Map<String, String> env, OaasObjectDto obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
-    if (obj.getState().getFile() != null) {
-      env.put(prefix + "_RESOURCE_FILE", obj.getState().getFile());
+    if (obj.getState().getFiles() != null) {
+      for (int i = 0; i < obj.getState().getFiles().size(); i++) {
+        env.put(prefix + "_RESOURCE_FILE_" + i, obj.getState().getFiles().get(i));
+      }
     }
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
   }
