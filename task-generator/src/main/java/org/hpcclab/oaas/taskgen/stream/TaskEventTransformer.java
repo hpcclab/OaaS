@@ -40,6 +40,7 @@ public class TaskEventTransformer implements Transformer<String, TaskEvent, Iter
   @Override
   public Iterable<KeyValue<String,BaseTaskMessage>> transform(String key,
                                                                        TaskEvent taskEvent) {
+    LOGGER.debug("handle event {} {}", key, taskEvent.getType());
     return switch (taskEvent.getType()) {
       case CREATE -> handleCreate(key, taskEvent);
       case NOTIFY -> handleNotify(key, taskEvent);

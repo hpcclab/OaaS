@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kowl
+  labels:
+    app: kowl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kowl
+  template:
+    metadata:
+      labels:
+        app: kowl
+    spec:
+      containers:
+        - name: kowl
+          env:
+            - name: KAFKA_BROKERS
+              value: msc-kafka-bootstrap:9092
+          image: quay.io/cloudhut/kowl:master
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256M
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kowl
+spec:
+  selector:
+    app: kowl
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kowl-ingress
+spec:
+  rules:
+    - host: "kowl.10.131.36.27.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: kowl
+                port:
+                  number: 80
