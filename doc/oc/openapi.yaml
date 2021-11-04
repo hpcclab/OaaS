@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: object-controller API
-  version: 0.1.0-SNAPSHOT
+  version: 0.2.0-SNAPSHOT
 paths:
   /api/batch:
     post:
@@ -582,8 +582,10 @@ components:
       properties:
         baseUrl:
           type: string
-        file:
-          type: string
+        files:
+          type: array
+          items:
+            type: string
         records:
           type: string
         type:
@@ -647,6 +649,10 @@ components:
             type: string
         image:
           type: string
+        outputFileNames:
+          type: array
+          items:
+            type: string
         type:
           $ref: '#/components/schemas/Type'
     TaskContext:

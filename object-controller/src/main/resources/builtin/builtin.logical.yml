@@ -1,0 +1,3 @@
+functions:
+  - name: builtin.logical.copy
+    type: LOGICAL

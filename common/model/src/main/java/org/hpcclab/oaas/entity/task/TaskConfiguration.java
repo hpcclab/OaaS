@@ -19,6 +19,7 @@ public class TaskConfiguration {
   String image;
   List<String> commands;
   List<String> containerArgs;
+  List<String> outputFileNames;
   boolean argsToEnv = true;
 
   public enum Type{
