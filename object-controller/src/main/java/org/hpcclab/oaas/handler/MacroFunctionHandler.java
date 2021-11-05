@@ -59,11 +59,12 @@ public class MacroFunctionHandler {
       .getObject();
   }
 
-  public Uni<OaasObject> call(FunctionExecContext context) {
+  public Uni<FunctionExecContext> call(FunctionExecContext context) {
     validate(context);
 
     var func = context.getFunction();
-    LOGGER.info("func {}", Json.encodePrettily(func));
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("func {}", Json.encodePrettily(func));
     var output = OaasObject.createFromClasses(context.getFunction().getOutputCls());
     output.setOrigin(new OaasObjectOrigin(context));
 
@@ -77,7 +78,8 @@ public class MacroFunctionHandler {
           .collect(Collectors.toUnmodifiableSet());
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);
-      });
+      })
+      .map(context::setOutput);
   }
 
   private Uni<Map<String, OaasObject>> execWorkflow(FunctionExecContext context,
@@ -91,9 +93,9 @@ public class MacroFunctionHandler {
           .map(ir -> resolveTarget(context, map, ir))
           .toList();
         return contextLoader.loadCtx(context, target, step)
-          .invoke(ctx -> ctx.setAdditionalInputs(inputRefs))
-          .flatMap(ctx -> router.functionCall(ctx))
-          .invoke(obj -> map.put(step.getAs(), obj));
+          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))
+          .flatMap(newCtx -> router.functionCall(newCtx))
+          .invoke(newCtx -> map.put(step.getAs(), newCtx.getOutput()));
       })
       .collect().last()
       .map(l -> map);

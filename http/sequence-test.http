@@ -107,8 +107,8 @@ client.global.set("obj_2_id", response.body.id)
 %}
 
 ###
-#GET {{cdn}}/{{obj_2_id}}/text
+GET {{cdn}}/{{obj_2_id}}/text
 
 ###
-GET {{s3}}/{{obj_2_id}}/text
+#GET {{s3}}/{{obj_2_id}}/text
 

@@ -7,6 +7,7 @@ import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,10 +15,13 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext {
+  FunctionExecContext parent;
   OaasObject main;
   OaasObject entry;
   boolean reactive = true;
   OaasFunction function;
+  OaasObject output;
+  List<OaasObject> taskOutputs = new ArrayList<>();
   OaasFunctionBinding.AccessModifier functionAccess;
   Map<String, String> args= Map.of();
   List<OaasObject> additionalInputs = List.of();

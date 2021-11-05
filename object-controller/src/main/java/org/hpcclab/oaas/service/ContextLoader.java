@@ -77,7 +77,8 @@ public class ContextLoader {
       .flatMap(ss -> objectRepo.getDeep(main.getId())
         .flatMap(newMain -> {
           LOGGER.info("main (after fetch) {}", Json.encodePrettily(newMain));
-          newCtx.setMain(newMain);
+          newCtx.setParent(baseCtx)
+            .setMain(newMain);
           var functionBinding = Stream.concat(
               newMain.getFunctions().stream(),
               newMain.getCls().getFunctions().stream()

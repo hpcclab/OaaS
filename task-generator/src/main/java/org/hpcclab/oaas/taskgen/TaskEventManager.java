@@ -67,7 +67,7 @@ public class TaskEventManager {
     var list = createTaskEventFromOriginList(
       originList, config.defaultTraverse(), true, subTaskId, TaskEvent.Type.CREATE);
     return Multi.createFrom().iterable(list)
-      .log("submitExecEvent "+ taskId)
+//      .log("submitExecEvent "+ taskId)
       .onItem().transformToUniAndConcatenate(taskEvent -> {
         var stage= taskEventEmitter.send(Record.of(taskEvent.getId(), taskEvent));
         return Uni.createFrom().completionStage(stage);
@@ -132,7 +132,7 @@ public class TaskEventManager {
 
         if (!nextMap.isEmpty()) {
           nextTasks = nextMap.entrySet().stream()
-            .filter(e -> e.getValue().getParentId()==id ||
+            .filter(e -> e.getValue().getParentId().equals(id) ||
               e.getValue().getAdditionalInputs().contains(id)
             )
             .map(Map.Entry::getKey)
