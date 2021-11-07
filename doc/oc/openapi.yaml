@@ -573,10 +573,6 @@ components:
           type: object
           additionalProperties:
             type: string
-        requiredStateType:
-          type: string
-        requiredType:
-          $ref: '#/components/schemas/ObjectType'
     OaasObjectState:
       type: object
       properties:

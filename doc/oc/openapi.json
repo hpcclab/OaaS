@@ -838,12 +838,6 @@
             "additionalProperties" : {
               "type" : "string"
             }
-          },
-          "requiredStateType" : {
-            "type" : "string"
-          },
-          "requiredType" : {
-            "$ref" : "#/components/schemas/ObjectType"
           }
         }
       },
