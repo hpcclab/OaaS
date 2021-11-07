@@ -12,7 +12,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectRequirement implements Serializable{
   private Map<String, String> requiredLabels = Map.of();
-  private OaasObject.ObjectType requiredType;
-  private String requiredStateType;
+//  private OaasObject.ObjectType requiredType;
+//  private String requiredStateType;
   private String requiredClass;
 }

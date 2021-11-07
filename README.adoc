@@ -1,0 +1,15 @@
+= OaaS
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+
+// Need some preamble to get TOC:
+{empty}
+
+== Architecture
+=== High Level
+image:doc/diagrams/oaas_stack_current.dio.png[]
+
+=== Flow
+image:doc/diagrams/oaas_architecture_current.dio.png[]
