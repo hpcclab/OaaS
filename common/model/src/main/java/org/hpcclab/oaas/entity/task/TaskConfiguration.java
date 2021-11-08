@@ -20,6 +20,7 @@ public class TaskConfiguration {
   List<String> commands;
   List<String> containerArgs;
   List<String> outputFileNames;
+  Map<String, String> provisionConfig = Map.of();
   boolean argsToEnv = true;
 
   public enum Type{

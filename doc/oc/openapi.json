@@ -838,6 +838,12 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "requiredStateType" : {
+            "type" : "string"
+          },
+          "requiredType" : {
+            "$ref" : "#/components/schemas/ObjectType"
           }
         }
       },
@@ -942,6 +948,12 @@
           "outputFileNames" : {
             "type" : "array",
             "items" : {
+              "type" : "string"
+            }
+          },
+          "provisionConfig" : {
+            "type" : "object",
+            "additionalProperties" : {
               "type" : "string"
             }
           },
