@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: object-controller API
-  version: 0.1.0
+  version: 0.2.0-SNAPSHOT
 paths:
   /api/batch:
     post:
@@ -573,10 +573,6 @@ components:
           type: object
           additionalProperties:
             type: string
-        requiredStateType:
-          type: string
-        requiredType:
-          $ref: '#/components/schemas/ObjectType'
     OaasObjectState:
       type: object
       properties:
@@ -625,7 +621,7 @@ components:
     ObjectType:
       enum:
       - COMPOUND
-      - RESOURCE
+      - SIMPLE
       type: string
     StateType:
       enum:

@@ -25,7 +25,7 @@ public class JobProvisioner {
   @Inject
   KubernetesClient kubernetesClient;
 
-  @Incoming("tasks")
+//  @Incoming("tasks")
   public void provision(OaasTask task) {
     var envList = createEnv(task)
       .entrySet()

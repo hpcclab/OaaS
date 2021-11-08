@@ -32,13 +32,13 @@ quarkus:
         level: DEBUG
 mp:
   messaging:
-    incoming:
-      tasks:
-        connector: smallrye-kafka
-        topic: ${oaas.jp.taskTopic}
-        auto:
-          offset:
-            reset: earliest
+#    incoming:
+#      tasks:
+#        connector: smallrye-kafka
+#        topic: ${oaas.jp.taskTopic}
+#        auto:
+#          offset:
+#            reset: earliest
     outgoing:
       task-completions:
         connector: smallrye-kafka

@@ -43,17 +43,10 @@ import java.util.stream.Stream;
   subgraphs = {
     @NamedSubgraph(name = "oaas.classes.deep",
       attributeNodes = @NamedAttributeNode(value = "functions"
-//        ,
-//        subgraph = "oaas.functionBinding.tree"
       )),
     @NamedSubgraph(name = "oaas.functionBinding.deep",
       attributeNodes = @NamedAttributeNode(value = "function"
-//        , subgraph = "oaas.function.tree"
       )),
-
-//    ,
-//    @NamedSubgraph(name = "oaas.function.tree",
-//      attributeNodes = @NamedAttributeNode(value = "outputCls"))
   })
 public class OaasObject extends BaseUuidEntity {
 
@@ -63,9 +56,6 @@ public class OaasObject extends BaseUuidEntity {
   OaasObjectOrigin origin;
 
   Long originHash;
-
-  @Enumerated
-  ObjectType type;
 
   @Enumerated
   AccessModifier access = AccessModifier.PUBLIC;
@@ -92,7 +82,7 @@ public class OaasObject extends BaseUuidEntity {
   Set<OaasCompoundMember> members;
 
   public enum ObjectType {
-    RESOURCE,
+    SIMPLE,
     COMPOUND
   }
 
@@ -103,7 +93,7 @@ public class OaasObject extends BaseUuidEntity {
   }
 
   public void format() {
-    if (type==ObjectType.COMPOUND) {
+    if (getCls().getObjectType() ==ObjectType.COMPOUND) {
       state = null;
     } else {
       members = null;
@@ -115,7 +105,6 @@ public class OaasObject extends BaseUuidEntity {
     var o = new OaasObject(
       origin==null ? null:origin.copy(),
       originHash,
-      type,
       access,
       cls,
       labels==null ? null:Map.copyOf(labels),
@@ -129,7 +118,6 @@ public class OaasObject extends BaseUuidEntity {
 
   public static OaasObject createFromClasses(OaasClass cls) {
     return new OaasObject()
-      .setType(cls.getObjectType())
       .setCls(cls)
       .setState(new OaasObjectState().setType(cls.getStateType()));
   }

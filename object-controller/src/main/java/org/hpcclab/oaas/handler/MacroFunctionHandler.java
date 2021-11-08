@@ -37,7 +37,7 @@ public class MacroFunctionHandler {
   OaasMapper oaasMapper;
 
   public void validate(FunctionExecContext context) {
-    if (context.getMain().getType()!=OaasObject.ObjectType.COMPOUND)
+    if (context.getMain().getCls().getObjectType()!=OaasObject.ObjectType.COMPOUND)
       throw new NoStackException("Object must be COMPOUND").setCode(400);
     if (context.getFunction().getType()!=OaasFunction.FuncType.MACRO)
       throw new NoStackException("Function must be MACRO").setCode(400);

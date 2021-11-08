@@ -20,8 +20,12 @@ public class StorageAllocator {
 
   public void allocate(OaasObject object) {
     if (object.getId() == null) object.setId(UUID.randomUUID());
+    var prefix = config.s3PrefixUrl();
+    if (config.s3PrefixUrl().charAt(config.s3PrefixUrl().length() - 1) != '/') {
+      prefix += '/';
+    }
     object.getState().setBaseUrl(
-      Path.of(config.s3PrefixUrl()).resolve(object.getId().toString()).toString()
+      URI.create(prefix).resolve(object.getId().toString()).toString()
     );
   }
 }

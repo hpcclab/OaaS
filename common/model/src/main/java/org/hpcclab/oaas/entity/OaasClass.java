@@ -27,13 +27,7 @@ import java.util.Set;
     @NamedSubgraph(
       name = "oaas.functionBinding.deep",
       attributeNodes = @NamedAttributeNode(value = "function"
-//        ,
-//        subgraph = "oaas.function.deep"
       ))
-//    ,
-//    @NamedSubgraph(name = "oaas.function.deep",
-//      attributeNodes = @NamedAttributeNode(value = "outputCls")
-//    )
   })
 
 public class OaasClass {

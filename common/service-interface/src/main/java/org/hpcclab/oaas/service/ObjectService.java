@@ -6,6 +6,7 @@ import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -19,7 +20,7 @@ public interface ObjectService {
   Uni<List<OaasObjectDto>> list();
 
   @POST
-  Uni<OaasObjectDto> create(@Valid OaasObjectDto creating);
+  Uni<OaasObjectDto> create(@Valid @NotNull OaasObjectDto creating);
 
   @GET
   @Path("{id}")
@@ -40,15 +41,10 @@ public interface ObjectService {
   @Path("{id}/context")
   Uni<TaskContext> getTaskContext(String id);
 
-//  @GET
-//  @Path("{id}/full-graph")
-//  Uni<OaasObject> getFullGraph(String id);
-
   @POST
   @Path("{id}/binds")
   Uni<OaasObjectDto> bindFunction(String id,
                                List<OaasFunctionBindingDto> funcNames);
-
 
   @POST
   @Path("{id}/exec")
@@ -58,7 +54,4 @@ public interface ObjectService {
   @Path("{id}/r-exec")
   Uni<OaasObjectDto> reactiveFuncCall(String id, @Valid  FunctionCallRequest request);
 
-//  @GET
-//  @Path("{id}/exec-context")
-//  Uni<FunctionExecContext> loadExecutionContext(String id);
 }

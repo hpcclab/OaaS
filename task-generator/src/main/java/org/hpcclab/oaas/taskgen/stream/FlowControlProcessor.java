@@ -175,6 +175,7 @@ public class FlowControlProcessor implements Processor
       .add("ce-specversion", "1.0".getBytes())
       .add("ce-source", "oaas/task-generator".getBytes())
       .add("ce-function", task.getFunction().getName().getBytes())
+      .add("ce-tasktype", task.getFunction().getTask().getType().toString().getBytes())
       .add("ce-type", "oaas.task".getBytes());
     return new Record<>(task.getId(), task, System.currentTimeMillis(),
       recordHeaders);

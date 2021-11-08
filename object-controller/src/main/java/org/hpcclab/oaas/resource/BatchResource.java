@@ -11,6 +11,7 @@ import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
+import org.hpcclab.oaas.exception.NoStackException;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.OaasFunctionBindingDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
@@ -104,7 +105,7 @@ public class BatchResource implements BatchService {
       var batch = yamlMapper.readValue(body, Batch.class);
       return create(batch);
     } catch (JsonProcessingException e) {
-      throw new BadRequestException(e);
+      throw new NoStackException(e.getMessage(), 400);
     }
   }
 }

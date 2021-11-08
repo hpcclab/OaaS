@@ -27,7 +27,7 @@ functions:
 classes:
   - name: builtin.text
     stateType: FILE
-    objectType: RESOURCE
+    objectType: SIMPLE
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

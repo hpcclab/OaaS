@@ -3,6 +3,7 @@ resources:
   #job provisioner
   - jp.yml
   - jp-rb.yml
+  - jp-trigger.yml
   #task generator
   - tg.yml
   #object controller
@@ -14,3 +15,5 @@ resources:
   - redis.yml
   - kafka-connect.yml
   - kafka-connector.yml
+  # knative
+  - kafka-source.yml

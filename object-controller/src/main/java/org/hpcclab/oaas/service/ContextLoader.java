@@ -30,8 +30,8 @@ public class ContextLoader {
   OaasObjectRepository objectRepo;
   @Inject
   OaasFuncRepository funcRepo;
-  @Inject
-  Mutiny.Session session;
+//  @Inject
+//  Mutiny.Session session;
   @Inject
   OaasMapper oaasMapper;
 
@@ -74,6 +74,7 @@ public class ContextLoader {
                                           OaasWorkflowStep step) {
     var newCtx = oaasMapper.copy(baseCtx);
     return objectRepo.getSession()
+      .invoke(session -> session.detach(main))
       .flatMap(ss -> objectRepo.getDeep(main.getId())
         .flatMap(newMain -> {
           LOGGER.info("main (after fetch) {}", Json.encodePrettily(newMain));

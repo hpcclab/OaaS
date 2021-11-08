@@ -32,4 +32,9 @@ public class NoStackException extends RuntimeException{
   public static NoStackException notFoundObject400(UUID uuid) {
     return new NoStackException("Not found object(id='" + uuid + "')", 400);
   }
+
+
+  public static NoStackException notFoundCls400(String name) {
+    return new NoStackException("Not found class(name='" + name + "')", 400);
+  }
 }

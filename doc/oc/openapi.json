@@ -2,7 +2,7 @@
   "openapi" : "3.0.3",
   "info" : {
     "title" : "object-controller API",
-    "version" : "0.1.0"
+    "version" : "0.2.0-SNAPSHOT"
   },
   "paths" : {
     "/api/batch" : {
@@ -838,12 +838,6 @@
             "additionalProperties" : {
               "type" : "string"
             }
-          },
-          "requiredStateType" : {
-            "type" : "string"
-          },
-          "requiredType" : {
-            "$ref" : "#/components/schemas/ObjectType"
           }
         }
       },
@@ -917,7 +911,7 @@
         }
       },
       "ObjectType" : {
-        "enum" : [ "COMPOUND", "RESOURCE" ],
+        "enum" : [ "COMPOUND", "SIMPLE" ],
         "type" : "string"
       },
       "StateType" : {

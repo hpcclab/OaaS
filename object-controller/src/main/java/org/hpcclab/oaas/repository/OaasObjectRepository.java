@@ -37,33 +37,34 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
   public Uni<OaasObject> createRootAndPersist(OaasObjectDto objectDto) {
     var root = oaasMapper.toObject(objectDto);
-    root.setOrigin(null);
-    root.setId(null);
-    root.format();
-    return getSession().flatMap(session -> {
-      if (root.getType()==OaasObject.ObjectType.COMPOUND) {
-        var newMembers = objectDto.getMembers().stream()
-          .map(member -> {
-            return new OaasCompoundMember().setName(member.getName())
-              .setObject(session.getReference(OaasObject.class, member.getObject()));
-          })
+    return classRepo.findByName(objectDto.getCls())
+      .onItem().ifNull()
+      .failWith(() -> NoStackException.notFoundCls400(objectDto.getCls()))
+      .invoke(root::setCls)
+      .flatMap(obj -> getSession())
+      .flatMap(session -> {
+        root.setOrigin(null);
+        root.setId(null);
+        root.format();
+        if (root.getCls().getObjectType()==OaasObject.ObjectType.COMPOUND) {
+          var newMembers = objectDto.getMembers().stream()
+            .map(member -> new OaasCompoundMember()
+              .setName(member.getName())
+              .setObject(session.getReference(OaasObject.class, member.getObject())))
+            .collect(Collectors.toSet());
+          root.setMembers(newMembers);
+        }
+
+        var funcs = objectDto.getFunctions()
+          .stream()
+          .map(fbDto ->  new OaasFunctionBinding()
+            .setAccess(fbDto.getAccess())
+            .setFunction(session.getReference(OaasFunction.class, fbDto.getFunction()))
+          )
           .collect(Collectors.toSet());
-        root.setMembers(newMembers);
-      }
-
-      var funcs = objectDto.getFunctions()
-        .stream()
-        .map(fbDto ->  new OaasFunctionBinding()
-              .setAccess(fbDto.getAccess())
-              .setFunction(session.getReference(OaasFunction.class, fbDto.getFunction()))
-        )
-        .collect(Collectors.toSet());
-      root.setFunctions(funcs);
-
-      var cls = session.getReference(OaasClass.class, objectDto.getCls());
-      root.setCls(cls);
-      return this.persist(root);
-    });
+        root.setFunctions(funcs);
+        return this.persist(root);
+      });
   }
 
 

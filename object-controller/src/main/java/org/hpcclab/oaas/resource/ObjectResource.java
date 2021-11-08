@@ -40,7 +40,7 @@ public class ObjectResource implements ObjectService {
 
   @ReactiveTransactional
   public Uni<OaasObjectDto> create(OaasObjectDto creating) {
-    if (creating==null) throw new BadRequestException();
+//    if (creating==null) throw new BadRequestException();
     return objectRepo.createRootAndPersist(creating)
       .map(oaasMapper::toObject)
       .onFailure().invoke(e -> LOGGER.error("error", e));

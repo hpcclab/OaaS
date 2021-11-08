@@ -7,6 +7,8 @@ import io.vertx.pgclient.PgException;
 import org.hibernate.HibernateException;
 import org.hpcclab.oaas.exception.NoStackException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.PersistenceException;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ExceptionMapper {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ExceptionMapper.class );
   @ServerExceptionMapper(IllegalArgumentException.class)
   public Response exceptionMapper(IllegalArgumentException illegalArgumentException) {
     return Response.status(404)
@@ -78,9 +81,11 @@ public class ExceptionMapper {
           .build();
       }
     }
+    LOGGER.error("Found error when persisting the model", exception);
     return Response.status(500)
       .entity(new JsonObject()
         .put("msg", "Found error when persisting the model")
+//        .put("detail", exception.getMessage())
       )
       .build();
   }

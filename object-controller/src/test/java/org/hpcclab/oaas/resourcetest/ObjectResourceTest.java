@@ -29,14 +29,15 @@ public class ObjectResourceTest {
 
   @BeforeAll
   static void setup() {
+
     RestAssured.filters(new RequestLoggingFilter(),
       new ResponseLoggingFilter());
   }
 
 @Test
   void testCreate() {
+  TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var root = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
@@ -55,18 +56,17 @@ public class ObjectResourceTest {
   @Test
   void testBind() {
     var obj = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
     var fb = List.of(
-      new OaasFunctionBindingDto(AccessModifier.PUBLIC,"builtin.hls.ts.transcode")
+      new OaasFunctionBindingDto(AccessModifier.PUBLIC,"test.dummy.resource")
     );
     obj = TestUtils.bind(obj, fb);
     var res = TestUtils.getObjectDeep(obj.getId());
     var newFb = res.getFunctions()
       .stream()
-      .filter(f -> f.getFunction().getName().equals("builtin.hls.ts.transcode"))
+      .filter(f -> f.getFunction().getName().equals("test.dummy.resource"))
       .findAny();
     assertTrue(newFb.isPresent());
   }
@@ -75,7 +75,6 @@ public class ObjectResourceTest {
   @Test
   void testBindReject() {
     var obj = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setAccess(OaasObject.AccessModifier.INTERNAL)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
@@ -99,7 +98,6 @@ public class ObjectResourceTest {
   @Test
   void testFunctionCall() {
     var obj = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
@@ -112,9 +110,7 @@ public class ObjectResourceTest {
 
   @Test
   void testGetOrigin() {
-    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setFunctions(Set.of(
           new OaasFunctionBindingDto().setFunction("test.dummy.resource")
@@ -162,14 +158,11 @@ public class ObjectResourceTest {
 
   @Test
   void testCompound(){
-    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj1 = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj1 = TestUtils.create(obj1);
     var obj2 = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.RESOURCE)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     obj2 = TestUtils.create(obj2);

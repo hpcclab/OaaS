@@ -1,7 +1,7 @@
 classes:
   - name: builtin.basic.file
     stateType: FILE
-    objectType: RESOURCE
+    objectType: SIMPLE
     functions:
       - access: PUBLIC
         function: builtin.logical.copy
