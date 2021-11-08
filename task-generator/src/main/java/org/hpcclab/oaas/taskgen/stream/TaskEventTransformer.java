@@ -19,6 +19,7 @@ import java.util.Set;
 
 public class TaskEventTransformer implements Transformer<String, TaskEvent, Iterable<KeyValue<String, BaseTaskMessage>>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventTransformer.class);
+
   final String storeName;
   final TaskEventManager taskEventManager;
   KeyValueStore<String, TaskState> tsStore;
