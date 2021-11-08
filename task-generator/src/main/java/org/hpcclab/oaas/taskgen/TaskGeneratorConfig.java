@@ -17,5 +17,6 @@ public interface TaskGeneratorConfig {
   String taskCompletionTopic();
   @WithDefault("3")
   int defaultTraverse();
-
+  @WithDefault("true")
+  boolean enableCloudEventHeaders();
 }

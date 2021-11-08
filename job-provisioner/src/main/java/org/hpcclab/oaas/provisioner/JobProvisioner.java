@@ -2,6 +2,7 @@ package org.hpcclab.oaas.provisioner;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
@@ -32,6 +33,23 @@ public class JobProvisioner {
       .toList();
 
     var function = task.getFunction();
+    var provisionConfig = function.getTask().getProvisionConfig();
+    Map<String, Quantity> requests = new HashMap<>();
+    if (provisionConfig.containsKey("requests.cpu")) {
+      requests.put("cpu", Quantity.parse(provisionConfig.get("requests.cpu")));
+    }
+    if (provisionConfig.containsKey("requests.memory")) {
+      requests.put("memory", Quantity.parse(provisionConfig.get("requests.memory")));
+    }
+    Map<String, Quantity> limits = new HashMap<>();
+    if (provisionConfig.containsKey("limits.cpu")) {
+      limits.put("cpu", Quantity.parse(provisionConfig.get("limits.cpu")));
+    }
+    if (provisionConfig.containsKey("limits.memory")) {
+      limits.put("memory", Quantity.parse(provisionConfig.get("limits.memory")));
+    }
+    ResourceRequirements resourceRequirements = new ResourceRequirements(limits, requests);
+
 
     var job = new JobBuilder()
       .withNewMetadata()
@@ -52,9 +70,7 @@ public class JobProvisioner {
       .withImage(function.getTask().getImage())
       .withCommand(function.getTask().getCommands())
       .withArgs(function.getTask().getContainerArgs())
-      .withNewResources()
-      .withRequests(Map.of("cpu", Quantity.parse("0.5")))
-      .endResources()
+      .withResources(resourceRequirements)
       .endContainer()
       .withRestartPolicy("Never")
       .endSpec()

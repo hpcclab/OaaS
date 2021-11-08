@@ -1,5 +1,6 @@
 package org.hpcclab.oaas;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgException;
@@ -46,6 +47,13 @@ public class ExceptionMapper {
         .put("msg", jsonMappingException.getMessage()))
       .build();
   }
+  @ServerExceptionMapper(JsonParseException.class)
+  public Response exceptionMapper(JsonParseException jsonParseException) {
+    return Response.status(400)
+      .entity(new JsonObject()
+        .put("msg", jsonParseException.getMessage()))
+      .build();
+  }
   @ServerExceptionMapper(ConstraintViolationException.class)
   public Response exceptionMapper(ConstraintViolationException exception) {
     return Response.status(400)
@@ -76,4 +84,6 @@ public class ExceptionMapper {
       )
       .build();
   }
+
+
 }

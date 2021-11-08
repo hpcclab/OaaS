@@ -951,6 +951,12 @@
               "type" : "string"
             }
           },
+          "provisionConfig" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
           "type" : {
             "$ref" : "#/components/schemas/Type"
           }
