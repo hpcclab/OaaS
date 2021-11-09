@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 
-public class TaskHandler {
+public class EphemeralTaskHandler {
 
   @Inject
   JobProvisioner jobProvisioner;
@@ -18,11 +18,14 @@ public class TaskHandler {
   @CloudEventMapping(
     trigger = "dev.knative.kafka.event",
     attributes = {
-      @EventAttribute(name = "kafkaheadercetype", value = "oaas.task")
+      @EventAttribute(name = "kafkaheadercetype", value = "oaas.task"),
+      @EventAttribute(name = "kafkaheadercetasktype", value = "EPHEMERAL")
     }
   )
   public void handle(@Context CloudEvent<OaasTask> cloudEvent) {
     jobProvisioner.provision(cloudEvent.data());
   }
+
+
 
 }
