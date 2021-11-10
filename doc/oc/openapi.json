@@ -625,9 +625,6 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/ObjectType"
           }
         }
       },
@@ -793,9 +790,6 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/ObjectType"
           }
         }
       },

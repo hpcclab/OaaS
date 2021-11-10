@@ -1,0 +1,38 @@
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "builtin.video",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "{{s3}}/test",
+    "files": [
+        "test-10s.mp4"
+    ]
+  }
+}
+
+> {%
+client.global.set("obj_0_id", response.body.id)
+%}
+
+###
+POST {{oc}}/api/objects/{{obj_0_id}}/exec
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target": "{{obj_0_id}}",
+  "functionName": "builtin.video.transcode-durable",
+  "args": {
+    "RESOLUTION": "720x480"
+  }
+}
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}
+
+

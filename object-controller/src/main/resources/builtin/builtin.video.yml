@@ -1,0 +1,46 @@
+functions:
+  - name: builtin.video.transcode-durable
+    type: TASK
+    outputCls: builtin.video
+    validation: {  }
+    task:
+      outputFileNames:
+        - video.mp4
+      type: DURABLE
+      provisionConfig: {}
+  - name: builtin.video.transcode
+    type: TASK
+    outputCls: builtin.video
+    validation: { }
+    task:
+      type: EPHEMERAL
+      image: core.harbor.10.131.36.27.nip.io/oaas/ffmpeg
+      commands:
+        - /bin/sh
+        - '-c'
+      outputFileNames:
+        - video.mp4
+      containerArgs:
+        - |
+          CMD="ffmpeg -i $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0 -s ${RESOLUTION:-720x480} -c:a copy $OUTPUT_RESOURCE_FILE_0"
+          echo "COMMAND: '$CMD'"
+          $CMD
+          CMD="curl -T $OUTPUT_RESOURCE_FILE_0 $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
+          echo "COMMAND: '$CMD'"
+          $CMD
+      argsToEnv: true
+      provisionConfig:
+        requests.cpu: 2
+        limits.cpu: 2
+
+classes:
+  - name: builtin.video
+    stateType: FILE
+    objectType: SIMPLE
+    functions:
+      - access: PUBLIC
+        function: builtin.logical.copy
+      - access: PUBLIC
+        function: builtin.video.transcode
+      - access: PUBLIC
+        function: builtin.video.transcode-durable

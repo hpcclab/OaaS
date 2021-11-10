@@ -17,3 +17,4 @@ resources:
   - kafka-connector.yml
   # knative
   - kafka-source.yml
+  - function

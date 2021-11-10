@@ -167,7 +167,6 @@ public class ObjectResourceTest {
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     obj2 = TestUtils.create(obj2);
     var compound = new OaasObjectDto()
-      .setType(OaasObject.ObjectType.COMPOUND)
       .setCls("builtin.basic.compound")
       .setMembers(Set.of(
          new OaasCompoundMemberDto().setName("obj1").setObject(obj1.getId()),

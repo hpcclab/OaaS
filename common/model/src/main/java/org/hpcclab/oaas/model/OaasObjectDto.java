@@ -16,7 +16,6 @@ public class OaasObjectDto {
   UUID id;
   OaasObjectOrigin origin;
   Long originHash;
-  OaasObject.ObjectType type;
   OaasObject.AccessModifier access = OaasObject.AccessModifier.PUBLIC;
   String cls;
   Map<String, String> labels;

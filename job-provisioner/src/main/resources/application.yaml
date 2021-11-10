@@ -41,6 +41,7 @@ mp:
 #            reset: earliest
     outgoing:
       task-completions:
+        merge: true
         connector: smallrye-kafka
         topic: ${oaas.jp.taskCompletionTopic}
         value:

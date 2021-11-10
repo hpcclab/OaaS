@@ -422,8 +422,6 @@ components:
           type: integer
         state:
           $ref: '#/components/schemas/OaasObjectState'
-        type:
-          $ref: '#/components/schemas/ObjectType'
     FuncType:
       enum:
       - LOGICAL
@@ -543,8 +541,6 @@ components:
           type: integer
         state:
           $ref: '#/components/schemas/OaasObjectState'
-        type:
-          $ref: '#/components/schemas/ObjectType'
     OaasObjectOrigin:
       type: object
       properties:

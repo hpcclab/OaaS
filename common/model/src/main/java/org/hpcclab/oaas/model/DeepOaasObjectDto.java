@@ -21,7 +21,6 @@ public class DeepOaasObjectDto {
   UUID id;
   OaasObjectOrigin origin;
   Long originHash;
-  OaasObject.ObjectType type;
   OaasObject.AccessModifier access;
   DeepOaasClassDto cls;
   Map<String, String> labels;
