@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.taskgen;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.hpcclab.oaas.service.FunctionService;
-import org.hpcclab.oaas.service.ObjectService;
+import org.hpcclab.oaas.iface.service.FunctionService;
+import org.hpcclab.oaas.iface.service.ObjectService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

@@ -8,7 +8,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.service.ClassService;
+import org.hpcclab.oaas.iface.service.ClassService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

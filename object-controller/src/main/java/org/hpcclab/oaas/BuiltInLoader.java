@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.StartupEvent;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
-import org.hpcclab.oaas.service.BatchService;
+import org.hpcclab.oaas.iface.service.BatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

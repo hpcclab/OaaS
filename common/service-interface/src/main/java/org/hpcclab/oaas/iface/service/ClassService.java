@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.service;
+package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OaasClassDto;

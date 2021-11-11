@@ -14,7 +14,7 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.service.FunctionService;
+import org.hpcclab.oaas.iface.service.FunctionService;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

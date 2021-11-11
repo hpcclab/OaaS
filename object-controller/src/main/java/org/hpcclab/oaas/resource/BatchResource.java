@@ -16,7 +16,7 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.service.BatchService;
+import org.hpcclab.oaas.iface.service.BatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

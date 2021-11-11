@@ -13,7 +13,7 @@ import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.ObjectService;
+import org.hpcclab.oaas.iface.service.ObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

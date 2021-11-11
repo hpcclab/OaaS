@@ -3,7 +3,6 @@ package org.hpcclab.oaas.handler;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.entity.FunctionExecContext;
@@ -11,7 +10,7 @@ import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.ContextLoader;
-import org.hpcclab.oaas.service.TaskExecutionService;
+import org.hpcclab.oaas.iface.service.TaskExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
