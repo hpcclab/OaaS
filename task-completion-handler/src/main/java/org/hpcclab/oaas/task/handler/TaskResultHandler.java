@@ -1,10 +1,12 @@
 package org.hpcclab.oaas.task.handler;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.funqy.Funq;
 import io.quarkus.funqy.knative.events.CloudEvent;
 import io.quarkus.funqy.knative.events.CloudEventMapping;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.kafka.Record;
+import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.hpcclab.oaas.iface.service.ObjectService;
@@ -13,8 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.core.Context;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public class TaskResultHandler {
@@ -29,8 +33,7 @@ public class TaskResultHandler {
   @CloudEventMapping(
     trigger = "oaas.task.result"
   )
-  public Uni<Void> handle(@Context CloudEvent<byte[]> cloudEvent,
-                          byte[] body) {
+  public Uni<Void> handleResult(@Context CloudEvent<Map<String, Object>> cloudEvent, Map<String, Object> body) {
     LOGGER.info("received task result: {}", cloudEvent);
     var id = cloudEvent.id();
     var objectId = id.split("/")[0];
@@ -41,7 +44,7 @@ public class TaskResultHandler {
       .setOutputObj(UUID.fromString(objectId))
       .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
       .setCompletionTime(Instant.now().toString())
-      .setDebugLog(new String(body));
+      .setDebugLog(Json.encodePrettily(body));
 
 
     Uni<Void> uni = null;

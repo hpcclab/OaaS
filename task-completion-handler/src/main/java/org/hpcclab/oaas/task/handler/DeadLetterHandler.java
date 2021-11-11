@@ -20,8 +20,7 @@ public class DeadLetterHandler {
   @CloudEventMapping(
     trigger = "dev.knative.kafka.event"
   )
-  public void handle(@Context CloudEvent<OaasTask> cloudEvent,
-                     OaasTask task) {
+  public void handleDeadLetter(OaasTask task, @Context CloudEvent<OaasTask> cloudEvent) {
     LOGGER.info("received dead letter: {}", cloudEvent);
     var taskCompletion = new TaskCompletion()
       .setId(task.getId())
