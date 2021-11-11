@@ -98,10 +98,10 @@ spec:
           ref:
             apiVersion: v1
             kind: Service
-            name: job-provisioner
+            name: task-completion-handler
   reply:
     ref:
       apiVersion: v1
       kind: Service
-      name: job-provisioner
+      name: task-completion-handler
 

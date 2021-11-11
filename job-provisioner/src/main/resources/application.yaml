@@ -6,8 +6,8 @@
 
 oaas:
   jp:
-    taskTopic: msc-tasks
-    taskCompletionTopic: msc-task-completions
+    taskTopic: oaas-tasks
+    taskCompletionTopic: oaas-task-completions
 
 
 quarkus:

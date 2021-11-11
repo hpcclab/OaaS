@@ -15,6 +15,9 @@ images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/stream-controller
     newName: core.harbor.10.131.36.27.nip.io/oaas/stream-controller
     newTag: latest
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-completion-handler
+    newName: core.harbor.10.131.36.27.nip.io/oaas/task-completion-handler
+    newTag: latest
   - name: mongo:5
     newName: core.harbor.10.131.36.27.nip.io/proxy/library/mongo
     newTag: '5'

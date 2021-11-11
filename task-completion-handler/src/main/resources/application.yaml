@@ -5,7 +5,8 @@
       port: 8092
 
 oaas:
-  tch: {}
+  tch:
+    taskCompletionTopic: msc-task-completions
 
 
 quarkus:
@@ -34,7 +35,7 @@ mp:
       task-completions:
         merge: true
         connector: smallrye-kafka
-        topic: ${oaas.jp.taskCompletionTopic}
+        topic: ${oaas.tch.taskCompletionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
         cloud-events-source: ${quarkus.application.name}

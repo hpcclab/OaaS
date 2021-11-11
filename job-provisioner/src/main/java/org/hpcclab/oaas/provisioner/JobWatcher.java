@@ -88,8 +88,7 @@ public class JobWatcher {
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
       .setRequestFile(task.getRequestFile())
-      .setResourceUrl(url)
-      .setDebugCondition(Json.encode(job.getStatus()));
+      .setResourceUrl(url);
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
       .list().getItems();
     if (items.size() > 0) {

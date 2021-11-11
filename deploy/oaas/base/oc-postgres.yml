@@ -19,7 +19,6 @@ spec:
       labels:
         app: oc-postgres
     spec:
-
       containers:
         - image: postgres
           env:
@@ -31,7 +30,7 @@ spec:
               value: oaas
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-          name: oc-mongo
+          name: oc-postgres
           ports:
             - containerPort: 5432
           resources:

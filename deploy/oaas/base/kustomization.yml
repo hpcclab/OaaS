@@ -1,20 +1,14 @@
 resources:
   - env-configmap.yaml
-  #job provisioner
+  # job-provisioner
   - jp.yml
   - jp-rb.yml
   - jp-trigger.yml
-  #task generator
+  # task-generator
   - tg.yml
-  #object controller
+  # object-controller
   - oc-postgres.yml
   - oc.yml
-  # Topics
-  - topics
-  # Redis
-  - redis.yml
-  - kafka-connect.yml
-  - kafka-connector.yml
-  # knative
-  - kafka-source.yml
+  # task-completion-hander
+  - tch.yml
   - function
