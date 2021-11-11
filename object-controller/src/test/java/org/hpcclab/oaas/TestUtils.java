@@ -4,6 +4,12 @@ import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.*;
+import org.hpcclab.oaas.model.cls.OaasClassDto;
+import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.function.OaasFunctionDto;
+import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
+import org.hpcclab.oaas.model.object.OaasObjectDto;
 
 import javax.ws.rs.core.MediaType;
 
@@ -49,6 +55,7 @@ public class TestUtils {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
+      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto[].class));
   }
 
@@ -61,6 +68,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
+      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -72,6 +80,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
+      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -83,6 +92,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("name", Matchers.equalTo(name))
+      .log().ifValidationFails()
       .extract().body().as(OaasClassDto.class);
   }
 
@@ -95,6 +105,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
+      .log().ifValidationFails()
       .extract().body().as(DeepOaasObjectDto.class);
   }
 
@@ -106,6 +117,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("output.id", Matchers.equalTo(id.toString()))
+      .log().ifValidationFails()
       .extract().body().as(TaskContext.class);
   }
 
@@ -119,6 +131,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
+      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -132,6 +145,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
+      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -143,7 +157,7 @@ public class TestUtils {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
+      .log().ifValidationFails()
       .extract().body().as(new TypeRef<List<OaasFunctionDto>>(){});
-
   }
 }

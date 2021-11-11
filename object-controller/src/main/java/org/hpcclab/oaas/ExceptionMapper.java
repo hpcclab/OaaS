@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgException;
 import org.hibernate.HibernateException;
-import org.hpcclab.oaas.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

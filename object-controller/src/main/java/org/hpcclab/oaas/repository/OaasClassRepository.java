@@ -4,7 +4,7 @@ import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.OaasClassDto;
+import org.hpcclab.oaas.model.cls.OaasClassDto;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.OaasClassDto;
+import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.service.ClassService;
 import org.slf4j.Logger;

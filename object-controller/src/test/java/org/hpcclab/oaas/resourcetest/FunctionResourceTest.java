@@ -1,9 +1,13 @@
 package org.hpcclab.oaas.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +36,14 @@ class FunctionResourceTest {
 
   @Test
   void create() {
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var functionList = TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     given()
       .when().get("/api/functions?update=true")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("name", hasItems("test.dummy.resource","test.dummy.compound"));
+      .body("name", hasItems("test.dummy.resource","test.dummy.compound"))
+      .log().ifValidationFails();
   }
 }

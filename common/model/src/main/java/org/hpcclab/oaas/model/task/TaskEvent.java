@@ -19,6 +19,7 @@ public class TaskEvent extends BaseTaskMessage {
   int traverse = 0;
   boolean exec = true;
 
+  @Override
   public TaskEvent setId(String id) {
     this.id = id;
     return this;

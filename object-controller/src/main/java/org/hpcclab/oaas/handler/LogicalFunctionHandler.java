@@ -1,9 +1,8 @@
 package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.FunctionExecContext;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
+import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +18,7 @@ public class LogicalFunctionHandler {
   public Uni<FunctionExecContext> call(FunctionExecContext context) {
     if (context.getFunction().getName().equals("builtin.logical.copy")) {
       var o = context.getMain().copy()
-        .setOrigin(new OaasObjectOrigin(context));
+        .setOrigin(context.createOrigin());
       o.setId(null);
       return objectRepo.persist(o)
         .map(context::setOutput);

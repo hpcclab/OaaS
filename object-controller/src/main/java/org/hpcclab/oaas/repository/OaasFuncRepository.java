@@ -5,13 +5,12 @@ import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.OaasFunctionDto;
+import org.hpcclab.oaas.model.function.OaasFunctionDto;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @ApplicationScoped
 public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, String> {

@@ -7,7 +7,7 @@
   "paths" : {
     "/api/batch" : {
       "post" : {
-        "tags" : [ "Batch Service" ],
+        "tags" : [ "Batch Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -38,7 +38,7 @@
     },
     "/api/classes" : {
       "get" : {
-        "tags" : [ "Class Service" ],
+        "tags" : [ "Class Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -56,7 +56,7 @@
         }
       },
       "post" : {
-        "tags" : [ "Class Service" ],
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
@@ -95,7 +95,7 @@
     },
     "/api/classes/{name}" : {
       "get" : {
-        "tags" : [ "Class Service" ],
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -118,7 +118,7 @@
         }
       },
       "delete" : {
-        "tags" : [ "Class Service" ],
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -141,7 +141,7 @@
         }
       },
       "patch" : {
-        "tags" : [ "Class Service" ],
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -175,7 +175,7 @@
     },
     "/api/functions" : {
       "get" : {
-        "tags" : [ "Function Service" ],
+        "tags" : [ "Function Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -193,7 +193,7 @@
         }
       },
       "post" : {
-        "tags" : [ "Function Service" ],
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
@@ -238,7 +238,7 @@
     },
     "/api/functions/{funcName}" : {
       "get" : {
-        "tags" : [ "Function Service" ],
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "funcName",
           "in" : "path",
@@ -263,7 +263,7 @@
     },
     "/api/objects" : {
       "get" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -281,7 +281,7 @@
         }
       },
       "post" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -307,7 +307,7 @@
     },
     "/api/objects/{id}" : {
       "get" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -332,7 +332,7 @@
     },
     "/api/objects/{id}/binds" : {
       "post" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -369,7 +369,7 @@
     },
     "/api/objects/{id}/context" : {
       "get" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -394,7 +394,7 @@
     },
     "/api/objects/{id}/deep" : {
       "get" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -419,7 +419,7 @@
     },
     "/api/objects/{id}/exec" : {
       "post" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -453,7 +453,7 @@
     },
     "/api/objects/{id}/origin" : {
       "get" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -492,7 +492,7 @@
     },
     "/api/objects/{id}/r-exec" : {
       "post" : {
-        "tags" : [ "Object Service" ],
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -527,14 +527,6 @@
   },
   "components" : {
     "schemas" : {
-      "AccessModifier" : {
-        "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
-        "type" : "string"
-      },
-      "AccessModifier1" : {
-        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
-        "type" : "string"
-      },
       "Batch" : {
         "type" : "object",
         "properties" : {
@@ -566,7 +558,7 @@
             "type" : "string"
           },
           "objectType" : {
-            "$ref" : "#/components/schemas/ObjectType"
+            "$ref" : "#/components/schemas/OaasObjectType"
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
@@ -577,7 +569,7 @@
         "type" : "object",
         "properties" : {
           "access" : {
-            "$ref" : "#/components/schemas/AccessModifier1"
+            "$ref" : "#/components/schemas/FunctionAccessModifier"
           },
           "function" : {
             "$ref" : "#/components/schemas/OaasFunctionDto"
@@ -588,7 +580,7 @@
         "type" : "object",
         "properties" : {
           "access" : {
-            "$ref" : "#/components/schemas/AccessModifier"
+            "$ref" : "#/components/schemas/ObjectAccessModifier"
           },
           "cls" : {
             "$ref" : "#/components/schemas/DeepOaasClassDto"
@@ -628,8 +620,8 @@
           }
         }
       },
-      "FuncType" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+      "FunctionAccessModifier" : {
+        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
         "type" : "string"
       },
       "FunctionCallRequest" : {
@@ -674,7 +666,7 @@
             "type" : "string"
           },
           "objectType" : {
-            "$ref" : "#/components/schemas/ObjectType"
+            "$ref" : "#/components/schemas/OaasObjectType"
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
@@ -697,7 +689,7 @@
         "type" : "object",
         "properties" : {
           "access" : {
-            "$ref" : "#/components/schemas/AccessModifier1"
+            "$ref" : "#/components/schemas/FunctionAccessModifier"
           },
           "function" : {
             "type" : "string",
@@ -725,7 +717,7 @@
           },
           "type" : {
             "allOf" : [ {
-              "$ref" : "#/components/schemas/FuncType"
+              "$ref" : "#/components/schemas/OaasFunctionType"
             }, {
               "nullable" : false
             } ]
@@ -734,6 +726,10 @@
             "$ref" : "#/components/schemas/OaasFunctionValidation"
           }
         }
+      },
+      "OaasFunctionType" : {
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "type" : "string"
       },
       "OaasFunctionValidation" : {
         "type" : "object",
@@ -753,7 +749,7 @@
         "type" : "object",
         "properties" : {
           "access" : {
-            "$ref" : "#/components/schemas/AccessModifier"
+            "$ref" : "#/components/schemas/ObjectAccessModifier"
           },
           "cls" : {
             "type" : "string"
@@ -855,6 +851,10 @@
           }
         }
       },
+      "OaasObjectType" : {
+        "enum" : [ "COMPOUND", "SIMPLE" ],
+        "type" : "string"
+      },
       "OaasWorkflow" : {
         "type" : "object",
         "properties" : {
@@ -904,8 +904,8 @@
           }
         }
       },
-      "ObjectType" : {
-        "enum" : [ "COMPOUND", "SIMPLE" ],
+      "ObjectAccessModifier" : {
+        "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
         "type" : "string"
       },
       "StateType" : {

@@ -3,27 +3,26 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
-import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
 import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.exception.NoStackException;
-import org.hpcclab.oaas.exception.ObjectValidationException;
+import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.ObjectValidationException;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.OaasObjectDto;
+import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.object.OaasObjectType;
+import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityGraph;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -46,7 +45,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
         root.setOrigin(null);
         root.setId(null);
         root.format();
-        if (root.getCls().getObjectType()==OaasObject.ObjectType.COMPOUND) {
+        if (root.getCls().getObjectType()==OaasObjectType.COMPOUND) {
           var newMembers = objectDto.getMembers().stream()
             .map(member -> new OaasCompoundMember()
               .setName(member.getName())
@@ -127,7 +126,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
   }
 
   public void verifyBinding(OaasObject object) {
-    if (object.getAccess()!=OaasObject.AccessModifier.PUBLIC) {
+    if (object.getAccess()!=ObjectAccessModifier.PUBLIC) {
       throw new ObjectValidationException("Object is not public");
     }
   }

@@ -19,7 +19,7 @@ paths:
   /api/task-exec:
     post:
       tags:
-      - Task Execution Service
+      - Task Exec Resource
       requestBody:
         content:
           application/json:

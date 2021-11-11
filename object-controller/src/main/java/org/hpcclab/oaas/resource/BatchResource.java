@@ -11,9 +11,9 @@ import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
-import org.hpcclab.oaas.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.service.BatchService;
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
 import java.util.HashSet;
 
 @RequestScoped

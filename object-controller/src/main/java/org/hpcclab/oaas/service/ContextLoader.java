@@ -1,26 +1,21 @@
 package org.hpcclab.oaas.service;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import org.hibernate.reactive.mutiny.Mutiny;
-import org.hpcclab.oaas.entity.function.OaasFunction;
-import org.hpcclab.oaas.entity.function.OaasWorkflowStep;
-import org.hpcclab.oaas.entity.object.OaasCompoundMember;
+import org.hpcclab.oaas.model.function.OaasWorkflowStep;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.FunctionCallRequest;
-import org.hpcclab.oaas.model.FunctionExecContext;
-import org.hpcclab.oaas.exception.NoStackException;
+import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.entity.FunctionExecContext;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @RequestScoped

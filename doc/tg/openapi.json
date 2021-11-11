@@ -26,7 +26,7 @@
     },
     "/api/task-exec" : {
       "post" : {
-        "tags" : [ "Task Execution Service" ],
+        "tags" : [ "Task Exec Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {

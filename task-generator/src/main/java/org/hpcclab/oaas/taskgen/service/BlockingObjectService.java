@@ -1,8 +1,7 @@
 package org.hpcclab.oaas.taskgen.service;
 
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.TaskContext;
 
 import javax.enterprise.context.ApplicationScoped;

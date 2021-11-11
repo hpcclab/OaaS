@@ -12,9 +12,7 @@
   <artifactId>model</artifactId>
 
   <properties>
-    <org.mapstruct.version>1.5.0.Beta1</org.mapstruct.version>
     <hibernate.version>5.5.7.Final</hibernate.version>
-    <org.projectlombok.version>1.18.22</org.projectlombok.version>
   </properties>
 
   <dependencyManagement>
@@ -30,15 +28,6 @@
   </dependencyManagement>
 
   <dependencies>
-<!--    <dependency>-->
-<!--      <groupId>org.mongodb</groupId>-->
-<!--      <artifactId>bson</artifactId>-->
-<!--    </dependency>-->
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -62,25 +51,8 @@
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-    </dependency>
-<!--    <dependency>-->
-<!--      <groupId>jakarta.cdi</groupId>-->
-<!--      <artifactId>jakarta.cdi-api</artifactId>-->
-<!--    </dependency>-->
-    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-annotations -->
-    <dependency>
-      <groupId>org.hibernate.reactive</groupId>
-      <artifactId>hibernate-reactive-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.eclipse.microprofile.openapi</groupId>

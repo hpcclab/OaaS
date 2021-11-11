@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 
 import java.util.List;
 import java.util.Map;

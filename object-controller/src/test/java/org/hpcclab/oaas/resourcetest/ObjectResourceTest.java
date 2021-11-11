@@ -7,10 +7,13 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.entity.function.OaasFunctionBinding.AccessModifier;
-import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.entity.state.OaasObjectState;
-import org.hpcclab.oaas.model.*;
+import org.hpcclab.oaas.model.function.FunctionAccessModifier;
+import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.object.OaasCompoundMemberDto;
+import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.object.ObjectAccessModifier;
+import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,41 +29,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @QuarkusTest
 public class ObjectResourceTest {
 
-
-  @BeforeAll
-  static void setup() {
-
-    RestAssured.filters(new RequestLoggingFilter(),
-      new ResponseLoggingFilter());
-  }
-
-@Test
+  @Test
   void testCreate() {
-  TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var root = new OaasObjectDto()
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
     TestUtils.getObject(root.getId());
-    assertTrue(TestUtils.listObject().size() >=1);
+    assertTrue(TestUtils.listObject().size() >= 1);
     TestUtils.getObjectDeep(root.getId());
 
-  given()
-    .contentType(MediaType.APPLICATION_JSON)
-    .when().post("/api/objects")
-    .then()
-    .contentType(MediaType.APPLICATION_JSON)
-    .body("size()", Matchers.greaterThan(0));
+    given()
+      .contentType(MediaType.APPLICATION_JSON)
+      .when().post("/api/objects")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .body("size()", Matchers.greaterThan(0))
+      .log().ifValidationFails();
   }
 
   @Test
   void testBind() {
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj = new OaasObjectDto()
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
     var fb = List.of(
-      new OaasFunctionBindingDto(AccessModifier.PUBLIC,"test.dummy.resource")
+      new OaasFunctionBindingDto(FunctionAccessModifier.PUBLIC, "test.dummy.resource")
     );
     obj = TestUtils.bind(obj, fb);
     var res = TestUtils.getObjectDeep(obj.getId());
@@ -75,12 +71,12 @@ public class ObjectResourceTest {
   @Test
   void testBindReject() {
     var obj = new OaasObjectDto()
-      .setAccess(OaasObject.AccessModifier.INTERNAL)
+      .setAccess(ObjectAccessModifier.INTERNAL)
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
     var fb = List.of(
-      new OaasFunctionBindingDto(AccessModifier.PUBLIC,
+      new OaasFunctionBindingDto(FunctionAccessModifier.PUBLIC,
         "builtin.hls.ts.transcode")
     );
     given()
@@ -90,7 +86,8 @@ public class ObjectResourceTest {
       .when().post("/api/objects/{oid}/binds")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(400);
+      .statusCode(400)
+      .log().ifValidationFails();
     TestUtils.getObjectDeep(obj.getId());
   }
 
@@ -110,6 +107,7 @@ public class ObjectResourceTest {
 
   @Test
   void testGetOrigin() {
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj = new OaasObjectDto()
       .setCls("builtin.basic.file")
       .setFunctions(Set.of(
@@ -135,7 +133,8 @@ public class ObjectResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("size()", Matchers.equalTo(1));
+      .body("size()", Matchers.equalTo(1))
+      .log().ifValidationFails();
 
     given()
       .pathParam("id", obj3.getId().toString())
@@ -144,7 +143,8 @@ public class ObjectResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("size()", Matchers.equalTo(2));
+      .body("size()", Matchers.equalTo(2))
+      .log().ifValidationFails();
 
     given()
       .pathParam("id", obj3.getId().toString())
@@ -153,11 +153,13 @@ public class ObjectResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("size()", Matchers.equalTo(5));
+      .body("size()", Matchers.equalTo(5))
+      .log().ifValidationFails();
   }
 
   @Test
-  void testCompound(){
+  void testCompound() {
+    TestUtils.createFunctionYaml(TestUtils.DUMMY_FUNCTION);
     var obj1 = new OaasObjectDto()
       .setCls("builtin.basic.file")
       .setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
@@ -169,8 +171,8 @@ public class ObjectResourceTest {
     var compound = new OaasObjectDto()
       .setCls("builtin.basic.compound")
       .setMembers(Set.of(
-         new OaasCompoundMemberDto().setName("obj1").setObject(obj1.getId()),
-         new OaasCompoundMemberDto().setName("obj2").setObject(obj2.getId())
+          new OaasCompoundMemberDto().setName("obj1").setObject(obj1.getId()),
+          new OaasCompoundMemberDto().setName("obj2").setObject(obj2.getId())
         )
       );
     compound = TestUtils.create(compound);
@@ -181,8 +183,9 @@ public class ObjectResourceTest {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(compound.getId().toString()))
-      .body("members.name", hasItems("obj1","obj2"))
-      .body("members.object", hasItems(obj1.getId().toString(),obj2.getId().toString()));
+      .body("members.name", hasItems("obj1", "obj2"))
+      .body("members.object", hasItems(obj1.getId().toString(), obj2.getId().toString()))
+      .log().ifValidationFails();
 
     compound = TestUtils.bind(compound, List.of(
       new OaasFunctionBindingDto().setFunction("test.dummy.compound")

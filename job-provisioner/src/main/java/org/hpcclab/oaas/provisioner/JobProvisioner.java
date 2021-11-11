@@ -7,9 +7,8 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.OaasObjectDto;
+import org.hpcclab.oaas.model.object.OaasObjectDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,7 +7,7 @@ import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.taskgen.service.BlockingObjectService;

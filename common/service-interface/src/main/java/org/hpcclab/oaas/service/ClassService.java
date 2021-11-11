@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.OaasClassDto;
+import org.hpcclab.oaas.model.cls.OaasClassDto;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;

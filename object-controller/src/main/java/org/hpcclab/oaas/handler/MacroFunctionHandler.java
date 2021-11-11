@@ -4,14 +4,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hpcclab.oaas.entity.function.OaasFunction;
-import org.hpcclab.oaas.entity.function.OaasWorkflow;
+import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
 import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.FunctionExecContext;
-import org.hpcclab.oaas.exception.NoStackException;
+import org.hpcclab.oaas.entity.FunctionExecContext;
+import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.ContextLoader;
 import org.slf4j.Logger;
@@ -37,9 +37,9 @@ public class MacroFunctionHandler {
   OaasMapper oaasMapper;
 
   public void validate(FunctionExecContext context) {
-    if (context.getMain().getCls().getObjectType()!=OaasObject.ObjectType.COMPOUND)
+    if (context.getMain().getCls().getObjectType()!=OaasObjectType.COMPOUND)
       throw new NoStackException("Object must be COMPOUND").setCode(400);
-    if (context.getFunction().getType()!=OaasFunction.FuncType.MACRO)
+    if (context.getFunction().getType()!=OaasFunctionType.MACRO)
       throw new NoStackException("Function must be MACRO").setCode(400);
   }
 
@@ -66,7 +66,7 @@ public class MacroFunctionHandler {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("func {}", Json.encodePrettily(func));
     var output = OaasObject.createFromClasses(context.getFunction().getOutputCls());
-    output.setOrigin(new OaasObjectOrigin(context));
+    output.setOrigin(context.createOrigin());
 
     return execWorkflow(context, func.getMacro())
       .flatMap(wfResults -> {

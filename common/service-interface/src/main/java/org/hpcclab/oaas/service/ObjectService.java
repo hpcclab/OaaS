@@ -1,9 +1,12 @@
 package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.*;
+import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
+import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
+import org.hpcclab.oaas.model.object.OaasObjectDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -52,6 +55,6 @@ public interface ObjectService {
 
   @POST
   @Path("{id}/r-exec")
-  Uni<OaasObjectDto> reactiveFuncCall(String id, @Valid  FunctionCallRequest request);
+  Uni<OaasObjectDto> reactiveFuncCall(String id, @Valid FunctionCallRequest request);
 
 }

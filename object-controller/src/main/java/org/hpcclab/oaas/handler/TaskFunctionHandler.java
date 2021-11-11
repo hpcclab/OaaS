@@ -1,22 +1,17 @@
 package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.entity.object.OaasObjectOrigin;
-import org.hpcclab.oaas.entity.state.OaasObjectState;
-import org.hpcclab.oaas.exception.FunctionValidationException;
-import org.hpcclab.oaas.exception.NoStackException;
-import org.hpcclab.oaas.model.FunctionExecContext;
-import org.hpcclab.oaas.model.task.TaskExecRequest;
+import org.hpcclab.oaas.model.function.FunctionAccessModifier;
+import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.StorageAllocator;
-import org.hpcclab.oaas.service.TaskExecutionService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -44,7 +39,7 @@ public class TaskFunctionHandler {
     }
 
     var binding = bindingOptional.get();
-    if (context.getEntry()==main && binding.getAccess()!=OaasFunctionBinding.AccessModifier.PUBLIC) {
+    if (context.getEntry()==main && binding.getAccess()!=FunctionAccessModifier.PUBLIC) {
       throw new NoStackException("The object(id='%s') has a function(name='%s') without PUBLIC access"
         .formatted(main.getId(), func.getName())
       );
@@ -61,7 +56,7 @@ public class TaskFunctionHandler {
   public Uni<FunctionExecContext> call(FunctionExecContext context) {
     var func = context.getFunction();
     var output = OaasObject.createFromClasses(func.getOutputCls());
-    output.setOrigin(new OaasObjectOrigin(context));
+    output.setOrigin(context.createOrigin());
     if (func.getTask().getOutputFileNames()!=null) {
       output.getState().setFiles(func.getTask().getOutputFileNames());
     }
