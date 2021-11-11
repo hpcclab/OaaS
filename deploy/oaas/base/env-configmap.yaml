@@ -13,6 +13,7 @@ data:
   OAAS_JP_TASKTOPIC: msc-tasks
   OAAS_JP_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_TCH_OBJECTCONTROLLERURL: http://object-controller
 kind: ConfigMap
 metadata:
   name: oaas-env

@@ -34,15 +34,13 @@ spec:
         app: durable-transcode-func
     spec:
       containers:
-        - name: job-provisioner
+        - name: durable-transcode-func
           image: core.harbor.10.131.36.27.nip.io/oaas/evaluation-knative:0.3.0
           ports:
             - containerPort: 8080
           resources:
-            limits:
-              memory: 512M
             requests:
-              cpu: 500m
+              cpu: '1'
               memory: 256M
           imagePullPolicy: Always
 ---
