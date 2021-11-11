@@ -1,0 +1,41 @@
+
+"%dev":
+  quarkus:
+    http:
+      port: 8092
+
+oaas:
+  tch: {}
+
+
+quarkus:
+  http:
+    access-log:
+      enabled: true
+  vertx:
+    prefer-native-transport: true
+  container-image:
+    image: ${ci.registry.image:oaas}/task-completion-handler${tag:}
+  jib:
+    base-jvm-image: eclipse-temurin:17-alpine
+  index-dependency:
+    service-interface:
+      artifact-id: model
+      group-id: org.hpcclab.msc
+  console:
+    color: true
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: DEBUG
+mp:
+  messaging:
+    outgoing:
+      task-completions:
+        merge: true
+        connector: smallrye-kafka
+        topic: ${oaas.jp.taskCompletionTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+        cloud-events-source: ${quarkus.application.name}
+        cloud-events-type: oaas.task-completion
