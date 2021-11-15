@@ -6,9 +6,8 @@ import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,15 +15,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @ApplicationScoped
 public class JobProvisioner {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger( JobProvisioner.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(JobProvisioner.class);
   @Inject
   KubernetesClient kubernetesClient;
 
-//  @Incoming("tasks")
+  Random random = new Random();
+
+  //  @Incoming("tasks")
   public void provision(OaasTask task) {
     var envList = createEnv(task)
       .entrySet()
@@ -52,7 +54,8 @@ public class JobProvisioner {
 
     var job = new JobBuilder()
       .withNewMetadata()
-      .withName(function.getName().replace("/", "-") + "-" + RandomStringUtils.randomNumeric(6))
+      .withName(function.getName().replace("/", "-") + "-" +
+        generateRandomString(8))
       .addToLabels("oaas.function", function.getName())
       .addToLabels("oaas.object.main", task.getMain().getId().toString())
       .addToLabels("oaas.object.output", task.getOutput().getId().toString())
@@ -82,13 +85,13 @@ public class JobProvisioner {
     }
   }
 
-  private Map<String,String> createEnv(OaasTask task) {
+  private Map<String, String> createEnv(OaasTask task) {
     var function = task.getFunction();
     var mainObj = task.getMain();
     var outputObj = task.getOutput();
     var inputs = task.getAdditionalInputs();
     var requestFile = task.getRequestFile();
-    var env  = new HashMap<String, String>();
+    var env = new HashMap<String, String>();
     if (function.getTask().isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
       env.putAll(outputObj.getOrigin().getArgs());
     }
@@ -107,7 +110,7 @@ public class JobProvisioner {
   private void putEnv(Map<String, String> env, OaasObjectDto obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
-    if (obj.getState().getFiles() != null) {
+    if (obj.getState().getFiles()!=null) {
       for (int i = 0; i < obj.getState().getFiles().size(); i++) {
         env.put(prefix + "_RESOURCE_FILE_" + i, obj.getState().getFiles().get(i));
       }
@@ -115,4 +118,10 @@ public class JobProvisioner {
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
   }
 
+  String generateRandomString (int length) {
+    return String.valueOf(random.nextLong(
+      Math.round(Math.pow(10,length - 1)),
+      Math.round(Math.pow(10, length)))
+    );
+  }
 }

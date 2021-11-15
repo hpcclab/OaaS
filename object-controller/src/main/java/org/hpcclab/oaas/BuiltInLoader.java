@@ -3,6 +3,7 @@ package org.hpcclab.oaas;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.iface.service.BatchService;
@@ -20,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 @ApplicationScoped
+@RegisterForReflection(targets = BatchService.Batch.class)
 public class BuiltInLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInLoader.class);
 

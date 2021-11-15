@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.entity.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;

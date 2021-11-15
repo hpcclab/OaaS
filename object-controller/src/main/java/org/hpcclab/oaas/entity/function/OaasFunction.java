@@ -2,6 +2,7 @@ package org.hpcclab.oaas.entity.function;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.entity.EntityConverters;

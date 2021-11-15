@@ -58,3 +58,8 @@ quarkus:
   datasource:
     db-kind: postgresql
 
+  native:
+    resources:
+      includes:
+        - builtin/**
+#    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
