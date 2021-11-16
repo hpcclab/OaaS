@@ -12,13 +12,13 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskConfiguration {
 
-  Type type;
-  String image;
-  List<String> commands;
-  List<String> containerArgs;
-  List<String> outputFileNames;
-  Map<String, String> provisionConfig = Map.of();
-  boolean argsToEnv = true;
+  private Type type;
+  private String image;
+  private List<String> commands;
+  private List<String> containerArgs;
+  private List<String> outputFileNames;
+  private Map<String, String> provisionConfig = Map.of();
+  private boolean argsToEnv = true;
 
   public enum Type {
     LOGICAL, DURABLE, EPHEMERAL
