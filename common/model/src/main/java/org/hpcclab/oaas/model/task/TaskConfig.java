@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaskConfiguration {
+public class TaskConfig {
 
   private Type type;
   private String image;

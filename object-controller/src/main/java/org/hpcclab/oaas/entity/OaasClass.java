@@ -7,8 +7,10 @@ import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.model.state.StateSpecification;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,4 +40,11 @@ public class OaasClass {
   OaasObjectState.StateType stateType;
   @ElementCollection()
   Set<OaasFunctionBinding> functions;
+  @Convert(converter = EntityConverters.StateSpecificationConverter.class)
+  @Column(columnDefinition = "jsonb")
+  StateSpecification stateSpec;
+
+  public void validate() {
+    if (stateSpec == null) stateSpec = new StateSpecification();
+  }
 }

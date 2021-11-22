@@ -1,10 +1,10 @@
-package org.hpcclab.oaas.provisioner;
+package org.hpcclab.oaas.provisioner.handler;
 
 import io.quarkus.funqy.Funq;
 import io.quarkus.funqy.knative.events.CloudEvent;
 import io.quarkus.funqy.knative.events.CloudEventMapping;
-import io.quarkus.funqy.knative.events.EventAttribute;
 import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.provisioner.JobProvisioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

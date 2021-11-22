@@ -1,10 +1,11 @@
 apiVersion: v1
 data:
   JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-  QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE: 'true'
+#  QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE: 'true'
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   OAAS_OC_TASKGENERATORURL: http://task-generator
+  OAAS_OC_PROVISIONTOPIC: msc-provisions
   OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TG_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TG_TASKTOPIC: msc-tasks
@@ -12,6 +13,8 @@ data:
   OAAS_TG_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_JP_TASKTOPIC: msc-tasks
   OAAS_JP_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_JP_PROVISIONTOPIC: msc-provisions
+  OAAS_JP_TASKHANDLERSERVICE: task-completion-handler
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_OBJECTCONTROLLERURL: http://object-controller
 kind: ConfigMap

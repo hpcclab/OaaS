@@ -11,6 +11,7 @@ import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
 import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.iface.service.ObjectService;
@@ -31,6 +32,8 @@ public class ObjectResource implements ObjectService {
   OaasObjectRepository objectRepo;
   @Inject
   OaasFuncRepository funcRepo;
+  @Inject
+  OaasClassRepository classRepo;
   @Inject
   FunctionRouter functionRouter;
   @Inject
@@ -113,6 +116,8 @@ public class ObjectResource implements ObjectService {
         }
         uni = uni.flatMap(t -> objectRepo.listFetchByIds(main.getOrigin().getAdditionalInputs()))
           .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
+//        uni = uni.flatMap(t -> classRepo.findByName(tc.getFunction().getOutputCls()))
+//          .map(cls -> tc.setOutputClass(oaasMapper.toClass(cls)));
         return uni
           .map(f -> tc);
       });

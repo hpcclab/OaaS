@@ -7,6 +7,7 @@
 oaas:
   jp:
     taskTopic: oaas-tasks
+    provisionTopic: oaas-provisions
     taskCompletionTopic: oaas-task-completions
 
 
@@ -32,13 +33,13 @@ quarkus:
         level: DEBUG
 mp:
   messaging:
-#    incoming:
-#      tasks:
-#        connector: smallrye-kafka
-#        topic: ${oaas.jp.taskTopic}
-#        auto:
-#          offset:
-#            reset: earliest
+    incoming:
+      provisions:
+        connector: smallrye-kafka
+        topic: ${oaas.jp.provisionTopic}
+        auto:
+          offset:
+            reset: earliest
     outgoing:
       task-completions:
         merge: true

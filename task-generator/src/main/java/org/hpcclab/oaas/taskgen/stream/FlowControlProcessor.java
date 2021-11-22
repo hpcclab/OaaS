@@ -169,13 +169,14 @@ public class FlowControlProcessor implements Processor
 
   public Record<String, BaseTaskMessage> makeRecord(OaasTask task) {
     RecordHeaders recordHeaders = new RecordHeaders();
+    var f = task.getFunction();
     recordHeaders
       .add("content-type", "application/json".getBytes())
       .add("ce-id", task.getId().getBytes())
       .add("ce-specversion", "1.0".getBytes())
       .add("ce-source", "oaas/task-generator".getBytes())
-      .add("ce-function", task.getFunction().getName().getBytes())
-      .add("ce-tasktype", task.getFunction().getTask().getType().toString().getBytes())
+      .add("ce-function", f.getName().getBytes())
+      .add("ce-tasktype", f.getProvision().getType().toString().getBytes())
       .add("ce-type", "oaas.task".getBytes());
     return new Record<>(task.getId(), task, System.currentTimeMillis(),
       recordHeaders);

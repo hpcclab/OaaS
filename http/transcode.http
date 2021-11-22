@@ -8,7 +8,7 @@ Content-Type: application/json
   "state": {
     "type": "FILE",
     "baseUrl": "{{s3}}/test",
-    "files": [
+    "keys": [
         "test-10s.mp4"
     ]
   }

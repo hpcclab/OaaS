@@ -3,7 +3,8 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.task.TaskConfiguration;
+import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.model.task.TaskConfig;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -22,7 +23,9 @@ public class OaasFunctionDto {
 
   OaasFunctionValidation validation;
 
-  TaskConfiguration task;
+//  TaskConfig task;
 
   OaasWorkflow macro;
+
+  ProvisionConfig provision;
 }

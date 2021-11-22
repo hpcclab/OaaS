@@ -11,4 +11,3 @@ resources:
   - oc.yml
   # task-completion-hander
   - tch.yml
-  - function

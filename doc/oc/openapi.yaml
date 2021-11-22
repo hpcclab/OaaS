@@ -371,6 +371,8 @@ components:
           type: string
         objectType:
           $ref: '#/components/schemas/OaasObjectType'
+        stateSpec:
+          $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
     DeepOaasFunctionBindingDto:
@@ -437,6 +439,55 @@ components:
           nullable: false
         target:
           $ref: '#/components/schemas/UUID'
+    JobProvisionConfig:
+      type: object
+      properties:
+        argsToEnv:
+          type: boolean
+        commands:
+          type: array
+          items:
+            type: string
+        containerArgs:
+          type: array
+          items:
+            type: string
+        image:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+    KnativeProvision:
+      type: object
+      properties:
+        concurrency:
+          format: int32
+          type: integer
+        env:
+          type: object
+          additionalProperties:
+            type: string
+        image:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        maxScale:
+          format: int32
+          type: integer
+        minScale:
+          format: int32
+          type: integer
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
     OaasClassDto:
       type: object
       properties:
@@ -449,6 +500,8 @@ components:
           type: string
         objectType:
           $ref: '#/components/schemas/OaasObjectType'
+        stateSpec:
+          $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
     OaasCompoundMemberDto:
@@ -482,8 +535,8 @@ components:
           nullable: false
         outputCls:
           type: string
-        task:
-          $ref: '#/components/schemas/TaskConfiguration'
+        provision:
+          $ref: '#/components/schemas/ProvisionConfig'
         type:
           allOf:
           - $ref: '#/components/schemas/OaasFunctionType'
@@ -568,7 +621,7 @@ components:
       properties:
         baseUrl:
           type: string
-        files:
+        keys:
           type: array
           items:
             type: string
@@ -619,6 +672,22 @@ components:
       - INTERNAL
       - PUBLIC
       type: string
+    ProvisionConfig:
+      type: object
+      properties:
+        job:
+          $ref: '#/components/schemas/JobProvisionConfig'
+        knative:
+          $ref: '#/components/schemas/KnativeProvision'
+        type:
+          $ref: '#/components/schemas/Type'
+    StateSpecification:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            type: string
     StateType:
       enum:
       - FILE
@@ -626,31 +695,6 @@ components:
       - RECORD
       - SEGMENTABLE
       type: string
-    TaskConfiguration:
-      type: object
-      properties:
-        argsToEnv:
-          type: boolean
-        commands:
-          type: array
-          items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        image:
-          type: string
-        outputFileNames:
-          type: array
-          items:
-            type: string
-        provisionConfig:
-          type: object
-          additionalProperties:
-            type: string
-        type:
-          $ref: '#/components/schemas/Type'
     TaskContext:
       type: object
       properties:
@@ -668,7 +712,6 @@ components:
       enum:
       - DURABLE
       - EPHEMERAL
-      - LOGICAL
       type: string
     UUID:
       format: uuid

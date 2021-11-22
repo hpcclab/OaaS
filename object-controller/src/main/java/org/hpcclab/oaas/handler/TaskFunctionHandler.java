@@ -57,9 +57,12 @@ public class TaskFunctionHandler {
     var func = context.getFunction();
     var output = OaasObject.createFromClasses(func.getOutputCls());
     output.setOrigin(context.createOrigin());
-    if (func.getTask().getOutputFileNames()!=null) {
-      output.getState().setFiles(func.getTask().getOutputFileNames());
-    }
+//    if (func.getTask().getOutputFileNames()!=null) {
+//      output.getState().setKeys(func.getTask().getOutputFileNames());
+//    }
+    output.getState().setKeys(
+      func.getOutputCls().getStateSpec().getKeys()
+    );
 
     var resUni = objectRepo.persist(output)
       .invoke(o -> storageAllocator.allocate(o));

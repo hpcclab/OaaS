@@ -560,6 +560,9 @@
           "objectType" : {
             "$ref" : "#/components/schemas/OaasObjectType"
           },
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification"
+          },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
           }
@@ -652,6 +655,79 @@
           }
         }
       },
+      "JobProvisionConfig" : {
+        "type" : "object",
+        "properties" : {
+          "argsToEnv" : {
+            "type" : "boolean"
+          },
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "image" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          }
+        }
+      },
+      "KnativeProvision" : {
+        "type" : "object",
+        "properties" : {
+          "concurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "env" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "image" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "maxScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          }
+        }
+      },
       "OaasClassDto" : {
         "type" : "object",
         "properties" : {
@@ -667,6 +743,9 @@
           },
           "objectType" : {
             "$ref" : "#/components/schemas/OaasObjectType"
+          },
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification"
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
@@ -712,8 +791,8 @@
           "outputCls" : {
             "type" : "string"
           },
-          "task" : {
-            "$ref" : "#/components/schemas/TaskConfiguration"
+          "provision" : {
+            "$ref" : "#/components/schemas/ProvisionConfig"
           },
           "type" : {
             "allOf" : [ {
@@ -837,7 +916,7 @@
           "baseUrl" : {
             "type" : "string"
           },
-          "files" : {
+          "keys" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -908,47 +987,34 @@
         "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
         "type" : "string"
       },
-      "StateType" : {
-        "enum" : [ "FILE", "FILES", "RECORD", "SEGMENTABLE" ],
-        "type" : "string"
-      },
-      "TaskConfiguration" : {
+      "ProvisionConfig" : {
         "type" : "object",
         "properties" : {
-          "argsToEnv" : {
-            "type" : "boolean"
+          "job" : {
+            "$ref" : "#/components/schemas/JobProvisionConfig"
           },
-          "commands" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "containerArgs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "image" : {
-            "type" : "string"
-          },
-          "outputFileNames" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "provisionConfig" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+          "knative" : {
+            "$ref" : "#/components/schemas/KnativeProvision"
           },
           "type" : {
             "$ref" : "#/components/schemas/Type"
           }
         }
+      },
+      "StateSpecification" : {
+        "type" : "object",
+        "properties" : {
+          "keys" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "StateType" : {
+        "enum" : [ "FILE", "FILES", "RECORD", "SEGMENTABLE" ],
+        "type" : "string"
       },
       "TaskContext" : {
         "type" : "object",
@@ -971,7 +1037,7 @@
         }
       },
       "Type" : {
-        "enum" : [ "DURABLE", "EPHEMERAL", "LOGICAL" ],
+        "enum" : [ "DURABLE", "EPHEMERAL" ],
         "type" : "string"
       },
       "UUID" : {

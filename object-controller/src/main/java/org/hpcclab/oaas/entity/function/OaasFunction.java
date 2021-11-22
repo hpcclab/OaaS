@@ -2,15 +2,16 @@ package org.hpcclab.oaas.entity.function;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.entity.EntityConverters;
 import org.hpcclab.oaas.entity.OaasClass;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasFunctionValidation;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
-import org.hpcclab.oaas.model.task.TaskConfiguration;
+import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.model.task.TaskConfig;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -42,11 +43,24 @@ public class OaasFunction {
   @Column(columnDefinition = "jsonb")
   OaasFunctionValidation validation;
 
-  @Convert(converter = EntityConverters.TaskConfigConverter.class)
-  @Column(columnDefinition = "jsonb")
-  TaskConfiguration task;
+//  @Convert(converter = EntityConverters.TaskConfigConverter.class)
+//  @Column(columnDefinition = "jsonb")
+//  TaskConfig task;
 
   @Convert(converter = EntityConverters.WorkflowConverter.class)
   @Column(columnDefinition = "jsonb")
   OaasWorkflow macro;
+
+  @Convert(converter = EntityConverters.ProvisionConverter.class)
+  @Column(columnDefinition = "jsonb")
+  ProvisionConfig provision;
+
+  public void validate() {
+    if (type == OaasFunctionType.LOGICAL) {
+      return;
+    }
+    if (provision == null)
+      throw new OaasValidationException("provision must not be null");
+    provision.validate();
+  }
 }

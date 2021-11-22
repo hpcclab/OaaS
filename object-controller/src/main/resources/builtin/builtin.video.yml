@@ -3,40 +3,42 @@ functions:
     type: TASK
     outputCls: builtin.video
     validation: {  }
-    task:
-      outputFileNames:
-        - video.mp4
-      type: DURABLE
-      provisionConfig: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.27.nip.io/oaas/evaluation-knative:0.3.1
+        minScale: 1
+        maxScale: 3
+        concurrency: 1
+        requestsCpu: '2'
+        limitsCpu: '2'
   - name: builtin.video.transcode
     type: TASK
     outputCls: builtin.video
     validation: { }
-    task:
-      type: EPHEMERAL
-      image: core.harbor.10.131.36.27.nip.io/oaas/ffmpeg
-      commands:
-        - /bin/sh
-        - '-c'
-      outputFileNames:
-        - video.mp4
-      containerArgs:
-        - |
-          CMD="ffmpeg -i $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0 -s ${RESOLUTION:-720x480} -c:a copy $OUTPUT_RESOURCE_FILE_0"
-          echo "COMMAND: '$CMD'"
-          $CMD
-          CMD="curl -T $OUTPUT_RESOURCE_FILE_0 $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
-          echo "COMMAND: '$CMD'"
-          $CMD
-      argsToEnv: true
-      provisionConfig:
-        requests.cpu: 2
-        limits.cpu: 2
-
+    provision:
+      job:
+        image: core.harbor.10.131.36.27.nip.io/oaas/ffmpeg
+        commands:
+          - /bin/sh
+          - '-c'
+        containerArgs:
+          - |
+            CMD="ffmpeg -i $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0 -s ${RESOLUTION:-720x480} -c:a copy $OUTPUT_RESOURCE_FILE_0"
+            echo "COMMAND: '$CMD'"
+            $CMD
+            CMD="curl -T $OUTPUT_RESOURCE_FILE_0 $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
+            echo "COMMAND: '$CMD'"
+            $CMD
+        argsToEnv: true
+        requestsCpu: '2'
+        limitsCpu: '2'
 classes:
   - name: builtin.video
     stateType: FILE
     objectType: SIMPLE
+    stateSpec:
+      keys:
+        - video.mp4
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

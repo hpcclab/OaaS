@@ -2,6 +2,7 @@ resources:
   - task-completion-topic.yml
   - task-topic.yml
   - task-event-topic.yml
+  - provision-topic.yml
   - kafka-source.yml
   - kafka-connect.yml
   - kafka-connector.yml

@@ -9,6 +9,7 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
+import org.jboss.resteasy.reactive.common.NotImplementedYet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,9 @@ public class ClassResource implements ClassService {
   @Override
   @ReactiveTransactional
   public Uni<OaasClassDto> create(boolean update, OaasClassDto classDto) {
-    return classRepo.persist(oaasMapper.toClass(classDto))
+    var cls = oaasMapper.toClass(classDto);
+    cls.validate();
+    return classRepo.persist(cls)
       .map(oaasMapper::toClass);
   }
 
@@ -51,6 +54,7 @@ public class ClassResource implements ClassService {
       .onItem().ifNull().failWith(NotFoundException::new)
       .flatMap(cls -> {
         oaasMapper.set(classDto, cls);
+        cls.validate();
         return classRepo.persist(cls);
       })
       .map(oaasMapper::toClass);

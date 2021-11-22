@@ -11,4 +11,5 @@ public interface OcConfig {
   String s3PrefixUrl();
   @WithDefault("http://localhost:8088")
   String taskGeneratorUrl();
+  String provisionTopic();
 }

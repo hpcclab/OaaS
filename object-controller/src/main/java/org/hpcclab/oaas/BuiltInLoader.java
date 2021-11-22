@@ -60,18 +60,4 @@ public class BuiltInLoader {
     batchService.create(batch)
       .subscribeAsCompletionStage().get();
   }
-
-
-  <T> Stream<T> loadFile(Class<T> cls, String... files) {
-    return
-      Stream.of(files)
-        .map(file -> {
-          try {
-            var is = getClass().getResourceAsStream(file);
-            return mapper.readValue(is, cls);
-          } catch (IOException e) {
-            throw new RuntimeException("get error on file " + file, e);
-          }
-        });
-  }
 }

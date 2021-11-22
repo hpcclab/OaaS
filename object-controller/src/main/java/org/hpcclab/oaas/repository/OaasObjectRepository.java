@@ -8,7 +8,7 @@ import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.exception.ObjectValidationException;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
@@ -127,7 +127,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
 
   public void verifyBinding(OaasObject object) {
     if (object.getAccess()!=ObjectAccessModifier.PUBLIC) {
-      throw new ObjectValidationException("Object is not public");
+      throw new OaasValidationException("Object is not public");
     }
   }
 

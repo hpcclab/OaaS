@@ -9,16 +9,18 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.iface.service.FunctionService;
+import org.hpcclab.oaas.service.FunctionProvisionPublisher;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class FunctionResource implements FunctionService {
   OaasMapper oaasMapper;
   @Inject
   Mutiny.Session session;
+  @Inject
+  FunctionProvisionPublisher provisionPublisher;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -44,30 +48,32 @@ public class FunctionResource implements FunctionService {
   @ReactiveTransactional
   public Uni<List<OaasFunctionDto>> create(boolean update, List<OaasFunctionDto> functionDtos) {
     return Multi.createFrom().iterable(functionDtos)
-      .call(funcDto ->
-        funcRepo.findById(funcDto.getName())
-          .flatMap(fn -> {
-            if (fn==null) {
-              fn = oaasMapper.toFunc(funcDto);
-            } else {
-              if (!update) {
-                throw new NoStackException("Function with this name already exist.")
-                  .setCode(HttpResponseStatus.CONFLICT.code());
-              }
-              oaasMapper.set(funcDto, fn);
+      .onItem()
+      .transformToUniAndConcatenate(funcDto -> funcRepo.findById(funcDto.getName())
+        .flatMap(fn -> {
+          if (fn==null) {
+            fn = oaasMapper.toFunc(funcDto);
+          } else {
+            if (!update) {
+              throw new NoStackException("Function with this name already exist.")
+                .setCode(HttpResponseStatus.CONFLICT.code());
             }
-            var cls = session.getReference(OaasClass.class,
-              funcDto.getOutputCls());
-            fn.setOutputCls(cls);
-            return funcRepo.persist(fn);
-          })
-          .call(funcRepo::flush)
-          .map(oaasMapper::toFunc)
+            oaasMapper.set(funcDto, fn);
+          }
+          fn.validate();
+          var cls = session.getReference(OaasClass.class,
+            funcDto.getOutputCls());
+          fn.setOutputCls(cls);
+          return funcRepo.persist(fn);
+        })
+        .call(funcRepo::flush)
       )
-      .collect().asList();
+      .collect().asList()
+      .call(functions -> provisionPublisher.submitNewFunction(functions.stream()))
+      .map(functions -> oaasMapper.toFuncDto(functions));
   }
 
-  @ReactiveTransactional
+//  @ReactiveTransactional
   public Uni<List<OaasFunctionDto>> createByYaml(boolean update, String body) {
     try {
       var funcs = yamlMapper.readValue(body, OaasFunctionDto[].class);

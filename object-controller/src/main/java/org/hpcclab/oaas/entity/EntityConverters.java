@@ -4,10 +4,10 @@ import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.function.OaasFunctionValidation;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.object.OaasObjectRequirement;
+import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.model.state.OaasObjectState;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskConfiguration;
+import org.hpcclab.oaas.model.state.StateSpecification;
+import org.hpcclab.oaas.model.task.TaskConfig;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -78,15 +78,15 @@ public class EntityConverters {
 //  }
 
   @Converter
-  public static class TaskConfigConverter implements AttributeConverter<TaskConfiguration,String> {
+  public static class TaskConfigConverter implements AttributeConverter<TaskConfig,String> {
     @Override
-    public String convertToDatabaseColumn(TaskConfiguration attribute) {
+    public String convertToDatabaseColumn(TaskConfig attribute) {
       return toJson(attribute);
     }
 
     @Override
-    public TaskConfiguration convertToEntityAttribute(String dbData) {
-      return fromJson(dbData, TaskConfiguration.class);
+    public TaskConfig convertToEntityAttribute(String dbData) {
+      return fromJson(dbData, TaskConfig.class);
     }
   }
 //  @Converter
@@ -124,6 +124,32 @@ public class EntityConverters {
     @Override
     public OaasWorkflow convertToEntityAttribute(String dbData) {
       return fromJson(dbData, OaasWorkflow.class);
+    }
+  }
+
+  @Converter
+  public static class ProvisionConverter implements AttributeConverter<ProvisionConfig,String> {
+    @Override
+    public String convertToDatabaseColumn(ProvisionConfig attribute) {
+      return toJson(attribute);
+    }
+
+    @Override
+    public ProvisionConfig convertToEntityAttribute(String dbData) {
+      return fromJson(dbData, ProvisionConfig.class);
+    }
+  }
+
+  @Converter
+  public static class StateSpecificationConverter implements AttributeConverter<StateSpecification,String> {
+    @Override
+    public String convertToDatabaseColumn(StateSpecification attribute) {
+      return toJson(attribute);
+    }
+
+    @Override
+    public StateSpecification convertToEntityAttribute(String dbData) {
+      return fromJson(dbData, StateSpecification.class);
     }
   }
 }
