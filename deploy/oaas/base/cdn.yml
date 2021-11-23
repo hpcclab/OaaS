@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-delivery-service
+  labels:
+    app: content-delivery-service
+  namespace: msc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: content-delivery-service
+  template:
+    metadata:
+      labels:
+        app: content-delivery-service
+    spec:
+      containers:
+        - name: content-delivery-service
+          image: core.harbor.10.131.36.27.nip.io/msc/content-delivery-service:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          env:
+            - name: REDIS_HOST
+              value: redis-master
+            - name: REDIS_PORT
+              value: '6379'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-delivery-service
+  namespace: msc
+spec:
+  selector:
+    app: content-delivery-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: content-delivery-service-ingress
+  namespace: msc
+spec:
+  rules:
+    - host: "cdn.10.131.36.27.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: content-delivery-service
+                port:
+                  number: 80

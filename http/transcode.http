@@ -1,13 +1,20 @@
 ###
+POST {{oc}}/api/batch
+Content-Type: text/x-yaml
+
+< video.yml
+
+
+###
 POST {{oc}}/api/objects
 Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "builtin.video",
+  "cls": "example.video",
   "state": {
     "type": "FILE",
-    "baseUrl": "{{s3}}/test",
+    "baseUrl": "{{base_url}}",
     "keys": [
         "test-10s.mp4"
     ]
@@ -25,7 +32,7 @@ Content-Type: application/json
 
 {
   "target": "{{obj_0_id}}",
-  "functionName": "builtin.video.transcode-durable",
+  "functionName": "example.video.transcode-durable",
   "args": {
     "RESOLUTION": "720x480"
   }
@@ -35,4 +42,5 @@ Content-Type: application/json
 client.global.set("obj_1_id", response.body.id)
 %}
 
-
+###
+GET {{cdn}}/{{obj_1_id}}/video.mp4

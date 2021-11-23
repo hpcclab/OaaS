@@ -35,14 +35,14 @@ public class KnativeProvisionHandler {
 
   @Incoming("provisions")
   public void provision(Record<String,OaasFunctionDto> functionRecord) {
-    LOGGER.debug("Received Knative provision: {}", functionRecord.key());
+    var key = functionRecord.key();
+    LOGGER.debug("Received Knative provision: {}", key);
     var function = functionRecord.value();
     if (function == null) {
       boolean deleted = false;
-      var key = functionRecord.key();
       deleted = knativeClient
         .triggers()
-        .withLabel(labelKey, functionRecord.key())
+        .withLabel(labelKey, key)
         .delete();
       if (deleted) LOGGER.info("Deleted trigger: {}", key);
       deleted =knativeClient
@@ -70,7 +70,8 @@ public class KnativeProvisionHandler {
           });
         LOGGER.info("Patched service: {}",service.getMetadata().getName());
       } else {
-        LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
         knativeClient.services().create(service);
         LOGGER.info("Created service: {}",service.getMetadata().getName());
       }

@@ -38,7 +38,6 @@ public class BuiltInLoader {
 
     var files = List.of(
       "/builtin/builtin.logical.yml",
-      "/builtin/builtin.video.yml",
       "/builtin/builtin.basic.yml",
       "/builtin/builtin.text.yml"
     );

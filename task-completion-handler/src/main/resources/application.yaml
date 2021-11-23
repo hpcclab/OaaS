@@ -3,6 +3,12 @@
   quarkus:
     http:
       port: 8092
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
+    console:
+      color: true
 
 oaas:
   tch:
@@ -24,12 +30,12 @@ quarkus:
     service-interface:
       artifact-id: model
       group-id: org.hpcclab.msc
-  console:
-    color: true
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: DEBUG
+#  console:
+#    color: true
+#  log:
+#    category:
+#      "org.hpcclab.oaas":
+#        level: DEBUG
 mp:
   messaging:
     outgoing:

@@ -91,7 +91,7 @@ public class JobWatcher {
       .setResourceUrl(url);
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
       .list().getItems();
-    if (items.size() > 0) {
+    if (!items.isEmpty()) {
       var pod = items.get(0);
       var log = client.pods().withName(pod.getMetadata().getName())
         .getLog();
@@ -101,9 +101,5 @@ public class JobWatcher {
       Message.of(Record.of(completion.getId(), completion))
     );
     LOGGER.debug("{} is submitted", completion);
-  }
-
-  void onShutdown(@Observes ShutdownEvent shutdownEvent) {
-
   }
 }

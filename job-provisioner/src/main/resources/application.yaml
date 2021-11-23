@@ -3,6 +3,10 @@
   quarkus:
     http:
       port: 8091
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
 
 oaas:
   jp:
@@ -27,10 +31,10 @@ quarkus:
       group-id: org.hpcclab.msc
   console:
     color: true
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: DEBUG
+#  log:
+#    category:
+#      "org.hpcclab.oaas":
+#        level: DEBUG
 mp:
   messaging:
     incoming:

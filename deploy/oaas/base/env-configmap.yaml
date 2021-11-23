@@ -3,6 +3,7 @@ data:
   JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
 #  QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE: 'true'
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
+  QUARKUS_CONSOLE_COLOR: 'false'
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   OAAS_OC_TASKGENERATORURL: http://task-generator
   OAAS_OC_PROVISIONTOPIC: msc-provisions

@@ -1,19 +1,19 @@
 functions:
-  - name: builtin.video.transcode-durable
+  - name: example.video.transcode-durable
     type: TASK
-    outputCls: builtin.video
-    validation: {  }
+    outputCls: example.video
+    validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/evaluation-knative:0.3.1
+        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.1.0
         minScale: 1
         maxScale: 3
         concurrency: 1
         requestsCpu: '2'
         limitsCpu: '2'
-  - name: builtin.video.transcode
+  - name: example.video.transcode
     type: TASK
-    outputCls: builtin.video
+    outputCls: example.video
     validation: { }
     provision:
       job:
@@ -33,7 +33,7 @@ functions:
         requestsCpu: '2'
         limitsCpu: '2'
 classes:
-  - name: builtin.video
+  - name: example.video
     stateType: FILE
     objectType: SIMPLE
     stateSpec:
@@ -43,6 +43,6 @@ classes:
       - access: PUBLIC
         function: builtin.logical.copy
       - access: PUBLIC
-        function: builtin.video.transcode
+        function: example.video.transcode
       - access: PUBLIC
-        function: builtin.video.transcode-durable
+        function: example.video.transcode-durable

@@ -2,6 +2,10 @@
   quarkus:
     http:
       port: 8090
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
 
 oaas:
   tg:
@@ -32,10 +36,10 @@ quarkus:
     image: ${ci.registry.image:oaas}/task-generator${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-focal
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: DEBUG
+#  log:
+#    category:
+#      "org.hpcclab.oaas":
+#        level: DEBUG
   kafka-streams:
     bootstrap-servers: ${kafka.bootstrap.servers}
     application-server: ${hostname:localhost}:${quarkus.http.port}

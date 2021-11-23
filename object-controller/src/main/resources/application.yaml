@@ -5,6 +5,10 @@
         generation: drop-and-create
       log:
         sql: true
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket
@@ -20,6 +24,10 @@
     datasource:
       devservices:
         port: 5432
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
 
 oaas:
   oc:
@@ -42,16 +50,15 @@ quarkus:
     always-include: true
   smallrye-openapi:
     store-schema-directory: ../doc/oc
-
     enable: true
   index-dependency:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: DEBUG
+#  log:
+#    category:
+#      "org.hpcclab.oaas":
+#        level: DEBUG
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
