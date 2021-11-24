@@ -1,14 +1,14 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: kafka-redis
+  name: task-completion-redis
   labels:
-    strimzi.io/cluster: kafka-redis
+    strimzi.io/cluster: connect-redis
 spec:
   class: com.github.jcustenborder.kafka.connect.redis.RedisSinkConnector
   tasksMax: 10
   config:
-    name: kafka-redis
+    name: task-completion-redis
     connector.class: com.github.jcustenborder.kafka.connect.redis.RedisSinkConnector
     topics: msc-task-completions
     tasks.max: 10

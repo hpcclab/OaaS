@@ -41,8 +41,8 @@ quarkus:
     color: true
   hibernate-orm:
     database:
-      generation: create
-  #      generation: update
+#      generation: create
+      generation: update
   http:
     access-log:
       enabled: true

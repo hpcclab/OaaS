@@ -4,8 +4,8 @@ metadata:
   annotations:
     strimzi.io/use-connector-resources: "true"
   labels:
-    app: kafka-redis
-  name: kafka-redis
+    app: connect-redis
+  name: connect-redis
 spec:
   replicas: 1
   bootstrapServers: msc-kafka-bootstrap:9092

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: object-controller
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
       app: object-controller
@@ -42,7 +42,7 @@ spec:
             limits:
               memory: 1G
             requests:
-              cpu: '500m'
+              cpu: '1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:

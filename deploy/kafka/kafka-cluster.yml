@@ -19,6 +19,10 @@ spec:
 #        port: 9094
 #        type: nodeport
 #        tls: false
+    resources:
+      requests:
+        cpu: 1
+        memory: 1G
     storage:
       type: jbod
       volumes:
@@ -38,6 +42,10 @@ spec:
       type: persistent-claim
       size: 10Gi
       deleteClaim: true
+    resources:
+      requests:
+        cpu: 0.5
+        memory: 256M
   entityOperator:
     topicOperator: {}
     userOperator: {}
