@@ -8,9 +8,9 @@
   <packaging>pom</packaging>
   <modules>
     <module>common</module>
+    <module>kube-provisioner</module>
     <module>object-controller</module>
-    <module>task-generator</module>
-    <module>job-provisioner</module>
+    <module>task-manager</module>
     <module>task-completion-handler</module>
   </modules>
   <properties>

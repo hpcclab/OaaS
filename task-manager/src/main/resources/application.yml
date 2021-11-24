@@ -1,0 +1,80 @@
+"%dev":
+  quarkus:
+    http:
+      port: 8090
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
+
+oaas:
+  tm:
+    objectControllerUrl: http://localhost:8088
+    taskEventTopic: oaas-task-events
+    taskTopic: oaas-tasks
+    taskCompletionTopic: oaas-task-completions
+    defaultTraverse: 3
+    stateStoreName: task-state
+
+quarkus:
+  http:
+    access-log:
+      enabled: true
+      pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+    record-request-start-time: true
+  vertx:
+    prefer-native-transport: true
+  swagger-ui:
+    always-include: true
+  smallrye-openapi:
+    store-schema-directory: ../doc/tm
+  index-dependency:
+    service-interface:
+      artifact-id: service-interface
+      group-id: org.hpcclab.msc
+  console:
+    color: true
+  container-image:
+    image: ${ci.registry.image:oaas}/task-manager${tag:}
+  jib:
+    base-jvm-image: eclipse-temurin:17-focal
+#  log:
+#    category:
+#      "org.hpcclab.oaas":
+#        level: DEBUG
+  kafka-streams:
+    bootstrap-servers: ${kafka.bootstrap.servers}
+    application-server: ${hostname:localhost}:${quarkus.http.port}
+    topics: ${oaas.tm.taskEventTopic}
+    application-id: ${quarkus.application.name}-stream
+  micrometer:
+    export:
+      json:
+        enabled: true
+        path: jsonmetrics
+  rest-client:
+    BlockingObjectService:
+      url: ${oaas.tm.objectControllerUrl}
+
+mp:
+  messaging:
+    outgoing:
+      tasks:
+        connector: smallrye-kafka
+        topic: ${oaas.tm.taskTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+        cloud-events-source: ${quarkus.application.name}
+        cloud-events-type: oaas.task
+      task-events:
+        connector: smallrye-kafka
+        topic: ${oaas.tm.taskEventTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+    incoming:
+      task-completions:
+        connector: smallrye-kafka
+        topic: ${oaas.tm.taskCompletionTopic}
+        auto:
+          offset:
+            reset: earliest

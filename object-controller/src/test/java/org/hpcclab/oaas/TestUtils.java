@@ -27,7 +27,8 @@ public class TestUtils {
       type: TASK
       outputCls: builtin.basic.file
       validation: {}
-      task: {}
+      provision:
+        job: {}
     - name: test.dummy.compound
       type: MACRO
       outputCls: builtin.basic.compound
@@ -65,10 +66,10 @@ public class TestUtils {
       .body(Json.encodePrettily(o))
       .when().post("/api/objects")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -77,10 +78,10 @@ public class TestUtils {
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
-      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -89,10 +90,10 @@ public class TestUtils {
       .pathParam("name", name)
       .when().get("/api/classes/{name}")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("name", Matchers.equalTo(name))
-      .log().ifValidationFails()
       .extract().body().as(OaasClassDto.class);
   }
 
@@ -102,10 +103,10 @@ public class TestUtils {
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}/deep")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
-      .log().ifValidationFails()
       .extract().body().as(DeepOaasObjectDto.class);
   }
 
@@ -114,10 +115,10 @@ public class TestUtils {
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}/context")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("output.id", Matchers.equalTo(id.toString()))
-      .log().ifValidationFails()
       .extract().body().as(TaskContext.class);
   }
 
@@ -128,10 +129,10 @@ public class TestUtils {
       .pathParam("oid", obj.getId().toString())
       .when().post("/api/objects/{oid}/binds")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -142,10 +143,10 @@ public class TestUtils {
       .pathParam("oid", request.getTarget().toString())
       .when().post("/api/objects/{oid}/r-exec")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .log().ifValidationFails()
       .extract().body().as(OaasObjectDto.class);
   }
 
@@ -155,9 +156,9 @@ public class TestUtils {
       .body(function)
       .when().post("/api/functions?update=true")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .log().ifValidationFails()
       .extract().body().as(new TypeRef<List<OaasFunctionDto>>(){});
   }
 }

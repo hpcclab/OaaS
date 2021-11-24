@@ -14,7 +14,7 @@ export JAVA_HOME=~/.jdks/temurin-17/
 
 $ENV:JAVA_HOME="$HOME/.jdks/temurin-17.0.1"
 $ENV:CI_REGISTRY_IMAGE="core.harbor.10.131.36.27.nip.io/oaas"
-./mvnw package -DskipTests "-Dquarkus.container-image.username=admin"    "-Dquarkus.container-image.password=Harbor12345"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true" "-Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-focal"
+./mvnw package "-Dquarkus.container-image.username=admin"    "-Dquarkus.container-image.password=Harbor12345"    "-Dquarkus.container-image.build=true"  "-Dquarkus.container-image.push=true"    "-Dquarkus.container-image.insecure=true" "-Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-focal" -DskipTests
 
 NAMESPACE="msc"
 kubectl -n $NAMESPACE apply -f kafka

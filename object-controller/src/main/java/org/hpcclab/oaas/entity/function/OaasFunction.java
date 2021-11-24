@@ -59,8 +59,10 @@ public class OaasFunction {
     if (type == OaasFunctionType.LOGICAL) {
       return;
     }
-    if (provision == null)
-      throw new OaasValidationException("provision must not be null");
-    provision.validate();
+    if ( type == OaasFunctionType.TASK) {
+      if (provision==null)
+        throw new OaasValidationException("provision must not be null");
+      provision.validate();
+    }
   }
 }

@@ -1,48 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: object-controller
+  name: kube-provisioner
   labels:
-    app: object-controller
+    app: kube-provisioner
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: object-controller
+      app: kube-provisioner
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
-        prometheus.io/port: "8080"
-        prometheus.io/scheme: http
       labels:
-        app: object-controller
+        app: kube-provisioner
     spec:
+      serviceAccountName: kp-sa
       containers:
-        - name: object-controller
+        - name: kube-provisioner
           envFrom:
             - configMapRef:
                 name: oaas-env
-            - configMapRef:
-                name: msc-bucket
-          env:
-            - name: QUARKUS_DATASOURCE_REACTIVE_URL
-              value: vertx-reactive:postgresql://oc-postgres:5432/oaas
-            - name: QUARKUS_DATASOURCE_USERNAME
-              value: oaas
-            - name: QUARKUS_DATASOURCE_PASSWORD
-              value: oaas
-            - name: OAAS_OC_S3PREFIXURL
-              value: 'http://${BUCKET_HOST}/${BUCKET_NAME}'
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/kube-provisioner
           ports:
             - containerPort: 8080
           resources:
             limits:
-              memory: 1G
+              memory: 512M
             requests:
-              cpu: '500m'
+              cpu: 500m
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -69,10 +54,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: object-controller
+  name: kube-provisioner
 spec:
   selector:
-    app: object-controller
+    app: kube-provisioner
   ports:
     - protocol: TCP
       port: 80

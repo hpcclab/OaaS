@@ -1,0 +1,12 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: msc
+  name: task-manager-stream-task-state-changelog
+spec:
+  config:
+    cleanup.policy: delete
+  partitions: 10
+  replicas: 1
+  topicName: task-manager-stream-task-state-changelog

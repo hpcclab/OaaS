@@ -26,6 +26,12 @@ spec:
               value: redis-master
             - name: REDIS_PORT
               value: '6379'
+            - name: SLEEP
+              value: '0.3'
+            - name: REDIS_CONNECTION_POOL
+              value: '100'
+            - name: RESOLVER
+              value: rke2-coredns-rke2-coredns.kube-system.svc.cluster.local valid=5s
 ---
 apiVersion: v1
 kind: Service

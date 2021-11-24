@@ -5,17 +5,17 @@ data:
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   QUARKUS_CONSOLE_COLOR: 'false'
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
-  OAAS_OC_TASKGENERATORURL: http://task-generator
+  OAAS_OC_TASKGENERATORURL: http://task-manager
   OAAS_OC_PROVISIONTOPIC: msc-provisions
   OAAS_SC_KSQLURL: http://ksqldb-server
-  OAAS_TG_OBJECTCONTROLLERURL: http://object-controller
-  OAAS_TG_TASKTOPIC: msc-tasks
-  OAAS_TG_TASKEVENTTOPIC: msc-task-events
-  OAAS_TG_TASKCOMPLETIONTOPIC: msc-task-completions
-  OAAS_JP_TASKTOPIC: msc-tasks
-  OAAS_JP_TASKCOMPLETIONTOPIC: msc-task-completions
-  OAAS_JP_PROVISIONTOPIC: msc-provisions
-  OAAS_JP_TASKHANDLERSERVICE: task-completion-handler
+  OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
+  OAAS_TM_TASKTOPIC: msc-tasks
+  OAAS_TM_TASKEVENTTOPIC: msc-task-events
+  OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_KP_TASKTOPIC: msc-tasks
+  OAAS_KP_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_KP_PROVISIONTOPIC: msc-provisions
+  OAAS_KP_TASKHANDLERSERVICE: task-completion-handler
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_OBJECTCONTROLLERURL: http://object-controller
 kind: ConfigMap

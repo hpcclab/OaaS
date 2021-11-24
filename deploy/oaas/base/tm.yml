@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: object-controller
+  name: task-manager
   labels:
-    app: object-controller
+    app: task-manager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: object-controller
+      app: task-manager
   template:
     metadata:
       annotations:
@@ -17,32 +17,21 @@ spec:
         prometheus.io/port: "8080"
         prometheus.io/scheme: http
       labels:
-        app: object-controller
+        app: task-manager
     spec:
       containers:
-        - name: object-controller
+        - name: task-manager
           envFrom:
             - configMapRef:
                 name: oaas-env
-            - configMapRef:
-                name: msc-bucket
-          env:
-            - name: QUARKUS_DATASOURCE_REACTIVE_URL
-              value: vertx-reactive:postgresql://oc-postgres:5432/oaas
-            - name: QUARKUS_DATASOURCE_USERNAME
-              value: oaas
-            - name: QUARKUS_DATASOURCE_PASSWORD
-              value: oaas
-            - name: OAAS_OC_S3PREFIXURL
-              value: 'http://${BUCKET_HOST}/${BUCKET_NAME}'
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
+          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-manager
           ports:
             - containerPort: 8080
           resources:
             limits:
               memory: 1G
             requests:
-              cpu: '500m'
+              cpu: 500m
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -56,23 +45,23 @@ spec:
             successThreshold: 1
             timeoutSeconds: 10
           readinessProbe:
-            failureThreshold: 10
+            failureThreshold: 5
             httpGet:
               path: /q/health/ready
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
-            periodSeconds: 5
+            periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: object-controller
+  name: task-manager
 spec:
   selector:
-    app: object-controller
+    app: task-manager
   ports:
     - protocol: TCP
       port: 80

@@ -1,11 +1,11 @@
 resources:
   - env-configmap.yaml
   # job-provisioner
-  - jp.yml
-  - jp-rb.yml
-  - jp-trigger.yml
+  - kp.yml
+  - kp-rb.yml
+  - kp-trigger.yml
   # task-generator
-  - tg.yml
+  - tm.yml
   # object-controller
   - oc-postgres.yml
   - oc.yml

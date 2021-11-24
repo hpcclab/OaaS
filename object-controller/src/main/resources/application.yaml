@@ -1,10 +1,12 @@
 "%test":
   quarkus:
+    console:
+      color: true
     hibernate-orm:
       database:
         generation: drop-and-create
-      log:
-        sql: true
+    #      log:
+    #        sql: true
     log:
       category:
         "org.hpcclab.oaas":
@@ -40,10 +42,12 @@ quarkus:
   hibernate-orm:
     database:
       generation: create
-#      generation: update
+  #      generation: update
   http:
     access-log:
       enabled: true
+      pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+    record-request-start-time: true
   vertx:
     prefer-native-transport: true
   swagger-ui:
@@ -55,17 +59,21 @@ quarkus:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.msc
-#  log:
-#    category:
-#      "org.hpcclab.oaas":
-#        level: DEBUG
+  #  log:
+  #    category:
+  #      "org.hpcclab.oaas":
+  #        level: DEBUG
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
   datasource:
     db-kind: postgresql
-
+  micrometer:
+    export:
+      json:
+        enabled: true
+        path: jsonmetrics
   native:
     resources:
       includes:

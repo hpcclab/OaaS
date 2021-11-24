@@ -1,0 +1,25 @@
+functions:
+  - name: example.empty.function
+    type: TASK
+    outputCls: example.empty
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.27.nip.io/oaas/empty-function:0.1.0
+#        minScale: 1
+#        maxScale: 3
+#        concurrency: 1
+        requestsCpu: '1'
+        limitsCpu: '1'
+classes:
+  - name: example.empty
+    stateType: FILE
+    objectType: SIMPLE
+    stateSpec:
+      keys:
+        - tmp
+    functions:
+      - access: PUBLIC
+        function: builtin.logical.copy
+      - access: PUBLIC
+        function: example.empty.function

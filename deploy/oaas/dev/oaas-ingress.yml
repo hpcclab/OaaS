@@ -14,13 +14,13 @@ spec:
                 name: object-controller
                 port:
                   number: 80
-    - host: "tg.oaas.10.131.36.27.nip.io"
+    - host: "tm.oaas.10.131.36.27.nip.io"
       http:
         paths:
           - pathType: Prefix
             path: /
             backend:
               service:
-                name: task-generator
+                name: task-manager
                 port:
                   number: 80

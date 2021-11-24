@@ -1,0 +1,44 @@
+###
+POST {{oc}}/api/batch
+Content-Type: text/x-yaml
+
+< empty.yml
+
+
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.empty",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "{{base_url}}",
+    "keys": [
+        "tmp"
+    ]
+  }
+}
+
+> {%
+client.global.set("obj_0_id", response.body.id)
+%}
+
+###
+POST {{oc}}/api/objects/{{obj_0_id}}/exec
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target": "{{obj_0_id}}",
+  "functionName": "example.empty.function",
+  "args": {}
+}
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}
+
+###
+GET {{cdn}}/{{obj_1_id}}/tmp
