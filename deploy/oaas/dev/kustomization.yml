@@ -11,7 +11,7 @@ images:
     newTag: native
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/kube-provisioner
     newName: core.harbor.10.131.36.27.nip.io/oaas/kube-provisioner
-    newTag: native
+    newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-completion-handler
     newName: core.harbor.10.131.36.27.nip.io/oaas/task-completion-handler
     newTag: native

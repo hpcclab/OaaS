@@ -31,6 +31,7 @@ import java.util.Map;
 @RegisterForReflection(targets = {
   Service.class,
   ServiceSpec.class,
+  TrafficTarget.class,
   RevisionTemplateSpec.class,
   RevisionSpec.class,
   Sequence.class,
