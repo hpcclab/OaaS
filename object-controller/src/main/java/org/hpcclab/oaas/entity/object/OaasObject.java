@@ -85,7 +85,7 @@ public class OaasObject extends BaseUuidEntity {
   @ToString.Exclude
   Set<OaasCompoundMember> members;
 
-  public void format() {
+  public void validate() {
     if (getCls().getObjectType() ==OaasObjectType.COMPOUND) {
       state = null;
     } else {

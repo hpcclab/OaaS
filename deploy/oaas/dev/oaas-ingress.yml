@@ -24,3 +24,43 @@ spec:
                 name: task-manager
                 port:
                   number: 80
+    - host: "oc.oaas.10.131.36.28.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: object-controller
+                port:
+                  number: 80
+    - host: "tm.oaas.10.131.36.28.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: task-manager
+                port:
+                  number: 80
+    - host: "oc.oaas.10.131.36.29.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: object-controller
+                port:
+                  number: 80
+    - host: "tm.oaas.10.131.36.29.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: task-manager
+                port:
+                  number: 80

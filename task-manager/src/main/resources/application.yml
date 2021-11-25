@@ -55,7 +55,8 @@ quarkus:
   rest-client:
     BlockingObjectService:
       url: ${oaas.tm.objectControllerUrl}
-
+  native:
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 mp:
   messaging:
     outgoing:

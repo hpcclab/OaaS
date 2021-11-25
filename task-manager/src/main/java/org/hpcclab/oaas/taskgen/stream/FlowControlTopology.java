@@ -2,6 +2,7 @@ package org.hpcclab.oaas.taskgen.stream;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
 import io.quarkus.kafka.client.serialization.ObjectMapperSerializer;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -22,6 +23,11 @@ import javax.inject.Inject;
 import java.util.Set;
 
 @ApplicationScoped
+@RegisterForReflection(targets = {
+  TaskEvent.class,
+  TaskState.class,
+  BaseTaskMessage.class
+})
 public class FlowControlTopology {
 
   @Inject
@@ -36,7 +42,6 @@ public class FlowControlTopology {
       TaskState.class);
 
 //    Serde<TaskEvent> taskEventSerde = new ObjectMapperSerde<>(TaskEvent.class);
-
 
     final String storeName = config.stateStoreName();
     final String teTopic = config.taskEventTopic();

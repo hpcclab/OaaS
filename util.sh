@@ -51,5 +51,7 @@ udxZ23AAL2CFKkdzlEWAwY3b4W3d24VD
 update-ca-certificates
 
 
-
+$ENV:JAVA_HOME="$HOME/.jdks/temurin-17.0.1"
+$ENV:CI_REGISTRY_IMAGE="core.harbor.10.131.36.27.nip.io/oaas"
+$ENV:TAG="native"
 ./mvnw package -Pnative "-Dquarkus.native.container-build=true" "-Dquarkus.native.container-runtime=docker" "-Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17" "-Dquarkus.container-image.build=true" "-Dquarkus.container-image.username=admin" "-Dquarkus.container-image.password=Harbor12345"  "-Dquarkus.container-image.push=true" "-Dquarkus.container-image.insecure=true"

@@ -30,6 +30,8 @@ quarkus:
     service-interface:
       artifact-id: model
       group-id: org.hpcclab.msc
+  native:
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 #  console:
 #    color: true
 #  log:

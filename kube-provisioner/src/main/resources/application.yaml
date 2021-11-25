@@ -31,6 +31,8 @@ quarkus:
       group-id: org.hpcclab.msc
   console:
     color: true
+  native:
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 #  log:
 #    category:
 #      "org.hpcclab.oaas":

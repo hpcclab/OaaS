@@ -78,7 +78,7 @@ quarkus:
     resources:
       includes:
         - builtin/**
-#    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 
 mp:
   messaging:

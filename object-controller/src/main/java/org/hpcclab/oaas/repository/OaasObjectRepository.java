@@ -44,7 +44,7 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
       .flatMap(session -> {
         root.setOrigin(null);
         root.setId(null);
-        root.format();
+        root.validate();
         if (root.getCls().getObjectType()==OaasObjectType.COMPOUND) {
           var newMembers = objectDto.getMembers().stream()
             .map(member -> new OaasCompoundMember()
