@@ -3,11 +3,13 @@ package org.hpcclab.oaas.provisioner.handler;
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.eventing.v1.Trigger;
 import io.fabric8.knative.eventing.v1.TriggerBuilder;
-import io.fabric8.knative.flows.v1.Sequence;
-import io.fabric8.knative.flows.v1.SequenceBuilder;
-import io.fabric8.knative.flows.v1.SequenceStepBuilder;
-import io.fabric8.knative.serving.v1.Service;
-import io.fabric8.knative.serving.v1.ServiceBuilder;
+import io.fabric8.knative.eventing.v1.TriggerFilter;
+import io.fabric8.knative.eventing.v1.TriggerSpec;
+import io.fabric8.knative.flows.v1.*;
+import io.fabric8.knative.internal.pkg.apis.duck.v1.Destination;
+import io.fabric8.knative.internal.pkg.apis.duck.v1.KReference;
+import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
+import io.fabric8.knative.serving.v1.*;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
@@ -28,8 +30,18 @@ import java.util.Map;
 @ApplicationScoped
 @RegisterForReflection(targets = {
   Service.class,
+  ServiceSpec.class,
+  RevisionTemplateSpec.class,
+  RevisionSpec.class,
   Sequence.class,
-  Trigger.class
+  SequenceSpec.class,
+  SequenceStep.class,
+  ChannelTemplateSpec.class,
+  KReference.class,
+  Trigger.class,
+  TriggerSpec.class,
+  TriggerFilter.class,
+  Destination.class
 })
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
