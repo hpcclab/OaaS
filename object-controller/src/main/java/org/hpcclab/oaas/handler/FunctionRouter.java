@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.handler;
 
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.object.OaasObject;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
+@RegisterForReflection(targets = {
+  TaskExecRequest.class
+})
 public class FunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
 
