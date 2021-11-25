@@ -11,6 +11,7 @@ import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -25,6 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
+@RegisterForReflection(targets = {
+  Service.class,
+  Sequence.class,
+  Trigger.class
+})
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
   final String labelKey = "oaas.function";
