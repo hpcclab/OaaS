@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.repository;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
@@ -18,11 +19,17 @@ public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, S
   @Inject
   OaasMapper oaasMapper;
   @Inject
-  Mutiny.SessionFactory sessionFactory;
+  Mutiny.SessionFactory sf;
 
   public Uni<OaasFunction> findByName(String name) {
     return findById(name);
   }
+
+  @CacheResult(cacheName = "loadFunction")
+  public Uni<OaasFunction> loadFunction(String name) {
+    return sf.withStatelessSession(ss -> ss.get(OaasFunction.class, name));
+  }
+
 
   public Uni<List<OaasFunction>> listByNames(Collection<String> names) {
     return find("name in ?1", names).list();

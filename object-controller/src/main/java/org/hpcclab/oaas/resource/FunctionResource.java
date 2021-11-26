@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.hibernate.CacheMode;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
+import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.exception.NoStackException;
@@ -34,6 +37,8 @@ public class FunctionResource implements FunctionService {
   OaasMapper oaasMapper;
   @Inject
   Mutiny.Session session;
+  @Inject
+  Mutiny.SessionFactory sessionFactory;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
 
@@ -84,7 +89,7 @@ public class FunctionResource implements FunctionService {
   }
 
   public Uni<OaasFunctionDto> get(String funcName) {
-    return funcRepo.findById(funcName)
+    return funcRepo.loadFunction(funcName)
       .onItem().ifNull().failWith(NotFoundException::new)
       .map(oaasMapper::toFunc);
   }

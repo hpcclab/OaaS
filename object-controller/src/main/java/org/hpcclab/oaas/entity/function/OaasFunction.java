@@ -4,6 +4,7 @@ package org.hpcclab.oaas.entity.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hpcclab.oaas.entity.EntityConverters;
 import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
@@ -26,6 +27,13 @@ import static javax.persistence.CascadeType.*;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
+@NamedEntityGraph(
+  name = "oaas.function.getWithOutput",
+  attributeNodes = {
+    @NamedAttributeNode(
+      value = "outputCls"
+    )
+  })
 public class OaasFunction {
   @NotBlank
   @Id
@@ -56,13 +64,15 @@ public class OaasFunction {
   ProvisionConfig provision;
 
   public void validate() {
-    if (type == OaasFunctionType.LOGICAL) {
+    if (type==OaasFunctionType.LOGICAL) {
       return;
     }
-    if ( type == OaasFunctionType.TASK) {
+    if (type==OaasFunctionType.TASK) {
       if (provision==null)
         throw new OaasValidationException("provision must not be null");
       provision.validate();
     }
   }
+
+
 }

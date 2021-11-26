@@ -2,18 +2,16 @@ package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
-import org.hpcclab.oaas.model.function.OaasWorkflow;
+import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.entity.object.OaasCompoundMember;
 import org.hpcclab.oaas.entity.object.OaasObject;
-import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.ContextLoader;
+import org.hpcclab.oaas.service.CachedCtxLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +30,7 @@ public class MacroFunctionHandler {
   @Inject
   FunctionRouter router;
   @Inject
-  ContextLoader contextLoader;
-  @Inject
-  OaasMapper oaasMapper;
+  CachedCtxLoader cachedCtxLoader;
 
   public void validate(FunctionExecContext context) {
     if (context.getMain().getCls().getObjectType()!=OaasObjectType.COMPOUND)
@@ -59,22 +55,32 @@ public class MacroFunctionHandler {
       .getObject();
   }
 
+  private void setupMap(FunctionExecContext ctx) {
+    Map<String, OaasObject> map = new HashMap<>();
+    ctx.setWorkflowMap(map);
+    map.put("$self", ctx.getMain());
+    for (int i = 0; i < ctx.getAdditionalInputs().size(); i++) {
+      map.put("$" + i, ctx.getAdditionalInputs().get(i));
+    }
+  }
+
   public Uni<FunctionExecContext> call(FunctionExecContext context) {
     validate(context);
-
+    setupMap(context);
     var func = context.getFunction();
     if (LOGGER.isDebugEnabled())
-      LOGGER.debug("func {}", Json.encodePrettily(func));
+      LOGGER.debug("func {}", func);
     var output = OaasObject.createFromClasses(context.getFunction().getOutputCls());
     output.setOrigin(context.createOrigin());
 
     return execWorkflow(context, func.getMacro())
-      .flatMap(wfResults -> {
+      .chain(() -> {
         var mem = func.getMacro().getExports()
           .stream()
           .map(export -> new OaasCompoundMember()
             .setName(export.getAs())
-            .setObject(wfResults.get(export.getFrom())))
+            .setObject(context.getWorkflowMap()
+              .get(export.getFrom())))
           .collect(Collectors.toUnmodifiableSet());
         output.setMembers(mem);
         return objectRepo.persistAndFlush(output);
@@ -82,22 +88,23 @@ public class MacroFunctionHandler {
       .map(context::setOutput);
   }
 
-  private Uni<Map<String, OaasObject>> execWorkflow(FunctionExecContext context,
-                                                    OaasWorkflow workflow) {
-    var map = new HashMap<String, OaasObject>();
+  private Uni<Void> execWorkflow(FunctionExecContext context,
+                                 OaasWorkflow workflow) {
     return Multi.createFrom().iterable(workflow.getSteps())
       .call(step -> {
-        var target = resolveTarget(context, map, step.getTarget());
-        var inputRefs = step.getInputRefs()
-          .stream()
-          .map(ir -> resolveTarget(context, map, ir))
-          .toList();
-        return contextLoader.loadCtx(context, target, step)
-          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))
+//        var target = resolveTarget(context, map, step.getTarget());
+//        var inputRefs = step.getInputRefs()
+//          .stream()
+//          .map(ir -> resolveTarget(context, map, ir))
+//          .toList();
+        return cachedCtxLoader.loadCtx(context, step)
+//        return contextLoader.loadCtx(context, target, step)
+//          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))
           .flatMap(newCtx -> router.functionCall(newCtx))
-          .invoke(newCtx -> map.put(step.getAs(), newCtx.getOutput()));
+          .invoke(newCtx ->
+            context.getWorkflowMap().put(step.getAs(), newCtx.getOutput()));
       })
       .collect().last()
-      .map(l -> map);
+      .map(l -> null);
   }
 }

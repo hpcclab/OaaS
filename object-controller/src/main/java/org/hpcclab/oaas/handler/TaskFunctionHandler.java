@@ -12,6 +12,7 @@ import org.hpcclab.oaas.service.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -73,6 +74,7 @@ public class TaskFunctionHandler {
       rootCtx = rootCtx.getParent();
     }
     rootCtx.getTaskOutputs().add(output);
-    return resUni.map(context::setOutput);
+    context.setOutput(output);
+    return resUni.replaceWith(context);
   }
 }

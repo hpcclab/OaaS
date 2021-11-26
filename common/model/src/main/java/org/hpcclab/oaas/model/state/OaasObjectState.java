@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasObjectState {
+public class OaasObjectState implements Serializable {
   StateType type;
   String baseUrl;
   List<String> keys;

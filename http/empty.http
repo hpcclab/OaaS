@@ -4,7 +4,6 @@ Content-Type: text/x-yaml
 
 < empty.yml
 
-
 ###
 POST {{oc}}/api/objects
 Accept: application/json
@@ -24,9 +23,10 @@ Content-Type: application/json
 > {%
 client.global.set("obj_0_id", response.body.id)
 %}
-
 ###
-POST {{oc}}/api/objects/{{obj_0_id}}/exec
+GET {{oc}}/api/objects/{{obj_0_id}}
+###
+POST {{oc}}/api/objects/{{obj_0_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 

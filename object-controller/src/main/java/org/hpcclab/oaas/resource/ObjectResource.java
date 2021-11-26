@@ -1,5 +1,8 @@
 package org.hpcclab.oaas.resource;
 
+import io.quarkus.cache.CacheInvalidate;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -52,15 +55,13 @@ public class ObjectResource implements ObjectService {
       .onFailure().invoke(e -> LOGGER.error("error", e));
   }
 
-
   public Uni<OaasObjectDto> get(String id) {
     var uuid = UUID.fromString(id);
-    return objectRepo.getById(uuid)
+    return objectRepo.loadObject(uuid)
       .onItem().ifNull().failWith(NotFoundException::new)
       .map(oaasMapper::toObject);
   }
 
-  @Override
   public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
     List<Map<String, OaasObjectOrigin>> results = new ArrayList<>();
     return Multi.createFrom().range(0, deep)
@@ -103,18 +104,18 @@ public class ObjectResource implements ObjectService {
   }
 
   public Uni<TaskContext> getTaskContext(String id) {
-    return objectRepo.getById(UUID.fromString(id))
+    return objectRepo.loadObject(UUID.fromString(id))
       .flatMap(main -> {
         var tc = new TaskContext();
         tc.setOutput(oaasMapper.toObject(main));
         var funcName = main.getOrigin().getFuncName();
-        var uni = funcRepo.findByName(funcName)
+        var uni = funcRepo.loadFunction(funcName)
           .map(func -> tc.setFunction(oaasMapper.toFunc(func)));
         if (main.getOrigin().getParentId()!=null) {
-          uni = uni.flatMap(t -> objectRepo.getById(main.getOrigin().getParentId()))
+          uni = uni.flatMap(t -> objectRepo.loadObject(main.getOrigin().getParentId()))
             .map(parent -> tc.setParent(oaasMapper.toObject(parent)));
         }
-        uni = uni.flatMap(t -> objectRepo.listFetchByIds(main.getOrigin().getAdditionalInputs()))
+        uni = uni.flatMap(t -> objectRepo.loadObjects(main.getOrigin().getAdditionalInputs()))
           .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
 //        uni = uni.flatMap(t -> classRepo.findByName(tc.getFunction().getOutputCls()))
 //          .map(cls -> tc.setOutputClass(oaasMapper.toClass(cls)));
@@ -123,11 +124,9 @@ public class ObjectResource implements ObjectService {
       });
   }
 
-  //  public Uni<OaasObject> getFullGraph(String id) {
-//    return objectRepo.getDeep(UUID.fromString(id));
-//  }
-
-  public Uni<OaasObjectDto> bindFunction(String id,
+//  @CacheInvalidate(cacheName = "obj_get")
+  @ReactiveTransactional
+  public Uni<OaasObjectDto> bindFunction(@CacheKey String id,
                                          List<OaasFunctionBindingDto> bindingDtoList) {
     return objectRepo.bindFunction(UUID.fromString(id), bindingDtoList)
       .map(oaasMapper::toObject);

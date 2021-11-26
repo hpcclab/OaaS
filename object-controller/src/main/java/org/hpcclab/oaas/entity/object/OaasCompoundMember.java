@@ -3,6 +3,7 @@ package org.hpcclab.oaas.entity.object;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hpcclab.oaas.entity.BaseEntity;
 
 import javax.persistence.*;

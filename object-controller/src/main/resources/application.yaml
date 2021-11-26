@@ -3,10 +3,12 @@
     console:
       color: true
     hibernate-orm:
+#      statistics: true
       database:
         generation: drop-and-create
-    #      log:
-    #        sql: true
+#      log:
+#        sql: true
+#      log-session-metrics: true
     log:
       category:
         "org.hpcclab.oaas":
@@ -17,10 +19,14 @@
 "%dev":
   quarkus:
     hibernate-orm:
+      statistics: true
       database:
         generation: drop-and-create
       log:
         sql: true
+        bind-param: true
+        bind-parameters: true
+      log-session-metrics: true
     http:
       port: 8088
     datasource:
@@ -35,11 +41,15 @@ oaas:
   oc:
     s3PrefixUrl: http://localhost:8888/bucket
     provisionTopic: oaas-provisions
+hibernate:
+  cache:
+    use_second_level_cache: true
 
 quarkus:
   console:
     color: true
   hibernate-orm:
+#    second-level-caching-enabled: true
     database:
 #      generation: create
       generation: update
@@ -68,6 +78,8 @@ quarkus:
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
   datasource:
+    reactive:
+      cache-prepared-statements: true
     db-kind: postgresql
   micrometer:
     export:
@@ -79,7 +91,14 @@ quarkus:
       includes:
         - builtin/**
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
-
+  cache:
+    caffeine:
+      loadObject:
+        expire-after-write: 120s
+      loadCls:
+        expire-after-write: 60s
+      loadFunction:
+        expire-after-write: 60s
 mp:
   messaging:
     outgoing:

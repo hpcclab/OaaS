@@ -5,16 +5,16 @@ resources:
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
     newName: core.harbor.10.131.36.27.nip.io/oaas/object-controller
-    newTag: native
+    newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-manager
     newName: core.harbor.10.131.36.27.nip.io/oaas/task-manager
-    newTag: native
+    newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/kube-provisioner
     newName: core.harbor.10.131.36.27.nip.io/oaas/kube-provisioner
     newTag: latest
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-completion-handler
     newName: core.harbor.10.131.36.27.nip.io/oaas/task-completion-handler
-    newTag: native
+    newTag: latest
   - name: postgres
     newName: core.harbor.10.131.36.27.nip.io/proxy/library/postgres
 #patches:

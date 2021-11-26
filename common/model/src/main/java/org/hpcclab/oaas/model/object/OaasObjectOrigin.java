@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.digest.PureJavaCrc32;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasObjectOrigin {
+public class OaasObjectOrigin implements Serializable {
   UUID rootId;
   UUID parentId;
   String funcName;

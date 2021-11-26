@@ -1,16 +1,17 @@
 package org.hpcclab.oaas.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
-import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -20,7 +21,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 @NamedEntityGraph(
   name = "oaas.class.deep",
   attributeNodes = {
@@ -32,7 +32,11 @@ import java.util.Set;
       attributeNodes = @NamedAttributeNode(value = "function"
       ))
   })
-
+@NamedEntityGraph(
+  name = "oaas.class.find",
+  attributeNodes = {
+    @NamedAttributeNode(value = "functions")
+  })
 public class OaasClass {
   @Id
   String name;
@@ -45,6 +49,6 @@ public class OaasClass {
   StateSpecification stateSpec;
 
   public void validate() {
-    if (stateSpec == null) stateSpec = new StateSpecification();
+    if (stateSpec==null) stateSpec = new StateSpecification();
   }
 }

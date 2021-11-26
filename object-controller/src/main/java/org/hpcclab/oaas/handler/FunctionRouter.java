@@ -10,7 +10,7 @@ import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.ContextLoader;
+import org.hpcclab.oaas.service.CachedCtxLoader;
 import org.hpcclab.oaas.iface.service.TaskExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,7 @@ public class FunctionRouter {
   @Inject
   TaskExecutionService resourceRequestService;
   @Inject
-  ContextLoader contextLoader;
-
+  CachedCtxLoader cachedCtxLoader;
 
   public Uni<FunctionExecContext> functionCall(FunctionExecContext context) {
     LOGGER.debug("functionCall context.function {}", context.getFunction());
@@ -55,7 +54,7 @@ public class FunctionRouter {
   public Uni<FunctionExecContext> functionCall(FunctionCallRequest request,
                                                boolean reactive) {
 
-    return contextLoader.loadCtx(request)
+    return cachedCtxLoader.loadCtx(request)
       .invoke(ctx -> ctx.setReactive(reactive))
       .invoke(this::validate)
       .flatMap(this::functionCall);

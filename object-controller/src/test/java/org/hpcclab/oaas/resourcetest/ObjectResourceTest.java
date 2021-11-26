@@ -17,6 +17,8 @@ import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -28,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class ObjectResourceTest {
-
+private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest.class );
   @Test
   void testCreate() {
     var root = new OaasObjectDto()

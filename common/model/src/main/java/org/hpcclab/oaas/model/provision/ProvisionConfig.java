@@ -5,10 +5,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 
+import java.io.Serializable;
+
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProvisionConfig {
+public class ProvisionConfig implements Serializable {
   private JobProvisionConfig job;
   private KnativeProvision knative;
   private Type type;

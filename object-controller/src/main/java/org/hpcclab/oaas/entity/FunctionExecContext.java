@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.entity.function.OaasFunction;
-import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
@@ -27,6 +26,7 @@ public class FunctionExecContext {
   FunctionAccessModifier functionAccess;
   Map<String, String> args= Map.of();
   List<OaasObject> additionalInputs = List.of();
+  Map<String,OaasObject> workflowMap = Map.of();
 
 
   public OaasObjectOrigin createOrigin() {
@@ -38,5 +38,9 @@ public class FunctionExecContext {
       additionalInputs.stream().map(OaasObject::getId)
         .toList()
     );
+  }
+
+  public OaasObject resolve(String ref) {
+    return workflowMap.get(ref);
   }
 }

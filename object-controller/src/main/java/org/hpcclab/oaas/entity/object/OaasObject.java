@@ -5,6 +5,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hpcclab.oaas.entity.EntityConverters;
 import org.hpcclab.oaas.entity.BaseUuidEntity;
 import org.hpcclab.oaas.entity.OaasClass;
@@ -15,10 +17,7 @@ import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 
 import javax.persistence.*;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Getter
@@ -29,6 +28,16 @@ import java.util.stream.Stream;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
+@NamedEntityGraph(
+  name = "oaas.object.find",
+  attributeNodes = {
+    @NamedAttributeNode(
+      value = "members"
+    ),
+    @NamedAttributeNode(
+      value = "functions"
+    )
+  })
 @NamedEntityGraph(
   name = "oaas.object.deep",
   attributeNodes = {
@@ -137,9 +146,16 @@ public class OaasObject extends BaseUuidEntity {
     return getClass().hashCode();
   }
 
-  public OaasFunctionBinding findFunction(String name) {
+  public Optional<OaasFunctionBinding> findFunction(String name) {
     return Stream.concat(functions.stream(), cls.getFunctions().stream())
       .filter(fb -> fb.getFunction().getName().equals(name))
-      .findFirst().orElse(null);
+      .findFirst();
+  }
+
+  public Optional<OaasObject> findMember(String name) {
+    return members.stream()
+      .filter(mem -> mem.getName().equals(name))
+      .map(OaasCompoundMember::getObject)
+      .findFirst();
   }
 }

@@ -130,6 +130,7 @@ public class TestUtils {
       .when().post("/api/objects/{oid}/binds")
       .then()
       .log().ifValidationFails()
+//      .log().all()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
