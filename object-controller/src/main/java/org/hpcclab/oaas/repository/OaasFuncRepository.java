@@ -6,6 +6,7 @@ import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,9 +26,15 @@ public class OaasFuncRepository implements PanacheRepositoryBase<OaasFunction, S
     return findById(name);
   }
 
-  @CacheResult(cacheName = "loadFunction")
   public Uni<OaasFunction> loadFunction(String name) {
-    return sf.withStatelessSession(ss -> ss.get(OaasFunction.class, name));
+    return loadFunctionThrowOnNull(name)
+      .onFailure(NoStackException.class).recoverWithNull();
+  }
+
+  @CacheResult(cacheName = "loadFunction")
+  public Uni<OaasFunction> loadFunctionThrowOnNull(String name) {
+    return sf.withStatelessSession(ss -> ss.get(OaasFunction.class, name))
+      .onItem().ifNull().failWith(() -> NoStackException.INSTANCE);
   }
 
 

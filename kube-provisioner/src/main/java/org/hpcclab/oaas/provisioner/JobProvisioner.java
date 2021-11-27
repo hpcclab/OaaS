@@ -125,9 +125,6 @@ public class JobProvisioner {
   }
 
   String generateRandomString (int length) {
-    return String.valueOf(random.nextLong(
-      Math.round(Math.pow(10,length - 1)),
-      Math.round(Math.pow(10, length)))
-    );
+    return String.format("%0" + length + "d", random.nextLong());
   }
 }

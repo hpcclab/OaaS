@@ -80,6 +80,8 @@ quarkus:
   datasource:
     reactive:
       cache-prepared-statements: true
+      postgresql:
+        ssl-mode: prefer
     db-kind: postgresql
   micrometer:
     export:

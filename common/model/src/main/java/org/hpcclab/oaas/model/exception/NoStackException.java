@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public class NoStackException extends RuntimeException{
 
+  public static final NoStackException INSTANCE = new NoStackException("INSTANCE",500);
+
   int code = 500;
 
   public NoStackException(String message) {

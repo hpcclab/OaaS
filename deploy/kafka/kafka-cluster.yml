@@ -20,6 +20,8 @@ spec:
 #        type: nodeport
 #        tls: false
     resources:
+      limits:
+        memory: 2.5G
       requests:
         cpu: 1
         memory: 1G
@@ -37,7 +39,7 @@ spec:
       log.message.format.version: '3.0'
       inter.broker.protocol.version: '3.0'
   zookeeper:
-    replicas: 3
+    replicas: 1
     storage:
       type: persistent-claim
       size: 10Gi

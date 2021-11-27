@@ -166,13 +166,21 @@ public class OaasObjectRepository implements PanacheRepositoryBase<OaasObject, U
   }
 
   @CacheResult(cacheName = "loadObject")
-  public Uni<OaasObject> loadObject(UUID id) {
+  public Uni<OaasObject> loadObjectThrowOnNull(UUID id) {
     return sf.withStatelessSession(ss -> {
       var eg = ss.getEntityGraph(OaasObject.class,
         "oaas.object.find");
-      return ss.get(eg, id);
+      return ss.get(eg, id)
+        .onItem().ifNull().failWith(() -> NoStackException.INSTANCE);
     });
   }
+
+  public Uni<OaasObject> loadObject(UUID id) {
+    return loadObjectThrowOnNull(id)
+      .onFailure(NoStackException.class).recoverWithNull();
+  }
+
+
 
   public Uni<List<OaasObject>> loadObjects(List<UUID> ids) {
     if (ids == null || ids.isEmpty()) return Uni.createFrom().item(List.of());

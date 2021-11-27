@@ -7,6 +7,7 @@ import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.OaasClass;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +52,16 @@ public class OaasClassRepository implements PanacheRepositoryBase<OaasClass, Str
 //  }
 
   @CacheResult(cacheName = "loadCls")
-  public Uni<OaasClass> loadCls(String name) {
-    LOGGER.debug("load class(name='{}')", name);
+  public Uni<OaasClass> loadClsThrowOnNull(String name) {
     return sf.withStatelessSession(ss -> {
       var eg = ss.getEntityGraph(OaasClass.class,
         "oaas.class.find");
-      return ss.get(eg, name);
+      return ss.get(eg, name).onItem().ifNull().failWith(() -> NoStackException.INSTANCE);
     });
+  }
+
+  public Uni<OaasClass> loadCls(String name) {
+    return loadClsThrowOnNull(name)
+      .onFailure(NoStackException.class).recoverWithNull();
   }
 }
