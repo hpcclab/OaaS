@@ -26,7 +26,7 @@ client.global.set("obj_0_id", response.body.id)
 %}
 
 ###
-POST {{oc}}/api/objects/{{obj_0_id}}/exec
+POST {{oc}}/api/objects/{{obj_0_id}}/r-exec
 Accept: application/json
 Content-Type: application/json
 

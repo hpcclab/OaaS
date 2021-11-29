@@ -22,16 +22,18 @@ spec:
             - containerPort: 80
           imagePullPolicy: Always
           env:
-            - name: REDIS_HOST
-              value: redis-master
-            - name: REDIS_PORT
+            - name: redis_host
+              value: redis-master.msc.svc.cluster.local
+            - name: redis_port
               value: '6379'
-            - name: SLEEP
+            - name: sleep
               value: '0.3'
-            - name: REDIS_CONNECTION_POOL
+            - name: redis_connection_pool
               value: '100'
-            - name: RESOLVER
-              value: rke2-coredns-rke2-coredns.kube-system.svc.cluster.local
+            - name: resolver
+              value: local=on
+            - name: resource_request_queue_host
+              value: task-manager.msc.svc.cluster.local
 ---
 apiVersion: v1
 kind: Service
