@@ -13,3 +13,4 @@ resources:
   - tch.yml
   # CDN
   - cdn.yml
+#  - monitor.yml
