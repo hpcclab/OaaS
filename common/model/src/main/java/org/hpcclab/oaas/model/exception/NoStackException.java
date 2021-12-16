@@ -8,6 +8,10 @@ public class NoStackException extends RuntimeException{
 
   int code = 500;
 
+  public NoStackException(int code) {
+    this.code = code;
+  }
+
   public NoStackException(String message) {
     super(message, null, true, true);
   }

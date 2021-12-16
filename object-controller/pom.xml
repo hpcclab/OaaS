@@ -56,6 +56,10 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-infinispan-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-config-yaml</artifactId>
     </dependency>
     <dependency>
@@ -133,6 +137,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.infinispan.protostream</groupId>
+      <artifactId>protostream-processor</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
@@ -180,6 +189,11 @@
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok-mapstruct-binding</artifactId>
               <version>0.1.0</version>
+            </annotationProcessorPath>
+            <annotationProcessorPath>
+              <groupId>org.infinispan.protostream</groupId>
+              <artifactId>protostream-processor</artifactId>
+              <version>4.4.1.Final</version>
             </annotationProcessorPath>
           </annotationProcessorPaths>
         </configuration>

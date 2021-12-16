@@ -56,7 +56,8 @@ public class OaasClassRepository implements PanacheRepositoryBase<OaasClass, Str
     return sf.withStatelessSession(ss -> {
       var eg = ss.getEntityGraph(OaasClass.class,
         "oaas.class.find");
-      return ss.get(eg, name).onItem().ifNull().failWith(() -> NoStackException.INSTANCE);
+      return ss.get(eg, name)
+        .onItem().ifNull().failWith(() -> NoStackException.INSTANCE);
     });
   }
 

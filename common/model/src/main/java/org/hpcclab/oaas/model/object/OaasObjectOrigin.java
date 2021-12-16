@@ -6,25 +6,51 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.digest.PureJavaCrc32;
+import org.infinispan.protostream.annotations.ProtoFactory;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectOrigin implements Serializable {
+  @ProtoField(1)
   UUID rootId;
+  @ProtoField(2)
   UUID parentId;
+  @ProtoField(3)
   String funcName;
+  @ProtoField(number = 4, javaType = HashMap.class)
   Map<String, String> args;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @ProtoField(5)
   List<UUID> additionalInputs = List.of();
+
+  public OaasObjectOrigin() {
+  }
+
+  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, Map<String, String> args, List<UUID> additionalInputs) {
+    this.rootId = rootId;
+    this.parentId = parentId;
+    this.funcName = funcName;
+    this.args = args;
+    this.additionalInputs = additionalInputs;
+  }
+
+  @ProtoFactory
+  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, HashMap<String, String> args, List<UUID> additionalInputs) {
+    this.rootId = rootId;
+    this.parentId = parentId;
+    this.funcName = funcName;
+    this.args = args;
+    this.additionalInputs = additionalInputs;
+  }
 
   public OaasObjectOrigin copy() {
     return new OaasObjectOrigin(
