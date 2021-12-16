@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.proto;
+package org.hpcclab.oaas.model.proto;
 
 import org.infinispan.protostream.annotations.ProtoAdapter;
 import org.infinispan.protostream.annotations.ProtoFactory;

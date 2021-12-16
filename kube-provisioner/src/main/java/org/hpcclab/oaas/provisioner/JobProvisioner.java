@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,7 @@ public class JobProvisioner {
     return env;
   }
 
-  private void putEnv(Map<String, String> env, OaasObjectDto obj, String prefix) {
+  private void putEnv(Map<String, String> env, OaasObjectPb obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
     env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
     if (obj.getState().getKeys()!=null) {

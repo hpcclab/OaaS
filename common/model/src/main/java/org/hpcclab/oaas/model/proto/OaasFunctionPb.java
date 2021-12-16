@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.proto;
+package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

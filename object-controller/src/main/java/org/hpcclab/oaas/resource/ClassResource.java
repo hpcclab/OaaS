@@ -3,13 +3,12 @@ package org.hpcclab.oaas.resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
+import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
-import org.jboss.resteasy.reactive.common.NotImplementedYet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,65 +22,55 @@ import java.util.List;
 public class ClassResource implements ClassService {
   private static final Logger LOGGER = LoggerFactory.getLogger( ClassResource.class );
   @Inject
-  OaasClassRepository classRepo;
+  IfnpOaasClassRepository classRepo;
   @Inject
   OaasMapper oaasMapper;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
 
-  @Override
-  public Uni<List<OaasClassDto>> list() {
-    return classRepo.find(
-      "select distinct c from OaasClass c left join fetch c.functions")
-      .list()
-      .invoke(l -> LOGGER.debug("l.size() = {}", l.size()))
-      .map(oaasMapper::toClassDto);
+  public Uni<List<OaasClassPb>> list(Integer page, Integer size) {
+    if (page == null) page = 0;
+    if (size == null) size = 100;
+    var list = classRepo.pagination(page, size);
+    return Uni.createFrom().item(list);
   }
 
   @Override
-  @ReactiveTransactional
-  public Uni<OaasClassDto> create(boolean update, OaasClassDto classDto) {
-    var cls = oaasMapper.toClass(classDto);
+  public Uni<OaasClassPb> create(boolean update, OaasClassPb cls) {
     cls.validate();
-    return classRepo.persist(cls)
-      .map(oaasMapper::toClass);
+    return classRepo.persist(cls);
   }
 
   @Override
-  @ReactiveTransactional
-  public Uni<OaasClassDto> patch(String name, OaasClassDto classDto) {
-    return classRepo.findById(name)
+  public Uni<OaasClassPb> patch(String name, OaasClassPb clsPatch) {
+    return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new)
       .flatMap(cls -> {
-        oaasMapper.set(classDto, cls);
+        oaasMapper.set(clsPatch, cls);
         cls.validate();
         return classRepo.persist(cls);
-      })
-      .map(oaasMapper::toClass);
+      });
   }
 
   @Override
-  public Uni<OaasClassDto> createByYaml(boolean update, String body) {
+  public Uni<OaasClassPb> createByYaml(boolean update, String body) {
     try {
-      var func = yamlMapper.readValue(body, OaasClassDto.class);
-      return create(update, func);
+      var cls = yamlMapper.readValue(body, OaasClassPb.class);
+      return create(update, cls);
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
     }
   }
 
   @Override
-  public Uni<OaasClassDto> get(String name) {
-    return classRepo.loadCls(name)
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .map(oaasMapper::toClass);
+  public Uni<OaasClassPb> get(String name) {
+    return classRepo.getAsync(name)
+      .onItem().ifNull().failWith(NotFoundException::new);
   }
 
   @Override
-  public Uni<OaasClassDto> delete(String name) {
-    return classRepo.findById(name)
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .call(cls -> classRepo.delete(cls))
-      .map(oaasMapper::toClass);
+  public Uni<OaasClassPb> delete(String name) {
+    return classRepo.remove(name)
+      .onItem().ifNull().failWith(NotFoundException::new);
   }
 }

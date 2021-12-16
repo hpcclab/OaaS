@@ -1,8 +1,7 @@
-package org.hpcclab.oaas.proto;
+package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import org.hpcclab.oaas.entity.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
@@ -55,5 +54,9 @@ public class OaasClassPb {
   @ProtoField(5)
   public StateSpecification getStateSpec() {
     return stateSpec;
+  }
+
+  public void validate() {
+    if (stateSpec==null) stateSpec = new StateSpecification();
   }
 }

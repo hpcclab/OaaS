@@ -1,23 +1,15 @@
 package org.hpcclab.oaas.resource;
 
-import io.quarkus.cache.CacheInvalidate;
-import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheResult;
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.handler.FunctionRouter;
-import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
-import org.hpcclab.oaas.model.object.OaasObjectDto;
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.iface.service.ObjectService;
+import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
+import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,34 +24,26 @@ import java.util.stream.Stream;
 public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
-  OaasObjectRepository objectRepo;
+  IfnpOaasObjectRepository objectRepo;
   @Inject
-  OaasFuncRepository funcRepo;
-  @Inject
-  OaasClassRepository classRepo;
+  IfnpOaasFuncRepository funcRepo;
   @Inject
   FunctionRouter functionRouter;
-  @Inject
-  OaasMapper oaasMapper;
 
-  public Uni<List<OaasObjectDto>> list() {
-    return objectRepo.list()
-      .map(oaasMapper::toObject);
+  public Uni<List<OaasObjectPb>> list(Integer page, Integer size) {
+    var list = objectRepo.pagination(page, size);
+    return Uni.createFrom().item(list);
   }
 
-  @ReactiveTransactional
-  public Uni<OaasObjectDto> create(OaasObjectDto creating) {
-//    if (creating==null) throw new BadRequestException();
+  public Uni<OaasObjectPb> create(OaasObjectPb creating) {
     return objectRepo.createRootAndPersist(creating)
-      .map(oaasMapper::toObject)
       .onFailure().invoke(e -> LOGGER.error("error", e));
   }
 
-  public Uni<OaasObjectDto> get(String id) {
+  public Uni<OaasObjectPb> get(String id) {
     var uuid = UUID.fromString(id);
-    return objectRepo.loadObject(uuid)
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .map(oaasMapper::toObject);
+    return objectRepo.getAsync(uuid)
+      .onItem().ifNull().failWith(NotFoundException::new);
   }
 
   public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
@@ -67,7 +51,7 @@ public class ObjectResource implements ObjectService {
     return Multi.createFrom().range(0, deep)
       .call(i -> {
         if (i==0) {
-          return objectRepo.findById(UUID.fromString(id))
+          return objectRepo.getAsync(UUID.fromString(id))
             .onItem().ifNull().failWith(NotFoundException::new)
             .map(o -> Map.of(id, o.getOrigin()))
             .invoke(map -> results.add(i, map));
@@ -85,8 +69,8 @@ public class ObjectResource implements ObjectService {
             return Uni.createFrom().item(Map.of());
           }
 
-          return objectRepo.listByIds(ids)
-            .map(objs -> objs.stream()
+          return objectRepo.listAsync(ids)
+            .map(objs -> objs.values().stream()
               .map(o -> Map.entry(o.getId().toString(), o.getOrigin()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
             )
@@ -98,57 +82,36 @@ public class ObjectResource implements ObjectService {
   }
 
   //  @ReactiveTransactional
-  public Uni<DeepOaasObjectDto> getDeep(String id) {
-    return objectRepo.getDeep(UUID.fromString(id))
-      .map(oaasMapper::deep);
-  }
+//  public Uni<DeepOaasObjectDto> getDeep(String id) {
+//    return objectRepo.getDeep(UUID.fromString(id))
+//      .map(oaasMapper::deep);
+//  }
 
   public Uni<TaskContext> getTaskContext(String id) {
-    return objectRepo.loadObject(UUID.fromString(id))
+    return objectRepo.getAsync(UUID.fromString(id))
       .flatMap(main -> {
         var tc = new TaskContext();
-        tc.setOutput(oaasMapper.toObject(main));
+        tc.setOutput(main);
         var funcName = main.getOrigin().getFuncName();
-        var uni = funcRepo.loadFunction(funcName)
-          .map(func -> tc.setFunction(oaasMapper.toFunc(func)));
+        var function = funcRepo.get(funcName);
+        tc.setFunction(function);
+
+        var uni = objectRepo.listByIds(
+            main.getOrigin().getAdditionalInputs())
+          .map(tc::setAdditionalInputs);
         if (main.getOrigin().getParentId()!=null) {
-          uni = uni.flatMap(t -> objectRepo.loadObject(main.getOrigin().getParentId()))
-            .map(parent -> tc.setParent(oaasMapper.toObject(parent)));
+          uni = uni.flatMap(t -> objectRepo.getAsync(main.getOrigin().getParentId()))
+            .map(tc::setParent);
         }
-        uni = uni.flatMap(t -> objectRepo.loadObjects(main.getOrigin().getAdditionalInputs()))
-          .map(parent -> tc.setAdditionalInputs(oaasMapper.toObject(parent)));
-//        uni = uni.flatMap(t -> classRepo.findByName(tc.getFunction().getOutputCls()))
-//          .map(cls -> tc.setOutputClass(oaasMapper.toClass(cls)));
-        return uni
-          .map(f -> tc);
+        return uni;
       });
   }
 
-//  @CacheInvalidate(cacheName = "obj_get")
-  @ReactiveTransactional
-  public Uni<OaasObjectDto> bindFunction(@CacheKey String id,
-                                         List<OaasFunctionBindingDto> bindingDtoList) {
-    return objectRepo.bindFunction(UUID.fromString(id), bindingDtoList)
-      .map(oaasMapper::toObject);
+  public Uni<OaasObjectPb> activeFuncCall(String id, FunctionCallRequest request) {
+    return functionRouter.activeCall(request.setTarget(UUID.fromString(id)));
   }
 
-  public Uni<OaasObjectDto> activeFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.activeCall(request.setTarget(UUID.fromString(id)))
-      .map(oaasMapper::toObject);
+  public Uni<OaasObjectPb> reactiveFuncCall(String id, FunctionCallRequest request) {
+    return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)));
   }
-
-  public Uni<OaasObjectDto> reactiveFuncCall(String id, FunctionCallRequest request) {
-    return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)))
-      .map(oaasMapper::toObject);
-  }
-
-//  @Override
-//  public Uni<FunctionExecContext> loadExecutionContext(String id) {
-//    return objectRepo.findById(UUID.fromString(id))
-//      .flatMap(obj -> {
-//        if (obj==null) throw new NotFoundException();
-//        var origin = obj.getOrigin();
-//        return contextLoader.load(FunctionCallRequest.from(origin));
-//      });
-//  }
 }

@@ -8,6 +8,7 @@ import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.CachedCtxLoader;
@@ -61,12 +62,12 @@ public class FunctionRouter {
 
   }
 
-  public Uni<OaasObject> reactiveCall(FunctionCallRequest request) {
+  public Uni<OaasObjectPb> reactiveCall(FunctionCallRequest request) {
     return functionCall(request, true)
       .map(FunctionExecContext::getOutput);
   }
 
-  public Uni<OaasObject> activeCall(FunctionCallRequest request) {
+  public Uni<OaasObjectPb> activeCall(FunctionCallRequest request) {
     return functionCall(request, false)
       .call(ctx -> Multi.createFrom()
         .iterable(ctx.getTaskOutputs())

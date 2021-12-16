@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.cls.OaasClassDto;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -13,29 +13,30 @@ import java.util.List;
 @Path("/api/classes")
 public interface ClassService {
   @GET
-  Uni<List<OaasClassDto>> list();
+  Uni<List<OaasClassPb>> list(@QueryParam("page") Integer page,
+                              @QueryParam("size") Integer size);
 
   @POST
-  Uni<OaasClassDto> create(@DefaultValue("false") @QueryParam("update") boolean update,
-                           @Valid OaasClassDto classDto);
+  Uni<OaasClassPb> create(@DefaultValue("false") @QueryParam("update") boolean update,
+                           @Valid OaasClassPb classDto);
 
   @PATCH
   @Path("{name}")
-  Uni<OaasClassDto> patch(String name,
-                          @Valid OaasClassDto classDto);
+  Uni<OaasClassPb> patch(String name,
+                          @Valid OaasClassPb classDto);
 
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
-  Uni<OaasClassDto> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
+  Uni<OaasClassPb> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                  String body);
 
   @GET
   @Path("{name}")
-  Uni<OaasClassDto> get(String name);
+  Uni<OaasClassPb> get(String name);
 
 
   @DELETE
   @Path("{name}")
-  Uni<OaasClassDto> delete(String name);
+  Uni<OaasClassPb> delete(String name);
 }

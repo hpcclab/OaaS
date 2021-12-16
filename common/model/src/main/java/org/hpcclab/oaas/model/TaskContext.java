@@ -3,9 +3,10 @@ package org.hpcclab.oaas.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
 
 import java.util.List;
 
@@ -13,9 +14,9 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskContext {
-  OaasObjectDto output;
-//  OaasClassDto outputClass;
-  OaasObjectDto parent;
-  OaasFunctionDto function;
-  List<OaasObjectDto> additionalInputs = List.of();
+  OaasObjectPb output;
+  //  OaasClassDto outputClass;
+  OaasObjectPb parent;
+  OaasFunctionPb function;
+  List<OaasObjectPb> additionalInputs = List.of();
 }

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
+import org.hpcclab.oaas.model.proto.OaasFunctionPb;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +30,7 @@ public interface BatchService {
   @Data
   @Accessors(chain = true)
   public static class Batch{
-    List<OaasClassDto> classes = List.of();
-    List<OaasFunctionDto> functions = List.of();
+    List<OaasClassPb> classes = List.of();
+    List<OaasFunctionPb> functions = List.of();
   }
 }

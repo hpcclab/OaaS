@@ -2,6 +2,7 @@ package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
+import org.hpcclab.oaas.model.proto.OaasFunctionPb;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -13,21 +14,22 @@ import java.util.List;
 @Path("/api/functions")
 public interface FunctionService {
   @GET
-  Uni<List<OaasFunctionDto>> list();
+  Uni<List<OaasFunctionPb>> list(@QueryParam("page") Integer page,
+                                 @QueryParam("size") Integer size);
 
   @POST
-  Uni<List<OaasFunctionDto>> create(
+  Uni<List<OaasFunctionPb>> create(
     @DefaultValue("false") @QueryParam("update") boolean update,
-    @Valid List<OaasFunctionDto> function
+    @Valid List<OaasFunctionPb> function
   );
 
   @POST
 //  @Path("-/yaml")
   @Consumes("text/x-yaml")
-  Uni<List<OaasFunctionDto>> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
+  Uni<List<OaasFunctionPb>> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                       String body);
 
   @GET
   @Path("{funcName}")
-  Uni<OaasFunctionDto> get(String funcName);
+  Uni<OaasFunctionPb> get(String funcName);
 }

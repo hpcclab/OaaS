@@ -14,6 +14,7 @@ import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasCompoundMemberDto;
 import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -105,4 +106,6 @@ public interface OaasMapper {
   DeepOaasFunctionBindingDto deep(OaasFunctionBinding binding);
 
   FunctionExecContext copy(FunctionExecContext ctx);
+
+  void set(OaasClassPb cls1, @MappingTarget OaasClassPb cls2);
 }

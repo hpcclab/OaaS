@@ -7,6 +7,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.iface.service.BatchService;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
+import org.hpcclab.oaas.model.proto.OaasFunctionPb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +31,11 @@ public class BuiltInLoader {
   @Inject
   BatchService batchService;
 
-  @Transactional
   void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException, IOException {
     mapper = new ObjectMapper(new YAMLFactory());
 
-    List<OaasClassDto> classes = new ArrayList<>();
-    List<OaasFunctionDto> functions = new ArrayList<>();
+    List<OaasClassPb> classes = new ArrayList<>();
+    List<OaasFunctionPb> functions = new ArrayList<>();
 
     var files = List.of(
       "/builtin/builtin.logical.yml",
@@ -45,8 +46,8 @@ public class BuiltInLoader {
     for (String file : files) {
       var is = getClass().getResourceAsStream(file);
       var batch = mapper.readValue(is, BatchService.Batch.class);
-      var funcNames = batch.getFunctions().stream().map(OaasFunctionDto::getName).toList();
-      var clsNames = batch.getClasses().stream().map(OaasClassDto::getName).toList();
+      var funcNames = batch.getFunctions().stream().map(OaasFunctionPb::getName).toList();
+      var clsNames = batch.getClasses().stream().map(OaasClassPb::getName).toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
       classes.addAll(batch.getClasses());
       functions.addAll(batch.getFunctions());

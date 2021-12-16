@@ -18,25 +18,4 @@ public class TaskFactory {
     task.setAdditionalInputs(taskContext.getAdditionalInputs());
     return task;
   }
-
-//  public TaskFlow genTaskSequence(OaasObject outputObj,
-//                                  String requestFile,
-//                                  FunctionExecContext context) {
-//    var task = genTask(outputObj, requestFile, context);
-//    var seq = new TaskFlow()
-//      .setTask(task)
-//      .setId(OaasTask.createId(outputObj, requestFile));
-//    var pre = new HashSet<String>();
-//    if (context.getMain().getOrigin().getParentId() != null) {
-//      pre.add(OaasTask.createId(context.getMain(), requestFile));
-//    }
-//    for (OaasObject additionalInput : context.getAdditionalInputs()) {
-//      if (additionalInput.getOrigin().getParentId() != null) {
-//        pre.add(OaasTask.createId(additionalInput, requestFile));
-//      }
-//    }
-////    seq.setPrerequisiteTasks(pre);
-//    // TODO
-//    return seq;
-//  }
 }

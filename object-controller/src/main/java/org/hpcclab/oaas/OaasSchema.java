@@ -1,7 +1,8 @@
-package org.hpcclab.oaas.proto;
+package org.hpcclab.oaas;
 
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.object.*;
+import org.hpcclab.oaas.model.proto.*;
 import org.hpcclab.oaas.model.provision.JobProvisionConfig;
 import org.hpcclab.oaas.model.provision.KnativeProvision;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
@@ -41,8 +42,7 @@ import org.infinispan.protostream.types.java.CommonTypes;
     OaasObjectState.class,
     OaasObjectState.StateType.class,
     OaasCompoundMemberDto.class,
-  },
-  dependsOn = {CommonTypes.class}
+  }
 )
 public interface OaasSchema extends GeneratedSchema {
 }

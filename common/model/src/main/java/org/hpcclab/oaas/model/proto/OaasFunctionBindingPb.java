@@ -1,9 +1,7 @@
-package org.hpcclab.oaas.proto;
+package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import lombok.experimental.Accessors;
-import org.hpcclab.oaas.entity.function.OaasFunction;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;

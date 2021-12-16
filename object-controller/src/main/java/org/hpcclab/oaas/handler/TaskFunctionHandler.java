@@ -3,10 +3,12 @@ package org.hpcclab.oaas.handler;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.entity.FunctionExecContext;
+import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.StorageAllocator;
 
@@ -19,62 +21,49 @@ import java.util.stream.Stream;
 public class TaskFunctionHandler {
 
   @Inject
-  OaasObjectRepository objectRepo;
+  IfnpOaasObjectRepository objectRepo;
   @Inject
   StorageAllocator storageAllocator;
 
   public void validate(FunctionExecContext context) {
     var main = context.getMain();
     var func = context.getFunction();
-    var bindingOptional = Stream.concat(
-        main.getFunctions().stream(),
-        main.getCls().getFunctions().stream()
-      ).filter(b -> b.getFunction().getName()
-        .equals(context.getFunction().getName()))
-      .findFirst();
+    var access = context.getFunctionAccess();
 
-    if (bindingOptional.isEmpty()) {
-      throw new NoStackException("No function with name '%s' available in object '%s'"
-        .formatted(context.getFunction().getName(), context.getMain().getId())
-      );
-    }
-
-    var binding = bindingOptional.get();
-    if (context.getEntry()==main && binding.getAccess()!=FunctionAccessModifier.PUBLIC) {
+    if (context.getEntry()==main && access!=FunctionAccessModifier.PUBLIC) {
       throw new NoStackException("The object(id='%s') has a function(name='%s') without PUBLIC access"
         .formatted(main.getId(), func.getName())
       );
     }
 
     if (!context.isReactive()) {
-      if (context.getFunction().getOutputCls().getStateType()
+      if (context.getOutputCls().getStateType()
         ==OaasObjectState.StateType.SEGMENTABLE) {
         throw new FunctionValidationException("Can not execute actively the function with the output as segmentable resource type");
       }
     }
   }
 
-  public Uni<FunctionExecContext> call(FunctionExecContext context) {
-    var func = context.getFunction();
-    var output = OaasObject.createFromClasses(func.getOutputCls());
-    output.setOrigin(context.createOrigin());
+  public Uni<FunctionExecContext> call(FunctionExecContext ctx) {
+    var output = OaasObjectPb.createFromClasses(ctx.getOutputCls());
+    output.setOrigin(ctx.createOrigin());
 //    if (func.getTask().getOutputFileNames()!=null) {
 //      output.getState().setKeys(func.getTask().getOutputFileNames());
 //    }
     output.getState().setKeys(
-      func.getOutputCls().getStateSpec().getKeys()
+      ctx.getOutputCls().getStateSpec().getKeys()
     );
 
     var resUni = objectRepo.persist(output)
       .invoke(o -> storageAllocator.allocate(o));
 
-    var rootCtx = context;
+    var rootCtx = ctx;
     while (rootCtx.getParent() != null) {
 //      rootCtx.getTaskOutputs().add(output);
       rootCtx = rootCtx.getParent();
     }
     rootCtx.getTaskOutputs().add(output);
-    context.setOutput(output);
-    return resUni.replaceWith(context);
+    ctx.setOutput(output);
+    return resUni.replaceWith(ctx);
   }
 }
