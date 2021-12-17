@@ -12,9 +12,7 @@ import java.util.UUID;
 @Data
 @Accessors(chain = true)
 public class OaasCompoundMemberDto {
-  @ProtoField(1)
   String name;
-  @ProtoField(2)
   UUID object;
 
   public OaasCompoundMemberDto() {
@@ -24,5 +22,15 @@ public class OaasCompoundMemberDto {
   public OaasCompoundMemberDto(String name, UUID object) {
     this.name = name;
     this.object = object;
+  }
+
+  @ProtoField(1)
+  public String getName() {
+    return name;
+  }
+
+  @ProtoField(2)
+  public UUID getObject() {
+    return object;
   }
 }

@@ -15,14 +15,10 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectState implements Serializable {
-  @ProtoField(1)
   StateType type;
-  @ProtoField(2)
   String baseUrl;
-  @ProtoField(3)
   List<String> keys;
   @JsonRawValue
-  @ProtoField(4)
   String records;
 
   public enum StateType {
@@ -34,5 +30,36 @@ public class OaasObjectState implements Serializable {
     SEGMENTABLE,
     @ProtoEnumValue(3)
     RECORD
+  }
+
+  public OaasObjectState() {
+  }
+
+  @ProtoFactory
+  public OaasObjectState(StateType type, String baseUrl, List<String> keys, String records) {
+    this.type = type;
+    this.baseUrl = baseUrl;
+    this.keys = keys;
+    this.records = records;
+  }
+
+  @ProtoField(1)
+  public StateType getType() {
+    return type;
+  }
+
+  @ProtoField(2)
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  @ProtoField(3)
+  public List<String> getKeys() {
+    return keys;
+  }
+
+  @ProtoField(4)
+  public String getRecords() {
+    return records;
   }
 }

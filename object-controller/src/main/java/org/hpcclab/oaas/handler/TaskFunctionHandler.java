@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -9,13 +8,10 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class TaskFunctionHandler {
@@ -45,6 +41,11 @@ public class TaskFunctionHandler {
   }
 
   public Uni<FunctionExecContext> call(FunctionExecContext ctx) {
+    if (ctx.getOutputCls() == null)
+      throw new NoStackException(
+        "Cannot call function('%s') because outputCls('%s') is not exist"
+        .formatted(ctx.getFunction().getName(), ctx.getFunction().getOutputCls())
+      );
     var output = OaasObjectPb.createFromClasses(ctx.getOutputCls());
     output.setOrigin(ctx.createOrigin());
 //    if (func.getTask().getOutputFileNames()!=null) {
@@ -54,7 +55,7 @@ public class TaskFunctionHandler {
       ctx.getOutputCls().getStateSpec().getKeys()
     );
 
-    var resUni = objectRepo.persist(output)
+    var resUni = objectRepo.persistAsync(output)
       .invoke(o -> storageAllocator.allocate(o));
 
     var rootCtx = ctx;

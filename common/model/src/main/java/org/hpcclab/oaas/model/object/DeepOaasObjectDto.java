@@ -21,14 +21,9 @@ public class DeepOaasObjectDto {
   Long originHash;
   ObjectAccessModifier access;
   DeepOaasClassDto cls;
-  Map<String, String> labels;
-  Set<DeepOaasFunctionBindingDto> functions = Set.of();
+//  Map<String, String> labels;
+  Set<String> labels;
+//  Set<DeepOaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
   Set<OaasCompoundMemberDto> members;
-
-  public DeepOaasFunctionBindingDto findFunction(String name) {
-    return Stream.concat(functions.stream(), cls.getFunctions().stream())
-      .filter(fb -> fb.getFunction().getName().equals(name))
-      .findFirst().orElse(null);
-  }
 }

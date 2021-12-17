@@ -1,11 +1,13 @@
 package org.hpcclab.oaas.resource;
 
+import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.handler.FunctionRouter;
 import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
@@ -31,6 +33,8 @@ public class ObjectResource implements ObjectService {
   FunctionRouter functionRouter;
 
   public Uni<List<OaasObjectPb>> list(Integer page, Integer size) {
+    if (page==null) page = 0;
+    if (size==null) size = 100;
     var list = objectRepo.pagination(page, size);
     return Uni.createFrom().item(list);
   }
@@ -81,36 +85,32 @@ public class ObjectResource implements ObjectService {
       .map(v -> results);
   }
 
-  //  @ReactiveTransactional
-//  public Uni<DeepOaasObjectDto> getDeep(String id) {
-//    return objectRepo.getDeep(UUID.fromString(id))
-//      .map(oaasMapper::deep);
-//  }
+  public Uni<DeepOaasObjectDto> getDeep(String id) {
+    return objectRepo.getDeep(UUID.fromString(id));
+  }
 
+  @Blocking
   public Uni<TaskContext> getTaskContext(String id) {
-    return objectRepo.getAsync(UUID.fromString(id))
-      .flatMap(main -> {
-        var tc = new TaskContext();
-        tc.setOutput(main);
-        var funcName = main.getOrigin().getFuncName();
-        var function = funcRepo.get(funcName);
-        tc.setFunction(function);
-
-        var uni = objectRepo.listByIds(
-            main.getOrigin().getAdditionalInputs())
-          .map(tc::setAdditionalInputs);
-        if (main.getOrigin().getParentId()!=null) {
-          uni = uni.flatMap(t -> objectRepo.getAsync(main.getOrigin().getParentId()))
-            .map(tc::setParent);
-        }
-        return uni;
-      });
+    var main = objectRepo.get(UUID.fromString(id));
+    var tc = new TaskContext();
+    tc.setOutput(main);
+    var funcName = main.getOrigin().getFuncName();
+    var function = funcRepo.get(funcName);
+    tc.setFunction(function);
+    var inputs = objectRepo.listByIds(main.getOrigin().getAdditionalInputs());
+    tc.setAdditionalInputs(inputs);
+    if (main.getOrigin().getParentId()!=null) {
+      var parent = objectRepo.get(main.getOrigin().getParentId());
+      tc.setParent(parent);
+    }
+    return Uni.createFrom().item(tc);
   }
 
   public Uni<OaasObjectPb> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(UUID.fromString(id)));
   }
 
+  @Blocking
   public Uni<OaasObjectPb> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)));
   }

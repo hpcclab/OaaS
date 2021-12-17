@@ -8,6 +8,7 @@ import org.infinispan.query.dsl.QueryFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractIfnpRepository <K,V>{
@@ -34,11 +35,17 @@ public abstract class AbstractIfnpRepository <K,V>{
   }
 
   public V get(K key) {
+    Objects.requireNonNull(key);
     return remoteCache.get(key);
   }
 
   public Uni<V> getAsync(K key) {
+    Objects.requireNonNull(key);
     return Uni.createFrom().completionStage(remoteCache.getAsync(key));
+  }
+
+  public Map<K, V> list(Set<K> keys) {
+    return remoteCache.getAll(keys);
   }
 
   public Uni<Map<K, V>> listAsync(Set<K> keys) {
@@ -46,15 +53,26 @@ public abstract class AbstractIfnpRepository <K,V>{
       .getAllAsync(keys));
   }
 
-  public Uni<V> put(K key, V value) {
-    return Uni.createFrom().completionStage(remoteCache.putAsync(key, value));
+  public V put(K key, V value) {
+    Objects.requireNonNull(key);
+    remoteCache.putAsync(key, value);
+    return value;
   }
 
-  public Uni<Void> putAll(Map<K,V> map) {
+  public Uni<V> putAsync(K key, V value) {
+    Objects.requireNonNull(key);
+    return Uni.createFrom().completionStage(remoteCache.putAsync(key, value))
+      .replaceWith(value);
+  }
+
+  public Uni<Void> putAllAsync(Map<K,V> map) {
+    Objects.requireNonNull(map);
     return Uni.createFrom().completionStage(remoteCache.putAllAsync(map));
   }
 
-  public Uni<V> remove(K key){
+  public Uni<V> removeAsync(K key){
+    Objects.requireNonNull(key);
     return Uni.createFrom().completionStage(remoteCache.removeAsync(key));
   }
+
 }

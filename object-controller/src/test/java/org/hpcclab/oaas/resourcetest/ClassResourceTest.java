@@ -16,29 +16,29 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 
 @QuarkusTest
-class FunctionResourceTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FunctionResourceTest.class);
-  @Inject
-  IfnpOaasFuncRepository funcRepo;
-
-  @Test
-  void find() {
-    var functions = funcRepo.listAsync(
-      Set.of("builtin.logical.copy")
-    ).await().indefinitely();
-    Assertions.assertEquals(1, functions.size());
-  }
-
-
+class ClassResourceTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClassResourceTest.class);
   @Test
   void create() {
     TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
     given()
-      .when().get("/api/functions")
+      .when().get("/api/classes")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("name", hasItems("test.dummy.task", "test.dummy.macro"))
+      .body("name", hasItems("test.dummy.simple", "test.dummy.compound"))
       .log().ifValidationFails();
+    given()
+      .when().get("/api/classes/test.dummy.simple")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .log().ifValidationFails();
+    given()
+      .when().get("/api/classes/test.dummy.simple/deep")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .log().all();
   }
 }

@@ -15,7 +15,6 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionCallRequest {
   UUID target;
-  @NotBlank
   String functionName;
   Map<String, String> args;
   List<UUID> additionalInputs;

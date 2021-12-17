@@ -9,9 +9,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunctionBindingPb {
-  @ProtoField(1)
   FunctionAccessModifier access = FunctionAccessModifier.PUBLIC;
-  @ProtoField(2)
   String function;
 
   public OaasFunctionBindingPb() {
@@ -21,5 +19,15 @@ public class OaasFunctionBindingPb {
   public OaasFunctionBindingPb(FunctionAccessModifier access, String function) {
     this.access = access;
     this.function = function;
+  }
+
+  @ProtoField(1)
+  public FunctionAccessModifier getAccess() {
+    return access;
+  }
+
+  @ProtoField(2)
+  public String getFunction() {
+    return function;
   }
 }

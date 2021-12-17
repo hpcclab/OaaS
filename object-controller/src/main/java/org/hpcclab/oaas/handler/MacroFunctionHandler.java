@@ -4,8 +4,6 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hpcclab.oaas.entity.FunctionExecContext;
-import org.hpcclab.oaas.entity.object.OaasCompoundMember;
-import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
@@ -41,25 +39,6 @@ public class MacroFunctionHandler {
       throw new NoStackException("Function must be MACRO").setCode(400);
   }
 
-  private Uni<OaasObjectPb> resolveTarget(FunctionExecContext context, Map<String, OaasObjectPb> workflowMap, String value) {
-    if (value.equals("$self")) return Uni.createFrom().item(context.getMain());
-    if (workflowMap.containsKey(value)) {
-      return Uni.createFrom().item(workflowMap.get(value));
-    }
-    if (NumberUtils.isDigits(value)) {
-      var i = Integer.parseInt(value);
-      return Uni.createFrom().item(context.getAdditionalInputs().get(i));
-    }
-
-    var id = context.getMain().getMembers()
-      .stream()
-      .filter(cm -> cm.getName().equals(value))
-      .findAny().orElseThrow(() -> new NoStackException("Can not resolve '" + value + "'"))
-      .getObject();
-
-    return objectRepo.getAsync(id);
-  }
-
   private void setupMap(FunctionExecContext ctx) {
     Map<String, OaasObjectPb> map = new HashMap<>();
     ctx.setWorkflowMap(map);
@@ -88,7 +67,7 @@ public class MacroFunctionHandler {
               .get(export.getFrom()).getId()))
           .collect(Collectors.toUnmodifiableSet());
         output.setMembers(mem);
-        return objectRepo.persist(output);
+        return objectRepo.persistAsync(output);
       })
       .map(context::setOutput);
   }
@@ -102,6 +81,7 @@ public class MacroFunctionHandler {
 //          .stream()
 //          .map(ir -> resolveTarget(context, map, ir))
 //          .toList();
+        LOGGER.trace("Execute step {}", step);
         return cachedCtxLoader.loadCtx(context, step)
 //        return contextLoader.loadCtx(context, target, step)
 //          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))

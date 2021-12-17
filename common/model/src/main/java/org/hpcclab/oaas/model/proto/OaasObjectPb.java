@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.OaasCompoundMemberDto;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectAccessModifier;
@@ -17,23 +18,15 @@ import java.util.UUID;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectPb {
-  @ProtoField(1)
   UUID id;
-  @ProtoField(2)
   OaasObjectOrigin origin;
-  @ProtoField(3)
   Long originHash;
-  @ProtoField(4)
   ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
-  @ProtoField(5)
   String cls;
-  @ProtoField(6)
   Set<String> labels;
 //  @ProtoField(7)
 //  Set<OaasFunctionBindingDto> functions = Set.of();
-  @ProtoField(8)
   OaasObjectState state;
-  @ProtoField(9)
   Set<OaasCompoundMemberDto> members;
 
   public OaasObjectPb() {
@@ -74,5 +67,45 @@ public class OaasObjectPb {
       state,
       members==null ? null:Set.copyOf(members)
     );
+  }
+
+  @ProtoField(1)
+  public UUID getId() {
+    return id;
+  }
+
+  @ProtoField(2)
+  public OaasObjectOrigin getOrigin() {
+    return origin;
+  }
+
+  @ProtoField(3)
+  public Long getOriginHash() {
+    return originHash;
+  }
+
+  @ProtoField(4)
+  public ObjectAccessModifier getAccess() {
+    return access;
+  }
+
+  @ProtoField(5)
+  public String getCls() {
+    return cls;
+  }
+
+  @ProtoField(6)
+  public Set<String> getLabels() {
+    return labels;
+  }
+
+  @ProtoField(8)
+  public OaasObjectState getState() {
+    return state;
+  }
+
+  @ProtoField(9)
+  public Set<OaasCompoundMemberDto> getMembers() {
+    return members;
   }
 }

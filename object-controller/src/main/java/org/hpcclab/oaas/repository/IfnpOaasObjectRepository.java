@@ -7,8 +7,6 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.OaasObjectType;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
 import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
@@ -31,6 +29,8 @@ public class IfnpOaasObjectRepository extends AbstractIfnpRepository<UUID, OaasO
   @Inject
   @Remote("OaasObject")
   RemoteCache<UUID, OaasObjectPb> cache;
+  @Inject
+  OaasMapper oaasMapper;
 
   @PostConstruct
   void setup() {
@@ -48,7 +48,7 @@ public class IfnpOaasObjectRepository extends AbstractIfnpRepository<UUID, OaasO
       throw NoStackException.notFoundCls400(object.getCls());
     }
     object.setOrigin(null);
-    object.setId(null);
+    object.setId(UUID.randomUUID());
     if (object.getOrigin()==null) object.setOrigin(
       new OaasObjectOrigin().setRootId(object.getId()));
 
@@ -58,11 +58,11 @@ public class IfnpOaasObjectRepository extends AbstractIfnpRepository<UUID, OaasO
     } else {
       object.setMembers(null);
     }
-    return this.put(object.getId(), object);
+    return this.putAsync(object.getId(), object);
   }
 
-  public Uni<List<OaasObjectPb>> listByIds(List<UUID> ids) {
-    if (ids.isEmpty()) return Uni.createFrom().item(List.of());
+  public Uni<List<OaasObjectPb>> listByIdsAsync(List<UUID> ids) {
+    if (ids == null || ids.isEmpty()) return Uni.createFrom().item(List.of());
     return this.listAsync(Set.copyOf(ids))
       .map(map -> ids.stream()
         .map(id -> {
@@ -74,12 +74,42 @@ public class IfnpOaasObjectRepository extends AbstractIfnpRepository<UUID, OaasO
       );
   }
 
-  public Uni<DeepOaasObjectDto> getDeep(UUID id) {
-    //TODO
-    return null;
+  public List<OaasObjectPb> listByIds(List<UUID> ids) {
+    if (ids ==null || ids.isEmpty()) return List.of();
+    var map =  remoteCache.getAll(Set.copyOf(ids));
+    return ids.stream()
+      .map(id -> {
+        var obj = map.get(id);
+        if (obj==null) throw NoStackException.notFoundObject400(id);
+        return obj;
+      })
+      .toList();
   }
 
-  public Uni<OaasObjectPb> persist(OaasObjectPb o) {
-    return this.put(o.getId(), o);
+  public Uni<DeepOaasObjectDto> getDeep(UUID id) {
+    System.out.println("get deep " + id);
+    return getAsync(id)
+      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(id))
+      .flatMap(obj -> {
+        var deep = oaasMapper.deep(obj);
+        return classRepo.getDeep(obj.getCls())
+          .map(deep::setCls);
+      });
+  }
+
+  public OaasObjectPb persist(OaasObjectPb o) {
+    if (o == null)
+      throw  new NoStackException("Cannot persist null object");
+
+    if (o.getId() == null) o.setId(UUID.randomUUID());
+    return put(o.getId(), o);
+  }
+
+  public Uni<OaasObjectPb> persistAsync(OaasObjectPb o) {
+    if (o == null)
+      return Uni.createFrom().failure( ()-> new NoStackException("Cannot persist null object"));
+
+    if (o.getId() == null) o.setId(UUID.randomUUID());
+    return this.putAsync(o.getId(), o);
   }
 }

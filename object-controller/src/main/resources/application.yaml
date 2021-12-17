@@ -12,7 +12,9 @@
     log:
       category:
         "org.hpcclab.oaas":
-          level: DEBUG
+          level: TRACE
+          min-level: TRACE
+#      min-level: TRACE
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket

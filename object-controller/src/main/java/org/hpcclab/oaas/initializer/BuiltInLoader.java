@@ -1,11 +1,8 @@
-package org.hpcclab.oaas;
+package org.hpcclab.oaas.initializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import org.hpcclab.oaas.model.cls.OaasClassDto;
-import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.proto.OaasClassPb;
 import org.hpcclab.oaas.model.proto.OaasFunctionPb;
@@ -13,14 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 @RegisterForReflection(targets = BatchService.Batch.class)
@@ -31,7 +25,7 @@ public class BuiltInLoader {
   @Inject
   BatchService batchService;
 
-  void onStart(@Observes StartupEvent startupEvent) throws ExecutionException, InterruptedException, IOException {
+  public void setup() throws ExecutionException, InterruptedException, IOException {
     mapper = new ObjectMapper(new YAMLFactory());
 
     List<OaasClassPb> classes = new ArrayList<>();

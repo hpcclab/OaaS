@@ -13,21 +13,13 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JobProvisionConfig implements Serializable {
-  @ProtoField(1)
   String image;
-  @ProtoField(2)
   List<String> commands;
-  @ProtoField(3)
   List<String> containerArgs;
-  @ProtoField(4)
   String requestsCpu;
-  @ProtoField(5)
   String requestsMemory;
-  @ProtoField(6)
   String limitsCpu;
-  @ProtoField(7)
   String limitsMemory;
-  @ProtoField(value = 8, defaultValue = "true")
   boolean argsToEnv = true;
 
   public JobProvisionConfig() {
@@ -43,5 +35,45 @@ public class JobProvisionConfig implements Serializable {
     this.limitsCpu = limitsCpu;
     this.limitsMemory = limitsMemory;
     this.argsToEnv = argsToEnv;
+  }
+
+  @ProtoField(1)
+  public String getImage() {
+    return image;
+  }
+
+  @ProtoField(2)
+  public List<String> getCommands() {
+    return commands;
+  }
+
+  @ProtoField(3)
+  public List<String> getContainerArgs() {
+    return containerArgs;
+  }
+
+  @ProtoField(4)
+  public String getRequestsCpu() {
+    return requestsCpu;
+  }
+
+  @ProtoField(5)
+  public String getRequestsMemory() {
+    return requestsMemory;
+  }
+
+  @ProtoField(6)
+  public String getLimitsCpu() {
+    return limitsCpu;
+  }
+
+  @ProtoField(7)
+  public String getLimitsMemory() {
+    return limitsMemory;
+  }
+
+  @ProtoField(value = 8, defaultValue = "true")
+  public boolean isArgsToEnv() {
+    return argsToEnv;
   }
 }

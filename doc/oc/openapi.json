@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
-    "version" : "0.2.0-SNAPSHOT"
+    "title" : "Generated API",
+    "version" : "1.0"
   },
   "paths" : {
     "/api/batch" : {
@@ -181,6 +181,31 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/OaasClassPb"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/classes/{name}/deep" : {
+      "get" : {
+        "tags" : [ "Class Resource" ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeepOaasClassDto"
                 }
               }
             }
@@ -400,6 +425,31 @@
         }
       }
     },
+    "/api/objects/{id}/deep" : {
+      "get" : {
+        "tags" : [ "Object Resource" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeepOaasObjectDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/objects/{id}/exec" : {
       "post" : {
         "tags" : [ "Object Resource" ],
@@ -527,21 +577,91 @@
           }
         }
       },
+      "DeepOaasClassDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "objectType" : {
+            "$ref" : "#/components/schemas/OaasObjectType"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/StateType"
+          },
+          "functions" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
+            }
+          },
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification"
+          }
+        }
+      },
+      "DeepOaasFunctionBindingDto" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/FunctionAccessModifier"
+          },
+          "function" : {
+            "$ref" : "#/components/schemas/OaasFunctionPb"
+          }
+        }
+      },
+      "DeepOaasObjectDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "origin" : {
+            "$ref" : "#/components/schemas/OaasObjectOrigin"
+          },
+          "originHash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/ObjectAccessModifier"
+          },
+          "cls" : {
+            "$ref" : "#/components/schemas/DeepOaasClassDto"
+          },
+          "labels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/OaasObjectState"
+          },
+          "members" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasCompoundMemberDto"
+            }
+          }
+        }
+      },
       "FunctionAccessModifier" : {
         "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
         "type" : "string"
       },
       "FunctionCallRequest" : {
-        "required" : [ "functionName" ],
         "type" : "object",
         "properties" : {
           "target" : {
             "$ref" : "#/components/schemas/UUID"
           },
           "functionName" : {
-            "pattern" : "\\S",
-            "type" : "string",
-            "nullable" : false
+            "type" : "string"
           },
           "args" : {
             "type" : "object",

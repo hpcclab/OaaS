@@ -14,11 +14,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProvisionConfig implements Serializable {
-  @ProtoField(1)
   JobProvisionConfig job;
-  @ProtoField(2)
   KnativeProvision knative;
-  @ProtoField(3)
   Type type;
 
   public enum Type {
@@ -45,5 +42,20 @@ public class ProvisionConfig implements Serializable {
       throw new OaasValidationException("Provision config must be defined only one type.");
     if (job != null) type = Type.EPHEMERAL;
     if (knative != null) type = Type.DURABLE;
+  }
+
+  @ProtoField(1)
+  public JobProvisionConfig getJob() {
+    return job;
+  }
+
+  @ProtoField(2)
+  public KnativeProvision getKnative() {
+    return knative;
+  }
+
+  @ProtoField(3)
+  public Type getType() {
+    return type;
   }
 }

@@ -2,24 +2,21 @@ package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hibernate.reactive.mutiny.Mutiny;
 import org.hpcclab.oaas.entity.FunctionExecContext;
-import org.hpcclab.oaas.entity.OaasClass;
-import org.hpcclab.oaas.entity.function.OaasFunction;
-import org.hpcclab.oaas.entity.object.OaasObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
 import org.hpcclab.oaas.model.proto.OaasObjectPb;
 import org.hpcclab.oaas.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class CachedCtxLoader {
+  private static final Logger LOGGER = LoggerFactory.getLogger( CachedCtxLoader.class );
   @Inject
   IfnpOaasObjectRepository objectRepo;
   @Inject
@@ -33,24 +30,63 @@ public class CachedCtxLoader {
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .map(ctx::setMain)
-      .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
-      .flatMap(ignore -> objectRepo.listByIds(request.getAdditionalInputs()))
+      .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
+      .flatMap(ignore -> objectRepo.listByIdsAsync(request.getAdditionalInputs()))
       .map(ctx::setAdditionalInputs);
+  }
+
+  public FunctionExecContext loadCtxBlocking(FunctionCallRequest request) {
+    var ctx = new FunctionExecContext()
+      .setArgs(request.getArgs());
+    var obj = objectRepo.get(request.getTarget());
+    ctx.setMain(obj);
+    setClsAndFunc(ctx, request.getFunctionName());
+    var inputIds = request.getAdditionalInputs();
+    var inputs =objectRepo.listByIds(inputIds);
+    ctx.setAdditionalInputs(inputs);
+    return ctx;
+  }
+
+  public Uni<FunctionExecContext> setClsAndFuncAsync(FunctionExecContext ctx,
+                                                     String funcName){
+    return funcRepo.getAsync(funcName)
+      .map(ctx::setFunction)
+      .flatMap(ignore -> {
+        if (ctx.getFunction().getOutputCls() != null)
+          return clsRepo.getAsync(ctx.getFunction().getOutputCls());
+        return Uni.createFrom().nullItem();
+      })
+      .map(ctx::setOutputCls)
+      .flatMap(ignore -> clsRepo.getAsync(ctx.getMain().getCls()))
+      .map(ctx::setMainCls)
+      .map(ignore -> {
+        var binding = clsRepo.findFunction(
+          ctx.getMainCls(), funcName);
+        if (binding.isEmpty()) throw new NoStackException(
+          "Function(" + funcName + ") can be not executed on object", 400);
+        ctx.setFunctionAccess(binding.get().getAccess());
+        return ctx;
+      });
   }
 
   public FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
     var func = funcRepo.get(funcName);
     if (func == null)
       throw NoStackException.notFoundCls400(funcName);
-    var outputClass = clsRepo.get(func.getOutputCls());
     ctx.setFunction(func);
-    ctx.setOutputCls(outputClass);
+    LOGGER.trace("func {}", func);
+    if (func.getOutputCls() != null) {
+      var outputClass = clsRepo.get(func.getOutputCls());
+      ctx.setOutputCls(outputClass);
+      LOGGER.trace("outputClass {}", outputClass);
+    }
 
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
+    LOGGER.trace("mainCls {}", mainCls);
     ctx.setMainCls(mainCls);
     var binding = clsRepo.findFunction(
-      mainCls.getName(), funcName);
+      mainCls, funcName);
     if (binding.isEmpty()) throw new NoStackException(
       "Function(" + funcName + ") can be not executed on object", 400);
     ctx.setFunctionAccess(binding.get().getAccess());
@@ -65,8 +101,8 @@ public class CachedCtxLoader {
 
     return resolveTarget(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
-      .map(ignore -> setClsAndFunc(newCtx, step.getFuncName()))
-      .chain(() -> resolveInputs(baseCtx, step));
+      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
+      .chain(() -> resolveInputs(newCtx, step));
   }
 
   public Uni<FunctionExecContext> resolveInputs(FunctionExecContext baseCtx,

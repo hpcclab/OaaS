@@ -20,16 +20,11 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectOrigin implements Serializable {
-  @ProtoField(1)
   UUID rootId;
-  @ProtoField(2)
   UUID parentId;
-  @ProtoField(3)
   String funcName;
-  @ProtoField(number = 4, javaType = HashMap.class)
   Map<String, String> args;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @ProtoField(5)
   List<UUID> additionalInputs = List.of();
 
   public OaasObjectOrigin() {
@@ -83,5 +78,28 @@ public class OaasObjectOrigin implements Serializable {
     return crc.hashCode();
   }
 
+  @ProtoField(1)
+  public UUID getRootId() {
+    return rootId;
+  }
 
+  @ProtoField(2)
+  public UUID getParentId() {
+    return parentId;
+  }
+
+  @ProtoField(3)
+  public String getFuncName() {
+    return funcName;
+  }
+
+  @ProtoField(number = 4, javaType = HashMap.class)
+  public Map<String, String> getArgs() {
+    return args;
+  }
+
+  @ProtoField(5)
+  public List<UUID> getAdditionalInputs() {
+    return additionalInputs;
+  }
 }

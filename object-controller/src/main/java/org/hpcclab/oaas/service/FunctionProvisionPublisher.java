@@ -4,16 +4,11 @@ package org.hpcclab.oaas.service;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Outgoing;
-import org.hpcclab.oaas.entity.function.OaasFunction;
-import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.function.OaasFunctionDto;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
-import org.hpcclab.oaas.model.task.OaasTask;
-
 import io.smallrye.reactive.messaging.kafka.Record;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.stream.Stream;
@@ -27,7 +22,7 @@ public class FunctionProvisionPublisher {
 
   public Uni<Void> submitNewFunction(OaasFunctionPb function) {
     var provision = function.getProvision();
-    if (provision == null || provision.getKnative() == null) {
+    if (provision==null || provision.getKnative()==null) {
       return Uni.createFrom().nullItem();
     }
     return provisionEmitter

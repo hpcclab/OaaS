@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.cls.OaasClassDto;
+import org.hpcclab.oaas.model.cls.DeepOaasClassDto;
 import org.hpcclab.oaas.model.proto.OaasClassPb;
 import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
@@ -69,8 +69,13 @@ public class ClassResource implements ClassService {
   }
 
   @Override
+  public Uni<DeepOaasClassDto> getDeep(String name) {
+    return classRepo.getDeep(name);
+  }
+
+  @Override
   public Uni<OaasClassPb> delete(String name) {
-    return classRepo.remove(name)
+    return classRepo.removeAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 }

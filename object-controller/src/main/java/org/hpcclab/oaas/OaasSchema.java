@@ -15,7 +15,7 @@ import org.infinispan.protostream.types.java.CommonContainerTypes;
 import org.infinispan.protostream.types.java.CommonTypes;
 
 @AutoProtoSchemaBuilder(
-  schemaPackageName = "org.hpcclab.oaas.proto",
+  schemaPackageName = "org.hpcclab.oaas.model.proto",
   includeClasses = {
     UUIDAdapter.class,
     MapAdapter.class,

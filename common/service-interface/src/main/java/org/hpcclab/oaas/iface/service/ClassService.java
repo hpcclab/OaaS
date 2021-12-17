@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.cls.DeepOaasClassDto;
 import org.hpcclab.oaas.model.proto.OaasClassPb;
 
 import javax.validation.Valid;
@@ -34,6 +35,11 @@ public interface ClassService {
   @GET
   @Path("{name}")
   Uni<OaasClassPb> get(String name);
+
+
+  @GET
+  @Path("{name}/deep")
+  Uni<DeepOaasClassDto> getDeep(String name);
 
 
   @DELETE

@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
@@ -36,9 +37,9 @@ public interface ObjectService {
                                                    @DefaultValue("1")
                                @QueryParam("deep") Integer deep);
 
-//  @GET
-//  @Path("{id}/deep")
-//  Uni<DeepOaasObjectDto> getDeep(String id);
+  @GET
+  @Path("{id}/deep")
+  Uni<DeepOaasObjectDto> getDeep(String id);
 
   @GET
   @Path("{id}/context")
@@ -46,10 +47,10 @@ public interface ObjectService {
 
   @POST
   @Path("{id}/exec")
-  Uni<OaasObjectPb> activeFuncCall(String id, @Valid FunctionCallRequest request);
+  Uni<OaasObjectPb> activeFuncCall(String id, FunctionCallRequest request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<OaasObjectPb> reactiveFuncCall(String id, @Valid FunctionCallRequest request);
+  Uni<OaasObjectPb> reactiveFuncCall(String id, FunctionCallRequest request);
 
 }

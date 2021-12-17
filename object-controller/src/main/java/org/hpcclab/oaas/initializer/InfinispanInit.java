@@ -1,4 +1,4 @@
-package org.hpcclab.oaas;
+package org.hpcclab.oaas.initializer;
 
 import io.quarkus.runtime.StartupEvent;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -33,7 +33,7 @@ public class InfinispanInit {
   @Inject
   RemoteCacheManager remoteCacheManager;
 
-  public void onStart(@Observes StartupEvent startupEvent) {
+  public void setup() {
     remoteCacheManager.administration().getOrCreateCache("OaasObject", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("OaasObject")));
     remoteCacheManager.administration().getOrCreateCache("OaasClass", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("OaasClass")));
     remoteCacheManager.administration().getOrCreateCache("OaasFunction", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("OaasFunction")));

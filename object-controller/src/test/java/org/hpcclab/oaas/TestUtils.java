@@ -3,13 +3,13 @@ package org.hpcclab.oaas;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.model.cls.OaasClassDto;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
 import org.hpcclab.oaas.model.function.OaasFunctionDto;
 import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
-import org.hpcclab.oaas.model.object.OaasObjectDto;
+import org.hpcclab.oaas.model.proto.OaasObjectPb;
 
 import javax.ws.rs.core.MediaType;
 
@@ -22,45 +22,63 @@ import static io.restassured.RestAssured.given;
 
 public class TestUtils {
 
-  public static final String DUMMY_FUNCTION = """
-    - name: test.dummy.resource
-      type: TASK
-      outputCls: builtin.basic.file
-      validation: {}
-      provision:
-        job: {}
-    - name: test.dummy.compound
-      type: MACRO
-      outputCls: builtin.basic.compound
-      validation: {}
-      macro:
-          steps:
-            - funcName: builtin.logical.copy
-              target: obj1
-              as: new_obj1
-              inputRefs: []
-            - funcName: builtin.logical.copy
-              target: obj2
-              as: new_obj2
-              inputRefs: []
-          exports:
-            - from: new_obj1
-              as: obj1
-            - from: new_obj2
-              as: obj2
+  public static final String DUMMY_BATCH = """
+    functions:
+      - name: test.dummy.task
+        type: TASK
+        outputCls: test.dummy.simple
+        validation: {}
+        provision:
+          job: {}
+      - name: test.dummy.macro
+        type: MACRO
+        outputCls: test.dummy.compound
+        validation: {}
+        macro:
+            steps:
+              - funcName: builtin.logical.copy
+                target: obj1
+                as: new_obj1
+                inputRefs: []
+              - funcName: builtin.logical.copy
+                target: obj2
+                as: new_obj2
+                inputRefs: []
+            exports:
+              - from: new_obj1
+                as: obj1
+              - from: new_obj2
+                as: obj2
+    classes:
+      - name: test.dummy.simple
+        stateType: FILE
+        objectType: SIMPLE
+        functions:
+        - access: PUBLIC
+          function: builtin.logical.copy
+        - access: PUBLIC
+          function: test.dummy.task
+      - name: test.dummy.compound
+        objectType: COMPOUND
+        functions:
+          - access: PUBLIC
+            function: builtin.logical.copy
+          - access: PUBLIC
+            function: test.dummy.macro
     """;
 
-  public static List<OaasObjectDto> listObject() {
+
+  public static List<OaasObjectPb> listObject() {
     return Arrays.asList(given()
       .when().get("/api/objects")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .log().ifValidationFails()
-      .extract().body().as(OaasObjectDto[].class));
+      .extract().body().as(OaasObjectPb[].class));
   }
 
-  public static OaasObjectDto create(OaasObjectDto o) {
+  public static OaasObjectPb create(OaasObjectPb o) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(o))
@@ -70,10 +88,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObjectDto.class);
+      .extract().body().as(OaasObjectPb.class);
   }
 
-  public static OaasObjectDto getObject(UUID id) {
+  public static OaasObjectPb getObject(UUID id) {
     return given()
       .pathParam("id", id.toString())
       .when().get("/api/objects/{id}")
@@ -82,7 +100,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
-      .extract().body().as(OaasObjectDto.class);
+      .extract().body().as(OaasObjectPb.class);
   }
 
   public static OaasClassDto getClass(String name) {
@@ -122,22 +140,7 @@ public class TestUtils {
       .extract().body().as(TaskContext.class);
   }
 
-  public static OaasObjectDto bind(OaasObjectDto obj, List<OaasFunctionBindingDto> fd) {
-    return given()
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(Json.encodePrettily(fd))
-      .pathParam("oid", obj.getId().toString())
-      .when().post("/api/objects/{oid}/binds")
-      .then()
-      .log().ifValidationFails()
-//      .log().all()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObjectDto.class);
-  }
-
-  public static OaasObjectDto reactiveCall(FunctionCallRequest request) {
+  public static OaasObjectPb reactiveCall(FunctionCallRequest request) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))
@@ -148,7 +151,19 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObjectDto.class);
+      .extract().body().as(OaasObjectPb.class);
+  }
+
+  public static BatchService.Batch createBatchYaml(String clsText) {
+    return given()
+      .contentType("text/x-yaml")
+      .body(clsText)
+      .when().post("/api/batch?update=true")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .extract().body().as(BatchService.Batch.class);
   }
 
   public static List<OaasFunctionDto> createFunctionYaml(String function) {
