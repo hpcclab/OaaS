@@ -2,33 +2,16 @@
   quarkus:
     console:
       color: true
-    hibernate-orm:
-#      statistics: true
-      database:
-        generation: drop-and-create
-#      log:
-#        sql: true
-#      log-session-metrics: true
     log:
       category:
         "org.hpcclab.oaas":
           level: TRACE
           min-level: TRACE
-#      min-level: TRACE
   oaas:
     oc:
       s3PrefixUrl: http://localhost:8888/bucket
 "%dev":
   quarkus:
-    hibernate-orm:
-      statistics: true
-      database:
-        generation: drop-and-create
-      log:
-        sql: true
-        bind-param: true
-        bind-parameters: true
-      log-session-metrics: true
     http:
       port: 8088
     datasource:
@@ -38,23 +21,19 @@
       category:
         "org.hpcclab.oaas":
           level: DEBUG
+"%prod":
+  quarkus:
+    infinispan-client:
+      auth-username: ${infinispan.username:}
+      auth-password: ${infinispan.password:}
 
 oaas:
   oc:
     s3PrefixUrl: http://localhost:8888/bucket
     provisionTopic: oaas-provisions
-hibernate:
-  cache:
-    use_second_level_cache: true
-
 quarkus:
   console:
     color: true
-  hibernate-orm:
-#    second-level-caching-enabled: true
-    database:
-#      generation: create
-      generation: update
   http:
     access-log:
       enabled: true
@@ -79,12 +58,6 @@ quarkus:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
-  datasource:
-    reactive:
-      cache-prepared-statements: true
-      postgresql:
-        ssl-mode: prefer
-    db-kind: postgresql
   micrometer:
     export:
       json:
@@ -103,6 +76,8 @@ quarkus:
         expire-after-write: 60s
       loadFunction:
         expire-after-write: 60s
+  infinispan-client:
+    auth-password:
 mp:
   messaging:
     outgoing:

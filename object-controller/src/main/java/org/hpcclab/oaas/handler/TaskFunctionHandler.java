@@ -55,8 +55,7 @@ public class TaskFunctionHandler {
       ctx.getOutputCls().getStateSpec().getKeys()
     );
 
-    var resUni = objectRepo.persistAsync(output)
-      .invoke(o -> storageAllocator.allocate(o));
+    storageAllocator.allocate(output);
 
     var rootCtx = ctx;
     while (rootCtx.getParent() != null) {
@@ -65,6 +64,7 @@ public class TaskFunctionHandler {
     }
     rootCtx.getTaskOutputs().add(output);
     ctx.setOutput(output);
-    return resUni.replaceWith(ctx);
+    return objectRepo.persistAsync(output)
+      .replaceWith(ctx);
   }
 }

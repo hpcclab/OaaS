@@ -87,8 +87,8 @@ public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, Oaas
   }
 
   public Uni<Void> persist(Collection<OaasClassPb> classList) {
+    classList.forEach(OaasClassPb::validate);
     var map = classList.stream()
-      .peek(OaasClassPb::validate)
       .collect(Collectors.toMap(OaasClassPb::getName, Function.identity()));
     return this.putAllAsync(map);
   }

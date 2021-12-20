@@ -7,10 +7,18 @@ resources:
   # task-generator
   - tm.yml
   # object-controller
-  - oc-postgres.yml
+#  - oc-postgres.yml
+  - infinispan.yml
   - oc.yml
   # task-completion-handler
   - tch.yml
   # CDN
   - cdn.yml
 #  - monitor.yml
+
+secretGenerator:
+  - name: infinispan-connect-secret
+    files:
+      - identities.yaml
+generatorOptions:
+  disableNameSuffixHash: true

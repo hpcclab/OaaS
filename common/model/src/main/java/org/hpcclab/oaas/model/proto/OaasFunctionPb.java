@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.proto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasFunctionValidation;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
@@ -72,5 +73,15 @@ public class OaasFunctionPb {
   @ProtoField(6)
   public ProvisionConfig getProvision() {
     return provision;
+  }
+
+  public void validate() {
+    if (provision != null) provision.validate();
+    if (type == OaasFunctionType.TASK) {
+      macro = null;
+    }
+    if (type == OaasFunctionType.MACRO) {
+      throw new NoStackException("Macro function('%s') must be defined 'macro' parameter", 400);
+    }
   }
 }

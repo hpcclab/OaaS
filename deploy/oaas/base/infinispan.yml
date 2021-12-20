@@ -1,0 +1,26 @@
+apiVersion: infinispan.org/v1
+kind: Infinispan
+metadata:
+  name: oaas-infinispan
+spec:
+  replicas: 3
+  service:
+    type: DataGrid
+    container:
+      storage: 5Gi
+  security:
+    endpointSecretName: infinispan-connect-secret
+  container:
+    cpu: "1000m"
+    memory: 1Gi
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app: infinispan-pod
+                clusterName: oaas-infinispan
+                infinispan_cr: oaas-infinispan
+            topologyKey: "kubernetes.io/hostname"

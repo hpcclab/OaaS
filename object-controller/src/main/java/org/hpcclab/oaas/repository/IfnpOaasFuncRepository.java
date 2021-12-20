@@ -3,6 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.model.proto.OaasClassPb;
 import org.hpcclab.oaas.model.proto.OaasFunctionPb;
 import org.infinispan.client.hotrod.RemoteCache;
 
@@ -39,6 +40,7 @@ public class IfnpOaasFuncRepository extends AbstractIfnpRepository<String, OaasF
   }
 
   public Uni<Void> persist(Collection<OaasFunctionPb> list) {
+    list.forEach(OaasFunctionPb::validate);
     return this.putAllAsync(list.stream()
       .collect(Collectors.toMap(OaasFunctionPb::getName, Function.identity()))
     );

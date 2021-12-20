@@ -44,3 +44,4 @@ client.global.set("obj_1_id", response.body.id)
 
 ###
 GET {{cdn}}/{{obj_1_id}}/video.mp4
+
