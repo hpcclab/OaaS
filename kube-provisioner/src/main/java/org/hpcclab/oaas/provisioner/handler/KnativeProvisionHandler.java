@@ -51,6 +51,8 @@ public class KnativeProvisionHandler {
   KnativeClient knativeClient;
   @ConfigProperty(name = "oaas.kp.taskHandlerService")
   String taskHandler;
+  @ConfigProperty(name = "oaas.kp.exposeKnative")
+  boolean exposeKnative;
 
   @Incoming("provisions")
   public void provision(Record<String,OaasFunctionDto> functionRecord) {
@@ -215,11 +217,17 @@ public class KnativeProvisionHandler {
       .withRequests(requests)
       .endResources()
       .build();
+
+    var labels = new HashMap<String,String>();
+    labels.put(labelKey, function.getName());
+    if (!exposeKnative) {
+      labels.put("networking.knative.dev/visibility","cluster-local");
+    }
+
     return new ServiceBuilder()
       .withNewMetadata()
       .withName(svcName)
-      .addToLabels(labelKey, function.getName())
-      .addToLabels("networking.knative.dev/visibility","cluster-local")
+      .addToLabels(labels)
       .endMetadata()
       .withNewSpec()
       .withNewTemplate()

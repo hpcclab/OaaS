@@ -26,7 +26,7 @@ spec:
             limits:
               memory: 512M
             requests:
-              cpu: 500m
+              cpu: 250m
               memory: 256M
           imagePullPolicy: Always
 ---

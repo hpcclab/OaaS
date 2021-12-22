@@ -16,6 +16,7 @@ data:
   OAAS_KP_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_KP_PROVISIONTOPIC: msc-provisions
   OAAS_KP_TASKHANDLERSERVICE: task-completion-handler
+  OAAS_KP_EXPOSEKNATIVE: 'true'
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_OBJECTCONTROLLERURL: http://object-controller
 kind: ConfigMap

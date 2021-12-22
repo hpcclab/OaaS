@@ -28,6 +28,7 @@ kubectl exec -n msc  deployment/ksqldb-cli -ti -- bash -c "ksql http://ksqldb-se
 
 kubectl -n $NAMESPACE delete -k oaas/dev
 kubectl -n $NAMESPACE delete -f kafka
+kubectl -n $NAMESPACE delete -k oaas/kafka-related
 kubectl -n $NAMESPACE delete $(kubectl -n $NAMESPACE get kafkatopic -o name)
 
 
