@@ -81,7 +81,13 @@ public class OaasFunctionPb {
       macro = null;
     }
     if (type == OaasFunctionType.MACRO) {
-      throw new NoStackException("Macro function('%s') must be defined 'macro' parameter", 400);
+      provision = null;
+      if (macro == null) {
+        throw new NoStackException(
+          "Macro function('%s') must be defined 'macro' parameter".formatted(name),
+          400
+        );
+      }
     }
   }
 }

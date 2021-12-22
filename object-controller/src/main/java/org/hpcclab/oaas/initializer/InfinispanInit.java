@@ -1,14 +1,17 @@
 package org.hpcclab.oaas.initializer;
 
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class InfinispanInit {
-
+private static final Logger LOGGER = LoggerFactory.getLogger( InfinispanInit.class );
   // language=xml
   private static final String OBJECT_CONFIG = """
     <infinispan>
@@ -57,6 +60,9 @@ public class InfinispanInit {
   RemoteCacheManager remoteCacheManager;
 
   public void setup() {
+    if (remoteCacheManager == null) {
+      throw new RuntimeException("Cannot connect to infinispan cluster");
+    }
     remoteCacheManager.administration().getOrCreateCache("OaasObject", new XMLStringConfiguration(OBJECT_CONFIG));
     remoteCacheManager.administration().getOrCreateCache("OaasClass", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("OaasClass")));
     remoteCacheManager.administration().getOrCreateCache("OaasFunction", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("OaasFunction")));

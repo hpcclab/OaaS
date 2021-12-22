@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-distroless -t quarkus/task-generator .
+# docker build -f src/main/docker/Dockerfile.native-distroless -t quarkus/code-with-quarkus .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/task-generator
+# docker run -i --rm -p 8080:8080 quarkus/code-with-quarkus
 #
 ###
 FROM quay.io/quarkus/quarkus-distroless-image:1.0

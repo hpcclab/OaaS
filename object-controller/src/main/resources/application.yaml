@@ -57,7 +57,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-alpine
+    base-jvm-image: eclipse-temurin:17-jre-focal
   micrometer:
     export:
       json:
