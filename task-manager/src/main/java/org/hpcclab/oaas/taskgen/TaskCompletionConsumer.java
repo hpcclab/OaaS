@@ -3,6 +3,7 @@ package org.hpcclab.oaas.taskgen;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class TaskCompletionConsumer {
 
   @Incoming("task-completions")
   public Uni<Void> handle(TaskCompletion taskCompletion) {
-    if (taskCompletion.getStatus() == TaskCompletion.Status.SUCCEEDED) {
+    if (taskCompletion.getStatus() == TaskStatus.SUCCEEDED) {
       return taskEventManager.submitCompletionEvent(taskCompletion.getId());
     } else {
       // TODO retry?

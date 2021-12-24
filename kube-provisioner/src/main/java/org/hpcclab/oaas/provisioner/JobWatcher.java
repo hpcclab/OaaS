@@ -13,6 +13,7 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class JobWatcher {
       .setMainObj(task.getMain().getId())
       .setOutputObj(task.getOutput().getId())
       .setFunctionName(task.getFunction().getName())
-      .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
+      .setStatus(succeeded ? TaskStatus.SUCCEEDED: TaskStatus.FAILED)
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
       .setRequestFile(task.getRequestFile())

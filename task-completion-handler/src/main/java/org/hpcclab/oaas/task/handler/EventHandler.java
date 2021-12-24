@@ -10,6 +10,7 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class EventHandler {
     var task = Json.decodeValue(body, OaasTask.class);
     var taskCompletion = new TaskCompletion()
       .setId(task.getId())
-      .setStatus(TaskCompletion.Status.FAILED)
+      .setStatus(TaskStatus.FAILED)
       .setOutputObj(task.getOutput().getId())
       .setMainObj(task.getMain().getId())
       .setFunctionName(task.getFunction().getName())
@@ -78,7 +79,7 @@ public class EventHandler {
     var completion = new TaskCompletion()
       .setId(objectId)
       .setOutputObj(UUID.fromString(objectId))
-      .setStatus(succeeded ? TaskCompletion.Status.SUCCEEDED:TaskCompletion.Status.FAILED)
+      .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
       .setCompletionTime(Instant.now().toString())
       .setDebugLog(body);
 
