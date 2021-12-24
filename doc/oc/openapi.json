@@ -62,7 +62,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/OaasClassPb"
+                    "$ref" : "#/components/schemas/OaasClass"
                   }
                 }
               }
@@ -84,7 +84,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasClassPb"
+                "$ref" : "#/components/schemas/OaasClass"
               }
             },
             "text/x-yaml" : {
@@ -100,7 +100,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClassPb"
+                  "$ref" : "#/components/schemas/OaasClass"
                 }
               }
             }
@@ -125,7 +125,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClassPb"
+                  "$ref" : "#/components/schemas/OaasClass"
                 }
               }
             }
@@ -148,7 +148,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClassPb"
+                  "$ref" : "#/components/schemas/OaasClass"
                 }
               }
             }
@@ -169,7 +169,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasClassPb"
+                "$ref" : "#/components/schemas/OaasClass"
               }
             }
           }
@@ -180,7 +180,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClassPb"
+                  "$ref" : "#/components/schemas/OaasClass"
                 }
               }
             }
@@ -205,7 +205,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DeepOaasClassDto"
+                  "$ref" : "#/components/schemas/DeepOaasClass"
                 }
               }
             }
@@ -239,7 +239,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/OaasFunctionPb"
+                    "$ref" : "#/components/schemas/OaasFunction"
                   }
                 }
               }
@@ -263,7 +263,7 @@
               "schema" : {
                 "type" : "array",
                 "items" : {
-                  "$ref" : "#/components/schemas/OaasFunctionPb"
+                  "$ref" : "#/components/schemas/OaasFunction"
                 }
               }
             },
@@ -282,7 +282,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/OaasFunctionPb"
+                    "$ref" : "#/components/schemas/OaasFunction"
                   }
                 }
               }
@@ -308,7 +308,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasFunctionPb"
+                  "$ref" : "#/components/schemas/OaasFunction"
                 }
               }
             }
@@ -342,7 +342,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/OaasObjectPb"
+                    "$ref" : "#/components/schemas/OaasObject"
                   }
                 }
               }
@@ -356,7 +356,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasObjectPb"
+                "$ref" : "#/components/schemas/OaasObject"
               }
             }
           }
@@ -367,7 +367,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObjectPb"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -392,7 +392,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObjectPb"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -442,7 +442,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DeepOaasObjectDto"
+                  "$ref" : "#/components/schemas/DeepOaasObject"
                 }
               }
             }
@@ -476,7 +476,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObjectPb"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -549,7 +549,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObjectPb"
+                  "$ref" : "#/components/schemas/OaasObject"
                 }
               }
             }
@@ -668,25 +668,25 @@
           "classes" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasClassPb"
+              "$ref" : "#/components/schemas/OaasClass"
             }
           },
           "functions" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunctionPb"
+              "$ref" : "#/components/schemas/OaasFunction"
             }
           }
         }
       },
-      "DeepOaasClassDto" : {
+      "DeepOaasClass" : {
         "type" : "object",
         "properties" : {
           "functions" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/DeepOaasFunctionBindingDto"
+              "$ref" : "#/components/schemas/DeepOaasFunctionBinding"
             }
           },
           "name" : {
@@ -703,25 +703,25 @@
           }
         }
       },
-      "DeepOaasFunctionBindingDto" : {
+      "DeepOaasFunctionBinding" : {
         "type" : "object",
         "properties" : {
           "access" : {
             "$ref" : "#/components/schemas/FunctionAccessModifier"
           },
           "function" : {
-            "$ref" : "#/components/schemas/OaasFunctionPb"
+            "$ref" : "#/components/schemas/OaasFunction"
           }
         }
       },
-      "DeepOaasObjectDto" : {
+      "DeepOaasObject" : {
         "type" : "object",
         "properties" : {
           "access" : {
             "$ref" : "#/components/schemas/ObjectAccessModifier"
           },
           "cls" : {
-            "$ref" : "#/components/schemas/DeepOaasClassDto"
+            "$ref" : "#/components/schemas/DeepOaasClass"
           },
           "id" : {
             "$ref" : "#/components/schemas/UUID"
@@ -737,7 +737,7 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMemberDto"
+              "$ref" : "#/components/schemas/OaasCompoundMember"
             }
           },
           "origin" : {
@@ -854,14 +854,14 @@
           }
         }
       },
-      "OaasClassPb" : {
+      "OaasClass" : {
         "type" : "object",
         "properties" : {
           "functions" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunctionBindingPb"
+              "$ref" : "#/components/schemas/OaasFunctionBinding"
             }
           },
           "name" : {
@@ -878,7 +878,7 @@
           }
         }
       },
-      "OaasCompoundMemberDto" : {
+      "OaasCompoundMember" : {
         "type" : "object",
         "properties" : {
           "name" : {
@@ -889,18 +889,7 @@
           }
         }
       },
-      "OaasFunctionBindingPb" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/FunctionAccessModifier"
-          },
-          "function" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasFunctionPb" : {
+      "OaasFunction" : {
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
@@ -930,6 +919,17 @@
           }
         }
       },
+      "OaasFunctionBinding" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/FunctionAccessModifier"
+          },
+          "function" : {
+            "type" : "string"
+          }
+        }
+      },
       "OaasFunctionType" : {
         "enum" : [ "LOGICAL", "MACRO", "TASK" ],
         "type" : "string"
@@ -945,6 +945,44 @@
           },
           "bindingRequirement" : {
             "$ref" : "#/components/schemas/OaasObjectRequirement"
+          }
+        }
+      },
+      "OaasObject" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/ObjectAccessModifier"
+          },
+          "cls" : {
+            "type" : "string"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "labels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "members" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasCompoundMember"
+            }
+          },
+          "origin" : {
+            "$ref" : "#/components/schemas/OaasObjectOrigin"
+          },
+          "originHash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/OaasObjectState"
           }
         }
       },
@@ -973,44 +1011,6 @@
           },
           "rootId" : {
             "$ref" : "#/components/schemas/UUID"
-          }
-        }
-      },
-      "OaasObjectPb" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
-          "cls" : {
-            "type" : "string"
-          },
-          "id" : {
-            "$ref" : "#/components/schemas/UUID"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "members" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMemberDto"
-            }
-          },
-          "origin" : {
-            "$ref" : "#/components/schemas/OaasObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
           }
         }
       },
@@ -1205,17 +1205,17 @@
           "additionalInputs" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasObjectPb"
+              "$ref" : "#/components/schemas/OaasObject"
             }
           },
           "function" : {
-            "$ref" : "#/components/schemas/OaasFunctionPb"
+            "$ref" : "#/components/schemas/OaasFunction"
           },
           "output" : {
-            "$ref" : "#/components/schemas/OaasObjectPb"
+            "$ref" : "#/components/schemas/OaasObject"
           },
           "parent" : {
-            "$ref" : "#/components/schemas/OaasObjectPb"
+            "$ref" : "#/components/schemas/OaasObject"
           }
         }
       },

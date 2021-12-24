@@ -46,7 +46,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OaasClassPb'
+                  $ref: '#/components/schemas/OaasClass'
     post:
       tags:
       - Class Resource
@@ -60,7 +60,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasClassPb'
+              $ref: '#/components/schemas/OaasClass'
           text/x-yaml:
             schema:
               type: string
@@ -70,7 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasClassPb'
+                $ref: '#/components/schemas/OaasClass'
   /api/classes/{name}:
     get:
       tags:
@@ -87,7 +87,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasClassPb'
+                $ref: '#/components/schemas/OaasClass'
     delete:
       tags:
       - Class Resource
@@ -103,7 +103,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasClassPb'
+                $ref: '#/components/schemas/OaasClass'
     patch:
       tags:
       - Class Resource
@@ -117,14 +117,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasClassPb'
+              $ref: '#/components/schemas/OaasClass'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasClassPb'
+                $ref: '#/components/schemas/OaasClass'
   /api/classes/{name}/deep:
     get:
       tags:
@@ -141,7 +141,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeepOaasClassDto'
+                $ref: '#/components/schemas/DeepOaasClass'
   /api/functions:
     get:
       tags:
@@ -165,7 +165,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OaasFunctionPb'
+                  $ref: '#/components/schemas/OaasFunction'
     post:
       tags:
       - Function Resource
@@ -181,7 +181,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/OaasFunctionPb'
+                $ref: '#/components/schemas/OaasFunction'
           text/x-yaml:
             schema:
               type: string
@@ -193,7 +193,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OaasFunctionPb'
+                  $ref: '#/components/schemas/OaasFunction'
   /api/functions/{funcName}:
     get:
       tags:
@@ -210,7 +210,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasFunctionPb'
+                $ref: '#/components/schemas/OaasFunction'
   /api/objects:
     get:
       tags:
@@ -234,7 +234,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OaasObjectPb'
+                  $ref: '#/components/schemas/OaasObject'
     post:
       tags:
       - Object Resource
@@ -242,14 +242,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasObjectPb'
+              $ref: '#/components/schemas/OaasObject'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObjectPb'
+                $ref: '#/components/schemas/OaasObject'
   /api/objects/{id}:
     get:
       tags:
@@ -266,7 +266,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObjectPb'
+                $ref: '#/components/schemas/OaasObject'
   /api/objects/{id}/context:
     get:
       tags:
@@ -300,7 +300,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeepOaasObjectDto'
+                $ref: '#/components/schemas/DeepOaasObject'
   /api/objects/{id}/exec:
     post:
       tags:
@@ -322,7 +322,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObjectPb'
+                $ref: '#/components/schemas/OaasObject'
   /api/objects/{id}/origin:
     get:
       tags:
@@ -371,7 +371,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObjectPb'
+                $ref: '#/components/schemas/OaasObject'
   /api/stats/class/client:
     get:
       tags:
@@ -446,19 +446,19 @@ components:
         classes:
           type: array
           items:
-            $ref: '#/components/schemas/OaasClassPb'
+            $ref: '#/components/schemas/OaasClass'
         functions:
           type: array
           items:
-            $ref: '#/components/schemas/OaasFunctionPb'
-    DeepOaasClassDto:
+            $ref: '#/components/schemas/OaasFunction'
+    DeepOaasClass:
       type: object
       properties:
         functions:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/DeepOaasFunctionBindingDto'
+            $ref: '#/components/schemas/DeepOaasFunctionBinding'
         name:
           type: string
         objectType:
@@ -467,20 +467,20 @@ components:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
-    DeepOaasFunctionBindingDto:
+    DeepOaasFunctionBinding:
       type: object
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
         function:
-          $ref: '#/components/schemas/OaasFunctionPb'
-    DeepOaasObjectDto:
+          $ref: '#/components/schemas/OaasFunction'
+    DeepOaasObject:
       type: object
       properties:
         access:
           $ref: '#/components/schemas/ObjectAccessModifier'
         cls:
-          $ref: '#/components/schemas/DeepOaasClassDto'
+          $ref: '#/components/schemas/DeepOaasClass'
         id:
           $ref: '#/components/schemas/UUID'
         labels:
@@ -492,7 +492,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/OaasCompoundMemberDto'
+            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
@@ -572,14 +572,14 @@ components:
           type: string
         requestsMemory:
           type: string
-    OaasClassPb:
+    OaasClass:
       type: object
       properties:
         functions:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/OaasFunctionBindingPb'
+            $ref: '#/components/schemas/OaasFunctionBinding'
         name:
           type: string
         objectType:
@@ -588,21 +588,14 @@ components:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
-    OaasCompoundMemberDto:
+    OaasCompoundMember:
       type: object
       properties:
         name:
           type: string
         object:
           $ref: '#/components/schemas/UUID'
-    OaasFunctionBindingPb:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/FunctionAccessModifier'
-        function:
-          type: string
-    OaasFunctionPb:
+    OaasFunction:
       required:
       - name
       - type
@@ -624,6 +617,13 @@ components:
           - nullable: false
         validation:
           $ref: '#/components/schemas/OaasFunctionValidation'
+    OaasFunctionBinding:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/FunctionAccessModifier'
+        function:
+          type: string
     OaasFunctionType:
       enum:
       - LOGICAL
@@ -639,6 +639,32 @@ components:
             $ref: '#/components/schemas/OaasObjectRequirement'
         bindingRequirement:
           $ref: '#/components/schemas/OaasObjectRequirement'
+    OaasObject:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/ObjectAccessModifier'
+        cls:
+          type: string
+        id:
+          $ref: '#/components/schemas/UUID'
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        members:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasCompoundMember'
+        origin:
+          $ref: '#/components/schemas/OaasObjectOrigin'
+        originHash:
+          format: int64
+          type: integer
+        state:
+          $ref: '#/components/schemas/OaasObjectState'
     OaasObjectOrigin:
       type: object
       properties:
@@ -658,32 +684,6 @@ components:
           $ref: '#/components/schemas/UUID'
         rootId:
           $ref: '#/components/schemas/UUID'
-    OaasObjectPb:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
-        cls:
-          type: string
-        id:
-          $ref: '#/components/schemas/UUID'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMemberDto'
-        origin:
-          $ref: '#/components/schemas/OaasObjectOrigin'
-        originHash:
-          format: int64
-          type: integer
-        state:
-          $ref: '#/components/schemas/OaasObjectState'
     OaasObjectRequirement:
       type: object
       properties:
@@ -825,13 +825,13 @@ components:
         additionalInputs:
           type: array
           items:
-            $ref: '#/components/schemas/OaasObjectPb'
+            $ref: '#/components/schemas/OaasObject'
         function:
-          $ref: '#/components/schemas/OaasFunctionPb'
+          $ref: '#/components/schemas/OaasFunction'
         output:
-          $ref: '#/components/schemas/OaasObjectPb'
+          $ref: '#/components/schemas/OaasObject'
         parent:
-          $ref: '#/components/schemas/OaasObjectPb'
+          $ref: '#/components/schemas/OaasObject'
     Type:
       enum:
       - DURABLE

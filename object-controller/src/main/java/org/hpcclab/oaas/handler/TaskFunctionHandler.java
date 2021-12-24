@@ -2,7 +2,7 @@ package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
@@ -46,7 +46,7 @@ public class TaskFunctionHandler {
         "Cannot call function('%s') because outputCls('%s') is not exist"
         .formatted(ctx.getFunction().getName(), ctx.getFunction().getOutputCls())
       );
-    var output = OaasObjectPb.createFromClasses(ctx.getOutputCls());
+    var output = OaasObject.createFromClasses(ctx.getOutputCls());
     output.setOrigin(ctx.createOrigin());
 //    if (func.getTask().getOutputFileNames()!=null) {
 //      output.getState().setKeys(func.getTask().getOutputFileNames());

@@ -1,28 +1,18 @@
 package org.hpcclab.oaas.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
-import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.object.OaasCompoundMemberDto;
-import org.hpcclab.oaas.model.object.OaasObjectDto;
-import org.hpcclab.oaas.model.object.ObjectAccessModifier;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.object.OaasCompoundMember;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
@@ -34,7 +24,7 @@ public class ObjectResourceTest {
 private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest.class );
   @Test
   void testCreate() {
-    var root = new OaasObjectPb();
+    var root = new OaasObject();
     root.setCls("builtin.basic.file");
     root.setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     root = TestUtils.create(root);
@@ -45,7 +35,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
 
   @Test
   void testFunctionCall() {
-    var obj = new OaasObjectPb();
+    var obj = new OaasObject();
     obj.setCls("builtin.basic.file");
     obj.setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
@@ -59,7 +49,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
   @Test
   void testGetOrigin() {
     TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
-    var obj = new OaasObjectPb();
+    var obj = new OaasObject();
     obj.setCls("test.dummy.simple");
     obj.setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj = TestUtils.create(obj);
@@ -105,19 +95,19 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
   @Test
   void testCompound() {
     TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
-    var obj1 = new OaasObjectPb();
+    var obj1 = new OaasObject();
     obj1.setCls("test.dummy.simple");
     obj1.setState(new OaasObjectState().setBaseUrl("http://test/test.ts"));
     obj1 = TestUtils.create(obj1);
-    var obj2 = new OaasObjectPb();
+    var obj2 = new OaasObject();
     obj2.setCls("test.dummy.simple");
     obj2.setState(new OaasObjectState().setBaseUrl("http://test/test.m3u8"));
     obj2 = TestUtils.create(obj2);
-    var compound = new OaasObjectPb();
+    var compound = new OaasObject();
     compound.setCls("test.dummy.compound");
     compound.setMembers(Set.of(
-          new OaasCompoundMemberDto().setName("obj1").setObject(obj1.getId()),
-          new OaasCompoundMemberDto().setName("obj2").setObject(obj2.getId())
+          new OaasCompoundMember().setName("obj1").setObject(obj1.getId()),
+          new OaasCompoundMember().setName("obj2").setObject(obj2.getId())
         )
       );
     compound = TestUtils.create(compound);

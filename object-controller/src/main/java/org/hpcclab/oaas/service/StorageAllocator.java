@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.service;
 
 import org.hpcclab.oaas.OcConfig;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class StorageAllocator {
   @Inject
   OcConfig config;
 
-  public void allocate(OaasObjectPb object) {
+  public void allocate(OaasObject object) {
     if (object.getId()==null) object.setId(UUID.randomUUID());
     var prefix = config.s3PrefixUrl();
     if (config.s3PrefixUrl().charAt(config.s3PrefixUrl().length() - 1)!='/') {

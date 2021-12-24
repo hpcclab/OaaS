@@ -3,8 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.infinispan.client.hotrod.RemoteCache;
 
 import javax.annotation.PostConstruct;
@@ -15,15 +14,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class IfnpOaasFuncRepository extends AbstractIfnpRepository<String, OaasFunctionPb> {
+public class IfnpOaasFuncRepository extends AbstractIfnpRepository<String, OaasFunction> {
 
-  private static final String NAME = OaasFunctionPb.class.getName();
+  private static final String NAME = OaasFunction.class.getName();
   @Inject
   OaasMapper oaasMapper;
 
   @Inject
   @Remote("OaasFunction")
-  RemoteCache<String, OaasFunctionPb> cache;
+  RemoteCache<String, OaasFunction> cache;
 
   @PostConstruct
   void setup() {
@@ -35,14 +34,14 @@ public class IfnpOaasFuncRepository extends AbstractIfnpRepository<String, OaasF
     return NAME;
   }
 
-  public Uni<OaasFunctionPb> persist(OaasFunctionPb fn) {
+  public Uni<OaasFunction> persist(OaasFunction fn) {
     return this.putAsync(fn.getName(), fn);
   }
 
-  public Uni<Void> persist(Collection<OaasFunctionPb> list) {
-    list.forEach(OaasFunctionPb::validate);
+  public Uni<Void> persist(Collection<OaasFunction> list) {
+    list.forEach(OaasFunction::validate);
     return this.putAllAsync(list.stream()
-      .collect(Collectors.toMap(OaasFunctionPb::getName, Function.identity()))
+      .collect(Collectors.toMap(OaasFunction::getName, Function.identity()))
     );
   }
 }

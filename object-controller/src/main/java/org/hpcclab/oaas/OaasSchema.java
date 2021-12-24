@@ -9,10 +9,7 @@ import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.infinispan.protostream.GeneratedSchema;
-import org.infinispan.protostream.SerializationContextInitializer;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
-import org.infinispan.protostream.types.java.CommonContainerTypes;
-import org.infinispan.protostream.types.java.CommonTypes;
 
 @AutoProtoSchemaBuilder(
   schemaPackageName = "org.hpcclab.oaas.model.proto",
@@ -20,10 +17,10 @@ import org.infinispan.protostream.types.java.CommonTypes;
     UUIDAdapter.class,
     MapAdapter.class,
     MapAdapter.Entry.class,
-    OaasClassPb.class,
-    OaasFunctionBindingPb.class,
+    OaasClass.class,
+    OaasFunctionBinding.class,
     StateSpecification.class,
-    OaasFunctionPb.class,
+    OaasFunction.class,
     OaasFunctionType.class,
     OaasFunctionValidation.class,
     FunctionAccessModifier.class,
@@ -35,13 +32,13 @@ import org.infinispan.protostream.types.java.CommonTypes;
     ProvisionConfig.Type.class,
     JobProvisionConfig.class,
     KnativeProvision.class,
-    OaasObjectPb.class,
+    OaasObject.class,
     OaasObjectOrigin.class,
     ObjectAccessModifier.class,
     OaasObjectType.class,
     OaasObjectState.class,
     OaasObjectState.StateType.class,
-    OaasCompoundMemberDto.class,
+    OaasCompoundMember.class,
   }
 )
 public interface OaasSchema extends GeneratedSchema {

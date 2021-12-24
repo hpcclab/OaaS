@@ -6,7 +6,7 @@ import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +113,7 @@ public class CachedCtxLoader {
       .map(baseCtx::setAdditionalInputs);
   }
 
-  public Uni<OaasObjectPb> resolveTarget(FunctionExecContext baseCtx, String ref) {
+  public Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {
     if (baseCtx.getWorkflowMap().containsKey(ref))
       return Uni.createFrom().item(baseCtx.getWorkflowMap().get(ref));
     var res = baseCtx.getMain().findMember(ref);

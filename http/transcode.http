@@ -16,7 +16,7 @@ Content-Type: application/json
     "type": "FILE",
     "baseUrl": "{{base_url}}",
     "keys": [
-        "test-10s.mp4"
+        "test-1s.mp4"
     ]
   }
 }

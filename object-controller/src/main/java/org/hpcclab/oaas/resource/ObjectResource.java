@@ -7,9 +7,9 @@ import org.hpcclab.oaas.handler.FunctionRouter;
 import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
+import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
 import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
 import org.slf4j.Logger;
@@ -32,19 +32,19 @@ public class ObjectResource implements ObjectService {
   @Inject
   FunctionRouter functionRouter;
 
-  public Uni<List<OaasObjectPb>> list(Integer page, Integer size) {
+  public Uni<List<OaasObject>> list(Integer page, Integer size) {
     if (page==null) page = 0;
     if (size==null) size = 100;
     var list = objectRepo.pagination(page, size);
     return Uni.createFrom().item(list);
   }
 
-  public Uni<OaasObjectPb> create(OaasObjectPb creating) {
+  public Uni<OaasObject> create(OaasObject creating) {
     return objectRepo.createRootAndPersist(creating)
       .onFailure().invoke(e -> LOGGER.error("error", e));
   }
 
-  public Uni<OaasObjectPb> get(String id) {
+  public Uni<OaasObject> get(String id) {
     var uuid = UUID.fromString(id);
     return objectRepo.getAsync(uuid)
       .onItem().ifNull().failWith(NotFoundException::new);
@@ -85,7 +85,7 @@ public class ObjectResource implements ObjectService {
       .map(v -> results);
   }
 
-  public Uni<DeepOaasObjectDto> getDeep(String id) {
+  public Uni<DeepOaasObject> getDeep(String id) {
     return objectRepo.getDeep(UUID.fromString(id));
   }
 
@@ -106,12 +106,12 @@ public class ObjectResource implements ObjectService {
     return Uni.createFrom().item(tc);
   }
 
-  public Uni<OaasObjectPb> activeFuncCall(String id, FunctionCallRequest request) {
+  public Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.activeCall(request.setTarget(UUID.fromString(id)));
   }
 
   @Blocking
-  public Uni<OaasObjectPb> reactiveFuncCall(String id, FunctionCallRequest request) {
+  public Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request) {
     return functionRouter.reactiveCall(request.setTarget(UUID.fromString(id)));
   }
 }

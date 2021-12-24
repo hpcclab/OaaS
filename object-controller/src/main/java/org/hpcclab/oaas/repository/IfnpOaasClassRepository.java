@@ -3,10 +3,10 @@ package org.hpcclab.oaas.repository;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.cls.DeepOaasClassDto;
-import org.hpcclab.oaas.model.function.DeepOaasFunctionBindingDto;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
-import org.hpcclab.oaas.model.proto.OaasFunctionBindingPb;
+import org.hpcclab.oaas.model.cls.DeepOaasClass;
+import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
+import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.proto.OaasFunctionBinding;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +20,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, OaasClassPb> {
+public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, OaasClass> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IfnpOaasClassRepository.class);
-  private static final String NAME = OaasClassPb.class.getName();
+  private static final String NAME = OaasClass.class.getName();
 
   @Inject
   @Remote("OaasClass")
-  RemoteCache<String, OaasClassPb> cache;
+  RemoteCache<String, OaasClass> cache;
   @Inject
   IfnpOaasFuncRepository funcRepo;
   @Inject
@@ -39,7 +39,7 @@ public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, Oaas
   }
 
   @Override
-  public RemoteCache<String, OaasClassPb> getRemoteCache() {
+  public RemoteCache<String, OaasClass> getRemoteCache() {
     return remoteCache;
   }
 
@@ -49,18 +49,18 @@ public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, Oaas
   }
 
 
-  public Uni<DeepOaasClassDto> getDeep(String name) {
+  public Uni<DeepOaasClass> getDeep(String name) {
     return getAsync(name)
       .flatMap(cls -> {
         var funcNames = cls.getFunctions()
           .stream()
-          .map(OaasFunctionBindingPb::getFunction)
+          .map(OaasFunctionBinding::getFunction)
           .collect(Collectors.toSet());
         return funcRepo.listAsync(funcNames)
           .map(funcMap -> {
             var deepCls = oaasMapper.deep(cls);
             var fbSet =cls.getFunctions().stream()
-              .map(fb -> new DeepOaasFunctionBindingDto()
+              .map(fb -> new DeepOaasFunctionBinding()
                 .setAccess(fb.getAccess())
                 .setFunction(funcMap.get(fb.getFunction()))
               ).collect(Collectors.toSet());
@@ -81,20 +81,20 @@ public class IfnpOaasClassRepository extends AbstractIfnpRepository<String, Oaas
 //    return deepCls;
   }
 
-  public Uni<OaasClassPb> persist(OaasClassPb cls) {
+  public Uni<OaasClass> persist(OaasClass cls) {
     cls.validate();
     return this.putAsync(cls.getName(), cls);
   }
 
-  public Uni<Void> persist(Collection<OaasClassPb> classList) {
-    classList.forEach(OaasClassPb::validate);
+  public Uni<Void> persist(Collection<OaasClass> classList) {
+    classList.forEach(OaasClass::validate);
     var map = classList.stream()
-      .collect(Collectors.toMap(OaasClassPb::getName, Function.identity()));
+      .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
     return this.putAllAsync(map);
   }
 
 
-  public Optional<OaasFunctionBindingPb> findFunction(OaasClassPb cls, String funcName) {
+  public Optional<OaasFunctionBinding> findFunction(OaasClass cls, String funcName) {
     return cls.getFunctions()
       .stream()
       .filter(fb -> fb.getFunction().equals(funcName))

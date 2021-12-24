@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunctionPb {
+public class OaasFunction {
   @NotBlank
   String name;
 
@@ -32,11 +32,11 @@ public class OaasFunctionPb {
 
   ProvisionConfig provision;
 
-  public OaasFunctionPb() {
+  public OaasFunction() {
   }
 
   @ProtoFactory
-  public OaasFunctionPb(String name, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasWorkflow macro, ProvisionConfig provision) {
+  public OaasFunction(String name, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasWorkflow macro, ProvisionConfig provision) {
     this.name = name;
     this.type = type;
     this.outputCls = outputCls;

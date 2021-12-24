@@ -7,7 +7,7 @@ import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.Record;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+import org.hpcclab.oaas.model.proto.OaasFunction;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,11 +16,11 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class FunctionProvisionPublisher {
   @Channel("provisions")
-  MutinyEmitter<Record<String, OaasFunctionPb>> provisionEmitter;
+  MutinyEmitter<Record<String, OaasFunction>> provisionEmitter;
   @Inject
   OaasMapper mapper;
 
-  public Uni<Void> submitNewFunction(OaasFunctionPb function) {
+  public Uni<Void> submitNewFunction(OaasFunction function) {
     var provision = function.getProvision();
     if (provision==null || provision.getKnative()==null) {
       return Uni.createFrom().nullItem();
@@ -35,7 +35,7 @@ public class FunctionProvisionPublisher {
   }
 
 
-  public Uni<Void> submitNewFunction(Stream<OaasFunctionPb> functions) {
+  public Uni<Void> submitNewFunction(Stream<OaasFunction> functions) {
     return Multi.createFrom().items(functions)
       .onItem()
       .transformToUniAndConcatenate(this::submitNewFunction)

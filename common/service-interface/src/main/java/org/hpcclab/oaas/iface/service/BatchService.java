@@ -3,10 +3,8 @@ package org.hpcclab.oaas.iface.service;
 import io.smallrye.mutiny.Uni;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.cls.OaasClassDto;
-import org.hpcclab.oaas.model.function.OaasFunctionDto;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.proto.OaasFunction;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -30,7 +28,7 @@ public interface BatchService {
   @Data
   @Accessors(chain = true)
   public static class Batch{
-    List<OaasClassPb> classes = List.of();
-    List<OaasFunctionPb> functions = List.of();
+    List<OaasClass> classes = List.of();
+    List<OaasFunction> functions = List.of();
   }
 }

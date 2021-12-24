@@ -12,18 +12,18 @@ import java.util.Set;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasClassPb {
+public class OaasClass {
   private String name;
   private OaasObjectType objectType;
   private OaasObjectState.StateType stateType;
-  private Set<OaasFunctionBindingPb> functions;
+  private Set<OaasFunctionBinding> functions;
   private StateSpecification stateSpec;
 
-  public OaasClassPb() {
+  public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClassPb(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBindingPb> functions, StateSpecification stateSpec) {
+  public OaasClass(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec) {
     this.name = name;
     this.objectType = objectType;
     this.stateType = stateType;
@@ -47,7 +47,7 @@ public class OaasClassPb {
   }
 
   @ProtoField(4)
-  public Set<OaasFunctionBindingPb> getFunctions() {
+  public Set<OaasFunctionBinding> getFunctions() {
     return functions;
   }
 

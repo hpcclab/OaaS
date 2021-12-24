@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.cls.DeepOaasClassDto;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
+import org.hpcclab.oaas.model.cls.DeepOaasClass;
+import org.hpcclab.oaas.model.proto.OaasClass;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -14,35 +14,35 @@ import java.util.List;
 @Path("/api/classes")
 public interface ClassService {
   @GET
-  Uni<List<OaasClassPb>> list(@QueryParam("page") Integer page,
-                              @QueryParam("size") Integer size);
+  Uni<List<OaasClass>> list(@QueryParam("page") Integer page,
+                            @QueryParam("size") Integer size);
 
   @POST
-  Uni<OaasClassPb> create(@DefaultValue("false") @QueryParam("update") boolean update,
-                           @Valid OaasClassPb classDto);
+  Uni<OaasClass> create(@DefaultValue("false") @QueryParam("update") boolean update,
+                        @Valid OaasClass classDto);
 
   @PATCH
   @Path("{name}")
-  Uni<OaasClassPb> patch(String name,
-                          @Valid OaasClassPb classDto);
+  Uni<OaasClass> patch(String name,
+                       @Valid OaasClass classDto);
 
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
-  Uni<OaasClassPb> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
-                                 String body);
+  Uni<OaasClass> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
+                              String body);
 
   @GET
   @Path("{name}")
-  Uni<OaasClassPb> get(String name);
+  Uni<OaasClass> get(String name);
 
 
   @GET
   @Path("{name}/deep")
-  Uni<DeepOaasClassDto> getDeep(String name);
+  Uni<DeepOaasClass> getDeep(String name);
 
 
   @DELETE
   @Path("{name}")
-  Uni<OaasClassPb> delete(String name);
+  Uni<OaasClass> delete(String name);
 }

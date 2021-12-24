@@ -2,22 +2,20 @@ package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasCompoundMemberDto;
+import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasObjectPb {
+public class OaasObject {
   UUID id;
   OaasObjectOrigin origin;
   Long originHash;
@@ -27,13 +25,13 @@ public class OaasObjectPb {
 //  @ProtoField(7)
 //  Set<OaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
-  Set<OaasCompoundMemberDto> members;
+  Set<OaasCompoundMember> members;
 
-  public OaasObjectPb() {
+  public OaasObject() {
   }
 
   @ProtoFactory
-  public OaasObjectPb(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<OaasCompoundMemberDto> members) {
+  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<OaasCompoundMember> members) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -44,20 +42,20 @@ public class OaasObjectPb {
     this.members = members;
   }
 
-  public static OaasObjectPb createFromClasses(OaasClassPb cls) {
-    var o = new OaasObjectPb();
+  public static OaasObject createFromClasses(OaasClass cls) {
+    var o = new OaasObject();
     o.setCls(cls.getName());
     o.setState(new OaasObjectState().setType(cls.getStateType()));
     return o;
   }
 
-  public Optional<OaasCompoundMemberDto> findMember(String name) {
+  public Optional<OaasCompoundMember> findMember(String name) {
     return members.stream()
       .filter(mem -> mem.getName().equals(name))
       .findFirst();
   }
-  public OaasObjectPb copy() {
-    return new OaasObjectPb(
+  public OaasObject copy() {
+    return new OaasObject(
       id,
       origin==null ? null:origin.copy(),
       originHash,
@@ -105,7 +103,7 @@ public class OaasObjectPb {
   }
 
   @ProtoField(9)
-  public Set<OaasCompoundMemberDto> getMembers() {
+  public Set<OaasCompoundMember> getMembers() {
     return members;
   }
 }

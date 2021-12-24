@@ -7,7 +7,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
+import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
 import org.hpcclab.oaas.service.FunctionProvisionPublisher;
 
@@ -29,14 +29,14 @@ public class FunctionResource implements FunctionService {
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-  public Uni<List<OaasFunctionPb>> list(Integer page, Integer size) {
+  public Uni<List<OaasFunction>> list(Integer page, Integer size) {
     if (page==null) page = 0;
     if (size==null) size = 100;
     var list = funcRepo.pagination(page, size);
     return Uni.createFrom().item(list);
   }
 
-  public Uni<List<OaasFunctionPb>> create(boolean update, List<OaasFunctionPb> functionDtos) {
+  public Uni<List<OaasFunction>> create(boolean update, List<OaasFunction> functionDtos) {
     return Multi.createFrom().iterable(functionDtos)
       .onItem()
       .transformToUniAndConcatenate(funcDto -> funcRepo.persist(funcDto)
@@ -46,16 +46,16 @@ public class FunctionResource implements FunctionService {
   }
 
   //  @ReactiveTransactional
-  public Uni<List<OaasFunctionPb>> createByYaml(boolean update, String body) {
+  public Uni<List<OaasFunction>> createByYaml(boolean update, String body) {
     try {
-      var funcs = yamlMapper.readValue(body, OaasFunctionPb[].class);
+      var funcs = yamlMapper.readValue(body, OaasFunction[].class);
       return create(update, Arrays.asList(funcs));
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
     }
   }
 
-  public Uni<OaasFunctionPb> get(String funcName) {
+  public Uni<OaasFunction> get(String funcName) {
     return funcRepo.getAsync(funcName)
       .onItem().ifNull().failWith(NotFoundException::new);
   }

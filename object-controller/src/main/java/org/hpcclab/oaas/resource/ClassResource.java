@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.OaasMapper;
-import org.hpcclab.oaas.model.cls.DeepOaasClassDto;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
+import org.hpcclab.oaas.model.cls.DeepOaasClass;
+import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class ClassResource implements ClassService {
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
 
-  public Uni<List<OaasClassPb>> list(Integer page, Integer size) {
+  public Uni<List<OaasClass>> list(Integer page, Integer size) {
     if (page == null) page = 0;
     if (size == null) size = 100;
     var list = classRepo.pagination(page, size);
@@ -36,13 +36,13 @@ public class ClassResource implements ClassService {
   }
 
   @Override
-  public Uni<OaasClassPb> create(boolean update, OaasClassPb cls) {
+  public Uni<OaasClass> create(boolean update, OaasClass cls) {
     cls.validate();
     return classRepo.persist(cls);
   }
 
   @Override
-  public Uni<OaasClassPb> patch(String name, OaasClassPb clsPatch) {
+  public Uni<OaasClass> patch(String name, OaasClass clsPatch) {
     return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new)
       .flatMap(cls -> {
@@ -53,9 +53,9 @@ public class ClassResource implements ClassService {
   }
 
   @Override
-  public Uni<OaasClassPb> createByYaml(boolean update, String body) {
+  public Uni<OaasClass> createByYaml(boolean update, String body) {
     try {
-      var cls = yamlMapper.readValue(body, OaasClassPb.class);
+      var cls = yamlMapper.readValue(body, OaasClass.class);
       return create(update, cls);
     } catch (JsonProcessingException e) {
       throw new BadRequestException(e);
@@ -63,18 +63,18 @@ public class ClassResource implements ClassService {
   }
 
   @Override
-  public Uni<OaasClassPb> get(String name) {
+  public Uni<OaasClass> get(String name) {
     return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
   @Override
-  public Uni<DeepOaasClassDto> getDeep(String name) {
+  public Uni<DeepOaasClass> getDeep(String name) {
     return classRepo.getDeep(name);
   }
 
   @Override
-  public Uni<OaasClassPb> delete(String name) {
+  public Uni<OaasClass> delete(String name) {
     return classRepo.removeAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);
   }

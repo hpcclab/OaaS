@@ -1,12 +1,11 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.object.DeepOaasObjectDto;
+import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.model.function.OaasFunctionBindingDto;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasObject;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -20,15 +19,15 @@ import java.util.Map;
 @Path("/api/objects")
 public interface ObjectService {
   @GET
-  Uni<List<OaasObjectPb>> list(@QueryParam("page") Integer page,
-                               @QueryParam("size") Integer size);
+  Uni<List<OaasObject>> list(@QueryParam("page") Integer page,
+                             @QueryParam("size") Integer size);
 
   @POST
-  Uni<OaasObjectPb> create(@Valid @NotNull OaasObjectPb creating);
+  Uni<OaasObject> create(@Valid @NotNull OaasObject creating);
 
   @GET
   @Path("{id}")
-  Uni<OaasObjectPb> get(String id);
+  Uni<OaasObject> get(String id);
 
 
   @GET
@@ -39,7 +38,7 @@ public interface ObjectService {
 
   @GET
   @Path("{id}/deep")
-  Uni<DeepOaasObjectDto> getDeep(String id);
+  Uni<DeepOaasObject> getDeep(String id);
 
   @GET
   @Path("{id}/context")
@@ -47,10 +46,10 @@ public interface ObjectService {
 
   @POST
   @Path("{id}/exec")
-  Uni<OaasObjectPb> activeFuncCall(String id, FunctionCallRequest request);
+  Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<OaasObjectPb> reactiveFuncCall(String id, FunctionCallRequest request);
+  Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request);
 
 }

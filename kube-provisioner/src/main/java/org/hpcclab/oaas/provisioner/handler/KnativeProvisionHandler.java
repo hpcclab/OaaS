@@ -18,7 +18,7 @@ import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.model.function.OaasFunctionDto;
+import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class KnativeProvisionHandler {
   boolean exposeKnative;
 
   @Incoming("provisions")
-  public void provision(Record<String,OaasFunctionDto> functionRecord) {
+  public void provision(Record<String, OaasFunction> functionRecord) {
     var key = functionRecord.key();
     LOGGER.debug("Received Knative provision: {}", key);
     var function = functionRecord.value();
@@ -116,7 +116,7 @@ public class KnativeProvisionHandler {
     }
   }
 
-  private Trigger createTrigger(OaasFunctionDto function,
+  private Trigger createTrigger(OaasFunction function,
                                 String svcName) {
     return new TriggerBuilder()
       .withNewMetadata()
@@ -143,7 +143,7 @@ public class KnativeProvisionHandler {
       .build();
   }
 
-  private Sequence createSequence(OaasFunctionDto function,
+  private Sequence createSequence(OaasFunction function,
                                   String svcName) {
     var step = new SequenceStepBuilder()
       .withNewRef(
@@ -186,7 +186,7 @@ public class KnativeProvisionHandler {
       .build();
   }
 
-  private Service createService(OaasFunctionDto function,
+  private Service createService(OaasFunction function,
                                 String svcName) {
     var provision = function.getProvision().getKnative();
     var annotation = new HashMap<String, String>();

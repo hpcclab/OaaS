@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.proto.OaasClassPb;
-import org.hpcclab.oaas.model.proto.OaasFunctionPb;
-import org.hpcclab.oaas.model.proto.OaasObjectPb;
+import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.model.proto.OaasObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +18,18 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext {
   FunctionExecContext parent;
-  OaasObjectPb main;
-  OaasClassPb mainCls;
-  OaasObjectPb entry;
+  OaasObject main;
+  OaasClass mainCls;
+  OaasObject entry;
   boolean reactive = true;
-  OaasFunctionPb function;
-  OaasClassPb outputCls;
-  OaasObjectPb output;
-  List<OaasObjectPb> taskOutputs = new ArrayList<>();
+  OaasFunction function;
+  OaasClass outputCls;
+  OaasObject output;
+  List<OaasObject> taskOutputs = new ArrayList<>();
   FunctionAccessModifier functionAccess;
   Map<String, String> args = Map.of();
-  List<OaasObjectPb> additionalInputs = List.of();
-  Map<String, OaasObjectPb> workflowMap = Map.of();
+  List<OaasObject> additionalInputs = List.of();
+  Map<String, OaasObject> workflowMap = Map.of();
 
 
   public OaasObjectOrigin createOrigin() {
@@ -38,12 +38,12 @@ public class FunctionExecContext {
       main.getId(),
       function.getName(),
       args,
-      additionalInputs.stream().map(OaasObjectPb::getId)
+      additionalInputs.stream().map(OaasObject::getId)
         .toList()
     );
   }
 
-  public OaasObjectPb resolve(String ref) {
+  public OaasObject resolve(String ref) {
     return workflowMap.get(ref);
   }
 }
