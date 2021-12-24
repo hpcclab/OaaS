@@ -454,19 +454,19 @@ components:
     DeepOaasClass:
       type: object
       properties:
+        name:
+          type: string
+        objectType:
+          $ref: '#/components/schemas/OaasObjectType'
+        stateType:
+          $ref: '#/components/schemas/StateType'
         functions:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/DeepOaasFunctionBinding'
-        name:
-          type: string
-        objectType:
-          $ref: '#/components/schemas/OaasObjectType'
         stateSpec:
           $ref: '#/components/schemas/StateSpecification'
-        stateType:
-          $ref: '#/components/schemas/StateType'
     DeepOaasFunctionBinding:
       type: object
       properties:
@@ -477,29 +477,29 @@ components:
     DeepOaasObject:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
-        cls:
-          $ref: '#/components/schemas/DeepOaasClass'
         id:
           $ref: '#/components/schemas/UUID'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
           format: int64
           type: integer
+        access:
+          $ref: '#/components/schemas/ObjectAccessModifier'
+        cls:
+          $ref: '#/components/schemas/DeepOaasClass'
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        members:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasCompoundMember'
     FunctionAccessModifier:
       enum:
       - INTERNAL
@@ -509,25 +509,25 @@ components:
     FunctionCallRequest:
       type: object
       properties:
+        target:
+          $ref: '#/components/schemas/UUID'
+        functionName:
+          type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
         additionalInputs:
           type: array
           items:
             format: uuid
             pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
             type: string
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        functionName:
-          type: string
-        target:
-          $ref: '#/components/schemas/UUID'
     JobProvisionConfig:
       type: object
       properties:
-        argsToEnv:
-          type: boolean
+        image:
+          type: string
         commands:
           type: array
           items:
@@ -536,58 +536,58 @@ components:
           type: array
           items:
             type: string
-        image:
+        requestsCpu:
+          type: string
+        requestsMemory:
           type: string
         limitsCpu:
           type: string
         limitsMemory:
           type: string
+        argsToEnv:
+          type: boolean
+    KnativeProvision:
+      type: object
+      properties:
+        image:
+          type: string
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
+          format: int32
+          type: integer
+        concurrency:
+          format: int32
+          type: integer
         requestsCpu:
           type: string
         requestsMemory:
           type: string
-    KnativeProvision:
-      type: object
-      properties:
-        concurrency:
-          format: int32
-          type: integer
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
         env:
           type: object
           additionalProperties:
             type: string
-        image:
-          type: string
-        limitsCpu:
-          type: string
-        limitsMemory:
-          type: string
-        maxScale:
-          format: int32
-          type: integer
-        minScale:
-          format: int32
-          type: integer
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
     OaasClass:
       type: object
       properties:
+        name:
+          type: string
+        objectType:
+          $ref: '#/components/schemas/OaasObjectType'
+        stateType:
+          $ref: '#/components/schemas/StateType'
         functions:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBinding'
-        name:
-          type: string
-        objectType:
-          $ref: '#/components/schemas/OaasObjectType'
         stateSpec:
           $ref: '#/components/schemas/StateSpecification'
-        stateType:
-          $ref: '#/components/schemas/StateType'
     OaasCompoundMember:
       type: object
       properties:
@@ -601,22 +601,22 @@ components:
       - type
       type: object
       properties:
-        macro:
-          $ref: '#/components/schemas/OaasWorkflow'
         name:
           pattern: \S
           type: string
           nullable: false
-        outputCls:
-          type: string
-        provision:
-          $ref: '#/components/schemas/ProvisionConfig'
         type:
           allOf:
           - $ref: '#/components/schemas/OaasFunctionType'
           - nullable: false
+        outputCls:
+          type: string
         validation:
           $ref: '#/components/schemas/OaasFunctionValidation'
+        macro:
+          $ref: '#/components/schemas/OaasWorkflow'
+        provision:
+          $ref: '#/components/schemas/ProvisionConfig'
     OaasFunctionBinding:
       type: object
       properties:
@@ -633,70 +633,72 @@ components:
     OaasFunctionValidation:
       type: object
       properties:
+        bindingRequirement:
+          $ref: '#/components/schemas/OaasObjectRequirement'
         additionalInputs:
           type: array
           items:
             $ref: '#/components/schemas/OaasObjectRequirement'
-        bindingRequirement:
-          $ref: '#/components/schemas/OaasObjectRequirement'
     OaasObject:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
-        cls:
-          type: string
         id:
           $ref: '#/components/schemas/UUID'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
           format: int64
           type: integer
+        access:
+          $ref: '#/components/schemas/ObjectAccessModifier'
+        cls:
+          type: string
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        members:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasCompoundMember'
     OaasObjectOrigin:
       type: object
       properties:
+        rootId:
+          $ref: '#/components/schemas/UUID'
+        parentId:
+          $ref: '#/components/schemas/UUID'
+        funcName:
+          type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
         additionalInputs:
           type: array
           items:
             format: uuid
             pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
             type: string
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        funcName:
-          type: string
-        parentId:
-          $ref: '#/components/schemas/UUID'
-        rootId:
-          $ref: '#/components/schemas/UUID'
     OaasObjectRequirement:
       type: object
       properties:
-        requiredClass:
-          type: string
         requiredLabels:
           uniqueItems: true
           type: array
           items:
             type: string
+        requiredClass:
+          type: string
     OaasObjectState:
       type: object
       properties:
+        type:
+          $ref: '#/components/schemas/StateType'
         baseUrl:
           type: string
         keys:
@@ -705,8 +707,6 @@ components:
             type: string
         records:
           type: string
-        type:
-          $ref: '#/components/schemas/StateType'
     OaasObjectType:
       enum:
       - COMPOUND
@@ -715,35 +715,35 @@ components:
     OaasWorkflow:
       type: object
       properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasWorkflowStep'
         exports:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/OaasWorkflowExport'
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasWorkflowStep'
     OaasWorkflowExport:
       type: object
       properties:
-        as:
-          type: string
         from:
+          type: string
+        as:
           type: string
     OaasWorkflowStep:
       type: object
       properties:
-        as:
-          type: string
         funcName:
+          type: string
+        target:
+          type: string
+        as:
           type: string
         inputRefs:
           type: array
           items:
             type: string
-        target:
-          type: string
     ObjectAccessModifier:
       enum:
       - FINAL
@@ -822,16 +822,16 @@ components:
     TaskContext:
       type: object
       properties:
-        additionalInputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasObject'
-        function:
-          $ref: '#/components/schemas/OaasFunction'
         output:
           $ref: '#/components/schemas/OaasObject'
         parent:
           $ref: '#/components/schemas/OaasObject'
+        function:
+          $ref: '#/components/schemas/OaasFunction'
+        additionalInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasObject'
     Type:
       enum:
       - DURABLE

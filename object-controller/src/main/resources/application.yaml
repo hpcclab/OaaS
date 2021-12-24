@@ -68,16 +68,8 @@ quarkus:
       includes:
         - builtin/**
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
-  cache:
-    caffeine:
-      loadObject:
-        expire-after-write: 120s
-      loadCls:
-        expire-after-write: 60s
-      loadFunction:
-        expire-after-write: 60s
   infinispan-client:
-    auth-password:
+    near-cache-max-entries: 1000
 mp:
   messaging:
     outgoing:
