@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.entity;
+package org.hpcclab.oaas.handler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

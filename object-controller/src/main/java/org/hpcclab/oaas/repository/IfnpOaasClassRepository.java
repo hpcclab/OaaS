@@ -6,7 +6,7 @@ import org.hpcclab.oaas.mapper.OaasMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
 import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasFunctionBinding;
+import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

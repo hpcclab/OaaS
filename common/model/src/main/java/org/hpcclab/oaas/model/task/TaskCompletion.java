@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.infinispan.protostream.annotations.ProtoFactory;
 
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ public class TaskCompletion {
   public TaskCompletion() {
   }
 
+  @ProtoFactory
   public TaskCompletion(String id, UUID mainObj, UUID outputObj, String functionName, TaskStatus status, String startTime, String completionTime, String requestFile, String resourceUrl, String debugLog) {
     this.id = id;
     this.mainObj = mainObj;

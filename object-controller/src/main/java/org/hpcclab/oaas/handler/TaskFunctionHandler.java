@@ -6,7 +6,6 @@ import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
 import org.hpcclab.oaas.service.StorageAllocator;
 

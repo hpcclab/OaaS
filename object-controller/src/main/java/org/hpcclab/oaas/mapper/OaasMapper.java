@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.mapper;
 
-import org.hpcclab.oaas.entity.FunctionExecContext;
+import org.hpcclab.oaas.handler.FunctionExecContext;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.proto.OaasClass;

@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;

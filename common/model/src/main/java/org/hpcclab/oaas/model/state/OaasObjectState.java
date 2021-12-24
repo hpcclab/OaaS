@@ -22,13 +22,13 @@ public class OaasObjectState implements Serializable {
   String records;
 
   public enum StateType {
-    @ProtoEnumValue(0)
-    FILE,
     @ProtoEnumValue(1)
-    FILES,
+    FILE,
     @ProtoEnumValue(2)
-    SEGMENTABLE,
+    FILES,
     @ProtoEnumValue(3)
+    SEGMENTABLE,
+    @ProtoEnumValue(4)
     RECORD
   }
 

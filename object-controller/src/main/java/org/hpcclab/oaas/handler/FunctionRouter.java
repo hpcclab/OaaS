@@ -4,7 +4,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
-import org.hpcclab.oaas.entity.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.TaskExecRequest;

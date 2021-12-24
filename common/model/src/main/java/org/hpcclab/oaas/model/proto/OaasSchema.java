@@ -1,8 +1,7 @@
-package org.hpcclab.oaas;
+package org.hpcclab.oaas.model.proto;
 
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.object.*;
-import org.hpcclab.oaas.model.proto.*;
 import org.hpcclab.oaas.model.provision.JobProvisionConfig;
 import org.hpcclab.oaas.model.provision.KnativeProvision;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;

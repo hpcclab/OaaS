@@ -2,7 +2,7 @@ package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.entity.FunctionExecContext;
+import org.hpcclab.oaas.handler.FunctionExecContext;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
