@@ -7,6 +7,13 @@
         "org.hpcclab.oaas":
           level: DEBUG
 
+"%prod":
+  quarkus:
+    infinispan-client:
+      auth-username: ${infinispan.username:}
+      auth-password: ${infinispan.password:}
+      server-list: ${infinispan.server:}
+
 oaas:
   tm:
     objectControllerUrl: http://localhost:8088

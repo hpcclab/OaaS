@@ -27,20 +27,8 @@ spec:
             - configMapRef:
                 name: msc-bucket
           env:
-#            - name: QUARKUS_DATASOURCE_REACTIVE_URL
-#              value: vertx-reactive:postgresql://oc-postgres:5432/oaas
-#            - name: QUARKUS_DATASOURCE_USERNAME
-#              value: oaas
-#            - name: QUARKUS_DATASOURCE_PASSWORD
-#              value: oaas
             - name: OAAS_OC_S3PREFIXURL
               value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
-            - name: QUARKUS_INFINISPAN_CLIENT_SERVER_LIST
-              value: oaas-infinispan:11222
-            - name: INFINISPAN_USERNAME
-              value: oaas
-            - name: INFINISPAN_PASSWORD
-              value: oaas
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
           ports:
             - containerPort: 8080

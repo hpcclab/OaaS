@@ -24,6 +24,26 @@
         }
       }
     },
+    "/api/task-completions" : {
+      "get" : {
+        "tags" : [ "Task Completion Resource" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UUID"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/task-exec" : {
       "post" : {
         "tags" : [ "Task Exec Resource" ],

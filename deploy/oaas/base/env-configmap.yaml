@@ -19,6 +19,9 @@ data:
   OAAS_KP_EXPOSEKNATIVE: 'true'
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_OBJECTCONTROLLERURL: http://object-controller
+  INFINISPAN_SERVER: oaas-infinispan:11222
+  INFINISPAN_USERNAME: oaas
+  INFINISPAN_PASSWORD: oaas
 kind: ConfigMap
 metadata:
   name: oaas-env
