@@ -13,7 +13,8 @@ resources:
   # task-completion-handler
   - tch.yml
   # CDN
-  - cdn.yml
+#  - cdn.yml
+  - cdn2.yml
 #  - monitor.yml
 
 secretGenerator:

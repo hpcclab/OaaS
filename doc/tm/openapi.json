@@ -43,29 +43,9 @@
         }
       }
     },
-    "/proxy" : {
+    "/contents/{objectId}/{filePath}" : {
       "get" : {
-        "tags" : [ "Proxy Resource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "text/event-stream" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/UUID"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/proxy/{objectId}/{filePath}" : {
-      "get" : {
-        "tags" : [ "Proxy Resource" ],
+        "tags" : [ "Blocking Content Resource" ],
         "parameters" : [ {
           "name" : "filePath",
           "in" : "path",

@@ -44,4 +44,4 @@ client.global.set("obj_1_id", response.body.id)
 GET {{cdn}}/{{obj_1_id}}/tmp
 
 ###
-GET {{tm}}/proxy/{{obj_1_id}}/tmp
+GET {{tm}}/contents/{{obj_1_id}}/tmp

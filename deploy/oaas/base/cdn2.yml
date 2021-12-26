@@ -1,0 +1,96 @@
+apiVersion: v1
+data:
+  nginx.conf: |
+    events {
+      worker_connections  1024;
+    }
+    http {
+      proxy_cache_path /cache keys_zone=steam:100m levels=1:2 inactive=100d max_size=10g;
+      resolver 10.43.0.10 valid=30s;
+      server {
+
+        listen      80;
+        charset     utf-8;
+
+        sendfile    on;
+        keepalive_timeout  65;
+
+        client_max_body_size 75M;
+
+        # main cache block - when upstream responds with a 302, it's caught by
+        # error_page and passed off to the (nearly identical) @handle_redirects
+        location ~ "^/([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})/(.*)$" {
+          proxy_pass      http://task-manager.msc.svc.cluster.local/contents/$1/$2;
+          proxy_cache       steam;
+          proxy_cache_key   $uri;
+          proxy_cache_valid 200 206 3000h;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects;
+        }
+
+        location @handle_redirects {
+        #store the current state of the world so we can reuse it in a minute
+        # We need to capture these values now, because as soon as we invoke
+        # the proxy_* directives, these will disappear
+        set $original_uri $uri;
+        set $orig_loc $upstream_http_location;
+
+        # nginx goes to fetch the value from the upstream Location header
+        proxy_pass $orig_loc;
+        proxy_cache       steam;
+        # But we store the result with the cache key of the original request URI
+        # so that future clients don't need to follow the redirect too
+        proxy_cache_key $original_uri;
+        proxy_cache_valid 200 206 3000h;
+        }
+      }
+    }
+
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-delivery-service
+  labels:
+    app: content-delivery-service
+  namespace: msc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: content-delivery-service
+  template:
+    metadata:
+      labels:
+        app: content-delivery-service
+    spec:
+      containers:
+        - name: content-delivery-service
+          image: nginx
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: conf
+              subPath: nginx.conf
+      volumes:
+        - name: conf
+          configMap:
+            name: nginx-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-delivery-service
+  namespace: msc
+spec:
+  selector:
+    app: content-delivery-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

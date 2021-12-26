@@ -10,6 +10,7 @@ data:
   OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_TASKTOPIC: msc-tasks
+#  OAAS_TM_TASKTOPIC: knative-broker-msc-default
   OAAS_TM_TASKEVENTTOPIC: msc-task-events
   OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_KP_TASKTOPIC: msc-tasks

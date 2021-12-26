@@ -2,7 +2,6 @@ package org.hpcclab.oaas.taskgen.resource;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.quarkus.infinispan.client.Remote;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -16,7 +15,6 @@ import org.infinispan.client.hotrod.annotation.ClientCacheEntryModified;
 import org.infinispan.client.hotrod.annotation.ClientListener;
 import org.infinispan.client.hotrod.event.ClientCacheEntryCreatedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryModifiedEvent;
-import org.jboss.resteasy.reactive.RestSseElementType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/proxy")
-public class ProxyResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ProxyResource.class );
+@Path("/contents")
+public class BlockingContentResource {
+  private static final Logger LOGGER = LoggerFactory.getLogger( BlockingContentResource.class );
 
   CacheWatcher watcher;
   @Remote("TaskCompletion")
@@ -58,15 +56,8 @@ public class ProxyResource {
   }
 
   @GET
-  @Produces(MediaType.SERVER_SENT_EVENTS)
-  @RestSseElementType(MediaType.APPLICATION_JSON)
-  public Multi<UUID> stream() {
-    return watcher.broadcastProcessor;
-  }
-
-  @GET
   @Path("{objectId}/{filePath:.*}")
-  public Uni<Response> resourceProxy(String objectId,
+  public Uni<Response> get(String objectId,
                                      String filePath) {
     var id = UUID.fromString(objectId);
     return Uni.createFrom().completionStage(remoteCache.getAsync(id))

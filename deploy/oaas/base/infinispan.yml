@@ -11,7 +11,7 @@ spec:
   security:
     endpointSecretName: infinispan-connect-secret
   container:
-    cpu: "1000m"
+    cpu: "2"
     memory: 1Gi
   affinity:
     podAntiAffinity:

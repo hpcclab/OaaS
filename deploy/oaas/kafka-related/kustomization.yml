@@ -5,6 +5,6 @@ resources:
   - task-state-change-log-topic.yml
   - provision-topic.yml
   - kafka-source.yml
-  - kafka-connect.yml
-  - kafka-connector.yml
-  - redis.yml
+#  - kafka-connect.yml
+#  - kafka-connector.yml
+#  - redis.yml
