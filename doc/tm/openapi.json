@@ -24,9 +24,28 @@
         }
       }
     },
-    "/api/task-completions" : {
+    "/api/task-exec" : {
+      "post" : {
+        "tags" : [ "Task Exec Resource" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskExecRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/proxy" : {
       "get" : {
-        "tags" : [ "Task Completion Resource" ],
+        "tags" : [ "Proxy Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -44,21 +63,30 @@
         }
       }
     },
-    "/api/task-exec" : {
-      "post" : {
-        "tags" : [ "Task Exec Resource" ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/TaskExecRequest"
-              }
-            }
+    "/proxy/{objectId}/{filePath}" : {
+      "get" : {
+        "tags" : [ "Proxy Resource" ],
+        "parameters" : [ {
+          "name" : "filePath",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
           }
-        },
+        }, {
+          "name" : "objectId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
-          "201" : {
-            "description" : "Created"
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
           }
         }
       }

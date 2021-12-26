@@ -20,7 +20,7 @@ public class StorageAllocator {
   public void allocate(OaasObject object) {
     if (object.getId()==null) object.setId(UUID.randomUUID());
     var prefix = config.s3PrefixUrl();
-    if (config.s3PrefixUrl().charAt(config.s3PrefixUrl().length() - 1)!='/') {
+    if (!config.s3PrefixUrl().endsWith("/")) {
       prefix += '/';
     }
     object.getState().setBaseUrl(

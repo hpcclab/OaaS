@@ -13,24 +13,8 @@ public final class UUIDAdapter {
   }
 
   @ProtoFactory
-  UUID create(Long mostSigBits, Long leastSigBits, Long mostSigBitsFixed, Long leastSigBitsFixed) {
-    return mostSigBits == null ? new UUID(mostSigBitsFixed, leastSigBitsFixed) : new UUID(mostSigBits, leastSigBits);
-  }
-
-  @ProtoField(
-    number = 1,
-    type = Type.UINT64
-  )
-  Long getMostSigBits(UUID uuid) {
-    return null;
-  }
-
-  @ProtoField(
-    number = 2,
-    type = Type.UINT64
-  )
-  Long getLeastSigBits(UUID uuid) {
-    return null;
+  UUID create(Long mostSigBitsFixed, Long leastSigBitsFixed) {
+    return new UUID(mostSigBitsFixed, leastSigBitsFixed);
   }
 
   @ProtoField(

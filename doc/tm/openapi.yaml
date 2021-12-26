@@ -16,19 +16,6 @@ paths:
       responses:
         "201":
           description: Created
-  /api/task-completions:
-    get:
-      tags:
-      - Task Completion Resource
-      responses:
-        "200":
-          description: OK
-          content:
-            text/event-stream:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UUID'
   /api/task-exec:
     post:
       tags:
@@ -41,6 +28,39 @@ paths:
       responses:
         "201":
           description: Created
+  /proxy:
+    get:
+      tags:
+      - Proxy Resource
+      responses:
+        "200":
+          description: OK
+          content:
+            text/event-stream:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UUID'
+  /proxy/{objectId}/{filePath}:
+    get:
+      tags:
+      - Proxy Resource
+      parameters:
+      - name: filePath
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: objectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json: {}
 components:
   schemas:
     OaasObjectOrigin:
