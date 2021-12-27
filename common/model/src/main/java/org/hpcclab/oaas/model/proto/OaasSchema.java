@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskState;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.GeneratedSchema;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
@@ -42,6 +43,7 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
     OaasCompoundMember.class,
     TaskCompletion.class,
     TaskStatus.class,
+    TaskState.class,
   }
 )
 public interface OaasSchema extends GeneratedSchema {

@@ -127,9 +127,12 @@ public class KnativeProvisionHandler {
       .withNewSpec()
       .withBroker("default")
       .withNewFilter()
-      .addToAttributes("kafkaheadercetype", "oaas.task")
-      .addToAttributes("kafkaheadercefunction", function.getName())
-      .addToAttributes("kafkaheadercetasktype", "DURABLE")
+//      .addToAttributes("kafkaheadercetype", "oaas.task")
+//      .addToAttributes("kafkaheadercefunction", function.getName())
+//      .addToAttributes("kafkaheadercetasktype", "DURABLE")
+      .addToAttributes("type", "oaas.task")
+      .addToAttributes("function", function.getName())
+      .addToAttributes("tasktype", "DURABLE")
       .endFilter()
       .withNewSubscriber()
       .withNewRef(
@@ -152,16 +155,16 @@ public class KnativeProvisionHandler {
         svcName,
         knativeClient.getNamespace()
       )
-//      .withNewDelivery()
-//      .withNewDeadLetterSink()
-//      .withNewRef(
-//        "v1",
-//        "Service",
-//        taskHandler,
-//        knativeClient.getNamespace()
-//      )
-//      .endDeadLetterSink()
-//      .endDelivery()
+      .withNewDelivery()
+      .withNewDeadLetterSink()
+      .withNewRef(
+        "v1",
+        "Service",
+        taskHandler,
+        knativeClient.getNamespace()
+      )
+      .endDeadLetterSink()
+      .endDelivery()
       .build();
     return new SequenceBuilder()
       .withNewMetadata()

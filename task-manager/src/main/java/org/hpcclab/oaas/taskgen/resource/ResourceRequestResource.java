@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.ObjectResourceRequest;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.taskgen.TaskManagerConfig;
-import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.hpcclab.oaas.taskgen.service.TaskEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+@Deprecated
 @ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

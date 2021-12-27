@@ -11,11 +11,10 @@ import org.hpcclab.oaas.model.task.BaseTaskMessage;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskState;
-import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.hpcclab.oaas.taskgen.service.TaskEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

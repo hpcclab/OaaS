@@ -13,7 +13,7 @@ import org.apache.kafka.streams.state.Stores;
 import org.hpcclab.oaas.model.task.BaseTaskMessage;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskState;
-import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.hpcclab.oaas.taskgen.service.TaskEventManager;
 import org.hpcclab.oaas.taskgen.TaskManagerConfig;
 import org.hpcclab.oaas.taskgen.deserializer.TaskEventDeserializer;
 

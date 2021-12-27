@@ -31,6 +31,7 @@ quarkus:
     record-request-start-time: true
   vertx:
     prefer-native-transport: true
+    worker-pool-size: 50
   swagger-ui:
     always-include: true
   smallrye-openapi:
@@ -62,6 +63,8 @@ quarkus:
   rest-client:
     BlockingObjectService:
       url: ${oaas.tm.objectControllerUrl}
+    TaskBrokerService:
+      url: ${oaas.tm.brokerUrl}
   native:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 mp:

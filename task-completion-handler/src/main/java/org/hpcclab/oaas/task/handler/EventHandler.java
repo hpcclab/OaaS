@@ -43,6 +43,7 @@ public class EventHandler {
     var ceType = headers.get("ce-type");
     return switch (ceType){
       case "dev.knative.kafka.event" -> handleDeadLetter(body);
+      case "oaas.task" -> handleDeadLetter(body);
       case "oaas.task.result" -> handleResult(body);
       default -> {
         ctx.response().setStatusCode(404)

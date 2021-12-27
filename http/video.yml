@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.1.2
+        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.1.4
         minScale: 1
         maxScale: 3
         concurrency: 1

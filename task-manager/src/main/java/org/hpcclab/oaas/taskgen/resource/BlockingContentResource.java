@@ -7,8 +7,9 @@ import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.hpcclab.oaas.taskgen.TaskEventManager;
+import org.hpcclab.oaas.taskgen.service.TaskEventManager;
 import org.hpcclab.oaas.taskgen.TaskManagerConfig;
+import org.hpcclab.oaas.taskgen.service.V2TaskEventManager;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryModified;
@@ -41,11 +42,14 @@ public class BlockingContentResource {
   private static final Logger LOGGER = LoggerFactory.getLogger( BlockingContentResource.class );
 
   CacheWatcher watcher;
+
   @Remote("TaskCompletion")
   RemoteCache<UUID, TaskCompletion> remoteCache;
 
+//  @Inject
+//  TaskEventManager taskEventManager;
   @Inject
-  TaskEventManager taskEventManager;
+  V2TaskEventManager v2TaskEventManager;
   @Inject
   TaskManagerConfig config;
 
@@ -80,15 +84,16 @@ public class BlockingContentResource {
   }
 
   private Uni<TaskCompletion> execAndWait(UUID id, String filePath) {
-    return taskEventManager.submitEventWithTraversal(
+    var uni1 = watcher.wait(id, Duration.ofSeconds(30));
+    var uni2 = v2TaskEventManager.submitEventWithTraversal(
       id.toString(),
-      filePath,
       config.defaultTraverse(),
       true,
       TaskEvent.Type.CREATE
-    )
-      .flatMap(ignore -> watcher.wait(id, Duration.ofSeconds(30)))
-      .flatMap(event -> Uni.createFrom().completionStage(remoteCache.getAsync(event)));
+    );
+    return Uni.combine().all().unis(uni1, uni2)
+      .asTuple()
+      .flatMap(event -> Uni.createFrom().completionStage(remoteCache.getAsync(id)));
   }
 
   @ClientListener
@@ -99,7 +104,7 @@ public class BlockingContentResource {
 
     @ClientCacheEntryCreated
     public void onCreate(ClientCacheEntryCreatedEvent<UUID> e) {
-      LOGGER.debug("onCreate {}, countingMap {}", e, countingMap);
+//      LOGGER.debug("onCreate {}, countingMap {}", e, countingMap);
       if (countingMap.containsKey(e.getKey())) {
         broadcastProcessor.onNext(e.getKey());
       }
@@ -107,13 +112,14 @@ public class BlockingContentResource {
 
     @ClientCacheEntryModified
     public void onUpdate(ClientCacheEntryModifiedEvent<UUID> e) {
-      LOGGER.debug("onUpdate {}, countingMap {}", e, countingMap);
+//      LOGGER.debug("onUpdate {}, countingMap {}", e, countingMap);
       if (countingMap.containsKey(e.getKey())) {
         broadcastProcessor.onNext(e.getKey());
       }
     }
 
     public Uni<UUID> wait(UUID id, Duration timeout) {
+      LOGGER.debug("start wait for {}", id);
       countingMap.computeIfAbsent(id, key -> new AtomicInteger())
         .incrementAndGet();
       return broadcastProcessor

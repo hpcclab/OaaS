@@ -11,6 +11,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class InfinispanInit {
 private static final Logger LOGGER = LoggerFactory.getLogger( InfinispanInit.class );
+
   // language=xml
   private static final String TEMPLATE_CONFIG = """
     <infinispan>
@@ -33,6 +34,30 @@ private static final Logger LOGGER = LoggerFactory.getLogger( InfinispanInit.cla
       </cache-container>
     </infinispan>
      """;
+  // language=xml
+  private static final String TEMPLATE_TX_CONFIG = """
+    <infinispan>
+      <cache-container>
+        <distributed-cache name="%s"
+                           statistics="true"
+                           mode="SYNC">
+          <memory storage="OFF_HEAP"/>
+          <locking isolation="REPEATABLE_READ"/>
+          <transaction mode="NON_XA" locking="PESSIMISTIC"/>
+          <encoding>
+              <key media-type="application/x-protostream"/>
+              <value media-type="application/x-protostream"/>
+          </encoding>
+          <persistence passivation="false">
+              <file-store fetch-state="true">
+                <index path="index" />
+                <data path="data" />
+              </file-store>
+          </persistence>
+        </distributed-cache>
+      </cache-container>
+    </infinispan>
+     """;
   @Inject
   RemoteCacheManager remoteCacheManager;
 
@@ -41,5 +66,8 @@ private static final Logger LOGGER = LoggerFactory.getLogger( InfinispanInit.cla
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
     remoteCacheManager.administration().getOrCreateCache("TaskCompletion", new XMLStringConfiguration(TEMPLATE_CONFIG.formatted("TaskCompletion")));
+
+    remoteCacheManager.administration().getOrCreateCache("TaskState", new XMLStringConfiguration(TEMPLATE_TX_CONFIG.formatted("TaskState")));
+
   }
 }

@@ -27,7 +27,8 @@ public class OaasTask extends BaseTaskMessage{
   }
 
   public static String createId(OaasObject outputObj, String requestFile) {
-    if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
+    if (requestFile != null &&
+      outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
       return outputObj.getId().toString() + "/" + requestFile;
     else
       return outputObj.getId().toString();

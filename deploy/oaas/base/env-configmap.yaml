@@ -9,6 +9,7 @@ data:
   OAAS_OC_PROVISIONTOPIC: msc-provisions
   OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
+  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/msc/default
   OAAS_TM_TASKTOPIC: msc-tasks
 #  OAAS_TM_TASKTOPIC: knative-broker-msc-default
   OAAS_TM_TASKEVENTTOPIC: msc-task-events

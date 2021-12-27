@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskgen;
+package org.hpcclab.oaas.taskgen.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -13,7 +13,8 @@ import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskEvent;
-import org.hpcclab.oaas.taskgen.service.BlockingObjectService;
+import org.hpcclab.oaas.taskgen.TaskFactory;
+import org.hpcclab.oaas.taskgen.TaskManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class TaskEventManager {
 
   @Inject
   @RestClient
-  BlockingObjectService blockingOriginService;
+  BlockingObjectService blockingObjectService;
   @Inject
   ObjectService objectService;
   @Inject
@@ -54,7 +55,7 @@ public class TaskEventManager {
     var objId = tmp > 0 ? taskId.substring(0, tmp):taskId;
     var subTaskId = tmp > 0 ? taskId.substring(tmp + 1):null;
     LOGGER.debug("getTaskContext {}", taskId);
-    var context = blockingOriginService.getTaskContext(objId);
+    var context = blockingObjectService.getTaskContext(objId);
     return taskFactory.genTask(context, subTaskId);
   }
 
@@ -139,7 +140,7 @@ public class TaskEventManager {
                                                   int traverse,
                                                   boolean exec,
                                                   TaskEvent.Type type) {
-    var originList = blockingOriginService.getOrigin(
+    var originList = blockingObjectService.getOrigin(
       objId,
       traverse
     );
