@@ -20,6 +20,7 @@ oaas:
     taskEventTopic: oaas-task-events
     taskTopic: oaas-tasks
     taskCompletionTopic: oaas-task-completions
+    taskCompletionPartitions: 10
     defaultTraverse: 3
     stateStoreName: task-state
 
@@ -50,11 +51,11 @@ quarkus:
 #    category:
 #      "org.hpcclab.oaas":
 #        level: DEBUG
-  kafka-streams:
-    bootstrap-servers: ${kafka.bootstrap.servers}
-    application-server: ${hostname:localhost}:${quarkus.http.port}
-    topics: ${oaas.tm.taskEventTopic}
-    application-id: ${quarkus.application.name}-stream
+#  kafka-streams:
+#    bootstrap-servers: ${kafka.bootstrap.servers}
+#    application-server: ${hostname:localhost}:${quarkus.http.port}
+#    topics: ${oaas.tm.taskEventTopic}
+#    application-id: ${quarkus.application.name}-stream
   micrometer:
     export:
       json:
@@ -77,11 +78,11 @@ mp:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
         cloud-events-source: ${quarkus.application.name}
         cloud-events-type: oaas.task
-      task-events:
-        connector: smallrye-kafka
-        topic: ${oaas.tm.taskEventTopic}
-        value:
-          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+#      task-events:
+#        connector: smallrye-kafka
+#        topic: ${oaas.tm.taskEventTopic}
+#        value:
+#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
     incoming:
       task-completions:
         connector: smallrye-kafka
@@ -89,3 +90,4 @@ mp:
         auto:
           offset:
             reset: earliest
+        partitions: ${oaas.tm.taskCompletionPartitions}

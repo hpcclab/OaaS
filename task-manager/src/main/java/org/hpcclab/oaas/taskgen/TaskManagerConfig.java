@@ -15,6 +15,8 @@ public interface TaskManagerConfig {
   String taskTopic();
   @WithDefault("oaas-task-completions")
   String taskCompletionTopic();
+  @WithDefault("10")
+  Integer taskCompletionPartitions();
   @WithDefault("3")
   int defaultTraverse();
   @WithDefault("true")

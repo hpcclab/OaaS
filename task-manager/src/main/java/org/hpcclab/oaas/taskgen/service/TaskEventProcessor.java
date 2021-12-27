@@ -1,13 +1,8 @@
 package org.hpcclab.oaas.taskgen.service;
 
-import io.micrometer.core.annotation.Timed;
 import io.quarkus.infinispan.client.Remote;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
-import org.apache.kafka.streams.KeyValue;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hpcclab.oaas.model.task.BaseTaskMessage;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskState;
 import org.hpcclab.oaas.taskgen.TaskEventException;
@@ -19,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import java.util.*;
 
 @ApplicationScoped
 public class TaskEventProcessor {
-  private static final Logger LOGGER = LoggerFactory.getLogger( TaskEventProcessor.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventProcessor.class);
 
   @Remote("TaskState")
   RemoteCache<String, TaskState> remoteCache;
@@ -34,11 +28,13 @@ public class TaskEventProcessor {
   V2TaskEventManager taskEventManager;
   @RestClient
   TaskBrokerService taskBrokerService;
+
+
   GenericTransactionManagerLookup lookup = GenericTransactionManagerLookup.getInstance();
   TransactionManager transactionManager;
 
   @PostConstruct
-  void setup( ) {
+  void setup() {
     this.transactionManager = lookup.getTransactionManager();
   }
 
@@ -48,7 +44,7 @@ public class TaskEventProcessor {
     }
   }
 
-  public List<TaskEvent> handle(TaskEvent taskEvent){
+  public List<TaskEvent> handle(TaskEvent taskEvent) {
     try {
       var list = switch (taskEvent.getType()) {
         case CREATE -> handleCreate(taskEvent);
@@ -70,9 +66,7 @@ public class TaskEventProcessor {
   }
 
   private List<TaskEvent> handleCreate(TaskEvent taskEvent) throws SystemException {
-    UUID id = UUID.fromString(taskEvent.getId());
-//    var transactionManager = remoteCache.getTransactionManager();
-
+//    UUID id = UUID.fromString(taskEvent.getId());
     List<TaskEvent> eventList = new ArrayList<>();
 
     try {
@@ -138,8 +132,8 @@ public class TaskEventProcessor {
   }
 
   private List<TaskEvent> notifyNext(String key,
-                          boolean exec,
-                          TaskState taskState) {
+                                     boolean exec,
+                                     TaskState taskState) {
     if (taskState.getNextTasks()==null) {
       taskState.setNextTasks(Set.of());
       return List.of();
@@ -155,9 +149,7 @@ public class TaskEventProcessor {
   }
 
   private List<TaskEvent> handleNotify(TaskEvent taskEvent) throws SystemException {
-    UUID id = UUID.fromString(taskEvent.getId());
-//    var transactionManager = remoteCache.getTransactionManager();
-
+//    UUID id = UUID.fromString(taskEvent.getId());
     List<TaskEvent> eventList = new ArrayList<>();
 
     try {
@@ -175,8 +167,7 @@ public class TaskEventProcessor {
       }
 
       remoteCache.put(taskEvent.getId(), taskState);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.error("Catch exception on handleNotify", e);
       transactionManager.rollback();
     }
@@ -184,8 +175,7 @@ public class TaskEventProcessor {
   }
 
   private List<TaskEvent> handleComplete(TaskEvent taskEvent) throws SystemException {
-    UUID id = UUID.fromString(taskEvent.getId());
-//    var transactionManager = remoteCache.getTransactionManager();
+//    UUID id = UUID.fromString(taskEvent.getId());
 
     List<TaskEvent> eventList = new ArrayList<>();
 
@@ -195,8 +185,7 @@ public class TaskEventProcessor {
       taskState.setComplete(true);
       remoteCache.put(taskEvent.getId(), taskState);
       eventList.addAll(notifyNext(taskEvent.getId(), taskEvent.isExec(), taskState));
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.error("Catch exception on handleComplete", e);
       transactionManager.rollback();
     }
