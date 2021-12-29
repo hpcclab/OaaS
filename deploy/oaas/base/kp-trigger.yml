@@ -8,8 +8,10 @@ spec:
   broker: default
   filter:
     attributes:
-      kafkaheadercetasktype: EPHEMERAL
-      kafkaheadercetype: oaas.task
+#      kafkaheadercetasktype: EPHEMERAL
+#      kafkaheadercetype: oaas.task
+      tasktype: EPHEMERAL
+      type: oaas.task
   subscriber:
     ref:
       apiVersion: v1

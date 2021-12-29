@@ -20,7 +20,7 @@ public class EphemeralTaskHandler {
   @CloudEventMapping(
     trigger = "dev.knative.kafka.event"
   )
-  public void handle(@Context CloudEvent<OaasTask> cloudEvent) {
+  public void handleFromKafka(@Context CloudEvent<OaasTask> cloudEvent) {
     var extMap = cloudEvent.extensions();
     if (!extMap.containsKey("kafkaheadercetype")) {
       LOGGER.warn("Can not handle event without 'kafkaheadercetype' header.");
@@ -40,6 +40,31 @@ public class EphemeralTaskHandler {
     var taskType = extMap.get("kafkaheadercetasktype");
     if (!taskType.equals("EPHEMERAL")) {
       LOGGER.warn("Can not handle event with header 'kafkaheadercetasktype' is '{}'.", taskType);
+      return;
+    }
+    jobProvisioner.provision(cloudEvent.data());
+  }
+
+  @Funq
+  @CloudEventMapping(
+    trigger = "oaas.task"
+  )
+  public void handle(@Context CloudEvent<OaasTask> cloudEvent) {
+    var extMap = cloudEvent.extensions();
+    var type = cloudEvent.type();
+    if (!type.equals("oaas.task")) {
+      LOGGER.warn("Can not handle event with type='{}'.",
+        type);
+      return;
+    }
+    if (!extMap.containsKey("tasktype")) {
+      LOGGER.warn("Can not handle event without 'tasktype' header.");
+      return;
+    }
+
+    var taskType = extMap.get("tasktype");
+    if (!taskType.equals("EPHEMERAL")) {
+      LOGGER.warn("Can not handle event with header 'tasktype' is '{}'.", taskType);
       return;
     }
     jobProvisioner.provision(cloudEvent.data());

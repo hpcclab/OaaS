@@ -25,10 +25,6 @@ quarkus:
     image: ${ci.registry.image:oaas}/kube-provisioner${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
-  index-dependency:
-    service-interface:
-      artifact-id: model
-      group-id: org.hpcclab.msc
   console:
     color: true
   native:

@@ -40,7 +40,7 @@ quarkus:
   index-dependency:
     service-interface:
       artifact-id: service-interface
-      group-id: org.hpcclab.msc
+      group-id: org.hpcclab.oaas
   console:
     color: true
   container-image:

@@ -14,6 +14,15 @@ spec:
       labels:
         app: task-completion-handler
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: task-completion-handler
+                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: task-completion-handler
           envFrom:
@@ -25,9 +34,9 @@ spec:
           resources:
             limits:
               memory: 1G
-              cpu: '8'
+              cpu: '4'
             requests:
-              cpu: 250m
+              cpu: '0.5'
               memory: 256M
           imagePullPolicy: Always
 ---

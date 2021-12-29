@@ -24,14 +24,23 @@ public class TaskCompletion {
   String startTime;
   String completionTime;
   String requestFile;
-  String resourceUrl;
+//  String resourceUrl;
   String debugLog;
 
   public TaskCompletion() {
   }
 
   @ProtoFactory
-  public TaskCompletion(String id, UUID mainObj, UUID outputObj, String functionName, TaskStatus status, String startTime, String completionTime, String requestFile, String resourceUrl, String debugLog) {
+  public TaskCompletion(String id,
+                        UUID mainObj,
+                        UUID outputObj,
+                        String functionName,
+                        TaskStatus status,
+                        String startTime,
+                        String completionTime,
+                        String requestFile,
+//                        String resourceUrl,
+                        String debugLog) {
     this.id = id;
     this.mainObj = mainObj;
     this.outputObj = outputObj;
@@ -40,7 +49,7 @@ public class TaskCompletion {
     this.startTime = startTime;
     this.completionTime = completionTime;
     this.requestFile = requestFile;
-    this.resourceUrl = resourceUrl;
+//    this.resourceUrl = resourceUrl;
     this.debugLog = debugLog;
   }
 
@@ -84,10 +93,10 @@ public class TaskCompletion {
     return requestFile;
   }
 
-  @ProtoField(9)
-  public String getResourceUrl() {
-    return resourceUrl;
-  }
+//  @ProtoField(9)
+//  public String getResourceUrl() {
+//    return resourceUrl;
+//  }
 
   @ProtoField(10)
   public String getDebugLog() {

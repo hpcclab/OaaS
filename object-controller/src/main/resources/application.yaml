@@ -50,7 +50,7 @@ quarkus:
   index-dependency:
     service-interface:
       artifact-id: service-interface
-      group-id: org.hpcclab.msc
+      group-id: org.hpcclab.oaas
   #  log:
   #    category:
   #      "org.hpcclab.oaas":

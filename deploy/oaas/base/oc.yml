@@ -10,15 +10,20 @@ spec:
     matchLabels:
       app: object-controller
   template:
+
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
-        prometheus.io/port: "8080"
-        prometheus.io/scheme: http
       labels:
         app: object-controller
     spec:
+#      affinity:
+#        podAntiAffinity:
+#          preferredDuringSchedulingIgnoredDuringExecution:
+#            - weight: 100
+#              podAffinityTerm:
+#                labelSelector:
+#                  matchLabels:
+#                    app: object-controller
+#                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: object-controller
           envFrom:

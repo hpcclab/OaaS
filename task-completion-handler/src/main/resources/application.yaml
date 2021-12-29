@@ -20,16 +20,14 @@ quarkus:
   http:
     access-log:
       enabled: true
+      pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+    record-request-start-time: true
   vertx:
     prefer-native-transport: true
   container-image:
     image: ${ci.registry.image:oaas}/task-completion-handler${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-alpine
-  index-dependency:
-    service-interface:
-      artifact-id: model
-      group-id: org.hpcclab.msc
   native:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 #  console:

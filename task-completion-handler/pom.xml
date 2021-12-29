@@ -4,8 +4,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.hpcclab.msc</groupId>
-    <artifactId>oaas</artifactId>
+    <groupId>org.hpcclab.oaas</groupId>
+    <artifactId>oaas-parent</artifactId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>task-completion-handler</artifactId>
@@ -48,12 +48,12 @@
       <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hpcclab.msc</groupId>
+      <groupId>org.hpcclab.oaas</groupId>
       <artifactId>model</artifactId>
       <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hpcclab.msc</groupId>
+      <groupId>org.hpcclab.oaas</groupId>
       <artifactId>service-interface</artifactId>
       <version>0.2.0-SNAPSHOT</version>
     </dependency>

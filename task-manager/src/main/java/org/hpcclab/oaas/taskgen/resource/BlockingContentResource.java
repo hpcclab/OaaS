@@ -4,10 +4,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.hpcclab.oaas.taskgen.service.TaskEventManager;
 import org.hpcclab.oaas.taskgen.TaskManagerConfig;
 import org.hpcclab.oaas.taskgen.service.V2TaskEventManager;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -44,7 +44,9 @@ public class BlockingContentResource {
   CacheWatcher watcher;
 
   @Remote("TaskCompletion")
-  RemoteCache<UUID, TaskCompletion> remoteCache;
+  RemoteCache<UUID, TaskCompletion> completionCache;
+  @Remote("OaasObject")
+  RemoteCache<UUID, OaasObject> objectCache;
 
 //  @Inject
 //  TaskEventManager taskEventManager;
@@ -56,7 +58,7 @@ public class BlockingContentResource {
   @PostConstruct
   public void setup() {
     watcher = new CacheWatcher();
-    remoteCache.addClientListener(watcher);
+    completionCache.addClientListener(watcher);
   }
 
   @GET
@@ -64,22 +66,29 @@ public class BlockingContentResource {
   public Uni<Response> get(String objectId,
                                      String filePath) {
     var id = UUID.fromString(objectId);
-    return Uni.createFrom().completionStage(remoteCache.getAsync(id))
+    return Uni.createFrom().completionStage(completionCache.getAsync(id))
       .onItem().ifNull()
       .switchTo(() -> execAndWait(id, filePath))
-      .map(taskCompletion ->  {
+      .flatMap(taskCompletion ->  {
         if (taskCompletion == null) {
-          return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
+          return Uni.createFrom().item(
+            Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build()
+          );
         }
-        if (taskCompletion.getStatus() == TaskStatus.SUCCEEDED) {
-          if (!taskCompletion.getResourceUrl().endsWith("/"))
-            taskCompletion.setResourceUrl(taskCompletion.getResourceUrl()+'/');
-          return Response.status(HttpResponseStatus.FOUND.code())
-            .location(URI.create(taskCompletion.getResourceUrl()).resolve(filePath))
-            .build();
-        }
-        return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code())
-          .build();
+
+        return Uni.createFrom().completionStage(objectCache.getAsync(id))
+          .map(obj -> {
+            if (taskCompletion.getStatus() == TaskStatus.SUCCEEDED) {
+              var baseUrl = obj.getState().getBaseUrl();
+              if (!baseUrl.endsWith("/"))
+                baseUrl += '/';
+              return Response.status(HttpResponseStatus.FOUND.code())
+                .location(URI.create(baseUrl).resolve(filePath))
+                .build();
+            }
+            return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code())
+              .build();
+          });
       });
   }
 
@@ -93,7 +102,7 @@ public class BlockingContentResource {
     );
     return Uni.combine().all().unis(uni1, uni2)
       .asTuple()
-      .flatMap(event -> Uni.createFrom().completionStage(remoteCache.getAsync(id)));
+      .flatMap(event -> Uni.createFrom().completionStage(completionCache.getAsync(id)));
   }
 
   @ClientListener

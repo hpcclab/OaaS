@@ -72,14 +72,6 @@ public class JobWatcher {
   void submitTaskCompletion(Job job,
                             OaasTask task,
                             boolean succeeded) {
-    var url = task.getOutput().getState().getBaseUrl();
-//    var stateType =task.getOutput().getState().getType();
-//    if (stateType == MscObjectState.Type.SEGMENTABLE) {
-//      url = url + "/" + task.getRequestFile();
-//    } else if (stateType == MscObjectState.Type.FILE) {
-//      url = url + "/" + task.getOutput().getState().getFile();
-//    }
-
     var completion = new TaskCompletion()
       .setId(task.getId())
       .setMainObj(task.getMain().getId())
@@ -88,8 +80,7 @@ public class JobWatcher {
       .setStatus(succeeded ? TaskStatus.SUCCEEDED: TaskStatus.FAILED)
       .setStartTime(job.getStatus().getStartTime())
       .setCompletionTime(job.getStatus().getCompletionTime())
-      .setRequestFile(task.getRequestFile())
-      .setResourceUrl(url);
+      .setRequestFile(task.getRequestFile());
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
       .list().getItems();
     if (!items.isEmpty()) {

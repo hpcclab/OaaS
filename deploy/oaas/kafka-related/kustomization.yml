@@ -1,8 +1,8 @@
 resources:
   - task-completion-topic.yml
-  - task-topic.yml
-  - task-event-topic.yml
-  - task-state-change-log-topic.yml
+#  - task-topic.yml
+#  - task-event-topic.yml
+#  - task-state-change-log-topic.yml
   - provision-topic.yml
 #  - kafka-source.yml
 #  - kafka-connect.yml

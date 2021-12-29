@@ -3,7 +3,7 @@ kind: Infinispan
 metadata:
   name: oaas-infinispan
 spec:
-  replicas: 1
+  replicas: 3
   service:
     type: DataGrid
     container:
@@ -12,7 +12,7 @@ spec:
     endpointSecretName: infinispan-connect-secret
   container:
     cpu: "2"
-    memory: 1Gi
+    memory: 2Gi
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:

@@ -6,6 +6,6 @@ metadata:
   name: msc-task-completions
 spec:
   config: {}
-  partitions: 10
+  partitions: 24
   replicas: 1
   topicName: msc-task-completions

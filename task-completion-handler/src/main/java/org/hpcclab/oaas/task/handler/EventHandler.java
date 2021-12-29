@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.task.handler;
 
 import io.smallrye.mutiny.Uni;
+import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -32,9 +33,7 @@ public class EventHandler {
   @Inject
   RoutingContext ctx;
   @Channel("task-completions")
-  Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
-  @Inject
-  ObjectService objectService;
+  MutinyEmitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
 
   @POST
   public Uni<Void> handle(String body) {
@@ -83,25 +82,6 @@ public class EventHandler {
       .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
       .setCompletionTime(Instant.now().toString())
       .setDebugLog(body);
-
-
-    Uni<Void> uni = null;
-    if (headers.contains("ce-Baseresourceurl")) {
-      completion.setResourceUrl(headers.get("ce-Baseresourceurl"));
-      uni = Uni.createFrom().completionStage(
-        tasksCompletionEmitter.send(Record.of(completion.getId(), completion)));
-    } else {
-      uni = objectService.get(objectId)
-        .flatMap(obj -> {
-          completion.setMainObj(obj.getOrigin().getParentId())
-            .setResourceUrl(obj.getState().getBaseUrl())
-            .setFunctionName(obj.getOrigin().getFuncName());
-          return Uni.createFrom().completionStage(
-            tasksCompletionEmitter.send(Record.of(completion.getId(), completion))
-          );
-        });
-    }
-    return uni
-      .invoke(() -> LOGGER.debug("{} is submitted", completion));
+    return tasksCompletionEmitter.send(Record.of(completion.getId(), completion));
   }
 }
