@@ -6,7 +6,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.Record;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.mapper.CtxMapper;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,7 +18,7 @@ public class FunctionProvisionPublisher {
   @Channel("provisions")
   MutinyEmitter<Record<String, OaasFunction>> provisionEmitter;
   @Inject
-  OaasMapper mapper;
+  CtxMapper mapper;
 
   public Uni<Void> submitNewFunction(OaasFunction function) {
     var provision = function.getProvision();

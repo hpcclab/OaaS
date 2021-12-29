@@ -6,8 +6,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
-import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.service.FunctionProvisionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,9 @@ public class BatchResource implements BatchService {
   private static final Logger LOGGER = LoggerFactory.getLogger(BatchResource.class);
 
   @Inject
-  IfnpOaasClassRepository classRepo;
+  OaasClassRepository classRepo;
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
 

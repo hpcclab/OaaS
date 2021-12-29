@@ -15,5 +15,5 @@ import java.util.Map;
 @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
 public class TaskExecRequest {
   String id;
-  List<Map<String,OaasObjectOrigin>> originList;
+//  List<Map<String,OaasObjectOrigin>> originList;
 }

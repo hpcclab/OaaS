@@ -18,11 +18,11 @@ import javax.inject.Inject;
 public class CachedCtxLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger( CachedCtxLoader.class );
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
   @Inject
-  IfnpOaasClassRepository clsRepo;
+  OaasClassRepository clsRepo;
 
 
   public Uni<FunctionExecContext> loadCtx(FunctionCallRequest request) {

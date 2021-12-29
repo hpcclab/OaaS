@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ public class LogicalFunctionHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger( LogicalFunctionHandler.class );
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
 
 
   public Uni<FunctionExecContext> call(FunctionExecContext context) {

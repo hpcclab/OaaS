@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.CachedCtxLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class MacroFunctionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(MacroFunctionHandler.class);
 
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
   FunctionRouter router;
   @Inject

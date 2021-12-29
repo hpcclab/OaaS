@@ -71,10 +71,10 @@ public class FunctionRouter {
         .iterable(ctx.getTaskOutputs())
         .onItem().transformToUniAndMerge(obj -> {
           var taskExecRequest = new TaskExecRequest()
-            .setId(obj.getId().toString())
-            .setOriginList(List.of(
-              Map.of(obj.getId().toString(), obj.getOrigin())
-            ));
+            .setId(obj.getId().toString());
+//            .setOriginList(List.of(
+//              Map.of(obj.getId().toString(), obj.getOrigin())
+//            ));
           LOGGER.debug("Submit task[id='{}']", obj.getId());
           return resourceRequestService.request(taskExecRequest);
         })

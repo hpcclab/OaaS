@@ -2,7 +2,7 @@ package org.hpcclab.oaas.resourcetest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.hasItems;
 class FunctionResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionResourceTest.class);
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
 
   @Test
   void find() {

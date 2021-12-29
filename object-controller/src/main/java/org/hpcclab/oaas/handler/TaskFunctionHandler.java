@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.service.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
 public class TaskFunctionHandler {
 
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
   StorageAllocator storageAllocator;
 

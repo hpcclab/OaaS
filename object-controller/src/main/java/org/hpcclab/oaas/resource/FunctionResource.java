@@ -6,9 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.iface.service.FunctionService;
-import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.mapper.CtxMapper;
 import org.hpcclab.oaas.model.proto.OaasFunction;
-import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
 import org.hpcclab.oaas.service.FunctionProvisionPublisher;
 
 import javax.enterprise.context.RequestScoped;
@@ -21,9 +21,9 @@ import java.util.List;
 @RequestScoped
 public class FunctionResource implements FunctionService {
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
   @Inject
-  OaasMapper oaasMapper;
+  CtxMapper oaasMapper;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
 

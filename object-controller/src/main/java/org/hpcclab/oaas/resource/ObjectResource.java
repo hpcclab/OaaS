@@ -10,8 +10,9 @@ import org.hpcclab.oaas.model.function.FunctionCallRequest;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
-import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
+import org.hpcclab.oaas.repository.AggregateRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +27,9 @@ import java.util.stream.Stream;
 public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  AggregateRepository aggregateRepo;
   @Inject
   FunctionRouter functionRouter;
 
@@ -51,38 +52,7 @@ public class ObjectResource implements ObjectService {
   }
 
   public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
-    List<Map<String, OaasObjectOrigin>> results = new ArrayList<>();
-    return Multi.createFrom().range(0, deep)
-      .call(i -> {
-        if (i==0) {
-          return objectRepo.getAsync(UUID.fromString(id))
-            .onItem().ifNull().failWith(NotFoundException::new)
-            .map(o -> Map.of(id, o.getOrigin()))
-            .invoke(map -> results.add(i, map));
-        } else {
-          Set<UUID> ids = results.get(i - 1).values()
-            .stream()
-            .filter(o -> o.getParentId()!=null)
-            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getAdditionalInputs()
-              .stream())
-            )
-            .collect(Collectors.toSet());
-
-          if (ids.isEmpty()) {
-            results.add(i, Map.of());
-            return Uni.createFrom().item(Map.of());
-          }
-
-          return objectRepo.listAsync(ids)
-            .map(objs -> objs.values().stream()
-              .map(o -> Map.entry(o.getId().toString(), o.getOrigin()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-            )
-            .invoke(map -> results.add(i, map));
-        }
-      })
-      .collect().last()
-      .map(v -> results);
+    return objectRepo.getOriginAsync(UUID.fromString(id), deep);
   }
 
   public Uni<DeepOaasObject> getDeep(String id) {
@@ -91,19 +61,7 @@ public class ObjectResource implements ObjectService {
 
   @Blocking
   public Uni<TaskContext> getTaskContext(String id) {
-    var main = objectRepo.get(UUID.fromString(id));
-    var tc = new TaskContext();
-    tc.setOutput(main);
-    var funcName = main.getOrigin().getFuncName();
-    var function = funcRepo.get(funcName);
-    tc.setFunction(function);
-    var inputs = objectRepo.listByIds(main.getOrigin().getAdditionalInputs());
-    tc.setAdditionalInputs(inputs);
-    if (main.getOrigin().getParentId()!=null) {
-      var parent = objectRepo.get(main.getOrigin().getParentId());
-      tc.setParent(parent);
-    }
-    return Uni.createFrom().item(tc);
+    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
   }
 
   public Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request) {

@@ -1,9 +1,8 @@
 package org.hpcclab.oaas.resource;
 
-import org.eclipse.microprofile.openapi.models.servers.Server;
-import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
-import org.hpcclab.oaas.repository.IfnpOaasFuncRepository;
-import org.hpcclab.oaas.repository.IfnpOaasObjectRepository;
+import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.infinispan.client.hotrod.ServerStatistics;
 import org.infinispan.client.hotrod.jmx.RemoteCacheClientStatisticsMXBean;
 
@@ -20,11 +19,11 @@ import javax.ws.rs.core.MediaType;
 public class StatReource {
 
   @Inject
-  IfnpOaasClassRepository clsRepo;
+  OaasClassRepository clsRepo;
   @Inject
-  IfnpOaasObjectRepository objectRepo;
+  OaasObjectRepository objectRepo;
   @Inject
-  IfnpOaasFuncRepository funcRepo;
+  OaasFuncRepository funcRepo;
 
   @GET
   @Path("class/client")

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.mapper.OaasMapper;
+import org.hpcclab.oaas.mapper.CtxMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.repository.IfnpOaasClassRepository;
+import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +22,9 @@ import java.util.List;
 public class ClassResource implements ClassService {
   private static final Logger LOGGER = LoggerFactory.getLogger( ClassResource.class );
   @Inject
-  IfnpOaasClassRepository classRepo;
+  OaasClassRepository classRepo;
   @Inject
-  OaasMapper oaasMapper;
+  CtxMapper oaasMapper;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
 
