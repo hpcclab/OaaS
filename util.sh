@@ -9,7 +9,7 @@ export JAVA_HOME=~/.jdks/temurin-17/
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
     -Dquarkus.jib.always-cache-base-image=true \
-    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-focal \
+    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-jre-alpine \
     -Dquarkus.container-image.insecure=true
 
 $ENV:JAVA_HOME="$HOME/.jdks/temurin-17.0.1"

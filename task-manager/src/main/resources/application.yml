@@ -46,7 +46,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/task-manager${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-focal
+    base-jvm-image: eclipse-temurin:17-jre-alpine
 #  log:
 #    category:
 #      "org.hpcclab.oaas":

@@ -27,7 +27,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/task-completion-handler${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-alpine
+    base-jvm-image: eclipse-temurin:17-jre-alpine
   native:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
 #  console:
