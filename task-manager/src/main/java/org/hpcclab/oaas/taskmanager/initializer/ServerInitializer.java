@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.taskmanager.initializer;
 
 import io.quarkus.runtime.StartupEvent;
+import org.hpcclab.oaas.repository.init.InfinispanInit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;

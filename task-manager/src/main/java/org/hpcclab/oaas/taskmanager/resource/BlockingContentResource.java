@@ -4,10 +4,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
-import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -39,19 +39,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/contents")
 public class BlockingContentResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger( BlockingContentResource.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(BlockingContentResource.class);
 
   CacheWatcher watcher;
 
   @Remote("TaskCompletion")
   RemoteCache<UUID, TaskCompletion> completionCache;
-  @Remote("OaasObject")
-  RemoteCache<UUID, OaasObject> objectCache;
+  @Inject
+  OaasObjectRepository objectRepo;
 
-//  @Inject
+  //  @Inject
 //  TaskEventManager taskEventManager;
   @Inject
-TaskEventManager v2TaskEventManager;
+  TaskEventManager v2TaskEventManager;
   @Inject
   TaskManagerConfig config;
 
@@ -64,29 +64,29 @@ TaskEventManager v2TaskEventManager;
   @GET
   @Path("{objectId}/{filePath:.*}")
   public Uni<Response> get(String objectId,
-                                     String filePath) {
+                           String filePath) {
     var id = UUID.fromString(objectId);
     return Uni.createFrom().completionStage(completionCache.getAsync(id))
       .onItem().ifNull()
       .switchTo(() -> execAndWait(id, filePath))
-      .flatMap(taskCompletion ->  {
-        if (taskCompletion == null) {
+      .flatMap(taskCompletion -> {
+        if (taskCompletion==null) {
           return Uni.createFrom().item(
             Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build()
           );
         }
-
-        return Uni.createFrom().completionStage(objectCache.getAsync(id))
+        if (taskCompletion.getStatus()!=TaskStatus.SUCCEEDED) {
+          return Uni.createFrom().item(
+            Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code())
+              .build());
+        }
+        return objectRepo.getAsync(id)
           .map(obj -> {
-            if (taskCompletion.getStatus() == TaskStatus.SUCCEEDED) {
-              var baseUrl = obj.getState().getBaseUrl();
-              if (!baseUrl.endsWith("/"))
-                baseUrl += '/';
-              return Response.status(HttpResponseStatus.FOUND.code())
-                .location(URI.create(baseUrl).resolve(filePath))
-                .build();
-            }
-            return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code())
+            var baseUrl = obj.getState().getBaseUrl();
+            if (!baseUrl.endsWith("/"))
+              baseUrl += '/';
+            return Response.status(HttpResponseStatus.FOUND.code())
+              .location(URI.create(baseUrl).resolve(filePath))
               .build();
           });
       });
@@ -139,7 +139,7 @@ TaskEventManager v2TaskEventManager;
         .eventually(() -> {
           var atomicInteger = countingMap.get(id);
           var i = atomicInteger.decrementAndGet();
-          if (i == 0) countingMap.remove(id);
+          if (i==0) countingMap.remove(id);
         });
     }
   }
