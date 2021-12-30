@@ -21,4 +21,5 @@ public interface TaskManagerConfig {
   int defaultTraverse();
   @WithDefault("true")
   boolean enableCloudEventHeaders();
+  String brokerUrl();
 }

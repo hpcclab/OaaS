@@ -6,7 +6,7 @@ functions:
     provision:
       knative:
         image: core.harbor.10.131.36.27.nip.io/oaas/empty-function:0.2.1
-#        minScale: 1
+        minScale: 1
 #        maxScale: 3
 #        concurrency: 1
         requestsCpu: '1'

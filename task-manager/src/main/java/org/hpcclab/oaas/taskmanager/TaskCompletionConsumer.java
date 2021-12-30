@@ -1,7 +1,10 @@
 package org.hpcclab.oaas.taskmanager;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.reactive.messaging.annotations.Blocking;
+import io.smallrye.reactive.messaging.kafka.KafkaRecordBatch;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -12,7 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TaskCompletionConsumer {
@@ -20,21 +26,24 @@ public class TaskCompletionConsumer {
 
   @Inject
   TaskEventManager taskEventManager;
-  @Inject
-  TaskEventManager v2TaskEventManager;
   @Remote("TaskCompletion")
   RemoteCache<UUID, TaskCompletion> remoteCache;
 
   @Incoming("task-completions")
-  public Uni<Void> handle(TaskCompletion taskCompletion) {
-    remoteCache.put(UUID.fromString(taskCompletion.getId()), taskCompletion);
-    if (taskCompletion.getStatus() == TaskStatus.SUCCEEDED) {
-//      return taskEventManager.submitCompletionEvent(taskCompletion.getId());
-      v2TaskEventManager.submitCompletionEvent(taskCompletion.getId());
-      return Uni.createFrom().nullItem();
-    } else {
-      // TODO retry?
-      return Uni.createFrom().nullItem();
-    }
+  public Uni<Void> handle(List<TaskCompletion> taskCompletions) {
+    var map = taskCompletions.stream()
+      .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
+    return Uni.createFrom()
+      .completionStage(remoteCache.putAllAsync(map))
+      .flatMap(ignore -> taskEventManager.submitCompletionEvent(taskCompletions));
   }
+
+//  @Incoming("task-completions")
+//  @Blocking
+//  public void handleBlocking(List<TaskCompletion> taskCompletions) {
+//    var map = taskCompletions.stream()
+//      .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
+//    remoteCache.putAll(map);
+//    taskEventManager.submitCompletionEventBlocking(taskCompletions);
+//  }
 }

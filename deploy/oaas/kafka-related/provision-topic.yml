@@ -6,6 +6,6 @@ metadata:
   name: msc-provisions
 spec:
   config: {}
-  partitions: 24
+  partitions: 15
   replicas: 1
   topicName: msc-provisions

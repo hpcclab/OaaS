@@ -6,6 +6,9 @@
       category:
         "org.hpcclab.oaas":
           level: DEBUG
+  oaas:
+    tm:
+      brokerUrl: http://localhost:8080
 
 "%prod":
   quarkus:
@@ -13,7 +16,6 @@
       auth-username: ${infinispan.username:}
       auth-password: ${infinispan.password:}
       server-list: ${infinispan.server:}
-
 oaas:
   tm:
     objectControllerUrl: http://localhost:8088
@@ -29,6 +31,7 @@ quarkus:
     access-log:
       enabled: true
       pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+      exclude-pattern: /q/.*
     record-request-start-time: true
   vertx:
     prefer-native-transport: true
@@ -91,3 +94,8 @@ mp:
           offset:
             reset: earliest
         partitions: ${oaas.tm.taskCompletionPartitions}
+        batch: true
+#        pause-if-no-requests: false
+        max:
+          poll:
+            records: 1000

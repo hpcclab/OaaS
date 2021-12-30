@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.taskmanager.service;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.infinispan.client.Remote;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -40,7 +41,8 @@ public class TaskEventProcessor {
     this.transactionManager = lookup.getTransactionManager();
   }
 
-  public void processEvent(List<TaskEvent> taskEvents) {
+  @Timed(value = "processEvents", percentiles={0.5,0.75,0.95,0.99})
+  public void processEvents(List<TaskEvent> taskEvents) {
     for (TaskEvent taskEvent : taskEvents) {
       handle(taskEvent);
     }
@@ -57,9 +59,7 @@ public class TaskEventProcessor {
         return list;
       } else {
         return list.stream()
-          .flatMap(te -> {
-            return handle(te).stream();
-          })
+          .flatMap(te -> handle(te).stream())
           .toList();
       }
     } catch (SystemException e) {

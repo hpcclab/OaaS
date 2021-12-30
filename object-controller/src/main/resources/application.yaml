@@ -39,6 +39,7 @@ quarkus:
     access-log:
       enabled: true
       pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+      exclude-pattern: /q/.*
     record-request-start-time: true
   vertx:
     prefer-native-transport: true

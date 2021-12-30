@@ -33,7 +33,8 @@ public class EventHandler {
   @Inject
   RoutingContext ctx;
   @Channel("task-completions")
-  MutinyEmitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
+//  MutinyEmitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
+  MutinyEmitter<TaskCompletion> tasksCompletionEmitter;
 
   @POST
   public Uni<Void> handle(String body) {
@@ -41,8 +42,7 @@ public class EventHandler {
     LOGGER.debug("Handle headers: {}", headers);
     var ceType = headers.get("ce-type");
     return switch (ceType){
-      case "dev.knative.kafka.event" -> handleDeadLetter(body);
-      case "oaas.task" -> handleDeadLetter(body);
+      case "dev.knative.kafka.event", "oaas.task" -> handleDeadLetter(body);
       case "oaas.task.result" -> handleResult(body);
       default -> {
         ctx.response().setStatusCode(404)
@@ -65,8 +65,8 @@ public class EventHandler {
       .setMainObj(task.getMain().getId())
       .setFunctionName(task.getFunction().getName())
       .setDebugLog(error);
-    tasksCompletionEmitter.send(Record.of(taskCompletion.getId(), taskCompletion));
-    return Uni.createFrom().nullItem();
+//    tasksCompletionEmitter.send(Record.of(taskCompletion.getId(), taskCompletion));
+    return tasksCompletionEmitter.send(taskCompletion);
   }
 
 
@@ -82,6 +82,7 @@ public class EventHandler {
       .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
       .setCompletionTime(Instant.now().toString())
       .setDebugLog(body);
-    return tasksCompletionEmitter.send(Record.of(completion.getId(), completion));
+//    return tasksCompletionEmitter.send(Record.of(completion.getId(), completion));
+    return tasksCompletionEmitter.send(completion);
   }
 }
