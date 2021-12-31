@@ -70,8 +70,6 @@ quarkus:
       includes:
         - builtin/**
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
-#  infinispan-client:
-#    near-cache-max-entries: 5000
 mp:
   messaging:
     outgoing:

@@ -13,7 +13,7 @@ data:
 #  OAAS_TM_TASKTOPIC: knative-broker-msc-default
   OAAS_TM_TASKEVENTTOPIC: msc-task-events
   OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
-  OAAS_TM_TASKCOMPLETIONPARTITIONS: '5'
+  OAAS_TM_TASKCOMPLETIONPARTITIONS: '1'
   OAAS_KP_TASKTOPIC: msc-tasks
   OAAS_KP_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_KP_PROVISIONTOPIC: msc-provisions

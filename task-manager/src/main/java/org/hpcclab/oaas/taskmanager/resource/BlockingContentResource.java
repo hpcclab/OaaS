@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -47,11 +48,8 @@ public class BlockingContentResource {
   RemoteCache<UUID, TaskCompletion> completionCache;
   @Inject
   OaasObjectRepository objectRepo;
-
-  //  @Inject
-//  TaskEventManager taskEventManager;
   @Inject
-  TaskEventManager v2TaskEventManager;
+  TaskEventManager taskEventManager;
   @Inject
   TaskManagerConfig config;
 
@@ -59,6 +57,11 @@ public class BlockingContentResource {
   public void setup() {
     watcher = new CacheWatcher();
     completionCache.addClientListener(watcher);
+  }
+
+  @PreDestroy
+  public void cleanup() {
+    completionCache.removeClientListener(watcher);
   }
 
   @GET
@@ -94,7 +97,7 @@ public class BlockingContentResource {
 
   private Uni<TaskCompletion> execAndWait(UUID id, String filePath) {
     var uni1 = watcher.wait(id, Duration.ofSeconds(30));
-    var uni2 = v2TaskEventManager.submitEventWithTraversal(
+    var uni2 = taskEventManager.submitEventWithTraversal(
       id.toString(),
       config.defaultTraverse(),
       true,
@@ -126,6 +129,11 @@ public class BlockingContentResource {
         broadcastProcessor.onNext(e.getKey());
       }
     }
+
+//    @ClientCacheFailover
+//    public void onFail(ClientCacheFailoverEvent e) {
+//
+//    }
 
     public Uni<UUID> wait(UUID id, Duration timeout) {
       LOGGER.debug("start wait for {}", id);

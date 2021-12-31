@@ -3,13 +3,14 @@ version: '3.1'
 
 services:
 
-  postgres:
-    image: postgres
+  infinispan:
+    image: quay.io/infinispan/server
     restart: always
+    ports:
+      - "11222:11222"
     environment:
-      POSTGRES_PASSWORD: oaas
-      POSTGRES_USER: oaas
-      POSTGRES_DB: oaas
+      USER: admin
+      PASS: changeme
 
 
   oc:
@@ -22,10 +23,10 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
       OAAS_OC_TASKGENERATORURL: http://task-manager
       OAAS_OC_PROVISIONTOPIC: msc-provisions
-      QUARKUS_DATASOURCE_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/oaas
-      QUARKUS_DATASOURCE_USERNAME: oaas
-      QUARKUS_DATASOURCE_PASSWORD: oaas
       OAAS_OC_S3PREFIXURL: http://s3.10.131.36.27.nip.io/test
+      INFINISPAN_SERVER: infinispan:11222
+      INFINISPAN_USERNAME: admin
+      INFINISPAN_PASSWORD: changeme
 
   redpanda:
     command:
@@ -41,7 +42,7 @@ services:
       - --kafka-addr
       - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       - --advertise-kafka-addr
-      - PLAINTEXT://redpanda:29092,OUTSIDE://redpanda:9092
+      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     # NOTE: Please use the latest version here!
     image: docker.vectorized.io/vectorized/redpanda:v21.10.2
     container_name: redpanda-1

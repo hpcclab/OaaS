@@ -5,25 +5,24 @@ metadata:
   labels:
     app: object-controller
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: object-controller
   template:
-
     metadata:
       labels:
         app: object-controller
     spec:
-#      affinity:
-#        podAntiAffinity:
-#          preferredDuringSchedulingIgnoredDuringExecution:
-#            - weight: 100
-#              podAffinityTerm:
-#                labelSelector:
-#                  matchLabels:
-#                    app: object-controller
-#                topologyKey: "kubernetes.io/hostname"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: object-controller
+                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: object-controller
           envFrom:
