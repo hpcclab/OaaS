@@ -1,15 +1,12 @@
 package org.hpcclab.oaas.taskmanager.service;
 
 import io.micrometer.core.annotation.Timed;
-import io.quarkus.infinispan.client.Remote;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.TaskState;
 import org.hpcclab.oaas.repository.TaskStateRepository;
 import org.hpcclab.oaas.taskmanager.TaskEventException;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.transaction.lookup.GenericTransactionManagerLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +30,13 @@ public class TaskEventProcessor {
   @RestClient
   TaskBrokerService taskBrokerService;
 
-  GenericTransactionManagerLookup lookup = GenericTransactionManagerLookup.getInstance();
+//  GenericTransactionManagerLookup lookup = GenericTransactionManagerLookup.getInstance();
   TransactionManager transactionManager;
-
+//
   @PostConstruct
   void setup() {
-    this.transactionManager = lookup.getTransactionManager();
+//    this.transactionManager = lookup.getTransactionManager();
+    this.transactionManager = taskStateRepo.getRemoteCache().getTransactionManager();
   }
 
   @Timed(value = "processEvents", percentiles={0.5,0.75,0.95,0.99})
@@ -70,30 +68,30 @@ public class TaskEventProcessor {
   private List<TaskEvent> handleCreate(TaskEvent taskEvent) throws SystemException {
 //    UUID id = UUID.fromString(taskEvent.getId());
     List<TaskEvent> eventList = new ArrayList<>();
+    var remoteCache = taskStateRepo.getRemoteCache();
+//    try {
+//      transactionManager.begin();
 
-    try {
-      transactionManager.begin();
-      transactionManager.getTransaction();
+      var taskStateMetadata = remoteCache.getWithMetadata(taskEvent.getId());
+      var version = taskStateMetadata == null? null: taskStateMetadata.getVersion();
+      var taskState = taskStateMetadata == null? new TaskState(): taskStateMetadata.getValue();
 
-      var taskState = taskStateRepo.get(taskEvent.getId());
-      if (taskState==null) taskState = new TaskState();
       if (taskState.getNextTasks()==null) {
         taskState.setNextTasks(taskEvent.getNextTasks());
       } else {
         taskState.getNextTasks().addAll(taskEvent.getNextTasks());
       }
 
-      if (taskEvent.getPrevTasks()!=null && taskState.getPrevTasks()==null) {
-        taskState.setPrevTasks(taskEvent.getPrevTasks());
+      if (taskEvent.getPrevTasks()!=null && taskState.getPrqTasks()==null) {
+        taskState.setPrqTasks(taskEvent.getPrevTasks());
       }
 
-      if (taskState.getCompletedPrevTasks()==null) {
-        taskState.setCompletedPrevTasks(new HashSet<>());
+      if (taskState.getCompletedPrqTasks()==null) {
+        taskState.setCompletedPrqTasks(new HashSet<>());
       }
-      taskState.getCompletedPrevTasks().addAll(taskEvent.getRoots());
+      taskState.getCompletedPrqTasks().addAll(taskEvent.getRoots());
 
-
-      if (taskState.getPrevTasks()==null || taskState.getPrevTasks().isEmpty()) {
+      if (taskState.getPrqTasks()==null || taskState.getPrqTasks().isEmpty()) {
         eventList.addAll(notifyNext(taskEvent.getId(), taskEvent.isExec(), taskState));
       } else if (taskState.isComplete()) {
         eventList.addAll(notifyNext(taskEvent.getId(), taskEvent.isExec(), taskState));
@@ -107,13 +105,13 @@ public class TaskEventProcessor {
         eventList.addAll(tmp.stream().skip(1).toList());
 
         if (!eventList.isEmpty()) {
-          taskState.getCompletedPrevTasks()
+          taskState.getCompletedPrqTasks()
             .addAll(eventList.get(0).getRoots());
         }
       }
 
       if (taskEvent.isExec()) {
-        if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks()) && !taskState.isSubmitted()) {
+        if (taskState.getPrqTasks().equals(taskState.getCompletedPrqTasks()) && !taskState.isSubmitted()) {
           submitTask(taskEvent.getId());
           taskState.setSubmitted(true);
         }
@@ -125,11 +123,11 @@ public class TaskEventProcessor {
         LOGGER.debug("taskState {}", Json.encodePrettily(taskState));
         LOGGER.debug("Send new event {}", Json.encodePrettily(eventList));
       }
-      transactionManager.commit();
-    } catch (Exception e) {
-      LOGGER.error("Catch exception on handleCreate", e);
-      transactionManager.rollback();
-    }
+//      transactionManager.commit();
+//    } catch (Exception e) {
+//      LOGGER.error("Catch exception on handleCreate", e);
+//      transactionManager.rollback();
+//    }
     return eventList;
   }
 
@@ -154,25 +152,27 @@ public class TaskEventProcessor {
 //    UUID id = UUID.fromString(taskEvent.getId());
     List<TaskEvent> eventList = new ArrayList<>();
 
-    try {
+//    try {
+//      transactionManager.begin();
       var taskState = taskStateRepo.get(taskEvent.getId());
       if (taskState==null) taskState = new TaskState();
-      if (taskState.getCompletedPrevTasks()==null)
-        taskState.setCompletedPrevTasks(new HashSet<>());
-      taskState.getCompletedPrevTasks().add(taskEvent.getNotifyFrom());
+      if (taskState.getCompletedPrqTasks()==null)
+        taskState.setCompletedPrqTasks(new HashSet<>());
+      taskState.getCompletedPrqTasks().add(taskEvent.getNotifyFrom());
       if (taskState.isComplete()) {
         eventList.addAll(notifyNext(taskEvent.getId(), taskEvent.isExec(), taskState));
-      } else if (taskState.getPrevTasks().equals(taskState.getCompletedPrevTasks())
+      } else if (taskState.getPrqTasks().equals(taskState.getCompletedPrqTasks())
         && !taskState.isSubmitted()) {
         submitTask(taskEvent.getId());
         taskState.setSubmitted(true);
       }
-
       taskStateRepo.put(taskEvent.getId(), taskState);
-    } catch (Exception e) {
-      LOGGER.error("Catch exception on handleNotify", e);
-      transactionManager.rollback();
-    }
+
+//      transactionManager.commit();
+//    } catch (Exception e) {
+//      LOGGER.error("Catch exception on handleNotify", e);
+//      transactionManager.rollback();
+//    }
     return eventList;
   }
 
@@ -181,16 +181,18 @@ public class TaskEventProcessor {
 
     List<TaskEvent> eventList = new ArrayList<>();
 
-    try {
+//    try {
+//      transactionManager.begin();
       var taskState = taskStateRepo.get(taskEvent.getId());
       if (taskState==null) taskState = new TaskState();
       taskState.setComplete(true);
       taskStateRepo.put(taskEvent.getId(), taskState);
       eventList.addAll(notifyNext(taskEvent.getId(), taskEvent.isExec(), taskState));
-    } catch (Exception e) {
-      LOGGER.error("Catch exception on handleComplete", e);
-      transactionManager.rollback();
-    }
+//      transactionManager.commit();
+//    } catch (Exception e) {
+//      LOGGER.error("Catch exception on handleComplete", e);
+//      transactionManager.rollback();
+//    }
     return eventList;
   }
 

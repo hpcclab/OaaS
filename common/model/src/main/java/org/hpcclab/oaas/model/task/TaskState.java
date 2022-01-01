@@ -5,16 +5,14 @@ import lombok.experimental.Accessors;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Data
 @Accessors(chain = true)
 public class TaskState {
   Set<String> nextTasks;
-  Set<String> prevTasks;
-  Set<String> completedPrevTasks;
+  Set<String> prqTasks;
+  Set<String> completedPrqTasks;
   boolean complete = false;
   boolean submitted = false;
 
@@ -22,10 +20,10 @@ public class TaskState {
   }
 
   @ProtoFactory
-  public TaskState(Set<String> nextTasks, Set<String> prevTasks, Set<String> completedPrevTasks, boolean complete, boolean submitted) {
+  public TaskState(Set<String> nextTasks, Set<String> prqTasks, Set<String> completedPrqTasks, boolean complete, boolean submitted) {
     this.nextTasks = nextTasks;
-    this.prevTasks = prevTasks;
-    this.completedPrevTasks = completedPrevTasks;
+    this.prqTasks = prqTasks;
+    this.completedPrqTasks = completedPrqTasks;
     this.complete = complete;
     this.submitted = submitted;
   }
@@ -36,13 +34,13 @@ public class TaskState {
   }
 
   @ProtoField(2)
-  public Set<String> getPrevTasks() {
-    return prevTasks;
+  public Set<String> getPrqTasks() {
+    return prqTasks;
   }
 
   @ProtoField(3)
-  public Set<String> getCompletedPrevTasks() {
-    return completedPrevTasks;
+  public Set<String> getCompletedPrqTasks() {
+    return completedPrqTasks;
   }
 
   @ProtoField(value = 4, defaultValue = "false")

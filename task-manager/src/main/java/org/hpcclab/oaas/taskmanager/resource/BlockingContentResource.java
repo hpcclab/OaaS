@@ -97,12 +97,13 @@ public class BlockingContentResource {
 
   private Uni<TaskCompletion> execAndWait(UUID id, String filePath) {
     var uni1 = watcher.wait(id, Duration.ofSeconds(30));
-    var uni2 = taskEventManager.submitEventWithTraversal(
-      id.toString(),
-      config.defaultTraverse(),
-      true,
-      TaskEvent.Type.CREATE
-    );
+//    var uni2 = taskEventManager.submitEventWithTraversal(
+//      id.toString(),
+//      config.defaultTraverse(),
+//      true,
+//      TaskEvent.Type.CREATE
+//    );
+    var uni2 = taskEventManager.submitCreateEvent(id.toString());
     return Uni.combine().all().unis(uni1, uni2)
       .asTuple()
       .flatMap(event -> Uni.createFrom().completionStage(completionCache.getAsync(id)));

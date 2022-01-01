@@ -2,6 +2,8 @@ package org.hpcclab.oaas.repository.init;
 
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.NearCacheMode;
+import org.infinispan.client.hotrod.configuration.TransactionMode;
+import org.infinispan.client.hotrod.transaction.lookup.GenericTransactionManagerLookup;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ public class InfinispanInit {
       <cache-container>
         <distributed-cache name="%s"
                            statistics="true"
-                           mode="SYNC">
+                           mode="ASYNC">
           <memory storage="OFF_HEAP"
                   max-size="%s"/>
           <encoding>
@@ -79,7 +81,10 @@ public class InfinispanInit {
           <memory storage="OFF_HEAP"
                   max-size="%s"/>
           <locking isolation="REPEATABLE_READ"/>
-          <transaction mode="NON_XA" locking="PESSIMISTIC"/>
+          <transaction mode="NON_XA"
+                       locking="OPTIMISTIC"/>
+           <!--  locking="PESSIMISTIC"-->
+           <!--  locking="OPTIMISTIC"-->
           <encoding>
               <key media-type="application/x-protostream"/>
               <value media-type="application/x-protostream"/>
@@ -117,6 +122,17 @@ public class InfinispanInit {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
           .nearCacheMaxEntries(1000);
       });
+    remoteCacheManager.getConfiguration()
+      .addRemoteCache("TaskState", c-> c
+          .nearCacheMode(NearCacheMode.INVALIDATED)
+          .nearCacheMaxEntries(1000)
+          .transactionMode(TransactionMode.NON_XA)
+          .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
+      );
+//    remoteCacheManager.getConfiguration()
+//      .addRemoteCache("TaskCompletion", c->
+//        c.nearCacheMode(NearCacheMode.INVALIDATED)
+//          .nearCacheMaxEntries(1000));
 //    LOGGER.info("Use hotrod configuration {}", remoteCacheManager.getConfiguration());
     remoteCacheManager.administration().getOrCreateCache("OaasObject", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
       .formatted("OaasObject", "128MB")));

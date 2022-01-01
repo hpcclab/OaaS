@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.taskmanager.service;
 
-import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.smallrye.mutiny.Uni;
@@ -8,6 +7,7 @@ import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
+import org.hpcclab.oaas.model.task.V2TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
@@ -18,10 +18,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 @ApplicationScoped
 public class TaskEventManager {
@@ -29,6 +27,8 @@ public class TaskEventManager {
 
   @Inject
   TaskEventProcessor taskEventProcessor;
+  @Inject
+  V2TaskEventProcessor v2TaskEventProcessor;
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
@@ -70,6 +70,15 @@ public class TaskEventManager {
     return vertx.executeBlocking(uni);
   }
 
+  public Uni<Void> submitCreateEvent(String objId) {
+    Uni<Void> uni = Uni.createFrom().item(() -> {
+      var event = taskEventFactory.createStartingEvent(objId);
+      v2TaskEventProcessor.processEvents(List.of(event));
+      return null;
+    });
+    return vertx.executeBlocking(uni);
+  }
+
 //  public Uni<Void> processEvents(Supplier<List<TaskEvent>> eventsSupplier) {
 //    var start = System.currentTimeMillis();
 //    Uni<Void> uni = Uni.createFrom().item(() -> {
@@ -103,11 +112,19 @@ public class TaskEventManager {
 
   public Uni<Void> submitCompletionEvent(List<TaskCompletion> taskCompletions) {
     var sample =Timer.start(meterRegistry);
+//    var events = taskCompletions.stream()
+//      .map(tc -> new TaskEvent().setId(tc.getId()).setType(TaskEvent.Type.COMPLETE))
+//      .toList();
+//    Uni<Void> uni = Uni.createFrom().item(() -> {
+//      taskEventProcessor.processEvents(events);
+//      sample.stop(timer2);
+//      return null;
+//    });
     var events = taskCompletions.stream()
-      .map(tc -> new TaskEvent().setId(tc.getId()).setType(TaskEvent.Type.COMPLETE))
+      .map(tc -> new V2TaskEvent().setId(tc.getId()).setType(V2TaskEvent.Type.COMPLETE))
       .toList();
     Uni<Void> uni = Uni.createFrom().item(() -> {
-      taskEventProcessor.processEvents(events);
+      v2TaskEventProcessor.processEvents(events);
       sample.stop(timer2);
       return null;
     });
