@@ -20,7 +20,7 @@ public class InfinispanInit {
       <cache-container>
         <distributed-cache name="%s"
                            statistics="true"
-                           mode="ASYNC">
+                           mode="SYNC">
           <memory storage="OFF_HEAP"
                   max-size="%s"/>
           <encoding>
@@ -82,7 +82,7 @@ public class InfinispanInit {
                   max-size="%s"/>
           <locking isolation="REPEATABLE_READ"/>
           <transaction mode="NON_XA"
-                       locking="OPTIMISTIC"/>
+                       locking="PESSIMISTIC"/>
            <!--  locking="PESSIMISTIC"-->
            <!--  locking="OPTIMISTIC"-->
           <encoding>
@@ -113,6 +113,10 @@ public class InfinispanInit {
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
     remoteCacheManager.getConfiguration()
+      .addRemoteCache("OaasObject", c -> {
+        c.forceReturnValues(false);
+      });
+    remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasClass", c -> {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
           .nearCacheMaxEntries(1000);
@@ -123,9 +127,14 @@ public class InfinispanInit {
           .nearCacheMaxEntries(1000);
       });
     remoteCacheManager.getConfiguration()
+      .addRemoteCache("TaskCompletion", c -> {
+        c.forceReturnValues(false);
+      });
+    remoteCacheManager.getConfiguration()
       .addRemoteCache("TaskState", c-> c
           .nearCacheMode(NearCacheMode.INVALIDATED)
           .nearCacheMaxEntries(1000)
+//          .forceReturnValues(false)
           .transactionMode(TransactionMode.NON_XA)
           .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
       );

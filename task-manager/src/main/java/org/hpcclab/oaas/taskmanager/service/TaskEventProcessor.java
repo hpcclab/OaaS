@@ -30,9 +30,8 @@ public class TaskEventProcessor {
   @RestClient
   TaskBrokerService taskBrokerService;
 
-//  GenericTransactionManagerLookup lookup = GenericTransactionManagerLookup.getInstance();
   TransactionManager transactionManager;
-//
+
   @PostConstruct
   void setup() {
 //    this.transactionManager = lookup.getTransactionManager();
