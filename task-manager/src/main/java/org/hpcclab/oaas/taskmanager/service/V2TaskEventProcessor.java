@@ -3,7 +3,7 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.micrometer.core.annotation.Timed;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hpcclab.oaas.model.task.TaskState;
+import org.hpcclab.oaas.model.proto.TaskState;
 import org.hpcclab.oaas.model.task.V2TaskEvent;
 import org.hpcclab.oaas.repository.TaskStateRepository;
 import org.hpcclab.oaas.taskmanager.TaskEventException;
@@ -51,7 +51,6 @@ public class V2TaskEventProcessor {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("handle events {}", Json.encodePrettily(taskEvent));
     try {
-
       var list = switch (taskEvent.getType()) {
         case CREATE -> handleCreate(taskEvent);
         case NOTIFY -> handleNotify(taskEvent);
@@ -138,6 +137,7 @@ public class V2TaskEventProcessor {
       transactionManager.commit();
     } catch (Exception e) {
       transactionManager.rollback();
+      throw new TaskEventException(e);
     }
 
     return eventList;

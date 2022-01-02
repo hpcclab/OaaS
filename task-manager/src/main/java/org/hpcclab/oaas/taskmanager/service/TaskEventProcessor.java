@@ -4,7 +4,7 @@ import io.micrometer.core.annotation.Timed;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.model.task.TaskEvent;
-import org.hpcclab.oaas.model.task.TaskState;
+import org.hpcclab.oaas.model.proto.TaskState;
 import org.hpcclab.oaas.repository.TaskStateRepository;
 import org.hpcclab.oaas.taskmanager.TaskEventException;
 import org.slf4j.Logger;

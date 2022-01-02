@@ -96,6 +96,6 @@ mp:
         partitions: ${oaas.tm.taskCompletionPartitions}
         batch: true
 #        pause-if-no-requests: false
-        enable:
-          auto:
-            commit: true
+#        enable:
+#          auto:
+#            commit: true

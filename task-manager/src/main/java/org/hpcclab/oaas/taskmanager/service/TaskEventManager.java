@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.Timer;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.V2TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;

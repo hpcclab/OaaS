@@ -3,7 +3,6 @@ package org.hpcclab.oaas.taskmanager.factory;
 import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.model.task.V2TaskEvent;

@@ -82,7 +82,7 @@ public class InfinispanInit {
                   max-size="%s"/>
           <locking isolation="REPEATABLE_READ"/>
           <transaction mode="NON_XA"
-                       locking="PESSIMISTIC"/>
+                       locking="OPTIMISTIC"/>
            <!--  locking="PESSIMISTIC"-->
            <!--  locking="OPTIMISTIC"-->
           <encoding>
@@ -114,17 +114,20 @@ public class InfinispanInit {
     }
     remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasObject", c -> {
-        c.forceReturnValues(false);
+        c.forceReturnValues(false)
+          .nearCacheMode(NearCacheMode.INVALIDATED)
+          .nearCacheMaxEntries(5000)
+        ;
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasClass", c -> {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000);
+          .nearCacheMaxEntries(500);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasFunction", c -> {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000);
+          .nearCacheMaxEntries(500);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("TaskCompletion", c -> {
@@ -132,9 +135,9 @@ public class InfinispanInit {
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("TaskState", c-> c
-          .nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000)
-//          .forceReturnValues(false)
+//          .nearCacheMode(NearCacheMode.INVALIDATED)
+//          .nearCacheMaxEntries(1000)
+          .forceReturnValues(false)
           .transactionMode(TransactionMode.NON_XA)
           .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
       );

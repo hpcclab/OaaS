@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasTask extends BaseTaskMessage{
+public class OaasTask extends BaseTaskMessage {
 //  String id;
   OaasObject main;
   OaasObject output;
