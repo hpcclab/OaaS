@@ -82,7 +82,7 @@ public class InfinispanInit {
                   max-size="%s"/>
           <locking isolation="REPEATABLE_READ"/>
           <transaction mode="NON_XA"
-                       locking="OPTIMISTIC"/>
+                       locking="PESSIMISTIC"/>
            <!--  locking="PESSIMISTIC"-->
            <!--  locking="OPTIMISTIC"-->
           <encoding>
@@ -135,11 +135,11 @@ public class InfinispanInit {
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("TaskState", c-> c
-//          .nearCacheMode(NearCacheMode.INVALIDATED)
-//          .nearCacheMaxEntries(1000)
+          .nearCacheMode(NearCacheMode.INVALIDATED)
+          .nearCacheMaxEntries(1000)
           .forceReturnValues(false)
-          .transactionMode(TransactionMode.NON_XA)
-          .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
+//          .transactionMode(TransactionMode.NON_XA)
+//          .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
       );
 //    remoteCacheManager.getConfiguration()
 //      .addRemoteCache("TaskCompletion", c->
@@ -154,7 +154,7 @@ public class InfinispanInit {
       .formatted("OaasFunction", "16MB")));
     remoteCacheManager.administration().getOrCreateCache("TaskCompletion", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
       .formatted("TaskCompletion", "128MB")));
-    remoteCacheManager.administration().getOrCreateCache("TaskState", new XMLStringConfiguration(TEMPLATE_TX_CONFIG
+    remoteCacheManager.administration().getOrCreateCache("TaskState", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
       .formatted("TaskState", "128MB")));
 
 

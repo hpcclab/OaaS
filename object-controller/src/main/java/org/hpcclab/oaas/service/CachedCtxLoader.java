@@ -29,6 +29,7 @@ public class CachedCtxLoader {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
+      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
       .map(ctx::setMain)
       .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
       .flatMap(ignore -> objectRepo.listByIdsAsync(request.getAdditionalInputs()))
