@@ -74,6 +74,10 @@ public class V2TaskEventProcessor {
     var version = taskStateMetadata==null ? null:taskStateMetadata.getVersion();
     var taskState = taskStateMetadata==null ? new TaskState():taskStateMetadata.getValue();
 
+    if (taskEvent.isEntry() && taskStateMetadata != null) {
+      return List.of();
+    }
+
     // 1 check completion
     if (taskState.isComplete()) {
       return List.of(new V2TaskEvent().setType(V2TaskEvent.Type.NOTIFY).setId(taskEvent.getSource()).setSource(taskEvent.getId()).setExec(taskEvent.isExec()));

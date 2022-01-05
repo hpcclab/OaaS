@@ -19,6 +19,7 @@ public class V2TaskEvent {
   Set<String> prqTasks;
   String source;
   boolean exec = true;
+  boolean entry = false;
 
   public enum Type {
     CREATE, NOTIFY, COMPLETE

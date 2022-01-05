@@ -95,6 +95,7 @@ public class TaskEventFactory {
       .setId(id)
       .setType(V2TaskEvent.Type.CREATE)
       .setExec(true)
+      .setEntry(true)
       .generatePrq(origin);
   }
   public List<V2TaskEvent> createPrqEvent(V2TaskEvent event,
