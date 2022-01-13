@@ -9,7 +9,7 @@
 
 == Architecture
 === High Level
-image:doc/diagrams/oaas_architecture_v4.dio.png[]
+image:doc/diagrams/oaas_architecture_v5.dio.png[]
 
 === Flow
 ==== Development
