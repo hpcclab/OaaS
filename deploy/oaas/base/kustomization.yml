@@ -1,20 +1,18 @@
 resources:
   - env-configmap.yaml
-  # job-provisioner
+  # kube-provisioner
   - kp.yml
   - kp-rb.yml
   - kp-trigger.yml
   # task-generator
   - tm.yml
   # object-controller
-#  - oc-postgres.yml
   - infinispan.yml
   - oc.yml
   # task-completion-handler
   - tch.yml
   # CDN
-#  - cdn.yml
-  - cdn2.yml
+  - cdn.yml
 #  - monitor.yml
 
 secretGenerator:

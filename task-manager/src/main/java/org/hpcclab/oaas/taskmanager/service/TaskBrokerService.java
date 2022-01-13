@@ -17,7 +17,7 @@ public interface TaskBrokerService {
 
   @POST
   @ClientHeaderParam(name = "ce-specversion", value = "1.0")
-  @ClientHeaderParam(name = "ce-source", value = "oaas/task-generator")
+  @ClientHeaderParam(name = "ce-source", value = "oaas/task-manager")
   @ClientHeaderParam(name = "ce-type", value = "oaas.task")
   void submitTask(@HeaderParam("ce-id") String id,
                   @HeaderParam("ce-function") String function,

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.mapper;
+package org.hpcclab.oaas.repository.mapper;
 
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
@@ -17,4 +17,5 @@ public interface ModelMapper {
   DeepOaasObject deep(OaasObject object);
   @Mapping(target = "functions", ignore = true)
   DeepOaasClass deep(OaasClass cls);
+  OaasClass copy(OaasClass cls);
 }

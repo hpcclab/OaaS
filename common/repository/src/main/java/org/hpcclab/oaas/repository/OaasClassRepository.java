@@ -2,7 +2,7 @@ package org.hpcclab.oaas.repository;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.mapper.ModelMapper;
+import org.hpcclab.oaas.repository.mapper.ModelMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;

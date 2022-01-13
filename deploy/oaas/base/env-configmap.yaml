@@ -6,12 +6,8 @@ data:
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   OAAS_OC_TASKGENERATORURL: http://task-manager
   OAAS_OC_PROVISIONTOPIC: msc-provisions
-  OAAS_SC_KSQLURL: http://ksqldb-server
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/msc/default
-  OAAS_TM_TASKTOPIC: msc-tasks
-#  OAAS_TM_TASKTOPIC: knative-broker-msc-default
-  OAAS_TM_TASKEVENTTOPIC: msc-task-events
   OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TM_TASKCOMPLETIONPARTITIONS: '1'
   OAAS_KP_TASKTOPIC: msc-tasks
@@ -24,6 +20,9 @@ data:
   INFINISPAN_SERVER: oaas-infinispan:11222
   INFINISPAN_USERNAME: oaas
   INFINISPAN_PASSWORD: oaas
+  OAAS_REPO_OBJECT_PERSIST: 'false'
+  OAAS_REPO_STATE_PERSIST: 'false'
+  OAAS_REPO_COMPLETION_PERSIST: 'false'
 kind: ConfigMap
 metadata:
   name: oaas-env

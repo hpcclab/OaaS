@@ -2,6 +2,7 @@ package org.hpcclab.oaas.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.handler.FunctionExecContext;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionCallRequest;
@@ -15,8 +16,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class CachedCtxLoader {
-  private static final Logger LOGGER = LoggerFactory.getLogger( CachedCtxLoader.class );
+public class ContextLoader {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ContextLoader.class );
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
@@ -25,7 +26,7 @@ public class CachedCtxLoader {
   OaasClassRepository clsRepo;
 
 
-  public Uni<FunctionExecContext> loadCtx(FunctionCallRequest request) {
+  public Uni<FunctionExecContext> loadCtxAsync(FunctionCallRequest request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
@@ -36,7 +37,7 @@ public class CachedCtxLoader {
       .map(ctx::setAdditionalInputs);
   }
 
-  public FunctionExecContext loadCtxBlocking(FunctionCallRequest request) {
+  public FunctionExecContext loadCtx(FunctionCallRequest request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     var obj = objectRepo.get(request.getTarget());
@@ -60,14 +61,14 @@ public class CachedCtxLoader {
       .map(ctx::setOutputCls)
       .flatMap(ignore -> clsRepo.getAsync(ctx.getMain().getCls()))
       .map(ctx::setMainCls)
-      .map(ignore -> {
+      .map(Unchecked.function(ignore -> {
         var binding = clsRepo.findFunction(
           ctx.getMainCls(), funcName);
         if (binding.isEmpty()) throw new NoStackException(
           "Function(" + funcName + ") can be not executed on object", 400);
         ctx.setFunctionAccess(binding.get().getAccess());
         return ctx;
-      });
+      }));
   }
 
   public FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
@@ -94,8 +95,8 @@ public class CachedCtxLoader {
     return ctx;
   }
 
-  public Uni<FunctionExecContext> loadCtx(FunctionExecContext baseCtx,
-                                          OaasWorkflowStep step) {
+  public Uni<FunctionExecContext> loadCtxAsync(FunctionExecContext baseCtx,
+                                               OaasWorkflowStep step) {
     var newCtx = new FunctionExecContext();
     newCtx.setParent(baseCtx);
     newCtx.setArgs(baseCtx.getArgs());

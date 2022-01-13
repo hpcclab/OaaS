@@ -4,6 +4,20 @@ metadata:
   name: msc
 spec:
   kafka:
+    template:
+      pod:
+        metadata:
+          labels:
+            cluster: oaas-kafka
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      cluster: oaas-kafka
+                  topologyKey: "kubernetes.io/hostname"
     replicas: 3
     version: 3.0.0
     listeners:

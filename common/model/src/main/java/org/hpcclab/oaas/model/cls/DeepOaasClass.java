@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,4 +20,5 @@ public class DeepOaasClass {
   OaasObjectState.StateType stateType;
   Set<DeepOaasFunctionBinding> functions;
   StateSpecification stateSpec;
+  List<String> parents;
 }

@@ -6,8 +6,6 @@ info:
 paths:
   /api/task-exec:
     post:
-      tags:
-      - Task Exec Resource
       requestBody:
         content:
           application/json:

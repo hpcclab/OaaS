@@ -28,17 +28,6 @@ spec:
                 name: task-manager
                 port:
                   number: 80
-    - host: "ifnp.oaas.10.131.36.27.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: oaas-infinispan
-                port:
-                  number: 11222
-
     - host: "cdn.10.131.36.27.nip.io"
       http:
         paths:

@@ -15,6 +15,27 @@ import javax.inject.Inject;
 public class InfinispanInit {
   private static final Logger LOGGER = LoggerFactory.getLogger(InfinispanInit.class);
   // language=xml
+  private static final String TEMPLATE_MEM_DIST_CONFIG = """
+    <infinispan>
+      <cache-container>
+        <distributed-cache name="%s"
+                           statistics="true"
+                           mode="ASYNC">
+          <memory storage="OFF_HEAP"
+                  max-size="%s"/>
+          <encoding>
+              <key media-type="application/x-protostream"/>
+              <value media-type="application/x-protostream"/>
+          </encoding>
+          <partition-handling when-split="ALLOW_READ_WRITES"
+                              merge-policy="PREFERRED_NON_NULL"/>
+          <state-transfer timeout='300000'/>
+        </distributed-cache>
+      </cache-container>
+    </infinispan>
+     """;
+
+  // language=xml
   private static final String TEMPLATE_DIST_CONFIG = """
     <infinispan>
       <cache-container>
@@ -107,17 +128,23 @@ public class InfinispanInit {
 
   @Inject
   RemoteCacheManager remoteCacheManager;
+  @Inject
+  RepositoryConfig repositoryConfig;
 
   public void setup() {
     if (remoteCacheManager==null) {
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
+    var objectCacheConfig = repositoryConfig.object();
+    var completionCacheConfig = repositoryConfig.completion();
+    var stateCacheConfig = repositoryConfig.completion();
     remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasObject", c -> {
-        c.forceReturnValues(false)
-          .nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(5000)
-        ;
+        if (objectCacheConfig.nearCacheMaxEntry() > 0) {
+          c.nearCacheMode(NearCacheMode.INVALIDATED)
+            .nearCacheMaxEntries(objectCacheConfig.nearCacheMaxEntry());
+        }
+        c.forceReturnValues(false);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("OaasClass", c -> {
@@ -131,31 +158,39 @@ public class InfinispanInit {
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache("TaskCompletion", c -> {
+        if (completionCacheConfig.nearCacheMaxEntry() > 0) {
+          c.nearCacheMode(NearCacheMode.INVALIDATED)
+            .nearCacheMaxEntries(completionCacheConfig.nearCacheMaxEntry());
+        }
         c.forceReturnValues(false);
       });
     remoteCacheManager.getConfiguration()
-      .addRemoteCache("TaskState", c-> c
-          .nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000)
-          .forceReturnValues(false)
-//          .transactionMode(TransactionMode.NON_XA)
-//          .transactionManagerLookup(GenericTransactionManagerLookup.getInstance())
-      );
-//    remoteCacheManager.getConfiguration()
-//      .addRemoteCache("TaskCompletion", c->
-//        c.nearCacheMode(NearCacheMode.INVALIDATED)
-//          .nearCacheMaxEntries(1000));
-//    LOGGER.info("Use hotrod configuration {}", remoteCacheManager.getConfiguration());
-    remoteCacheManager.administration().getOrCreateCache("OaasObject", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
-      .formatted("OaasObject", "128MB")));
+      .addRemoteCache("TaskState", c-> {
+        if (stateCacheConfig.nearCacheMaxEntry() > 0) {
+          c.nearCacheMode(NearCacheMode.INVALIDATED)
+            .nearCacheMaxEntries(stateCacheConfig.nearCacheMaxEntry());
+        }
+        c.forceReturnValues(false);
+      });
+
+    var distTemplate = objectCacheConfig.persist() ?
+      TEMPLATE_DIST_CONFIG : TEMPLATE_MEM_DIST_CONFIG;
+    remoteCacheManager.administration().getOrCreateCache("OaasObject", new XMLStringConfiguration(distTemplate
+      .formatted("OaasObject", objectCacheConfig.maxSize())));
     remoteCacheManager.administration().getOrCreateCache("OaasClass", new XMLStringConfiguration(TEMPLATE_REP_CONFIG
       .formatted("OaasClass", "16MB")));
     remoteCacheManager.administration().getOrCreateCache("OaasFunction", new XMLStringConfiguration(TEMPLATE_REP_CONFIG
       .formatted("OaasFunction", "16MB")));
-    remoteCacheManager.administration().getOrCreateCache("TaskCompletion", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
-      .formatted("TaskCompletion", "128MB")));
-    remoteCacheManager.administration().getOrCreateCache("TaskState", new XMLStringConfiguration(TEMPLATE_DIST_CONFIG
-      .formatted("TaskState", "128MB")));
+
+    distTemplate = completionCacheConfig.persist() ?
+      TEMPLATE_DIST_CONFIG : TEMPLATE_MEM_DIST_CONFIG;
+    remoteCacheManager.administration().getOrCreateCache("TaskCompletion", new XMLStringConfiguration(distTemplate
+      .formatted("TaskCompletion", completionCacheConfig.maxSize())));
+
+    distTemplate = stateCacheConfig.persist() ?
+      TEMPLATE_DIST_CONFIG : TEMPLATE_MEM_DIST_CONFIG;
+    remoteCacheManager.administration().getOrCreateCache("TaskState", new XMLStringConfiguration(distTemplate
+      .formatted("TaskState", completionCacheConfig.maxSize())));
 
 
   }

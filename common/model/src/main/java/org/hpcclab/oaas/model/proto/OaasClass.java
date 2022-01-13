@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,17 +20,19 @@ public class OaasClass {
   private OaasObjectState.StateType stateType;
   private Set<OaasFunctionBinding> functions;
   private StateSpecification stateSpec;
+  private List<String> parents;
 
   public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec) {
+  public OaasClass(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, List<String> parents) {
     this.name = name;
     this.objectType = objectType;
     this.stateType = stateType;
     this.functions = functions;
     this.stateSpec = stateSpec;
+    this.parents = parents;
   }
 
   @ProtoField(1)
@@ -57,7 +60,13 @@ public class OaasClass {
     return stateSpec;
   }
 
+  @ProtoField(6)
+  public List<String> getParents() {
+    return parents;
+  }
+
   public void validate() {
     if (stateSpec==null) stateSpec = new StateSpecification();
   }
+
 }

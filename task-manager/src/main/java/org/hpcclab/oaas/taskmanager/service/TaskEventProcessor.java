@@ -38,7 +38,7 @@ public class TaskEventProcessor {
     this.transactionManager = taskStateRepo.getRemoteCache().getTransactionManager();
   }
 
-  @Timed(value = "processEvents", percentiles={0.5,0.75,0.95,0.99})
+//  @Timed(value = "processEvents", percentiles={0.5,0.75,0.95,0.99})
   public void processEvents(List<TaskEvent> taskEvents) {
     for (TaskEvent taskEvent : taskEvents) {
       handle(taskEvent);

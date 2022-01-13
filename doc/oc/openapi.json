@@ -7,7 +7,6 @@
   "paths" : {
     "/api/batch" : {
       "post" : {
-        "tags" : [ "Batch Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -38,7 +37,6 @@
     },
     "/api/classes" : {
       "get" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -71,7 +69,6 @@
         }
       },
       "post" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
@@ -110,7 +107,6 @@
     },
     "/api/classes/{name}" : {
       "get" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -133,7 +129,6 @@
         }
       },
       "delete" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -156,7 +151,6 @@
         }
       },
       "patch" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -190,7 +184,6 @@
     },
     "/api/classes/{name}/deep" : {
       "get" : {
-        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -215,7 +208,6 @@
     },
     "/api/functions" : {
       "get" : {
-        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -248,7 +240,6 @@
         }
       },
       "post" : {
-        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
@@ -293,7 +284,6 @@
     },
     "/api/functions/{funcName}" : {
       "get" : {
-        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "funcName",
           "in" : "path",
@@ -318,7 +308,6 @@
     },
     "/api/objects" : {
       "get" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -351,7 +340,6 @@
         }
       },
       "post" : {
-        "tags" : [ "Object Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -377,7 +365,6 @@
     },
     "/api/objects/{id}" : {
       "get" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -402,7 +389,6 @@
     },
     "/api/objects/{id}/context" : {
       "get" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -427,7 +413,6 @@
     },
     "/api/objects/{id}/deep" : {
       "get" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -452,7 +437,6 @@
     },
     "/api/objects/{id}/exec" : {
       "post" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -486,7 +470,6 @@
     },
     "/api/objects/{id}/origin" : {
       "get" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -525,7 +508,6 @@
     },
     "/api/objects/{id}/r-exec" : {
       "post" : {
-        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -694,6 +676,12 @@
           },
           "objectType" : {
             "$ref" : "#/components/schemas/OaasObjectType"
+          },
+          "parents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "stateSpec" : {
             "$ref" : "#/components/schemas/StateSpecification"
@@ -869,6 +857,12 @@
           },
           "objectType" : {
             "$ref" : "#/components/schemas/OaasObjectType"
+          },
+          "parents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "stateSpec" : {
             "$ref" : "#/components/schemas/StateSpecification"

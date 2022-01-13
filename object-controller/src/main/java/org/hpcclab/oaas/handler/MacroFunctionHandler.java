@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.CachedCtxLoader;
+import org.hpcclab.oaas.service.ContextLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class MacroFunctionHandler {
   @Inject
   FunctionRouter router;
   @Inject
-  CachedCtxLoader cachedCtxLoader;
+  ContextLoader cachedCtxLoader;
 
   public void validate(FunctionExecContext context) {
     if (context.getMainCls().getObjectType()!=OaasObjectType.COMPOUND)
@@ -80,7 +80,7 @@ public class MacroFunctionHandler {
 //          .map(ir -> resolveTarget(context, map, ir))
 //          .toList();
         LOGGER.trace("Execute step {}", step);
-        return cachedCtxLoader.loadCtx(context, step)
+        return cachedCtxLoader.loadCtxAsync(context, step)
 //        return contextLoader.loadCtx(context, target, step)
 //          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))
           .flatMap(newCtx -> router.functionCall(newCtx))
