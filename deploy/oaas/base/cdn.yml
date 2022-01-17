@@ -19,8 +19,8 @@ data:
 
         # main cache block - when upstream responds with a 302, it's caught by
         # error_page and passed off to the (nearly identical) @handle_redirects
-        location ~ "^/([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})/(.*)$" {
-          proxy_pass      http://task-manager.msc.svc.cluster.local/contents/$1/$2;
+        location ~ "^/(.*)$" {
+          proxy_pass      http://task-manager.msc.svc.cluster.local/oae/$1;
           proxy_cache       steam;
           proxy_cache_key   $uri;
           proxy_cache_valid 200 206 3000h;

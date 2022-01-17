@@ -1,13 +1,13 @@
-package org.hpcclab.oaas.handler;
+package org.hpcclab.oaas.repository.function.handler;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionAccessModifier;
-import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.function.FunctionAccessModifier;
+import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.StorageAllocator;
+import org.hpcclab.oaas.repository.storage.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,17 +26,11 @@ public class TaskFunctionHandler {
     var access = context.getFunctionAccess();
 
     if (context.getEntry()==main && access!=FunctionAccessModifier.PUBLIC) {
-      throw new NoStackException("The object(id='%s') has a function(name='%s') without PUBLIC access"
+      throw new FunctionValidationException("The object(id='%s') has a function(name='%s') without PUBLIC access"
         .formatted(main.getId(), func.getName())
       );
     }
 
-    if (!context.isReactive()) {
-      if (context.getOutputCls().getStateType()
-        ==OaasObjectState.StateType.SEGMENTABLE) {
-        throw new FunctionValidationException("Can not execute actively the function with the output as segmentable resource type");
-      }
-    }
   }
 
   public Uni<FunctionExecContext> call(FunctionExecContext ctx) {

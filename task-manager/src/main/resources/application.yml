@@ -19,12 +19,9 @@
 oaas:
   tm:
     objectControllerUrl: http://localhost:8088
-    taskEventTopic: oaas-task-events
-    taskTopic: oaas-tasks
     taskCompletionTopic: oaas-task-completions
     taskCompletionPartitions: 10
     defaultTraverse: 3
-    stateStoreName: task-state
 
 quarkus:
   http:

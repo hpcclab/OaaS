@@ -6,10 +6,10 @@ functions:
     provision:
       knative:
         image: core.harbor.10.131.36.27.nip.io/oaas/empty-function:0.2.3
-        minScale: 6
+        minScale: 0
 #        maxScale: 3
 #        concurrency: 128
-        requestsCpu: '1'
+        requestsCpu: '0.1'
         limitsCpu: '1'
 classes:
   - name: example.empty

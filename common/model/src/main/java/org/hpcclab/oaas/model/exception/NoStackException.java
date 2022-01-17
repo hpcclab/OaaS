@@ -6,24 +6,28 @@ public class NoStackException extends RuntimeException{
 
   public static final NoStackException INSTANCE = new NoStackException("INSTANCE",500);
 
-  int code = 500;
+  int code;
 
   public NoStackException(int code) {
     this.code = code;
   }
 
   public NoStackException(String message) {
-    super(message, null, true, true);
+    this(message, null, 500);
   }
 
 
   public NoStackException(String message, int code) {
-    super(message, null, true, true);
-    code = code;
+    this(message, null, code);
   }
 
   public NoStackException(String message, Throwable cause) {
+    this(message, cause, 500);
+  }
+
+  public NoStackException(String message, Throwable cause, int code) {
     super(message, cause, false, false);
+    this.code = code;
   }
 
   public int getCode() {
@@ -36,7 +40,10 @@ public class NoStackException extends RuntimeException{
   }
 
   public static NoStackException notFoundObject400(UUID uuid) {
-    return new NoStackException("Not found object(id='" + uuid + "')", 400);
+    return notFoundObject(uuid, 400);
+  }
+  public static NoStackException notFoundObject(UUID uuid, int code) {
+    return new NoStackException("Not found object(id='" + uuid + "')", code);
   }
 
 

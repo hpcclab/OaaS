@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 @ConfigMapping(prefix = "oaas.oc", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface OcConfig {
-  String s3PrefixUrl();
+//  String s3PrefixUrl();
   @WithDefault("http://localhost:8088")
   String taskGeneratorUrl();
   String provisionTopic();

@@ -5,7 +5,7 @@ import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.ObjectAccessExpression;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
@@ -141,7 +141,7 @@ public class TestUtils {
       .extract().body().as(TaskContext.class);
   }
 
-  public static OaasObject reactiveCall(FunctionCallRequest request) {
+  public static OaasObject reactiveCall(ObjectAccessExpression request) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(request))

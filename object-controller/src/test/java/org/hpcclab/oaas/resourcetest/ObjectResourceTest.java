@@ -3,7 +3,7 @@ package org.hpcclab.oaas.resourcetest;
 import io.quarkus.test.junit.QuarkusTest;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.ObjectAccessExpression;
 import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -41,7 +41,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
     obj = TestUtils.create(obj);
 
     var newObj = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("builtin.logical.copy").setTarget(obj.getId()));
+      new ObjectAccessExpression().setFunctionName("builtin.logical.copy").setTarget(obj.getId()));
     var taskCtx = TestUtils.getTaskContext(newObj.getId());
     Assertions.assertEquals("builtin.logical.copy", taskCtx.getFunction().getName());
   }
@@ -55,11 +55,11 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
     obj = TestUtils.create(obj);
 
     var obj1 = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("test.dummy.task").setTarget(obj.getId()));
+      new ObjectAccessExpression().setFunctionName("test.dummy.task").setTarget(obj.getId()));
     var obj2 = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("test.dummy.task").setTarget(obj1.getId()));
+      new ObjectAccessExpression().setFunctionName("test.dummy.task").setTarget(obj1.getId()));
     var obj3 = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("test.dummy.task").setTarget(obj2.getId()));
+      new ObjectAccessExpression().setFunctionName("test.dummy.task").setTarget(obj2.getId()));
 
     given()
       .pathParam("id", obj3.getId().toString())
@@ -123,6 +123,6 @@ private static final Logger LOGGER = LoggerFactory.getLogger( ObjectResourceTest
       .log().ifValidationFails();
 
     var newObj = TestUtils.reactiveCall(
-      new FunctionCallRequest().setFunctionName("test.dummy.macro").setTarget(compound.getId()));
+      new ObjectAccessExpression().setFunctionName("test.dummy.macro").setTarget(compound.getId()));
   }
 }

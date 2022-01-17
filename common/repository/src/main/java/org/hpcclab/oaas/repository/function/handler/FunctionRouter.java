@@ -1,14 +1,11 @@
-package org.hpcclab.oaas.handler;
+package org.hpcclab.oaas.repository.function.handler;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.ObjectAccessExpression;
+import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
-import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
-import org.hpcclab.oaas.service.ContextLoader;
-import org.hpcclab.oaas.iface.service.TaskExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +26,6 @@ public class FunctionRouter {
   @Inject
   TaskFunctionHandler taskFunctionHandler;
   @Inject
-  TaskExecutionService resourceRequestService;
-  @Inject
   ContextLoader cachedCtxLoader;
 
   public Uni<FunctionExecContext> functionCall(FunctionExecContext context) {
@@ -42,43 +37,16 @@ public class FunctionRouter {
     };
   }
 
-  public Uni<FunctionExecContext> functionCallBlocking(FunctionCallRequest request,
-                                                  boolean reactive) {
+  public Uni<FunctionExecContext> functionCallBlocking(ObjectAccessExpression request) {
     var ctx = cachedCtxLoader.loadCtx(request);
-    ctx.setReactive(reactive);
     validate(ctx);
     return functionCall(ctx);
   }
-    public Uni<FunctionExecContext> functionCall(FunctionCallRequest request,
-                                               boolean reactive) {
+    public Uni<FunctionExecContext> functionCall(ObjectAccessExpression request) {
     return cachedCtxLoader.loadCtxAsync(request)
-      .invoke(ctx -> ctx.setReactive(reactive))
       .invoke(this::validate)
       .flatMap(this::functionCall);
 
-  }
-
-  public Uni<OaasObject> reactiveCall(FunctionCallRequest request) {
-    return functionCall(request, true)
-      .map(FunctionExecContext::getOutput);
-  }
-
-  public Uni<OaasObject> activeCall(FunctionCallRequest request) {
-    return functionCall(request, false)
-      .call(ctx -> Multi.createFrom()
-        .iterable(ctx.getTaskOutputs())
-        .onItem().transformToUniAndMerge(obj -> {
-          var taskExecRequest = new TaskExecRequest()
-            .setId(obj.getId().toString());
-//            .setOriginList(List.of(
-//              Map.of(obj.getId().toString(), obj.getOrigin())
-//            ));
-          LOGGER.debug("Submit task[id='{}']", obj.getId());
-          return resourceRequestService.request(taskExecRequest);
-        })
-        .collect().last()
-      )
-      .map(FunctionExecContext::getOutput);
   }
 
 

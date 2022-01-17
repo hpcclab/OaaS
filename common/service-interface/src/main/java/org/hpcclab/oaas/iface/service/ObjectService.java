@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.ObjectAccessExpression;
 import org.hpcclab.oaas.model.proto.OaasObject;
 
 import javax.validation.Valid;
@@ -13,7 +13,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,10 +46,10 @@ public interface ObjectService {
 
   @POST
   @Path("{id}/exec")
-  Uni<OaasObject> activeFuncCall(String id, FunctionCallRequest request);
+  Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request);
 
   @POST
   @Path("{id}/r-exec")
-  Uni<OaasObject> reactiveFuncCall(String id, FunctionCallRequest request);
+  Uni<OaasObject> reactiveFuncCall(String id, ObjectAccessExpression request);
 
 }

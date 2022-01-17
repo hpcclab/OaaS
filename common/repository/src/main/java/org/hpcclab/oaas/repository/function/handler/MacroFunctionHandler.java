@@ -1,15 +1,16 @@
-package org.hpcclab.oaas.handler;
+package org.hpcclab.oaas.repository.function.handler;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.service.ContextLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,9 @@ public class MacroFunctionHandler {
 
   public void validate(FunctionExecContext context) {
     if (context.getMainCls().getObjectType()!=OaasObjectType.COMPOUND)
-      throw new NoStackException("Object must be COMPOUND").setCode(400);
+      throw new FunctionValidationException("Object must be COMPOUND");
     if (context.getFunction().getType()!=OaasFunctionType.MACRO)
-      throw new NoStackException("Function must be MACRO").setCode(400);
+      throw new FunctionValidationException("Function must be MACRO");
   }
 
   private void setupMap(FunctionExecContext ctx) {

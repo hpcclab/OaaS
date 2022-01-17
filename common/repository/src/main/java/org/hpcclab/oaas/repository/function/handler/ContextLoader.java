@@ -1,11 +1,11 @@
-package org.hpcclab.oaas.service;
+package org.hpcclab.oaas.repository.function.handler;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
-import org.hpcclab.oaas.handler.FunctionExecContext;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.function.FunctionCallRequest;
+import org.hpcclab.oaas.model.function.ObjectAccessExpression;
+import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.*;
@@ -26,24 +26,24 @@ public class ContextLoader {
   OaasClassRepository clsRepo;
 
 
-  public Uni<FunctionExecContext> loadCtxAsync(FunctionCallRequest request) {
+  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessExpression request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
       .map(ctx::setMain)
       .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
-      .flatMap(ignore -> objectRepo.listByIdsAsync(request.getAdditionalInputs()))
+      .flatMap(ignore -> objectRepo.listByIdsAsync(request.getInputs()))
       .map(ctx::setAdditionalInputs);
   }
 
-  public FunctionExecContext loadCtx(FunctionCallRequest request) {
+  public FunctionExecContext loadCtx(ObjectAccessExpression request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     var obj = objectRepo.get(request.getTarget());
     ctx.setMain(obj);
     setClsAndFunc(ctx, request.getFunctionName());
-    var inputIds = request.getAdditionalInputs();
+    var inputIds = request.getInputs();
     var inputs =objectRepo.listByIds(inputIds);
     ctx.setAdditionalInputs(inputs);
     return ctx;

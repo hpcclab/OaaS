@@ -7,12 +7,12 @@ import io.smallrye.config.WithDefault;
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
   String objectControllerUrl();
-  @WithDefault("task-state")
-  String stateStoreName();
-  @WithDefault("oaas-task-events")
-  String taskEventTopic();
-  @WithDefault("oaas-tasks")
-  String taskTopic();
+//  @WithDefault("task-state")
+//  String stateStoreName();
+//  @WithDefault("oaas-task-events")
+//  String taskEventTopic();
+//  @WithDefault("oaas-tasks")
+//  String taskTopic();
   @WithDefault("oaas-task-completions")
   String taskCompletionTopic();
   @WithDefault("10")
@@ -22,4 +22,6 @@ public interface TaskManagerConfig {
   @WithDefault("true")
   boolean enableCloudEventHeaders();
   String brokerUrl();
+  @WithDefault("300")
+  int blockingTimeout();
 }

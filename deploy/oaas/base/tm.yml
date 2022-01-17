@@ -5,7 +5,7 @@ metadata:
   labels:
     app: task-manager
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: task-manager
@@ -28,6 +28,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
+            - configMapRef:
+                name: msc-bucket
+          env:
+            - name: OAAS_SA_S3PREFIXURL
+              value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-manager
           ports:
             - containerPort: 8080

@@ -1,9 +1,8 @@
-package org.hpcclab.oaas.handler;
+package org.hpcclab.oaas.model.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasFunction;
@@ -21,7 +20,7 @@ public class FunctionExecContext {
   OaasObject main;
   OaasClass mainCls;
   OaasObject entry;
-  boolean reactive = true;
+//  boolean reactive = true;
   OaasFunction function;
   OaasClass outputCls;
   OaasObject output;

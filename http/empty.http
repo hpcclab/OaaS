@@ -23,23 +23,16 @@ Content-Type: application/json
 > {%
 client.global.set("obj_0_id", response.body.id)
 %}
-###
-POST {{oc}}/api/objects/{{obj_0_id}}/r-exec
-Accept: application/json
-Content-Type: application/json
 
-{
-  "target": "{{obj_0_id}}",
-  "functionName": "example.empty.function",
-  "args": {}
-}
+###
+GET {{cdn}}/{{obj_0_id}}
+###
+GET {{cdn}}/{{obj_0_id}}:example.empty.function()
 
 > {%
 client.global.set("obj_1_id", response.body.id)
 %}
-
 ###
 GET {{cdn}}/{{obj_1_id}}/tmp
-
 ###
-GET {{tm}}/contents/{{obj_1_id}}/tmp
+GET {{cdn}}/{{obj_0_id}}:example.empty.function()/tmp

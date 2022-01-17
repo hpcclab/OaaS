@@ -12,19 +12,13 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasTask extends BaseTaskMessage {
-//  String id;
+public class OaasTask {
+  String id;
   OaasObject main;
   OaasObject output;
   OaasFunction function;
   List<OaasObject> additionalInputs = List.of();
   String requestFile;
-
-  @Override
-  public OaasTask setId(String id) {
-    this.id = id;
-    return this;
-  }
 
   public static String createId(OaasObject outputObj, String requestFile) {
     if (requestFile != null &&
@@ -33,12 +27,6 @@ public class OaasTask extends BaseTaskMessage {
     else
       return outputObj.getId().toString();
   }
-//  public static String createId(DeepOaasObjectDto outputObj, String requestFile) {
-//    if (outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
-//      return outputObj.getId().toString() + "/" + requestFile;
-//    else
-//      return outputObj.getId().toString();
-//  }
 
   public static String createId(String oid, String requestFile) {
     if (requestFile == null) return oid;
