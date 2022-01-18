@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
       <artifactId>model</artifactId>
-      <version>0.2.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
