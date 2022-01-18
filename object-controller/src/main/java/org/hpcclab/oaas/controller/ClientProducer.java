@@ -1,4 +1,4 @@
-package org.hpcclab.oaas;
+package org.hpcclab.oaas.controller;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.hpcclab.oaas.iface.service.TaskExecutionService;

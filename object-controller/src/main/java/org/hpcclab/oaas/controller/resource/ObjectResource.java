@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.resource;
+package org.hpcclab.oaas.controller.resource;
 
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;

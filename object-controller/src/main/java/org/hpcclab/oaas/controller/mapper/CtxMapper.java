@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.mapper;
+package org.hpcclab.oaas.controller.mapper;
 
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.proto.OaasClass;

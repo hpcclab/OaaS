@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.resource;
+package org.hpcclab.oaas.controller.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,10 +6,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.iface.service.FunctionService;
-import org.hpcclab.oaas.mapper.CtxMapper;
+import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

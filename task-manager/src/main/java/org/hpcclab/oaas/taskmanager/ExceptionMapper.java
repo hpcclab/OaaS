@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.ConstraintViolationException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
@@ -26,13 +25,13 @@ public class ExceptionMapper {
       .build();
   }
 
-  @ServerExceptionMapper(WebApplicationException.class)
-  public Response exceptionMapper(WebApplicationException webApplicationException) {
-    return Response.fromResponse(webApplicationException.getResponse())
-      .entity(new JsonObject()
-        .put("msg", webApplicationException.getMessage()))
-      .build();
-  }
+//  @ServerExceptionMapper(WebApplicationException.class)
+//  public Response exceptionMapper(WebApplicationException webApplicationException) {
+//    return Response.fromResponse(webApplicationException.getResponse())
+//      .entity(new JsonObject()
+//        .put("msg", webApplicationException.getMessage()))
+//      .build();
+//  }
 
   @ServerExceptionMapper(NoStackException.class)
   public Response exceptionMapper(NoStackException noStackException) {

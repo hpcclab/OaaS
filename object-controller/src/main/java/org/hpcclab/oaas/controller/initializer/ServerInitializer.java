@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.initializer;
+package org.hpcclab.oaas.controller.initializer;
 
 import io.quarkus.runtime.StartupEvent;
 import org.hpcclab.oaas.repository.init.InfinispanInit;

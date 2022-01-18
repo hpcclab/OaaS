@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.resource;
+package org.hpcclab.oaas.controller.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

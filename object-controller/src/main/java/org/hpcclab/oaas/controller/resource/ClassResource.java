@@ -1,10 +1,10 @@
-package org.hpcclab.oaas.resource;
+package org.hpcclab.oaas.controller.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.mapper.CtxMapper;
+import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.repository.OaasClassRepository;

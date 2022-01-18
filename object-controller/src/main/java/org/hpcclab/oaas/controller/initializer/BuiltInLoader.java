@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.initializer;
+package org.hpcclab.oaas.controller.initializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
