@@ -5,12 +5,12 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.2.0
+        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.2.2
         minScale: 0
-        maxScale: 6
-        concurrency: 1
+        maxScale: 3
+        concurrency: 5
         requestsCpu: '2'
-        limitsCpu: '2'
+        limitsCpu: '4'
   - name: example.video.transcode
     type: TASK
     outputCls: example.video

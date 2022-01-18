@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.query.dsl.Query;
@@ -41,7 +42,11 @@ public abstract class AbstractIfnpRepository <K,V>{
 
   public Uni<V> getAsync(K key) {
     Objects.requireNonNull(key);
-    return Uni.createFrom().completionStage(remoteCache.getAsync(key));
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache.getAsync(key));
+    if (ctx != null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   public Map<K, V> list(Set<K> keys) {
@@ -49,8 +54,12 @@ public abstract class AbstractIfnpRepository <K,V>{
   }
 
   public Uni<Map<K, V>> listAsync(Set<K> keys) {
-    return Uni.createFrom().completionStage(remoteCache
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache
       .getAllAsync(keys));
+    if (ctx != null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   public V put(K key, V value) {
@@ -61,18 +70,30 @@ public abstract class AbstractIfnpRepository <K,V>{
 
   public Uni<V> putAsync(K key, V value) {
     Objects.requireNonNull(key);
-    return Uni.createFrom().completionStage(remoteCache.putAsync(key, value))
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache.putAsync(key, value))
       .replaceWith(value);
+    if (ctx != null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   public Uni<Void> putAllAsync(Map<K,V> map) {
     Objects.requireNonNull(map);
-    return Uni.createFrom().completionStage(remoteCache.putAllAsync(map));
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache.putAllAsync(map));
+    if (ctx != null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   public Uni<V> removeAsync(K key){
     Objects.requireNonNull(key);
-    return Uni.createFrom().completionStage(remoteCache.removeAsync(key));
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache.removeAsync(key));
+    if (ctx != null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
 }

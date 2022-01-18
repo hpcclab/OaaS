@@ -1,0 +1,24 @@
+functions:
+  - name: example.text.concat
+    type: TASK
+    outputCls: example.text
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.27.nip.io/oaas/concat-function:0.1.8
+        minScale: 12
+        maxScale: 12
+        requestsCpu: '0.5'
+        limitsCpu: '1'
+classes:
+  - name: example.text
+    stateType: FILE
+    objectType: SIMPLE
+    stateSpec:
+      keys:
+        - text
+    functions:
+      - access: PUBLIC
+        function: builtin.logical.copy
+      - access: PUBLIC
+        function: example.text.concat

@@ -10,7 +10,6 @@
 
 oaas:
   kp:
-    taskTopic: oaas-tasks
     provisionTopic: oaas-provisions
     taskCompletionTopic: oaas-task-completions
     exposeKnative: false

@@ -10,15 +10,18 @@ import io.fabric8.knative.internal.pkg.apis.duck.v1.Destination;
 import io.fabric8.knative.internal.pkg.apis.duck.v1.KReference;
 import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
 import io.fabric8.knative.serving.v1.*;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.knative.serving.v1.Service;
+import io.fabric8.knative.serving.v1.ServiceBuilder;
+import io.fabric8.knative.serving.v1.ServiceSpec;
+import io.fabric8.kubernetes.api.model.*;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +52,11 @@ public class KnativeProvisionHandler {
   final String labelKey = "oaas.function";
   @Inject
   KnativeClient knativeClient;
-  @ConfigProperty(name = "oaas.kp.taskHandlerService")
-  String taskHandler;
-  @ConfigProperty(name = "oaas.kp.exposeKnative")
-  boolean exposeKnative;
+  @Inject
+  KpConfig kpConfig;
 
   @Incoming("provisions")
+  @Blocking
   public void provision(Record<String, OaasFunction> functionRecord) {
     var key = functionRecord.key();
     LOGGER.debug("Received Knative provision: {}", key);
@@ -160,7 +162,7 @@ public class KnativeProvisionHandler {
       .withNewRef(
         "v1",
         "Service",
-        taskHandler,
+        kpConfig.taskHandler(),
         knativeClient.getNamespace()
       )
       .endDeadLetterSink()
@@ -181,7 +183,7 @@ public class KnativeProvisionHandler {
       .withNewRef(
         "v1",
         "Service",
-        taskHandler,
+        kpConfig.taskHandler(),
         knativeClient.getNamespace()
       )
       .endReply()
@@ -223,9 +225,27 @@ public class KnativeProvisionHandler {
 
     var labels = new HashMap<String,String>();
     labels.put(labelKey, function.getName());
-    if (!exposeKnative) {
+    if (!kpConfig.exposeKnative()) {
       labels.put("networking.knative.dev/visibility","cluster-local");
     }
+
+//    var wpat = new WeightedPodAffinityTermBuilder()
+//      .withWeight(100)
+//      .withNewPodAffinityTerm()
+//      .withNewLabelSelector()
+//      .addToMatchLabels(labelKey, function.getName())
+//      .endLabelSelector()
+//      .withTopologyKey("kubernetes.io/hostname")
+//      .endPodAffinityTerm()
+//      .build();
+//    AffinityBuilder ab = new AffinityBuilder();
+//    Affinity affinity = null;
+//    if (kpConfig.addAffinity()) {
+//      affinity = ab.withNewPodAntiAffinity()
+//        .addToPreferredDuringSchedulingIgnoredDuringExecution(wpat)
+//        .endPodAntiAffinity()
+//        .build();
+//    }
 
     return new ServiceBuilder()
       .withNewMetadata()
@@ -236,8 +256,10 @@ public class KnativeProvisionHandler {
       .withNewTemplate()
       .withNewMetadata()
       .withAnnotations(annotation)
+      .addToLabels(labelKey, function.getName())
       .endMetadata()
       .withNewSpec()
+//      .withAffinity(affinity)
       .withContainerConcurrency(provision.getConcurrency() > 0 ?
         (long) provision.getConcurrency():null)
       .withContainers(container)

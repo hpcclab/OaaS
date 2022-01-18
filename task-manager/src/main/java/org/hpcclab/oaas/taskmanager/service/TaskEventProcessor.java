@@ -201,6 +201,7 @@ public class TaskEventProcessor {
 
   public void submitTask(String id) {
     var task = taskEventManager.createTask(id);
+    LOGGER.debug("Submitting task {}", id);
     taskBrokerService.submitTask(id, task.getFunction().getName(), task.getFunction().getProvision().getType().toString(), task);
   }
 }

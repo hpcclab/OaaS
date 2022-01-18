@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.taskmanager.service.TaskCompletionListener;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -28,8 +29,8 @@ import java.util.UUID;
 public class BlockingContentResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(BlockingContentResource.class);
 
-  @Remote("TaskCompletion")
-  RemoteCache<UUID, TaskCompletion> completionCache;
+  @Inject
+  TaskCompletionRepository completionRepo;
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
@@ -42,7 +43,7 @@ public class BlockingContentResource {
   public Uni<Response> get(String objectId,
                            String filePath) {
     var id = UUID.fromString(objectId);
-    return getCompletion(id)
+    return completionRepo.getAsync(id)
       .onItem().ifNull()
       .switchTo(() -> submitAndWait(id))
       .flatMap(taskCompletion -> createResponse(id,filePath, taskCompletion));
@@ -77,14 +78,11 @@ public class BlockingContentResource {
 
 
   public Uni<TaskCompletion> submitAndWait(UUID id) {
-    var uni1 = completionListener.wait(id);
-    var uni2 = taskEventManager.submitCreateEvent(id.toString());
+    var uni1 = taskEventManager.submitCreateEvent(id.toString())
+      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent",e));
+    var uni2 = completionListener.wait(id);
     return Uni.combine().all().unis(uni1, uni2)
       .asTuple()
-      .flatMap(event -> Uni.createFrom().completionStage(completionCache.getAsync(id)));
-  }
-
-  public Uni<TaskCompletion> getCompletion(UUID id) {
-    return Uni.createFrom().completionStage(completionCache.getAsync(id));
+      .flatMap(event -> completionRepo.getAsync(id));
   }
 }

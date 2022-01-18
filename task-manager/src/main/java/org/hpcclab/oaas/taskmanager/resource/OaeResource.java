@@ -2,6 +2,7 @@ package org.hpcclab.oaas.taskmanager.resource;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.ObjectAccessExpression;
@@ -9,6 +10,7 @@ import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
 import org.slf4j.Logger;
@@ -34,6 +36,8 @@ public class OaeResource {
   OaasObjectRepository objectRepo;
   @Inject
   TaskEventManager taskEventManager;
+  @Inject
+  TaskCompletionRepository completionRepo;
 
   @POST
   public Uni<OaasObject> getObjectWithPost(ObjectAccessExpression oaeObj) {
@@ -75,7 +79,7 @@ public class OaeResource {
           if (obj.getOrigin().getParentId()==null) {
             return Uni.createFrom().item(blockingContentResource.createResponse(obj, filePath));
           } else {
-            return blockingContentResource.getCompletion(obj.getId())
+            return completionRepo.getAsync(obj.getId())
               .onItem().ifNull()
               .switchTo(() -> blockingContentResource.submitAndWait(obj.getId()))
               .map(taskCompletion -> createResponse(
@@ -95,9 +99,13 @@ public class OaeResource {
   }
 
   public Uni<OaasObject> execFunction(ObjectAccessExpression oae) {
-    return router.functionCall(oae)
-      .invoke(() -> LOGGER.debug("Call function '{}' succeed", oae))
+    var uni =  router.functionCall(oae)
       .map(FunctionExecContext::getOutput);
+    if (LOGGER.isDebugEnabled()) {
+      uni = uni
+        .invoke(() -> LOGGER.debug("Call function '{}' succeed", oae));
+    }
+    return uni;
   }
 
   public Response createResponse(OaasObject object,

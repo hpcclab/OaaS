@@ -31,6 +31,8 @@
 oaas:
   oc:
     provisionTopic: oaas-provisions
+  log: INFO
+
 quarkus:
   console:
     color: true
@@ -51,10 +53,10 @@ quarkus:
     service-interface:
       artifact-id: service-interface
       group-id: org.hpcclab.oaas
-  #  log:
-  #    category:
-  #      "org.hpcclab.oaas":
-  #        level: DEBUG
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log}
   container-image:
     image: ${ci.registry.image:oaas}/object-controller${tag:}
   jib:

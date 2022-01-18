@@ -22,6 +22,7 @@ oaas:
     taskCompletionTopic: oaas-task-completions
     taskCompletionPartitions: 10
     defaultTraverse: 3
+  log: INFO
 
 quarkus:
   http:
@@ -47,10 +48,10 @@ quarkus:
     image: ${ci.registry.image:oaas}/task-manager${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
-#  log:
-#    category:
-#      "org.hpcclab.oaas":
-#        level: DEBUG
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log}
 #  kafka-streams:
 #    bootstrap-servers: ${kafka.bootstrap.servers}
 #    application-server: ${hostname:localhost}:${quarkus.http.port}

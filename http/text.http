@@ -1,0 +1,28 @@
+###
+POST {{oc}}/api/batch
+Content-Type: text/x-yaml
+
+< text.yml
+
+###
+POST {{oc}}/api/objects
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.text",
+  "state": {
+    "type": "FILE",
+    "baseUrl": "{{base_url}}",
+    "keys": [
+        "test.txt"
+    ]
+  }
+}
+
+> {%
+client.global.set("obj_0_id", response.body.id)
+%}
+
+###
+GET {{cdn}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text

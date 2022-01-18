@@ -50,6 +50,7 @@ public class TaskEventManager {
 
   public Uni<Void> submitCreateEvent(String objId) {
     Uni<Void> uni = Uni.createFrom().item(() -> {
+      LOGGER.debug("submitCreateEvent '{}'", objId);
       var event = taskEventFactory.createStartingEvent(objId);
       taskEventProcessor.processEvents(List.of(event));
       return null;
