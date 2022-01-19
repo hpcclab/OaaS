@@ -70,7 +70,8 @@ public class EventHandler {
     var ceId = headers.get("ce-id");
     LOGGER.info("received task result: {}", ceId);
     var objectId = ceId.split("/")[0];
-    var succeeded = Boolean.parseBoolean(headers.get("ce-tasksucceeded"));
+    var succeededHeader = headers.get("ce-tasksucceeded");
+    var succeeded = succeededHeader==null || Boolean.parseBoolean(succeededHeader);
     var completion = new TaskCompletion()
       .setId(objectId)
       .setOutputObj(UUID.fromString(objectId))
