@@ -5,7 +5,6 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
-import org.hpcclab.oaas.taskmanager.resource.BlockingContentResource;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryModified;
@@ -36,8 +35,10 @@ public class TaskCompletionListener {
 
   @PostConstruct
   public void setup() {
-    watcher = new CacheWatcher();
-    completionCache.addClientListener(watcher);
+    if (config.enableCompletionListener()) {
+      watcher = new CacheWatcher();
+      completionCache.addClientListener(watcher);
+    }
   }
 
   @PreDestroy
@@ -46,6 +47,8 @@ public class TaskCompletionListener {
   }
 
   public Uni<UUID> wait(UUID id) {
+    if (!config.enableCompletionListener())
+      throw new IllegalStateException("Completion Listener is not enabled");
     return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
   }
 

@@ -1,0 +1,114 @@
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: class-cache
+spec:
+  template: |
+    <replicated-cache name="%s"
+                      statistics="true"
+                      mode="SYNC">
+      <memory storage="HEAP"
+              max-size="16MB"/>
+      <encoding>
+        <key media-type="application/x-protostream"/>
+        <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+        <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
+                       fetch-state="true"/>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </replicated-cache>
+  clusterName: oaas-infinispan
+  name: OaasClass
+---
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: function-cache
+spec:
+  clusterName: oaas-infinispan
+  name: OaasFunction
+  template: |
+    <replicated-cache name="%s"
+                      statistics="true"
+                      mode="SYNC">
+      <memory storage="HEAP"
+              max-size="16MB"/>
+      <encoding>
+        <key media-type="application/x-protostream"/>
+        <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+        <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
+                       fetch-state="true"/>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </replicated-cache>
+---
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: object-cache
+spec:
+  clusterName: oaas-infinispan
+  name: OaasObject
+  template: |
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+      <memory storage="OFF_HEAP"
+              max-size="128MB"/>
+      <encoding>
+        <key media-type="application/x-protostream"/>
+        <value media-type="application/x-protostream"/>
+      </encoding>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+---
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: completion-cache
+spec:
+  clusterName: oaas-infinispan
+  name: TaskCompletion
+  template: |
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+      <memory storage="OFF_HEAP"
+              max-size="128MB"/>
+      <encoding>
+        <key media-type="application/x-protostream"/>
+        <value media-type="application/x-protostream"/>
+      </encoding>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+
+---
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: state-cache
+spec:
+  template: |
+    <distributed-cache name="%s" statistics="true"  mode="SYNC">
+      <memory storage="OFF_HEAP" max-size="128MB"/>
+      <encoding>
+        <key media-type="application/x-protostream"/>
+        <value media-type="application/x-protostream"/>
+      </encoding>
+      <partition-handling when-split="ALLOW_READ_WRITES" merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+  clusterName: oaas-infinispan
+  name: TaskState

@@ -24,4 +24,8 @@ public interface TaskManagerConfig {
   String brokerUrl();
   @WithDefault("300")
   int blockingTimeout();
+  @WithDefault("true")
+  boolean enableCompletionListener();
+  @WithDefault("true")
+  boolean defaultBlockCompletion();
 }

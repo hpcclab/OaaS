@@ -48,11 +48,17 @@ public class NoStackException extends RuntimeException{
 
 
   public static NoStackException notFoundCls400(String name) {
-    return new NoStackException("Not found class(name='" + name + "')", 400);
+    return notFoundCls(name, 400);
+  }
+  public static NoStackException notFoundCls(String name, int code) {
+    return new NoStackException("Not found class(name='" + name + "')", code);
   }
 
   public static NoStackException notFoundFunc400(String name) {
-    return new NoStackException("Not found function(name='" + name + "')", 400);
+    return notFoundFunc(name, 400);
+  }
+  public static NoStackException notFoundFunc(String name, int code) {
+    return new NoStackException("Not found function(name='" + name + "')", code);
   }
 
 

@@ -8,6 +8,7 @@ resources:
   - tm.yml
   # object-controller
   - infinispan.yml
+#  - infinispan-cache.yml
   - oc.yml
   # task-completion-handler
   - tch.yml

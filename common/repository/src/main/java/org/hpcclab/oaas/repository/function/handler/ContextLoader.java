@@ -52,10 +52,12 @@ public class ContextLoader {
   public Uni<FunctionExecContext> setClsAndFuncAsync(FunctionExecContext ctx,
                                                      String funcName){
     return funcRepo.getAsync(funcName)
+      .onItem().ifNull().failWith(() -> NoStackException.notFoundFunc(funcName, 409))
       .map(ctx::setFunction)
       .flatMap(ignore -> {
         if (ctx.getFunction().getOutputCls() != null)
-          return clsRepo.getAsync(ctx.getFunction().getOutputCls());
+          return clsRepo.getAsync(ctx.getFunction().getOutputCls())
+            .onItem().ifNull().failWith(() -> NoStackException.notFoundCls(ctx.getFunction().getOutputCls(), 409));
         return Uni.createFrom().nullItem();
       })
       .map(ctx::setOutputCls)

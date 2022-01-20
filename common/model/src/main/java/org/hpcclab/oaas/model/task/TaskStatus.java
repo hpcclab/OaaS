@@ -6,5 +6,7 @@ public enum TaskStatus {
   @ProtoEnumValue(1)
   SUCCEEDED,
   @ProtoEnumValue(2)
-  FAILED
+  FAILED,
+  @ProtoEnumValue(3)
+  DOING
 }

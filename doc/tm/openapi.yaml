@@ -14,26 +14,6 @@ paths:
       responses:
         "201":
           description: Created
-  /contents/{objectId}/{filePath}:
-    get:
-      tags:
-      - Blocking Content Resource
-      parameters:
-      - name: filePath
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: objectId
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json: {}
   /oae:
     post:
       tags:
@@ -61,6 +41,10 @@ paths:
         schema:
           pattern: .*
           type: string
+      - name: await
+        in: query
+        schema:
+          type: boolean
       requestBody:
         content:
           application/json:
@@ -104,6 +88,10 @@ paths:
         required: true
         schema:
           type: string
+      - name: await
+        in: query
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK

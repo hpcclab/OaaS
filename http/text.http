@@ -26,3 +26,5 @@ client.global.set("obj_0_id", response.body.id)
 
 ###
 GET {{cdn}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+###
+GET {{tm}}/oae/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text

@@ -35,4 +35,6 @@ client.global.set("obj_1_id", response.body.id)
 ###
 GET {{cdn}}/{{obj_1_id}}/tmp
 ###
-GET {{cdn}}/{{obj_0_id}}:example.empty.function()/tmp
+GET {{cdn}}/{{obj_0_id}}:example.empty.function()/tmp?await=true
+###
+GET {{tm}}/oae/{{obj_0_id}}:example.empty.function()/tmp

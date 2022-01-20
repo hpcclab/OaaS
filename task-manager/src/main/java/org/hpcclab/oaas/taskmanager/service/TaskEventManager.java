@@ -8,7 +8,6 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.V2TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
 import org.hpcclab.oaas.taskmanager.factory.TaskEventFactory;
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
@@ -25,9 +25,8 @@ public class TaskEventManager {
   private static final Logger LOGGER = LoggerFactory.getLogger( TaskEventManager.class );
 
   @Inject
+    @Alternative
   TaskEventProcessor taskEventProcessor;
-  @Inject
-  OaasObjectRepository objectRepo;
   @Inject
   AggregateRepository aggregateRepo;
   @Inject

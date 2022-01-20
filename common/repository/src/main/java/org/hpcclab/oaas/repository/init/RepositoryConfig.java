@@ -8,6 +8,8 @@ import io.smallrye.config.WithDefault;
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface RepositoryConfig {
+  @WithDefault("false")
+  boolean createOnStart();
   ObjectCache object();
   StateCache state();
   CompletionCache completion();

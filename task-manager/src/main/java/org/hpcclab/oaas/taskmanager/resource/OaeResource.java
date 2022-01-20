@@ -12,7 +12,10 @@ import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
+import org.hpcclab.oaas.taskmanager.service.TaskCompletionListener;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
+import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,8 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.UUID;
 
 @Path("/oae")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -31,13 +36,15 @@ public class OaeResource {
   @Inject
   FunctionRouter router;
   @Inject
-  BlockingContentResource blockingContentResource;
-  @Inject
   OaasObjectRepository objectRepo;
   @Inject
   TaskEventManager taskEventManager;
   @Inject
   TaskCompletionRepository completionRepo;
+  @Inject
+  TaskCompletionListener completionListener;
+  @Inject
+  TaskManagerConfig config;
 
   @POST
   public Uni<OaasObject> getObjectWithPost(ObjectAccessExpression oaeObj) {
@@ -64,12 +71,13 @@ public class OaeResource {
   @POST
   @Path("-/{filePath:.*}")
   public Uni<Response> getContentWithPost(@PathParam("filePath") String filePath,
+                                          @QueryParam("await") Boolean await,
                                           ObjectAccessExpression oaeObj) {
     if (oaeObj==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oaeObj.getFunctionName()!=null) {
       return execFunction(oaeObj)
-        .flatMap(obj -> blockingContentResource.submitAndWait(obj.getId())
+        .flatMap(obj -> submitAndWait(obj.getId(), await)
           .map(taskCompletion -> createResponse(obj, filePath, taskCompletion))
         );
 
@@ -77,11 +85,11 @@ public class OaeResource {
       return objectRepo.getAsync(oaeObj.getTarget())
         .flatMap(obj -> {
           if (obj.getOrigin().getParentId()==null) {
-            return Uni.createFrom().item(blockingContentResource.createResponse(obj, filePath));
+            return Uni.createFrom().item(createResponse(obj, filePath));
           } else {
             return completionRepo.getAsync(obj.getId())
               .onItem().ifNull()
-              .switchTo(() -> blockingContentResource.submitAndWait(obj.getId()))
+              .switchTo(() -> submitAndWait(obj.getId(), await))
               .map(taskCompletion -> createResponse(
                 obj, filePath, taskCompletion));
           }
@@ -89,13 +97,15 @@ public class OaeResource {
     }
   }
 
+
   @GET
   @Path("{oae}/{filePath:.*}")
   public Uni<Response> getContentWithPost(@PathParam("oae") String oae,
-                                          @PathParam("filePath") String filePath) {
+                                          @PathParam("filePath") String filePath,
+                                          @QueryParam("await") Boolean await) {
     var oaeObj = ObjectAccessExpression.parse(oae);
     LOGGER.debug("Receive OAE getContent '{}' '{}'", oaeObj, filePath);
-    return getContentWithPost(filePath, oaeObj);
+    return getContentWithPost(filePath, await, oaeObj);
   }
 
   public Uni<OaasObject> execFunction(ObjectAccessExpression oae) {
@@ -114,9 +124,39 @@ public class OaeResource {
     if (taskCompletion==null) {
       return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
     }
+    if (taskCompletion.getStatus() == TaskStatus.DOING) {
+      return Response.status(HttpResponseStatus.NO_CONTENT.code())
+        .build();
+    }
     if (taskCompletion.getStatus()!=TaskStatus.SUCCEEDED) {
       return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
     }
-    return blockingContentResource.createResponse(object, filePath);
+    return createResponse(object, filePath);
+  }
+
+
+  public Response createResponse(OaasObject obj, String filePath) {
+    if (obj == null) return Response.status(404).build();
+    var baseUrl = obj.getState().getBaseUrl();
+    if (!baseUrl.endsWith("/"))
+      baseUrl += '/';
+    return Response.status(HttpResponseStatus.FOUND.code())
+      .location(URI.create(baseUrl).resolve(filePath))
+      .build();
+  }
+
+  public Uni<TaskCompletion> submitAndWait(UUID id,
+                                           Boolean await) {
+    var uni1 = taskEventManager.submitCreateEvent(id.toString())
+      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent",e));
+    if ( await == null ? config.defaultBlockCompletion() : await) {
+      var uni2 = completionListener.wait(id);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
+        .flatMap(event -> completionRepo.getAsync(id));
+    }
+    return uni1
+      .flatMap(event -> completionRepo.getAsync(id))
+      .replaceIfNullWith(() -> new TaskCompletion().setStatus(TaskStatus.DOING));
   }
 }

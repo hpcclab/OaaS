@@ -25,6 +25,9 @@ oaas:
   log: INFO
 
 quarkus:
+#  arc:
+#    selected-alternatives:
+#      - org.hpcclab.oaas.taskmanager.service.MockTaskEventProcessor
   http:
     access-log:
       enabled: true

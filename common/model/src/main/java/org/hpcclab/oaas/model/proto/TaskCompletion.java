@@ -103,4 +103,5 @@ public class TaskCompletion {
   public String getDebugLog() {
     return debugLog;
   }
+
 }
