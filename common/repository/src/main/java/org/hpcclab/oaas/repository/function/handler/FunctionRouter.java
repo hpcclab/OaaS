@@ -2,7 +2,7 @@ package org.hpcclab.oaas.repository.function.handler;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.task.TaskExecRequest;

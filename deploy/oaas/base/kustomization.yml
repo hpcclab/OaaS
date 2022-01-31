@@ -6,12 +6,14 @@ resources:
   - kp-trigger.yml
   # task-generator
   - tm.yml
+#  - tm-kn.yml
   # object-controller
   - infinispan.yml
 #  - infinispan-cache.yml
   - oc.yml
   # task-completion-handler
-  - tch.yml
+#  - tch.yml
+  - tch-kn.yml
   # CDN
   - cdn.yml
 #  - monitor.yml

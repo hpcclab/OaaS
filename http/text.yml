@@ -5,11 +5,11 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/concat-function:q-1.1.3
-        minScale: 1
-        maxScale: -1
+        image: core.harbor.10.131.36.27.nip.io/oaas/concat-function:q-1.2.1
+        minScale: 0
+        maxScale: 6
         requestsCpu: '0.5'
-        limitsCpu: '1'
+        limitsCpu: '2'
 classes:
   - name: example.text
     stateType: FILE

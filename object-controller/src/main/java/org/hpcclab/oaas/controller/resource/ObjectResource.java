@@ -7,7 +7,7 @@ import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
 import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.iface.service.TaskExecutionService;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.function.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.OaasObject;

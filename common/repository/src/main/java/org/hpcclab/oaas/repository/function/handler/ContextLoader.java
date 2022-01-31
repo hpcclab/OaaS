@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.function.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
 import org.hpcclab.oaas.model.proto.OaasObject;

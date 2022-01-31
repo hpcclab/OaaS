@@ -34,7 +34,6 @@ public class EventHandler {
   @POST
   public Uni<Void> handle(String body) {
     var headers = ctx.request().headers();
-    LOGGER.debug("Handle headers: {}", headers);
     var ceType = headers.get("ce-type");
     return switch (ceType){
       case "dev.knative.kafka.event", "oaas.task" -> handleDeadLetter(body);
@@ -60,7 +59,6 @@ public class EventHandler {
       .setMainObj(task.getMain().getId())
       .setFunctionName(task.getFunction().getName())
       .setDebugLog(error);
-//    tasksCompletionEmitter.send(Record.of(taskCompletion.getId(), taskCompletion));
     return tasksCompletionEmitter.send(taskCompletion);
   }
 

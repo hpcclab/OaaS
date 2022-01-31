@@ -1,5 +1,6 @@
-package org.hpcclab.oaas.model.function;
+package org.hpcclab.oaas.model.oae;
 
+import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,11 +30,11 @@ class ObjectAccessExpressionTest {
     assertTrue(ObjectAccessExpression.validate(
       "%s:test()(test=aaa)".formatted(id())));
     assertTrue(ObjectAccessExpression.validate(
-      "%s:test()(aaa=111;bbb=222)".formatted(id())));
+      "%s:test()(aaa=111,bbb=222)".formatted(id())));
     assertTrue(ObjectAccessExpression.validate(
-      "%s:test(%s)(aaa=111;bbb=222)".formatted(id(),id())));
+      "%s:test(%s)(aaa=111,bbb=222)".formatted(id(),id())));
     assertTrue(ObjectAccessExpression.validate(
-      "%s:test(%s,%s)(aaa=111;bbb=222)".formatted(id(),id(),id())));
+      "%s:test(%s,%s)(aaa=111,bbb=222)".formatted(id(),id(),id())));
   }
   @Test
   void testInvalid() {
@@ -105,7 +106,7 @@ class ObjectAccessExpressionTest {
     assertNull(fc.getArgs().get("ccc"));
 
     fc = ObjectAccessExpression.parse(
-      "%s:test(%s,%s,%s)(aaa=111;122-/*=*/-++})".formatted(ids.get(0), ids.get(1), ids.get(2),
+      "%s:test(%s,%s,%s)(aaa=111,122-/*=*/-++})".formatted(ids.get(0), ids.get(1), ids.get(2),
         ids.get(3))
     );
     assertNotNull(fc);
@@ -176,7 +177,7 @@ class ObjectAccessExpressionTest {
       .setInputs(List.of(ids.get(1),ids.get(2)))
       .setArgs(Map.of("aaa","bbb", "231aa^()", "-*/++"));
     assertEquals(
-      "%s:more.test(%s,%s)(231aa^()=-*/++;aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
+      "%s:more.test(%s,%s)(231aa^()=-*/++,aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
       fc.toString()
     );
   }

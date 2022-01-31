@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model.function;
+package org.hpcclab.oaas.model.oae;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -49,7 +49,7 @@ public class ObjectAccessExpression {
       boolean first = true;
       for (Map.Entry<String, String> entry : sorted.entrySet()) {
         if (first) first = false;
-        else sb.append(';');
+        else sb.append(',');
         sb.append(entry.getKey());
         sb.append('=');
         sb.append(entry.getValue());
@@ -71,7 +71,7 @@ public class ObjectAccessExpression {
   public static ObjectAccessExpression parse(String expr) {
     var matcher=EXPR_PATTERN.matcher(expr);
     if (!matcher.find())
-      return null;
+      throw new OaeParsingException("The given expression('"+expr+"') doesn't match the pattern.");
     var target = matcher.group("target");
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
@@ -87,7 +87,7 @@ public class ObjectAccessExpression {
       functionCall.setInputs(list);
     }
     if (args != null && !args.isEmpty()) {
-      var argMap  = Arrays.stream(args.split(";"))
+      var argMap  = Arrays.stream(args.split(","))
         .map(pair -> {
           var kv = pair.split("=");
           if (kv.length != 2) throw new RuntimeException("Arguments parsing exception");
