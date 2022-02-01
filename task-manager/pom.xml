@@ -77,9 +77,13 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-infinispan-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-opentelemetry-exporter-otlp</artifactId>
+    </dependency>
 <!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-jaeger</artifactId>-->
+<!--      <groupId>io.opentracing.contrib</groupId>-->
+<!--      <artifactId>opentracing-kafka-client</artifactId>-->
 <!--    </dependency>-->
     <dependency>
       <groupId>io.netty</groupId>

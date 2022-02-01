@@ -12,8 +12,8 @@ resources:
 #  - infinispan-cache.yml
   - oc.yml
   # task-completion-handler
-#  - tch.yml
-  - tch-kn.yml
+  - tch.yml
+#  - tch-kn.yml
   # CDN
   - cdn.yml
 #  - monitor.yml

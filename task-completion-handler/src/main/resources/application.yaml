@@ -20,7 +20,7 @@ quarkus:
   http:
     access-log:
       enabled: true
-      pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
+      pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
     record-request-start-time: true
   vertx:
     prefer-native-transport: true
@@ -30,12 +30,10 @@ quarkus:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   native:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
-#  console:
-#    color: true
-#  log:
-#    category:
-#      "org.hpcclab.oaas":
-#        level: DEBUG
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log:INFO}
 mp:
   messaging:
     outgoing:
@@ -45,5 +43,7 @@ mp:
         topic: ${oaas.tch.taskCompletionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-        cloud-events-source: ${quarkus.application.name}
-        cloud-events-type: oaas.task-completion
+#        cloud-events-source: ${quarkus.application.name}
+#        cloud-events-type: oaas.task-completion
+#        interceptor:
+#          classes: io.opentracing.contrib.kafka.TracingProducerInterceptor
