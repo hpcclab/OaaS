@@ -3,6 +3,7 @@ package org.hpcclab.oaas.iface.service;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.proto.OaasObject;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -16,6 +17,13 @@ public interface ClassService {
   @GET
   Uni<List<OaasClass>> list(@QueryParam("page") Integer page,
                             @QueryParam("size") Integer size);
+
+
+  @GET
+  @Path("{name}/objects")
+  List<OaasObject> listObject(String name,
+                                   @QueryParam("page") Integer page,
+                                   @QueryParam("size") Integer size);
 
   @POST
   Uni<OaasClass> create(@DefaultValue("false") @QueryParam("update") boolean update,

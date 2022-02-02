@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.controller.resource;
+package org.hpcclab.oaas.controller.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

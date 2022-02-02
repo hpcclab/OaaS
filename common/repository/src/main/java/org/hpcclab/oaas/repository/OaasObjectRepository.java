@@ -87,6 +87,14 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
       .toList();
   }
 
+  public List<OaasObject> listByCls(String clsName,
+                                    int page,
+                                    int size) {
+    if (clsName ==null) return pagination(page,size);
+    var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
+    return query(query, Map.of("clsName", clsName), page, size);
+  }
+
   public Uni<DeepOaasObject> getDeep(UUID id) {
     System.out.println("get deep " + id);
     return getAsync(id)

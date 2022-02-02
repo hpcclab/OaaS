@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskmanager.resource;
+package org.hpcclab.oaas.taskmanager.rest;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.iface.service.TaskExecutionService;

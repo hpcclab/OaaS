@@ -31,7 +31,7 @@ quarkus:
   http:
     access-log:
       enabled: true
-      pattern: '"%r" %s %b %{RESPONSE_TIME} ms traceId=%X{traceId}'
+      pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
       exclude-pattern: /q/.*
     record-request-start-time: true
   vertx:

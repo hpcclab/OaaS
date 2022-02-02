@@ -23,9 +23,9 @@
         }
       }
     },
-    "/oae" : {
+    "/oal" : {
       "post" : {
-        "tags" : [ "Oae Resource" ],
+        "tags" : [ "Oal Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -49,9 +49,9 @@
         }
       }
     },
-    "/oae/-/{filePath}" : {
+    "/oal/-/{filePath}" : {
       "post" : {
-        "tags" : [ "Oae Resource" ],
+        "tags" : [ "Oal Resource" ],
         "parameters" : [ {
           "name" : "filePath",
           "in" : "path",
@@ -86,9 +86,9 @@
         }
       }
     },
-    "/oae/{oae}" : {
+    "/oal/{oae}" : {
       "get" : {
-        "tags" : [ "Oae Resource" ],
+        "tags" : [ "Oal Resource" ],
         "parameters" : [ {
           "name" : "oae",
           "in" : "path",
@@ -111,9 +111,9 @@
         }
       }
     },
-    "/oae/{oae}/{filePath}" : {
+    "/oal/{oae}/{filePath}" : {
       "get" : {
-        "tags" : [ "Oae Resource" ],
+        "tags" : [ "Oal Resource" ],
         "parameters" : [ {
           "name" : "filePath",
           "in" : "path",

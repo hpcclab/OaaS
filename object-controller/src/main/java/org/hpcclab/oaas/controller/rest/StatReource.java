@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.controller.resource;
+package org.hpcclab.oaas.controller.rest;
 
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasFuncRepository;

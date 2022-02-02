@@ -1,14 +1,17 @@
-package org.hpcclab.oaas.controller.resource;
+package org.hpcclab.oaas.controller.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.reactive.messaging.annotations.Blocking;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +27,24 @@ public class ClassResource implements ClassService {
   @Inject
   OaasClassRepository classRepo;
   @Inject
+  OaasObjectRepository objectRepo;
+  @Inject
   CtxMapper oaasMapper;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-
+  @Blocking
   public Uni<List<OaasClass>> list(Integer page, Integer size) {
     if (page == null) page = 0;
     if (size == null) size = 100;
     var list = classRepo.pagination(page, size);
     return Uni.createFrom().item(list);
+  }
+
+  @Blocking
+  public List<OaasObject> listObject(String name, Integer page, Integer size) {
+    if (page == null) page = 0;
+    if (size == null) size = 100;
+    return objectRepo.listByCls(name,page, size);
   }
 
   @Override

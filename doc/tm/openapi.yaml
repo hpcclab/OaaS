@@ -14,10 +14,10 @@ paths:
       responses:
         "201":
           description: Created
-  /oae:
+  /oal:
     post:
       tags:
-      - Oae Resource
+      - Oal Resource
       requestBody:
         content:
           application/json:
@@ -30,10 +30,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
-  /oae/-/{filePath}:
+  /oal/-/{filePath}:
     post:
       tags:
-      - Oae Resource
+      - Oal Resource
       parameters:
       - name: filePath
         in: path
@@ -55,10 +55,10 @@ paths:
           description: OK
           content:
             application/json: {}
-  /oae/{oae}:
+  /oal/{oae}:
     get:
       tags:
-      - Oae Resource
+      - Oal Resource
       parameters:
       - name: oae
         in: path
@@ -72,10 +72,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
-  /oae/{oae}/{filePath}:
+  /oal/{oae}/{filePath}:
     get:
       tags:
-      - Oae Resource
+      - Oal Resource
       parameters:
       - name: filePath
         in: path

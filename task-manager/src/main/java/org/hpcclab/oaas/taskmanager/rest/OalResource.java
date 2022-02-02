@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskmanager.resource;
+package org.hpcclab.oaas.taskmanager.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
@@ -25,12 +25,12 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
 
-@Path("/oae")
+@Path("/oal")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class OaeResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OaeResource.class);
+public class OalResource {
+  private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
   FunctionRouter router;
   @Inject
