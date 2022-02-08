@@ -5,7 +5,6 @@ import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.taskmanager.TaskCompletionConsumer;
 
-import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;

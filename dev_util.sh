@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export CI_REGISTRY_IMAGE=core.harbor.10.131.36.27.nip.io/oaas
+export CI_REGISTRY_IMAGE=core.harbor.10.131.36.2.nip.io/oaas
 export JAVA_HOME=~/.jdks/temurin-17/
 
 ./mvnw package -DskipTests\
@@ -9,7 +9,7 @@ export JAVA_HOME=~/.jdks/temurin-17/
     -Dquarkus.container-image.build=true \
     -Dquarkus.container-image.push=true \
     -Dquarkus.jib.always-cache-base-image=true \
-    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.27.nip.io/proxy/library/eclipse-temurin:17-jre-alpine \
+    -Dquarkus.jib.base-jvm-image=core.harbor.10.131.36.2.nip.io/proxy/library/eclipse-temurin:17-jre-alpine \
     -Dquarkus.container-image.insecure=true
 
 $ENV:CI_REGISTRY_IMAGE="core.harbor.10.131.36.27.nip.io/oaas"

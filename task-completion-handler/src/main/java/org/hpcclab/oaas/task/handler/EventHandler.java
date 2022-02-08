@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.task.handler;
 
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.smallrye.reactive.messaging.MutinyEmitter;
@@ -34,9 +33,7 @@ public class EventHandler {
   @Inject
   RoutingContext ctx;
   @Channel("task-completions")
-//  MutinyEmitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
   MutinyEmitter<TaskCompletion> tasksCompletionEmitter;
-  final HttpServerRequestTextMapGetter textMapGetter = new HttpServerRequestTextMapGetter();
 
   @POST
   public void handle(String body) {
@@ -97,7 +94,7 @@ public class EventHandler {
 
     @Override
     public String get(final HttpServerRequest carrier, final String key) {
-      if (carrier == null) {
+      if (carrier==null) {
         return null;
       }
 

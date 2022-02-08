@@ -12,7 +12,6 @@
 
 oaas:
   tch:
-    objectControllerUrl: http://localhost:8088
     taskCompletionTopic: msc-task-completions
 
 
