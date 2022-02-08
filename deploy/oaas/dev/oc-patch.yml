@@ -9,5 +9,5 @@ spec:
         - name: object-controller
           env:
             - name: OAAS_OC_S3PREFIXURL
-              value: http://s3.10.131.36.27.nip.io/${BUCKET_NAME}
+              value: http://s3.10.131.36.40.nip.io/${BUCKET_NAME}
 #              value: http://10.43.187.186/${BUCKET_NAME}

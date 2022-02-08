@@ -35,8 +35,8 @@ spec:
 #        tls: false
     resources:
       limits:
-        cpu: 8
-        memory: 2.5G
+        cpu: 12
+        memory: 4G
       requests:
         cpu: 1
         memory: 0.5G

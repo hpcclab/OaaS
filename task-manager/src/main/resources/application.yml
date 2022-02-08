@@ -7,6 +7,14 @@
         "org.hpcclab.oaas":
           level: DEBUG
   oaas:
+    repo:
+      createOnStart: true
+      object:
+        persist: false
+      state:
+        persist: false
+      completion:
+        persist: false
     tm:
       brokerUrl: http://localhost:8080
 

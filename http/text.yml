@@ -5,7 +5,8 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/concat-function:q-1.2.1
+        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-1.2.1
+#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:0.1.5
         minScale: 0
         maxScale: 6
         requestsCpu: '0.5'

@@ -18,6 +18,15 @@
       category:
         "org.hpcclab.oaas":
           level: DEBUG
+  oaas:
+    repo:
+      createOnStart: true
+      object:
+        persist: false
+      state:
+        persist: false
+      completion:
+        persist: false
 "%prod":
   quarkus:
     infinispan-client:

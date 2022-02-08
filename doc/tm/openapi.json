@@ -5,6 +5,44 @@
     "version" : "0.2.0-SNAPSHOT"
   },
   "paths" : {
+    "/" : {
+      "post" : {
+        "tags" : [ "CDI Wrapper" ],
+        "parameters" : [ {
+          "name" : "ce-function",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "ce-id",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "ce-tasktype",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OaasTask"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
     "/api/task-exec" : {
       "post" : {
         "requestBody" : {
@@ -149,6 +187,79 @@
   },
   "components" : {
     "schemas" : {
+      "JobProvisionConfig" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "argsToEnv" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "KnativeProvision" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "concurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "env" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
       "OaasCompoundMember" : {
         "type" : "object",
         "properties" : {
@@ -160,31 +271,59 @@
           }
         }
       },
+      "OaasFunction" : {
+        "required" : [ "name", "type" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "pattern" : "\\S",
+            "type" : "string",
+            "nullable" : false
+          },
+          "type" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OaasFunctionType"
+            }, {
+              "nullable" : false
+            } ]
+          },
+          "outputCls" : {
+            "type" : "string"
+          },
+          "validation" : {
+            "$ref" : "#/components/schemas/OaasFunctionValidation"
+          },
+          "macro" : {
+            "$ref" : "#/components/schemas/OaasWorkflow"
+          },
+          "provision" : {
+            "$ref" : "#/components/schemas/ProvisionConfig"
+          }
+        }
+      },
+      "OaasFunctionType" : {
+        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "type" : "string"
+      },
+      "OaasFunctionValidation" : {
+        "type" : "object",
+        "properties" : {
+          "bindingRequirement" : {
+            "$ref" : "#/components/schemas/OaasObjectRequirement"
+          },
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasObjectRequirement"
+            }
+          }
+        }
+      },
       "OaasObject" : {
         "type" : "object",
         "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
-          "cls" : {
-            "type" : "string"
-          },
           "id" : {
             "$ref" : "#/components/schemas/UUID"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "members" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMember"
-            }
           },
           "origin" : {
             "$ref" : "#/components/schemas/OaasObjectOrigin"
@@ -193,21 +332,42 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "access" : {
+            "$ref" : "#/components/schemas/ObjectAccessModifier"
+          },
+          "cls" : {
+            "type" : "string"
+          },
+          "labels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
+          },
+          "members" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasCompoundMember"
+            }
           }
         }
       },
       "OaasObjectOrigin" : {
         "type" : "object",
         "properties" : {
-          "additionalInputs" : {
-            "type" : "array",
-            "items" : {
-              "format" : "uuid",
-              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
-              "type" : "string"
-            }
+          "rootId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "parentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "funcName" : {
+            "type" : "string"
           },
           "args" : {
             "type" : "object",
@@ -215,20 +375,37 @@
               "type" : "string"
             }
           },
-          "funcName" : {
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "OaasObjectRequirement" : {
+        "type" : "object",
+        "properties" : {
+          "requiredLabels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requiredClass" : {
             "type" : "string"
-          },
-          "parentId" : {
-            "$ref" : "#/components/schemas/UUID"
-          },
-          "rootId" : {
-            "$ref" : "#/components/schemas/UUID"
           }
         }
       },
       "OaasObjectState" : {
         "type" : "object",
         "properties" : {
+          "type" : {
+            "$ref" : "#/components/schemas/StateType"
+          },
           "baseUrl" : {
             "type" : "string"
           },
@@ -240,23 +417,98 @@
           },
           "records" : {
             "type" : "string"
+          }
+        }
+      },
+      "OaasTask" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
           },
-          "type" : {
-            "$ref" : "#/components/schemas/StateType"
+          "main" : {
+            "$ref" : "#/components/schemas/OaasObject"
+          },
+          "output" : {
+            "$ref" : "#/components/schemas/OaasObject"
+          },
+          "function" : {
+            "$ref" : "#/components/schemas/OaasFunction"
+          },
+          "additionalInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasObject"
+            }
+          },
+          "requestFile" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasWorkflow" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasWorkflowStep"
+            }
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasWorkflowExport"
+            }
+          }
+        }
+      },
+      "OaasWorkflowExport" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasWorkflowStep" : {
+        "type" : "object",
+        "properties" : {
+          "funcName" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "inputRefs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
       "ObjectAccessExpression" : {
         "type" : "object",
         "properties" : {
+          "target" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "functionName" : {
+            "type" : "string"
+          },
           "args" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
-          },
-          "functionName" : {
-            "type" : "string"
           },
           "inputs" : {
             "type" : "array",
@@ -265,15 +517,26 @@
               "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
               "type" : "string"
             }
-          },
-          "target" : {
-            "$ref" : "#/components/schemas/UUID"
           }
         }
       },
       "ObjectAccessModifier" : {
         "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
         "type" : "string"
+      },
+      "ProvisionConfig" : {
+        "type" : "object",
+        "properties" : {
+          "job" : {
+            "$ref" : "#/components/schemas/JobProvisionConfig"
+          },
+          "knative" : {
+            "$ref" : "#/components/schemas/KnativeProvision"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type"
+          }
+        }
       },
       "StateType" : {
         "enum" : [ "FILE", "FILES", "RECORD", "SEGMENTABLE" ],
@@ -286,6 +549,10 @@
             "type" : "string"
           }
         }
+      },
+      "Type" : {
+        "enum" : [ "DURABLE", "EPHEMERAL" ],
+        "type" : "string"
       },
       "UUID" : {
         "format" : "uuid",

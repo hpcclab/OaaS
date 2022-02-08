@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-    - host: "oc.oaas.10.131.36.27.nip.io"
+    - host: "oc.oaas.10.131.36.40.nip.io"
       http:
         paths:
           - pathType: Prefix
@@ -18,7 +18,7 @@ spec:
                 name: object-controller
                 port:
                   number: 80
-    - host: "tm.oaas.10.131.36.27.nip.io"
+    - host: "tm.oaas.10.131.36.40.nip.io"
       http:
         paths:
           - pathType: Prefix
@@ -28,7 +28,7 @@ spec:
                 name: task-manager
                 port:
                   number: 80
-    - host: "cdn.10.131.36.27.nip.io"
+    - host: "cdn.10.131.36.40.nip.io"
       http:
         paths:
           - pathType: Prefix

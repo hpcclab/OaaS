@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.27.nip.io/oaas/transcode-function:0.2.4
+        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.2.3
         minScale: 0
         maxScale: 6
         concurrency: 4
@@ -17,7 +17,7 @@ functions:
     validation: { }
     provision:
       job:
-        image: core.harbor.10.131.36.27.nip.io/oaas/ffmpeg
+        image: core.harbor.10.131.36.2.nip.io/oaas/ffmpeg
         commands:
           - /bin/sh
           - '-c'

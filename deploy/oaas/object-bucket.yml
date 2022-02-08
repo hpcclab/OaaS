@@ -9,9 +9,10 @@ spec:
   # the StorageClass referenced here, and both `bucketName` and
   # `generateBucketName` must be omitted in the OBC.
   #bucketName:
-  generateBucketName: msc-bkt
+#  generateBucketName: msc-bkt
+  bucketName: msc-bkt
   storageClassName: ceph-bucket
-  additionalConfig:
+  additionalConfig: {}
   # To set for quota for OBC
   #maxObjects: "1000"
   #maxSize: "2G"

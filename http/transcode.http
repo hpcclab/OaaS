@@ -26,4 +26,4 @@ client.global.set("obj_0_id", response.body.id)
 %}
 
 ###
-GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video.mp4?await=true
+GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video.mp4
