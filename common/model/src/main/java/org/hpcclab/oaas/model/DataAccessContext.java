@@ -1,8 +1,15 @@
 package org.hpcclab.oaas.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
 import java.util.List;
 import java.util.UUID;
 
+@Data
+@Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataAccessContext {
   UUID mainId;
   String mainCls;

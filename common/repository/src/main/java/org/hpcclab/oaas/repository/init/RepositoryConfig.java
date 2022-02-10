@@ -8,14 +8,14 @@ import io.smallrye.config.WithDefault;
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface RepositoryConfig {
-  @WithDefault("false")
+  @WithDefault("true")
   boolean createOnStart();
   ObjectCache object();
   StateCache state();
   CompletionCache completion();
 
   interface ObjectCache{
-    @WithDefault("true")
+    @WithDefault("false")
     boolean persist();
     @WithDefault("256MB")
     String maxSize();
@@ -23,7 +23,7 @@ public interface RepositoryConfig {
     int nearCacheMaxEntry();
   }
   interface StateCache{
-    @WithDefault("true")
+    @WithDefault("false")
     boolean persist();
     @WithDefault("128MB")
     String maxSize();
@@ -31,7 +31,7 @@ public interface RepositoryConfig {
     int nearCacheMaxEntry();
   }
   interface CompletionCache{
-    @WithDefault("true")
+    @WithDefault("false")
     boolean persist();
     @WithDefault("128MB")
     String maxSize();
