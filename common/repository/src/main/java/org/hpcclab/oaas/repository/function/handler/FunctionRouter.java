@@ -2,9 +2,9 @@ package org.hpcclab.oaas.repository.function.handler;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,13 @@ public class FunctionRouter {
     };
   }
 
-  public Uni<FunctionExecContext> functionCallBlocking(ObjectAccessExpression request) {
-    var ctx = cachedCtxLoader.loadCtx(request);
-    validate(ctx);
-    return functionCall(ctx);
-  }
-    public Uni<FunctionExecContext> functionCall(ObjectAccessExpression request) {
+//  public Uni<FunctionExecContext> functionCallBlocking(ObjectAccessLangauge request) {
+//    var ctx = cachedCtxLoader.loadCtx(request);
+//    validate(ctx);
+//    return functionCall(ctx);
+//  }
+
+  public Uni<FunctionExecContext> functionCall(ObjectAccessLangauge request) {
     return cachedCtxLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::functionCall);

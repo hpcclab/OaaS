@@ -1,0 +1,30 @@
+
+"%dev":
+  quarkus:
+    http:
+      port: 8093
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
+    console:
+      color: true
+
+quarkus:
+  http:
+    access-log:
+      enabled: true
+      pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
+    record-request-start-time: true
+  vertx:
+    prefer-native-transport: true
+  container-image:
+    image: ${ci.registry.image:oaas}/task-completion-handler${tag:}
+  jib:
+    base-jvm-image: eclipse-temurin:17-jre-alpine
+  native:
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log:INFO}

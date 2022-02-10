@@ -47,7 +47,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessExpression'
+              $ref: '#/components/schemas/ObjectAccessLangauge'
       responses:
         "200":
           description: OK
@@ -74,7 +74,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessExpression'
+              $ref: '#/components/schemas/ObjectAccessLangauge'
       responses:
         "200":
           description: OK
@@ -334,7 +334,7 @@ components:
             type: string
         target:
           type: string
-    ObjectAccessExpression:
+    ObjectAccessLangauge:
       type: object
       properties:
         args:

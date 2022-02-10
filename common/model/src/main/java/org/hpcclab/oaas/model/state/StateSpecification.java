@@ -15,17 +15,31 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StateSpecification implements Serializable {
   private List<String> keys = List.of();
+  private List<KeySpecification> keySpecs = List.of();
+  private String defaultProvider;
 
   public StateSpecification() {
   }
 
   @ProtoFactory
-  public StateSpecification(List<String> keys) {
+  public StateSpecification(List<String> keys, List<KeySpecification> keySpecs, String defaultProvider) {
     this.keys = keys;
+    this.keySpecs = keySpecs;
+    this.defaultProvider = defaultProvider;
   }
 
   @ProtoField(1)
   public List<String> getKeys() {
     return keys;
+  }
+
+  @ProtoField(2)
+  public List<KeySpecification> getKeySpecs() {
+    return keySpecs;
+  }
+
+  @ProtoField(3)
+  public String getDefaultProvider() {
+    return defaultProvider;
   }
 }

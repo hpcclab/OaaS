@@ -1,6 +1,5 @@
-package org.hpcclab.oaas.model.oae;
+package org.hpcclab.oaas.model.oal;
 
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,43 +17,43 @@ class ObjectAccessExpressionTest {
 
   @Test
   void testValid() {
-    assertTrue(ObjectAccessExpression.validate(id()));
-    assertTrue(ObjectAccessExpression.validate("%s:test()".formatted(id())));
-    assertTrue(ObjectAccessExpression.validate("%s:test(%s)".formatted(id(),id())));
-    assertTrue(ObjectAccessExpression.validate("%s:test(%s,%s)"
+    assertTrue(ObjectAccessLangauge.validate(id()));
+    assertTrue(ObjectAccessLangauge.validate("%s:test()".formatted(id())));
+    assertTrue(ObjectAccessLangauge.validate("%s:test(%s)".formatted(id(),id())));
+    assertTrue(ObjectAccessLangauge.validate("%s:test(%s,%s)"
       .formatted(id(),id(), id())));
-    assertTrue(ObjectAccessExpression.validate("%s:test(%s,%s,%s)"
+    assertTrue(ObjectAccessLangauge.validate("%s:test(%s,%s,%s)"
       .formatted(id(),id(), id(), id())));
-    assertTrue(ObjectAccessExpression.validate(
+    assertTrue(ObjectAccessLangauge.validate(
       "%s:test()()".formatted(id())));
-    assertTrue(ObjectAccessExpression.validate(
+    assertTrue(ObjectAccessLangauge.validate(
       "%s:test()(test=aaa)".formatted(id())));
-    assertTrue(ObjectAccessExpression.validate(
+    assertTrue(ObjectAccessLangauge.validate(
       "%s:test()(aaa=111,bbb=222)".formatted(id())));
-    assertTrue(ObjectAccessExpression.validate(
+    assertTrue(ObjectAccessLangauge.validate(
       "%s:test(%s)(aaa=111,bbb=222)".formatted(id(),id())));
-    assertTrue(ObjectAccessExpression.validate(
+    assertTrue(ObjectAccessLangauge.validate(
       "%s:test(%s,%s)(aaa=111,bbb=222)".formatted(id(),id(),id())));
   }
   @Test
   void testInvalid() {
-    assertFalse(ObjectAccessExpression.validate(id()+':'));
-    assertFalse(ObjectAccessExpression.validate("%s:test".formatted(id())));
-    assertFalse(ObjectAccessExpression.validate("%s:test(TE__)".formatted(id())));
-    assertFalse(ObjectAccessExpression.validate("%s:test()())".formatted(id())));
+    assertFalse(ObjectAccessLangauge.validate(id()+':'));
+    assertFalse(ObjectAccessLangauge.validate("%s:test".formatted(id())));
+    assertFalse(ObjectAccessLangauge.validate("%s:test(TE__)".formatted(id())));
+    assertFalse(ObjectAccessLangauge.validate("%s:test()())".formatted(id())));
   }
 
   @Test
   void testParse() {
     var ids = List.of(id(),id(),id(),id());
-    var fc = ObjectAccessExpression.parse(
+    var fc = ObjectAccessLangauge.parse(
       ids.get(0)
     );
     assertNotNull(fc);
     assertEquals(ids.get(0),fc.getTarget().toString());
     assertNull(fc.getFunctionName());
 
-    fc = ObjectAccessExpression.parse(
+    fc = ObjectAccessLangauge.parse(
       "%s:test()".formatted(ids.get(0))
     );
     assertNotNull(fc);
@@ -64,7 +63,7 @@ class ObjectAccessExpressionTest {
     assertNull(fc.getArgs());
 
 
-    fc = ObjectAccessExpression.parse(
+    fc = ObjectAccessLangauge.parse(
       "%s:test(%s)".formatted(ids.get(0), ids.get(1))
     );
     assertNotNull(fc);
@@ -75,7 +74,7 @@ class ObjectAccessExpressionTest {
     assertEquals(ids.get(1), fc.getInputs().get(0).toString());
     assertNull(fc.getArgs());
 
-    fc = ObjectAccessExpression.parse(
+    fc = ObjectAccessLangauge.parse(
       "%s:test(%s,%s)()".formatted(ids.get(0), ids.get(1), ids.get(2))
     );
     assertNotNull(fc);
@@ -88,7 +87,7 @@ class ObjectAccessExpressionTest {
     assertNull(fc.getArgs());
 
 
-    fc = ObjectAccessExpression.parse(
+    fc = ObjectAccessLangauge.parse(
       "%s:test(%s,%s,%s)(aaa=bbb)".formatted(ids.get(0), ids.get(1), ids.get(2),
         ids.get(3))
     );
@@ -105,7 +104,7 @@ class ObjectAccessExpressionTest {
     assertEquals("bbb", fc.getArgs().get("aaa"));
     assertNull(fc.getArgs().get("ccc"));
 
-    fc = ObjectAccessExpression.parse(
+    fc = ObjectAccessLangauge.parse(
       "%s:test(%s,%s,%s)(aaa=111,122-/*=*/-++})".formatted(ids.get(0), ids.get(1), ids.get(2),
         ids.get(3))
     );
@@ -128,14 +127,14 @@ class ObjectAccessExpressionTest {
     var ids = IntStream.range(0,3)
       .mapToObj(i -> UUID.randomUUID())
       .toList();
-    var fc = new ObjectAccessExpression()
+    var fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0));
     assertEquals(
       ids.get(0).toString(),
       fc.toString()
     );
 
-    fc = new ObjectAccessExpression()
+    fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0))
       .setFunctionName("test");
     assertEquals(
@@ -143,7 +142,7 @@ class ObjectAccessExpressionTest {
       fc.toString()
     );
 
-    fc = new ObjectAccessExpression()
+    fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0))
       .setFunctionName("test")
       .setInputs(List.of(ids.get(1)));
@@ -152,7 +151,7 @@ class ObjectAccessExpressionTest {
       fc.toString()
     );
 
-    fc = new ObjectAccessExpression()
+    fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0))
       .setFunctionName("more.test")
       .setInputs(List.of(ids.get(1),ids.get(2)));
@@ -161,7 +160,7 @@ class ObjectAccessExpressionTest {
       fc.toString()
     );
 
-    fc = new ObjectAccessExpression()
+    fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0))
       .setFunctionName("more.test")
       .setInputs(List.of(ids.get(1),ids.get(2)))
@@ -171,7 +170,7 @@ class ObjectAccessExpressionTest {
       fc.toString()
     );
 
-    fc = new ObjectAccessExpression()
+    fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0))
       .setFunctionName("more.test")
       .setInputs(List.of(ids.get(1),ids.get(2)))

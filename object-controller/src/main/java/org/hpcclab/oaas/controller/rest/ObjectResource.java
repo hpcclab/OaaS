@@ -2,16 +2,12 @@ package org.hpcclab.oaas.controller.rest;
 
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.iface.service.ObjectService;
-import org.hpcclab.oaas.iface.service.TaskExecutionService;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.hpcclab.oaas.repository.AggregateRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
@@ -30,9 +26,11 @@ public class ObjectResource implements ObjectService {
   @Inject
   AggregateRepository aggregateRepo;
   @Inject
-  FunctionRouter functionRouter;
-  @Inject
-  TaskExecutionService resourceRequestService;
+  TaskCompletionRepository completionRepo;
+//  @Inject
+//  FunctionRouter functionRouter;
+//  @Inject
+//  TaskExecutionService resourceRequestService;
 
   public Uni<List<OaasObject>> list(Integer page, Integer size) {
     if (page==null) page = 0;
@@ -52,9 +50,9 @@ public class ObjectResource implements ObjectService {
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
-  public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
-    return objectRepo.getOriginAsync(UUID.fromString(id), deep);
-  }
+//  public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
+//    return objectRepo.getOriginAsync(UUID.fromString(id), deep);
+//  }
 
   public Uni<DeepOaasObject> getDeep(String id) {
     return objectRepo.getDeep(UUID.fromString(id));
@@ -65,18 +63,25 @@ public class ObjectResource implements ObjectService {
     return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
   }
 
-  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
-    request.setTarget(UUID.fromString(id));
-    return functionRouter.functionCall(request)
-      .map(FunctionExecContext::getOutput)
-      .call(out -> resourceRequestService.request(new TaskExecRequest()
-        .setId(out.getId().toString())));
-  }
+//  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
+//    request.setTarget(UUID.fromString(id));
+//    return functionRouter.functionCall(request)
+//      .map(FunctionExecContext::getOutput)
+//      .call(out -> resourceRequestService.request(new TaskExecRequest()
+//        .setId(out.getId().toString())));
+//  }
+//
+//  @Blocking
+//  public Uni<OaasObject> reactiveFuncCall(String id, ObjectAccessExpression request) {
+//    request.setTarget(UUID.fromString(id));
+//    return functionRouter.functionCall(request)
+//      .map(FunctionExecContext::getOutput);
+//  }
 
-  @Blocking
-  public Uni<OaasObject> reactiveFuncCall(String id, ObjectAccessExpression request) {
-    request.setTarget(UUID.fromString(id));
-    return functionRouter.functionCall(request)
-      .map(FunctionExecContext::getOutput);
+  @Override
+  public Uni<TaskCompletion> getCompletion(String id) {
+    var uuid = UUID.fromString(id);
+    return completionRepo.getAsync(uuid)
+      .onItem().ifNull().failWith(NotFoundException::new);
   }
 }

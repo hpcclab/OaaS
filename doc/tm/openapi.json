@@ -68,7 +68,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ObjectAccessExpression"
+                "$ref" : "#/components/schemas/ObjectAccessLangauge"
               }
             }
           }
@@ -109,7 +109,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ObjectAccessExpression"
+                "$ref" : "#/components/schemas/ObjectAccessLangauge"
               }
             }
           }
@@ -495,7 +495,7 @@
           }
         }
       },
-      "ObjectAccessExpression" : {
+      "ObjectAccessLangauge" : {
         "type" : "object",
         "properties" : {
           "args" : {

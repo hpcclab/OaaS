@@ -19,17 +19,4 @@ public class OaasTask {
   OaasFunction function;
   List<OaasObject> additionalInputs = List.of();
   String requestFile;
-
-  public static String createId(OaasObject outputObj, String requestFile) {
-    if (requestFile != null &&
-      outputObj.getState().getType() == OaasObjectState.StateType.SEGMENTABLE )
-      return outputObj.getId().toString() + "/" + requestFile;
-    else
-      return outputObj.getId().toString();
-  }
-
-  public static String createId(String oid, String requestFile) {
-    if (requestFile == null) return oid;
-    return oid+'/' + requestFile;
-  }
 }

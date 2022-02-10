@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model.oae;
+package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ObjectAccessExpression {
+public class ObjectAccessLangauge {
   UUID target;
   String functionName;
   Map<String, String> args;
   List<UUID> inputs;
 
-  public static ObjectAccessExpression from(OaasObjectOrigin origin) {
-    return new ObjectAccessExpression()
+  public static ObjectAccessLangauge from(OaasObjectOrigin origin) {
+    return new ObjectAccessLangauge()
       .setTarget(origin.getParentId())
       .setFunctionName(origin.getFuncName())
       .setArgs(origin.getArgs())
@@ -68,15 +68,15 @@ public class ObjectAccessExpression {
     return EXPR_PATTERN.matcher(expr).matches();
   }
 
-  public static ObjectAccessExpression parse(String expr) {
+  public static ObjectAccessLangauge parse(String expr) {
     var matcher=EXPR_PATTERN.matcher(expr);
     if (!matcher.find())
-      throw new OaeParsingException("The given expression('"+expr+"') doesn't match the pattern.");
+      throw new OalParsingException("The given expression('"+expr+"') doesn't match the pattern.");
     var target = matcher.group("target");
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
-    var functionCall = new ObjectAccessExpression();
+    var functionCall = new ObjectAccessLangauge();
     functionCall.target = UUID.fromString(target);
     if (func == null) return functionCall;
     functionCall.functionName = func;

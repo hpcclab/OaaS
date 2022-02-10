@@ -45,7 +45,8 @@ public class OaasObject {
   public static OaasObject createFromClasses(OaasClass cls) {
     var o = new OaasObject();
     o.setCls(cls.getName());
-    o.setState(new OaasObjectState().setType(cls.getStateType()));
+    o.setState(new OaasObjectState()
+      .setType(cls.getStateType()));
     return o;
   }
 

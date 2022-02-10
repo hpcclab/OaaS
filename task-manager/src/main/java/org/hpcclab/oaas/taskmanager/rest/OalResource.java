@@ -4,7 +4,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -45,7 +45,7 @@ public class OalResource {
   TaskManagerConfig config;
 
   @POST
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessExpression oaeObj) {
+  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oaeObj) {
     if (oaeObj==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oaeObj.getFunctionName()!=null) {
@@ -61,7 +61,7 @@ public class OalResource {
   @GET
   @Path("{oae}")
   public Uni<OaasObject> getObject(@PathParam("oae") String oae) {
-    var oaeObj = ObjectAccessExpression.parse(oae);
+    var oaeObj = ObjectAccessLangauge.parse(oae);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
     return getObjectWithPost(oaeObj);
   }
@@ -70,7 +70,7 @@ public class OalResource {
   @Path("-/{filePath:.*}")
   public Uni<Response> getContentWithPost(@PathParam("filePath") String filePath,
                                           @QueryParam("await") Boolean await,
-                                          ObjectAccessExpression oaeObj) {
+                                          ObjectAccessLangauge oaeObj) {
     if (oaeObj==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oaeObj.getFunctionName()!=null) {
@@ -101,12 +101,12 @@ public class OalResource {
   public Uni<Response> getContentWithPost(@PathParam("oae") String oae,
                                           @PathParam("filePath") String filePath,
                                           @QueryParam("await") Boolean await) {
-    var oaeObj = ObjectAccessExpression.parse(oae);
+    var oaeObj = ObjectAccessLangauge.parse(oae);
     LOGGER.debug("Receive OAE getContent '{}' '{}'", oaeObj, filePath);
     return getContentWithPost(filePath, await, oaeObj);
   }
 
-  public Uni<OaasObject> execFunction(ObjectAccessExpression oae) {
+  public Uni<OaasObject> execFunction(ObjectAccessLangauge oae) {
     var uni =  router.functionCall(oae)
       .map(FunctionExecContext::getOutput);
     if (LOGGER.isDebugEnabled()) {

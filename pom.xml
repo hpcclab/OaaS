@@ -12,6 +12,7 @@
     <module>object-controller</module>
     <module>task-manager</module>
     <module>task-completion-handler</module>
+    <module>storage-adapter</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>

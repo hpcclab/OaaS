@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
 import org.hpcclab.oaas.model.proto.OaasObject;
@@ -26,7 +26,7 @@ public class ContextLoader {
   OaasClassRepository clsRepo;
 
 
-  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessExpression request) {
+  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLangauge request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
@@ -37,7 +37,7 @@ public class ContextLoader {
       .map(ctx::setAdditionalInputs);
   }
 
-  public FunctionExecContext loadCtx(ObjectAccessExpression request) {
+  public FunctionExecContext loadCtx(ObjectAccessLangauge request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     var obj = objectRepo.get(request.getTarget());

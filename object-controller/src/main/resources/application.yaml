@@ -3,10 +3,10 @@
     console:
       color: true
     log:
-      category:
-        "org.hpcclab.oaas":
-          level: TRACE
-          min-level: TRACE
+      min-level: TRACE
+  oaas:
+    log: TRACE
+
 "%dev":
   quarkus:
     http:
@@ -14,30 +14,36 @@
     datasource:
       devservices:
         port: 5432
-    log:
-      category:
-        "org.hpcclab.oaas":
-          level: DEBUG
   oaas:
-    repo:
-      createOnStart: true
-      object:
-        persist: false
-      state:
-        persist: false
-      completion:
-        persist: false
+    log: DEBUG
+
 "%prod":
   quarkus:
     infinispan-client:
       auth-username: ${infinispan.username:}
       auth-password: ${infinispan.password:}
       server-list: ${infinispan.server:}
+  repo:
+    createOnStart: true
+    object:
+      persist: true
+    state:
+      persist: true
+    completion:
+      persist: true
 
 oaas:
   oc:
     provisionTopic: oaas-provisions
   log: INFO
+  repo:
+    createOnStart: true
+    object:
+      persist: false
+    state:
+      persist: false
+    completion:
+      persist: false
 
 quarkus:
   console:

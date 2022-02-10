@@ -27,7 +27,7 @@ public class OaasObjectState implements Serializable {
     @ProtoEnumValue(2)
     FILES,
     @ProtoEnumValue(3)
-    SEGMENTABLE,
+    COLLECTION,
     @ProtoEnumValue(4)
     RECORD
   }

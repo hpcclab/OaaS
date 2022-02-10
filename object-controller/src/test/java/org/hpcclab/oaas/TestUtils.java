@@ -5,11 +5,12 @@ import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.oae.ObjectAccessExpression;
+import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
 
 import javax.ws.rs.core.MediaType;
 
@@ -141,18 +142,10 @@ public class TestUtils {
       .extract().body().as(TaskContext.class);
   }
 
-  public static OaasObject reactiveCall(ObjectAccessExpression request) {
-    return given()
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(Json.encodePrettily(request))
-      .pathParam("oid", request.getTarget().toString())
-      .when().post("/api/objects/{oid}/r-exec")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+  public static OaasObject execOal(ObjectAccessLangauge oal, FunctionRouter router) {
+    var ctx = router.functionCall(oal)
+      .await().indefinitely();
+    return ctx.getOutput();
   }
 
   public static BatchService.Batch createBatchYaml(String clsText) {

@@ -11,7 +11,7 @@ public class TaskFactory {
   public OaasTask genTask(TaskContext taskContext,
                           String requestFile) {
     var task = new OaasTask();
-    task.setId(OaasTask.createId(taskContext.getOutput(), requestFile));
+    task.setId(taskContext.getOutput().getId().toString());
     task.setMain(taskContext.getParent());
     task.setOutput(taskContext.getOutput());
     task.setFunction(taskContext.getFunction());

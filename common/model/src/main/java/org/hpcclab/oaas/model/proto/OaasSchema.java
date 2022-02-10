@@ -5,6 +5,7 @@ import org.hpcclab.oaas.model.object.*;
 import org.hpcclab.oaas.model.provision.JobProvisionConfig;
 import org.hpcclab.oaas.model.provision.KnativeProvision;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -20,6 +21,7 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
     OaasClass.class,
     OaasFunctionBinding.class,
     StateSpecification.class,
+    KeySpecification.class,
     OaasFunction.class,
     OaasFunctionType.class,
     OaasFunctionValidation.class,
