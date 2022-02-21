@@ -4,24 +4,23 @@ Content-Type: text/x-yaml
 
 < text.yml
 
+
 ###
-POST {{oc}}/api/objects
+POST {{oc}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
 {
   "cls": "example.text",
-  "state": {
-    "type": "FILE",
-    "baseUrl": "{{base_url}}",
-    "keys": [
-        "test.txt"
-    ]
+  "embeddedRecord": {},
+  "labels": ["test"],
+  "overrideUrls": {
+    "text": "{{base_url}}/test.txt"
   }
 }
 
 > {%
-client.global.set("obj_0_id", response.body.id)
+client.global.set("obj_0_id", response.body.object.id)
 %}
 
 ###

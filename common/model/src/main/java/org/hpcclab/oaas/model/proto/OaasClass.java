@@ -69,6 +69,7 @@ public class OaasClass {
 
   public void validate() {
     if (stateSpec==null) stateSpec = new StateSpecification();
+    stateSpec.validate();
     if (stateType==OaasObjectState.StateType.COLLECTION
       && stateSpec.getDefaultProvider()==null) {
       throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");

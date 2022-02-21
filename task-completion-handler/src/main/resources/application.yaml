@@ -28,11 +28,13 @@ quarkus:
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
   log:
     category:
       "org.hpcclab.oaas":
         level: ${oaas.log:INFO}
+#  opentelemetry:
+#    enabled: false
 mp:
   messaging:
     outgoing:

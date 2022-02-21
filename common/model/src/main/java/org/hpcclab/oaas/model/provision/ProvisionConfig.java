@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProvisionConfig implements Serializable {
+public class ProvisionConfig {
   JobProvisionConfig job;
   KnativeProvision knative;
   Type type;

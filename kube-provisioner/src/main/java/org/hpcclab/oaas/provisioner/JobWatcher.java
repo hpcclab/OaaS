@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.time.Instant;
 
 @ApplicationScoped
 public class JobWatcher {
@@ -73,13 +74,12 @@ public class JobWatcher {
                             boolean succeeded) {
     var completion = new TaskCompletion()
       .setId(task.getId())
-      .setMainObj(task.getMain().getId())
-      .setOutputObj(task.getOutput().getId())
+//      .setMainObj(task.getMain().getId())
+//      .setOutputObj(task.getOutput().getId())
       .setFunctionName(task.getFunction().getName())
       .setStatus(succeeded ? TaskStatus.SUCCEEDED: TaskStatus.FAILED)
-      .setStartTime(job.getStatus().getStartTime())
-      .setCompletionTime(job.getStatus().getCompletionTime())
-      .setRequestFile(task.getRequestFile());
+      .setStartTime(Instant.parse(job.getStatus().getStartTime()).toEpochMilli())
+      .setCompletionTime(Instant.parse(job.getStatus().getCompletionTime()).toEpochMilli());
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
       .list().getItems();
     if (!items.isEmpty()) {

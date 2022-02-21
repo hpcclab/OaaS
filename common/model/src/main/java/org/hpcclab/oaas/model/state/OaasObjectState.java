@@ -9,7 +9,9 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -17,9 +19,9 @@ import java.util.List;
 public class OaasObjectState implements Serializable {
   StateType type;
   String baseUrl;
+  @Deprecated(forRemoval = true)
   List<String> keys;
-  @JsonRawValue
-  String records;
+  Map<String,String> overrideUrls;
 
   public enum StateType {
     @ProtoEnumValue(1)
@@ -28,6 +30,7 @@ public class OaasObjectState implements Serializable {
     FILES,
     @ProtoEnumValue(3)
     COLLECTION,
+    @Deprecated(forRemoval = true)
     @ProtoEnumValue(4)
     RECORD
   }
@@ -35,12 +38,19 @@ public class OaasObjectState implements Serializable {
   public OaasObjectState() {
   }
 
-  @ProtoFactory
-  public OaasObjectState(StateType type, String baseUrl, List<String> keys, String records) {
+  public OaasObjectState(StateType type, String baseUrl, List<String> keys, Map<String, String> overrideUrls) {
     this.type = type;
     this.baseUrl = baseUrl;
     this.keys = keys;
-    this.records = records;
+    this.overrideUrls = overrideUrls;
+  }
+
+  @ProtoFactory
+  public OaasObjectState(StateType type, String baseUrl, List<String> keys, HashMap<String, String> overrideUrls) {
+    this.type = type;
+    this.baseUrl = baseUrl;
+    this.keys = keys;
+    this.overrideUrls = overrideUrls;
   }
 
   @ProtoField(1)
@@ -58,8 +68,8 @@ public class OaasObjectState implements Serializable {
     return keys;
   }
 
-  @ProtoField(4)
-  public String getRecords() {
-    return records;
+  @ProtoField(number = 4, javaType = HashMap.class)
+  public Map<String, String> getOverrideUrls() {
+    return overrideUrls;
   }
 }

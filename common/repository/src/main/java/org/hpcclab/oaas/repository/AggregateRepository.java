@@ -21,18 +21,25 @@ public class AggregateRepository {
     var main = objectRepo.get(id);
     var tc = new TaskContext();
     tc.setOutput(main);
+    tc.setOutputCls(clsRepo.get(main.getCls()));
     var funcName = main.getOrigin().getFuncName();
     var function = funcRepo.get(funcName);
     tc.setFunction(function);
-    var inputs = objectRepo.listByIds(main.getOrigin().getAdditionalInputs());
-    tc.setAdditionalInputs(inputs);
+    var inputs = objectRepo.listByIds(main.getOrigin().getInputs());
+    tc.setInputs(inputs);
+    var inputCls = inputs.stream()
+      .map(input -> clsRepo.get(input.getCls()))
+      .toList();
+    tc.setInputCls(inputCls);
     if (main.getOrigin().getParentId()!=null) {
       var parent = objectRepo.get(main.getOrigin().getParentId());
-      tc.setParent(parent);
+      tc.setMain(parent);
+      tc.setMainCls(clsRepo.get(parent.getCls()));
     }
     return tc;
   }
 
+  @Deprecated
   public Uni<TaskContext> getTaskContextAsync(UUID id) {
     var tc = new TaskContext();
     return objectRepo.getAsync(id)
@@ -43,14 +50,14 @@ public class AggregateRepository {
       })
       .flatMap(func -> {
         tc.setFunction(func);
-        return objectRepo.listByIdsAsync(tc.getOutput().getOrigin().getAdditionalInputs());
+        return objectRepo.listByIdsAsync(tc.getOutput().getOrigin().getInputs());
       })
       .flatMap(inputs -> {
-        tc.setAdditionalInputs(inputs);
+        tc.setInputs(inputs);
         var parentId = tc.getOutput().getOrigin().getParentId();
         if (parentId != null){
           return objectRepo.getAsync(parentId)
-            .map(tc::setParent);
+            .map(tc::setMain);
         }
         return Uni.createFrom().item(tc);
       });

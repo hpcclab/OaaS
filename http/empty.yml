@@ -6,9 +6,7 @@ functions:
     provision:
       knative:
         image: core.harbor.10.131.36.2.nip.io/oaas/empty-function:0.2.3
-        minScale: 6
-#        maxScale: 3
-#        concurrency: 128
+        minScale: 0
         requestsCpu: '0.1'
         limitsCpu: '1'
 classes:
@@ -16,8 +14,9 @@ classes:
     stateType: FILE
     objectType: SIMPLE
     stateSpec:
-      keys:
-        - tmp
+      keySpecs:
+        - name: tmp
+      defaultProvider: s3
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

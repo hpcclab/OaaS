@@ -24,8 +24,6 @@ public class ObjectResource implements ObjectService {
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
-  AggregateRepository aggregateRepo;
-  @Inject
   TaskCompletionRepository completionRepo;
 //  @Inject
 //  FunctionRouter functionRouter;
@@ -58,10 +56,9 @@ public class ObjectResource implements ObjectService {
     return objectRepo.getDeep(UUID.fromString(id));
   }
 
-  @Blocking
-  public Uni<TaskContext> getTaskContext(String id) {
-    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
-  }
+//  public Uni<TaskContext> getTaskContext(String id) {
+//    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
+//  }
 
 //  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
 //    request.setTarget(UUID.fromString(id));

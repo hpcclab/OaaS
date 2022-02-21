@@ -1,9 +1,7 @@
 package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.digest.PureJavaCrc32;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -25,26 +23,26 @@ public class OaasObjectOrigin implements Serializable {
   String funcName;
   Map<String, String> args;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  List<UUID> additionalInputs = List.of();
+  List<UUID> inputs = List.of();
 
   public OaasObjectOrigin() {
   }
 
-  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, Map<String, String> args, List<UUID> additionalInputs) {
+  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, Map<String, String> args, List<UUID> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
-    this.additionalInputs = additionalInputs;
+    this.inputs = inputs;
   }
 
   @ProtoFactory
-  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, HashMap<String, String> args, List<UUID> additionalInputs) {
+  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, HashMap<String, String> args, List<UUID> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
-    this.additionalInputs = additionalInputs;
+    this.inputs = inputs;
   }
 
   public OaasObjectOrigin copy() {
@@ -53,7 +51,7 @@ public class OaasObjectOrigin implements Serializable {
       parentId,
       funcName,
       args==null ? null:Map.copyOf(args),
-      additionalInputs==null ? null:List.copyOf(additionalInputs)
+      inputs==null ? null:List.copyOf(inputs)
     );
   }
 
@@ -70,8 +68,8 @@ public class OaasObjectOrigin implements Serializable {
           .append(e.getValue())
         );
     }
-    if (additionalInputs!= null) {
-      additionalInputs.forEach(sb::append);
+    if (inputs!= null) {
+      inputs.forEach(sb::append);
     }
     var crc = new PureJavaCrc32();
       crc.update(sb.toString().getBytes(StandardCharsets.UTF_8));
@@ -99,7 +97,7 @@ public class OaasObjectOrigin implements Serializable {
   }
 
   @ProtoField(5)
-  public List<UUID> getAdditionalInputs() {
-    return additionalInputs;
+  public List<UUID> getInputs() {
+    return inputs;
   }
 }

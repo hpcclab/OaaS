@@ -1,0 +1,26 @@
+###
+POST {{oc}}/api/batch
+Content-Type: text/x-yaml
+
+< video.yml
+
+###
+POST {{oc}}/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.video",
+  "embeddedRecord": {},
+  "labels": ["test"],
+  "overrideUrls": {
+    "video.mp4": "{{base_url}}/test-1s.mp4"
+  }
+}
+
+> {%
+client.global.set("obj_0_id", response.body.object.id)
+%}
+
+###
+GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video.mp4

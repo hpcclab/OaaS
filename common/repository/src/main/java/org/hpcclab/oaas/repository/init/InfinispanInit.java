@@ -25,6 +25,11 @@ public class InfinispanInit {
     <distributed-cache name="%s"
                        statistics="true"
                        mode="ASYNC">
+      <!--<indexing storage="local-heap">
+        <indexed-entities>
+          <indexed-entity>org.hpcclab.oaas.model.proto.OaasObject</indexed-entity>
+        </indexed-entities>
+      </indexing>-->
       <memory storage="OFF_HEAP"
               max-size="%s"/>
       <encoding>
@@ -42,6 +47,11 @@ public class InfinispanInit {
     <distributed-cache name="%s"
                        statistics="true"
                        mode="SYNC">
+      <!--<indexing">
+        <indexed-entities>
+          <indexed-entity>org.hpcclab.oaas.model.proto.OaasObject</indexed-entity>
+        </indexed-entities>
+      </indexing>-->
       <memory storage="OFF_HEAP"
               max-size="%s"/>
       <encoding>

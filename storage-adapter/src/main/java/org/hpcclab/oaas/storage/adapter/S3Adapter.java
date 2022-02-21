@@ -3,65 +3,70 @@ package org.hpcclab.oaas.storage.adapter;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.http.Method;
-import io.smallrye.mutiny.Multi;
+import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.tuples.Tuple2;
-import io.vertx.core.json.JsonObject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.storage.DataAccessRequest;
+import org.hpcclab.oaas.model.data.DataAccessRequest;
+import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.storage.SaConfig;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @ApplicationScoped
-public class S3Adapter implements StorageAdapter{
+public class S3Adapter implements StorageAdapter {
+  private MinioClient minioClient;
+  private MinioClient publicMinioClient;
   @Inject
-  MinioClient minioClient;
-  @ConfigProperty(
-    name = "oaas.sa.s3.bucket",
-    defaultValue = "oaas-bkt"
-  )
-  String bucket;
+  SaConfig config;
+
+  void setup(@Observes StartupEvent event) {
+    var s3Config = config.s3();
+    minioClient =  MinioClient.builder()
+      .endpoint(s3Config.url())
+      .region(s3Config.region())
+      .credentials(s3Config.accessKey(), s3Config.secretKey())
+      .build();
+    publicMinioClient = MinioClient.builder()
+      .endpoint(s3Config.publicUrl())
+      .region(s3Config.region())
+      .credentials(s3Config.accessKey(), s3Config.secretKey())
+      .build();
+  }
 
   @Override
-  public Uni<Response> loadPutUrls(DataAccessRequest dar, List<String> keys) {
-    if (keys== null || keys.isEmpty()) {
-      keys = dar.getCls().getStateSpec().getKeySpecs()
-        .stream()
-        .map(KeySpecification::getName)
-        .toList();
-    }
-    return Multi.createFrom().iterable(keys)
-      .map(key -> Tuple2.of(key, generatePresigned(Method.PUT, dar.getOid() + "/" + key)))
-      .collect().asList()
-      .map(list -> {
-        var jo = new JsonObject();
-        for (var t : list) {
-          jo.put(t.getItem1(), t.getItem2());
-        }
-        return Response.ok(jo).build();
-      });
+  public String name() {
+    return "s3";
   }
 
   @Override
   public Uni<Response> get(DataAccessRequest dar) {
     return Uni.createFrom()
-      .item(() -> generatePresigned(Method.GET, dar.getOid() + "/" + dar.getKey()))
+      .item(() -> generatePresigned(
+        Method.GET,
+        dar.getOid() + "/" + dar.getKey(),
+        false)
+      )
       .map(url -> Response.temporaryRedirect(URI.create(url)).build());
   }
 
-  private String generatePresigned(Method method, String path) {
+  private String generatePresigned(Method method,
+                                   String path,
+                                   boolean isPublicUrl) {
     try {
-      var args  = GetPresignedObjectUrlArgs.builder()
+      var client = isPublicUrl ? publicMinioClient:minioClient;
+      var args = GetPresignedObjectUrlArgs.builder()
         .method(method)
-        .bucket(bucket)
+        .bucket(config.s3().bucket())
         .object(path)
         .build();
-      return minioClient.getPresignedObjectUrl(args);
+      return client.getPresignedObjectUrl(args);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -75,5 +80,18 @@ public class S3Adapter implements StorageAdapter{
   @Override
   public Uni<Response> delete(DataAccessRequest dar) {
     return null;
+  }
+
+  @Override
+  public Uni<Map<String, String>> allocate(DataAllocateRequest request) {
+    var keys = request.getKeys().get(name());
+    var map = new HashMap<String, String>();
+    for (String key : keys) {
+      var url = generatePresigned(Method.PUT,
+        request.getOid() + "/" + key,
+        true);
+      map.put(key, url);
+    }
+    return Uni.createFrom().item(map);
   }
 }

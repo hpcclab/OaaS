@@ -33,8 +33,7 @@ public class BuiltInLoader {
 
     var files = List.of(
       "/builtin/builtin.logical.yml",
-      "/builtin/builtin.basic.yml",
-      "/builtin/builtin.text.yml"
+      "/builtin/builtin.basic.yml"
     );
 
     for (String file : files) {

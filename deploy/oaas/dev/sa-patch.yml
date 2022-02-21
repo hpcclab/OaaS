@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-adapter
+spec:
+  template:
+    spec:
+      containers:
+        - name: storage-adapter
+          env:
+            - name: OAAS_SA_S3_PUBLICURL
+              value: http://s3.10.131.36.40.nip.io

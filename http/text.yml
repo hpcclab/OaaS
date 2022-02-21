@@ -5,8 +5,8 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-1.2.1
-#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:0.1.5
+#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-1.2.1
+        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:0.2.1
         minScale: 0
         maxScale: 6
         requestsCpu: '0.5'
@@ -16,8 +16,8 @@ classes:
     stateType: FILE
     objectType: SIMPLE
     stateSpec:
-      keys:
-        - text
+      keySpecs:
+        - name: text
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

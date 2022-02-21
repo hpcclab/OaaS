@@ -1,12 +1,11 @@
 package org.hpcclab.oaas.storage.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
-import org.hpcclab.oaas.model.DataAccessContext;
+import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
@@ -23,7 +22,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest

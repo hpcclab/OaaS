@@ -5,6 +5,20 @@
         accessKey: accessKey
         secretKey: secretKey
         url: http://s3.test.com
+"%prod":
+  quarkus:
+    infinispan-client:
+      auth-username: ${infinispan.username:}
+      auth-password: ${infinispan.password:}
+      server-list: ${infinispan.server:}
+  repo:
+    createOnStart: true
+    object:
+      persist: true
+    state:
+      persist: true
+    completion:
+      persist: true
 
 "%dev":
   quarkus:
@@ -26,11 +40,11 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
-    image: ${ci.registry.image:oaas}/task-completion-handler${tag:}
+    image: ${ci.registry.image:oaas}/storage-adapter${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
   log:
     category:
       "org.hpcclab.oaas":
@@ -42,3 +56,5 @@ quarkus:
     model:
       artifact-id: model
       group-id: org.hpcclab.oaas
+  opentelemetry:
+    enabled: false

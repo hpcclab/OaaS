@@ -15,6 +15,9 @@ images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-completion-handler
     newName: core.harbor.10.131.36.2.nip.io/oaas/task-completion-handler
     newTag: latest
+  - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/storage-adapter
+    newName: core.harbor.10.131.36.2.nip.io/oaas/storage-adapter
+    newTag: latest
 patches:
-#  - path: oc-patch.yml
+  - path: sa-patch.yml
   - path: infinispan-patch.yml

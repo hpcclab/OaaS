@@ -17,6 +17,7 @@ resources:
   # CDN
   - cdn.yml
 #  - monitor.yml
+  - sa.yml
 
 secretGenerator:
   - name: infinispan-connect-secret

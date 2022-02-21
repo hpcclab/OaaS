@@ -2,54 +2,60 @@ package org.hpcclab.oaas.model.proto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Data
 @Accessors(chain = true)
 public class TaskState {
+  @ProtoField(1)
   Set<String> nextTasks;
+  @ProtoField(2)
   Set<String> prqTasks;
+  @ProtoField(3)
   Set<String> completedPrqTasks;
-  boolean complete = false;
-  boolean submitted = false;
+  @ProtoField(4)
+  TaskStatus status = TaskStatus.WAITING;
+  @ProtoField(value = 5, defaultValue = "-1")
+  long submitTime = -1;
+  @ProtoField(value = 6, defaultValue = "-1")
+  long startTime = -1;
+  @ProtoField(value = 7 , defaultValue = "-1")
+  long completionTime = -1;
+  @ProtoField(8)
+  String debugLog;
 
   public TaskState() {
   }
 
   @ProtoFactory
-  public TaskState(Set<String> nextTasks, Set<String> prqTasks, Set<String> completedPrqTasks, boolean complete, boolean submitted) {
+  public TaskState(Set<String> nextTasks, Set<String> prqTasks, Set<String> completedPrqTasks, TaskStatus status, long submitTime, long startTime, long completionTime, String debugLog) {
     this.nextTasks = nextTasks;
     this.prqTasks = prqTasks;
     this.completedPrqTasks = completedPrqTasks;
-    this.complete = complete;
-    this.submitted = submitted;
+    this.status = status;
+    this.submitTime = submitTime;
+    this.startTime = startTime;
+    this.completionTime = completionTime;
+    this.debugLog = debugLog;
   }
 
-  @ProtoField(1)
-  public Set<String> getNextTasks() {
-    return nextTasks;
+  public boolean isCompleted() {
+    return status.isCompleted();
   }
 
-  @ProtoField(2)
-  public Set<String> getPrqTasks() {
-    return prqTasks;
-  }
-
-  @ProtoField(3)
-  public Set<String> getCompletedPrqTasks() {
-    return completedPrqTasks;
-  }
-
-  @ProtoField(value = 4, defaultValue = "false")
-  public boolean isComplete() {
-    return complete;
-  }
-
-  @ProtoField(value = 5, defaultValue = "false")
   public boolean isSubmitted() {
-    return submitted;
+    return status.isSubmitted();
+  }
+
+  public void update(TaskCompletion completion) {
+    status = completion.getStatus();
+    startTime = completion.startTime;
+    completionTime = completion.completionTime;
+//    debugLog = completion.debugLog;
   }
 }

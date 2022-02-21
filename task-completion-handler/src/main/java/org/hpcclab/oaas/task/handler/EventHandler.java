@@ -1,14 +1,13 @@
 package org.hpcclab.oaas.task.handler;
 
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.propagation.TextMapGetter;
-import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.TracingMetadata;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
@@ -21,7 +20,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import java.time.Instant;
 import java.util.UUID;
 
 @Path("/")
@@ -33,7 +31,9 @@ public class EventHandler {
   @Inject
   RoutingContext ctx;
   @Channel("task-completions")
-  MutinyEmitter<TaskCompletion> tasksCompletionEmitter;
+  Emitter<TaskCompletion> tasksCompletionEmitter;
+  @ConfigProperty(name = "quarkus.opentelemetry.enabled")
+  boolean openTelemetryEnabled;
 
   @POST
   public void handle(String body) {
@@ -54,13 +54,12 @@ public class EventHandler {
     var ceId = headers.get("ce-id");
     LOGGER.info("received dead letter: {}", ceId);
     var error = headers.get("ce-knativeerrordata");
-    var task = Json.decodeValue(body, OaasTask.class);
+//    var task = Json.decodeValue(body, OaasTask.class);
+    var func = headers.get("ce-function");
     var taskCompletion = new TaskCompletion()
-      .setId(task.getId())
+      .setId(ceId)
       .setStatus(TaskStatus.FAILED)
-      .setOutputObj(task.getOutput().getId())
-      .setMainObj(task.getMain().getId())
-      .setFunctionName(task.getFunction().getName())
+      .setFunctionName(func)
       .setDebugLog(error);
     send(taskCompletion);
   }
@@ -75,30 +74,17 @@ public class EventHandler {
     var succeeded = succeededHeader==null || Boolean.parseBoolean(succeededHeader);
     var taskCompletion = new TaskCompletion()
       .setId(objectId)
-      .setOutputObj(UUID.fromString(objectId))
       .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
-      .setCompletionTime(Instant.now().toString())
+      .setCompletionTime(System.currentTimeMillis())
       .setDebugLog(body);
     send(taskCompletion);
   }
 
   void send(TaskCompletion taskCompletion) {
-    tasksCompletionEmitter.send(Message.of(taskCompletion, Metadata.of(TracingMetadata.withCurrent(Context.current()))));
-  }
-
-  static class HttpServerRequestTextMapGetter implements TextMapGetter<HttpServerRequest> {
-    @Override
-    public Iterable<String> keys(final HttpServerRequest carrier) {
-      return carrier.headers().names();
-    }
-
-    @Override
-    public String get(final HttpServerRequest carrier, final String key) {
-      if (carrier==null) {
-        return null;
-      }
-
-      return carrier.headers().get(key);
+    if (openTelemetryEnabled) {
+      tasksCompletionEmitter.send(Message.of(taskCompletion, Metadata.of(TracingMetadata.withPrevious(Context.current()))));
+    } else {
+      tasksCompletionEmitter.send(taskCompletion);
     }
   }
 }

@@ -74,15 +74,8 @@ public class MacroFunctionHandler {
                                  OaasWorkflow workflow) {
     return Multi.createFrom().iterable(workflow.getSteps())
       .call(step -> {
-//        var target = resolveTarget(context, map, step.getTarget());
-//        var inputRefs = step.getInputRefs()
-//          .stream()
-//          .map(ir -> resolveTarget(context, map, ir))
-//          .toList();
         LOGGER.trace("Execute step {}", step);
         return cachedCtxLoader.loadCtxAsync(context, step)
-//        return contextLoader.loadCtx(context, target, step)
-//          .invoke(newCtx -> newCtx.setAdditionalInputs(inputRefs))
           .flatMap(newCtx -> router.functionCall(newCtx))
           .invoke(newCtx ->
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput()));

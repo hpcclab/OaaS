@@ -18,14 +18,13 @@ import java.util.UUID;
 public class TaskCompletion {
 
   String id;
-  UUID mainObj;
-  UUID outputObj;
+//  UUID mainObj;
+//  UUID outputObj;
   String functionName;
   TaskStatus status;
-  String startTime;
-  String completionTime;
-  String requestFile;
-//  String resourceUrl;
+  long startTime = -1;
+  long completionTime = -1;
+//  String requestFile;
   String debugLog;
 
   public TaskCompletion() {
@@ -33,23 +32,23 @@ public class TaskCompletion {
 
   @ProtoFactory
   public TaskCompletion(String id,
-                        UUID mainObj,
-                        UUID outputObj,
+//                        UUID mainObj,
+//                        UUID outputObj,
                         String functionName,
                         TaskStatus status,
-                        String startTime,
-                        String completionTime,
-                        String requestFile,
+                        long startTime,
+                        long completionTime,
+//                        String requestFile,
 //                        String resourceUrl,
                         String debugLog) {
     this.id = id;
-    this.mainObj = mainObj;
-    this.outputObj = outputObj;
+//    this.mainObj = mainObj;
+//    this.outputObj = outputObj;
     this.functionName = functionName;
     this.status = status;
     this.startTime = startTime;
     this.completionTime = completionTime;
-    this.requestFile = requestFile;
+//    this.requestFile = requestFile;
 //    this.resourceUrl = resourceUrl;
     this.debugLog = debugLog;
   }
@@ -59,16 +58,16 @@ public class TaskCompletion {
     return id;
   }
 
-  @ProtoField(2)
-  public UUID getMainObj() {
-    return mainObj;
-  }
-
-  @ProtoField(3)
-  public UUID getOutputObj() {
-    return outputObj;
-  }
-
+//  @ProtoField(2)
+//  public UUID getMainObj() {
+//    return mainObj;
+//  }
+//
+//  @ProtoField(3)
+//  public UUID getOutputObj() {
+//    return outputObj;
+//  }
+//
   @ProtoField(4)
   public String getFunctionName() {
     return functionName;
@@ -79,20 +78,20 @@ public class TaskCompletion {
     return status;
   }
 
-  @ProtoField(6)
-  public String getStartTime() {
+  @ProtoField(value = 6,defaultValue = "-1")
+  public long getStartTime() {
     return startTime;
   }
 
-  @ProtoField(7)
-  public String getCompletionTime() {
+  @ProtoField(value = 7,defaultValue = "-1")
+  public long getCompletionTime() {
     return completionTime;
   }
 
-  @ProtoField(8)
-  public String getRequestFile() {
-    return requestFile;
-  }
+//  @ProtoField(8)
+//  public String getRequestFile() {
+//    return requestFile;
+//  }
 
 //  @ProtoField(9)
 //  public String getResourceUrl() {

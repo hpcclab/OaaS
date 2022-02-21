@@ -48,10 +48,9 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
     if (cls==null) {
       throw NoStackException.notFoundCls400(object.getCls());
     }
-    object.setOrigin(null);
+
     object.setId(UUID.randomUUID());
-    if (object.getOrigin()==null) object.setOrigin(
-      new OaasObjectOrigin().setRootId(object.getId()));
+    object.setOrigin(new OaasObjectOrigin().setRootId(object.getId()));
 
     if (cls.getObjectType()==OaasObjectType.COMPOUND) {
       object.setState(null);
@@ -96,7 +95,6 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
   }
 
   public Uni<DeepOaasObject> getDeep(UUID id) {
-    System.out.println("get deep " + id);
     return getAsync(id)
       .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(id))
       .flatMap(obj -> {
@@ -132,7 +130,7 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
         Set<UUID> ids = results.get(i - 1).values()
           .stream()
           .filter(o -> o.getParentId()!=null)
-          .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getAdditionalInputs()
+          .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getInputs()
             .stream())
           )
           .collect(Collectors.toSet());
@@ -163,7 +161,7 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
           Set<UUID> ids = results.get(i - 1).values()
             .stream()
             .filter(o -> o.getParentId()!=null)
-            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getAdditionalInputs()
+            .flatMap(origin -> Stream.concat(Stream.of(origin.getParentId()), origin.getInputs()
               .stream())
             )
             .collect(Collectors.toSet());

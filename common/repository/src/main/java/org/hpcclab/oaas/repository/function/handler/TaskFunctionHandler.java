@@ -17,8 +17,8 @@ public class TaskFunctionHandler {
 
   @Inject
   OaasObjectRepository objectRepo;
-  @Inject
-  StorageAllocator storageAllocator;
+//  @Inject
+//  StorageAllocator storageAllocator;
 
   public void validate(FunctionExecContext context) {
     var main = context.getMain();
@@ -41,18 +41,11 @@ public class TaskFunctionHandler {
       );
     var output = OaasObject.createFromClasses(ctx.getOutputCls());
     output.setOrigin(ctx.createOrigin());
-//    if (func.getTask().getOutputFileNames()!=null) {
-//      output.getState().setKeys(func.getTask().getOutputFileNames());
-//    }
-    output.getState().setKeys(
-      ctx.getOutputCls().getStateSpec().getKeys()
-    );
 
-    storageAllocator.allocate(output);
+//    storageAllocator.allocate(output);
 
     var rootCtx = ctx;
     while (rootCtx.getParent() != null) {
-//      rootCtx.getTaskOutputs().add(output);
       rootCtx = rootCtx.getParent();
     }
     rootCtx.getTaskOutputs().add(output);

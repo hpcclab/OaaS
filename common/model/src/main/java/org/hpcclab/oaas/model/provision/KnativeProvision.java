@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class KnativeProvision implements Serializable {
+public class KnativeProvision {
   @ProtoField(1)
   String image;
   @ProtoField(value = 2, defaultValue = "0")

@@ -3,10 +3,12 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.mutiny.core.Vertx;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
-import org.hpcclab.oaas.model.task.V2TaskEvent;
+import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
 import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
 import org.hpcclab.oaas.taskmanager.factory.TaskEventFactory;
@@ -19,13 +21,14 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 @ApplicationScoped
 public class TaskEventManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger( TaskEventManager.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventManager.class);
 
   @Inject
-    @Alternative
+  @Alternative
   TaskEventProcessor taskEventProcessor;
   @Inject
   AggregateRepository aggregateRepo;
@@ -43,7 +46,7 @@ public class TaskEventManager {
   @PostConstruct
   void setup() {
     timer = Timer.builder("submitCompletionEvent")
-      .publishPercentiles(0.5,0.75,0.95,0.99)
+      .publishPercentiles(0.5, 0.75, 0.95, 0.99)
       .register(meterRegistry);
   }
 
@@ -60,14 +63,16 @@ public class TaskEventManager {
   public OaasTask createTask(String taskId) {
     var context = aggregateRepo.getTaskContext(UUID.fromString(taskId));
     LOGGER.debug("createTask {}", taskId);
-    return taskFactory.genTask(context, null);
+    return taskFactory.genTask(context);
   }
 
 
   public Uni<Void> submitCompletionEvent(List<TaskCompletion> taskCompletions) {
-    var sample =Timer.start(meterRegistry);
+    var sample = Timer.start(meterRegistry);
     var events = taskCompletions.stream()
-      .map(tc -> new V2TaskEvent().setId(tc.getId()).setType(V2TaskEvent.Type.COMPLETE))
+      .map(tc -> new TaskEvent().setId(tc.getId())
+        .setType(TaskEvent.Type.COMPLETE)
+        .setCompletion(tc))
       .toList();
     Uni<Void> uni = Uni.createFrom().item(() -> {
       taskEventProcessor.processEvents(events);

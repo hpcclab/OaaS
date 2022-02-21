@@ -90,11 +90,9 @@ public class JobProvisioner {
   }
 
   private Map<String, String> createEnv(OaasTask task) {
-    var function = task.getFunction();
     var mainObj = task.getMain();
     var outputObj = task.getOutput();
-    var inputs = task.getAdditionalInputs();
-    var requestFile = task.getRequestFile();
+    var inputs = task.getInputs();
     var jobProvisionConfig = task.getFunction().getProvision().getJob();
     var env = new HashMap<String, String>();
     if (jobProvisionConfig.isArgsToEnv() && outputObj.getOrigin().getArgs()!=null) {
@@ -108,7 +106,6 @@ public class JobProvisioner {
       putEnv(env, inputObj, prefix);
     }
     putEnv(env, outputObj, "OUTPUT");
-    env.put("REQUEST_FILE", requestFile);
     return env;
   }
 

@@ -3,6 +3,7 @@ package org.hpcclab.oaas.repository.function.handler;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 @ApplicationScoped
 public class ContextLoader {
@@ -101,7 +104,20 @@ public class ContextLoader {
                                                OaasWorkflowStep step) {
     var newCtx = new FunctionExecContext();
     newCtx.setParent(baseCtx);
-    newCtx.setArgs(baseCtx.getArgs());
+    newCtx.setArgs(step.getArgs());
+    if (step.getArgRefs() != null && !step.getArgRefs().isEmpty()) {
+      var map = new HashMap<String,String>();
+      for (var entry : step.getArgRefs().entrySet()) {
+        var resolveArg = baseCtx.getArgs().get(entry.getValue());
+        if (resolveArg == null) throw new FunctionValidationException(
+          "Can not resolve args '%s' from step %s".formatted( entry.getValue(), step));
+        map.put(entry.getKey(), resolveArg);
+      }
+      if (newCtx.getArgs() != null)
+        newCtx.getArgs().putAll(map);
+      else
+        newCtx.setArgs(map);
+    }
 
     return resolveTarget(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)

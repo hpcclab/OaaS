@@ -37,4 +37,9 @@ class ClassResourceTest {
       .statusCode(200)
       .log().all();
   }
+
+  @Test
+  void testListObject() {
+    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+  }
 }

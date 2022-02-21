@@ -23,7 +23,7 @@ public class ObjectAccessLangauge {
       .setTarget(origin.getParentId())
       .setFunctionName(origin.getFuncName())
       .setArgs(origin.getArgs())
-      .setInputs(origin.getAdditionalInputs());
+      .setInputs(origin.getInputs());
   }
 
   public String toString() {

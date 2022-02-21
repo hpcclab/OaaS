@@ -7,12 +7,7 @@ import io.smallrye.config.WithDefault;
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
   String objectControllerUrl();
-//  @WithDefault("task-state")
-//  String stateStoreName();
-//  @WithDefault("oaas-task-events")
-//  String taskEventTopic();
-//  @WithDefault("oaas-tasks")
-//  String taskTopic();
+  String storageAdapterUrl();
   @WithDefault("oaas-task-completions")
   String taskCompletionTopic();
   @WithDefault("10")

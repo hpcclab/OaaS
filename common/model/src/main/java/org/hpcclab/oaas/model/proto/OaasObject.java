@@ -1,11 +1,14 @@
 package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import org.hpcclab.oaas.model.object.OaasCompoundMember;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -22,16 +25,17 @@ public class OaasObject {
   ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
   String cls;
   Set<String> labels;
-//  @ProtoField(7)
-//  Set<OaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
   Set<OaasCompoundMember> members;
+  @JsonRawValue
+  String embeddedRecord;
+
 
   public OaasObject() {
   }
 
   @ProtoFactory
-  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<OaasCompoundMember> members) {
+  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<OaasCompoundMember> members, String embeddedRecord) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -55,6 +59,7 @@ public class OaasObject {
       .filter(mem -> mem.getName().equals(name))
       .findFirst();
   }
+
   public OaasObject copy() {
     return new OaasObject(
       id,
@@ -64,7 +69,8 @@ public class OaasObject {
       cls,
       labels==null ? null:Set.copyOf(labels),
       state,
-      members==null ? null:Set.copyOf(members)
+      members==null ? null:Set.copyOf(members),
+      embeddedRecord
     );
   }
 
@@ -89,6 +95,7 @@ public class OaasObject {
   }
 
   @ProtoField(5)
+  @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   public String getCls() {
     return cls;
   }
@@ -98,13 +105,26 @@ public class OaasObject {
     return labels;
   }
 
-  @ProtoField(8)
+  @ProtoField(7)
   public OaasObjectState getState() {
     return state;
   }
 
-  @ProtoField(9)
+  @ProtoField(8)
   public Set<OaasCompoundMember> getMembers() {
     return members;
+  }
+
+  @ProtoField(9)
+  public String getEmbeddedRecord() {
+    return embeddedRecord;
+  }
+
+  public void setEmbeddedRecord(JsonNode val) {
+    this.embeddedRecord = val.toString();
+  }
+
+  public void setEmbeddedRecord(String embeddedRecord) {
+    this.embeddedRecord = embeddedRecord;
   }
 }

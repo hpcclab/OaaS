@@ -124,55 +124,6 @@ paths:
             application/json: {}
 components:
   schemas:
-    JobProvisionConfig:
-      type: object
-      properties:
-        argsToEnv:
-          type: boolean
-        commands:
-          type: array
-          items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        image:
-          type: string
-        limitsCpu:
-          type: string
-        limitsMemory:
-          type: string
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
-    KnativeProvision:
-      type: object
-      properties:
-        concurrency:
-          format: int32
-          type: integer
-        env:
-          type: object
-          additionalProperties:
-            type: string
-        image:
-          type: string
-        limitsCpu:
-          type: string
-        limitsMemory:
-          type: string
-        maxScale:
-          format: int32
-          type: integer
-        minScale:
-          format: int32
-          type: integer
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
     OaasCompoundMember:
       type: object
       properties:
@@ -180,49 +131,14 @@ components:
           type: string
         object:
           $ref: '#/components/schemas/UUID'
-    OaasFunction:
-      required:
-      - name
-      - type
-      type: object
-      properties:
-        macro:
-          $ref: '#/components/schemas/OaasWorkflow'
-        name:
-          pattern: \S
-          type: string
-          nullable: false
-        outputCls:
-          type: string
-        provision:
-          $ref: '#/components/schemas/ProvisionConfig'
-        type:
-          allOf:
-          - $ref: '#/components/schemas/OaasFunctionType'
-          - nullable: false
-        validation:
-          $ref: '#/components/schemas/OaasFunctionValidation'
-    OaasFunctionType:
-      enum:
-      - LOGICAL
-      - MACRO
-      - TASK
-      type: string
-    OaasFunctionValidation:
-      type: object
-      properties:
-        additionalInputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasObjectRequirement'
-        bindingRequirement:
-          $ref: '#/components/schemas/OaasObjectRequirement'
     OaasObject:
       type: object
       properties:
         access:
           $ref: '#/components/schemas/ObjectAccessModifier'
         cls:
+          type: string
+        embeddedRecord:
           type: string
         id:
           $ref: '#/components/schemas/UUID'
@@ -246,32 +162,22 @@ components:
     OaasObjectOrigin:
       type: object
       properties:
-        additionalInputs:
-          type: array
-          items:
-            format: uuid
-            pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-            type: string
         args:
           type: object
           additionalProperties:
             type: string
         funcName:
           type: string
+        inputs:
+          type: array
+          items:
+            format: uuid
+            pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            type: string
         parentId:
           $ref: '#/components/schemas/UUID'
         rootId:
           $ref: '#/components/schemas/UUID'
-    OaasObjectRequirement:
-      type: object
-      properties:
-        requiredClass:
-          type: string
-        requiredLabels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
     OaasObjectState:
       type: object
       properties:
@@ -281,59 +187,37 @@ components:
           type: array
           items:
             type: string
-        records:
-          type: string
+        overrideUrls:
+          type: object
+          additionalProperties:
+            type: string
         type:
           $ref: '#/components/schemas/StateType'
     OaasTask:
       type: object
       properties:
-        additionalInputs:
+        allocOutputUrl:
+          type: string
+        id:
+          type: string
+        inputKeys:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        inputs:
           type: array
           items:
             $ref: '#/components/schemas/OaasObject'
-        function:
-          $ref: '#/components/schemas/OaasFunction'
-        id:
-          type: string
         main:
           $ref: '#/components/schemas/OaasObject'
+        mainKeys:
+          type: object
+          additionalProperties:
+            type: string
         output:
           $ref: '#/components/schemas/OaasObject'
-        requestFile:
-          type: string
-    OaasWorkflow:
-      type: object
-      properties:
-        exports:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasWorkflowExport'
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasWorkflowStep'
-    OaasWorkflowExport:
-      type: object
-      properties:
-        as:
-          type: string
-        from:
-          type: string
-    OaasWorkflowStep:
-      type: object
-      properties:
-        as:
-          type: string
-        funcName:
-          type: string
-        inputRefs:
-          type: array
-          items:
-            type: string
-        target:
-          type: string
     ObjectAccessLangauge:
       type: object
       properties:
@@ -357,32 +241,18 @@ components:
       - INTERNAL
       - PUBLIC
       type: string
-    ProvisionConfig:
-      type: object
-      properties:
-        job:
-          $ref: '#/components/schemas/JobProvisionConfig'
-        knative:
-          $ref: '#/components/schemas/KnativeProvision'
-        type:
-          $ref: '#/components/schemas/Type'
     StateType:
       enum:
+      - COLLECTION
       - FILE
       - FILES
       - RECORD
-      - SEGMENTABLE
       type: string
     TaskExecRequest:
       type: object
       properties:
         id:
           type: string
-    Type:
-      enum:
-      - DURABLE
-      - EPHEMERAL
-      type: string
     UUID:
       format: uuid
       pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"

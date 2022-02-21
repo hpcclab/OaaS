@@ -37,8 +37,8 @@ classes:
     stateType: FILE
     objectType: SIMPLE
     stateSpec:
-      keys:
-        - video.mp4
+      keySpecs:
+        - name: video.mp4
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

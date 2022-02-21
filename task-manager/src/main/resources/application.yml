@@ -74,7 +74,10 @@ quarkus:
     TaskBrokerService:
       url: ${oaas.tm.brokerUrl}
   native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
+  opentelemetry:
+    enabled: false
+
 mp:
   messaging:
 #    outgoing:

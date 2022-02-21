@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.taskmanager.factory;
 
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.task.V2TaskEvent;
+import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,22 +21,22 @@ public class TaskEventFactory {
   @Inject
   OaasObjectRepository objectRepo;
 
-  public V2TaskEvent createStartingEvent(String id) {
+  public TaskEvent createStartingEvent(String id) {
     var uuid = UUID.fromString(id);
     var object = objectRepo.get(uuid);
     if (object==null) throw NoStackException.notFoundObject400(uuid);
     var origin = object.getOrigin();
-    return new V2TaskEvent()
+    return new TaskEvent()
       .setId(id)
-      .setType(V2TaskEvent.Type.CREATE)
+      .setType(TaskEvent.Type.CREATE)
       .setExec(true)
       .setEntry(true)
       .generatePrq(origin);
   }
 
-  public List<V2TaskEvent> createPrqEvent(V2TaskEvent event,
-                                          V2TaskEvent.Type type,
-                                          Collection<String> roots) {
+  public List<TaskEvent> createPrqEvent(TaskEvent event,
+                                        TaskEvent.Type type,
+                                        Collection<String> roots) {
     if (event.getPrqTasks()==null || event.getPrqTasks().isEmpty())
       return List.of();
     var ids = event.getPrqTasks().stream()
@@ -51,7 +51,7 @@ public class TaskEventFactory {
       .values()
       .stream()
       .filter(object -> object.getOrigin().getParentId()!=null)
-      .map(obj -> new V2TaskEvent()
+      .map(obj -> new TaskEvent()
         .setId(obj.getId().toString())
         .generatePrq(obj.getOrigin())
         .setNextTasks(Set.of(event.getId()))

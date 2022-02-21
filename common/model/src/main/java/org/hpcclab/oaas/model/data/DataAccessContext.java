@@ -1,8 +1,10 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.proto.OaasObject;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +19,21 @@ public class DataAccessContext {
   String outCls;
   List<UUID> inputIds;
   List<String> inputCls;
+
+  public DataAccessContext() {
+  }
+
+  public DataAccessContext(TaskContext taskContext) {
+    mainId = taskContext.getMain().getId();
+    mainCls = taskContext.getMain().getCls();
+    outId = taskContext.getOutput().getId();
+    outCls = taskContext.getOutput().getCls();
+    inputIds = taskContext.getInputs()
+      .stream().map(OaasObject::getId).toList();
+    inputCls = taskContext.getInputs()
+      .stream()
+      .map(OaasObject::getCls).toList();
+  }
 
   public String getCls(UUID id) {
     if (mainId.equals(id)) return mainCls;

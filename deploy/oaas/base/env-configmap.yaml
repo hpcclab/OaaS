@@ -5,8 +5,10 @@ data:
   QUARKUS_CONSOLE_COLOR: 'false'
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   OAAS_OC_TASKGENERATORURL: http://task-manager
+  OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
   OAAS_OC_PROVISIONTOPIC: msc-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
+  OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
   OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/msc/default
   OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TM_TASKCOMPLETIONPARTITIONS: '1'
@@ -22,9 +24,10 @@ data:
   OAAS_REPO_STATE_PERSIST: 'false'
   OAAS_REPO_COMPLETION_PERSIST: 'false'
   OAAS_REPO_CREATEONSTART: 'true'
-  QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector.default.svc.cluster.local:4317
-  QUARKUS_OPENTELEMETRY_TRACER_SAMPLER: ratio
-  QUARKUS_OPENTELEMETRY_TRACER_SAMPLER_RATIO: '0.1'
+  QUARKUS_OPENTELEMETRY_ENABLED: 'false'
+#  QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector.default.svc.cluster.local:4317
+#  QUARKUS_OPENTELEMETRY_TRACER_SAMPLER: ratio
+#  QUARKUS_OPENTELEMETRY_TRACER_SAMPLER_RATIO: '0.01'
 
 kind: ConfigMap
 metadata:
