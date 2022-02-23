@@ -5,6 +5,7 @@
         accessKey: accessKey
         secretKey: secretKey
         url: http://s3.test.com
+        publicUrl: http://s3.test.com
 "%prod":
   quarkus:
     infinispan-client:

@@ -299,6 +299,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskCompletion'
+  /api/objects/{id}/context:
+    get:
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskContext'
   /api/objects/{id}/deep:
     get:
       parameters:
@@ -825,6 +840,27 @@ components:
           type: integer
         status:
           $ref: '#/components/schemas/TaskStatus'
+    TaskContext:
+      type: object
+      properties:
+        function:
+          $ref: '#/components/schemas/OaasFunction'
+        inputCls:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasClass'
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasObject'
+        main:
+          $ref: '#/components/schemas/OaasObject'
+        mainCls:
+          $ref: '#/components/schemas/OaasClass'
+        output:
+          $ref: '#/components/schemas/OaasObject'
+        outputCls:
+          $ref: '#/components/schemas/OaasClass'
     TaskStatus:
       enum:
       - DOING

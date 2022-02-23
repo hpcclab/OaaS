@@ -14,6 +14,7 @@ import java.util.UUID;
 public class ContentUrlGenerator {
   @Inject
   TaskManagerConfig config;
+  final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
 
   public String generateUrl(OaasObject obj,
                             String file) {
@@ -40,6 +41,6 @@ public class ContentUrlGenerator {
 
   public String genBase64Dac(DataAccessContext dac) {
 
-    return Base64.getUrlEncoder().encodeToString(Json.encode(dac).getBytes());
+    return encoder.encodeToString(Json.encode(dac).getBytes());
   }
 }

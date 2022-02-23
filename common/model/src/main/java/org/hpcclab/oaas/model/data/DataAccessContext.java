@@ -28,16 +28,19 @@ public class DataAccessContext {
     mainCls = taskContext.getMain().getCls();
     outId = taskContext.getOutput().getId();
     outCls = taskContext.getOutput().getCls();
-    inputIds = taskContext.getInputs()
-      .stream().map(OaasObject::getId).toList();
-    inputCls = taskContext.getInputs()
-      .stream()
-      .map(OaasObject::getCls).toList();
+    if (!taskContext.getInputs().isEmpty()) {
+      inputIds = taskContext.getInputs()
+        .stream().map(OaasObject::getId).toList();
+      inputCls = taskContext.getInputs()
+        .stream()
+        .map(OaasObject::getCls).toList();
+    }
   }
 
   public String getCls(UUID id) {
-    if (mainId.equals(id)) return mainCls;
-    if (outId.equals(id)) return outCls;
+    if (mainId != null && mainId.equals(id)) return mainCls;
+    if (outId != null && outId.equals(id)) return outCls;
+    if (inputIds == null) return null;
     var i = inputIds.indexOf(id);
     if (i < 0) return null;
     return inputCls.get(i);

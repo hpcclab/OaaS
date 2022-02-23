@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
   StateType type;
   String baseUrl;

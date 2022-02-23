@@ -22,9 +22,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-//@Path("/api/task-completions")
-//@Consumes(MediaType.APPLICATION_JSON)
-//@Produces(MediaType.APPLICATION_JSON)
+@Path("/api/task-completions")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class TaskCompletionConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger( TaskCompletionConsumer.class );
 
@@ -34,7 +34,7 @@ public class TaskCompletionConsumer {
   RemoteCache<UUID, TaskCompletion> remoteCache;
 
   @Incoming("task-completions")
-//  @POST
+  @POST
   public Uni<Void> handle(List<TaskCompletion> taskCompletions) {
     var map = taskCompletions.stream()
       .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));

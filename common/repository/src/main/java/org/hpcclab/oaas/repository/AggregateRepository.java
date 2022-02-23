@@ -39,7 +39,6 @@ public class AggregateRepository {
     return tc;
   }
 
-  @Deprecated
   public Uni<TaskContext> getTaskContextAsync(UUID id) {
     var tc = new TaskContext();
     return objectRepo.getAsync(id)
@@ -48,16 +47,22 @@ public class AggregateRepository {
         tc.setOutput(main);
         return funcRepo.getAsync(main.getOrigin().getFuncName());
       })
+      .invoke(() -> tc.setOutputCls(clsRepo.get(tc.getOutput().getCls())))
       .flatMap(func -> {
         tc.setFunction(func);
         return objectRepo.listByIdsAsync(tc.getOutput().getOrigin().getInputs());
       })
       .flatMap(inputs -> {
         tc.setInputs(inputs);
+        var inputCls = inputs.stream()
+          .map(input -> clsRepo.get(input.getCls()))
+          .toList();
+        tc.setInputCls(inputCls);
         var parentId = tc.getOutput().getOrigin().getParentId();
         if (parentId != null){
           return objectRepo.getAsync(parentId)
-            .map(tc::setMain);
+            .map(tc::setMain)
+            .invoke(() -> tc.setOutputCls(clsRepo.get(tc.getMain().getCls())));
         }
         return Uni.createFrom().item(tc);
       });

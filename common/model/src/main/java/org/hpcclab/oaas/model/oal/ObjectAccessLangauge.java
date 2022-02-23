@@ -76,26 +76,26 @@ public class ObjectAccessLangauge {
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
-    var functionCall = new ObjectAccessLangauge();
-    functionCall.target = UUID.fromString(target);
-    if (func == null) return functionCall;
-    functionCall.functionName = func;
+    var oal = new ObjectAccessLangauge();
+    oal.target = UUID.fromString(target);
+    if (func == null) return oal;
+    oal.functionName = func;
     if (inputs != null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .map(UUID::fromString)
         .toList();
-      functionCall.setInputs(list);
+      oal.setInputs(list);
     }
     if (args != null && !args.isEmpty()) {
       var argMap  = Arrays.stream(args.split(","))
         .map(pair -> {
           var kv = pair.split("=");
-          if (kv.length != 2) throw new RuntimeException("Arguments parsing exception");
+          if (kv.length != 2) throw new OalParsingException("Arguments parsing exception");
           return Map.entry(kv[0], kv[1]);
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      functionCall.setArgs(argMap);
+      oal.setArgs(argMap);
     }
-    return functionCall;
+    return oal;
   }
 }

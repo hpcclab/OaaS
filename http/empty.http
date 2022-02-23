@@ -5,36 +5,24 @@ Content-Type: text/x-yaml
 < empty.yml
 
 ###
-POST {{oc}}/api/objects
+POST {{oc}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
 {
   "cls": "example.empty",
-  "state": {
-    "type": "FILE",
-    "baseUrl": "{{base_url}}",
-    "keys": [
-        "tmp"
-    ]
-  }
+  "embeddedRecord": {},
+  "labels": ["test-empty"],
+  "keys": [],
+  "overrideUrls": {}
 }
 
 > {%
-client.global.set("obj_0_id", response.body.id)
+client.global.set("obj_0_id", response.body.object.id)
 %}
-
 ###
 GET {{cdn}}/{{obj_0_id}}
 ###
-GET {{cdn}}/{{obj_0_id}}:example.empty.function()
-
-> {%
-client.global.set("obj_1_id", response.body.id)
-%}
-###
-GET {{cdn}}/{{obj_1_id}}/tmp
-###
-GET {{cdn}}/{{obj_0_id}}:example.empty.function()/tmp?await=true
+GET {{cdn}}/{{obj_0_id}}:example.empty.function()/text?await=true
 ###
 GET {{tm}}/oal/{{obj_0_id}}:example.empty.function()/tmp

@@ -4,26 +4,26 @@ Content-Type: text/x-yaml
 
 < video.yml
 
-
 ###
-POST {{oc}}/api/objects
+POST {{oc}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
 {
   "cls": "example.video",
-  "state": {
-    "type": "FILE",
-    "baseUrl": "{{base_url}}",
-    "keys": [
-        "test-1s.mp4"
-    ]
+  "embeddedRecord": {},
+  "labels": ["test"],
+  "overrideUrls": {
+    "video": "{{base_url}}/test-1s.mp4"
   }
 }
 
 > {%
-client.global.set("obj_0_id", response.body.id)
+client.global.set("obj_0_id", response.body.object.id)
 %}
 
 ###
-GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video.mp4
+GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video
+
+###
+GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video

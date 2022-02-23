@@ -29,6 +29,20 @@ paths:
       responses:
         "201":
           description: Created
+  /api/task-completions:
+    post:
+      tags:
+      - Task Completion Consumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskCompletion'
+      responses:
+        "201":
+          description: Created
   /api/task-exec:
     post:
       requestBody:
@@ -248,11 +262,35 @@ components:
       - FILES
       - RECORD
       type: string
+    TaskCompletion:
+      type: object
+      properties:
+        completionTime:
+          format: int64
+          type: integer
+        debugLog:
+          type: string
+        functionName:
+          type: string
+        id:
+          type: string
+        startTime:
+          format: int64
+          type: integer
+        status:
+          $ref: '#/components/schemas/TaskStatus'
     TaskExecRequest:
       type: object
       properties:
         id:
           type: string
+    TaskStatus:
+      enum:
+      - DOING
+      - FAILED
+      - SUCCEEDED
+      - WAITING
+      type: string
     UUID:
       format: uuid
       pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: task-completion-handler
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: task-completion-handler

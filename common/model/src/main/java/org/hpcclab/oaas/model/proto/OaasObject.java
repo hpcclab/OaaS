@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObject {
   UUID id;
   OaasObjectOrigin origin;

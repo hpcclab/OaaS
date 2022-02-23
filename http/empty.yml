@@ -14,9 +14,7 @@ classes:
     stateType: FILE
     objectType: SIMPLE
     stateSpec:
-      keySpecs:
-        - name: tmp
-      defaultProvider: s3
+      keySpecs: []
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.2.3
+        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.2.13
         minScale: 0
         maxScale: 6
         concurrency: 4
@@ -38,7 +38,7 @@ classes:
     objectType: SIMPLE
     stateSpec:
       keySpecs:
-        - name: video.mp4
+        - name: video
     functions:
       - access: PUBLIC
         function: builtin.logical.copy

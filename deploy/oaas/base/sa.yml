@@ -5,7 +5,7 @@ metadata:
   labels:
     app: storage-adapter
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: storage-adapter
@@ -52,7 +52,7 @@ spec:
           resources:
             limits:
               memory: 1G
-              cpu: '2'
+              cpu: '8'
             requests:
               cpu: '0.5'
               memory: 256M

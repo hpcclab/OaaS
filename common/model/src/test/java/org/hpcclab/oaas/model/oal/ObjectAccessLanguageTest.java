@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ObjectAccessExpressionTest {
+class ObjectAccessLanguageTest {
 
   String id() {
     return UUID.randomUUID().toString();

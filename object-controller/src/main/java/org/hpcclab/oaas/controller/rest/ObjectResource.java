@@ -29,6 +29,8 @@ public class ObjectResource implements ObjectService {
 //  FunctionRouter functionRouter;
 //  @Inject
 //  TaskExecutionService resourceRequestService;
+  @Inject
+  AggregateRepository aggregateRepo;
 
   public Uni<List<OaasObject>> list(Integer page, Integer size) {
     if (page==null) page = 0;
@@ -56,9 +58,9 @@ public class ObjectResource implements ObjectService {
     return objectRepo.getDeep(UUID.fromString(id));
   }
 
-//  public Uni<TaskContext> getTaskContext(String id) {
-//    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
-//  }
+  public Uni<TaskContext> getTaskContext(String id) {
+    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
+  }
 
 //  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
 //    request.setTarget(UUID.fromString(id));

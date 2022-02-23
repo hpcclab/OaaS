@@ -48,16 +48,16 @@ public class OalResource {
   TaskManagerConfig config;
 
   @POST
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oaeObj) {
-    if (oaeObj==null)
+  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal) {
+    if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oaeObj.getFunctionName()!=null) {
-      return execFunction(oaeObj)
+    if (oal.getFunctionName()!=null) {
+      return execFunction(oal)
         .call(obj -> taskEventManager.submitCreateEvent(obj.getId().toString()));
     } else {
-      return objectRepo.getAsync(oaeObj.getTarget())
+      return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
-        .failWith(() -> NoStackException.notFoundObject(oaeObj.getTarget(), 404));
+        .failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404));
     }
   }
 
@@ -73,17 +73,17 @@ public class OalResource {
   @Path("-/{filePath:.*}")
   public Uni<Response> getContentWithPost(@PathParam("filePath") String filePath,
                                           @QueryParam("await") Boolean await,
-                                          ObjectAccessLangauge oaeObj) {
-    if (oaeObj==null)
+                                          ObjectAccessLangauge oal) {
+    if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oaeObj.getFunctionName()!=null) {
-      return execFunction(oaeObj)
+    if (oal.getFunctionName()!=null) {
+      return execFunction(oal)
         .flatMap(obj -> submitAndWait(obj.getId(), await)
           .map(taskCompletion -> createResponse(obj, filePath, taskCompletion))
         );
 
     } else {
-      return objectRepo.getAsync(oaeObj.getTarget())
+      return objectRepo.getAsync(oal.getTarget())
         .flatMap(obj -> {
           if (obj.getOrigin().getParentId()==null) {
             return Uni.createFrom().item(createResponse(obj, filePath));
