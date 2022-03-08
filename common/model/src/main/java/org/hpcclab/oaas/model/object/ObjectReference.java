@@ -9,15 +9,15 @@ import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
-public class OaasCompoundMember {
+public class ObjectReference {
   String name;
   UUID object;
 
-  public OaasCompoundMember() {
+  public ObjectReference() {
   }
 
   @ProtoFactory
-  public OaasCompoundMember(String name, UUID object) {
+  public ObjectReference(String name, UUID object) {
     this.name = name;
     this.object = object;
   }

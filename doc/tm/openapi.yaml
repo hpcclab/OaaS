@@ -43,16 +43,6 @@ paths:
       responses:
         "201":
           description: Created
-  /api/task-exec:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TaskExecRequest'
-      responses:
-        "201":
-          description: Created
   /oal:
     post:
       tags:
@@ -94,12 +84,12 @@ paths:
           description: OK
           content:
             application/json: {}
-  /oal/{oae}:
+  /oal/{oal}:
     get:
       tags:
       - Oal Resource
       parameters:
-      - name: oae
+      - name: oal
         in: path
         required: true
         schema:
@@ -111,7 +101,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
-  /oal/{oae}/{filePath}:
+  /oal/{oal}/{filePath}:
     get:
       tags:
       - Oal Resource
@@ -122,7 +112,7 @@ paths:
         schema:
           pattern: .*
           type: string
-      - name: oae
+      - name: oal
         in: path
         required: true
         schema:
@@ -138,13 +128,6 @@ paths:
             application/json: {}
 components:
   schemas:
-    OaasCompoundMember:
-      type: object
-      properties:
-        name:
-          type: string
-        object:
-          $ref: '#/components/schemas/UUID'
     OaasObject:
       type: object
       properties:
@@ -161,16 +144,16 @@ components:
           type: array
           items:
             type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
           format: int64
           type: integer
+        refs:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
     OaasObjectOrigin:
@@ -195,16 +178,12 @@ components:
     OaasObjectState:
       type: object
       properties:
-        baseUrl:
-          type: string
-        keys:
-          type: array
-          items:
-            type: string
         overrideUrls:
           type: object
           additionalProperties:
             type: string
+        stateId:
+          type: string
         type:
           $ref: '#/components/schemas/StateType'
     OaasTask:
@@ -255,12 +234,17 @@ components:
       - INTERNAL
       - PUBLIC
       type: string
+    ObjectReference:
+      type: object
+      properties:
+        name:
+          type: string
+        object:
+          $ref: '#/components/schemas/UUID'
     StateType:
       enum:
       - COLLECTION
-      - FILE
       - FILES
-      - RECORD
       type: string
     TaskCompletion:
       type: object
@@ -270,7 +254,7 @@ components:
           type: integer
         debugLog:
           type: string
-        functionName:
+        embeddedRecord:
           type: string
         id:
           type: string
@@ -279,11 +263,6 @@ components:
           type: integer
         status:
           $ref: '#/components/schemas/TaskStatus'
-    TaskExecRequest:
-      type: object
-      properties:
-        id:
-          type: string
     TaskStatus:
       enum:
       - DOING

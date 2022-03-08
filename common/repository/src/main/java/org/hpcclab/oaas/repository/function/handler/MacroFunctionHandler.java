@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasWorkflow;
-import org.hpcclab.oaas.model.object.OaasCompoundMember;
+import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
@@ -31,8 +31,8 @@ public class MacroFunctionHandler {
   ContextLoader cachedCtxLoader;
 
   public void validate(FunctionExecContext context) {
-    if (context.getMainCls().getObjectType()!=OaasObjectType.COMPOUND)
-      throw new FunctionValidationException("Object must be COMPOUND");
+//    if (context.getMainCls().getObjectType()!=OaasObjectType.COMPOUND)
+//      throw new FunctionValidationException("Object must be COMPOUND");
     if (context.getFunction().getType()!=OaasFunctionType.MACRO)
       throw new FunctionValidationException("Function must be MACRO");
   }
@@ -59,12 +59,12 @@ public class MacroFunctionHandler {
       .chain(() -> {
         var mem = func.getMacro().getExports()
           .stream()
-          .map(export -> new OaasCompoundMember()
+          .map(export -> new ObjectReference()
             .setName(export.getAs())
             .setObject(context.getWorkflowMap()
               .get(export.getFrom()).getId()))
           .collect(Collectors.toUnmodifiableSet());
-        output.setMembers(mem);
+        output.setRefs(mem);
         return objectRepo.persistAsync(output);
       })
       .map(context::setOutput);

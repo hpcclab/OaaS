@@ -62,18 +62,18 @@ public class OalResource {
   }
 
   @GET
-  @Path("{oae}")
-  public Uni<OaasObject> getObject(@PathParam("oae") String oae) {
-    var oaeObj = ObjectAccessLangauge.parse(oae);
+  @Path("{oal}")
+  public Uni<OaasObject> getObject(@PathParam("oal") String oal) {
+    var oaeObj = ObjectAccessLangauge.parse(oal);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
     return getObjectWithPost(oaeObj);
   }
 
   @POST
   @Path("-/{filePath:.*}")
-  public Uni<Response> getContentWithPost(@PathParam("filePath") String filePath,
-                                          @QueryParam("await") Boolean await,
-                                          ObjectAccessLangauge oal) {
+  public Uni<Response> postContentAndExec(@PathParam("filePath") String filePath,
+                                         @QueryParam("await") Boolean await,
+                                         ObjectAccessLangauge oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
@@ -100,13 +100,13 @@ public class OalResource {
 
 
   @GET
-  @Path("{oae}/{filePath:.*}")
-  public Uni<Response> getContentWithPost(@PathParam("oae") String oae,
-                                          @PathParam("filePath") String filePath,
-                                          @QueryParam("await") Boolean await) {
-    var oaeObj = ObjectAccessLangauge.parse(oae);
+  @Path("{oal}/{filePath:.*}")
+  public Uni<Response> getContentAndExec(@PathParam("oal") String oal,
+                                         @PathParam("filePath") String filePath,
+                                         @QueryParam("await") Boolean await) {
+    var oaeObj = ObjectAccessLangauge.parse(oal);
     LOGGER.debug("Receive OAE getContent '{}' '{}'", oaeObj, filePath);
-    return getContentWithPost(filePath, await, oaeObj);
+    return postContentAndExec(filePath, await, oaeObj);
   }
 
   public Uni<OaasObject> execFunction(ObjectAccessLangauge oae) {

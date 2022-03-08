@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,41 +18,32 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
-
   String id;
-//  UUID mainObj;
-//  UUID outputObj;
-  String functionName;
+//  String functionName;
   TaskStatus status;
   long startTime = -1;
   long completionTime = -1;
-//  String requestFile;
   String debugLog;
+  @JsonRawValue
+  String embeddedRecord;
 
   public TaskCompletion() {
   }
 
   @ProtoFactory
   public TaskCompletion(String id,
-//                        UUID mainObj,
-//                        UUID outputObj,
-                        String functionName,
+//                        String functionName,
                         TaskStatus status,
                         long startTime,
                         long completionTime,
-//                        String requestFile,
-//                        String resourceUrl,
-                        String debugLog) {
+                        String debugLog,
+                        String embeddedRecord) {
     this.id = id;
-//    this.mainObj = mainObj;
-//    this.outputObj = outputObj;
-    this.functionName = functionName;
     this.status = status;
     this.startTime = startTime;
     this.completionTime = completionTime;
-//    this.requestFile = requestFile;
-//    this.resourceUrl = resourceUrl;
     this.debugLog = debugLog;
+    this.embeddedRecord = embeddedRecord;
   }
 
   @ProtoField(1)
@@ -58,20 +51,10 @@ public class TaskCompletion {
     return id;
   }
 
-//  @ProtoField(2)
-//  public UUID getMainObj() {
-//    return mainObj;
+//  @ProtoField(4)
+//  public String getFunctionName() {
+//    return functionName;
 //  }
-//
-//  @ProtoField(3)
-//  public UUID getOutputObj() {
-//    return outputObj;
-//  }
-//
-  @ProtoField(4)
-  public String getFunctionName() {
-    return functionName;
-  }
 
   @ProtoField(5)
   public TaskStatus getStatus() {
@@ -88,19 +71,20 @@ public class TaskCompletion {
     return completionTime;
   }
 
-//  @ProtoField(8)
-//  public String getRequestFile() {
-//    return requestFile;
-//  }
-
-//  @ProtoField(9)
-//  public String getResourceUrl() {
-//    return resourceUrl;
-//  }
-
   @ProtoField(10)
   public String getDebugLog() {
     return debugLog;
   }
+  @ProtoField(11)
+  public String getEmbeddedRecord() {
+    return embeddedRecord;
+  }
 
+  public void setEmbeddedRecord(JsonNode val) {
+    this.embeddedRecord = val.toString();
+  }
+
+  public void setEmbeddedRecord(String embeddedRecord) {
+    this.embeddedRecord = embeddedRecord;
+  }
 }

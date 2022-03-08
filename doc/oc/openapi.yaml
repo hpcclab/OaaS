@@ -299,21 +299,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskCompletion'
-  /api/objects/{id}/context:
-    get:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TaskContext'
   /api/objects/{id}/deep:
     get:
       parameters:
@@ -449,16 +434,16 @@ components:
           type: array
           items:
             type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
           format: int64
           type: integer
+        refs:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
     FunctionAccessModifier:
@@ -536,20 +521,19 @@ components:
         objectType:
           $ref: '#/components/schemas/OaasObjectType'
         parents:
+          uniqueItems: true
           type: array
           items:
             type: string
+        refSpec:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferenceSpecification'
         stateSpec:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
-    OaasCompoundMember:
-      type: object
-      properties:
-        name:
-          type: string
-        object:
-          $ref: '#/components/schemas/UUID'
     OaasFunction:
       required:
       - name
@@ -610,16 +594,16 @@ components:
           type: array
           items:
             type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasCompoundMember'
         origin:
           $ref: '#/components/schemas/OaasObjectOrigin'
         originHash:
           format: int64
           type: integer
+        refs:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
     OaasObjectOrigin:
@@ -654,16 +638,12 @@ components:
     OaasObjectState:
       type: object
       properties:
-        baseUrl:
-          type: string
-        keys:
-          type: array
-          items:
-            type: string
         overrideUrls:
           type: object
           additionalProperties:
             type: string
+        stateId:
+          type: string
         type:
           $ref: '#/components/schemas/StateType'
     OaasObjectType:
@@ -738,7 +718,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/OaasCompoundMember'
+            $ref: '#/components/schemas/ObjectReference'
         overrideUrls:
           type: object
           additionalProperties:
@@ -752,6 +732,13 @@ components:
           type: object
           additionalProperties:
             type: string
+    ObjectReference:
+      type: object
+      properties:
+        name:
+          type: string
+        object:
+          $ref: '#/components/schemas/UUID'
     ProvisionConfig:
       type: object
       properties:
@@ -761,6 +748,13 @@ components:
           $ref: '#/components/schemas/KnativeProvision'
         type:
           $ref: '#/components/schemas/Type'
+    ReferenceSpecification:
+      type: object
+      properties:
+        cls:
+          type: string
+        name:
+          type: string
     RemoteCacheClientStatisticsMXBean:
       type: object
       properties:
@@ -819,9 +813,7 @@ components:
     StateType:
       enum:
       - COLLECTION
-      - FILE
       - FILES
-      - RECORD
       type: string
     TaskCompletion:
       type: object
@@ -831,7 +823,7 @@ components:
           type: integer
         debugLog:
           type: string
-        functionName:
+        embeddedRecord:
           type: string
         id:
           type: string
@@ -840,27 +832,6 @@ components:
           type: integer
         status:
           $ref: '#/components/schemas/TaskStatus'
-    TaskContext:
-      type: object
-      properties:
-        function:
-          $ref: '#/components/schemas/OaasFunction'
-        inputCls:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasClass'
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasObject'
-        main:
-          $ref: '#/components/schemas/OaasObject'
-        mainCls:
-          $ref: '#/components/schemas/OaasClass'
-        output:
-          $ref: '#/components/schemas/OaasObject'
-        outputCls:
-          $ref: '#/components/schemas/OaasClass'
     TaskStatus:
       enum:
       - DOING

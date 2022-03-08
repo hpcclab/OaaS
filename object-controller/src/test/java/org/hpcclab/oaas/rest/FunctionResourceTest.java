@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.resourcetest;
+package org.hpcclab.oaas.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.hpcclab.oaas.TestUtils;

@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.proto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.cls.ReferenceSpecification;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.object.OaasObjectType;
@@ -22,18 +23,20 @@ public class OaasClass {
   private OaasObjectState.StateType stateType;
   private Set<OaasFunctionBinding> functions;
   private StateSpecification stateSpec;
-  private List<String> parents;
+  private Set<ReferenceSpecification> refSpec;
+  private Set<String> parents;
 
   public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, List<String> parents) {
+  public OaasClass(String name, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
     this.name = name;
     this.objectType = objectType;
     this.stateType = stateType;
     this.functions = functions;
     this.stateSpec = stateSpec;
+    this.refSpec = refSpec;
     this.parents = parents;
   }
 
@@ -63,8 +66,13 @@ public class OaasClass {
   }
 
   @ProtoField(6)
-  public List<String> getParents() {
+  public Set<String> getParents() {
     return parents;
+  }
+
+  @ProtoField(7)
+  public Set<ReferenceSpecification> getRefSpec() {
+    return refSpec;
   }
 
   public void validate() {

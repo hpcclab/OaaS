@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import org.hpcclab.oaas.model.object.OaasCompoundMember;
+import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -26,16 +26,17 @@ public class OaasObject {
   String cls;
   Set<String> labels;
   OaasObjectState state;
-  Set<OaasCompoundMember> members;
+  Set<ObjectReference> refs;
   @JsonRawValue
   String embeddedRecord;
+//  TaskCompletion task;
 
 
   public OaasObject() {
   }
 
   @ProtoFactory
-  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<OaasCompoundMember> members, String embeddedRecord) {
+  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -43,7 +44,7 @@ public class OaasObject {
     this.cls = cls;
     this.labels = labels;
     this.state = state;
-    this.members = members;
+    this.refs = refs;
   }
 
   public static OaasObject createFromClasses(OaasClass cls) {
@@ -54,8 +55,8 @@ public class OaasObject {
     return o;
   }
 
-  public Optional<OaasCompoundMember> findMember(String name) {
-    return members.stream()
+  public Optional<ObjectReference> findReference(String name) {
+    return refs.stream()
       .filter(mem -> mem.getName().equals(name))
       .findFirst();
   }
@@ -69,7 +70,7 @@ public class OaasObject {
       cls,
       labels==null ? null:Set.copyOf(labels),
       state,
-      members==null ? null:Set.copyOf(members),
+      refs==null ? null:Set.copyOf(refs),
       embeddedRecord
     );
   }
@@ -111,8 +112,8 @@ public class OaasObject {
   }
 
   @ProtoField(8)
-  public Set<OaasCompoundMember> getMembers() {
-    return members;
+  public Set<ObjectReference> getRefs() {
+    return refs;
   }
 
   @ProtoField(9)

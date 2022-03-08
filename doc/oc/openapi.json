@@ -478,30 +478,6 @@
         }
       }
     },
-    "/api/objects/{id}/context" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TaskContext"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/objects/{id}/deep" : {
       "get" : {
         "parameters" : [ {
@@ -708,19 +684,19 @@
               "type" : "string"
             }
           },
-          "members" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMember"
-            }
-          },
           "origin" : {
             "$ref" : "#/components/schemas/OaasObjectOrigin"
           },
           "originHash" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "refs" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectReference"
+            }
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
@@ -832,9 +808,17 @@
             "$ref" : "#/components/schemas/OaasObjectType"
           },
           "parents" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "type" : "string"
+            }
+          },
+          "refSpec" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification"
             }
           },
           "stateSpec" : {
@@ -842,17 +826,6 @@
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
-          }
-        }
-      },
-      "OaasCompoundMember" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "object" : {
-            "$ref" : "#/components/schemas/UUID"
           }
         }
       },
@@ -937,19 +910,19 @@
               "type" : "string"
             }
           },
-          "members" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMember"
-            }
-          },
           "origin" : {
             "$ref" : "#/components/schemas/OaasObjectOrigin"
           },
           "originHash" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "refs" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectReference"
+            }
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
@@ -1002,20 +975,14 @@
       "OaasObjectState" : {
         "type" : "object",
         "properties" : {
-          "baseUrl" : {
-            "type" : "string"
-          },
-          "keys" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "overrideUrls" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "stateId" : {
+            "type" : "string"
           },
           "type" : {
             "$ref" : "#/components/schemas/StateType"
@@ -1118,7 +1085,7 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasCompoundMember"
+              "$ref" : "#/components/schemas/ObjectReference"
             }
           },
           "overrideUrls" : {
@@ -1143,6 +1110,17 @@
           }
         }
       },
+      "ObjectReference" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "object" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
       "ProvisionConfig" : {
         "type" : "object",
         "properties" : {
@@ -1154,6 +1132,17 @@
           },
           "type" : {
             "$ref" : "#/components/schemas/Type"
+          }
+        }
+      },
+      "ReferenceSpecification" : {
+        "type" : "object",
+        "properties" : {
+          "cls" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
           }
         }
       },
@@ -1236,7 +1225,7 @@
         }
       },
       "StateType" : {
-        "enum" : [ "COLLECTION", "FILE", "FILES", "RECORD" ],
+        "enum" : [ "COLLECTION", "FILES" ],
         "type" : "string"
       },
       "TaskCompletion" : {
@@ -1249,7 +1238,7 @@
           "debugLog" : {
             "type" : "string"
           },
-          "functionName" : {
+          "embeddedRecord" : {
             "type" : "string"
           },
           "id" : {
@@ -1261,38 +1250,6 @@
           },
           "status" : {
             "$ref" : "#/components/schemas/TaskStatus"
-          }
-        }
-      },
-      "TaskContext" : {
-        "type" : "object",
-        "properties" : {
-          "function" : {
-            "$ref" : "#/components/schemas/OaasFunction"
-          },
-          "inputCls" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasClass"
-            }
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasObject"
-            }
-          },
-          "main" : {
-            "$ref" : "#/components/schemas/OaasObject"
-          },
-          "mainCls" : {
-            "$ref" : "#/components/schemas/OaasClass"
-          },
-          "output" : {
-            "$ref" : "#/components/schemas/OaasObject"
-          },
-          "outputCls" : {
-            "$ref" : "#/components/schemas/OaasClass"
           }
         }
       },

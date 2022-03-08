@@ -58,9 +58,9 @@ public class ObjectResource implements ObjectService {
     return objectRepo.getDeep(UUID.fromString(id));
   }
 
-  public Uni<TaskContext> getTaskContext(String id) {
-    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
-  }
+//  public Uni<TaskContext> getTaskContext(String id) {
+//    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
+//  }
 
 //  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
 //    request.setTarget(UUID.fromString(id));

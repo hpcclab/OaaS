@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.Map;
 
 @ApplicationScoped
 public class ContextLoader {
@@ -136,7 +135,7 @@ public class ContextLoader {
   public Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {
     if (baseCtx.getWorkflowMap().containsKey(ref))
       return Uni.createFrom().item(baseCtx.getWorkflowMap().get(ref));
-    var res = baseCtx.getMain().findMember(ref);
+    var res = baseCtx.getMain().findReference(ref);
     if (res.isEmpty()) throw new NoStackException("Can not resolve '" + ref + "'");
     return objectRepo.getAsync(res.get().getObject());
   }

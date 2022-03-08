@@ -7,7 +7,7 @@ functions:
       knative:
         image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-2.0.0
 #        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:0.2.2
-        minScale: 6
+        minScale: 0
         maxScale: 6
         requestsCpu: '0.5'
         limitsCpu: '2'

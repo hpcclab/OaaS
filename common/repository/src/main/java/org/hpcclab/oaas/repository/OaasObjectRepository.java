@@ -56,7 +56,7 @@ public class OaasObjectRepository extends AbstractIfnpRepository<UUID, OaasObjec
       object.setState(null);
       // TODO check members
     } else {
-      object.setMembers(null);
+      object.setRefs(null);
     }
     return this.putAsync(object.getId(), object);
   }

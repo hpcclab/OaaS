@@ -18,9 +18,7 @@ public class DeepOaasObject {
   Long originHash;
   ObjectAccessModifier access;
   DeepOaasClass cls;
-//  Map<String, String> labels;
   Set<String> labels;
-//  Set<DeepOaasFunctionBindingDto> functions = Set.of();
   OaasObjectState state;
-  Set<OaasCompoundMember> members;
+  Set<ObjectReference> refs;
 }

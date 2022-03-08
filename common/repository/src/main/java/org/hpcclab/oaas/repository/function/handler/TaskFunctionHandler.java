@@ -7,7 +7,6 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.repository.storage.StorageAllocator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,8 +16,6 @@ public class TaskFunctionHandler {
 
   @Inject
   OaasObjectRepository objectRepo;
-//  @Inject
-//  StorageAllocator storageAllocator;
 
   public void validate(FunctionExecContext context) {
     var main = context.getMain();
@@ -41,8 +38,6 @@ public class TaskFunctionHandler {
       );
     var output = OaasObject.createFromClasses(ctx.getOutputCls());
     output.setOrigin(ctx.createOrigin());
-
-//    storageAllocator.allocate(output);
 
     var rootCtx = ctx;
     while (rootCtx.getParent() != null) {

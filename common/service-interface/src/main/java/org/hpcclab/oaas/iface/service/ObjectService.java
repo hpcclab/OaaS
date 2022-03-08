@@ -38,9 +38,9 @@ public interface ObjectService {
   @Path("{id}/deep")
   Uni<DeepOaasObject> getDeep(String id);
 
-  @GET
-  @Path("{id}/context")
-  Uni<TaskContext> getTaskContext(String id);
+//  @GET
+//  @Path("{id}/context")
+//  Uni<TaskContext> getTaskContext(String id);
 
   @GET
   @Path("{id}/completion")

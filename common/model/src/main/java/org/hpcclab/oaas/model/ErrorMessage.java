@@ -7,4 +7,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ErrorMessage {
   String msg;
+
+  public ErrorMessage(String msg) {
+    this.msg = msg;
+  }
 }

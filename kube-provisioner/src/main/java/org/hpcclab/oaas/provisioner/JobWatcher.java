@@ -74,9 +74,7 @@ public class JobWatcher {
                             boolean succeeded) {
     var completion = new TaskCompletion()
       .setId(task.getId())
-//      .setMainObj(task.getMain().getId())
-//      .setOutputObj(task.getOutput().getId())
-      .setFunctionName(task.getFunction().getName())
+//      .setFunctionName(task.getFunction().getName())
       .setStatus(succeeded ? TaskStatus.SUCCEEDED: TaskStatus.FAILED)
       .setStartTime(Instant.parse(job.getStatus().getStartTime()).toEpochMilli())
       .setCompletionTime(Instant.parse(job.getStatus().getCompletionTime()).toEpochMilli());

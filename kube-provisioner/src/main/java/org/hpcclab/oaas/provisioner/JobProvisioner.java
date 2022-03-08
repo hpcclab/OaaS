@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Random;
 
 @ApplicationScoped
+@Deprecated
 public class JobProvisioner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JobProvisioner.class);
@@ -111,12 +112,7 @@ public class JobProvisioner {
 
   private void putEnv(Map<String, String> env, OaasObject obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
-    env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
-    if (obj.getState().getKeys()!=null) {
-      for (int i = 0; i < obj.getState().getKeys().size(); i++) {
-        env.put(prefix + "_RESOURCE_FILE_" + i, obj.getState().getKeys().get(i));
-      }
-    }
+//    env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
     env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
   }
 

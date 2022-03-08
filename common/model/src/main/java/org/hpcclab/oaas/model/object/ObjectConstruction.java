@@ -17,7 +17,7 @@ public class ObjectConstruction {
   Set<String> labels = Set.of();
   Set<String> keys = Set.of();
   Map<String, String> overrideUrls;
-  Set<OaasCompoundMember> members;
+  Set<ObjectReference> members;
 
   @JsonRawValue
   public String getEmbeddedRecord() {

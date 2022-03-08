@@ -141,7 +141,7 @@ public class InfinispanInit {
     }
     var objectCacheConfig = repositoryConfig.object();
     var completionCacheConfig = repositoryConfig.completion();
-    var stateCacheConfig = repositoryConfig.completion();
+    var stateCacheConfig = repositoryConfig.state();
     remoteCacheManager.getConfiguration()
       .addRemoteCache(OBJECT_CACHE, c -> {
         if (objectCacheConfig.nearCacheMaxEntry() > 0) {
@@ -153,12 +153,12 @@ public class InfinispanInit {
     remoteCacheManager.getConfiguration()
       .addRemoteCache(CLASS_CACHE, c -> {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(500);
+          .nearCacheMaxEntries(1000);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(FUNCTION_CACHE, c -> {
         c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(500);
+          .nearCacheMaxEntries(1000);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(TASK_COMPLETION_CACHE, c -> {

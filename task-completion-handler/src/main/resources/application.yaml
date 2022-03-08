@@ -13,6 +13,7 @@
 oaas:
   tch:
     taskCompletionTopic: msc-task-completions
+    taskManagerUrl: http://localhost:8090
 
 
 quarkus:
@@ -33,6 +34,9 @@ quarkus:
     category:
       "org.hpcclab.oaas":
         level: ${oaas.log:INFO}
+  rest-client:
+    taskManagerClient:
+      url: ${oaas.tch.taskManagerUrl}
 #  opentelemetry:
 #    enabled: false
 mp:

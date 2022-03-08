@@ -4,7 +4,6 @@ data:
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   QUARKUS_CONSOLE_COLOR: 'false'
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
-  OAAS_OC_TASKGENERATORURL: http://task-manager
   OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
   OAAS_OC_PROVISIONTOPIC: msc-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
@@ -17,6 +16,7 @@ data:
   OAAS_KP_TASKHANDLERSERVICE: task-completion-handler
   OAAS_KP_EXPOSEKNATIVE: 'true'
   OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_TCH_TASKMANAGERURL: http://task-manager
   INFINISPAN_SERVER: oaas-infinispan:11222
   INFINISPAN_USERNAME: oaas
   INFINISPAN_PASSWORD: oaas

@@ -8,6 +8,7 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
   basePackages = {
     "org.hpcclab.oaas.model.function",
     "org.hpcclab.oaas.model.object",
+    "org.hpcclab.oaas.model.cls",
     "org.hpcclab.oaas.model.provision",
     "org.hpcclab.oaas.model.state",
     "org.hpcclab.oaas.model.task",

@@ -53,7 +53,7 @@ public class TestUtils {
                 as: obj2
     classes:
       - name: test.dummy.simple
-        stateType: FILE
+        stateType: FILES
         objectType: SIMPLE
         functions:
         - access: PUBLIC
@@ -128,18 +128,6 @@ public class TestUtils {
       .statusCode(200)
       .body("id", Matchers.equalTo(id.toString()))
       .extract().body().as(DeepOaasObject.class);
-  }
-
-  public static TaskContext getTaskContext(UUID id) {
-    return given()
-      .pathParam("id", id.toString())
-      .when().get("/api/objects/{id}/context")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("output.id", Matchers.equalTo(id.toString()))
-      .extract().body().as(TaskContext.class);
   }
 
   public static OaasObject execOal(ObjectAccessLangauge oal, FunctionRouter router) {
