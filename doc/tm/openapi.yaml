@@ -265,6 +265,7 @@ components:
           $ref: '#/components/schemas/TaskStatus'
     TaskStatus:
       enum:
+      - DEPENDENCY_FAILED
       - DOING
       - FAILED
       - SUCCEEDED

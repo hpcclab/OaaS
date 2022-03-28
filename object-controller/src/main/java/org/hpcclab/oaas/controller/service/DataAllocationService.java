@@ -6,9 +6,10 @@ import org.hpcclab.oaas.model.data.DataAllocateResponse;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import java.util.List;
 
 @Path("/allocate")
 public interface DataAllocationService {
   @POST
-  Uni<DataAllocateResponse> allocate(DataAllocateRequest request);
+  Uni<List<DataAllocateResponse>> allocate(List<DataAllocateRequest> requests);
 }

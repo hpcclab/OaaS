@@ -9,4 +9,5 @@ import org.hpcclab.oaas.model.proto.OaasFunction;
 public class DeepOaasFunctionBinding {
   FunctionAccessModifier access;
   OaasFunction function;
+  String alias;
 }

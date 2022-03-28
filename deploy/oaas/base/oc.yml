@@ -42,7 +42,7 @@ spec:
               memory: 1G
               cpu: '2'
             requests:
-              cpu: '0.5'
+              cpu: '0.1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -80,3 +80,6 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "*"

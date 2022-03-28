@@ -14,13 +14,16 @@ public class ReferenceSpecification {
   String name;
   @ProtoField(2)
   String cls;
+  @ProtoField(value = 3, defaultValue = "false")
+  boolean internal = false;
 
   public ReferenceSpecification() {
   }
 
   @ProtoFactory
-  public ReferenceSpecification(String name, String cls) {
+  public ReferenceSpecification(String name, String cls, boolean internal) {
     this.name = name;
     this.cls = cls;
+    this.internal = internal;
   }
 }

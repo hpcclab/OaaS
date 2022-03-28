@@ -10,7 +10,9 @@ public enum TaskStatus {
   @ProtoEnumValue(3)
   DOING(true,false),
   @ProtoEnumValue(4)
-  WAITING(false,false);
+  WAITING(false,false),
+  @ProtoEnumValue(5)
+  DEPENDENCY_FAILED(true,false);
 
   final boolean submitted;
   final boolean completed;

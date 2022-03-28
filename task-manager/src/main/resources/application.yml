@@ -30,6 +30,7 @@ oaas:
     taskCompletionTopic: oaas-task-completions
     taskCompletionPartitions: 10
     defaultTraverse: 3
+    enableCompletionListener: true
   log: INFO
 
 quarkus:

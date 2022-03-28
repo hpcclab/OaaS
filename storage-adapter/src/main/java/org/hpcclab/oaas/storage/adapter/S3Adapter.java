@@ -84,7 +84,11 @@ public class S3Adapter implements StorageAdapter {
 
   @Override
   public Uni<Map<String, String>> allocate(DataAllocateRequest request) {
-    var keys = request.getKeys().get(name());
+    return Uni.createFrom().item(allocateBlocking(request));
+  }
+
+  public Map<String,String> allocateBlocking(DataAllocateRequest request) {
+    var keys = request.getKeys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
       var url = generatePresigned(Method.PUT,
@@ -92,6 +96,6 @@ public class S3Adapter implements StorageAdapter {
         true);
       map.put(key, url);
     }
-    return Uni.createFrom().item(map);
+    return map;
   }
 }

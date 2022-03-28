@@ -385,7 +385,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
         "type" : "string"
       },
       "UUID" : {

@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.state;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class OaasObjectState implements Serializable {
 
   public enum StateType {
     @ProtoEnumValue(2)
+    @JsonAlias("FILE")
     FILES,
     @ProtoEnumValue(3)
     COLLECTION,

@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.storage;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.proto.OaasClass;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AdapterLoader {
@@ -31,16 +33,33 @@ public class AdapterLoader {
 
   public Uni<Map<String, String>> aggregatedAllocate(String oid, OaasClass cls,
                                                     boolean isPublic) {
-    var dar= new DataAllocateRequest();
-    dar.setOid(oid);
-    Map<String, List<String>> keys = new HashMap<>();
-    for (KeySpecification keySpec : cls.getStateSpec().getKeySpecs()) {
-      keys.computeIfAbsent(keySpec.getProvider(), k -> new ArrayList<>())
-        .add(keySpec.getName());
-    }
-    dar.setKeys(keys);
-    dar.setPublicUrl(isPublic);
-    return s3Adapter.allocate(dar);
+    var requests = cls.getStateSpec().getKeySpecs()
+      .stream()
+      .collect(Collectors.groupingBy(KeySpecification::getProvider))
+      .entrySet()
+      .stream()
+      .map(entry -> new DataAllocateRequest()
+        .setOid(oid)
+        .setProvider(entry.getKey())
+        .setPublicUrl(isPublic)
+        .setKeys(entry.getValue().stream().map(KeySpecification::getName).toList())
+      )
+      .toList();
+    return Multi.createFrom().iterable(requests)
+      .onItem().transformToUniAndConcatenate(this::aggregatedAllocate)
+      .collect().asList()
+      .map(l -> l.stream().reduce(new HashMap<>(), (m1,m2) -> {
+        m1.putAll(m2);
+        return m1;
+      }));
   }
 
+
+  public Uni<Map<String,String>> aggregatedAllocate(DataAllocateRequest request) {
+    if (request.getProvider().equals(s3Adapter.name())) {
+      return s3Adapter.allocate(request);
+    } else {
+      return Uni.createFrom().nullItem();
+    }
+  }
 }

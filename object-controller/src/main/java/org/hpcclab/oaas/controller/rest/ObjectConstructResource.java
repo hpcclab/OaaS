@@ -47,10 +47,11 @@ public class ObjectConstructResource {
     DataAllocateRequest request = new DataAllocateRequest();
     request.setOid(obj.getId().toString())
       .setPublicUrl(true)
-      .setKeys(Map.of("s3", List.copyOf(construction.getKeys())));
-    return allocationService.allocate(request)
-      .flatMap(response -> objRepo.persistAsync(obj)
-          .map(ignore -> new ObjectConstructionResponse(obj,response.getUrlKeys()))
+      .setProvider("s3")
+      .setKeys(List.copyOf(construction.getKeys()));
+    return allocationService.allocate(List.of(request))
+      .flatMap(list -> objRepo.persistAsync(obj)
+          .map(ignore -> new ObjectConstructionResponse(obj,list.get(0).getUrlKeys()))
       );
   }
 }

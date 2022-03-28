@@ -1,16 +1,21 @@
 package org.hpcclab.oaas.taskmanager.service;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.quarkus.infinispan.client.Remote;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryModified;
+import org.infinispan.client.hotrod.annotation.ClientCacheFailover;
 import org.infinispan.client.hotrod.annotation.ClientListener;
 import org.infinispan.client.hotrod.event.ClientCacheEntryCreatedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryModifiedEvent;
+import org.infinispan.client.hotrod.event.ClientCacheFailoverEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +53,7 @@ public class TaskCompletionListener {
 
   public Uni<UUID> wait(UUID id) {
     if (!config.enableCompletionListener())
-      throw new IllegalStateException("Completion Listener is not enabled");
+      throw new NoStackException("Completion Listener is not enabled");
     return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
   }
 
@@ -75,10 +80,12 @@ public class TaskCompletionListener {
       }
     }
 
-//    @ClientCacheFailover
-//    public void onFail(ClientCacheFailoverEvent e) {
-//
-//    }
+    @ClientCacheFailover
+    public void onFail(ClientCacheFailoverEvent event) {
+      broadcastProcessor.onError(new NoStackException(HttpResponseStatus.BAD_GATEWAY
+        .code()));
+      broadcastProcessor = BroadcastProcessor.create();
+    }
 
     public Uni<UUID> wait(UUID id, Duration timeout) {
       LOGGER.debug("start wait for {}", id);

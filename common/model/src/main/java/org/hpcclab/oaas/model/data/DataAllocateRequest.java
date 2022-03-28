@@ -12,6 +12,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataAllocateRequest {
   String oid;
-  Map<String,List<String>> keys;
+//  Map<String,List<String>> keys;
+  List<String> keys;
+  String provider;
   boolean publicUrl = false;
 }

@@ -20,5 +20,6 @@ public class DeepOaasClass {
   OaasObjectState.StateType stateType;
   Set<DeepOaasFunctionBinding> functions;
   StateSpecification stateSpec;
+  Set<ReferenceSpecification> refSpec;
   List<String> parents;
 }

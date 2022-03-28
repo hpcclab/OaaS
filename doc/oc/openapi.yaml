@@ -409,6 +409,11 @@ components:
           type: array
           items:
             type: string
+        refSpec:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferenceSpecification'
         stateSpec:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
@@ -418,6 +423,8 @@ components:
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
+        alias:
+          type: string
         function:
           $ref: '#/components/schemas/OaasFunction'
     DeepOaasObject:
@@ -561,6 +568,8 @@ components:
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
+        alias:
+          type: string
         function:
           type: string
     OaasFunctionType:
@@ -753,6 +762,8 @@ components:
       properties:
         cls:
           type: string
+        internal:
+          type: boolean
         name:
           type: string
     RemoteCacheClientStatisticsMXBean:
@@ -834,6 +845,7 @@ components:
           $ref: '#/components/schemas/TaskStatus'
     TaskStatus:
       enum:
+      - DEPENDENCY_FAILED
       - DOING
       - FAILED
       - SUCCEEDED

@@ -646,6 +646,13 @@
               "type" : "string"
             }
           },
+          "refSpec" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification"
+            }
+          },
           "stateSpec" : {
             "$ref" : "#/components/schemas/StateSpecification"
           },
@@ -659,6 +666,9 @@
         "properties" : {
           "access" : {
             "$ref" : "#/components/schemas/FunctionAccessModifier"
+          },
+          "alias" : {
+            "type" : "string"
           },
           "function" : {
             "$ref" : "#/components/schemas/OaasFunction"
@@ -864,6 +874,9 @@
         "properties" : {
           "access" : {
             "$ref" : "#/components/schemas/FunctionAccessModifier"
+          },
+          "alias" : {
+            "type" : "string"
           },
           "function" : {
             "type" : "string"
@@ -1141,6 +1154,9 @@
           "cls" : {
             "type" : "string"
           },
+          "internal" : {
+            "type" : "boolean"
+          },
           "name" : {
             "type" : "string"
           }
@@ -1254,7 +1270,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
         "type" : "string"
       },
       "Type" : {

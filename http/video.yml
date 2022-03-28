@@ -5,33 +5,34 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.2.13
-        minScale: 0
-        maxScale: 6
-        concurrency: 4
-        requestsCpu: '1.5'
-        limitsCpu: '3'
-  - name: example.video.transcode
-    type: TASK
-    outputCls: example.video
-    validation: { }
-    provision:
-      job:
-        image: core.harbor.10.131.36.2.nip.io/oaas/ffmpeg
-        commands:
-          - /bin/sh
-          - '-c'
-        containerArgs:
-          - |
-            CMD="ffmpeg -i $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0 -s ${RESOLUTION:-720x480} -c:a copy $OUTPUT_RESOURCE_FILE_0"
-            echo "COMMAND: '$CMD'"
-            $CMD
-            CMD="curl -T $OUTPUT_RESOURCE_FILE_0 $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
-            echo "COMMAND: '$CMD'"
-            $CMD
-        argsToEnv: true
-        requestsCpu: '2'
-        limitsCpu: '2'
+        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.2.14
+        minScale: 6
+#        maxScale: 12
+#        concurrency: 4
+#        concurrency: 1
+        requestsCpu: '1'
+        limitsCpu: '16'
+#  - name: example.video.transcode
+#    type: TASK
+#    outputCls: example.video
+#    validation: { }
+#    provision:
+#      job:
+#        image: core.harbor.10.131.36.2.nip.io/oaas/ffmpeg
+#        commands:
+#          - /bin/sh
+#          - '-c'
+#        containerArgs:
+#          - |
+#            CMD="ffmpeg -i $MAIN_RESOURCE_BASE_URL/$MAIN_RESOURCE_FILE_0 -s ${RESOLUTION:-720x480} -c:a copy $OUTPUT_RESOURCE_FILE_0"
+#            echo "COMMAND: '$CMD'"
+#            $CMD
+#            CMD="curl -T $OUTPUT_RESOURCE_FILE_0 $OUTPUT_RESOURCE_BASE_URL/$OUTPUT_RESOURCE_FILE_0"
+#            echo "COMMAND: '$CMD'"
+#            $CMD
+#        argsToEnv: true
+#        requestsCpu: '2'
+#        limitsCpu: '2'
 classes:
   - name: example.video
     stateType: FILE

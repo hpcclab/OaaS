@@ -25,4 +25,6 @@ GET {{cdn}}/{{obj_0_id}}
 ###
 GET {{cdn}}/{{obj_0_id}}:example.empty.function()/text?await=true
 ###
+GET {{cdn}}/{{obj_0_id}}:example.empty.function()
+###
 GET {{tm}}/oal/{{obj_0_id}}:example.empty.function()/tmp

@@ -51,10 +51,10 @@ spec:
               name: http
           resources:
             limits:
-              memory: 1G
-              cpu: '8'
+              memory: 2G
+              cpu: '16'
             requests:
-              cpu: '0.5'
+              cpu: '1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -92,3 +92,6 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "*"

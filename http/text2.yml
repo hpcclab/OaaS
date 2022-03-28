@@ -1,0 +1,15 @@
+functions:
+  - name: concat
+    type: TASK
+    outputCls: text
+    provision:
+      knative:
+        ...
+classes:
+  - name: text
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: concat
