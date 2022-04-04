@@ -14,6 +14,8 @@ spec:
       labels:
         app: task-manager
     spec:
+#      nodeSelector:
+#        oaas.group: test
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -41,7 +43,7 @@ spec:
               memory: 2G
               cpu: '16'
             requests:
-              cpu: '1'
+              cpu: '0.5'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -69,6 +71,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: task-manager
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   selector:
     app: task-manager
@@ -76,6 +80,3 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  topologyKeys:
-    - "kubernetes.io/hostname"
-    - "*"

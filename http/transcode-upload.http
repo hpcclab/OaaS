@@ -13,18 +13,23 @@ Content-Type: application/json
   "cls": "example.video",
   "embeddedRecord": {},
   "labels": ["test"],
-  "overrideUrls": {
-    "video": "{{base_url}}/test-1s.mp4"
-  }
+  "keys": ["video"],
+  "overrideUrls": {}
 }
 
 > {%
 client.global.set("obj_0_id", response.body.object.id)
+client.global.set("upload_url", response.body.uploadUrls.video)
 %}
+
+###
+PUT {{upload_url}}
+Content-Type: application/octet-stream
+
+< ../../test-videos/test-1s.mp4
 
 ###
 GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video
 
 ###
 GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
-

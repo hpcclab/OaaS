@@ -615,6 +615,8 @@ components:
             $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        task:
+          $ref: '#/components/schemas/TaskCompletion'
     OaasObjectOrigin:
       type: object
       properties:

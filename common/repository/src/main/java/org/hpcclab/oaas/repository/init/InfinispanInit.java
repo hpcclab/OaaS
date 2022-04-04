@@ -142,6 +142,8 @@ public class InfinispanInit {
     var objectCacheConfig = repositoryConfig.object();
     var completionCacheConfig = repositoryConfig.completion();
     var stateCacheConfig = repositoryConfig.state();
+    var clsCacheConfig = repositoryConfig.cls();
+    var funcCacheConfig = repositoryConfig.func();
     remoteCacheManager.getConfiguration()
       .addRemoteCache(OBJECT_CACHE, c -> {
         if (objectCacheConfig.nearCacheMaxEntry() > 0) {
@@ -152,13 +154,17 @@ public class InfinispanInit {
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(CLASS_CACHE, c -> {
-        c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000);
+        if (clsCacheConfig.nearCacheMaxEntry() > 0) {
+          c.nearCacheMode(NearCacheMode.INVALIDATED)
+            .nearCacheMaxEntries(clsCacheConfig.nearCacheMaxEntry());
+        }
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(FUNCTION_CACHE, c -> {
-        c.nearCacheMode(NearCacheMode.INVALIDATED)
-          .nearCacheMaxEntries(1000);
+        if (funcCacheConfig.nearCacheMaxEntry() > 0) {
+          c.nearCacheMode(NearCacheMode.INVALIDATED)
+            .nearCacheMaxEntries(funcCacheConfig.nearCacheMaxEntry());
+        }
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(TASK_COMPLETION_CACHE, c -> {
@@ -195,7 +201,7 @@ public class InfinispanInit {
       distTemplate = stateCacheConfig.persist() ?
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
       remoteCacheManager.administration().getOrCreateCache(TASK_STATE_CACHE, new XMLStringConfiguration(distTemplate
-        .formatted(TASK_STATE_CACHE, completionCacheConfig.maxSize())));
+        .formatted(TASK_STATE_CACHE, stateCacheConfig.maxSize())));
     } else {
       var list = List.of(OBJECT_CACHE,CLASS_CACHE,FUNCTION_CACHE,
         TASK_STATE_CACHE, TASK_COMPLETION_CACHE);

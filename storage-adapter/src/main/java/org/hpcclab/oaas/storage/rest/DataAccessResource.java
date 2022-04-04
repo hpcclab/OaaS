@@ -39,6 +39,7 @@ public class DataAccessResource {
   public Uni<Response> get(String oid,
                            String key,
                            @RestQuery String contextKey) {
+    // TODO protect contextKey with encryption and signature
     var dac = parseDac(contextKey);
     if (dac==null) throw new NoStackException("'contextKey' query param is required", 400);
     var clsName = dac.getCls(UUID.fromString(oid));

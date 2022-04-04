@@ -14,6 +14,8 @@ spec:
       labels:
         app: storage-adapter
     spec:
+#      nodeSelector:
+#        oaas.group: test
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -54,7 +56,7 @@ spec:
               memory: 2G
               cpu: '16'
             requests:
-              cpu: '1'
+              cpu: '0.1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -84,6 +86,8 @@ metadata:
   name: storage-adapter
   labels:
     app: storage-adapter
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   selector:
     app: storage-adapter
@@ -92,6 +96,3 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
-  topologyKeys:
-    - "kubernetes.io/hostname"
-    - "*"

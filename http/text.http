@@ -4,7 +4,6 @@ Content-Type: text/x-yaml
 
 < text.yml
 
-
 ###
 POST {{oc}}/api/object-construct
 Accept: application/json
@@ -15,7 +14,7 @@ Content-Type: application/json
   "embeddedRecord": {},
   "labels": ["test"],
   "overrideUrls": {
-    "text": "{{base_url}}/test.txt"
+    "text": "{{base_url}}/test-1000k.txt"
   }
 }
 

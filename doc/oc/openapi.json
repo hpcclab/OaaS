@@ -939,6 +939,9 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
+          },
+          "task" : {
+            "$ref" : "#/components/schemas/TaskCompletion"
           }
         }
       },

@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.proto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import org.hpcclab.oaas.model.object.ObjectReference;
@@ -29,14 +30,14 @@ public class OaasObject {
   Set<ObjectReference> refs;
   @JsonRawValue
   String embeddedRecord;
-//  TaskCompletion task;
+  TaskCompletion task;
 
 
   public OaasObject() {
   }
 
   @ProtoFactory
-  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord) {
+  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -45,6 +46,8 @@ public class OaasObject {
     this.labels = labels;
     this.state = state;
     this.refs = refs;
+    this.embeddedRecord = embeddedRecord;
+    this.task = task;
   }
 
   public static OaasObject createFromClasses(OaasClass cls) {
@@ -71,7 +74,8 @@ public class OaasObject {
       labels==null ? null:Set.copyOf(labels),
       state,
       refs==null ? null:Set.copyOf(refs),
-      embeddedRecord
+      embeddedRecord,
+      null
     );
   }
 
@@ -121,11 +125,17 @@ public class OaasObject {
     return embeddedRecord;
   }
 
+  @JsonSetter
   public void setEmbeddedRecord(JsonNode val) {
     this.embeddedRecord = val.toString();
   }
 
   public void setEmbeddedRecord(String embeddedRecord) {
     this.embeddedRecord = embeddedRecord;
+  }
+
+  @ProtoField(10)
+  public TaskCompletion getTask() {
+    return task;
   }
 }

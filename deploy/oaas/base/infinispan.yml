@@ -13,9 +13,17 @@ spec:
   security:
     endpointSecretName: infinispan-connect-secret
   container:
-    cpu: "16:2"
+    cpu: "16:0.5"
     memory: "6Gi:2Gi"
   affinity:
+#    nodeAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        nodeSelectorTerms:
+#          - matchExpressions:
+#              - key: oaas.group
+#                operator: In
+#                values:
+#                  - test
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100

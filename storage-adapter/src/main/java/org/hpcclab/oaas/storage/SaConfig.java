@@ -18,5 +18,7 @@ public interface SaConfig {
     String region();
     @WithDefault("oaas-bkt")
     String bucket();
+    @WithDefault("false")
+    boolean relay();
   }
 }

@@ -72,6 +72,8 @@ metadata:
   name: object-controller
   labels:
     app: object-controller
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   selector:
     app: object-controller
@@ -80,6 +82,3 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
-  topologyKeys:
-    - "kubernetes.io/hostname"
-    - "*"

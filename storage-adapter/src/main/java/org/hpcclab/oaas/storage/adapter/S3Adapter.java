@@ -5,15 +5,17 @@ import io.minio.MinioClient;
 import io.minio.http.Method;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.storage.SaConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.HashMap;
@@ -21,14 +23,21 @@ import java.util.Map;
 
 @ApplicationScoped
 public class S3Adapter implements StorageAdapter {
-  private MinioClient minioClient;
-  private MinioClient publicMinioClient;
+  private static final Logger LOGGER = LoggerFactory.getLogger( S3Adapter.class );
   @Inject
   SaConfig config;
+  @Inject
+  Vertx vertx;
+
+  private MinioClient minioClient;
+  private MinioClient publicMinioClient;
+
+  private boolean relay;
+  private WebClient webClient;
 
   void setup(@Observes StartupEvent event) {
     var s3Config = config.s3();
-    minioClient =  MinioClient.builder()
+    minioClient = MinioClient.builder()
       .endpoint(s3Config.url())
       .region(s3Config.region())
       .credentials(s3Config.accessKey(), s3Config.secretKey())
@@ -38,6 +47,8 @@ public class S3Adapter implements StorageAdapter {
       .region(s3Config.region())
       .credentials(s3Config.accessKey(), s3Config.secretKey())
       .build();
+    relay = config.s3().relay();
+    webClient = WebClient.create(vertx);
   }
 
   @Override
@@ -47,13 +58,34 @@ public class S3Adapter implements StorageAdapter {
 
   @Override
   public Uni<Response> get(DataAccessRequest dar) {
-    return Uni.createFrom()
+    var uni = Uni.createFrom()
       .item(() -> generatePresigned(
         Method.GET,
         dar.getOid() + "/" + dar.getKey(),
         false)
-      )
-      .map(url -> Response.temporaryRedirect(URI.create(url)).build());
+      );
+    if (relay) {
+      return uni
+        .flatMap(this::relay);
+    } else {
+      return uni
+        .map(url -> Response.temporaryRedirect(URI.create(url)).build());
+    }
+  }
+
+  public Uni<Response> relay(String url) {
+    return webClient.getAbs(url)
+//      .as(BodyCodec.buffer())
+      .send()
+      .map(rspn -> {
+        if (rspn.statusCode() == 200) {
+          LOGGER.info("Relaying data from '{}' with {} bytes", url, rspn.bodyAsBuffer() == null? 0 :rspn.bodyAsBuffer().length());
+          return Response.ok(rspn.bodyAsBuffer()).build();
+        } else {
+          return Response.status(Response.Status.BAD_GATEWAY)
+            .build();
+        }
+      });
   }
 
   private String generatePresigned(Method method,
@@ -87,7 +119,7 @@ public class S3Adapter implements StorageAdapter {
     return Uni.createFrom().item(allocateBlocking(request));
   }
 
-  public Map<String,String> allocateBlocking(DataAllocateRequest request) {
+  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
     var keys = request.getKeys();
     var map = new HashMap<String, String>();
     for (String key : keys) {

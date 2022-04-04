@@ -13,13 +13,15 @@ public interface RepositoryConfig {
   ObjectCache object();
   StateCache state();
   CompletionCache completion();
+  ClassCache cls();
+  FunctionCache func();
 
   interface ObjectCache{
     @WithDefault("false")
     boolean persist();
     @WithDefault("256MB")
     String maxSize();
-    @WithDefault("2000")
+    @WithDefault("-1")
     int nearCacheMaxEntry();
   }
   interface StateCache{
@@ -36,6 +38,14 @@ public interface RepositoryConfig {
     @WithDefault("128MB")
     String maxSize();
     @WithDefault("-1")
+    int nearCacheMaxEntry();
+  }
+  interface ClassCache{
+    @WithDefault("1000")
+    int nearCacheMaxEntry();
+  }
+  interface FunctionCache{
+    @WithDefault("1000")
     int nearCacheMaxEntry();
   }
 }
