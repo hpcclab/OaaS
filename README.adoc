@@ -9,11 +9,4 @@
 
 == Architecture
 === High Level
-image:doc/diagrams/oaas_architecture_v5.dio.png[]
-
-=== Flow
-==== Development
-image:doc/diagrams/oaas_flow_function_creation.dio.png[]
-
-==== Execution
-image:doc/diagrams/oaas_flow_function_exec_v2_1.dio.png[]
+image:doc/diagrams/oaas_architecture_v6.dio.pdf[]
