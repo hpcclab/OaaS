@@ -63,7 +63,7 @@ kubectl apply -f deploy/oaas/object-bucket.yml
 ----
 
 
-. Deploy an OaaS platform.
+. Deploy the OaaS platform.
 +
 [source,bash]
 ----
