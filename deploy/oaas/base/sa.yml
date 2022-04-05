@@ -14,6 +14,8 @@ spec:
       labels:
         app: storage-adapter
     spec:
+#      nodeSelector:
+#        oaas.group: test
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -51,10 +53,10 @@ spec:
               name: http
           resources:
             limits:
-              memory: 1G
-              cpu: '8'
+              memory: 2G
+              cpu: '16'
             requests:
-              cpu: '0.5'
+              cpu: '0.1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -84,6 +86,8 @@ metadata:
   name: storage-adapter
   labels:
     app: storage-adapter
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   selector:
     app: storage-adapter

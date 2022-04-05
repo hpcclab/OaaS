@@ -1,0 +1,18 @@
+functions:
+  - name: concat
+    type: TASK
+    outputCls: text
+    validation:
+      inputs:
+        - requiredClass: text
+    provision:
+      knative:
+        image: concat-function:latest
+classes:
+  - name: text
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: concat

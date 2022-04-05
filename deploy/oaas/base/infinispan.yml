@@ -3,7 +3,8 @@ kind: Infinispan
 metadata:
   name: oaas-infinispan
 spec:
-  image: quay.io/infinispan/server:13.0.6.Final
+  image: quay.io/infinispan/server:13.0.8.Final
+#  image: quay.io/infinispan/server:14.0
   replicas: 3
   service:
     type: DataGrid
@@ -12,9 +13,17 @@ spec:
   security:
     endpointSecretName: infinispan-connect-secret
   container:
-    cpu: "3"
-    memory: 2Gi
+    cpu: "16:0.5"
+    memory: "6Gi:2Gi"
   affinity:
+#    nodeAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        nodeSelectorTerms:
+#          - matchExpressions:
+#              - key: oaas.group
+#                operator: In
+#                values:
+#                  - test
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100

@@ -2,6 +2,7 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
@@ -13,6 +14,7 @@ import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
+import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
 import org.hpcclab.oaas.taskmanager.service.TaskCompletionListener;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
 import org.slf4j.Logger;
@@ -41,7 +43,8 @@ public class OalResource {
   @Inject
   TaskCompletionRepository completionRepo;
   @Inject
-  TaskCompletionListener completionListener;
+//  TaskCompletionListener completionListener;
+  ObjectCompletionListener completionListener;
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
@@ -78,21 +81,20 @@ public class OalResource {
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
       return execFunction(oal)
-        .flatMap(obj -> submitAndWait(obj.getId(), await)
-          .map(taskCompletion -> createResponse(obj, filePath, taskCompletion))
+        .flatMap(obj -> submitAndWaitObj(obj.getId(), await)
+          .map(newObj -> createResponse(newObj, filePath))
         );
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .flatMap(obj -> {
-          if (obj.getOrigin().getParentId()==null) {
+          if (obj.getOrigin().getParentId() == null) {
             return Uni.createFrom().item(createResponse(obj, filePath));
+          } else if (obj.getTask() == null) {
+            return submitAndWaitObj(obj.getId(), await)
+              .map(newObj -> createResponse(newObj, filePath));
           } else {
-            return completionRepo.getAsync(obj.getId())
-              .onItem().ifNull()
-              .switchTo(() -> submitAndWait(obj.getId(), await))
-              .map(taskCompletion -> createResponse(
-                obj, filePath, taskCompletion));
+            return Uni.createFrom().item(createResponse(obj, filePath));
           }
         });
     }
@@ -105,7 +107,7 @@ public class OalResource {
                                          @PathParam("filePath") String filePath,
                                          @QueryParam("await") Boolean await) {
     var oaeObj = ObjectAccessLangauge.parse(oal);
-    LOGGER.debug("Receive OAE getContent '{}' '{}'", oaeObj, filePath);
+    LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
     return postContentAndExec(filePath, await, oaeObj);
   }
 
@@ -120,30 +122,27 @@ public class OalResource {
   }
 
   public Response createResponse(OaasObject object,
-                                 String filePath,
-                                 TaskCompletion taskCompletion) {
-    if (taskCompletion==null) {
-      return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
+                                 String filePath) {
+    if (object==null) return Response.status(404).build();
+    if (object.getOrigin().getParentId()!=null) {
+      var taskCompletion = object.getTask();
+      if (taskCompletion==null) {
+        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
+      }
+      if (taskCompletion.getStatus()==TaskStatus.DOING) {
+        return Response.status(HttpResponseStatus.NO_CONTENT.code())
+          .build();
+      }
+      if (taskCompletion.getStatus()!=TaskStatus.SUCCEEDED) {
+        return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
+      }
     }
-    if (taskCompletion.getStatus()==TaskStatus.DOING) {
-      return Response.status(HttpResponseStatus.NO_CONTENT.code())
-        .build();
-    }
-    if (taskCompletion.getStatus()!=TaskStatus.SUCCEEDED) {
-      return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
-    }
-    return createResponse(object, filePath);
-  }
-
-
-  public Response createResponse(OaasObject obj, String filePath) {
-    if (obj==null) return Response.status(404).build();
-    var oUrl = obj.getState().getOverrideUrls();
+    var oUrl = object.getState().getOverrideUrls();
     if (oUrl!= null && oUrl.containsKey(filePath))
       return Response.status(HttpResponseStatus.FOUND.code())
         .location(URI.create(oUrl.get(filePath)))
         .build();
-    var fileUrl = contentUrlGenerator.generateUrl(obj, filePath);
+    var fileUrl = contentUrlGenerator.generateUrl(object, filePath);
     return Response.status(HttpResponseStatus.FOUND.code())
       .location(URI.create(fileUrl))
       .build();
@@ -162,5 +161,18 @@ public class OalResource {
     return uni1
       .flatMap(event -> completionRepo.getAsync(id))
       .replaceIfNullWith(() -> new TaskCompletion().setStatus(TaskStatus.DOING));
+  }
+
+  public Uni<OaasObject> submitAndWaitObj(UUID id, Boolean await) {
+    var uni1 = taskEventManager.submitCreateEvent(id.toString())
+      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
+    if (await==null ? config.defaultBlockCompletion():await) {
+      var uni2 = completionListener.wait(id);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
+        .flatMap(event -> objectRepo.getAsync(id));
+    }
+    return uni1
+      .flatMap(event -> objectRepo.getAsync(id));
   }
 }

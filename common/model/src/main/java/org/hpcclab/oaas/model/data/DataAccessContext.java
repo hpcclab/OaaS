@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class DataAccessContext {
   UUID mainId;
   String mainCls;
@@ -19,6 +19,7 @@ public class DataAccessContext {
   String outCls;
   List<UUID> inputIds;
   List<String> inputCls;
+  String sig;
 
   public DataAccessContext() {
   }

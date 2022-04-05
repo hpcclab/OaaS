@@ -7,7 +7,6 @@ import io.smallrye.reactive.messaging.TracingMetadata;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -27,8 +26,8 @@ import java.util.List;
 @Path("/")
 @RequestScoped
 
-public class EventHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
+public class CompletionHandler {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CompletionHandler.class);
 
   @Inject
   RoutingContext ctx;

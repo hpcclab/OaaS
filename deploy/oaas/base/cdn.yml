@@ -18,6 +18,17 @@ data:
         client_max_body_size 75M;
         recursive_error_pages on;
 
+
+        location ~ "^/(.*:.*)$" {
+          proxy_pass      http://task-manager.msc.svc.cluster.local/oal/$1;
+          #proxy_cache       contents;
+          proxy_http_version 1.1;
+          #proxy_cache_key   $uri;
+          #proxy_cache_valid 200 206 3000h;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects_nocache;
+        }
+
         # main cache block - when upstream responds with a 302, it's caught by
         # error_page and passed off to the (nearly identical) @handle_redirects
         location ~ "^/(.*)$" {
@@ -28,6 +39,19 @@ data:
           proxy_cache_valid 200 206 3000h;
           proxy_intercept_errors on;
           error_page 301 302 307 = @handle_redirects;
+        }
+
+        location @handle_redirects_nocache {
+          #store the current state of the world so we can reuse it in a minute
+          # We need to capture these values now, because as soon as we invoke
+          # the proxy_* directives, these will disappear
+          set $original_uri $uri;
+          set $orig_loc $upstream_http_location;
+
+          # nginx goes to fetch the value from the upstream Location header
+          proxy_pass $orig_loc;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects_nocache;
         }
 
         location @handle_redirects {

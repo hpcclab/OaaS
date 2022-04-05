@@ -5,19 +5,19 @@ resources:
 images:
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller
     newName: core.harbor.10.131.36.2.nip.io/oaas/object-controller
-    newTag: latest
+    newTag: state-relay
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-manager
     newName: core.harbor.10.131.36.2.nip.io/oaas/task-manager
-    newTag: latest
+    newTag: state-relay
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/kube-provisioner
     newName: core.harbor.10.131.36.2.nip.io/oaas/kube-provisioner
-    newTag: latest
+    newTag: state-relay
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/task-completion-handler
     newName: core.harbor.10.131.36.2.nip.io/oaas/task-completion-handler
-    newTag: latest
+    newTag: state-relay
   - name: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/storage-adapter
     newName: core.harbor.10.131.36.2.nip.io/oaas/storage-adapter
-    newTag: latest
+    newTag: state-relay
 patches:
   - path: sa-patch.yml
   - path: infinispan-patch.yml

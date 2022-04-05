@@ -35,10 +35,10 @@ spec:
 #        tls: false
     resources:
       limits:
-        cpu: 12
-        memory: 4G
+        cpu: 16
+        memory: 8G
       requests:
-        cpu: 1
+        cpu: 0.5
         memory: 0.5G
     storage:
       type: jbod

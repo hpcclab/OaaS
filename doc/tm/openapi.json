@@ -229,6 +229,9 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
+          },
+          "task" : {
+            "$ref" : "#/components/schemas/TaskCompletion"
           }
         }
       },
@@ -385,7 +388,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
         "type" : "string"
       },
       "UUID" : {

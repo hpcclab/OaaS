@@ -6,10 +6,12 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
+import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
 import org.hpcclab.oaas.taskmanager.factory.TaskEventFactory;
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TaskEventManager {
@@ -40,6 +44,8 @@ public class TaskEventManager {
   Vertx vertx;
   @Inject
   MeterRegistry meterRegistry;
+  @Inject
+  OaasObjectRepository objectRepo;
 
   Timer timer;
 
@@ -79,6 +85,15 @@ public class TaskEventManager {
       sample.stop(timer);
       return null;
     });
-    return vertx.executeBlocking(uni);
+    var tcMap = taskCompletions.stream()
+        .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
+    return objectRepo.listAsync(tcMap.keySet())
+      .flatMap(objMap -> {
+        for (OaasObject obj : objMap.values()) {
+          obj.setTask(tcMap.get(obj.getId()));
+        }
+        return objectRepo.putAllAsync(objMap);
+      })
+      .flatMap(ignore -> vertx.executeBlocking(uni));
   }
 }

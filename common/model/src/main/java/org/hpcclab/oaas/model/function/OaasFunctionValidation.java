@@ -15,16 +15,16 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunctionValidation implements Serializable {
   private OaasObjectRequirement bindingRequirement;
-  private List<OaasObjectRequirement> additionalInputs = List.of();
+  private List<OaasObjectRequirement> inputs = List.of();
 
   public OaasFunctionValidation() {
   }
 
   @ProtoFactory
   public OaasFunctionValidation(OaasObjectRequirement bindingRequirement,
-                                List<OaasObjectRequirement> additionalInputs) {
+                                List<OaasObjectRequirement> inputs) {
     this.bindingRequirement = bindingRequirement;
-    this.additionalInputs = additionalInputs;
+    this.inputs = inputs;
   }
 
   @ProtoField(1)
@@ -33,7 +33,7 @@ public class OaasFunctionValidation implements Serializable {
   }
 
   @ProtoField(2)
-  public List<OaasObjectRequirement> getAdditionalInputs() {
-    return additionalInputs;
+  public List<OaasObjectRequirement> getInputs() {
+    return inputs;
   }
 }
