@@ -34,9 +34,6 @@ oaas:
   log: INFO
 
 quarkus:
-#  arc:
-#    selected-alternatives:
-#      - org.hpcclab.oaas.taskmanager.service.MockTaskEventProcessor
   http:
     access-log:
       enabled: true
@@ -81,19 +78,6 @@ quarkus:
 
 mp:
   messaging:
-#    outgoing:
-#      tasks:
-#        connector: smallrye-kafka
-#        topic: ${oaas.tm.taskTopic}
-#        value:
-#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-#        cloud-events-source: ${quarkus.application.name}
-#        cloud-events-type: oaas.task
-#      task-events:
-#        connector: smallrye-kafka
-#        topic: ${oaas.tm.taskEventTopic}
-#        value:
-#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
     incoming:
       task-completions:
         connector: smallrye-kafka

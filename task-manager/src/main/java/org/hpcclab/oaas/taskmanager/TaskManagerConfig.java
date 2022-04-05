@@ -14,8 +14,8 @@ public interface TaskManagerConfig {
   Integer taskCompletionPartitions();
   @WithDefault("3")
   int defaultTraverse();
-  @WithDefault("true")
-  boolean enableCloudEventHeaders();
+//  @WithDefault("true")
+//  boolean enableCloudEventHeaders();
   String brokerUrl();
   @WithDefault("300")
   int blockingTimeout();

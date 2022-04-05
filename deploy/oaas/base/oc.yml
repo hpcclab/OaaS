@@ -28,11 +28,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-            - configMapRef:
-                name: msc-bucket
-          env:
-            - name: OAAS_SA_S3PREFIXURL
-              value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
+#            - configMapRef:
+#                name: msc-bucket
+#          env:
+#            - name: OAAS_SA_S3PREFIXURL
+#              value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
           image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/object-controller:latest
           ports:
             - containerPort: 8080
