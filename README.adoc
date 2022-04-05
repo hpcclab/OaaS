@@ -9,4 +9,4 @@
 
 == Architecture
 === High Level
-image:doc/diagrams/oaas_architecture_v6.dio.pdf[]
+image:doc/diagrams/oaas_architecture_v6.dio.png[]
