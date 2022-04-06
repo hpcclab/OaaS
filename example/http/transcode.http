@@ -23,8 +23,8 @@ client.global.set("obj_0_id", response.body.object.id)
 %}
 
 ###
-GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video
+GET {{cdn}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
-GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
+GET {{cdn}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
 

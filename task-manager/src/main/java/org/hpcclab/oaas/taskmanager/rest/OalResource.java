@@ -111,12 +111,12 @@ public class OalResource {
     return postContentAndExec(filePath, await, oaeObj);
   }
 
-  public Uni<OaasObject> execFunction(ObjectAccessLangauge oae) {
-    var uni = router.functionCall(oae)
+  public Uni<OaasObject> execFunction(ObjectAccessLangauge oal) {
+    var uni = router.functionCall(oal)
       .map(FunctionExecContext::getOutput);
     if (LOGGER.isDebugEnabled()) {
       uni = uni
-        .invoke(() -> LOGGER.debug("Call function '{}' succeed", oae));
+        .invoke(() -> LOGGER.debug("Call function '{}' succeed", oal));
     }
     return uni;
   }
@@ -148,23 +148,23 @@ public class OalResource {
       .build();
   }
 
-  public Uni<TaskCompletion> submitAndWait(UUID id,
-                                           Boolean await) {
-    var uni1 = taskEventManager.submitCreateEvent(id.toString())
-      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
-    if (await==null ? config.defaultBlockCompletion():await) {
-      var uni2 = completionListener.wait(id);
-      return Uni.combine().all().unis(uni1, uni2)
-        .asTuple()
-        .flatMap(event -> completionRepo.getAsync(id));
-    }
-    return uni1
-      .flatMap(event -> completionRepo.getAsync(id))
-      .replaceIfNullWith(() -> new TaskCompletion().setStatus(TaskStatus.DOING));
-  }
+//  public Uni<TaskCompletion> submitAndWait(String id,
+//                                           Boolean await) {
+//    var uni1 = taskEventManager.submitCreateEvent(id)
+//      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
+//    if (await==null ? config.defaultBlockCompletion():await) {
+//      var uni2 = completionListener.wait(id);
+//      return Uni.combine().all().unis(uni1, uni2)
+//        .asTuple()
+//        .flatMap(event -> completionRepo.getAsync(id));
+//    }
+//    return uni1
+//      .flatMap(event -> completionRepo.getAsync(id))
+//      .replaceIfNullWith(() -> new TaskCompletion().setStatus(TaskStatus.DOING));
+//  }
 
-  public Uni<OaasObject> submitAndWaitObj(UUID id, Boolean await) {
-    var uni1 = taskEventManager.submitCreateEvent(id.toString())
+  public Uni<OaasObject> submitAndWaitObj(String id, Boolean await) {
+    var uni1 = taskEventManager.submitCreateEvent(id)
       .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
     if (await==null ? config.defaultBlockCompletion():await) {
       var uni2 = completionListener.wait(id);

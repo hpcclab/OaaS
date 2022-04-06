@@ -82,5 +82,16 @@ public class OaasClass {
       && stateSpec.getDefaultProvider()==null) {
       throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
     }
+    for (OaasFunctionBinding function : functions) {
+      if (function.getFunction() == null) {
+        throw new OaasValidationException("The 'functions.function' in class must not be null.");
+      }
+      if (function.getName() == null) {
+        var fullFuncName = function.getFunction();
+        var i = fullFuncName.lastIndexOf('.');
+        if (i < 0) function.setName(fullFuncName);
+        else function.setName(fullFuncName.substring(i+1));
+      }
+    }
   }
 }

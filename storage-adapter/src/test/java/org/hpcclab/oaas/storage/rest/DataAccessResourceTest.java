@@ -47,7 +47,7 @@ class DataAccessResourceTest {
   @Test
   void test() throws JsonProcessingException {
     var ctx = new DataAccessContext()
-      .setMainId(UUID.randomUUID())
+      .setMainId(UUID.randomUUID().toString())
       .setMainCls("test");
     var ctxString = Json.encode(ctx);
     var ctxKey = Base64.getUrlEncoder().encode(ctxString.getBytes());

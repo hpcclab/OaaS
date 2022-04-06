@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.taskmanager.service;
 
 import io.vertx.core.json.Json;
+import org.apache.kafka.common.protocol.types.Field;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
@@ -25,7 +26,7 @@ public class ContentUrlGenerator {
     return generateUrl(obj.getId(),file, b64);
   }
 
-  public String generateUrl(UUID oid,
+  public String generateUrl(String oid,
                             String file,
                             String contextKey) {
     var saUrl = config.storageAdapterUrl();
@@ -33,7 +34,7 @@ public class ContentUrlGenerator {
       .formatted(oid, file, contextKey);
   }
 
-  public String generateAllocateUrl(UUID oid, String contextKey) {
+  public String generateAllocateUrl(String oid, String contextKey) {
     var saUrl = config.storageAdapterUrl();
     return saUrl + "/contents/%s?contextKey=%s"
       .formatted(oid, contextKey);

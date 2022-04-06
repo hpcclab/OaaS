@@ -13,7 +13,7 @@ public class OaasFunctionBinding {
   @ProtoField(2)
   String function;
   @ProtoField(3)
-  String alias;
+  String name;
 
   public OaasFunctionBinding() {
   }
@@ -21,9 +21,9 @@ public class OaasFunctionBinding {
   @ProtoFactory
   public OaasFunctionBinding(FunctionAccessModifier access,
                              String function,
-                             String alias) {
+                             String name) {
     this.access = access;
     this.function = function;
-    this.alias = alias;
+    this.name = name;
   }
 }

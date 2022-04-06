@@ -97,7 +97,7 @@ public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClas
   public Optional<OaasFunctionBinding> findFunction(OaasClass cls, String funcName) {
     return cls.getFunctions()
       .stream()
-      .filter(fb -> fb.getFunction().equals(funcName))
+      .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
       .findFirst();
   }
 }

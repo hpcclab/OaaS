@@ -20,7 +20,7 @@ public class AggregateRepository {
   @Inject
   OaasClassRepository clsRepo;
 
-  public TaskContext getTaskContext(UUID id) {
+  public TaskContext getTaskContext(String id) {
     var main = objectRepo.get(id);
     var tc = new TaskContext();
     tc.setOutput(main);

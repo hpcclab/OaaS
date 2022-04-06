@@ -22,9 +22,8 @@ public class TaskEventFactory {
   OaasObjectRepository objectRepo;
 
   public TaskEvent createStartingEvent(String id) {
-    var uuid = UUID.fromString(id);
-    var object = objectRepo.get(uuid);
-    if (object==null) throw NoStackException.notFoundObject400(uuid);
+    var object = objectRepo.get(id);
+    if (object==null) throw NoStackException.notFoundObject400(id);
     var origin = object.getOrigin();
     return new TaskEvent()
       .setId(id)
@@ -39,10 +38,7 @@ public class TaskEventFactory {
                                         Collection<String> roots) {
     if (event.getPrqTasks()==null || event.getPrqTasks().isEmpty())
       return List.of();
-    var ids = event.getPrqTasks().stream()
-      .map(UUID::fromString)
-      .collect(Collectors.toSet());
-    var map = objectRepo.list(ids);
+    var map = objectRepo.list(event.getPrqTasks());
     map.values()
       .stream()
       .filter(object -> object.getOrigin().getParentId()==null)
@@ -52,7 +48,7 @@ public class TaskEventFactory {
       .stream()
       .filter(object -> object.getOrigin().getParentId()!=null)
       .map(obj -> new TaskEvent()
-        .setId(obj.getId().toString())
+        .setId(obj.getId())
         .generatePrq(obj.getOrigin())
         .setNextTasks(Set.of(event.getId()))
         .setSource(event.getId())

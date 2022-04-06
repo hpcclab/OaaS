@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasObject;
@@ -8,22 +9,21 @@ import org.hpcclab.oaas.model.proto.OaasObject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/classes")
 public interface ClassService {
   @GET
-  Uni<List<OaasClass>> list(@QueryParam("page") Integer page,
-                            @QueryParam("size") Integer size);
+  Uni<Pagination<OaasClass>> list(@QueryParam("offset") Long offset,
+                                  @QueryParam("limit") Integer limit);
 
 
   @GET
   @Path("{name}/objects")
-  List<OaasObject> listObject(String name,
-                                   @QueryParam("page") Integer page,
-                                   @QueryParam("size") Integer size);
+  Pagination<OaasObject> listObject(String name,
+                              @QueryParam("offset") Long offset,
+                              @QueryParam("limit") Integer limit);
 
   @POST
   Uni<OaasClass> create(@DefaultValue("false") @QueryParam("update") boolean update,

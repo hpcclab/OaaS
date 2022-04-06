@@ -19,8 +19,9 @@ import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@ProtoDoc("@Indexed")
 public class OaasObject {
-  UUID id;
+  String id;
   OaasObjectOrigin origin;
   Long originHash;
   ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
@@ -37,7 +38,7 @@ public class OaasObject {
   }
 
   @ProtoFactory
-  public OaasObject(UUID id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task) {
+  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -80,7 +81,7 @@ public class OaasObject {
   }
 
   @ProtoField(1)
-  public UUID getId() {
+  public String getId() {
     return id;
   }
 

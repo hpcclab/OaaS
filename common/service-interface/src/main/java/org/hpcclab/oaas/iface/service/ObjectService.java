@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
-import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 
@@ -10,15 +10,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/objects")
 public interface ObjectService {
   @GET
-  Uni<List<OaasObject>> list(@QueryParam("page") Integer page,
-                             @QueryParam("size") Integer size);
+  Uni<Pagination<OaasObject>> list(@QueryParam("offset") Integer offset,
+                                   @QueryParam("limit") Integer limit);
 
   @POST
   Uni<OaasObject> create(@Valid @NotNull OaasObject creating);

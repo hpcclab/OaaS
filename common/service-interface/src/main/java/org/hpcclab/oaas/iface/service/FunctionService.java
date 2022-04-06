@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 
 import javax.validation.Valid;
@@ -13,8 +14,8 @@ import java.util.List;
 @Path("/api/functions")
 public interface FunctionService {
   @GET
-  Uni<List<OaasFunction>> list(@QueryParam("page") Integer page,
-                               @QueryParam("size") Integer size);
+  Pagination<OaasFunction> list(@QueryParam("offset") Long offset,
+                                @QueryParam("limit") Integer limit);
 
   @POST
   Uni<List<OaasFunction>> create(

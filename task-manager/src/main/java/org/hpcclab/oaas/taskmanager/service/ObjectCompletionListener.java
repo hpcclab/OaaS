@@ -37,7 +37,7 @@ public class ObjectCompletionListener {
 //  RemoteCache<UUID, TaskCompletion> completionCache;
   @Inject
   OaasObjectRepository objectRepo;
-  RemoteCache<UUID, OaasObject> remoteCache;
+  RemoteCache<String, OaasObject> remoteCache;
   CacheWatcher watcher;
   @Inject
   TaskManagerConfig config;
@@ -56,7 +56,7 @@ public class ObjectCompletionListener {
     remoteCache.removeClientListener(watcher);
   }
 
-  public Uni<UUID> wait(UUID id) {
+  public Uni<String> wait(String id) {
     if (!config.enableCompletionListener())
       throw new NoStackException("Completion Listener is not enabled");
     return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
@@ -66,8 +66,8 @@ public class ObjectCompletionListener {
   @ClientListener
   public static class CacheWatcher {
 
-    BroadcastProcessor<UUID> broadcastProcessor = BroadcastProcessor.create();
-    ConcurrentHashMap<UUID, AtomicInteger> countingMap = new ConcurrentHashMap<>();
+    BroadcastProcessor<String> broadcastProcessor = BroadcastProcessor.create();
+    ConcurrentHashMap<String, AtomicInteger> countingMap = new ConcurrentHashMap<>();
 
 //    @ClientCacheEntryCreated
 //    public void onCreate(ClientCacheEntryCreatedEvent<UUID> e) {
@@ -78,7 +78,7 @@ public class ObjectCompletionListener {
 //    }
 
     @ClientCacheEntryModified
-    public void onUpdate(ClientCacheEntryModifiedEvent<UUID> e) {
+    public void onUpdate(ClientCacheEntryModifiedEvent<String> e) {
 //      LOGGER.debug("onUpdate {}, countingMap {}", e, countingMap);
       if (countingMap.containsKey(e.getKey())) {
         broadcastProcessor.onNext(e.getKey());
@@ -92,7 +92,7 @@ public class ObjectCompletionListener {
       broadcastProcessor = BroadcastProcessor.create();
     }
 
-    public Uni<UUID> wait(UUID id, Duration timeout) {
+    public Uni<String> wait(String id, Duration timeout) {
       LOGGER.debug("start wait for {}", id);
       countingMap.computeIfAbsent(id, key -> new AtomicInteger())
         .incrementAndGet();
@@ -100,7 +100,7 @@ public class ObjectCompletionListener {
         .filter(event -> event.equals(id))
         .toUni()
         .ifNoItem().after(timeout)
-        .recoverWithItem((UUID) null)
+        .recoverWithItem((String) null)
         .eventually(() -> {
           var atomicInteger = countingMap.get(id);
           var i = atomicInteger.decrementAndGet();

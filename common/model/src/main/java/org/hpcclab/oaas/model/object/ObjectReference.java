@@ -11,13 +11,13 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class ObjectReference {
   String name;
-  UUID object;
+  String object;
 
   public ObjectReference() {
   }
 
   @ProtoFactory
-  public ObjectReference(String name, UUID object) {
+  public ObjectReference(String name, String object) {
     this.name = name;
     this.object = object;
   }
@@ -28,7 +28,7 @@ public class ObjectReference {
   }
 
   @ProtoField(2)
-  public UUID getObject() {
+  public String getObject() {
     return object;
   }
 }

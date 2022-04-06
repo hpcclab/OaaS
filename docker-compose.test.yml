@@ -12,7 +12,6 @@ services:
       USER: oaas
       PASS: oaas
 
-
   oc:
     depends_on:
       - redpanda

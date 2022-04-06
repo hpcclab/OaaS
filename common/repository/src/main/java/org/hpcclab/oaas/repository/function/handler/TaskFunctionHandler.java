@@ -23,9 +23,7 @@ public class TaskFunctionHandler {
     var access = context.getFunctionAccess();
 
     if (context.getEntry()==main && access!=FunctionAccessModifier.PUBLIC) {
-      throw new FunctionValidationException("The object(id='%s') has a function(name='%s') without PUBLIC access"
-        .formatted(main.getId(), func.getName())
-      );
+      throw FunctionValidationException.accessError(main.getId(), func.getName());
     }
 
   }

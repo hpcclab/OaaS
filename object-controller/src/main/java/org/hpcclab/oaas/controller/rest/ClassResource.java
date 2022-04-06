@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasObject;
@@ -19,7 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
-import java.util.List;
 
 @ApplicationScoped
 public class ClassResource implements ClassService {
@@ -33,18 +33,18 @@ public class ClassResource implements ClassService {
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @Blocking
-  public Uni<List<OaasClass>> list(Integer page, Integer size) {
-    if (page == null) page = 0;
-    if (size == null) size = 100;
-    var list = classRepo.pagination(page, size);
+  public Uni<Pagination<OaasClass>> list(Long offset, Integer limit) {
+    if (offset== null) offset = 0L;
+    if (limit== null) limit = 20;
+    var list = classRepo.pagination(offset, limit);
     return Uni.createFrom().item(list);
   }
 
   @Blocking
-  public List<OaasObject> listObject(String name, Integer page, Integer size) {
-    if (page == null) page = 0;
-    if (size == null) size = 100;
-    return objectRepo.listByCls(name,page, size);
+  public Pagination<OaasObject> listObject(String name, Long offset, Integer limit) {
+    if (offset== null) offset = 0L;
+    if (limit== null) limit = 20;
+    return objectRepo.listByCls(name,offset, limit);
   }
 
   @Override

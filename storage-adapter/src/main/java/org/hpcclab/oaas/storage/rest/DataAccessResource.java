@@ -42,10 +42,10 @@ public class DataAccessResource {
     // TODO protect contextKey with encryption and signature
     var dac = parseDac(contextKey);
     if (dac==null) throw new NoStackException("'contextKey' query param is required", 400);
-    var clsName = dac.getCls(UUID.fromString(oid));
-    return clsRepo.getAsync(clsName)
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundCls400(clsName))
-      .flatMap(cls -> handleDataAccess(oid, key, cls, dac));
+    var clsName = dac.getCls(oid);
+    var cls =  clsRepo.get(clsName);
+    if (cls == null) throw  NoStackException.notFoundCls400(clsName);
+    return handleDataAccess(oid, key, cls, dac);
   }
 
   @GET
@@ -54,10 +54,10 @@ public class DataAccessResource {
   public Uni<Map<String, String>> getAllocatedUrls(String oid,
                                                    @RestQuery String contextKey) {
     var dac = parseDac(contextKey);
-    var clsName = dac.getCls(UUID.fromString(oid));
-    return clsRepo.getAsync(clsName)
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundCls400(clsName))
-      .flatMap(cls -> adapterLoader.aggregatedAllocate(oid, cls, false));
+    var clsName = dac.getCls(oid);
+    var cls =  clsRepo.get(clsName);
+    if (cls == null) throw  NoStackException.notFoundCls400(clsName);
+    return adapterLoader.aggregatedAllocate(oid, cls, false);
   }
 
   DataAccessContext parseDac(String contextKey) {

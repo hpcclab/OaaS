@@ -204,7 +204,7 @@
             "type" : "string"
           },
           "id" : {
-            "$ref" : "#/components/schemas/UUID"
+            "type" : "string"
           },
           "labels" : {
             "uniqueItems" : true,
@@ -250,16 +250,14 @@
           "inputs" : {
             "type" : "array",
             "items" : {
-              "format" : "uuid",
-              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
               "type" : "string"
             }
           },
           "parentId" : {
-            "$ref" : "#/components/schemas/UUID"
+            "type" : "string"
           },
           "rootId" : {
-            "$ref" : "#/components/schemas/UUID"
+            "type" : "string"
           }
         }
       },
@@ -333,13 +331,11 @@
           "inputs" : {
             "type" : "array",
             "items" : {
-              "format" : "uuid",
-              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
               "type" : "string"
             }
           },
           "target" : {
-            "$ref" : "#/components/schemas/UUID"
+            "type" : "string"
           }
         }
       },
@@ -354,7 +350,7 @@
             "type" : "string"
           },
           "object" : {
-            "$ref" : "#/components/schemas/UUID"
+            "type" : "string"
           }
         }
       },
@@ -389,11 +385,6 @@
       },
       "TaskStatus" : {
         "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
-        "type" : "string"
-      },
-      "UUID" : {
-        "format" : "uuid",
-        "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
         "type" : "string"
       }
     }

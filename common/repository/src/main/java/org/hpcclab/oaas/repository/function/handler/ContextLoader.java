@@ -34,7 +34,8 @@ public class ContextLoader {
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
       .map(ctx::setMain)
-      .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
+//      .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
+      .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
       .flatMap(ignore -> objectRepo.listByIdsAsync(request.getInputs()))
       .map(ctx::setAdditionalInputs);
   }
@@ -51,51 +52,47 @@ public class ContextLoader {
     return ctx;
   }
 
-  public Uni<FunctionExecContext> setClsAndFuncAsync(FunctionExecContext ctx,
-                                                     String funcName){
-    return funcRepo.getAsync(funcName)
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundFunc(funcName, 409))
-      .map(ctx::setFunction)
-      .flatMap(ignore -> {
-        if (ctx.getFunction().getOutputCls() != null)
-          return clsRepo.getAsync(ctx.getFunction().getOutputCls())
-            .onItem().ifNull().failWith(() -> NoStackException.notFoundCls(ctx.getFunction().getOutputCls(), 409));
-        return Uni.createFrom().nullItem();
-      })
-      .map(ctx::setOutputCls)
-      .flatMap(ignore -> clsRepo.getAsync(ctx.getMain().getCls()))
-      .map(ctx::setMainCls)
-      .map(Unchecked.function(ignore -> {
-        var binding = clsRepo.findFunction(
-          ctx.getMainCls(), funcName);
-        if (binding.isEmpty()) throw new NoStackException(
-          "Function(" + funcName + ") can be not executed on object", 400);
-        ctx.setFunctionAccess(binding.get().getAccess());
-        return ctx;
-      }));
-  }
+//  public Uni<FunctionExecContext> setClsAndFuncAsync(FunctionExecContext ctx,
+//                                                     String funcName){
+//    return funcRepo.getAsync(funcName)
+//      .onItem().ifNull().failWith(() -> NoStackException.notFoundFunc(funcName, 409))
+//      .map(ctx::setFunction)
+//      .flatMap(ignore -> {
+//        if (ctx.getFunction().getOutputCls() != null)
+//          return clsRepo.getAsync(ctx.getFunction().getOutputCls())
+//            .onItem().ifNull().failWith(() -> NoStackException.notFoundCls(ctx.getFunction().getOutputCls(), 409));
+//        return Uni.createFrom().nullItem();
+//      })
+//      .map(ctx::setOutputCls)
+//      .flatMap(ignore -> clsRepo.getAsync(ctx.getMain().getCls()))
+//      .map(ctx::setMainCls)
+//      .map(Unchecked.function(ignore -> {
+//        var binding = clsRepo.findFunction(
+//          ctx.getMainCls(), funcName);
+//        if (binding.isEmpty()) throw new NoStackException(
+//          "Function(" + funcName + ") can be not executed on object", 400);
+//        ctx.setFunctionAccess(binding.get().getAccess());
+//        return ctx;
+//      }));
+//  }
 
   public FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
-    var func = funcRepo.get(funcName);
-    if (func == null)
-      throw NoStackException.notFoundCls400(funcName);
-    ctx.setFunction(func);
-    LOGGER.trace("func {}", func);
-    if (func.getOutputCls() != null) {
-      var outputClass = clsRepo.get(func.getOutputCls());
-      ctx.setOutputCls(outputClass);
-      LOGGER.trace("outputClass {}", outputClass);
-    }
-
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
-    LOGGER.trace("mainCls {}", mainCls);
     ctx.setMainCls(mainCls);
     var binding = clsRepo.findFunction(
       mainCls, funcName);
-    if (binding.isEmpty()) throw new NoStackException(
-      "Function(" + funcName + ") can be not executed on object", 400);
+    if (binding.isEmpty()) throw FunctionValidationException.noFunction(main.getId(), funcName);
     ctx.setFunctionAccess(binding.get().getAccess());
+
+    var func = funcRepo.get(binding.get().getFunction());
+    if (func == null)
+      throw NoStackException.notFoundFunc400(funcName);
+    ctx.setFunction(func);
+    if (func.getOutputCls() != null) {
+      var outputClass = clsRepo.get(func.getOutputCls());
+      ctx.setOutputCls(outputClass);
+    }
     return ctx;
   }
 
@@ -120,7 +117,8 @@ public class ContextLoader {
 
     return resolveTarget(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
-      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
+//      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
+      .map(ignore -> setClsAndFunc(newCtx, step.getFuncName()))
       .chain(() -> resolveInputs(newCtx, step));
   }
 

@@ -23,7 +23,7 @@ public class LogicalFunctionHandler {
       LOGGER.debug("Call function 'copy' {}", context.getMain().getId());
       var o = context.getMain().copy();
       o.setOrigin(context.createOrigin());
-      o.setId(UUID.randomUUID());
+      o.setId(objectRepo.generateId());
       return objectRepo.persistAsync(o)
         .map(context::setOutput);
     } else {

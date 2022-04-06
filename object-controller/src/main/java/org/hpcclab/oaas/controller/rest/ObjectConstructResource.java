@@ -39,7 +39,7 @@ public class ObjectConstructResource {
     var cls = clsRepo.get(construction.getCls());
     if (cls == null) throw NoStackException.notFoundCls400(construction.getCls());
     var obj = OaasObject.createFromClasses(cls);
-    obj.setId(UUID.randomUUID());
+    obj.setId(objRepo.generateId());
     obj.setEmbeddedRecord(construction.getEmbeddedRecord());
     obj.setLabels(construction.getLabels());
     obj.setOrigin(new OaasObjectOrigin().setRootId(obj.getId()));

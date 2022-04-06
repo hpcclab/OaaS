@@ -93,15 +93,15 @@ public class TestUtils {
       .extract().body().as(OaasObject.class);
   }
 
-  public static OaasObject getObject(UUID id) {
+  public static OaasObject getObject(String id) {
     return given()
-      .pathParam("id", id.toString())
+      .pathParam("id", id)
       .when().get("/api/objects/{id}")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.equalTo(id.toString()))
+      .body("id", Matchers.equalTo(id))
       .extract().body().as(OaasObject.class);
   }
 
@@ -118,15 +118,15 @@ public class TestUtils {
   }
 
 
-  public static DeepOaasObject getObjectDeep(UUID id) {
+  public static DeepOaasObject getObjectDeep(String id) {
     return given()
-      .pathParam("id", id.toString())
+      .pathParam("id", id)
       .when().get("/api/objects/{id}/deep")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.equalTo(id.toString()))
+      .body("id", Matchers.equalTo(id))
       .extract().body().as(DeepOaasObject.class);
   }
 

@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.controller.rest;
 
-import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.repository.TaskCompletionRepository;
 import org.hpcclab.oaas.iface.service.ObjectService;
-import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.AggregateRepository;
@@ -32,10 +31,11 @@ public class ObjectResource implements ObjectService {
   @Inject
   AggregateRepository aggregateRepo;
 
-  public Uni<List<OaasObject>> list(Integer page, Integer size) {
-    if (page==null) page = 0;
-    if (size==null) size = 100;
-    var list = objectRepo.pagination(page, size);
+  public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
+    if (offset==null) offset = 0;
+    if (limit==null) limit = 20;
+    if (limit > 100) limit = 100;
+    var list = objectRepo.pagination(offset, limit);
     return Uni.createFrom().item(list);
   }
 
@@ -45,8 +45,7 @@ public class ObjectResource implements ObjectService {
   }
 
   public Uni<OaasObject> get(String id) {
-    var uuid = UUID.fromString(id);
-    return objectRepo.getAsync(uuid)
+    return objectRepo.getAsync(id)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
@@ -55,7 +54,7 @@ public class ObjectResource implements ObjectService {
 //  }
 
   public Uni<DeepOaasObject> getDeep(String id) {
-    return objectRepo.getDeep(UUID.fromString(id));
+    return objectRepo.getDeep(id);
   }
 
 //  public Uni<TaskContext> getTaskContext(String id) {
@@ -79,8 +78,7 @@ public class ObjectResource implements ObjectService {
 
   @Override
   public Uni<TaskCompletion> getCompletion(String id) {
-    var uuid = UUID.fromString(id);
-    return completionRepo.getAsync(uuid)
+    return completionRepo.getAsync(id)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 }

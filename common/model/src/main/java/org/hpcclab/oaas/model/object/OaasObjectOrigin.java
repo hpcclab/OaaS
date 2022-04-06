@@ -18,17 +18,17 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasObjectOrigin implements Serializable {
-  UUID rootId;
-  UUID parentId;
+  String rootId;
+  String parentId;
   String funcName;
   Map<String, String> args;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  List<UUID> inputs = List.of();
+  List<String> inputs = List.of();
 
   public OaasObjectOrigin() {
   }
 
-  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, Map<String, String> args, List<UUID> inputs) {
+  public OaasObjectOrigin(String rootId, String parentId, String funcName, Map<String, String> args, List<String> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
@@ -37,7 +37,7 @@ public class OaasObjectOrigin implements Serializable {
   }
 
   @ProtoFactory
-  public OaasObjectOrigin(UUID rootId, UUID parentId, String funcName, HashMap<String, String> args, List<UUID> inputs) {
+  public OaasObjectOrigin(String rootId, String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
@@ -77,12 +77,12 @@ public class OaasObjectOrigin implements Serializable {
   }
 
   @ProtoField(1)
-  public UUID getRootId() {
+  public String getRootId() {
     return rootId;
   }
 
   @ProtoField(2)
-  public UUID getParentId() {
+  public String getParentId() {
     return parentId;
   }
 
@@ -97,7 +97,7 @@ public class OaasObjectOrigin implements Serializable {
   }
 
   @ProtoField(5)
-  public List<UUID> getInputs() {
+  public List<String> getInputs() {
     return inputs;
   }
 }

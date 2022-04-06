@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,10 +28,9 @@ public class TaskEvent {
     CREATE, NOTIFY, COMPLETE
   }
   public TaskEvent generatePrq(OaasObjectOrigin origin) {
-    prqTasks = origin.getInputs().stream()
-      .map(UUID::toString).collect(Collectors.toSet());
+    prqTasks = new HashSet<>(origin.getInputs());
     if (origin.getParentId() != null)
-      prqTasks.add(origin.getParentId().toString());
+      prqTasks.add(origin.getParentId());
     return this;
   }
 }

@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.model.Pagination;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public abstract class AbstractIfnpRepository<K, V> {
 
@@ -29,20 +33,22 @@ public abstract class AbstractIfnpRepository<K, V> {
 
   public abstract String getEntityName();
 
-  public List<V> pagination(int page, int size) {
-    return query("FROM " + getEntityName(), page, size);
+  public Pagination<V> pagination(long offset, int limit) {
+    return query("FROM " + getEntityName(), offset, limit);
   }
 
-  public List<V> query(String queryString, int page, int size) {
-    return query(queryString, Map.of(), page, size);
+  public Pagination<V> query(String queryString, long offset, int limit) {
+    return query(queryString, Map.of(), offset, limit);
   }
 
-  public List<V> query(String queryString, Map<String, Object> params, int page, int size) {
+  public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
     Query<V> query = (Query<V>) queryFactory.create(queryString)
       .setParameters(params)
-      .startOffset((long) page * size)
-      .maxResults(size);
-    return query.execute().list();
+      .startOffset(offset)
+      .maxResults(limit);
+    var qr= query.execute();
+    var items = qr.list();
+    return new Pagination<>(qr.hitCount().orElse(0), offset, items.size(), items);
   }
 
   public V get(K key) {

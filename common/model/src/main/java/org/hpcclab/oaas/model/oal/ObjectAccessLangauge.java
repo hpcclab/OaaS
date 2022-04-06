@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectAccessLangauge {
-  UUID target;
+  String target;
   String functionName;
   Map<String, String> args;
-  List<UUID> inputs;
+  List<String> inputs;
 
   public static ObjectAccessLangauge from(OaasObjectOrigin origin) {
     return new ObjectAccessLangauge()
@@ -77,12 +77,11 @@ public class ObjectAccessLangauge {
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
     var oal = new ObjectAccessLangauge();
-    oal.target = UUID.fromString(target);
+    oal.target = target;
     if (func == null) return oal;
     oal.functionName = func;
     if (inputs != null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
-        .map(UUID::fromString)
         .toList();
       oal.setInputs(list);
     }

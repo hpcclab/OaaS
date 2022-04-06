@@ -13,11 +13,11 @@ import java.util.UUID;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class DataAccessContext {
-  UUID mainId;
+  String mainId;
   String mainCls;
-  UUID outId;
+  String outId;
   String outCls;
-  List<UUID> inputIds;
+  List<String> inputIds;
   List<String> inputCls;
   String sig;
 
@@ -38,7 +38,7 @@ public class DataAccessContext {
     }
   }
 
-  public String getCls(UUID id) {
+  public String getCls(String id) {
     if (mainId != null && mainId.equals(id)) return mainCls;
     if (outId != null && outId.equals(id)) return outCls;
     if (inputIds == null) return null;

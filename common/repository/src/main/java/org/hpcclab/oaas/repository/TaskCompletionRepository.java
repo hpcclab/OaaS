@@ -12,10 +12,10 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
-public class TaskCompletionRepository extends AbstractIfnpRepository<UUID, TaskCompletion>{
+public class TaskCompletionRepository extends AbstractIfnpRepository<String, TaskCompletion>{
   @Inject
   @Remote(InfinispanInit.TASK_COMPLETION_CACHE)
-  RemoteCache<UUID, TaskCompletion> cache;
+  RemoteCache<String, TaskCompletion> cache;
 
 
   @PostConstruct

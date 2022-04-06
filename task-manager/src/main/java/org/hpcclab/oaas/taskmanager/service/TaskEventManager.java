@@ -67,7 +67,7 @@ public class TaskEventManager {
   }
 
   public OaasTask createTask(String taskId) {
-    var context = aggregateRepo.getTaskContext(UUID.fromString(taskId));
+    var context = aggregateRepo.getTaskContext(taskId);
     LOGGER.debug("createTask {}", taskId);
     return taskFactory.genTask(context);
   }
@@ -86,7 +86,7 @@ public class TaskEventManager {
       return null;
     });
     var tcMap = taskCompletions.stream()
-        .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
+        .collect(Collectors.toMap(TaskCompletion::getId, Function.identity()));
     return objectRepo.listAsync(tcMap.keySet())
       .flatMap(objMap -> {
         for (OaasObject obj : objMap.values()) {

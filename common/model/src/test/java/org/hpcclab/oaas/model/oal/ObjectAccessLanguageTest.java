@@ -125,7 +125,7 @@ class ObjectAccessLanguageTest {
   @Test
   void testToString() {
     var ids = IntStream.range(0,3)
-      .mapToObj(i -> UUID.randomUUID())
+      .mapToObj(i -> UUID.randomUUID().toString())
       .toList();
     var fc = new ObjectAccessLangauge()
       .setTarget(ids.get(0));
