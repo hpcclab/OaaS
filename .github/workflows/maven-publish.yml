@@ -24,11 +24,15 @@ jobs:
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
-
-    - name: Build with Maven
-      run: mvn -B package -DskipTests --file pom.xml
-
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+#    - name: Build with Maven
+#      run: mvn -B package -DskipTests --file pom.xml
+    - name: Build container image with Jib
+      run: mvn -B package -DskipTests --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        TAG: :${GITHUB_REF##*/}
+        CI_REGISTRY_IMAGE: ghcr.io/pawissanutt/oaas
+
+#    - name: Publish to GitHub Packages Apache Maven
+#      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+#      env:
+#        GITHUB_TOKEN: ${{ github.token }}
