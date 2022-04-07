@@ -115,19 +115,31 @@ public class S3Adapter implements StorageAdapter {
   }
 
   @Override
-  public Uni<Map<String, String>> allocate(DataAllocateRequest request) {
+  public Uni<Map<String, String>> allocate(InternalDataAllocateRequest request) {
     return Uni.createFrom().item(allocateBlocking(request));
   }
 
-  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
+  public Map<String, String> allocateBlocking(InternalDataAllocateRequest request) {
     var keys = request.getKeys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
       var url = generatePresigned(Method.PUT,
-        request.getOid() + "/" + key,
+        request.getId() + "/" + key,
         true);
       map.put(key, url);
     }
     return map;
   }
+
+//  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
+//    var keys = request.getKeys();
+//    var map = new HashMap<String, String>();
+//    for (String key : keys) {
+//      var url = generatePresigned(Method.PUT,
+//        request.getOid() + "/" + key,
+//        true);
+//      map.put(key, url);
+//    }
+//    return map;
+//  }
 }

@@ -1,8 +1,10 @@
 package org.hpcclab.oaas.storage.rest;
 
 import io.smallrye.mutiny.Multi;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
+import org.hpcclab.oaas.storage.AdapterLoader;
 import org.hpcclab.oaas.storage.adapter.S3Adapter;
 
 import javax.inject.Inject;
@@ -18,13 +20,13 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class DataAllocateResource {
   @Inject
-  S3Adapter s3Adapter;
+  AdapterLoader adapterLoader;
 
   @POST
   public Multi<DataAllocateResponse> allocate(List<DataAllocateRequest> requests) {
     return Multi.createFrom().iterable(requests)
       .onItem().transformToUniAndConcatenate(req ->
-        s3Adapter.allocate(req)
+        adapterLoader.aggregatedAllocate(req)
           .map(map -> new DataAllocateResponse(req.getOid(), map)
           )
       );

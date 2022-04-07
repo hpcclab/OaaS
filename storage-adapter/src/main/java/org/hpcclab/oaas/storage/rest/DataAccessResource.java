@@ -5,6 +5,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
+import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.repository.OaasClassRepository;
@@ -57,7 +58,7 @@ public class DataAccessResource {
     var clsName = dac.getCls(oid);
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  NoStackException.notFoundCls400(clsName);
-    return adapterLoader.aggregatedAllocate(oid, cls, false);
+    return adapterLoader.aggregatedAllocate(new DataAllocateRequest(oid, cls.getStateSpec().getKeySpecs(), false));
   }
 
   DataAccessContext parseDac(String contextKey) {

@@ -1,10 +1,13 @@
 package org.hpcclab.oaas.storage;
 
+import io.grpc.Internal;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
+import org.hpcclab.oaas.storage.adapter.InternalDataAllocateRequest;
 import org.hpcclab.oaas.storage.adapter.S3Adapter;
 import org.hpcclab.oaas.storage.adapter.StorageAdapter;
 
@@ -27,24 +30,20 @@ public class AdapterLoader {
   void setup() {
     adapterMap = Map.of("s3", s3Adapter);
   }
+
   public StorageAdapter load(String key, OaasClass cls) {
+    // NOTE: We currently only have S3 implementation.
     return s3Adapter;
   }
 
-  public Uni<Map<String, String>> aggregatedAllocate(String oid, OaasClass cls,
-                                                    boolean isPublic) {
-    var requests = cls.getStateSpec().getKeySpecs()
-      .stream()
-      .collect(Collectors.groupingBy(KeySpecification::getProvider))
-      .entrySet()
-      .stream()
-      .map(entry -> new DataAllocateRequest()
-        .setOid(oid)
-        .setProvider(entry.getKey())
-        .setPublicUrl(isPublic)
-        .setKeys(entry.getValue().stream().map(KeySpecification::getName).toList())
-      )
+  public  Uni<Map<String, String>> aggregatedAllocate(DataAllocateRequest request) {
+    var requests= Lists.fixedSize.ofAll(request.getKeys())
+      .groupBy(KeySpecification::getProvider)
+      .keyMultiValuePairsView()
+      .collect(entry -> new InternalDataAllocateRequest(
+        request.getOid(), entry.getTwo().collect(KeySpecification::getName).toList(), entry.getOne(), request.isPublicUrl()))
       .toList();
+
     return Multi.createFrom().iterable(requests)
       .onItem().transformToUniAndConcatenate(this::aggregatedAllocate)
       .collect().asList()
@@ -54,8 +53,7 @@ public class AdapterLoader {
       }));
   }
 
-
-  public Uni<Map<String,String>> aggregatedAllocate(DataAllocateRequest request) {
+  public Uni<Map<String,String>> aggregatedAllocate(InternalDataAllocateRequest request) {
     if (request.getProvider().equals(s3Adapter.name())) {
       return s3Adapter.allocate(request);
     } else {
