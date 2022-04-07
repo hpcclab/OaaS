@@ -27,9 +27,8 @@ jobs:
 #    - name: Build with Maven
 #      run: mvn -B package -DskipTests --file pom.xml
     - name: Build container image with Jib
-      run: mvn -B package -DskipTests --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
+      run: export tag="${GITHUB_REF##*/}";mvn -B package -DskipTests --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
       env:
-        TAG: :${GITHUB_REF##*/}
         CI_REGISTRY_IMAGE: ghcr.io/pawissanutt/oaas
 
 #    - name: Publish to GitHub Packages Apache Maven
