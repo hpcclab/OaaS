@@ -38,7 +38,7 @@ class FunctionResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("name", hasItems("test.dummy.task", "test.dummy.macro"))
+      .body("items.name", hasItems("test.dummy.task", "test.dummy.macro"))
       .log().ifValidationFails();
   }
 }

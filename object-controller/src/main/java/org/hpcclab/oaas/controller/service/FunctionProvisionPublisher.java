@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 public class FunctionProvisionPublisher {
   @Channel("provisions")
   MutinyEmitter<Record<String, OaasFunction>> provisionEmitter;
-  @Inject
-  CtxMapper mapper;
+//  @Inject
+//  CtxMapper mapper;
 
   public Uni<Void> submitNewFunction(OaasFunction function) {
     var provision = function.getProvision();

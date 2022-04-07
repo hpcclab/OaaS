@@ -156,6 +156,8 @@ components:
             $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        streamInfo:
+          $ref: '#/components/schemas/StreamInfo'
         task:
           $ref: '#/components/schemas/TaskCompletion'
     OaasObjectOrigin:
@@ -244,6 +246,12 @@ components:
       - COLLECTION
       - FILES
       type: string
+    StreamInfo:
+      type: object
+      properties:
+        count:
+          format: int32
+          type: integer
     TaskCompletion:
       type: object
       properties:

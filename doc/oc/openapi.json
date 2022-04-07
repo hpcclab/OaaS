@@ -5,6 +5,38 @@
     "version" : "0.2.0-SNAPSHOT"
   },
   "paths" : {
+    "/allocate" : {
+      "post" : {
+        "tags" : [ "CDI Wrapper" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/DataAllocateRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DataAllocateResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/batch" : {
       "post" : {
         "requestBody" : {
@@ -345,7 +377,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ObjectConstruction"
+                "$ref" : "#/components/schemas/ObjectConstructRequest"
               }
             }
           }
@@ -356,7 +388,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ObjectConstructionResponse"
+                  "$ref" : "#/components/schemas/ObjectConstructResponse"
                 }
               }
             }
@@ -612,6 +644,37 @@
           }
         }
       },
+      "DataAllocateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "keys" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/KeySpecification"
+            }
+          },
+          "oid" : {
+            "type" : "string"
+          },
+          "publicUrl" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "DataAllocateResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "urlKeys" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
       "DeepOaasClass" : {
         "type" : "object",
         "properties" : {
@@ -799,6 +862,9 @@
               "$ref" : "#/components/schemas/OaasFunctionBinding"
             }
           },
+          "genericType" : {
+            "type" : "string"
+          },
           "name" : {
             "type" : "string"
           },
@@ -928,6 +994,9 @@
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
           },
+          "streamInfo" : {
+            "$ref" : "#/components/schemas/StreamInfo"
+          },
           "task" : {
             "$ref" : "#/components/schemas/TaskCompletion"
           }
@@ -992,7 +1061,7 @@
         }
       },
       "OaasObjectType" : {
-        "enum" : [ "COMPOUND", "SIMPLE" ],
+        "enum" : [ "COMPOUND", "SIMPLE", "STREAM" ],
         "type" : "string"
       },
       "OaasWorkflow" : {
@@ -1060,7 +1129,7 @@
         "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
         "type" : "string"
       },
-      "ObjectConstruction" : {
+      "ObjectConstructRequest" : {
         "type" : "object",
         "properties" : {
           "cls" : {
@@ -1095,14 +1164,26 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "streamConstructs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectConstructRequest"
+            }
           }
         }
       },
-      "ObjectConstructionResponse" : {
+      "ObjectConstructResponse" : {
         "type" : "object",
         "properties" : {
           "object" : {
             "$ref" : "#/components/schemas/OaasObject"
+          },
+          "streams" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectConstructResponse"
+            }
           },
           "uploadUrls" : {
             "type" : "object",
@@ -1301,6 +1382,15 @@
       "StateType" : {
         "enum" : [ "COLLECTION", "FILES" ],
         "type" : "string"
+      },
+      "StreamInfo" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
       },
       "TaskCompletion" : {
         "type" : "object",

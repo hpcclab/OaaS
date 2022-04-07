@@ -1,12 +1,17 @@
 package org.hpcclab.oaas.controller.rest;
 
 import io.smallrye.mutiny.Uni;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.object.ObjectConstruction;
-import org.hpcclab.oaas.model.object.ObjectConstructionResponse;
+import org.hpcclab.oaas.model.object.ObjectConstructRequest;
+import org.hpcclab.oaas.model.object.ObjectConstructResponse;
+import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
@@ -19,7 +24,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Path("/api/object-construct")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -31,27 +35,74 @@ public class ObjectConstructResource {
   @Inject
   OaasObjectRepository objRepo;
   @Inject
+  @RestClient
   DataAllocationService allocationService;
 
 
   @POST
-  public Uni<ObjectConstructionResponse> construct(ObjectConstruction construction) {
+  public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());
-    if (cls == null) throw NoStackException.notFoundCls400(construction.getCls());
-    var obj = OaasObject.createFromClasses(cls);
-    obj.setId(objRepo.generateId());
-    obj.setEmbeddedRecord(construction.getEmbeddedRecord());
-    obj.setLabels(construction.getLabels());
-    obj.setOrigin(new OaasObjectOrigin().setRootId(obj.getId()));
-    obj.getState().setOverrideUrls(construction.getOverrideUrls());
-    DataAllocateRequest request = new DataAllocateRequest();
-    request.setOid(obj.getId().toString())
-      .setPublicUrl(true)
-      .setProvider("s3")
-      .setKeys(List.copyOf(construction.getKeys()));
+    if (cls==null) throw NoStackException.notFoundCls400(construction.getCls());
+    return switch (cls.getObjectType()) {
+      case SIMPLE, COMPOUND -> constructSimple(construction, cls);
+      case STREAM -> constructStream(construction, cls);
+    };
+  }
+
+  private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
+                                                       OaasClass cls) {
+    var obj = makeObject(construction, cls, objRepo.generateId());
+    var stateSpec = cls.getStateSpec();
+    if (stateSpec==null) return objRepo.persistAsync(obj)
+      .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
+
+    var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
+      .select(k -> construction.getKeys().contains(k.getName()));
+    DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, true);
     return allocationService.allocate(List.of(request))
-      .flatMap(list -> objRepo.persistAsync(obj)
-          .map(ignore -> new ObjectConstructionResponse(obj,list.get(0).getUrlKeys()))
-      );
+      .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
+      .call(() -> objRepo.persistAsync(obj));
+  }
+
+  private Uni<ObjectConstructResponse> constructStream(ObjectConstructRequest construction,
+                                                       OaasClass cls) {
+    var genericType = cls.getGenericType();
+    var genericCls = clsRepo.get(genericType);
+    var obj = makeObject(construction, cls, objRepo.generateId());
+    var sc = Lists.fixedSize.ofAll(construction.getStreamConstructs());
+    var objStream = sc.collectWithIndex((c,i) -> makeObject(c, genericCls, obj.getId() + '.' + i));
+    var requestList = sc.zip(objStream).collect(pair -> {
+      var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
+        .select(k -> construction.getKeys().contains(k.getName()));
+      return new DataAllocateRequest(pair.getTwo().getId(), ks, true);
+    });
+
+    return allocationService.allocate(requestList)
+      .map(list -> aggregateResult(obj, objStream, list))
+      .call(() -> {
+        objStream.add(obj);
+        return objRepo.persistAsync(objStream);
+      });
+  }
+
+  private ObjectConstructResponse aggregateResult(OaasObject baseObj,
+                                                  MutableList<OaasObject> objStream,
+                                                  List<DataAllocateResponse> responses) {
+    var respStream = objStream.zip(responses)
+      .collect(pair -> new ObjectConstructResponse(pair.getOne(), pair.getTwo().getUrlKeys()));
+    return new ObjectConstructResponse(baseObj, Map.of(), respStream);
+  }
+
+
+  private OaasObject makeObject(ObjectConstructRequest construct,
+                                OaasClass cls,
+                                String id) {
+    var obj = OaasObject.createFromClasses(cls);
+    obj.setId(id);
+    obj.setEmbeddedRecord(construct.getEmbeddedRecord());
+    obj.setLabels(construct.getLabels());
+    obj.setOrigin(new OaasObjectOrigin().setRootId(id));
+    obj.getState().setOverrideUrls(construct.getOverrideUrls());
+    return obj;
   }
 }

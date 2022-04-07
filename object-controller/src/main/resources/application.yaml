@@ -4,6 +4,7 @@
       color: true
     log:
       min-level: TRACE
+
   oaas:
     log: TRACE
 
@@ -31,10 +32,15 @@
       persist: true
     completion:
       persist: true
+  oaas:
+    oc:
+      kafkaEnabled: true
 
 oaas:
   oc:
+    storageAdapterUrl: http://localhost:8093
     provisionTopic: oaas-provisions
+    kafkaEnabled: false
   log: INFO
   repo:
     createOnStart: true
@@ -61,10 +67,10 @@ quarkus:
   smallrye-openapi:
     store-schema-directory: ../doc/oc
     enable: true
-  index-dependency:
-    service-interface:
-      artifact-id: service-interface
-      group-id: org.hpcclab.oaas
+#  index-dependency:
+#    service-interface:
+#      artifact-id: service-interface
+#      group-id: org.hpcclab.oaas
   log:
     category:
       "org.hpcclab.oaas":
@@ -85,10 +91,17 @@ quarkus:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
   opentelemetry:
     enabled: false
+  rest-client:
+    allocation-api:
+      url: ${oaas.oc.storageAdapterUrl}
+  kafka:
+    devservices:
+      enabled: false
 mp:
   messaging:
     outgoing:
       provisions:
+        enabled: ${oaas.oc.kafkaEnabled}
         connector: smallrye-kafka
         topic: ${oaas.oc.provisionTopic}
         value:

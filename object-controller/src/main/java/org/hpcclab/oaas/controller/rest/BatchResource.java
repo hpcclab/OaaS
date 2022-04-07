@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasClassRepository;
@@ -25,15 +26,21 @@ public class BatchResource implements BatchService {
   OaasFuncRepository funcRepo;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
+  @Inject
+  OcConfig config;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @Override
   public Uni<Batch> create(Batch batch) {
-    return classRepo.persist(batch.getClasses())
-      .flatMap(ignore -> funcRepo.persist(batch.getFunctions()))
-      .call(functions -> provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
-      .replaceWith(batch);
+    var uni = classRepo.persist(batch.getClasses())
+      .flatMap(ignore -> funcRepo.persist(batch.getFunctions()));
+    if (config.kafkaEnabled()) {
+      return uni.call(functions -> provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
+        .replaceWith(batch);
+    } else {
+      return uni.replaceWith(batch);
+    }
   }
 
   @Override

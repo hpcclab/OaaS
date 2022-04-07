@@ -1,13 +1,9 @@
 package org.hpcclab.oaas.repository.function.handler;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
-import org.hpcclab.oaas.model.task.TaskExecRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +11,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-@RegisterForReflection(targets = {
-  TaskExecRequest.class
-})
 public class FunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
 

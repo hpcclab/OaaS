@@ -20,26 +20,26 @@ class ClassResourceTest {
     given()
       .when().get("/api/classes")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("name", hasItems("test.dummy.simple", "test.dummy.compound"))
-      .log().ifValidationFails();
+      .body("items.name", hasItems("test.dummy.simple", "test.dummy.compound"));
     given()
       .when().get("/api/classes/test.dummy.simple")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .log().ifValidationFails();
+      .statusCode(200);
     given()
       .when().get("/api/classes/test.dummy.simple/deep")
       .then()
+      .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .log().all();
+      .statusCode(200);
   }
 
-  @Test
-  void testListObject() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
-  }
+//  @Test
+//  void testListObject() {
+//    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+//  }
 }

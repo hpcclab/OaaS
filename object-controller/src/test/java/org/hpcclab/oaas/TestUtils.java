@@ -1,5 +1,6 @@
 package org.hpcclab.oaas;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
@@ -14,6 +15,7 @@ import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
 
 import javax.ws.rs.core.MediaType;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +57,10 @@ public class TestUtils {
       - name: test.dummy.simple
         stateType: FILES
         objectType: SIMPLE
+        stateSpec:
+          keySpecs:
+            - name: test
+              provider: s3
         functions:
         - access: PUBLIC
           function: builtin.logical.copy
@@ -67,17 +73,22 @@ public class TestUtils {
             function: builtin.logical.copy
           - access: PUBLIC
             function: test.dummy.macro
+      - name: test.dummy.stream
+        objectType: STREAM
+        genericType: test.dummy.simple
+        functions: []
     """;
 
 
   public static List<OaasObject> listObject() {
-    return Arrays.asList(given()
+    return given()
       .when().get("/api/objects")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .log().ifValidationFails()
-      .extract().body().as(OaasObject[].class));
+      .extract().body().as( new TypeRef<Pagination<OaasObject>>() {})
+      .getItems();
   }
 
   public static OaasObject create(OaasObject o) {
@@ -132,7 +143,7 @@ public class TestUtils {
 
   public static OaasObject execOal(ObjectAccessLangauge oal, FunctionRouter router) {
     var ctx = router.functionCall(oal)
-      .await().indefinitely();
+      .await().atMost(Duration.ofSeconds(1));
     return ctx.getOutput();
   }
 

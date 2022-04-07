@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,6 +126,13 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
     if (o.getId() == null) o.setId(generateId());
     return this.putAsync(o.getId(), o);
   }
+
+  public Uni<Void> persistAsync(Collection<OaasObject> objects) {
+    var map = objects.stream()
+      .collect(Collectors.toMap(OaasObject::getId, Function.identity()));
+    return this.putAllAsync(map);
+  }
+
 
   public List<Map<String, OaasObjectOrigin>> getOrigin(String id, Integer deep) {
     List<Map<String, OaasObjectOrigin>> results = new ArrayList<>();

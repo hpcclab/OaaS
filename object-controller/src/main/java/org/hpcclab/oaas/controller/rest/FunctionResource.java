@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.Pagination;
@@ -25,7 +26,7 @@ public class FunctionResource implements FunctionService {
   @Inject
   OaasFuncRepository funcRepo;
   @Inject
-  CtxMapper oaasMapper;
+  OcConfig config;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
 
@@ -39,12 +40,17 @@ public class FunctionResource implements FunctionService {
   }
 
   public Uni<List<OaasFunction>> create(boolean update, List<OaasFunction> functionDtos) {
-    return Multi.createFrom().iterable(functionDtos)
+    var uni = Multi.createFrom().iterable(functionDtos)
       .onItem()
       .transformToUniAndConcatenate(funcDto -> funcRepo.persist(funcDto)
       )
-      .collect().asList()
-      .call(functions -> provisionPublisher.submitNewFunction(functions.stream()));
+      .collect().asList();
+    if (config.kafkaEnabled()) {
+      return uni
+        .call(functions -> provisionPublisher.submitNewFunction(functions.stream()));
+    } else {
+      return uni;
+    }
   }
 
   public Uni<List<OaasFunction>> createByYaml(boolean update, String body) {

@@ -40,8 +40,8 @@ public class OalResource {
   OaasObjectRepository objectRepo;
   @Inject
   TaskEventManager taskEventManager;
-  @Inject
-  TaskCompletionRepository completionRepo;
+//  @Inject
+//  TaskCompletionRepository completionRepo;
   @Inject
 //  TaskCompletionListener completionListener;
   ObjectCompletionListener completionListener;

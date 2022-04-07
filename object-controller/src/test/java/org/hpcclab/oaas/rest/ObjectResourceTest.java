@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -63,17 +64,13 @@ public class ObjectResourceTest {
     );
     compound = TestUtils.create(compound);
     given()
-      .pathParam("id", compound.getId().toString())
+      .pathParam("id", compound.getId())
       .when().get("/api/objects/{id}/deep")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.equalTo(compound.getId().toString()))
+      .body("id", Matchers.equalTo(compound.getId()))
       .body("refs.name", hasItems("obj1", "obj2"))
-      .body("refs.object", hasItems(obj1.getId().toString(), obj2.getId().toString()))
-      .log().ifValidationFails();
-
-    var newObj = call(
-      new ObjectAccessLangauge().setFunctionName("test.dummy.macro").setTarget(compound.getId()));
+      .body("refs.object", hasItems(obj1.getId(), obj2.getId()));
   }
 }

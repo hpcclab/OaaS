@@ -230,6 +230,9 @@
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
           },
+          "streamInfo" : {
+            "$ref" : "#/components/schemas/StreamInfo"
+          },
           "task" : {
             "$ref" : "#/components/schemas/TaskCompletion"
           }
@@ -357,6 +360,15 @@
       "StateType" : {
         "enum" : [ "COLLECTION", "FILES" ],
         "type" : "string"
+      },
+      "StreamInfo" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
       },
       "TaskCompletion" : {
         "type" : "object",

@@ -4,6 +4,26 @@ info:
   title: object-controller API
   version: 0.2.0-SNAPSHOT
 paths:
+  /allocate:
+    post:
+      tags:
+      - CDI Wrapper
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataAllocateRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataAllocateResponse'
   /api/batch:
     post:
       requestBody:
@@ -220,14 +240,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectConstruction'
+              $ref: '#/components/schemas/ObjectConstructRequest'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ObjectConstructionResponse'
+                $ref: '#/components/schemas/ObjectConstructResponse'
   /api/objects:
     get:
       parameters:
@@ -385,6 +405,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasFunction'
+    DataAllocateRequest:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeySpecification'
+        oid:
+          type: string
+        publicUrl:
+          type: boolean
+    DataAllocateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        urlKeys:
+          type: object
+          additionalProperties:
+            type: string
     DeepOaasClass:
       type: object
       properties:
@@ -515,6 +555,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasFunctionBinding'
+        genericType:
+          type: string
         name:
           type: string
         objectType:
@@ -607,6 +649,8 @@ components:
             $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        streamInfo:
+          $ref: '#/components/schemas/StreamInfo'
         task:
           $ref: '#/components/schemas/TaskCompletion'
     OaasObjectOrigin:
@@ -651,6 +695,7 @@ components:
       enum:
       - COMPOUND
       - SIMPLE
+      - STREAM
       type: string
     OaasWorkflow:
       type: object
@@ -698,7 +743,7 @@ components:
       - INTERNAL
       - PUBLIC
       type: string
-    ObjectConstruction:
+    ObjectConstructRequest:
       type: object
       properties:
         cls:
@@ -724,11 +769,19 @@ components:
           type: object
           additionalProperties:
             type: string
-    ObjectConstructionResponse:
+        streamConstructs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectConstructRequest'
+    ObjectConstructResponse:
       type: object
       properties:
         object:
           $ref: '#/components/schemas/OaasObject'
+        streams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectConstructResponse'
         uploadUrls:
           type: object
           additionalProperties:
@@ -866,6 +919,12 @@ components:
       - COLLECTION
       - FILES
       type: string
+    StreamInfo:
+      type: object
+      properties:
+        count:
+          format: int32
+          type: integer
     TaskCompletion:
       type: object
       properties:

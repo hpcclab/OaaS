@@ -8,6 +8,7 @@ import lombok.Data;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectAccessModifier;
+import org.hpcclab.oaas.model.object.StreamInfo;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -21,24 +22,37 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @ProtoDoc("@Indexed")
 public class OaasObject {
+
+  @ProtoField(1)
   String id;
+  @ProtoField(2)
   OaasObjectOrigin origin;
+  @ProtoField(3)
   Long originHash;
+  @ProtoField(4)
   ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
+  @ProtoField(5)
+  @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
+  @ProtoField(6)
   Set<String> labels;
+  @ProtoField(7)
   OaasObjectState state;
+  @ProtoField(8)
   Set<ObjectReference> refs;
   @JsonRawValue
+  @ProtoField(9)
   String embeddedRecord;
+  @ProtoField(10)
   TaskCompletion task;
-
+  @ProtoField(11)
+  StreamInfo streamInfo;
 
   public OaasObject() {
   }
 
   @ProtoFactory
-  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task) {
+  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task, StreamInfo streamInfo) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -49,6 +63,7 @@ public class OaasObject {
     this.refs = refs;
     this.embeddedRecord = embeddedRecord;
     this.task = task;
+    this.streamInfo = streamInfo;
   }
 
   public static OaasObject createFromClasses(OaasClass cls) {
@@ -76,54 +91,9 @@ public class OaasObject {
       state,
       refs==null ? null:Set.copyOf(refs),
       embeddedRecord,
-      null
+      null,
+      streamInfo
     );
-  }
-
-  @ProtoField(1)
-  public String getId() {
-    return id;
-  }
-
-  @ProtoField(2)
-  public OaasObjectOrigin getOrigin() {
-    return origin;
-  }
-
-  @ProtoField(3)
-  public Long getOriginHash() {
-    return originHash;
-  }
-
-  @ProtoField(4)
-  public ObjectAccessModifier getAccess() {
-    return access;
-  }
-
-  @ProtoField(5)
-  @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
-  public String getCls() {
-    return cls;
-  }
-
-  @ProtoField(6)
-  public Set<String> getLabels() {
-    return labels;
-  }
-
-  @ProtoField(7)
-  public OaasObjectState getState() {
-    return state;
-  }
-
-  @ProtoField(8)
-  public Set<ObjectReference> getRefs() {
-    return refs;
-  }
-
-  @ProtoField(9)
-  public String getEmbeddedRecord() {
-    return embeddedRecord;
   }
 
   @JsonSetter
@@ -133,10 +103,5 @@ public class OaasObject {
 
   public void setEmbeddedRecord(String embeddedRecord) {
     this.embeddedRecord = embeddedRecord;
-  }
-
-  @ProtoField(10)
-  public TaskCompletion getTask() {
-    return task;
   }
 }
