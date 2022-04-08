@@ -1,8 +1,0 @@
-apiVersion: infinispan.org/v1
-kind: Infinispan
-metadata:
-  name: oaas-infinispan
-spec:
-  expose:
-    type: Route
-    host: ifnp.oaas.10.131.36.40.nip.io

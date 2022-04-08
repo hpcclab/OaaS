@@ -47,7 +47,7 @@ spec:
                 secretKeyRef:
                   key: AWS_SECRET_ACCESS_KEY
                   name: msc-bucket
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/storage-adapter:latest
+          image: ghcr.io/hpcclab/oaas/storage-adapter:latest
           ports:
             - containerPort: 8080
               name: http

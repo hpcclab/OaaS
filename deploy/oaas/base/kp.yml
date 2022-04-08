@@ -20,7 +20,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-          image: registry.gitlab.com/multimedia-streaming-cloud-ecosystem/msc-oaas/kube-provisioner
+          image: ghcr.io/hpcclab/oaas/kube-provisioner
           ports:
             - containerPort: 8080
           resources:
