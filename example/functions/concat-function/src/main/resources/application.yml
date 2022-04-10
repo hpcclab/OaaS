@@ -1,13 +1,4 @@
 quarkus:
-  container-image:
-    username: admin
-    password: Harbor12345
-    build: true
-    push: true
-    insecure: true
-    image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-${quarkus.application.version:latest}
-  jib:
-    base-jvm-image: core.harbor.10.131.36.2.nip.io/proxy/library/eclipse-temurin:17-jre-alpine
   http:
     access-log:
       enabled: true

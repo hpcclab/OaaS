@@ -28,11 +28,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-#            - configMapRef:
-#                name: msc-bucket
-#          env:
-#            - name: OAAS_SA_S3PREFIXURL
-#              value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
           image: ghcr.io/hpcclab/oaas/object-controller:latest
           ports:
             - containerPort: 8080

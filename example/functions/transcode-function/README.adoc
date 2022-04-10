@@ -1,0 +1,14 @@
+= Video Transcoding Function
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+
+// Need some preamble to get TOC:
+{empty}
+
+== Build
+[source,bash]
+----
+docker build -t ghcr.io/hpcclab/oaas/transcode-function .
+----

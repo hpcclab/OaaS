@@ -44,10 +44,12 @@ def handle():
 
     video_format = args.get('FORMAT', 'mp4')
 
-    # tmp_in = f"in-{uuid.uuid4()}.mp4";
-    # os.system(f"curl -L -o {tmp_in} {src_url}")
+    tmp_in = f"in-{uuid.uuid4()}.mp4";
+    os.system(f"curl -L -o {tmp_in} {src_url}")
+
     tmp_file = str(uuid.uuid4()) + '.' + video_format
-    cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {src_url} {resolution_cmd} {codec} {tmp_file}'
+    # cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {src_url} {resolution_cmd} {codec} {tmp_file}'
+    cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
     full_cmd = f'{shell} -c "{cmd}"'
     app.logger.warning(f'full_cmd = {full_cmd}')
     code = os.system(full_cmd)

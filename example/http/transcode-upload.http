@@ -26,7 +26,7 @@ client.global.set("upload_url", response.body.uploadUrls.video)
 PUT {{upload_url}}
 Content-Type: application/octet-stream
 
-< ../../test-videos/test-1s.mp4
+< ../../../test-videos/test-1s.mp4
 
 ###
 GET {{cdn}}/{{obj_0_id}}:example.video.transcode-durable()(RESOLUTION=720x480)/video
