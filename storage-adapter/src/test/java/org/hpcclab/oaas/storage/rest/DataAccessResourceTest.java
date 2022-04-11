@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
+import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasClass;
@@ -41,6 +42,7 @@ class DataAccessResourceTest {
     );
     var mock = Mockito.mock(OaasClassRepository.class);
     Mockito.when(mock.getAsync("test")).thenReturn(Uni.createFrom().item(testCls));
+    Mockito.when(mock.get("test")).thenReturn(testCls);
     QuarkusMock.installMockForType(mock, OaasClassRepository.class);
   }
 
@@ -58,6 +60,7 @@ class DataAccessResourceTest {
       .when().redirects().follow(false)
       .get("/contents/{oid}/{key}")
       .then()
-      .log().all();
+      .log().ifValidationFails()
+      .statusCode(Matchers.is(307));
   }
 }
