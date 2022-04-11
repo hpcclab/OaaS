@@ -10,8 +10,8 @@ resources:
   - oc.yml
 ### task-completion-handler
   - tch.yml
-### CDN
-  - cdn.yml
+### content-delivery-service
+  - cds.yml
 ### storage adapter
   - sa.yml
 ### infinispan

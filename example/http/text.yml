@@ -5,12 +5,11 @@ functions:
     validation: {}
     provision:
       knative:
-#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-2.0.2
-        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-2.1.1
-#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:0.2.2
+#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-2.1.1
+        image: ghcr.io/pawissanutt/oaas/concat-function:latest
 #        minScale: 12
 #        concurrency: 1
-        minScale: 0
+        minScale: 1
 #        maxScale: 6
         requestsCpu: '0.25'
         limitsCpu: '2'
@@ -22,7 +21,5 @@ classes:
       keySpecs:
         - name: text
     functions:
-      - access: PUBLIC
-        function: builtin.logical.copy
       - access: PUBLIC
         function: example.text.concat

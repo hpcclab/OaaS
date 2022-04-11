@@ -24,6 +24,6 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
     - name: Build container image with Jib
-      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";mvn -B package -DskipTests --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
+      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}

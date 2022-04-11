@@ -1,4 +1,7 @@
 = OaaS
+
+image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[]
+
 :toc:
 :toc-placement: preamble
 :toclevels: 2

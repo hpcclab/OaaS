@@ -5,10 +5,11 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.3.3
+#        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.3.3
+        image: ghcr.io/pawissanutt/oaas/transcode-function:latest
         minScale: 1
 #        maxScale: 12
-#        concurrency: 5
+        concurrency: 5
 #        concurrency: 1
         requestsCpu: '1'
 #        limitsCpu: '16'
@@ -20,7 +21,5 @@ classes:
       keySpecs:
         - name: video
     functions:
-      - access: PUBLIC
-        function: builtin.logical.copy
       - access: PUBLIC
         function: example.video.transcode

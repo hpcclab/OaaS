@@ -25,7 +25,7 @@ client.global.set("upload_text", response.body.uploadUrls.text)
 PUT {{upload_text}}
 Content-Type: text/plain
 
-< ../../../test-videos/test-10k.txt
+< ../../../oaas-load-test/test-files/test-10k.txt
 
 ###
 GET {{cdn}}/{{obj_0_id}}/text

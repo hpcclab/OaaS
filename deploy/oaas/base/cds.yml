@@ -98,7 +98,7 @@ spec:
     spec:
       containers:
         - name: content-delivery-service
-          image: nginx
+          image: nginx:1.21
           ports:
             - containerPort: 80
           imagePullPolicy: Always
