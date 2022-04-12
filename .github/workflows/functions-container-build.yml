@@ -21,7 +21,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/transcode-function
       -
-        name: Login to DockerHub
+        name: Login to ghcr.io
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:

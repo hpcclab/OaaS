@@ -31,7 +31,7 @@ jobs:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
     - name: Build example concat function
-      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -dquarkus.container-image.image=${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}
+      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.image=${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}
       working-directory: example/functions/concat-function
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-function
