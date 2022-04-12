@@ -19,7 +19,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/${{ CI_REGISTRY_IMAGE }}/transcode-function
+          images: ghcr.io/${{ github.repository }}/transcode-function
       -
         name: Login to DockerHub
         if: github.event_name != 'pull_request'
