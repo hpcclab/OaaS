@@ -32,7 +32,7 @@ image:doc/diagrams/oaas_architecture_v6.dio.png[ architecture,480]
 === Edit configuration
 * link:deploy/oaas/base/env-configmap.yaml[]
 
-NOTE: We make these configuration files to use Rook to provide object storage. In case that you are not using Rook, you have to customize the link:deploy/oaas/base/sa.yml[SA] configuration to match yours.
+NOTE: We make these configuration files by assuming the cluster relies on Rook to provide object storage. In case that you are not using Rook, you have to customize the link:deploy/oaas/base/sa.yml[SA] configuration in the environment variable section to match your object storage.
 
 === Deployment
 
@@ -54,7 +54,7 @@ kubectl get -w pod
 +
 [source,bash]
 ----
-kubectl apply -f deploy/knative/broker.yml
+kubectl apply -f deploy/knative/
 ----
 
 . Deploy an object bucket. (In case you are using Rook)
@@ -70,6 +70,49 @@ kubectl apply -f deploy/oaas/object-bucket.yml
 [source,bash]
 ----
 kubectl apply -k deploy/oaas/base
+----
+
+. Expose the OaaS API. This step is depend on your cluster setup. You can expose the API using Ingress by the following example configuration.
++
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oaas-ingress
+spec:
+  rules:
+    - host: "oc.oaas.10.131.36.40.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: object-controller
+                port:
+                  number: 80
+    - host: "tm.oaas.10.131.36.40.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: task-manager
+                port:
+                  number: 80
+    - host: "cds.oaas.10.131.36.40.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: content-delivery-service
+                port:
+                  number: 80
+
 ----
 
 == OaaS Usage
