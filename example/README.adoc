@@ -16,10 +16,10 @@ In the example usages, we provide the example scripts to show how to deploy the 
 ** link:http/transcode-upload.http[Example HTTP script]
 ** link:functions/transcode-function/[Transcode function source code]
 
-NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document] that is a good reference.
+NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document].
 
 == Text Object
-This section will explain how to use OaaS via using the text object that is simple and easy to understand. The text object will only have a single function that is string concatenation.
+This section will explain how to use OaaS via using the text object as an example. The text object only have a single function that is string concatenation. Each text object represents a single text file.
 
 === Creating the class and its function
 
@@ -68,9 +68,8 @@ Content-Type: application/json
 {
   "cls": "example.text",
   "embeddedRecord": {},
-  "labels": ["test-empty"],
+  "labels": ["test"],
   "keys": ["text"],
-  "overrideUrls": {}
 }
 ----
 +
@@ -87,7 +86,7 @@ Object Controller will reply with the detail of a new object and the URL to uplo
     "access": "PUBLIC",
     "cls": "example.text",
     "labels": [
-      "test-empty"
+      "test"
     ],
     "state": {
       "type": "FILES"
@@ -104,7 +103,7 @@ Object Controller will reply with the detail of a new object and the URL to uplo
 +
 [source,http request]
 ----
-PUT {{upload_url}}
+PUT <<uploadUrls.text>>
 Content-Type: text/plain
 
 <<STATE_DATA>>>
