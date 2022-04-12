@@ -21,7 +21,10 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/transcode-function
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},priority=1000
+            type=ref,event=branch,enable=true,priority=600
+            type=ref,event=tag,enable=true,priority=600
+            type=ref,event=pr,prefix=pr-,enable=true,priority=600
       -
         name: Login to ghcr.io
         if: github.event_name != 'pull_request'
