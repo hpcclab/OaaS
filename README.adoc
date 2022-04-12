@@ -13,11 +13,12 @@ image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml
 
 OaaS is a shortened word for Object as a Service, a new serverless paradigm. OaaS utilizes the notion of Object to incorporate state management into the Serverless platform.
 
-image:doc/diagrams/oaas_concept_all_v1.dio.png[]
+image:doc/diagrams/oaas_concept_all_v1.dio.png[
+concept,480]
 
 
 == Architecture
-image:doc/diagrams/oaas_architecture_v6.dio.png[]
+image:doc/diagrams/oaas_architecture_v6.dio.png[ architecture,480]
 
 == OaaS Installation
 === Prerequisites

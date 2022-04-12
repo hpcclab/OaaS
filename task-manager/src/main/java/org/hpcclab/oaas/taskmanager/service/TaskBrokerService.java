@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.taskmanager.service;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.hpcclab.oaas.model.task.OaasTask;
@@ -19,6 +20,7 @@ public interface TaskBrokerService {
   @ClientHeaderParam(name = "ce-specversion", value = "1.0")
   @ClientHeaderParam(name = "ce-source", value = "oaas/task-manager")
   @ClientHeaderParam(name = "ce-type", value = "oaas.task")
+  @Operation(hidden = true)
   void submitTask(@HeaderParam("ce-id") String id,
                   @HeaderParam("ce-function") String function,
                   @HeaderParam("ce-tasktype") String taskType,

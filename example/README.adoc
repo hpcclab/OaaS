@@ -16,16 +16,42 @@ In the example usages, we provide the example scripts to show how to deploy the 
 ** link:http/transcode-upload.http[Example HTTP script]
 ** link:functions/transcode-function/[Transcode function source code]
 
+NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document] that is a good reference.
+
 == Text Object
 This section will explain how to use OaaS via using the text object that is simple and easy to understand. The text object will only have a single function that is string concatenation.
 
 === Creating the class and its function
+
+
 [source,http request]
 ----
 POST http://<object-controller>/api/batch
 Content-Type: text/x-yaml
 
-include::http/text.yml[]
+functions:
+  - name: example.text.concat
+    type: TASK
+    outputCls: example.text
+    validation: {}
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/concat-function:latest
+#        concurrency: 256
+        minScale: 1
+#        maxScale: 10
+        requestsCpu: '0.25'
+        limitsCpu: '2'
+classes:
+  - name: example.text
+    stateType: FILE
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: example.text.concat
 ----
 
 === Creating an object
@@ -48,7 +74,7 @@ Content-Type: application/json
 }
 ----
 +
-Object Controller will response with the detail of a new object and the URL to upload the state data.
+Object Controller will reply with the detail of a new object and the URL to upload the state data.
 +
 [source,json]
 ----
