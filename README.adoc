@@ -1,14 +1,12 @@
 = OaaS
-
-image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[]
-
 :toc:
 :toc-placement: preamble
 :toclevels: 2
 
-
 // Need some preamble to get TOC:
 {empty}
+
+image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[]
 
 == Introduction
 === What is OaaS?
@@ -72,3 +70,7 @@ kubectl apply -f deploy/oaas/object-bucket.yml
 ----
 kubectl apply -k deploy/oaas/base
 ----
+
+== OaaS Usage
+
+link:example/README.adoc[Example usage guide]

@@ -5,10 +5,8 @@ functions:
     validation: {}
     provision:
       knative:
-#        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:q-2.1.1
         image: ghcr.io/pawissanutt/oaas/concat-function:latest
-#        minScale: 12
-#        concurrency: 1
+#        concurrency: 256
         minScale: 1
 #        maxScale: 6
         requestsCpu: '0.25'
