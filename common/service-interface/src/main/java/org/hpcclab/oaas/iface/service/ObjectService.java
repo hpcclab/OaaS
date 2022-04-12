@@ -20,6 +20,7 @@ public interface ObjectService {
                                    @QueryParam("limit") Integer limit);
 
   @POST
+  @Deprecated(forRemoval = true)
   Uni<OaasObject> create(@Valid @NotNull OaasObject creating);
 
   @GET

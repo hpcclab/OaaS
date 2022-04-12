@@ -5,38 +5,6 @@
     "version" : "0.2.0-SNAPSHOT"
   },
   "paths" : {
-    "/allocate" : {
-      "post" : {
-        "tags" : [ "CDI Wrapper" ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "type" : "array",
-                "items" : {
-                  "$ref" : "#/components/schemas/DataAllocateRequest"
-                }
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DataAllocateResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/batch" : {
       "post" : {
         "requestBody" : {
@@ -447,7 +415,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/api/objects/{id}" : {
@@ -640,37 +609,6 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunction"
-            }
-          }
-        }
-      },
-      "DataAllocateRequest" : {
-        "type" : "object",
-        "properties" : {
-          "keys" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/KeySpecification"
-            }
-          },
-          "oid" : {
-            "type" : "string"
-          },
-          "publicUrl" : {
-            "type" : "boolean"
-          }
-        }
-      },
-      "DataAllocateResponse" : {
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string"
-          },
-          "urlKeys" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
             }
           }
         }

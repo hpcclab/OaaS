@@ -4,31 +4,6 @@ info:
   title: task-manager API
   version: 0.2.0-SNAPSHOT
 paths:
-  /:
-    post:
-      tags:
-      - CDI Wrapper
-      parameters:
-      - name: ce-function
-        in: header
-        schema:
-          type: string
-      - name: ce-id
-        in: header
-        schema:
-          type: string
-      - name: ce-tasktype
-        in: header
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OaasTask'
-      responses:
-        "201":
-          description: Created
   /api/task-completions:
     post:
       tags:
@@ -188,31 +163,6 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/StateType'
-    OaasTask:
-      type: object
-      properties:
-        allocOutputUrl:
-          type: string
-        id:
-          type: string
-        inputKeys:
-          type: array
-          items:
-            type: object
-            additionalProperties:
-              type: string
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasObject'
-        main:
-          $ref: '#/components/schemas/OaasObject'
-        mainKeys:
-          type: object
-          additionalProperties:
-            type: string
-        output:
-          $ref: '#/components/schemas/OaasObject'
     ObjectAccessLangauge:
       type: object
       properties:
