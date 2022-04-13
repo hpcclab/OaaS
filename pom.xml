@@ -28,4 +28,12 @@
     <org.projectlombok.version>1.18.22</org.projectlombok.version>
     <org.mapstruct.version>1.5.0.Beta2</org.mapstruct.version>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/pawissanutt/oaas</url>
+    </repository>
+  </distributionManagement>
 </project>

@@ -8,8 +8,8 @@ services:
     restart: always
     ports:
       - "11222:11222"
-    volumes:
-      - infinispan_data:/opt/infinispan/server/data
+#    volumes:
+#      - infinispan-data:/opt/infinispan/server/data
     environment:
       USER: oaas
       PASS: oaas
@@ -40,10 +40,14 @@ services:
       - "8090:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
+      INFINISPAN_SERVER: infinispan:11222
+      INFINISPAN_USERNAME: oaas
+      INFINISPAN_PASSWORD: oaas
       OAAS_SA_S3_URL: http://s3
       OAAS_SA_S3_BUCKET: msc
       OAAS_SA_S3_ACCESSKEY: minio_access_key
       OAAS_SA_S3_SECRETKEY: minio_secret_key
+      OAAS_SA_S3_PUBLICURL: http://localhost:9000
 
 
   s3:
@@ -61,5 +65,6 @@ services:
 
 volumes:
   minio-data:
+  infinispan-data:
 
 
