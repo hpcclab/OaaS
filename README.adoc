@@ -22,19 +22,37 @@ image:doc/diagrams/oaas_architecture_v6.dio.png[ architecture,480]
 
 == OaaS Installation
 === Prerequisites
-* Kubernetes Cluster
-* https://knative.dev/docs/[Knative]
+* Kubernetes Cluster (at least 3 node if you plan to using https://rook.io/[Rook])
+* https://knative.dev/docs/[Knative] (Both Serving and Eventing)
 * S3-compatible storage (ex. https://rook.io/[Rook], https://min.io/[MinIO])
 * Operators
-** https://strimzi.io/[Strimzi Operator]
-** https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator]
+** operator to deploy Kafka (https://strimzi.io/[Strimzi Operator])
+** operator to deploy Infinispan (https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator])
+
 
 === Edit configuration
-* link:deploy/oaas/base/env-configmap.yaml[]
+First, you need to clone this project.
+[source,bash]
+----
+git clone https://github.com/hpcclab/OaaS.git
+----
 
-NOTE: We make these configuration files by assuming the cluster relies on Rook to provide object storage. In case that you are not using Rook, you have to customize the link:deploy/oaas/base/sa.yml[SA] configuration in the environment variable section to match your object storage.
+Overall, the default configuration should be able to use as it is. If you have the deference cluster setup you may need to change the following configurations:
+
+* An unified configuration of OaaS components: link:deploy/oaas/base/env-configmap.yaml[]
+* A Storage Adapter configuration: link:deploy/oaas/base/sa.yml[]
+
+
+NOTE: We make these configuration files by assuming the cluster relies on Rook to provide object storage. In case that you are not using Rook, you have to customize the environment variable section in `sa.yml` to match your object storage.
 
 === Deployment
+
+. Create a new Kubernetes namespace
++
+[source,bash]
+----
+kubectl create ns msc
+----
 
 . Deploy kafka via a following command.
 +

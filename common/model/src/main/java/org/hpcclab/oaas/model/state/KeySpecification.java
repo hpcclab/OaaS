@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.state;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.object.ObjectAccessModifier;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -10,25 +11,25 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeySpecification {
+  @ProtoField(1)
   String name;
+  @ProtoField(2)
   String provider;
+  @ProtoField(3)
+  KeyAccessModifier access = KeyAccessModifier.PUBLIC;
 
   public KeySpecification() {
   }
 
-  @ProtoFactory
   public KeySpecification(String name, String provider) {
     this.name = name;
     this.provider = provider;
   }
 
-  @ProtoField(1)
-  public String getName() {
-    return name;
-  }
-
-  @ProtoField(2)
-  public String getProvider() {
-    return provider;
+  @ProtoFactory
+  public KeySpecification(String name, String provider, KeyAccessModifier access) {
+    this.name = name;
+    this.provider = provider;
+    this.access = access;
   }
 }

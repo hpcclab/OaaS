@@ -47,7 +47,7 @@ public class InfinispanInit {
     <distributed-cache name="%s"
                        statistics="true"
                        mode="SYNC">
-      <indexing">
+      <indexing>
         <indexed-entities>
           <indexed-entity>org.hpcclab.oaas.model.proto.OaasObject</indexed-entity>
         </indexed-entities>
