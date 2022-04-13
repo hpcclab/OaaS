@@ -16,7 +16,7 @@ In the example usages, we provide the example scripts to show how to deploy the 
 ** link:http/transcode-upload.http[Example HTTP script to execute this tutorial]
 ** link:functions/transcode-function/[Transcode function source code]
 
-NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document].
+NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/oc/openapi.json[link].
 
 == Text Object
 This section will explain how to use OaaS via using the text object as an example. The text object only have a single function that is string concatenation. Each text object represents a single text file.
