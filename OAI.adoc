@@ -19,7 +19,7 @@ The second semantic is more simple, but it will have a problem when you want to 
 
 The body-based OAI is basically a REST-API style of OAI. You can send the POST request into the content delivery service to access the object. The schema of JSON body can be found at link:doc/tm/openapi.yaml[].
 
-NOTE: Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you have to look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/tm/openapi.json[link].
+NOTE: Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/tm/openapi.json[link].
 
 == Path-Based OAI
 

@@ -8,7 +8,7 @@
 {empty}
 
 == Notes
-The OaaS platform still does not have SDK for function implementation. The example functions provided in this directory are implemented from scratch. That means the code can be more simplified.
+The OaaS platform still does not have SDK for function implementation. The example functions provided in this directory are implemented from scratch. That means the code can be more simplified in the future.
 
 == Examples
 * link:transcode-function[Video transcoding function]
