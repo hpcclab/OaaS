@@ -5,11 +5,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
-import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -22,12 +18,13 @@ import javax.inject.Inject;
 import java.time.Instant;
 
 @ApplicationScoped
+@Deprecated(forRemoval = true)
 public class JobWatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(JobWatcher.class);
   @Inject
   KubernetesClient client;
-  @Channel("task-completions")
-  Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
+//  @Channel("task-completions")
+//  Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
 
 
   void startup(@Observes StartupEvent startupEvent) {
@@ -75,7 +72,7 @@ public class JobWatcher {
     var completion = new TaskCompletion()
       .setId(task.getId())
 //      .setFunctionName(task.getFunction().getName())
-      .setStatus(succeeded ? TaskStatus.SUCCEEDED: TaskStatus.FAILED)
+      .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
       .setStartTime(Instant.parse(job.getStatus().getStartTime()).toEpochMilli())
       .setCompletionTime(Instant.parse(job.getStatus().getCompletionTime()).toEpochMilli());
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
@@ -86,9 +83,9 @@ public class JobWatcher {
         .getLog();
       completion.setDebugLog(log);
     }
-    tasksCompletionEmitter.send(
-      Message.of(Record.of(completion.getId(), completion))
-    );
-    LOGGER.debug("{} is submitted", completion);
+//    tasksCompletionEmitter.send(
+//      Message.of(Record.of(completion.getId(), completion))
+//    );
+//    LOGGER.debug("{} is submitted", completion);
   }
 }

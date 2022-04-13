@@ -27,7 +27,7 @@ quarkus:
   console:
     color: true
   native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
 #  log:
 #    category:
 #      "org.hpcclab.oaas":
@@ -41,12 +41,12 @@ mp:
         auto:
           offset:
             reset: earliest
-    outgoing:
-      task-completions:
-        merge: true
-        connector: smallrye-kafka
-        topic: ${oaas.kp.taskCompletionTopic}
-        value:
-          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-        cloud-events-source: ${quarkus.application.name}
-        cloud-events-type: oaas.task-completion
+#    outgoing:
+#      task-completions:
+#        merge: true
+#        connector: smallrye-kafka
+#        topic: ${oaas.kp.taskCompletionTopic}
+#        value:
+#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+#        cloud-events-source: ${quarkus.application.name}
+#        cloud-events-type: oaas.task-completion
