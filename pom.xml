@@ -33,7 +33,7 @@
     <repository>
       <id>github</id>
       <name>GitHub Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/pawissanutt/oaas</url>
+      <url>https://maven.pkg.github.com/pawissanutt/OaaS</url>
     </repository>
   </distributionManagement>
 </project>
