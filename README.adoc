@@ -7,6 +7,7 @@
 {empty}
 
 image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[]
+image:https://jitpack.io/v/hpcclab/OaaS.svg[]
 
 == Introduction
 === What is OaaS?
