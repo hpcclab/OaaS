@@ -1,0 +1,122 @@
+= Object Access Interface (OAI)
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+// Need some preamble to get TOC:
+{empty}
+
+== Introduction
+
+Object Access Interface is an API provided by OaaS. It allows to  invoke the function and/or access the object state. OAI have two semantics to call this API.
+
+. *Body-Based* with JSON format.
+. *Path-Based* with Object Access Langauge (OAL).
+
+The second semantic is more simple, but it will have a problem when you want to send some parameter with unreserved characters.
+
+== Body-Based OAI
+
+The body-based OAI is basically a REST-API style of OAI. You can send the POST request into the content delivery service to access the object. The schema of JSON body can be found at link:doc/tm/openapi.yaml[].
+
+== Path-Based OAI
+
+The path-based OAI is not follow the REST-API style, however, it is still the HTTP request. In this semantic, we design the _Object Access Langauge (OAL)_ to structure the function call and object request on the HTTP path.
+
+----
+ 1      2           3                          4                              5
+ |      |           |                          |                              |
+ v      v           v                          v                              v
+<oid>:<func_name>(<input1_oid>,<input2_oid>)(<arg1>=<var1>,<arg2>=<var2>)/<state_key>
+----
+. An object ID of targeted object.
+. A function name to invoke.
+. A list of object ID of input objects. The value on this list is delimited by comma.
+. A list of key-value pair of the arguments for this function invocation. The value on this list is delimited by comma.
+. A state data key name that the client request to OaaS. If the client also issue the function call, OaaS will reply at the completion of this function invocation.
+
+
+== Example
+* Request an object specification
++
+[source,http request]
+----
+GET <<content delivery service>>/<<object_id>>
+----
+
+* Invoking the `concat` function with the argument of `APPEND=NEW_TEXT`. The request will immediately get a response. The client can manually check the completion of function call.
+
++
+*Body-Based OAI*
++
+[source,http request]
+----
+POST <<content delivery service>>
+Content-Type: application/json
+
+{
+  "target": "<<object_id>>",
+  "functionName": "concat",
+  "inputs": [],
+  "args": {
+    "APPEND": "NEW_TEXT"
+  }
+}
+----
++
+*Path-Based OAI*
++
+[source,http request]
+----
+GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)
+----
+
+* Similar to the previous step but this API will get the `text` file of an output object upon the function invocation is completed.
++
+*Body-Based OAI*
++
+[source,http request]
+----
+POST <<content delivery service>>/-/text
+Content-Type: application/json
+
+{
+  "target": "<<object_id>>",
+  "functionName": "concat",
+  "inputs": [],
+  "args": {
+    "APPEND": "NEW_TEXT"
+  }
+}
+----
++
+*Path-Based OAI*
++
+[source,http request]
+----
+GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)/text
+----
+
+
+* Similar to the previous step but this API will send the another object as an input.
++
+*Body-Based OAI*
++
+[source,http request]
+----
+POST <<content delivery service>>/-/text
+Content-Type: application/json
+
+{
+  "target": "<<object_id>>",
+  "functionName": "concat",
+  "inputs": ["<<another_object_id>>"]
+}
+----
++
+*Path-Based OAI*
++
+[source,http request]
+----
+GET <<content delivery service>>/<<object_id>>:concat(<<another_object_id>>)()/text
+----

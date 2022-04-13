@@ -122,7 +122,13 @@ public class OalResource {
   }
 
   public Response createResponse(OaasObject object,
-                                 String filePath) {
+                                 String filePath){
+    return createResponse(object,filePath,HttpResponseStatus.SEE_OTHER.code());
+  }
+
+  public Response createResponse(OaasObject object,
+                                 String filePath,
+                                 int redirectCode) {
     if (object==null) return Response.status(404).build();
     if (object.getOrigin().getParentId()!=null) {
       var taskCompletion = object.getTask();
@@ -139,11 +145,11 @@ public class OalResource {
     }
     var oUrl = object.getState().getOverrideUrls();
     if (oUrl!= null && oUrl.containsKey(filePath))
-      return Response.status(HttpResponseStatus.FOUND.code())
+      return Response.status(redirectCode)
         .location(URI.create(oUrl.get(filePath)))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath);
-    return Response.status(HttpResponseStatus.FOUND.code())
+    return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();
   }

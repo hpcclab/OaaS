@@ -26,7 +26,7 @@ data:
           #proxy_cache_key   $uri;
           #proxy_cache_valid 200 206 3000h;
           proxy_intercept_errors on;
-          error_page 301 302 307 = @handle_redirects_nocache;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
         }
 
         # main cache block - when upstream responds with a 302, it's caught by
@@ -38,7 +38,7 @@ data:
           proxy_cache_key   $uri;
           proxy_cache_valid 200 206 3000h;
           proxy_intercept_errors on;
-          error_page 301 302 307 = @handle_redirects;
+          error_page 301 302 303 307 = @handle_redirects;
         }
 
         location @handle_redirects_nocache {
@@ -64,13 +64,14 @@ data:
           # nginx goes to fetch the value from the upstream Location header
           proxy_pass $orig_loc;
           proxy_cache contents;
+          proxy_method GET;
           # But we store the result with the cache key of the original request URI
           # so that future clients don't need to follow the redirect too
           proxy_cache_key $original_uri;
           proxy_cache_valid 200 206 3000h;
 
           proxy_intercept_errors on;
-          error_page 301 302 307 = @handle_redirects;
+          error_page 301 302 303 307 = @handle_redirects;
         }
       }
     }

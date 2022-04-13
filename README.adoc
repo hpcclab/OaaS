@@ -6,8 +6,8 @@
 // Need some preamble to get TOC:
 {empty}
 
-image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[]
-image:https://jitpack.io/v/hpcclab/OaaS.svg[]
+image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[link="https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml"]
+image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/OaaS"]
 
 == Introduction
 === What is OaaS?
@@ -91,7 +91,7 @@ kubectl apply -f deploy/oaas/object-bucket.yml
 kubectl apply -k deploy/oaas/base
 ----
 
-. Expose the OaaS API. This step is depend on your cluster setup. You can expose the API using Ingress by the following example configuration.
+. Expose the OaaS API. This step is depend on your cluster setup. We provide the example configuration for exposing the API using Ingress. You have to edit the hostname to suit your cluster setup.
 +
 [source,yaml]
 ----
@@ -132,6 +132,13 @@ spec:
                 port:
                   number: 80
 
+----
++
+Then, you need to save this into a file and submit it to Kubernetes using the following command.
++
+[source,bash]
+----
+kubectl apply -f oaas-ingress.yml
 ----
 
 == OaaS Usage

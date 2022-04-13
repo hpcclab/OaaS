@@ -28,11 +28,24 @@ Content-Type: text/plain
 < ../../../oaas-load-test/test-files/test-10k.txt
 
 ###
-GET {{cdn}}/{{obj_0_id}}/text
+GET {{cds}}/{{obj_0_id}}/text
 ###
-GET {{cdn}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text
+GET {{cds}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text
 ###
-GET {{cdn}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+GET {{cds}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+###
+POST {{cds}}/-/text
+Content-Type: application/json
+
+{
+  "target": "{{obj_0_id}}",
+  "functionName": "concat",
+  "inputs": [],
+  "args": {
+    "APPEND": "NEW_TEXT"
+  }
+}
+
 ###
 GET {{tm}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text
 ###
