@@ -39,16 +39,17 @@ quarkus:
       url: ${oaas.tch.taskManagerUrl}
 #  opentelemetry:
 #    enabled: false
-mp:
-  messaging:
-    outgoing:
-      task-completions:
-        merge: true
-        connector: smallrye-kafka
-        topic: ${oaas.tch.taskCompletionTopic}
-        value:
-          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-#        cloud-events-source: ${quarkus.application.name}
-#        cloud-events-type: oaas.task-completion
-#        interceptor:
-#          classes: io.opentracing.contrib.kafka.TracingProducerInterceptor
+
+#mp:
+#  messaging:
+#    outgoing:
+#      task-completions:
+#        merge: true
+#        connector: smallrye-kafka
+#        topic: ${oaas.tch.taskCompletionTopic}
+#        value:
+#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+##        cloud-events-source: ${quarkus.application.name}
+##        cloud-events-type: oaas.task-completion
+##        interceptor:
+##          classes: io.opentracing.contrib.kafka.TracingProducerInterceptor

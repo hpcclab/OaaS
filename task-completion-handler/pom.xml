@@ -55,15 +55,15 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.smallrye.stork</groupId>
-      <artifactId>stork-service-discovery-kubernetes</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.smallrye.stork</groupId>
-      <artifactId>stork-load-balancer-power-of-two-choices</artifactId>
-      <version>1.1.0</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.smallrye.stork</groupId>-->
+<!--      <artifactId>stork-service-discovery-kubernetes</artifactId>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>io.smallrye.stork</groupId>-->
+<!--      <artifactId>stork-load-balancer-power-of-two-choices</artifactId>-->
+<!--      <version>1.1.0</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
       <artifactId>model</artifactId>

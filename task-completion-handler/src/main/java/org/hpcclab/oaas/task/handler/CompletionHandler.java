@@ -31,10 +31,10 @@ public class CompletionHandler {
 
   @Inject
   RoutingContext ctx;
-  @Channel("task-completions")
-  MutinyEmitter<TaskCompletion> tasksCompletionEmitter;
-  @ConfigProperty(name = "quarkus.opentelemetry.enabled")
-  boolean openTelemetryEnabled;
+//  @Channel("task-completions")
+//  MutinyEmitter<TaskCompletion> tasksCompletionEmitter;
+//  @ConfigProperty(name = "quarkus.opentelemetry.enabled")
+//  boolean openTelemetryEnabled;
   @Inject
   @RestClient
   CompletionSubmissionService submissionService;
@@ -85,15 +85,15 @@ public class CompletionHandler {
     return sendUni(taskCompletion);
   }
 
-  Uni<Void> sendViaKafka(TaskCompletion taskCompletion) {
-    if (openTelemetryEnabled) {
-      var m = Message.of(taskCompletion, Metadata.of(TracingMetadata.withPrevious(Context.current())));
-      tasksCompletionEmitter.send(m);
-      return Uni.createFrom().nullItem();
-    } else {
-      return tasksCompletionEmitter.send(taskCompletion);
-    }
-  }
+//  Uni<Void> sendViaKafka(TaskCompletion taskCompletion) {
+//    if (openTelemetryEnabled) {
+//      var m = Message.of(taskCompletion, Metadata.of(TracingMetadata.withPrevious(Context.current())));
+//      tasksCompletionEmitter.send(m);
+//      return Uni.createFrom().nullItem();
+//    } else {
+//      return tasksCompletionEmitter.send(taskCompletion);
+//    }
+//  }
 
   Uni<Void> sendUni(TaskCompletion taskCompletion) {
     return submissionService.submit(List.of(taskCompletion));
