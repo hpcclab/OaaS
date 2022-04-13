@@ -1,0 +1,70 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+
+  infinispan:
+    image: quay.io/infinispan/server
+    restart: always
+    ports:
+      - "11222:11222"
+#    volumes:
+#      - infinispan-data:/opt/infinispan/server/data
+    environment:
+      USER: oaas
+      PASS: oaas
+
+  oc:
+    depends_on:
+      - infinispan
+    image: ghcr.io/pawissanutt/oaas/object-controller
+    restart: always
+    ports:
+      - "8088:8080"
+    environment:
+      QUARKUS_CONSOLE_COLOR: 'true'
+      QUARKUS_HTTP_CORS: 'true'
+      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
+      INFINISPAN_SERVER: infinispan:11222
+      INFINISPAN_USERNAME: oaas
+      INFINISPAN_PASSWORD: oaas
+      OAAS_OC_PROVISIONTOPIC: msc-provisions
+      OAAS_OC_KAFKAENABLED: 'false'
+      OAAS_OC_STORAGEADAPTERURL: http://sa
+      OAAS_REPO_OBJECT_PERSIST: 'true'
+      OAAS_REPO_STATE_PERSIST: 'true'
+  sa:
+    image: ghcr.io/pawissanutt/oaas/object-controller
+    restart: always
+    ports:
+      - "8090:8080"
+    environment:
+      QUARKUS_CONSOLE_COLOR: 'true'
+      INFINISPAN_SERVER: infinispan:11222
+      INFINISPAN_USERNAME: oaas
+      INFINISPAN_PASSWORD: oaas
+      OAAS_SA_S3_URL: http://s3
+      OAAS_SA_S3_BUCKET: msc
+      OAAS_SA_S3_ACCESSKEY: minio_access_key
+      OAAS_SA_S3_SECRETKEY: minio_secret_key
+      OAAS_SA_S3_PUBLICURL: http://localhost:9000
+
+
+  s3:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+      MINIO_API_CORS_ALLOW_ORIGIN: '*'
+    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+
+volumes:
+  minio-data:
+  infinispan-data:
+
+

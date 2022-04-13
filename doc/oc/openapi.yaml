@@ -475,9 +475,17 @@ components:
           type: string
         requestsMemory:
           type: string
+    KeyAccessModifier:
+      enum:
+      - INTERNAL
+      - PRIVATE
+      - PUBLIC
+      type: string
     KeySpecification:
       type: object
       properties:
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier'
         name:
           type: string
         provider:
