@@ -30,7 +30,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-          image: ghcr.io/hpcclab/oaas/task-completion-handler
+          image: ghcr.io/hpcclab/oaas/task-completion-handler:sc22
           ports:
             - containerPort: 8080
           resources:

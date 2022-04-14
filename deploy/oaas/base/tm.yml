@@ -35,7 +35,7 @@ spec:
           env:
             - name: OAAS_SA_S3PREFIXURL
               value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
-          image: ghcr.io/hpcclab/oaas/task-manager
+          image: ghcr.io/hpcclab/oaas/task-manager:sc22
           ports:
             - containerPort: 8080
           resources:

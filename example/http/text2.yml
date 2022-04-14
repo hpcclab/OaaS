@@ -7,7 +7,7 @@ functions:
         - requiredClass: text
     provision:
       knative:
-        image: ghcr.io/hpcclab/oaas/concat-function:latest
+        image: ghcr.io/hpcclab/oaas/concat-function:sc22
 classes:
   - name: text
     stateSpec:

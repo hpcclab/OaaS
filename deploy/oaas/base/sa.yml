@@ -47,7 +47,7 @@ spec:
                 secretKeyRef:
                   key: AWS_SECRET_ACCESS_KEY
                   name: msc-bucket
-          image: ghcr.io/hpcclab/oaas/storage-adapter:latest
+          image: ghcr.io/hpcclab/oaas/storage-adapter:sc22
           ports:
             - containerPort: 8080
               name: http

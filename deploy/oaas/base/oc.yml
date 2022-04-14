@@ -28,7 +28,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-          image: ghcr.io/hpcclab/oaas/object-controller:latest
+          image: ghcr.io/hpcclab/oaas/object-controller:sc22
           ports:
             - containerPort: 8080
               name: http
