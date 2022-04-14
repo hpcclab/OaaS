@@ -27,11 +27,6 @@ jobs:
       run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
-    - name: Build container image with Jib (native image)
-      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests
-      env:
-        CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
-        TAG: ":native"
 
 #    - name: Publish to GitHub Packages Apache Maven
 #      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository="github::https://maven.pkg.github.com/${GITHUB_REPOSITORY}"
@@ -43,3 +38,9 @@ jobs:
       working-directory: example/functions/concat-function
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-function
+
+    - name: Build container image with Jib (native image)
+      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests
+      env:
+        CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+        TAG: ":native"
