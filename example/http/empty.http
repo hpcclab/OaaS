@@ -21,10 +21,10 @@ Content-Type: application/json
 client.global.set("obj_0_id", response.body.object.id)
 %}
 ###
-GET {{cdn}}/{{obj_0_id}}
+GET {{cds}}/{{obj_0_id}}
 ###
-GET {{cdn}}/{{obj_0_id}}:example.empty.function()/text?await=true
+GET {{cds}}/{{obj_0_id}}:example.empty.function()/text?await=true
 ###
-GET {{cdn}}/{{obj_0_id}}:example.empty.function()
+GET {{cds}}/{{obj_0_id}}:example.empty.function()
 ###
 GET {{tm}}/oal/{{obj_0_id}}:example.empty.function()/tmp
