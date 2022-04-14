@@ -35,6 +35,8 @@ spec:
           env:
             - name: OAAS_SA_S3_URL
               value: 'http://${BUCKET_HOST}.cluster.local'
+            - name: OAAS_SA_S3_PUBLICURL
+              value: 'http://${BUCKET_HOST}.cluster.local' # change here.
             - name: OAAS_SA_S3_BUCKET
               value: '${BUCKET_NAME}'
             - name: OAAS_SA_S3_ACCESSKEY

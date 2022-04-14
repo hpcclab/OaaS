@@ -38,13 +38,14 @@ First, you need to clone this project.
 git clone https://github.com/hpcclab/OaaS.git
 ----
 
-Overall, the default configuration should be able to use as it is. If you have the deference cluster setup you may need to change the following configurations:
+Overall, the default configuration should be able to use as it is (except `sa.yml`). If you have the deference cluster setup you may need to change the following configurations:
 
 * An unified configuration of OaaS components: link:deploy/oaas/base/env-configmap.yaml[]
 * A Storage Adapter configuration: link:deploy/oaas/base/sa.yml[]
-
-
-NOTE: We make these configuration files by assuming the cluster relies on Rook to provide object storage. In case that you are not using Rook, you have to customize the environment variable section in `sa.yml` to match your object storage.
++
+We make these configuration files by assuming the cluster relies on Rook to provide object storage. In case that you are not using Rook, you have to customize the environment variable section in `sa.yml` to match your object storage.
++
+*In any case, you still have to change* `OAAS_SA_S3_PUBLICURL` environment variable in `sa.yml` to your public domain of your object storage.
 
 === Deployment
 
