@@ -43,7 +43,7 @@ The path-based OAI is not follow the REST-API style, however, it is still the HT
 +
 [source,http request]
 ----
-GET <<content delivery service>>/<<object_id>>
+GET <content_delivery_service>/<object_id>
 ----
 
 * Invoking the `concat` function with the argument of `APPEND=NEW_TEXT`. The request will immediately get a response. The client can manually check the completion of function call.
@@ -53,11 +53,11 @@ GET <<content delivery service>>/<<object_id>>
 +
 [source,http request]
 ----
-POST <<content delivery service>>
+POST <content_delivery_service>
 Content-Type: application/json
 
 {
-  "target": "<<object_id>>",
+  "target": "<object_id>",
   "functionName": "concat",
   "inputs": [],
   "args": {
@@ -70,7 +70,7 @@ Content-Type: application/json
 +
 [source,http request]
 ----
-GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)
+GET <content_delivery_service>/<object_id>:concat()(APPEND=NEW_TEXT)
 ----
 
 * Similar to the previous step but this API will get the `text` file of an output object upon the function invocation is completed.
@@ -79,11 +79,11 @@ GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)
 +
 [source,http request]
 ----
-POST <<content delivery service>>/-/text
+POST <content_delivery_service>/-/text
 Content-Type: application/json
 
 {
-  "target": "<<object_id>>",
+  "target": "<object_id>",
   "functionName": "concat",
   "inputs": [],
   "args": {
@@ -96,7 +96,7 @@ Content-Type: application/json
 +
 [source,http request]
 ----
-GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)/text
+GET <content_delivery_service>/<object_id>:concat()(APPEND=NEW_TEXT)/text
 ----
 
 
@@ -106,13 +106,13 @@ GET <<content delivery service>>/<<object_id>>:concat()(APPEND=NEW_TEXT)/text
 +
 [source,http request]
 ----
-POST <<content delivery service>>/-/text
+POST <content_delivery_service>/-/text
 Content-Type: application/json
 
 {
-  "target": "<<object_id>>",
+  "target": "<object_id>",
   "functionName": "concat",
-  "inputs": ["<<another_object_id>>"]
+  "inputs": ["<another_object_id>"]
 }
 ----
 +
@@ -120,5 +120,5 @@ Content-Type: application/json
 +
 [source,http request]
 ----
-GET <<content delivery service>>/<<object_id>>:concat(<<another_object_id>>)()/text
+GET <content_delivery_service>/<object_id>:concat(<another_object_id>)()/text
 ----
