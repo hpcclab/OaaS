@@ -6,10 +6,7 @@
 // Need some preamble to get TOC:
 {empty}
 
-image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[link="https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml"]
-image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/OaaS"]
-
-== NOTE
+== Introduction
 
 This guide is for local development using docker-compose. This deployment only provides the REST API for testing. The execution functionalities are disabled.
 
@@ -18,6 +15,8 @@ This guide is for local development using docker-compose. This deployment only p
 ----
 docker-compose -f docker-compose.oc.yml up -d
 ----
+After executing the above command, you have to manually create the `msc` bucket for storing the state data via going to the MinIO console (http://localhost:9001/). You can login with the access key `minio_access_key` and secret key `minio_secret_key`.
+
 == API Usage
 === Video Class
 First, you have to create the video class using the REST API.
