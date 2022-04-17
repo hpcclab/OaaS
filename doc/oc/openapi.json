@@ -1012,6 +1012,9 @@
       "OaasWorkflow" : {
         "type" : "object",
         "properties" : {
+          "export" : {
+            "type" : "string"
+          },
           "exports" : {
             "uniqueItems" : true,
             "type" : "array",

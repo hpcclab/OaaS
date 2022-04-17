@@ -131,10 +131,16 @@ public class ContextLoader {
   }
 
   public Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {
+    if (ref.equals("$")) {
+      return Uni.createFrom().item(baseCtx.getMain());
+    }
+    if (ref.startsWith("$.")) {
+      var res = baseCtx.getMain().findReference(ref.substring(2));
+      if (res.isPresent())
+        return objectRepo.getAsync(res.get().getObject());
+    }
     if (baseCtx.getWorkflowMap().containsKey(ref))
       return Uni.createFrom().item(baseCtx.getWorkflowMap().get(ref));
-    var res = baseCtx.getMain().findReference(ref);
-    if (res.isEmpty()) throw new NoStackException("Can not resolve '" + ref + "'");
-    return objectRepo.getAsync(res.get().getObject());
+    throw new NoStackException("Can not resolve '" + ref + "'");
   }
 }

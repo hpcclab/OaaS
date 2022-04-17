@@ -14,25 +14,23 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasWorkflow implements Serializable {
-  private List<OaasWorkflowStep> steps;
-  private Set<OaasWorkflowExport> exports;
+  @ProtoField(1)
+  List<OaasWorkflowStep> steps;
+  @ProtoField(2)
+  Set<OaasWorkflowExport> exports;
+  @ProtoField(3)
+  String export;
 
   public OaasWorkflow() {
   }
 
   @ProtoFactory
-  public OaasWorkflow(List<OaasWorkflowStep> steps, Set<OaasWorkflowExport> exports) {
+  public OaasWorkflow(List<OaasWorkflowStep> steps,
+                      Set<OaasWorkflowExport> exports,
+                      String export) {
     this.steps = steps;
     this.exports = exports;
+    this.export = export;
   }
 
-  @ProtoField(1)
-  public List<OaasWorkflowStep> getSteps() {
-    return steps;
-  }
-
-  @ProtoField(2)
-  public Set<OaasWorkflowExport> getExports() {
-    return exports;
-  }
 }

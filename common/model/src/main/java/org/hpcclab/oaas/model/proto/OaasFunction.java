@@ -20,10 +20,8 @@ import javax.validation.constraints.NotNull;
 public class OaasFunction {
   @NotBlank
   String name;
-
   @NotNull
   OaasFunctionType type;
-
   String outputCls;
 
   OaasFunctionValidation validation;
@@ -76,13 +74,13 @@ public class OaasFunction {
   }
 
   public void validate() {
-    if (provision != null) provision.validate();
-    if (type == OaasFunctionType.TASK) {
+    if (provision!=null) provision.validate();
+    if (type==OaasFunctionType.TASK) {
       macro = null;
     }
-    if (type == OaasFunctionType.MACRO) {
+    if (type==OaasFunctionType.MACRO) {
       provision = null;
-      if (macro == null) {
+      if (macro==null) {
         throw new NoStackException(
           "Macro function('%s') must be defined 'macro' parameter".formatted(name),
           400
