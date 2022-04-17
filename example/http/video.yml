@@ -6,10 +6,9 @@ functions:
     provision:
       knative:
 #        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.3.3
-        image: ghcr.io/pawissanutt/oaas/transcode-function:latest
+        image: ghcr.io/hpcclab/oaas/transcode-function:latest
         minScale: 1
 #        maxScale: 12
-        concurrency: 5
 #        concurrency: 1
         requestsCpu: '1'
 #        limitsCpu: '16'

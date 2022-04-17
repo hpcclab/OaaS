@@ -1,0 +1,161 @@
+= Local Development with Docker Compose
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+// Need some preamble to get TOC:
+{empty}
+
+image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[link="https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml"]
+image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/OaaS"]
+
+== NOTE
+
+This guide is for local development using docker-compose. This deployment only provides the REST API for testing. The execution functionalities are disabled.
+
+== Deploy with docker-compose
+[source,bash]
+----
+docker-compose -f docker-compose.oc.yml up -d
+----
+== API Usage
+=== Video Class
+First, you have to create the video class using the REST API.
+
+NOTE: You can send a request by using the Swagger UI (http://localhost:8088/q/swagger-ui)
+
+[source,http request]
+----
+POST http://localhost:8088/api/batch
+Content-Type: text/x-yaml
+
+functions:
+  - name: example.video.transcode
+    type: TASK
+    outputCls: example.video
+    validation: {}
+    provision:
+      knative:
+        image: ghcr.io/hpcclab/oaas/transcode-function:latest
+classes:
+  - name: example.video
+    stateType: FILE
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: video
+    functions:
+      - access: PUBLIC
+        function: example.video.transcode
+----
+
+=== Video Uploading
+Before you can upload the video, you have to create the video object.
+
+NOTE: You can add the additional parameters into `embeddedRecord` to save them with the new object.
+
+[source,http request]
+----
+POST http://localhost:8088/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.video",
+  "embeddedRecord": {
+     "title": "video-title"
+  },
+  "keys": ["video"]
+}
+----
+
+Object Controller will reply with the detail of a new object and the URL to upload the state data.
+
+[source,json]
+----
+{
+  "object": {
+    "id": "050c4bfa-405c-4d5a-a286-6b62c85aad6b",
+    "origin": {
+      "rootId": "050c4bfa-405c-4d5a-a286-6b62c85aad6b"
+    },
+    "access": "PUBLIC",
+    "cls": "example.video",
+    "state": {
+      "type": "FILES"
+    },
+    "embeddedRecord": {
+      "title": "video-title"
+    }
+  },
+  "uploadUrls": {
+    "video": "http://localhost:9000/msc/050c4bfa-405c-4d5a-a286-6b62c85aad6b/video?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio_access_key%2F20220417%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220417T212359Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=62843759ba52277fc10bbb5ba2c0b38db5b0c32ef34d2fe9201bb23fe85bc69d"
+  }
+}
+----
+
+The next step is using that URL to upload video using `HTTP PUT`.
+
+[source,http request]
+----
+PUT <uploadUrls.video>
+Content-Type: text/plain
+
+<TEXT_FILE_DATA>
+----
+
+=== Listing Video Objects
+
+You can use the following REST API to list the video objects.
+
+[source,http request]
+----
+GET http://localhost:8088/api/classes/example.video/objects
+----
+Then, you will get the response as the pagination wrapper.
+[source,json]
+----
+{
+  "total": 2,
+  "offset": 0,
+  "itemCount": 2,
+  "items": [
+    {
+      "id": "37a866b7-4b06-4acf-9fba-bf4966d16726",
+      "origin": {
+        "rootId": "37a866b7-4b06-4acf-9fba-bf4966d16726"
+      },
+      "access": "PUBLIC",
+      "cls": "example.video",
+      "labels": [
+        "test"
+      ],
+      "state": {
+        "type": "FILES"
+      },
+      "embeddedRecord": {}
+    },
+    {
+      "id": "050c4bfa-405c-4d5a-a286-6b62c85aad6b",
+      "origin": {
+        "rootId": "050c4bfa-405c-4d5a-a286-6b62c85aad6b"
+      },
+      "access": "PUBLIC",
+      "cls": "example.video",
+      "state": {
+        "type": "FILES"
+      },
+      "embeddedRecord": {
+        "title": "video-title"
+      }
+    }
+  ]
+}
+----
+
+If you want to fetch the specific range, you have to add the query parameters `limit` and  `offset`. You can look at the example below.
+
+[source,http request]
+----
+GET http://localhost:8088/api/classes/example.video/objects?limit=10&offset=100
+----

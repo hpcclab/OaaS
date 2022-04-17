@@ -11,7 +11,9 @@ Content-Type: application/json
 
 {
   "cls": "example.video",
-  "embeddedRecord": {},
+  "embeddedRecord": {
+    "param-name": "param-value"
+  },
   "labels": ["test"],
   "keys": ["video"],
   "overrideUrls": {}

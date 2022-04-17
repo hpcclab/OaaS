@@ -9,7 +9,7 @@ services:
     ports:
       - "11222:11222"
 #    volumes:
-#      - infinispan-data:/opt/infinispan/server/data
+#      - infinispan-data:/opt/infinispan/server/data:z
     environment:
       USER: oaas
       PASS: oaas
@@ -24,17 +24,16 @@ services:
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
-      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
       INFINISPAN_SERVER: infinispan:11222
       INFINISPAN_USERNAME: oaas
       INFINISPAN_PASSWORD: oaas
       OAAS_OC_PROVISIONTOPIC: msc-provisions
       OAAS_OC_KAFKAENABLED: 'false'
-      OAAS_OC_STORAGEADAPTERURL: http://sa
+      OAAS_OC_STORAGEADAPTERURL: http://sa:8080
       OAAS_REPO_OBJECT_PERSIST: 'true'
       OAAS_REPO_STATE_PERSIST: 'true'
   sa:
-    image: ghcr.io/pawissanutt/oaas/object-controller
+    image: ghcr.io/pawissanutt/oaas/storage-adapter
     restart: always
     ports:
       - "8090:8080"
