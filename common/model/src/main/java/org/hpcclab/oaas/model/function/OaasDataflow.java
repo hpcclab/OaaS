@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasWorkflow implements Serializable {
+public class OaasDataflow implements Serializable {
   @ProtoField(1)
   List<OaasWorkflowStep> steps;
   @ProtoField(2)
@@ -21,11 +21,11 @@ public class OaasWorkflow implements Serializable {
   @ProtoField(3)
   String export;
 
-  public OaasWorkflow() {
+  public OaasDataflow() {
   }
 
   @ProtoFactory
-  public OaasWorkflow(List<OaasWorkflowStep> steps,
+  public OaasDataflow(List<OaasWorkflowStep> steps,
                       Set<OaasWorkflowExport> exports,
                       String export) {
     this.steps = steps;

@@ -7,11 +7,24 @@ functions:
       knative:
 #        image: core.harbor.10.131.36.2.nip.io/oaas/transcode-function:0.3.3
         image: ghcr.io/hpcclab/oaas/transcode-function:latest
-        minScale: 1
+#        minScale: 1
 #        maxScale: 12
 #        concurrency: 1
-        requestsCpu: '1'
+#        requestsCpu: '1'
 #        limitsCpu: '16'
+
+  - name: example.video.tohls
+    type: TASK
+    outputCls: example.video.hls
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.2.nip.io/oaas/tohls-function:0.1.12
+        minScale: 1
+        concurrency: 1
+        requestsCpu: '1'
+        limitsCpu: '16'
+
 classes:
   - name: example.video
     stateType: FILE
@@ -22,3 +35,12 @@ classes:
     functions:
       - access: PUBLIC
         function: example.video.transcode
+      - access: PUBLIC
+        function: example.video.tohls
+        forwardRecords:
+          - title
+          - desc
+  - name: example.video.hls
+    stateType: COLLECTION
+    objectType: SIMPLE
+    functions: []

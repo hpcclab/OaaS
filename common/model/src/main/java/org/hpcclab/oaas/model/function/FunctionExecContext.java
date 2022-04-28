@@ -25,7 +25,8 @@ public class FunctionExecContext {
   OaasClass outputCls;
   OaasObject output;
   List<OaasObject> taskOutputs = new ArrayList<>();
-  FunctionAccessModifier functionAccess;
+  OaasFunctionBinding binding;
+//  FunctionAccessModifier functionAccess;
   Map<String, String> args = Map.of();
   List<OaasObject> additionalInputs = List.of();
   Map<String, OaasObject> workflowMap = Map.of();

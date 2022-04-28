@@ -4,11 +4,11 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.function.OaasDataflow;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
-import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.object.OaasObjectType;
 import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,10 @@ public class MacroFunctionHandler {
   @Inject
   FunctionRouter router;
   @Inject
-  ContextLoader cachedCtxLoader;
+  ContextLoader contextLoader;
+  @Inject
+  OaasObjectFactory objectFactory;
+
 
   public void validate(FunctionExecContext context) {
 //    if (context.getMainCls().getObjectType()!=OaasObjectType.COMPOUND)
@@ -52,30 +55,39 @@ public class MacroFunctionHandler {
     var func = context.getFunction();
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("func {}", func);
-    var output = OaasObject.createFromClasses(context.getOutputCls());
-    output.setOrigin(context.createOrigin());
-
     return execWorkflow(context, func.getMacro())
       .chain(() -> {
-        var mem = func.getMacro().getExports()
-          .stream()
-          .map(export -> new ObjectReference()
-            .setName(export.getAs())
-            .setObject(context.getWorkflowMap()
-              .get(export.getFrom()).getId()))
-          .collect(Collectors.toUnmodifiableSet());
-        output.setRefs(mem);
+        var output = export(func.getMacro(), context);
         return objectRepo.persistAsync(output);
       })
       .map(context::setOutput);
   }
 
+  private OaasObject export(OaasDataflow dataflow,
+                            FunctionExecContext ctx) {
+    if (dataflow.getExport() != null) {
+      return ctx.getWorkflowMap()
+        .get(dataflow.getExport());
+    } else {
+      var output = objectFactory.createOutput(ctx);
+      var mem = dataflow.getExports()
+        .stream()
+        .map(export -> new ObjectReference()
+          .setName(export.getAs())
+          .setObject(ctx.getWorkflowMap()
+            .get(export.getFrom()).getId()))
+        .collect(Collectors.toUnmodifiableSet());
+      output.setRefs(mem);
+      return output;
+    }
+  }
+
   private Uni<Void> execWorkflow(FunctionExecContext context,
-                                 OaasWorkflow workflow) {
+                                 OaasDataflow workflow) {
     return Multi.createFrom().iterable(workflow.getSteps())
       .call(step -> {
         LOGGER.trace("Execute step {}", step);
-        return cachedCtxLoader.loadCtxAsync(context, step)
+        return contextLoader.loadCtxAsync(context, step)
           .flatMap(newCtx -> router.functionCall(newCtx))
           .invoke(newCtx ->
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput()));

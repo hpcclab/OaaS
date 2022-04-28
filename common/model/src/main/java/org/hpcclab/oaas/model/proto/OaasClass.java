@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasClass {
   @ProtoField(1)

@@ -838,12 +838,33 @@
           }
         }
       },
+      "OaasDataflow" : {
+        "type" : "object",
+        "properties" : {
+          "export" : {
+            "type" : "string"
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasWorkflowExport"
+            }
+          },
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasWorkflowStep"
+            }
+          }
+        }
+      },
       "OaasFunction" : {
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
           "macro" : {
-            "$ref" : "#/components/schemas/OaasWorkflow"
+            "$ref" : "#/components/schemas/OaasDataflow"
           },
           "name" : {
             "pattern" : "\\S",
@@ -874,6 +895,13 @@
           "access" : {
             "$ref" : "#/components/schemas/FunctionAccessModifier"
           },
+          "forwardRecords" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "function" : {
             "type" : "string"
           },
@@ -903,9 +931,6 @@
       "OaasObject" : {
         "type" : "object",
         "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
           "cls" : {
             "type" : "string"
           },
@@ -1008,27 +1033,6 @@
       "OaasObjectType" : {
         "enum" : [ "COMPOUND", "SIMPLE", "STREAM" ],
         "type" : "string"
-      },
-      "OaasWorkflow" : {
-        "type" : "object",
-        "properties" : {
-          "export" : {
-            "type" : "string"
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasWorkflowExport"
-            }
-          },
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasWorkflowStep"
-            }
-          }
-        }
       },
       "OaasWorkflowExport" : {
         "type" : "object",

@@ -11,10 +11,13 @@ Content-Type: application/json
 
 {
   "cls": "example.video",
-  "embeddedRecord": {},
+  "embeddedRecord": {
+    "title": "title",
+    "desc": "description..."
+  },
   "labels": ["test"],
   "overrideUrls": {
-    "video": "{{base_url}}/test-1s.mp4"
+    "video": "{{base_url}}/test.mp4"
   }
 }
 
@@ -28,3 +31,15 @@ GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 ###
 GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
 
+###
+GET {{cds}}/{{obj_0_id}}:tohls()()
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}
+
+###
+GET {{oc}}/api/objects/{{obj_1_id}}
+
+###
+GET {{cds}}/{{obj_1_id}}/video.m3u8

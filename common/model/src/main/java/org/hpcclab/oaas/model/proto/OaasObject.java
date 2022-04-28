@@ -29,8 +29,8 @@ public class OaasObject {
   OaasObjectOrigin origin;
   @ProtoField(3)
   Long originHash;
-  @ProtoField(4)
-  ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
+//  @ProtoField(4)
+//  ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
   @ProtoField(5)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
@@ -52,11 +52,10 @@ public class OaasObject {
   }
 
   @ProtoFactory
-  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, ObjectAccessModifier access, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task, StreamInfo streamInfo) {
+  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task, StreamInfo streamInfo) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
-    this.access = access;
     this.cls = cls;
     this.labels = labels;
     this.state = state;
@@ -85,7 +84,6 @@ public class OaasObject {
       id,
       origin==null ? null:origin.copy(),
       originHash,
-      access,
       cls,
       labels==null ? null:Set.copyOf(labels),
       state,

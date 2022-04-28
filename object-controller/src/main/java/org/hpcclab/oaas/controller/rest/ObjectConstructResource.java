@@ -8,12 +8,12 @@ import org.hpcclab.oaas.controller.service.DataAllocationService;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 
 import javax.inject.Inject;
@@ -37,6 +37,8 @@ public class ObjectConstructResource {
   @Inject
   @RestClient
   DataAllocationService allocationService;
+  @Inject
+  OaasObjectFactory objectFactory;
 
 
   @POST
@@ -51,7 +53,7 @@ public class ObjectConstructResource {
 
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
-    var obj = makeObject(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls, objRepo.generateId());
     var stateSpec = cls.getStateSpec();
     if (stateSpec==null) return objRepo.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
@@ -68,9 +70,9 @@ public class ObjectConstructResource {
                                                        OaasClass cls) {
     var genericType = cls.getGenericType();
     var genericCls = clsRepo.get(genericType);
-    var obj = makeObject(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls, objRepo.generateId());
     var sc = Lists.fixedSize.ofAll(construction.getStreamConstructs());
-    var objStream = sc.collectWithIndex((c,i) -> makeObject(c, genericCls, obj.getId() + '.' + i));
+    var objStream = sc.collectWithIndex((c,i) -> objectFactory.createBase(c, genericCls, obj.getId() + '.' + i));
     var requestList = sc.zip(objStream).collect(pair -> {
       var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
         .select(k -> construction.getKeys().contains(k.getName()));
@@ -93,16 +95,4 @@ public class ObjectConstructResource {
     return new ObjectConstructResponse(baseObj, Map.of(), respStream);
   }
 
-
-  private OaasObject makeObject(ObjectConstructRequest construct,
-                                OaasClass cls,
-                                String id) {
-    var obj = OaasObject.createFromClasses(cls);
-    obj.setId(id);
-    obj.setEmbeddedRecord(construct.getEmbeddedRecord());
-    obj.setLabels(construct.getLabels());
-    obj.setOrigin(new OaasObjectOrigin().setRootId(id));
-    obj.getState().setOverrideUrls(construct.getOverrideUrls());
-    return obj;
-  }
 }

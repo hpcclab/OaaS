@@ -106,8 +106,6 @@ components:
     OaasObject:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
         cls:
           type: string
         embeddedRecord:
@@ -178,12 +176,6 @@ components:
             type: string
         target:
           type: string
-    ObjectAccessModifier:
-      enum:
-      - FINAL
-      - INTERNAL
-      - PUBLIC
-      type: string
     ObjectReference:
       type: object
       properties:

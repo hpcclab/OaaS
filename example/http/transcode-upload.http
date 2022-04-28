@@ -28,10 +28,20 @@ client.global.set("upload_url", response.body.uploadUrls.video)
 PUT {{upload_url}}
 Content-Type: application/octet-stream
 
-< ../../../oaas-load-test/test-files/test-1s.mp4
+< ../../../oaas-load-test/test-files/test.mp4
 
 ###
 GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
 GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
+
+###
+GET {{cds}}/{{obj_0_id}}:tohls()()
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}
+
+###
+GET {{cds}}/{{obj_1_id}}

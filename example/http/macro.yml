@@ -2,15 +2,13 @@ functions:
   - name: example.text.concat
     type: TASK
     outputCls: example.text
-    validation: {}
     provision:
       knative:
         image: ghcr.io/hpcclab/oaas/concat-function:latest
 
   - name: example.empty.concat-macro
-    type: TASK
+    type: MACRO
     outputCls: example.text
-    validation: {}
     macro:
       steps:
         - funcName: "example.text.concat"

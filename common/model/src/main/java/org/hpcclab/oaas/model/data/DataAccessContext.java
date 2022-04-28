@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.proto.OaasObject;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,4 +47,5 @@ public class DataAccessContext {
     if (i < 0) return null;
     return inputCls.get(i);
   }
+
 }

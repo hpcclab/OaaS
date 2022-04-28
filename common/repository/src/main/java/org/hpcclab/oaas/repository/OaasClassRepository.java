@@ -68,17 +68,6 @@ public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClas
             return deepCls;
           });
       });
-//    System.out.println("get cls " + name);
-//    var cls = getAsync(name);
-//    System.out.println("cls " + cls);
-//    var funcNames = cls.getFunctions()
-//      .stream()
-//      .map(OaasFunctionBindingPb::getFunction)
-//      .collect(Collectors.toSet());
-//    System.out.println("list func " + funcNames);
-//    var funcMap = funcRepo.list(funcNames);
-//
-//    return deepCls;
   }
 
   public Uni<OaasClass> persist(OaasClass cls) {

@@ -28,7 +28,7 @@ public class TaskFactory {
     var b64Dac = contentUrlGenerator.genBase64Dac(dac);
 
     var task = new OaasTask();
-    task.setId(taskContext.getOutput().getId().toString());
+    task.setId(taskContext.getOutput().getId());
     task.setMain(taskContext.getMain());
     task.setOutput(taskContext.getOutput());
     task.setFunction(taskContext.getFunction());
@@ -71,6 +71,7 @@ public class TaskFactory {
         map.put(prefix + keySpec.getName(), url);
       }
     }
+
     if (obj.getState().getOverrideUrls() != null) {
       obj.getState().getOverrideUrls()
         .forEach((k,v) -> map.put(prefix + k, v));

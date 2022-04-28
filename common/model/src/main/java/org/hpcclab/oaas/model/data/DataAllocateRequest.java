@@ -16,7 +16,7 @@ public class DataAllocateRequest {
 //  Map<String,List<String>> keys;
 //  List<String> keys;
   List<KeySpecification> keys;
-//  String provider;
+  String defaultProvider;
   boolean publicUrl = false;
 
   public DataAllocateRequest() {
@@ -25,6 +25,13 @@ public class DataAllocateRequest {
   public DataAllocateRequest(String oid, List<KeySpecification> keys, boolean publicUrl) {
     this.oid = oid;
     this.keys = keys;
+    this.publicUrl = publicUrl;
+  }
+
+  public DataAllocateRequest(String oid, List<KeySpecification> keys, String defaultProvider, boolean publicUrl) {
+    this.oid = oid;
+    this.keys = keys;
+    this.defaultProvider = defaultProvider;
     this.publicUrl = publicUrl;
   }
 }

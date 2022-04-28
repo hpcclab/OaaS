@@ -36,7 +36,7 @@ public class ContentUrlGenerator {
 
   public String generateAllocateUrl(String oid, String contextKey) {
     var saUrl = config.storageAdapterUrl();
-    return saUrl + "/contents/%s?contextKey=%s"
+    return saUrl + "/allocate/%s?contextKey=%s"
       .formatted(oid, contextKey);
   }
 

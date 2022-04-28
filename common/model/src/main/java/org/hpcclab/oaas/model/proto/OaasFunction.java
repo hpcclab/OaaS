@@ -3,10 +3,10 @@ package org.hpcclab.oaas.model.proto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.function.OaasDataflow;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.function.OaasFunctionValidation;
-import org.hpcclab.oaas.model.function.OaasWorkflow;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -26,7 +26,7 @@ public class OaasFunction {
 
   OaasFunctionValidation validation;
 
-  OaasWorkflow macro;
+  OaasDataflow macro;
 
   ProvisionConfig provision;
 
@@ -34,7 +34,7 @@ public class OaasFunction {
   }
 
   @ProtoFactory
-  public OaasFunction(String name, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasWorkflow macro, ProvisionConfig provision) {
+  public OaasFunction(String name, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasDataflow macro, ProvisionConfig provision) {
     this.name = name;
     this.type = type;
     this.outputCls = outputCls;
@@ -64,7 +64,7 @@ public class OaasFunction {
   }
 
   @ProtoField(5)
-  public OaasWorkflow getMacro() {
+  public OaasDataflow getMacro() {
     return macro;
   }
 
@@ -81,9 +81,8 @@ public class OaasFunction {
     if (type==OaasFunctionType.MACRO) {
       provision = null;
       if (macro==null) {
-        throw new NoStackException(
-          "Macro function('%s') must be defined 'macro' parameter".formatted(name),
-          400
+        throw new OaasValidationException(
+          "Macro function('%s') must be defined 'macro' parameter".formatted(name)
         );
       }
     }

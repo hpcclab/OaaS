@@ -21,6 +21,10 @@ public class KeySpecification {
   public KeySpecification() {
   }
 
+  public KeySpecification(String name) {
+    this.name = name;
+  }
+
   public KeySpecification(String name, String provider) {
     this.name = name;
     this.provider = provider;

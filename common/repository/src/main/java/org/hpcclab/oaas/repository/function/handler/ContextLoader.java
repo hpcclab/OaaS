@@ -83,7 +83,7 @@ public class ContextLoader {
     var binding = clsRepo.findFunction(
       mainCls, funcName);
     if (binding.isEmpty()) throw FunctionValidationException.noFunction(main.getId(), funcName);
-    ctx.setFunctionAccess(binding.get().getAccess());
+    ctx.setBinding(binding.get());
 
     var func = funcRepo.get(binding.get().getFunction());
     if (func == null)

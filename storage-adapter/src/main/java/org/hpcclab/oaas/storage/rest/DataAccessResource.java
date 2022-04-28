@@ -10,6 +10,7 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
+import org.hpcclab.oaas.storage.ContextUtil;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class DataAccessResource {
                            String key,
                            @RestQuery String contextKey) {
     // TODO protect contextKey with encryption and signature
-    var dac = parseDac(contextKey);
+    var dac = ContextUtil.parseDac(contextKey);
     if (dac==null) throw new NoStackException("'contextKey' query param is required", 400);
     var clsName = dac.getCls(oid);
     var cls =  clsRepo.get(clsName);
@@ -49,23 +50,7 @@ public class DataAccessResource {
     return handleDataAccess(oid, key, cls, dac);
   }
 
-  @GET
-  @Path("{oid}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Uni<Map<String, String>> getAllocatedUrls(String oid,
-                                                   @RestQuery String contextKey) {
-    var dac = parseDac(contextKey);
-    var clsName = dac.getCls(oid);
-    var cls =  clsRepo.get(clsName);
-    if (cls == null) throw  NoStackException.notFoundCls400(clsName);
-    return adapterLoader.aggregatedAllocate(new DataAllocateRequest(oid, cls.getStateSpec().getKeySpecs(), false));
-  }
 
-  DataAccessContext parseDac(String contextKey) {
-    if (contextKey==null) return null;
-    var dacJson = Base64.getUrlDecoder().decode(contextKey);
-    return Json.decodeValue(Buffer.buffer(dacJson), DataAccessContext.class);
-  }
 
   private Uni<Response> handleDataAccess(String oid,
                                          String key,

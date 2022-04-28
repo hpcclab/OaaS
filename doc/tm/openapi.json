@@ -156,9 +156,6 @@
       "OaasObject" : {
         "type" : "object",
         "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
           "cls" : {
             "type" : "string"
           },
@@ -265,10 +262,6 @@
             "type" : "string"
           }
         }
-      },
-      "ObjectAccessModifier" : {
-        "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
-        "type" : "string"
       },
       "ObjectReference" : {
         "type" : "object",

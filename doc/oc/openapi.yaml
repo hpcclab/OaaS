@@ -544,6 +544,20 @@ components:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
           $ref: '#/components/schemas/StateType'
+    OaasDataflow:
+      type: object
+      properties:
+        export:
+          type: string
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasWorkflowExport'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasWorkflowStep'
     OaasFunction:
       required:
       - name
@@ -551,7 +565,7 @@ components:
       type: object
       properties:
         macro:
-          $ref: '#/components/schemas/OaasWorkflow'
+          $ref: '#/components/schemas/OaasDataflow'
         name:
           pattern: \S
           type: string
@@ -571,6 +585,11 @@ components:
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
+        forwardRecords:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
         function:
           type: string
         name:
@@ -593,8 +612,6 @@ components:
     OaasObject:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
         cls:
           type: string
         embeddedRecord:
@@ -666,20 +683,6 @@ components:
       - SIMPLE
       - STREAM
       type: string
-    OaasWorkflow:
-      type: object
-      properties:
-        export:
-          type: string
-        exports:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasWorkflowExport'
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasWorkflowStep'
     OaasWorkflowExport:
       type: object
       properties:

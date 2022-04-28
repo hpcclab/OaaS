@@ -13,8 +13,6 @@ if os.name == 'nt':
 else:
     shell = 'sh'
 
-bucket_url = 'http:/s3.10.131.36.27.nip.io/msc-bkt-867c5b9f-ad83-48e3-8297-bbdca3327258'
-
 
 @app.route('/', methods=['POST'])
 def handle():

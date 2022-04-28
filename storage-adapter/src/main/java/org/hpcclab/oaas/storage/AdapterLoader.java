@@ -14,10 +14,7 @@ import org.hpcclab.oaas.storage.adapter.StorageAdapter;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -38,7 +35,7 @@ public class AdapterLoader {
 
   public  Uni<Map<String, String>> aggregatedAllocate(DataAllocateRequest request) {
     var requests= Lists.fixedSize.ofAll(request.getKeys())
-      .groupBy(KeySpecification::getProvider)
+      .groupBy(ks -> Objects.requireNonNullElse(ks.getProvider(), request.getDefaultProvider()))
       .keyMultiValuePairsView()
       .collect(entry -> new InternalDataAllocateRequest(
         request.getOid(), entry.getTwo().collect(KeySpecification::getName).toList(), entry.getOne(), request.isPublicUrl()))
@@ -54,7 +51,7 @@ public class AdapterLoader {
   }
 
   public Uni<Map<String,String>> aggregatedAllocate(InternalDataAllocateRequest request) {
-    if (request.getProvider().equals(s3Adapter.name())) {
+    if (Objects.equals(request.getProvider(), s3Adapter.name())) {
       return s3Adapter.allocate(request);
     } else {
       return Uni.createFrom().nullItem();

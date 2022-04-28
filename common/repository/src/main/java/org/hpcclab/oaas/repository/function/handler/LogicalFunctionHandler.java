@@ -17,7 +17,6 @@ public class LogicalFunctionHandler {
   @Inject
   OaasObjectRepository objectRepo;
 
-
   public Uni<FunctionExecContext> call(FunctionExecContext context) {
     if (context.getFunction().getName().equals("builtin.logical.copy")) {
       LOGGER.debug("Call function 'copy' {}", context.getMain().getId());

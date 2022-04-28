@@ -14,14 +14,25 @@ import javax.inject.Inject;
 public class FunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
 
-  @Inject
+//  @Inject
   LogicalFunctionHandler logicalFunctionHandler;
-  @Inject
+//  @Inject
   MacroFunctionHandler macroFunctionHandler;
-  @Inject
+//  @Inject
   TaskFunctionHandler taskFunctionHandler;
+//  @Inject
+  ContextLoader contextLoader;
+
   @Inject
-  ContextLoader cachedCtxLoader;
+  public FunctionRouter(LogicalFunctionHandler logicalFunctionHandler,
+                        MacroFunctionHandler macroFunctionHandler,
+                        TaskFunctionHandler taskFunctionHandler,
+                        ContextLoader contextLoader) {
+    this.logicalFunctionHandler = logicalFunctionHandler;
+    this.macroFunctionHandler = macroFunctionHandler;
+    this.taskFunctionHandler = taskFunctionHandler;
+    this.contextLoader = contextLoader;
+  }
 
   public Uni<FunctionExecContext> functionCall(FunctionExecContext context) {
     var type = context.getFunction().getType();
@@ -39,7 +50,7 @@ public class FunctionRouter {
 //  }
 
   public Uni<FunctionExecContext> functionCall(ObjectAccessLangauge request) {
-    return cachedCtxLoader.loadCtxAsync(request)
+    return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::functionCall);
   }
