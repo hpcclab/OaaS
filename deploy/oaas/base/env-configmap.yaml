@@ -3,6 +3,7 @@ data:
   JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
   QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   QUARKUS_CONSOLE_COLOR: 'false'
+  QUARKUS_HTTP_CORS: 'true'
   KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
   OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
   OAAS_OC_PROVISIONTOPIC: msc-provisions
@@ -21,9 +22,8 @@ data:
   INFINISPAN_SERVER: oaas-infinispan:11222
   INFINISPAN_USERNAME: oaas
   INFINISPAN_PASSWORD: oaas
-  OAAS_REPO_OBJECT_PERSIST: 'false'
-  OAAS_REPO_STATE_PERSIST: 'false'
-  OAAS_REPO_COMPLETION_PERSIST: 'false'
+  OAAS_REPO_OBJECT_PERSIST: 'true'
+  OAAS_REPO_STATE_PERSIST: 'true'
   OAAS_REPO_CREATEONSTART: 'true'
 #  OAAS_REPO_OBJECT_NEARCACHEMAXENTRY: "-1"
 #  OAAS_REPO_CLS_NEARCACHEMAXENTRY: "-1"

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.function.handler;
+package org.hpcclab.oaas.repository.function;
 
 
 import org.hpcclab.oaas.model.proto.OaasClass;

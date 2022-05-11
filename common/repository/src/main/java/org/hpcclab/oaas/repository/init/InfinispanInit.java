@@ -210,5 +210,6 @@ public class InfinispanInit {
           throw new RuntimeException("Cache '%s' is not ready".formatted(cacheName));
       }
     }
+
   }
 }

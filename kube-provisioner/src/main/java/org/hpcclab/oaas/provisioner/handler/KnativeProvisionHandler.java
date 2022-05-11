@@ -260,7 +260,7 @@ public class KnativeProvisionHandler {
       .endMetadata()
       .withNewSpec()
 //      .withAffinity(affinity)
-      .withTimeoutSeconds(900L)
+      .withTimeoutSeconds(600L)
       .withContainerConcurrency(provision.getConcurrency() > 0 ?
         (long) provision.getConcurrency():null)
       .withContainers(container)

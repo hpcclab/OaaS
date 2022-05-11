@@ -17,7 +17,7 @@ Content-Type: application/json
   },
   "labels": ["test"],
   "overrideUrls": {
-    "video": "{{base_url}}/test.mp4"
+    "video": "{{base_url}}/test2-30s.mp4"
   }
 }
 
@@ -43,3 +43,18 @@ GET {{oc}}/api/objects/{{obj_1_id}}
 
 ###
 GET {{cds}}/{{obj_1_id}}/video.m3u8
+
+###
+#GET {{cds}}/{{obj_1_id}}:blur()()
+GET {{cds}}/{{obj_1_id}}:grayscale()()
+#GET {{cds}}/{{obj_1_id}}:mirror()()
+
+> {%
+client.global.set("obj_2_id", response.body.id)
+%}
+
+###
+GET {{oc}}/api/objects/{{obj_2_id}}
+
+###
+GET {{cds}}/{{obj_2_id}}/video.m3u8

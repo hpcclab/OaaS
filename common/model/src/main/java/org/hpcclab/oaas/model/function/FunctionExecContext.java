@@ -33,11 +33,19 @@ public class FunctionExecContext {
 
 
   public OaasObjectOrigin createOrigin() {
+    var finalArgs = binding.getDefaultArgs();
+    if (finalArgs == null) {
+      finalArgs = args;
+    }
+    else if (args != null) {
+      finalArgs.putAll(args);
+    }
+
     return new OaasObjectOrigin(
       main.getOrigin().getRootId(),
       main.getId(),
-      function.getName(),
-      args,
+      binding.getName(),
+      finalArgs,
       additionalInputs.stream().map(OaasObject::getId)
         .toList()
     );

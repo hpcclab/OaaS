@@ -3,9 +3,9 @@ kind: Infinispan
 metadata:
   name: oaas-infinispan
 spec:
-  image: quay.io/infinispan/server:13.0.8.Final
+  image: quay.io/infinispan/server:13.0.10.Final
 #  image: quay.io/infinispan/server:14.0
-  replicas: 3
+  replicas: 1
   service:
     type: DataGrid
     container:

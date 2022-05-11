@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.function.handler;
+package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.UUID;
 
 @ApplicationScoped
 public class LogicalFunctionHandler {

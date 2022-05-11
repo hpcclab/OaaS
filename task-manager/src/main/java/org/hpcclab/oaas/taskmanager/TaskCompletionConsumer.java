@@ -30,18 +30,18 @@ public class TaskCompletionConsumer {
 
   @Inject
   TaskEventManager taskEventManager;
-  @Remote("TaskCompletion")
-  RemoteCache<UUID, TaskCompletion> remoteCache;
+//  @Remote("TaskCompletion")
+//  RemoteCache<UUID, TaskCompletion> remoteCache;
 
   @Incoming("task-completions")
   @POST
   public Uni<Void> handle(List<TaskCompletion> taskCompletions) {
-    var map = taskCompletions.stream()
-      .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
-    return Uni.createFrom()
-      .completionStage(remoteCache.putAllAsync(map))
-      .flatMap(ignore -> taskEventManager.submitCompletionEvent(taskCompletions));
-//    return taskEventManager.submitCompletionEvent(taskCompletions);
+//    var map = taskCompletions.stream()
+//      .collect(Collectors.toMap(tc -> UUID.fromString(tc.getId()), Function.identity()));
+//    return Uni.createFrom()
+//      .completionStage(remoteCache.putAllAsync(map))
+//      .flatMap(ignore -> taskEventManager.submitCompletionEvent(taskCompletions));
+    return taskEventManager.submitCompletionEvent(taskCompletions);
   }
 
 //  @Incoming("task-completions")

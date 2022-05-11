@@ -7,8 +7,7 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.proto.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
-import org.junit.jupiter.api.Assertions;
+import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;

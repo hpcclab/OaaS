@@ -1,9 +1,9 @@
 import logging
 import os
-import uuid
 
 import requests
 from flask import Flask, request, make_response
+from furl import furl
 
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
@@ -44,33 +44,24 @@ def handle():
   output_obj = body['output']
   args = output_obj.get('origin', {}).get('args', {})
 
-  src_url = body['mainKeys']['video']
-  resolution = args.get('RESOLUTION', 'no')
-  if resolution != 'no':
-    resolution_cmd = f'-s {resolution}'
-  else:
-    resolution_cmd = ''
-  acodec = args.get('ACODEC', 'copy')
-  vcodec = args.get('VCODEC', 'copy')
+  src_url = body['mainKeys']['*']
+  parsed_url = furl(src_url)
+  parsed_url /= "video.m3u8"
+  src_url = parsed_url.url
+
+  vf = args.get('VF', 'boxblur=10')
   preset = args.get('PRESET', 'ultrafast')
-  codec = '-ac:a 2 '
-  if acodec != '':
-    codec += ' -c:a ' + acodec
-  if vcodec != '':
-    codec += ' -c:v ' + vcodec
   if preset != '':
     preset = f' -preset {preset}'
 
-  tmp_in = f"in-{uuid.uuid4()}.mp4"
-  run_and_log(f"curl -sS -L -o {tmp_in} {src_url}")
   prefix = 'video'
   tmp_file = prefix + '.m3u8'
-  cmd = f'ffmpeg -hide_banner -loglevel warning -y -i {tmp_in} {preset} -g 30' \
-        f' {resolution_cmd} {codec} -hls_time 1 -hls_list_size 0  -f hls {tmp_file}'
+  cmd = f'ffmpeg -hide_banner -loglevel warning -y -i {src_url} {preset} -g 30' \
+        f' -vf \'{vf}\' -hls_time 1 -hls_list_size 0  -f hls {tmp_file}'
   code = run_and_log(cmd)
-  # if code != 0:
-  #   resp_msg = f"Fail to execute {cmd}"
-  #   status_code = 500
+  if code != 0:
+    resp_msg = f"Fail to execute {cmd}"
+    status_code = 500
 
   upload_urls = allocate(prefix, alloc_url)
 
@@ -81,7 +72,7 @@ def handle():
       resp_msg = f"Fail to execute {cmd}"
       status_code = 500
 
-  cmd = f'rm -f {tmp_in} {prefix}*'
+  cmd = f'rm -f {prefix}*'
   code = run_and_log(cmd)
   if code != 0:
     resp_msg = f"Fail to execute {cmd}"
@@ -100,7 +91,7 @@ def make_resonse(msg,
   response.status_code = status_code
   response.headers["Ce-Id"] = str(new_uuid)
   response.headers["Ce-specversion"] = "1.0"
-  response.headers["Ce-Source"] = "oaas/tohls"
+  response.headers["Ce-Source"] = "oaas/add-vfilter"
   response.headers["Ce-Type"] = "oaas.task.result"
   response.headers["Ce-Tasksucceeded"] = "true"
   return response

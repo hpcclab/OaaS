@@ -25,6 +25,18 @@ functions:
         requestsCpu: '1'
         limitsCpu: '16'
 
+  - name: example.video.hls.vfilter
+    type: TASK
+    outputCls: example.video.hls
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.2.nip.io/oaas/add-vfilter-function:0.1.2
+        minScale: 1
+        concurrency: 1
+        requestsCpu: '1'
+        limitsCpu: '16'
+
 classes:
   - name: example.video
     stateType: FILE
@@ -40,7 +52,32 @@ classes:
         forwardRecords:
           - title
           - desc
+          - thumbnail
   - name: example.video.hls
     stateType: COLLECTION
     objectType: SIMPLE
-    functions: []
+    functions:
+      - function: example.video.hls.vfilter
+        name: blur
+        forwardRecords:
+          - title
+          - desc
+          - thumbnail
+        defaultArgs:
+          VF: boxblur=10
+      - function: example.video.hls.vfilter
+        name: grayscale
+        forwardRecords:
+          - title
+          - desc
+          - thumbnail
+        defaultArgs:
+          VF: hue=s=0
+      - function: example.video.hls.vfilter
+        name: mirror
+        forwardRecords:
+          - title
+          - desc
+          - thumbnail
+        defaultArgs:
+          VF: crop=iw/2:ih:0:0,split[left][tmp];[tmp]hflip[right];[left][right] hstack

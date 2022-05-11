@@ -585,6 +585,10 @@ components:
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
+        defaultArgs:
+          type: object
+          additionalProperties:
+            type: string
         forwardRecords:
           uniqueItems: true
           type: array

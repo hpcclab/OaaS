@@ -2,20 +2,16 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.repository.TaskCompletionRepository;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
-import org.hpcclab.oaas.taskmanager.service.TaskCompletionListener;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +22,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.UUID;
 
 @Path("/oal")
 @Consumes(MediaType.APPLICATION_JSON)

@@ -1,6 +1,5 @@
 package org.hpcclab.oaas;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
@@ -11,14 +10,12 @@ import org.hpcclab.oaas.model.proto.OaasClass;
 import org.hpcclab.oaas.model.proto.OaasFunction;
 import org.hpcclab.oaas.model.object.DeepOaasObject;
 import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.repository.function.FunctionRouter;
 
 import javax.ws.rs.core.MediaType;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 

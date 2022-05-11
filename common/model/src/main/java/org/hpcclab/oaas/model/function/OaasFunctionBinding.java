@@ -5,7 +5,9 @@ import lombok.Data;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -17,18 +19,32 @@ public class OaasFunctionBinding {
   String function;
   @ProtoField(3)
   String name;
-
   @ProtoField(4)
   Set<String> forwardRecords;
+  @ProtoField(value = 5, javaType = HashMap.class)
+  Map<String, String> defaultArgs;
 
   public OaasFunctionBinding() {
   }
 
-  @ProtoFactory
-  public OaasFunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords) {
+  public OaasFunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.forwardRecords = forwardRecords;
+    this.defaultArgs = defaultArgs;
+  }
+
+  @ProtoFactory
+  public OaasFunctionBinding(FunctionAccessModifier access,
+                             String function,
+                             String name,
+                             Set<String> forwardRecords,
+                             HashMap<String,String> defaultArgs) {
+    this.access = access;
+    this.function = function;
+    this.name = name;
+    this.forwardRecords = forwardRecords;
+    this.defaultArgs = defaultArgs;
   }
 }

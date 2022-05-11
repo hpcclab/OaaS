@@ -70,6 +70,10 @@ public class TaskFactory {
           contentUrlGenerator.generateUrl(obj.getId(),keySpec.getName(),b64Dac);
         map.put(prefix + keySpec.getName(), url);
       }
+    } else {
+      var url  =
+        contentUrlGenerator.generateUrl(obj.getId(),"",b64Dac);
+      map.put(prefix + '*', url);
     }
 
     if (obj.getState().getOverrideUrls() != null) {

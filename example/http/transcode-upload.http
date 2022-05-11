@@ -12,7 +12,8 @@ Content-Type: application/json
 {
   "cls": "example.video",
   "embeddedRecord": {
-    "param-name": "param-value"
+    "title": "title",
+    "desc": "description..."
   },
   "labels": ["test"],
   "keys": ["video"],
@@ -44,4 +45,4 @@ client.global.set("obj_1_id", response.body.id)
 %}
 
 ###
-GET {{cds}}/{{obj_1_id}}
+GET {{cds}}/{{obj_1_id}}/video.m3u8

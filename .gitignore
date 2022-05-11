@@ -39,3 +39,4 @@ nb-configuration.xml
 .env
 
 deploy/oaas/dev/
+*.bkp

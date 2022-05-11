@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.function.handler;
+package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
