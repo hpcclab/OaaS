@@ -30,10 +30,6 @@ public class AggregateRepository {
     tc.setFunction(function);
     var inputs = objectRepo.listByIds(main.getOrigin().getInputs());
     tc.setInputs(inputs);
-//    var inputCls = inputs.stream()
-//      .map(input -> clsRepo.get(input.getCls()))
-//      .toList();
-//    tc.setInputCls(inputCls);
     if (main.getOrigin().getParentId()!=null) {
       var parent = objectRepo.get(main.getOrigin().getParentId());
       tc.setMain(parent);

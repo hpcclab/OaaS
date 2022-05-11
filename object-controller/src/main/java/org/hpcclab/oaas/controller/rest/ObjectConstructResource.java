@@ -5,6 +5,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
+import org.hpcclab.oaas.iface.service.ObjectConstructService;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
@@ -16,6 +17,7 @@ import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -25,10 +27,8 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
-@Path("/api/object-construct")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-public class ObjectConstructResource {
+@ApplicationScoped
+public class ObjectConstructResource implements ObjectConstructService {
 
   @Inject
   OaasClassRepository clsRepo;
@@ -41,7 +41,7 @@ public class ObjectConstructResource {
   OaasObjectFactory objectFactory;
 
 
-  @POST
+  @Override
   public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());
     if (cls==null) throw NoStackException.notFoundCls400(construction.getCls());

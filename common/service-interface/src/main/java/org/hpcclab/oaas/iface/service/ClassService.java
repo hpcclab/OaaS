@@ -18,7 +18,6 @@ public interface ClassService {
   Uni<Pagination<OaasClass>> list(@QueryParam("offset") Long offset,
                                   @QueryParam("limit") Integer limit);
 
-
   @GET
   @Path("{name}/objects")
   Pagination<OaasObject> listObject(String name,
@@ -45,9 +44,9 @@ public interface ClassService {
   Uni<OaasClass> get(String name);
 
 
-  @GET
-  @Path("{name}/deep")
-  Uni<DeepOaasClass> getDeep(String name);
+//  @GET
+//  @Path("{name}/deep")
+//  Uni<DeepOaasClass> getDeep(String name);
 
 
   @DELETE

@@ -14,7 +14,6 @@ public class TaskStateRepository extends AbstractIfnpRepository<String, TaskStat
   @Remote("TaskState")
   RemoteCache<String, TaskState> cache;
 
-
   @PostConstruct
   void setup() {
     setRemoteCache(cache);

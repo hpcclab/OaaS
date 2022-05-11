@@ -101,15 +101,15 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
     return query(query, Map.of("clsName", clsName), offset, limit);
   }
 
-  public Uni<DeepOaasObject> getDeep(String id) {
-    return getAsync(id)
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(id))
-      .flatMap(obj -> {
-        var deep = oaasMapper.deep(obj);
-        return classRepo.getDeep(obj.getCls())
-          .map(deep::setCls);
-      });
-  }
+//  public Uni<DeepOaasObject> getDeep(String id) {
+//    return getAsync(id)
+//      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(id))
+//      .flatMap(obj -> {
+//        var deep = oaasMapper.deep(obj);
+//        return classRepo.getDeep(obj.getCls())
+//          .map(deep::setCls);
+//      });
+//  }
 
   public OaasObject persist(OaasObject o) {
     if (o == null)

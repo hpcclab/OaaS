@@ -80,10 +80,10 @@ public class ClassResource implements ClassService {
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
-  @Override
-  public Uni<DeepOaasClass> getDeep(String name) {
-    return classRepo.getDeep(name);
-  }
+//  @Override
+//  public Uni<DeepOaasClass> getDeep(String name) {
+//    return classRepo.getDeep(name);
+//  }
 
   @Override
   public Uni<OaasClass> delete(String name) {

@@ -26,31 +26,4 @@ public interface ObjectService {
   @GET
   @Path("{id}")
   Uni<OaasObject> get(String id);
-
-
-//  @GET
-//  @Path("{id}/origin")
-//  Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id,
-//                                                   @DefaultValue("1")
-//                               @QueryParam("deep") Integer deep);
-
-  @GET
-  @Path("{id}/deep")
-  Uni<DeepOaasObject> getDeep(String id);
-
-//  @GET
-//  @Path("{id}/context")
-//  Uni<TaskContext> getTaskContext(String id);
-
-  @GET
-  @Path("{id}/completion")
-  Uni<TaskCompletion> getCompletion(String id);
-//  @POST
-//  @Path("{id}/exec")
-//  Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request);
-//
-//  @POST
-//  @Path("{id}/r-exec")
-//  Uni<OaasObject> reactiveFuncCall(String id, ObjectAccessExpression request);
-
 }

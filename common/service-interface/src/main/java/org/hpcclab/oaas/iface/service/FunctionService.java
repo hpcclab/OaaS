@@ -24,7 +24,6 @@ public interface FunctionService {
   );
 
   @POST
-//  @Path("-/yaml")
   @Consumes("text/x-yaml")
   Uni<List<OaasFunction>> createByYaml(@DefaultValue("false") @QueryParam("update") boolean update,
                                        String body);
