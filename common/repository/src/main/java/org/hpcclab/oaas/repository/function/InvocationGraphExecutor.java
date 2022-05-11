@@ -6,14 +6,16 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class InvocationGraphExecutor {
   TaskSubmitter submitter;
   GraphStateManager gsm;
 
+  @Inject
   public InvocationGraphExecutor(TaskSubmitter submitter, GraphStateManager gsm) {
     this.submitter = submitter;
     this.gsm = gsm;
@@ -64,5 +66,5 @@ public class InvocationGraphExecutor {
 
   public Uni<Void> loadAndSubmit(FunctionExecContext ctx, OaasObject object) {
     return null;
-  };
+  }
 }

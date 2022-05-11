@@ -54,7 +54,8 @@ public class MacroFunctionHandler implements FunctionHandler {
     return execWorkflow(context, func.getMacro())
       .map(ignored -> {
         var output = export(func.getMacro(), context);
-        return context.setOutput(output);
+        context.setOutput(output);
+        return context;
       });
   }
 

@@ -194,11 +194,11 @@ components:
           type: integer
         debugLog:
           type: string
-        status:
-          $ref: '#/components/schemas/TaskStatus'
         submittedTime:
           format: int64
           type: integer
+        taskStatus:
+          $ref: '#/components/schemas/TaskStatus'
     StateType:
       enum:
       - COLLECTION

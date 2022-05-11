@@ -36,7 +36,8 @@ public class ContextLoader {
 //      .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
       .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
       .flatMap(ignore -> objectRepo.listByIdsAsync(request.getInputs()))
-      .map(ctx::setInputs);
+      .invoke(ctx::setInputs)
+      .replaceWith(ctx);
   }
 
   public FunctionExecContext loadCtx(ObjectAccessLangauge request) {
@@ -102,7 +103,8 @@ public class ContextLoader {
     return Multi.createFrom().iterable(step.getInputRefs())
       .onItem().transformToUniAndConcatenate(ref -> resolveTarget(baseCtx, ref))
       .collect().asList()
-      .map(baseCtx::setInputs);
+      .invoke(baseCtx::setInputs)
+      .replaceWith(baseCtx);
   }
 
   public Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {
