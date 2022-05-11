@@ -2,11 +2,12 @@ package org.hpcclab.oaas.repository;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.mapper.ModelMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
 import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClass> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OaasClassRepository.class);
-  private static final String NAME = OaasClass.class.getName();
+  private static final String NAME = OaasSchema.makeFullName(OaasClass.class);
 
   @Inject
   @Remote("OaasClass")

@@ -1,12 +1,10 @@
-package org.hpcclab.oaas.model.proto;
+package org.hpcclab.oaas.model.task;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.time.Instant;
 import java.util.Set;
 
 @Data
@@ -19,7 +17,7 @@ public class TaskState {
   @ProtoField(3)
   Set<String> completedPrqTasks;
   @ProtoField(4)
-  TaskStatus status = TaskStatus.WAITING;
+  TaskStatus status = TaskStatus.IDLE;
   @ProtoField(value = 5, defaultValue = "-1")
   long submitTime = -1;
   @ProtoField(value = 6, defaultValue = "-1")

@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model.oal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.ObjectOrigin;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -18,7 +18,7 @@ public class ObjectAccessLangauge {
   Map<String, String> args;
   List<String> inputs;
 
-  public static ObjectAccessLangauge from(OaasObjectOrigin origin) {
+  public static ObjectAccessLangauge from(ObjectOrigin origin) {
     return new ObjectAccessLangauge()
       .setTarget(origin.getParentId())
       .setFunctionName(origin.getFuncName())

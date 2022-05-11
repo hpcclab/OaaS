@@ -11,19 +11,14 @@ import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +48,7 @@ public class ObjectConstructResource implements ObjectConstructService {
 
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
-    var obj = objectFactory.createBase(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls);
     var stateSpec = cls.getStateSpec();
     if (stateSpec==null) return objRepo.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
@@ -70,7 +65,7 @@ public class ObjectConstructResource implements ObjectConstructService {
                                                        OaasClass cls) {
     var genericType = cls.getGenericType();
     var genericCls = clsRepo.get(genericType);
-    var obj = objectFactory.createBase(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls);
     var sc = Lists.fixedSize.ofAll(construction.getStreamConstructs());
     var objStream = sc.collectWithIndex((c,i) -> objectFactory.createBase(c, genericCls, obj.getId() + '.' + i));
     var requestList = sc.zip(objStream).collect(pair -> {

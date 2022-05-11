@@ -1,13 +1,10 @@
 package org.hpcclab.oaas.storage.rest;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.repository.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.hpcclab.oaas.storage.ContextUtil;
@@ -19,12 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
 
 @Path("/contents")
 @ApplicationScoped

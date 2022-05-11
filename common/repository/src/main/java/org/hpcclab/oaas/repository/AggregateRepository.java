@@ -8,11 +8,13 @@ import org.hpcclab.oaas.model.object.ObjectReference;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AggregateRepository {
+
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
@@ -22,6 +24,8 @@ public class AggregateRepository {
 
   public TaskContext getTaskContext(String id) {
     var main = objectRepo.get(id);
+    Objects.requireNonNull(main);
+
     var tc = new TaskContext();
     tc.setOutput(main);
 //    tc.setOutputCls(clsRepo.get(main.getCls()));

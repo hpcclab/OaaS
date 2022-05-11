@@ -2,8 +2,9 @@ package org.hpcclab.oaas.repository;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.mapper.ModelMapper;
-import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.infinispan.client.hotrod.RemoteCache;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class OaasFuncRepository extends AbstractIfnpRepository<String, OaasFunction> {
 
-  private static final String NAME = OaasFunction.class.getName();
+  private static final String NAME = OaasSchema.makeFullName(OaasFunction.class);
   @Inject
   ModelMapper oaasMapper;
 

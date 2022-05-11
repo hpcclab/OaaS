@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
-import org.hpcclab.oaas.model.object.OaasObjectType;
+import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeepOaasClass {
   String name;
-  OaasObjectType objectType;
+  ObjectType objectType;
   OaasObjectState.StateType stateType;
   Set<DeepOaasFunctionBinding> functions;
   StateSpecification stateSpec;

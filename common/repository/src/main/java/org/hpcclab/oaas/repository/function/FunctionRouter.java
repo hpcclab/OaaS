@@ -14,13 +14,9 @@ import javax.inject.Inject;
 public class FunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
 
-//  @Inject
   LogicalFunctionHandler logicalFunctionHandler;
-//  @Inject
   MacroFunctionHandler macroFunctionHandler;
-//  @Inject
   TaskFunctionHandler taskFunctionHandler;
-//  @Inject
   ContextLoader contextLoader;
 
   @Inject
@@ -34,7 +30,7 @@ public class FunctionRouter {
     this.contextLoader = contextLoader;
   }
 
-  public Uni<FunctionExecContext> functionCall(FunctionExecContext context) {
+  public Uni<FunctionExecContext> invoke(FunctionExecContext context) {
     var type = context.getFunction().getType();
     return switch (type) {
       case LOGICAL -> logicalFunctionHandler.call(context);
@@ -49,15 +45,15 @@ public class FunctionRouter {
 //    return functionCall(ctx);
 //  }
 
-  public Uni<FunctionExecContext> functionCall(ObjectAccessLangauge request) {
+  public Uni<FunctionExecContext> invoke(ObjectAccessLangauge request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
-      .flatMap(this::functionCall);
+      .flatMap(this::invoke);
   }
 
 
   public void validate(FunctionExecContext context) {
-    if (context.getFunction().getName().startsWith("builtin.logical")) {
+    if (context.getFunction().getType()==OaasFunctionType.LOGICAL) {
       logicalFunctionHandler.validate(context);
     }
     if (context.getFunction().getType()==OaasFunctionType.MACRO) {

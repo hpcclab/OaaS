@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.object;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,12 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasObjectOrigin implements Serializable {
+public class ObjectOrigin implements Serializable {
   String rootId;
   String parentId;
   String funcName;
@@ -25,10 +25,10 @@ public class OaasObjectOrigin implements Serializable {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   List<String> inputs = List.of();
 
-  public OaasObjectOrigin() {
+  public ObjectOrigin() {
   }
 
-  public OaasObjectOrigin(String rootId, String parentId, String funcName, Map<String, String> args, List<String> inputs) {
+  public ObjectOrigin(String rootId, String parentId, String funcName, Map<String, String> args, List<String> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
@@ -37,7 +37,7 @@ public class OaasObjectOrigin implements Serializable {
   }
 
   @ProtoFactory
-  public OaasObjectOrigin(String rootId, String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
+  public ObjectOrigin(String rootId, String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
     this.rootId = rootId;
     this.parentId = parentId;
     this.funcName = funcName;
@@ -45,8 +45,8 @@ public class OaasObjectOrigin implements Serializable {
     this.inputs = inputs;
   }
 
-  public OaasObjectOrigin copy() {
-    return new OaasObjectOrigin(
+  public ObjectOrigin copy() {
+    return new ObjectOrigin(
       rootId,
       parentId,
       funcName,
@@ -99,5 +99,10 @@ public class OaasObjectOrigin implements Serializable {
   @ProtoField(5)
   public List<String> getInputs() {
     return inputs;
+  }
+
+  @JsonIgnore
+  public boolean isRoot() {
+    return parentId == null;
   }
 }

@@ -27,7 +27,7 @@ public class InfinispanInit {
                        mode="ASYNC">
       <indexing storage="local-heap">
         <indexed-entities>
-          <indexed-entity>org.hpcclab.oaas.model.proto.OaasObject</indexed-entity>
+          <indexed-entity>org.hpcclab.oaas.model.object.OaasObject</indexed-entity>
         </indexed-entities>
       </indexing>
       <memory storage="OFF_HEAP"
@@ -49,7 +49,7 @@ public class InfinispanInit {
                        mode="SYNC">
       <indexing>
         <indexed-entities>
-          <indexed-entity>org.hpcclab.oaas.model.proto.OaasObject</indexed-entity>
+          <indexed-entity>org.hpcclab.oaas.model.object.OaasObject</indexed-entity>
         </indexed-entities>
       </indexing>
       <memory storage="OFF_HEAP"
@@ -166,14 +166,14 @@ public class InfinispanInit {
             .nearCacheMaxEntries(funcCacheConfig.nearCacheMaxEntry());
         }
       });
-    remoteCacheManager.getConfiguration()
-      .addRemoteCache(TASK_COMPLETION_CACHE, c -> {
-        if (completionCacheConfig.nearCacheMaxEntry() > 0) {
-          c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(completionCacheConfig.nearCacheMaxEntry());
-        }
-        c.forceReturnValues(false);
-      });
+//    remoteCacheManager.getConfiguration()
+//      .addRemoteCache(TASK_COMPLETION_CACHE, c -> {
+//        if (completionCacheConfig.nearCacheMaxEntry() > 0) {
+//          c.nearCacheMode(NearCacheMode.INVALIDATED)
+//            .nearCacheMaxEntries(completionCacheConfig.nearCacheMaxEntry());
+//        }
+//        c.forceReturnValues(false);
+//      });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(TASK_STATE_CACHE, c -> {
         if (stateCacheConfig.nearCacheMaxEntry() > 0) {
@@ -188,15 +188,17 @@ public class InfinispanInit {
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
       remoteCacheManager.administration().getOrCreateCache(OBJECT_CACHE, new XMLStringConfiguration(distTemplate
         .formatted(OBJECT_CACHE, objectCacheConfig.maxSize())));
+
       remoteCacheManager.administration().getOrCreateCache(CLASS_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(CLASS_CACHE, "16MB")));
+
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(FUNCTION_CACHE, "16MB")));
 
-      distTemplate = completionCacheConfig.persist() ?
-        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
-      remoteCacheManager.administration().getOrCreateCache(TASK_COMPLETION_CACHE, new XMLStringConfiguration(distTemplate
-        .formatted(TASK_COMPLETION_CACHE, completionCacheConfig.maxSize())));
+//      distTemplate = completionCacheConfig.persist() ?
+//        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
+//      remoteCacheManager.administration().getOrCreateCache(TASK_COMPLETION_CACHE, new XMLStringConfiguration(distTemplate
+//        .formatted(TASK_COMPLETION_CACHE, completionCacheConfig.maxSize())));
 
       distTemplate = stateCacheConfig.persist() ?
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;

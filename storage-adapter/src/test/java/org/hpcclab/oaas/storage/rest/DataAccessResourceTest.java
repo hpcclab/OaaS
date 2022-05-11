@@ -7,8 +7,8 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.object.OaasObjectType;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
@@ -33,7 +33,7 @@ class DataAccessResourceTest {
   public static void beforeAll() {
     var testCls = new OaasClass();
     testCls.setName("test");
-    testCls.setObjectType(OaasObjectType.SIMPLE);
+    testCls.setObjectType(ObjectType.SIMPLE);
     testCls.setStateType(OaasObjectState.StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(

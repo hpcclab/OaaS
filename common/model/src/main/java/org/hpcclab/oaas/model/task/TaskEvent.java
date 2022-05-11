@@ -3,13 +3,10 @@ package org.hpcclab.oaas.model.task;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.object.ObjectOrigin;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,7 +24,7 @@ public class TaskEvent {
   public enum Type {
     CREATE, NOTIFY, COMPLETE
   }
-  public TaskEvent generatePrq(OaasObjectOrigin origin) {
+  public TaskEvent generatePrq(ObjectOrigin origin) {
     prqTasks = new HashSet<>(origin.getInputs());
     if (origin.getParentId() != null)
       prqTasks.add(origin.getParentId());

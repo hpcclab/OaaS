@@ -7,7 +7,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model.proto;
+package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
@@ -50,11 +50,6 @@ public class TaskCompletion {
   public String getId() {
     return id;
   }
-
-//  @ProtoField(4)
-//  public String getFunctionName() {
-//    return functionName;
-//  }
 
   @ProtoField(5)
   public TaskStatus getStatus() {

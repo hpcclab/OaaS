@@ -2,7 +2,7 @@ package org.hpcclab.oaas.iface.service;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.model.function.OaasFunction;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;

@@ -173,7 +173,7 @@
             }
           },
           "origin" : {
-            "$ref" : "#/components/schemas/OaasObjectOrigin"
+            "$ref" : "#/components/schemas/ObjectOrigin"
           },
           "originHash" : {
             "format" : "int64",
@@ -189,37 +189,11 @@
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState"
           },
+          "status" : {
+            "$ref" : "#/components/schemas/ObjectStatus"
+          },
           "streamInfo" : {
             "$ref" : "#/components/schemas/StreamInfo"
-          },
-          "task" : {
-            "$ref" : "#/components/schemas/TaskCompletion"
-          }
-        }
-      },
-      "OaasObjectOrigin" : {
-        "type" : "object",
-        "properties" : {
-          "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "funcName" : {
-            "type" : "string"
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "parentId" : {
-            "type" : "string"
-          },
-          "rootId" : {
-            "type" : "string"
           }
         }
       },
@@ -263,6 +237,32 @@
           }
         }
       },
+      "ObjectOrigin" : {
+        "type" : "object",
+        "properties" : {
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "funcName" : {
+            "type" : "string"
+          },
+          "inputs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "parentId" : {
+            "type" : "string"
+          },
+          "rootId" : {
+            "type" : "string"
+          }
+        }
+      },
       "ObjectReference" : {
         "type" : "object",
         "properties" : {
@@ -271,6 +271,29 @@
           },
           "object" : {
             "type" : "string"
+          }
+        }
+      },
+      "ObjectStatus" : {
+        "type" : "object",
+        "properties" : {
+          "completionTime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "createdTime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "debugLog" : {
+            "type" : "string"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/TaskStatus"
+          },
+          "submittedTime" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         }
       },
@@ -313,7 +336,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "IDLE", "SUCCEEDED" ],
         "type" : "string"
       }
     }

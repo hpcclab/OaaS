@@ -30,12 +30,6 @@ class ClassResourceTest {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200);
-    given()
-      .when().get("/api/classes/test.dummy.simple/deep")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200);
   }
 
 //  @Test

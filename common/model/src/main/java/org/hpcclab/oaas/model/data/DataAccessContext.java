@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 
-import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Accessors(chain = true)

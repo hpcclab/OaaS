@@ -3,36 +3,34 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasFunction;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.object.ObjectOrigin;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.object.OaasObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FunctionExecContext {
+public class FunctionExecContext extends TaskContext {
+  //  OaasObject main;
+//  List<OaasObject> inputs = List.of();
+//  OaasObject output;
+//  OaasFunction function;
   FunctionExecContext parent;
-  OaasObject main;
   OaasClass mainCls;
   OaasObject entry;
-//  boolean reactive = true;
-  OaasFunction function;
   OaasClass outputCls;
-  OaasObject output;
   List<OaasObject> taskOutputs = new ArrayList<>();
   OaasFunctionBinding binding;
-//  FunctionAccessModifier functionAccess;
   Map<String, String> args = Map.of();
-  List<OaasObject> additionalInputs = List.of();
   Map<String, OaasObject> workflowMap = Map.of();
 
-
-  public OaasObjectOrigin createOrigin() {
+  public ObjectOrigin createOrigin() {
     var finalArgs = binding.getDefaultArgs();
     if (finalArgs == null) {
       finalArgs = args;
@@ -41,17 +39,31 @@ public class FunctionExecContext {
       finalArgs.putAll(args);
     }
 
-    return new OaasObjectOrigin(
-      main.getOrigin().getRootId(),
-      main.getId(),
+    return new ObjectOrigin(
+      getMain().getOrigin().getRootId(),
+      getMain().getId(),
       binding.getName(),
       finalArgs,
-      additionalInputs.stream().map(OaasObject::getId)
+      getInputs().stream().map(OaasObject::getId)
         .toList()
     );
   }
 
   public OaasObject resolve(String ref) {
     return workflowMap.get(ref);
+  }
+
+  public void addTaskOutput(OaasObject object) {
+    taskOutputs.add(object);
+    if (parent != null) {
+      parent.addTaskOutput(object);
+    }
+  }
+
+  public void addTaskOutput(Collection<OaasObject> objects) {
+    taskOutputs.addAll(objects);
+    if (parent != null) {
+      parent.addTaskOutput(objects);
+    }
   }
 }

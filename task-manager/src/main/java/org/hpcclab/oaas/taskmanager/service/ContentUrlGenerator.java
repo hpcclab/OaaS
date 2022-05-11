@@ -1,15 +1,13 @@
 package org.hpcclab.oaas.taskmanager.service;
 
 import io.vertx.core.json.Json;
-import org.apache.kafka.common.protocol.types.Field;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Base64;
-import java.util.UUID;
 
 @ApplicationScoped
 public class ContentUrlGenerator {

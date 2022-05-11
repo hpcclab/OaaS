@@ -1,22 +1,21 @@
-package org.hpcclab.oaas.model.proto;
+package org.hpcclab.oaas.model.object;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
-import org.hpcclab.oaas.model.object.ObjectAccessModifier;
-import org.hpcclab.oaas.model.object.StreamInfo;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -26,7 +25,7 @@ public class OaasObject {
   @ProtoField(1)
   String id;
   @ProtoField(2)
-  OaasObjectOrigin origin;
+  ObjectOrigin origin;
   @ProtoField(3)
   Long originHash;
 //  @ProtoField(4)
@@ -44,7 +43,7 @@ public class OaasObject {
   @ProtoField(9)
   String embeddedRecord;
   @ProtoField(10)
-  TaskCompletion task;
+  ObjectStatus status;
   @ProtoField(11)
   StreamInfo streamInfo;
 
@@ -52,7 +51,7 @@ public class OaasObject {
   }
 
   @ProtoFactory
-  public OaasObject(String id, OaasObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, TaskCompletion task, StreamInfo streamInfo) {
+  public OaasObject(String id, ObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {
     this.id = id;
     this.origin = origin;
     this.originHash = originHash;
@@ -61,7 +60,7 @@ public class OaasObject {
     this.state = state;
     this.refs = refs;
     this.embeddedRecord = embeddedRecord;
-    this.task = task;
+    this.status = status;
     this.streamInfo = streamInfo;
   }
 
@@ -101,5 +100,15 @@ public class OaasObject {
 
   public void setEmbeddedRecord(String embeddedRecord) {
     this.embeddedRecord = embeddedRecord;
+  }
+
+  public void updateStatus(TaskCompletion taskCompletion) {
+    if (status == null) status = new ObjectStatus();
+    status.set(taskCompletion);
+  }
+
+  @JsonIgnore
+  public boolean isReadyToUsed() {
+    return origin.isRoot() || status.getTaskStatus() == TaskStatus.SUCCEEDED;
   }
 }

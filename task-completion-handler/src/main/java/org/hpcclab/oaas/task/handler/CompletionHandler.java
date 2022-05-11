@@ -1,17 +1,10 @@
 package org.hpcclab.oaas.task.handler;
 
-import io.opentelemetry.context.Context;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.reactive.messaging.MutinyEmitter;
-import io.smallrye.reactive.messaging.TracingMetadata;
 import io.vertx.ext.web.RoutingContext;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.model.ErrorMessage;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,8 +3,7 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasObjectRequirement;
+import org.hpcclab.oaas.model.object.ObjectRequirement;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -14,26 +14,26 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunctionValidation implements Serializable {
-  private OaasObjectRequirement bindingRequirement;
-  private List<OaasObjectRequirement> inputs = List.of();
+  private ObjectRequirement bindingRequirement;
+  private List<ObjectRequirement> inputs = List.of();
 
   public OaasFunctionValidation() {
   }
 
   @ProtoFactory
-  public OaasFunctionValidation(OaasObjectRequirement bindingRequirement,
-                                List<OaasObjectRequirement> inputs) {
+  public OaasFunctionValidation(ObjectRequirement bindingRequirement,
+                                List<ObjectRequirement> inputs) {
     this.bindingRequirement = bindingRequirement;
     this.inputs = inputs;
   }
 
   @ProtoField(1)
-  public OaasObjectRequirement getBindingRequirement() {
+  public ObjectRequirement getBindingRequirement() {
     return bindingRequirement;
   }
 
   @ProtoField(2)
-  public List<OaasObjectRequirement> getInputs() {
+  public List<ObjectRequirement> getInputs() {
     return inputs;
   }
 }

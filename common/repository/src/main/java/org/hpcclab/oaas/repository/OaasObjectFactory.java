@@ -3,22 +3,33 @@ package org.hpcclab.oaas.repository;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.eclipse.collections.api.factory.Maps;
-import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class OaasObjectFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger( OaasObjectFactory.class );
 
+  IdGenerator idGenerator;
+
+  @Inject
+  public OaasObjectFactory(IdGenerator idGenerator) {
+    this.idGenerator = idGenerator;
+  }
+  public OaasObject createBase(ObjectConstructRequest construct,
+                               OaasClass cls) {
+    return createBase(construct,cls, idGenerator.generate(construct));
+  }
   public OaasObject createBase(ObjectConstructRequest construct,
                                OaasClass cls,
                                String id) {
@@ -26,8 +37,11 @@ public class OaasObjectFactory {
     obj.setId(id);
     obj.setEmbeddedRecord(construct.getEmbeddedRecord());
     obj.setLabels(construct.getLabels());
-    obj.setOrigin(new OaasObjectOrigin().setRootId(id));
+    obj.setOrigin(new ObjectOrigin().setRootId(id));
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
+    var status = new ObjectStatus();
+    status.setCreatedTime(System.currentTimeMillis());
+    obj.setStatus(status);
     return obj;
   }
 
@@ -47,6 +61,10 @@ public class OaasObjectFactory {
       }
     }
     obj.setOrigin(ctx.createOrigin());
+    obj.setId(idGenerator.generate(ctx));
+    var status = new ObjectStatus();
+    status.setCreatedTime(System.currentTimeMillis());
+    obj.setStatus(status);
     return obj;
   }
 }

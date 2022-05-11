@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
+@Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunctionBinding {
   @ProtoField(1)

@@ -111,21 +111,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasClass'
-  /api/classes/{name}/deep:
-    get:
-      parameters:
-      - name: name
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeepOaasClass'
   /api/classes/{name}/objects:
     get:
       parameters:
@@ -214,8 +199,6 @@ paths:
                 $ref: '#/components/schemas/OaasFunction'
   /api/object-construct:
     post:
-      tags:
-      - Object Construct Resource
       requestBody:
         content:
           application/json:
@@ -277,36 +260,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
-  /api/objects/{id}/completion:
-    get:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TaskCompletion'
-  /api/objects/{id}/deep:
-    get:
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeepOaasObject'
   /api/stats/class/client:
     get:
       tags:
@@ -386,66 +339,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasFunction'
-    DeepOaasClass:
-      type: object
-      properties:
-        functions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/DeepOaasFunctionBinding'
-        name:
-          type: string
-        objectType:
-          $ref: '#/components/schemas/OaasObjectType'
-        parents:
-          type: array
-          items:
-            type: string
-        refSpec:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ReferenceSpecification'
-        stateSpec:
-          $ref: '#/components/schemas/StateSpecification'
-        stateType:
-          $ref: '#/components/schemas/StateType'
-    DeepOaasFunctionBinding:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/FunctionAccessModifier'
-        alias:
-          type: string
-        function:
-          $ref: '#/components/schemas/OaasFunction'
-    DeepOaasObject:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
-        cls:
-          $ref: '#/components/schemas/DeepOaasClass'
-        id:
-          $ref: '#/components/schemas/UUID'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        origin:
-          $ref: '#/components/schemas/OaasObjectOrigin'
-        originHash:
-          format: int64
-          type: integer
-        refs:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectReference'
-        state:
-          $ref: '#/components/schemas/OaasObjectState'
     FunctionAccessModifier:
       enum:
       - INTERNAL
@@ -529,7 +422,7 @@ components:
         name:
           type: string
         objectType:
-          $ref: '#/components/schemas/OaasObjectType'
+          $ref: '#/components/schemas/ObjectType'
         parents:
           uniqueItems: true
           type: array
@@ -608,11 +501,11 @@ components:
       type: object
       properties:
         bindingRequirement:
-          $ref: '#/components/schemas/OaasObjectRequirement'
+          $ref: '#/components/schemas/ObjectRequirement'
         inputs:
           type: array
           items:
-            $ref: '#/components/schemas/OaasObjectRequirement'
+            $ref: '#/components/schemas/ObjectRequirement'
     OaasObject:
       type: object
       properties:
@@ -628,7 +521,7 @@ components:
           items:
             type: string
         origin:
-          $ref: '#/components/schemas/OaasObjectOrigin'
+          $ref: '#/components/schemas/ObjectOrigin'
         originHash:
           format: int64
           type: integer
@@ -639,37 +532,10 @@ components:
             $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        status:
+          $ref: '#/components/schemas/ObjectStatus'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo'
-        task:
-          $ref: '#/components/schemas/TaskCompletion'
-    OaasObjectOrigin:
-      type: object
-      properties:
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        funcName:
-          type: string
-        inputs:
-          type: array
-          items:
-            type: string
-        parentId:
-          type: string
-        rootId:
-          type: string
-    OaasObjectRequirement:
-      type: object
-      properties:
-        requiredClass:
-          type: string
-        requiredLabels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
     OaasObjectState:
       type: object
       properties:
@@ -681,12 +547,6 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/StateType'
-    OaasObjectType:
-      enum:
-      - COMPOUND
-      - SIMPLE
-      - STREAM
-      type: string
     OaasWorkflowExport:
       type: object
       properties:
@@ -715,12 +575,6 @@ components:
             type: string
         target:
           type: string
-    ObjectAccessModifier:
-      enum:
-      - FINAL
-      - INTERNAL
-      - PUBLIC
-      type: string
     ObjectConstructRequest:
       type: object
       properties:
@@ -764,6 +618,23 @@ components:
           type: object
           additionalProperties:
             type: string
+    ObjectOrigin:
+      type: object
+      properties:
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        funcName:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: string
+        parentId:
+          type: string
+        rootId:
+          type: string
     ObjectReference:
       type: object
       properties:
@@ -771,6 +642,38 @@ components:
           type: string
         object:
           type: string
+    ObjectRequirement:
+      type: object
+      properties:
+        cls:
+          type: string
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+    ObjectStatus:
+      type: object
+      properties:
+        completionTime:
+          format: int64
+          type: integer
+        createdTime:
+          format: int64
+          type: integer
+        debugLog:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        submittedTime:
+          format: int64
+          type: integer
+    ObjectType:
+      enum:
+      - COMPOUND
+      - SIMPLE
+      - STREAM
+      type: string
     PaginationOaasClass:
       type: object
       properties:
@@ -903,37 +806,16 @@ components:
         count:
           format: int32
           type: integer
-    TaskCompletion:
-      type: object
-      properties:
-        completionTime:
-          format: int64
-          type: integer
-        debugLog:
-          type: string
-        embeddedRecord:
-          type: string
-        id:
-          type: string
-        startTime:
-          format: int64
-          type: integer
-        status:
-          $ref: '#/components/schemas/TaskStatus'
     TaskStatus:
       enum:
       - DEPENDENCY_FAILED
       - DOING
       - FAILED
+      - IDLE
       - SUCCEEDED
-      - WAITING
       type: string
     Type:
       enum:
       - DURABLE
       - EPHEMERAL
-      type: string
-    UUID:
-      format: uuid
-      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
       type: string

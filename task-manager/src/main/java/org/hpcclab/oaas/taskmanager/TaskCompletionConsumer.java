@@ -1,11 +1,9 @@
 package org.hpcclab.oaas.taskmanager;
 
-import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
-import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +15,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Path("/api/task-completions")

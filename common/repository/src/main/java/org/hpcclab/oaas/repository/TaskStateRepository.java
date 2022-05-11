@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.repository;
 
 import io.quarkus.infinispan.client.Remote;
-import org.hpcclab.oaas.model.proto.TaskState;
+import org.hpcclab.oaas.model.task.TaskState;
 import org.infinispan.client.hotrod.RemoteCache;
 
 import javax.annotation.PostConstruct;

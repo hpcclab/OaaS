@@ -3,7 +3,6 @@ package org.hpcclab.oaas.model.object;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.proto.OaasObject;
 
 import java.util.List;
 import java.util.Map;

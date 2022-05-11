@@ -118,7 +118,7 @@ components:
           items:
             type: string
         origin:
-          $ref: '#/components/schemas/OaasObjectOrigin'
+          $ref: '#/components/schemas/ObjectOrigin'
         originHash:
           format: int64
           type: integer
@@ -129,27 +129,10 @@ components:
             $ref: '#/components/schemas/ObjectReference'
         state:
           $ref: '#/components/schemas/OaasObjectState'
+        status:
+          $ref: '#/components/schemas/ObjectStatus'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo'
-        task:
-          $ref: '#/components/schemas/TaskCompletion'
-    OaasObjectOrigin:
-      type: object
-      properties:
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        funcName:
-          type: string
-        inputs:
-          type: array
-          items:
-            type: string
-        parentId:
-          type: string
-        rootId:
-          type: string
     OaasObjectState:
       type: object
       properties:
@@ -176,6 +159,23 @@ components:
             type: string
         target:
           type: string
+    ObjectOrigin:
+      type: object
+      properties:
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        funcName:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: string
+        parentId:
+          type: string
+        rootId:
+          type: string
     ObjectReference:
       type: object
       properties:
@@ -183,6 +183,22 @@ components:
           type: string
         object:
           type: string
+    ObjectStatus:
+      type: object
+      properties:
+        completionTime:
+          format: int64
+          type: integer
+        createdTime:
+          format: int64
+          type: integer
+        debugLog:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        submittedTime:
+          format: int64
+          type: integer
     StateType:
       enum:
       - COLLECTION
@@ -216,6 +232,6 @@ components:
       - DEPENDENCY_FAILED
       - DOING
       - FAILED
+      - IDLE
       - SUCCEEDED
-      - WAITING
       type: string

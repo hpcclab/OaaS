@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model.proto;
+package org.hpcclab.oaas.model.cls;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -6,13 +6,12 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.cls.ReferenceSpecification;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
-import org.hpcclab.oaas.model.object.OaasObjectType;
+import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,7 +23,7 @@ public class OaasClass {
   @ProtoField(2)
   String genericType;
   @ProtoField(3)
-  OaasObjectType objectType;
+  ObjectType objectType;
   @ProtoField(4)
   OaasObjectState.StateType stateType;
   @ProtoField(5)
@@ -40,7 +39,7 @@ public class OaasClass {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String genericType, OaasObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
+  public OaasClass(String name, String genericType, ObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
     this.name = name;
     this.genericType = genericType;
     this.objectType = objectType;

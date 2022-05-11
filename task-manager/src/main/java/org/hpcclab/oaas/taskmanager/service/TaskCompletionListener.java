@@ -2,11 +2,10 @@ package org.hpcclab.oaas.taskmanager.service;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.quarkus.infinispan.client.Remote;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;

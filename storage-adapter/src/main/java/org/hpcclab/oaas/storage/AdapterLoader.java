@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.storage;
 
-import io.grpc.Internal;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.storage.adapter.InternalDataAllocateRequest;
 import org.hpcclab.oaas.storage.adapter.S3Adapter;
@@ -15,7 +14,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AdapterLoader {

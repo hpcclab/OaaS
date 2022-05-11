@@ -1,8 +1,7 @@
 package org.hpcclab.oaas.taskmanager.factory;
 
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.OaasTask;

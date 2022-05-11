@@ -3,12 +3,10 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.mutiny.core.Vertx;
-import org.eclipse.microprofile.context.ManagedExecutor;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
 import org.hpcclab.oaas.repository.OaasObjectRepository;
@@ -22,8 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,7 +86,7 @@ public class TaskEventManager {
     return objectRepo.listAsync(tcMap.keySet())
       .flatMap(objMap -> {
         for (OaasObject obj : objMap.values()) {
-          obj.setTask(tcMap.get(obj.getId()));
+          obj.updateStatus(tcMap.get(obj.getId()));
         }
         return objectRepo.putAllAsync(objMap);
       })

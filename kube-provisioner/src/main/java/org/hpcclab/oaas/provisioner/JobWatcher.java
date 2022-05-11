@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.json.Json;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;

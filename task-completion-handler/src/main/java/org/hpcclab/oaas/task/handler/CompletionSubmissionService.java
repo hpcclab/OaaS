@@ -2,7 +2,7 @@ package org.hpcclab.oaas.task.handler;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;

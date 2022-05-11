@@ -5,7 +5,7 @@ import org.hamcrest.Matchers;
 import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class ObjectResourceTest {
     root = TestUtils.create(root);
     TestUtils.getObject(root.getId());
     assertTrue(TestUtils.listObject().size() >= 1);
-    TestUtils.getObjectDeep(root.getId());
+    TestUtils.getObject(root.getId());
   }
 
   @Test

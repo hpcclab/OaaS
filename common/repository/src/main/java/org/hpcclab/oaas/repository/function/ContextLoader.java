@@ -7,7 +7,7 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasWorkflowStep;
-import org.hpcclab.oaas.model.proto.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class ContextLoader {
 //      .flatMap(ignore -> setClsAndFuncAsync(ctx, request.getFunctionName()))
       .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
       .flatMap(ignore -> objectRepo.listByIdsAsync(request.getInputs()))
-      .map(ctx::setAdditionalInputs);
+      .map(ctx::setInputs);
   }
 
   public FunctionExecContext loadCtx(ObjectAccessLangauge request) {
@@ -47,33 +47,9 @@ public class ContextLoader {
     setClsAndFunc(ctx, request.getFunctionName());
     var inputIds = request.getInputs();
     var inputs =objectRepo.listByIds(inputIds);
-    ctx.setAdditionalInputs(inputs);
+    ctx.setInputs(inputs);
     return ctx;
   }
-
-//  public Uni<FunctionExecContext> setClsAndFuncAsync(FunctionExecContext ctx,
-//                                                     String funcName){
-//    return funcRepo.getAsync(funcName)
-//      .onItem().ifNull().failWith(() -> NoStackException.notFoundFunc(funcName, 409))
-//      .map(ctx::setFunction)
-//      .flatMap(ignore -> {
-//        if (ctx.getFunction().getOutputCls() != null)
-//          return clsRepo.getAsync(ctx.getFunction().getOutputCls())
-//            .onItem().ifNull().failWith(() -> NoStackException.notFoundCls(ctx.getFunction().getOutputCls(), 409));
-//        return Uni.createFrom().nullItem();
-//      })
-//      .map(ctx::setOutputCls)
-//      .flatMap(ignore -> clsRepo.getAsync(ctx.getMain().getCls()))
-//      .map(ctx::setMainCls)
-//      .map(Unchecked.function(ignore -> {
-//        var binding = clsRepo.findFunction(
-//          ctx.getMainCls(), funcName);
-//        if (binding.isEmpty()) throw new NoStackException(
-//          "Function(" + funcName + ") can be not executed on object", 400);
-//        ctx.setFunctionAccess(binding.get().getAccess());
-//        return ctx;
-//      }));
-//  }
 
   public FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
     var main = ctx.getMain();
@@ -126,7 +102,7 @@ public class ContextLoader {
     return Multi.createFrom().iterable(step.getInputRefs())
       .onItem().transformToUniAndConcatenate(ref -> resolveTarget(baseCtx, ref))
       .collect().asList()
-      .map(baseCtx::setAdditionalInputs);
+      .map(baseCtx::setInputs);
   }
 
   public Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {

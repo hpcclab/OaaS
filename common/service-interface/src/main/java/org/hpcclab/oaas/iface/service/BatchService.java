@@ -3,8 +3,8 @@ package org.hpcclab.oaas.iface.service;
 import io.smallrye.mutiny.Uni;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.function.OaasFunction;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

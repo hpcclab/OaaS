@@ -2,9 +2,7 @@ package org.hpcclab.oaas.model.object;
 
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
-import java.util.stream.Stream;
-
-public enum OaasObjectType {
+public enum ObjectType {
   @ProtoEnumValue(1)
   SIMPLE,
   @ProtoEnumValue(2)
