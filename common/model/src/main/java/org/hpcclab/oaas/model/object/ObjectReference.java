@@ -5,30 +5,20 @@ import lombok.experimental.Accessors;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.UUID;
-
 @Data
 @Accessors(chain = true)
 public class ObjectReference {
+  @ProtoField(1)
   String name;
-  String object;
+  @ProtoField(2)
+  String objId;
 
   public ObjectReference() {
   }
 
   @ProtoFactory
-  public ObjectReference(String name, String object) {
+  public ObjectReference(String name, String objId) {
     this.name = name;
-    this.object = object;
-  }
-
-  @ProtoField(1)
-  public String getName() {
-    return name;
-  }
-
-  @ProtoField(2)
-  public String getObject() {
-    return object;
+    this.objId = objId;
   }
 }

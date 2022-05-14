@@ -21,9 +21,9 @@ class FunctionRouterTest {
 
   @BeforeEach
   public void setup() {
-    List<OaasObject> objects = TestUtil.testObjects();
-    List<OaasClass> classes = TestUtil.testClasses();
-    List<OaasFunction> functions = TestUtil.testFunctions();
+    List<OaasObject> objects = MockupData.testObjects();
+    List<OaasClass> classes = MockupData.testClasses();
+    List<OaasFunction> functions = MockupData.testFunctions();
     var cl = TestUtil.mockContextLoader(objects, classes, functions);
     objectRepo = cl.objectRepo;
     var idGen = new DefaultIdGenerator();

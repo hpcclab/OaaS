@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface GraphStateManager {
@@ -12,5 +13,5 @@ public interface GraphStateManager {
   Uni<Boolean> containEdge(String srcId, String desId);
   Uni<Boolean> containEdge(FunctionExecContext hint, String srcId, String desId);
   Uni<Void> persistEdge(String srcId, String desId);
-  Uni<Void> persistEdge(Map<String, String> edgeMap);
+  Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap);
 }

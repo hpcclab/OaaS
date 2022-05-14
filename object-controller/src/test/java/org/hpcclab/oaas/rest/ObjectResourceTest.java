@@ -56,8 +56,8 @@ public class ObjectResourceTest {
     var compound = new OaasObject();
     compound.setCls("test.dummy.compound");
     compound.setRefs(Set.of(
-        new ObjectReference().setName("obj1").setObject(obj1.getId()),
-        new ObjectReference().setName("obj2").setObject(obj2.getId())
+        new ObjectReference().setName("obj1").setObjId(obj1.getId()),
+        new ObjectReference().setName("obj2").setObjId(obj2.getId())
       )
     );
     compound = TestUtils.create(compound);

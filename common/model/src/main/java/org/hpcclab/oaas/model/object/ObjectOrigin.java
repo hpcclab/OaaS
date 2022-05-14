@@ -16,42 +16,48 @@ import java.util.Map;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectOrigin implements Serializable {
-  String rootId;
+//  String rootId;
+  @ProtoField(2)
   String parentId;
+  @ProtoField(3)
   String funcName;
+  @ProtoField(number = 4, javaType = HashMap.class)
   Map<String, String> args;
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @ProtoField(5)
   List<String> inputs = List.of();
+
+  @ProtoField(value = 6, defaultValue = "true")
+  boolean wfi = true;
 
   public ObjectOrigin() {
   }
 
-  public ObjectOrigin(String rootId, String parentId, String funcName, Map<String, String> args, List<String> inputs) {
-    this.rootId = rootId;
+  public ObjectOrigin(String parentId, String funcName, Map<String, String> args, List<String> inputs, boolean wfi) {
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
     this.inputs = inputs;
+    this.wfi = wfi;
   }
 
   @ProtoFactory
-  public ObjectOrigin(String rootId, String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
-    this.rootId = rootId;
+  public ObjectOrigin(String parentId, String funcName, HashMap<String, String> args, List<String> inputs, boolean wfi) {
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
     this.inputs = inputs;
+    this.wfi = wfi;
   }
 
   public ObjectOrigin copy() {
     return new ObjectOrigin(
-      rootId,
       parentId,
       funcName,
       args==null ? null:Map.copyOf(args),
-      inputs==null ? null:List.copyOf(inputs)
+      inputs==null ? null:List.copyOf(inputs),
+      wfi
     );
   }
 
@@ -74,31 +80,6 @@ public class ObjectOrigin implements Serializable {
     var crc = new PureJavaCrc32();
       crc.update(sb.toString().getBytes(StandardCharsets.UTF_8));
     return crc.hashCode();
-  }
-
-  @ProtoField(1)
-  public String getRootId() {
-    return rootId;
-  }
-
-  @ProtoField(2)
-  public String getParentId() {
-    return parentId;
-  }
-
-  @ProtoField(3)
-  public String getFuncName() {
-    return funcName;
-  }
-
-  @ProtoField(number = 4, javaType = HashMap.class)
-  public Map<String, String> getArgs() {
-    return args;
-  }
-
-  @ProtoField(5)
-  public List<String> getInputs() {
-    return inputs;
   }
 
   @JsonIgnore

@@ -17,13 +17,13 @@ public class FunctionRouter {
   LogicalFunctionHandler logicalFunctionHandler;
   MacroFunctionHandler macroFunctionHandler;
   TaskFunctionHandler taskFunctionHandler;
-  ContextLoader contextLoader;
+  RepoContextLoader contextLoader;
 
   @Inject
   public FunctionRouter(LogicalFunctionHandler logicalFunctionHandler,
                         MacroFunctionHandler macroFunctionHandler,
                         TaskFunctionHandler taskFunctionHandler,
-                        ContextLoader contextLoader) {
+                        RepoContextLoader contextLoader) {
     this.logicalFunctionHandler = logicalFunctionHandler;
     this.macroFunctionHandler = macroFunctionHandler;
     this.taskFunctionHandler = taskFunctionHandler;

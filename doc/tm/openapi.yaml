@@ -174,14 +174,14 @@ components:
             type: string
         parentId:
           type: string
-        rootId:
-          type: string
+        wfi:
+          type: boolean
     ObjectReference:
       type: object
       properties:
         name:
           type: string
-        object:
+        objId:
           type: string
     ObjectStatus:
       type: object
@@ -199,6 +199,10 @@ components:
           type: integer
         taskStatus:
           $ref: '#/components/schemas/TaskStatus'
+        waitFor:
+          type: array
+          items:
+            type: string
     StateType:
       enum:
       - COLLECTION

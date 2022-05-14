@@ -37,7 +37,7 @@ public class OaasObjectFactory {
     obj.setId(id);
     obj.setEmbeddedRecord(construct.getEmbeddedRecord());
     obj.setLabels(construct.getLabels());
-    obj.setOrigin(new ObjectOrigin().setRootId(id));
+    obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setCreatedTime(System.currentTimeMillis());

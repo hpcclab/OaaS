@@ -26,7 +26,7 @@ public class MacroFunctionHandler implements FunctionHandler {
   @Inject
   FunctionRouter router;
   @Inject
-  ContextLoader contextLoader;
+  RepoContextLoader contextLoader;
   @Inject
   OaasObjectFactory objectFactory;
 
@@ -70,7 +70,7 @@ public class MacroFunctionHandler implements FunctionHandler {
         .stream()
         .map(export -> new ObjectReference()
           .setName(export.getAs())
-          .setObject(ctx.getWorkflowMap()
+          .setObjId(ctx.getWorkflowMap()
             .get(export.getFrom()).getId()))
         .collect(Collectors.toUnmodifiableSet());
       output.setRefs(mem);

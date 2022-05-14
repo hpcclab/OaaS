@@ -19,16 +19,13 @@ import java.util.Set;
 public class TestUtil {
 
 
-  public static ContextLoader mockContextLoader(List<OaasObject> objects,
-                                                List<OaasClass> classes,
-                                                List<OaasFunction> functions) {
+  public static RepoContextLoader mockContextLoader(List<OaasObject> objects,
+                                                    List<OaasClass> classes,
+                                                    List<OaasFunction> functions) {
     var objRepo = mockObjectRepo(objects);
     var clsRepo = mockClsRepo(classes);
     var funcRepo = mockFuncRepo(functions);
-    var cl = new ContextLoader();
-    cl.clsRepo = clsRepo;
-    cl.objectRepo = objRepo;
-    cl.funcRepo = funcRepo;
+    var cl = new RepoContextLoader(objRepo,funcRepo,clsRepo);
     return cl;
   }
 
@@ -79,33 +76,4 @@ public class TestUtil {
   }
 
 
-  public static final OaasClass CLS_1 = new OaasClass()
-    .setName("cls1")
-    .setObjectType(ObjectType.SIMPLE)
-    .setFunctions(Set.of(
-      new OaasFunctionBinding()
-        .setName("func1")
-        .setFunction("func1")
-    ));
-
-  public static List<OaasClass> testClasses () {
-    return List.of(
-      CLS_1
-    );
-  }
-  public static List<OaasFunction> testFunctions () {
-    return List.of(
-      new OaasFunction()
-        .setName("func1")
-        .setType(OaasFunctionType.TASK)
-        .setOutputCls("cls1")
-    );
-  }
-
-  public static List<OaasObject> testObjects() {
-    var o1 = OaasObject.createFromClasses(CLS_1);
-    o1.setId("o1");
-    o1.setOrigin(new ObjectOrigin().setRootId("o1"));
-    return List.of(o1);
-  }
 }

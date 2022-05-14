@@ -12,7 +12,6 @@
   <artifactId>model</artifactId>
 
   <properties>
-    <hibernate.version>5.5.7.Final</hibernate.version>
   </properties>
 
   <dependencyManagement>
@@ -58,13 +57,12 @@
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections-api</artifactId>
-      <version>11.0.0</version>
+      <version>${eclipse.collections.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections</artifactId>
-      <version>11.0.0</version>
+      <version>${eclipse.collections.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
@@ -84,18 +82,6 @@
         <version>${compiler-plugin.version}</version>
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
-          <!--          <annotationProcessorPaths>-->
-          <!--            <annotationProcessorPath>-->
-          <!--              <groupId>org.projectlombok</groupId>-->
-          <!--              <artifactId>lombok</artifactId>-->
-          <!--              <version>${org.projectlombok.version}</version>-->
-          <!--            </annotationProcessorPath>-->
-          <!--            <annotationProcessorPath>-->
-          <!--              <groupId>org.infinispan.protostream</groupId>-->
-          <!--              <artifactId>protostream-processor</artifactId>-->
-          <!--              <version>4.4.1.Final</version>-->
-          <!--            </annotationProcessorPath>-->
-          <!--          </annotationProcessorPaths>-->
         </configuration>
       </plugin>
       <plugin>

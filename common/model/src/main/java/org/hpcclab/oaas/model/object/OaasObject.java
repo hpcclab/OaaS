@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -14,6 +15,7 @@ import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -110,5 +112,23 @@ public class OaasObject {
   @JsonIgnore
   public boolean isReadyToUsed() {
     return origin.isRoot() || status.getTaskStatus() == TaskStatus.SUCCEEDED;
+  }
+
+  public List<String> waitForList(){
+    if (origin.isRoot()) {
+      return List.of();
+    }
+    var list = refs != null && !refs.isEmpty() ?
+      Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
+      Lists.mutable.<String>empty();
+    if (origin.isWfi() && origin.getInputs()!= null) {
+      list.addAll(origin.getInputs());
+    }
+    if (refs != null) {
+       list.addAll(Lists.fixedSize.ofAll(refs)
+         .collect(ObjectReference::getObjId));
+    }
+    list.add(origin.getParentId());
+    return list;
   }
 }
