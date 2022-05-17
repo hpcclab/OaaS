@@ -5,7 +5,7 @@ import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.hpcclab.oaas.storage.ContextUtil;
 import org.jboss.resteasy.reactive.RestQuery;

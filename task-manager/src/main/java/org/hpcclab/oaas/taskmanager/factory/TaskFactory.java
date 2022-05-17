@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 
 import javax.enterprise.context.ApplicationScoped;

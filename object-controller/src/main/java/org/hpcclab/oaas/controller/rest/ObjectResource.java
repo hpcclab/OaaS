@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

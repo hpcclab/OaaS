@@ -9,9 +9,9 @@ import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.iface.service.ClassService;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class ClassResource implements ClassService {
   @Override
   public Uni<OaasClass> create(boolean update, OaasClass cls) {
     cls.validate();
-    return classRepo.persist(cls);
+    return classRepo.persistAsync(cls);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ClassResource implements ClassService {
       .flatMap(cls -> {
         oaasMapper.set(clsPatch, cls);
         cls.validate();
-        return classRepo.persist(cls);
+        return classRepo.persistAsync(cls);
       });
   }
 

@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.controller.rest;
 
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.infinispan.client.hotrod.ServerStatistics;
 import org.infinispan.client.hotrod.jmx.RemoteCacheClientStatisticsMXBean;
 

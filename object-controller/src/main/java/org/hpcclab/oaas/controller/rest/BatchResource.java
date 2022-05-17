@@ -7,8 +7,8 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,8 @@ public class BatchResource implements BatchService {
 
   @Override
   public Uni<Batch> create(Batch batch) {
-    var uni = classRepo.persist(batch.getClasses())
-      .flatMap(ignore -> funcRepo.persist(batch.getFunctions()));
+    var uni = classRepo.persistAsync(batch.getClasses())
+      .flatMap(ignore -> funcRepo.persistAsync(batch.getFunctions()));
     if (config.kafkaEnabled()) {
       return uni.call(functions -> provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
         .replaceWith(batch);

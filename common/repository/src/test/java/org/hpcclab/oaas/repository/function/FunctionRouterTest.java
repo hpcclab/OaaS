@@ -9,8 +9,9 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.DefaultIdGenerator;
+import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,15 +22,15 @@ class FunctionRouterTest {
   boolean debug = true;
 
   FunctionRouter router;
-  OaasObjectRepository objectRepo;
+  EntityRepository<String,OaasObject> objectRepo;
   MockGraphStateManager graphStateManager;
   MockTaskSubmitter taskSubmitter;
 
   InvocationGraphExecutor invocationGraphExecutor;
 
   public void setup(List<OaasObject> objects) {
-    List<OaasClass> classes = MockupData.testClasses();
-    List<OaasFunction> functions = MockupData.testFunctions();
+    var classes = MockupData.testClasses();
+    var functions = MockupData.testFunctions();
     var objectMap = Lists.mutable.ofAll(objects)
       .groupByUniqueKey(OaasObject::getId);
     var cl = TestUtil.mockContextLoader(objectMap, classes, functions);
@@ -45,7 +46,7 @@ class FunctionRouterTest {
     router = new FunctionRouter(logical, macro, task, cl);
     macro.router = router;
 
-    graphStateManager = new MockGraphStateManager(objectMap);
+    graphStateManager = new MockGraphStateManager(objectRepo, objectMap);
     taskSubmitter = new MockTaskSubmitter();
     invocationGraphExecutor = new InvocationGraphExecutor(taskSubmitter,
       graphStateManager, cl);
@@ -67,7 +68,7 @@ class FunctionRouterTest {
       System.out.printf("FUNCTION EXEC CONTEXT:\n%s\n", Json.encodePrettily(ctx));
     }
     Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
-    Assertions.assertEquals(1,taskSubmitter.map.size());
+    Assertions.assertEquals(1, taskSubmitter.map.size());
     Assertions.assertTrue(graphStateManager.multimap.isEmpty());
 
     var completion = new TaskCompletion()
@@ -92,7 +93,7 @@ class FunctionRouterTest {
       System.out.printf("FUNCTION EXEC CONTEXT:\n%s\n", Json.encodePrettily(ctx));
     }
     Assertions.assertTrue(taskSubmitter.map.containsKey("o2"));
-    Assertions.assertEquals(1,taskSubmitter.map.size());
+    Assertions.assertEquals(1, taskSubmitter.map.size());
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
     Assertions.assertTrue(graphStateManager.multimap.containsKey("o2"));
   }

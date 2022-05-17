@@ -3,16 +3,19 @@ package org.hpcclab.oaas.repository.function;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasDataflowStep;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.EntityRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +28,22 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class RepoContextLoader implements ContextLoader{
   private static final Logger LOGGER = LoggerFactory.getLogger(RepoContextLoader.class);
-  OaasObjectRepository objectRepo;
-  OaasFuncRepository funcRepo;
-  OaasClassRepository clsRepo;
+  EntityRepository<String, OaasObject> objectRepo;
+  EntityRepository<String, OaasFunction> funcRepo;
+  EntityRepository<String, OaasClass> clsRepo;
 
   @Inject
-  public RepoContextLoader(OaasObjectRepository objectRepo, OaasFuncRepository funcRepo, OaasClassRepository clsRepo) {
+  public RepoContextLoader(OaasObjectRepository objectRepo,
+                           OaasFuncRepository funcRepo,
+                           OaasClassRepository clsRepo) {
+    this.objectRepo = objectRepo;
+    this.funcRepo = funcRepo;
+    this.clsRepo = clsRepo;
+  }
+
+  public RepoContextLoader(EntityRepository<String, OaasObject> objectRepo,
+                           EntityRepository<String, OaasFunction> funcRepo,
+                           EntityRepository<String, OaasClass> clsRepo) {
     this.objectRepo = objectRepo;
     this.funcRepo = funcRepo;
     this.clsRepo = clsRepo;
@@ -49,7 +62,7 @@ public class RepoContextLoader implements ContextLoader{
       .invoke(ctx::setMain)
       .invoke(ctx::setEntry)
       .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
-      .flatMap(ignore -> objectRepo.listByIdsAsync(request.getInputs()))
+      .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
       .invoke(ctx::setInputs)
       .replaceWith(ctx);
   }
@@ -58,8 +71,8 @@ public class RepoContextLoader implements ContextLoader{
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
     ctx.setMainCls(mainCls);
-    var binding = clsRepo.findFunction(
-      mainCls, funcName);
+    var binding = mainCls
+      .findFunction(funcName);
     if (binding.isEmpty()) throw FunctionValidationException.noFunction(main.getId(), funcName);
     ctx.setBinding(binding.get());
 
@@ -163,7 +176,7 @@ public class RepoContextLoader implements ContextLoader{
     }
 
     if (!inputIds.isEmpty()) {
-      uni = uni.flatMap(ign -> objectRepo.listByIdsAsync(inputIds)
+      uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)
         .map(tc::setInputs));
     }
 

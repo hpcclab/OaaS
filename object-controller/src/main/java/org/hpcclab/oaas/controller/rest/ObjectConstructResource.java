@@ -13,9 +13,9 @@ import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

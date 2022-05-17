@@ -6,16 +6,14 @@ import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.json.Json;
-import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.time.Instant;
 
 @ApplicationScoped
 @Deprecated(forRemoval = true)
@@ -23,8 +21,6 @@ public class JobWatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(JobWatcher.class);
   @Inject
   KubernetesClient client;
-//  @Channel("task-completions")
-//  Emitter<Record<String, TaskCompletion>> tasksCompletionEmitter;
 
 
   void startup(@Observes StartupEvent startupEvent) {
@@ -72,9 +68,10 @@ public class JobWatcher {
     var completion = new TaskCompletion()
       .setId(task.getId())
 //      .setFunctionName(task.getFunction().getName())
-      .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
-      .setStartTime(Instant.parse(job.getStatus().getStartTime()).toEpochMilli())
-      .setCompletionTime(Instant.parse(job.getStatus().getCompletionTime()).toEpochMilli());
+      .setSuccess(succeeded)
+//      .setStartTime(Instant.parse(job.getStatus().getStartTime()).toEpochMilli())
+//      .setCompletionTime(Instant.parse(job.getStatus().getCompletionTime()).toEpochMilli());
+      ;
     var items = client.pods().withLabelSelector(job.getSpec().getSelector())
       .list().getItems();
     if (!items.isEmpty()) {

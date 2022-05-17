@@ -2,7 +2,7 @@ package org.hpcclab.oaas.taskmanager.factory;
 
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.task.TaskEvent;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +11,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TaskEventFactory {

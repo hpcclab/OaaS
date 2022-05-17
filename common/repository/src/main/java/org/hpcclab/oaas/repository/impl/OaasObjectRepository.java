@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.impl;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
@@ -66,19 +66,6 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
     return this.putAsync(object.getId(), object);
   }
 
-  public Uni<List<OaasObject>> listByIdsAsync(List<String> ids) {
-    if (ids==null || ids.isEmpty()) return Uni.createFrom().item(List.of());
-    return this.listAsync(Set.copyOf(ids))
-      .map(map -> ids.stream()
-        .map(id -> {
-          var obj = map.get(id);
-          if (obj==null) throw NoStackException.notFoundObject400(id);
-          return obj;
-        })
-        .toList()
-      );
-  }
-
   public List<OaasObject> listByIds(List<String> ids) {
     if (ids==null || ids.isEmpty()) return List.of();
     var map = remoteCache.getAll(Set.copyOf(ids));
@@ -100,27 +87,6 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
     return query(query, Map.of("clsName", clsName), offset, limit);
   }
 
-  public OaasObject persist(OaasObject o) {
-    if (o==null)
-      throw new NoStackException("Cannot persist null object");
-
-    if (o.getId()==null) o.setId(generateId());
-    return put(o.getId(), o);
-  }
-
-  public Uni<OaasObject> persistAsync(OaasObject o) {
-    if (o==null)
-      return Uni.createFrom().failure(() -> new NoStackException("Cannot persist null object"));
-
-    if (o.getId()==null) o.setId(generateId());
-    return this.putAsync(o.getId(), o);
-  }
-
-  public Uni<Void> persistAsync(Collection<OaasObject> objects) {
-    var map = objects.stream()
-      .collect(Collectors.toMap(OaasObject::getId, Function.identity()));
-    return this.putAllAsync(map);
-  }
 
   public Uni<FunctionExecContext> persistFromCtx(FunctionExecContext context) {
     if (context.getFunction().getType()==OaasFunctionType.MACRO) {
@@ -132,5 +98,10 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
       return persistAsync(context.getOutput())
         .replaceWith(context);
     }
+  }
+
+  @Override
+  protected String extractKey(OaasObject object) {
+    return object.getId();
   }
 }

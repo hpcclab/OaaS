@@ -1,8 +1,11 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.impl;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
@@ -16,8 +19,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
-public abstract class AbstractIfnpRepository<K, V> {
+public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K,V> {
 
   RemoteCache<K, V> remoteCache;
   QueryFactory queryFactory;
@@ -124,4 +128,26 @@ public abstract class AbstractIfnpRepository<K, V> {
     return uni;
   }
 
+  public V persist(V v) {
+    Objects.requireNonNull(v);
+    K k = extractKey(v);
+    Objects.requireNonNull(k);
+    return this.put(k, v);
+  }
+
+  public Uni<V> persistAsync(V v) {
+    Objects.requireNonNull(v);
+    K k = extractKey(v);
+    Objects.requireNonNull(k);
+    return this.putAsync(k, v);
+  }
+
+  public Uni<Void> persistAsync(Collection<V> collection) {
+    var map = collection.stream()
+      .collect(Collectors.toMap(this::extractKey, Function.identity()));
+    return this.putAllAsync(map);
+  }
+
+
+  protected abstract K extractKey(V v);
 }

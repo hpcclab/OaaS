@@ -1,28 +1,23 @@
 package org.hpcclab.oaas.repository.function;
 
-import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.model.function.OaasFunctionBinding;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
-import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.EntityRepository;
+import org.hpcclab.oaas.repository.impl.MapEntityRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
 
 import java.util.List;
-import java.util.Set;
 
 public class TestUtil {
 
 
   public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
-                                                    List<OaasClass> classes,
-                                                    List<OaasFunction> functions) {
+                                                    MutableMap<String,OaasClass> classes,
+                                                    MutableMap<String,OaasFunction> functions) {
     var objRepo = mockObjectRepo(objects);
     var clsRepo = mockClsRepo(classes);
     var funcRepo = mockFuncRepo(functions);
@@ -30,48 +25,17 @@ public class TestUtil {
     return cl;
   }
 
-  public static OaasObjectRepository mockObjectRepo(MutableMap<String,OaasObject> objects) {
-    return new OaasObjectRepository() {
-      @Override
-      public OaasObject get(String key) {
-        return objects.get(key);
-      }
-
-      @Override
-      public Uni<OaasObject> getAsync(String key) {
-        return Uni.createFrom().item(get(key));
-      }
-
-      @Override
-      public List<OaasObject> listByIds(List<String> ids) {
-        return ids.stream()
-          .map(objects::get)
-          .toList();
-      }
-    };
+  public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String,OaasObject> objects) {
+    return new MapEntityRepository<>(objects, OaasObject::getId);
   }
 
 
-  public static OaasClassRepository mockClsRepo(List<OaasClass> classes) {
-    var map = Lists.fixedSize.ofAll(classes)
-      .groupByUniqueKey(OaasClass::getName);
-    return new OaasClassRepository() {
-      @Override
-      public OaasClass get(String key) {
-        return map.get(key);
-      }
-    };
+  public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String,OaasClass> classes) {
+    return new MapEntityRepository<>(classes, OaasClass::getName);
   }
 
-  public static OaasFuncRepository mockFuncRepo(List<OaasFunction> functions) {
-    var map = Lists.fixedSize.ofAll(functions)
-      .groupByUniqueKey(OaasFunction::getName);
-    return new OaasFuncRepository() {
-      @Override
-      public OaasFunction get(String key) {
-        return map.get(key);
-      }
-    };
+  public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String,OaasFunction> functions) {
+    return new MapEntityRepository<>(functions, OaasFunction::getName);
   }
 
 

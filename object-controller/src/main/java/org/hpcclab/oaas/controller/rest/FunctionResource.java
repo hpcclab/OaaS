@@ -10,7 +10,7 @@ import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 
 import javax.enterprise.context.RequestScoped;
@@ -41,7 +41,7 @@ public class FunctionResource implements FunctionService {
   public Uni<List<OaasFunction>> create(boolean update, List<OaasFunction> functionDtos) {
     var uni = Multi.createFrom().iterable(functionDtos)
       .onItem()
-      .transformToUniAndConcatenate(funcDto -> funcRepo.persist(funcDto)
+      .transformToUniAndConcatenate(funcDto -> funcRepo.persistAsync(funcDto)
       )
       .collect().asList();
     if (config.kafkaEnabled()) {

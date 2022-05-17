@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -68,5 +69,12 @@ public class OaasClass {
         else function.setName(fullFuncName.substring(i+1));
       }
     }
+  }
+
+  public Optional<OaasFunctionBinding> findFunction(String funcName){
+    return getFunctions()
+      .stream()
+      .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
+      .findFirst();
   }
 }

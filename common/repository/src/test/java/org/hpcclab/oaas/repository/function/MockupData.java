@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.repository.function;
 
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -9,6 +10,7 @@ import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.object.ObjectType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MockupData {
@@ -50,17 +52,19 @@ public class MockupData {
         .setFunction(MACRO_FUNC_1.getName())
     ));
 
-  public static List<OaasClass> testClasses() {
-    return List.of(
+  public static MutableMap<String,OaasClass> testClasses() {
+    return Lists.fixedSize.of(
       CLS_1
-    );
+    )
+      .groupByUniqueKey(OaasClass::getName);
   }
 
-  public static List<OaasFunction> testFunctions() {
-    return List.of(
+  public static MutableMap<String,OaasFunction> testFunctions() {
+    return Lists.fixedSize.of(
       FUNC_1,
       MACRO_FUNC_1
-    );
+    )
+      .groupByUniqueKey(OaasFunction::getName);
   }
 
   public static List<OaasObject> testObjects() {

@@ -1,9 +1,9 @@
 package org.hpcclab.oaas.repository;
 
-import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

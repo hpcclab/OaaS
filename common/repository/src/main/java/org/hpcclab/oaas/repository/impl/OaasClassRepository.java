@@ -1,7 +1,9 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.impl;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.mapper.ModelMapper;
 import org.hpcclab.oaas.model.cls.DeepOaasClass;
@@ -71,17 +73,7 @@ public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClas
       });
   }
 
-  public Uni<OaasClass> persist(OaasClass cls) {
-    cls.validate();
-    return this.putAsync(cls.getName(), cls);
-  }
 
-  public Uni<Void> persist(Collection<OaasClass> classList) {
-    classList.forEach(OaasClass::validate);
-    var map = classList.stream()
-      .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
-    return this.putAllAsync(map);
-  }
 
 
   public Optional<OaasFunctionBinding> findFunction(OaasClass cls, String funcName) {
@@ -89,5 +81,10 @@ public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClas
       .stream()
       .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
       .findFirst();
+  }
+
+  @Override
+  protected String extractKey(OaasClass oaasClass) {
+    return oaasClass.getName();
   }
 }

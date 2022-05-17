@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.impl;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
@@ -19,9 +19,6 @@ public class OaasFuncRepository extends AbstractIfnpRepository<String, OaasFunct
 
   private static final String NAME = OaasSchema.makeFullName(OaasFunction.class);
   @Inject
-  ModelMapper oaasMapper;
-
-  @Inject
   @Remote("OaasFunction")
   RemoteCache<String, OaasFunction> cache;
 
@@ -35,14 +32,9 @@ public class OaasFuncRepository extends AbstractIfnpRepository<String, OaasFunct
     return NAME;
   }
 
-  public Uni<OaasFunction> persist(OaasFunction fn) {
-    return this.putAsync(fn.getName(), fn);
-  }
 
-  public Uni<Void> persist(Collection<OaasFunction> list) {
-    list.forEach(OaasFunction::validate);
-    return this.putAllAsync(list.stream()
-      .collect(Collectors.toMap(OaasFunction::getName, Function.identity()))
-    );
+  @Override
+  protected String extractKey(OaasFunction oaasFunction) {
+    return oaasFunction.getName();
   }
 }

@@ -6,6 +6,7 @@ import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.repository.mapper.ModelMapper;
 
 import javax.enterprise.context.ApplicationScoped;

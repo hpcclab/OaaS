@@ -56,7 +56,8 @@ public class CompletionHandler {
 //    var func = headers.get("ce-function");
     var taskCompletion = new TaskCompletion()
       .setId(ceId)
-      .setStatus(TaskStatus.FAILED)
+      .setSuccess(false)
+//      .setStatus(TaskStatus.FAILED)
 //      .setFunctionName(func)
       .setDebugLog(error);
     return sendUni(taskCompletion);
@@ -72,21 +73,10 @@ public class CompletionHandler {
     var succeeded = succeededHeader==null || Boolean.parseBoolean(succeededHeader);
     var taskCompletion = new TaskCompletion()
       .setId(objectId)
-      .setStatus(succeeded ? TaskStatus.SUCCEEDED:TaskStatus.FAILED)
-      .setCompletionTime(System.currentTimeMillis())
+      .setSuccess(succeeded)
       .setDebugLog(body);
     return sendUni(taskCompletion);
   }
-
-//  Uni<Void> sendViaKafka(TaskCompletion taskCompletion) {
-//    if (openTelemetryEnabled) {
-//      var m = Message.of(taskCompletion, Metadata.of(TracingMetadata.withPrevious(Context.current())));
-//      tasksCompletionEmitter.send(m);
-//      return Uni.createFrom().nullItem();
-//    } else {
-//      return tasksCompletionEmitter.send(taskCompletion);
-//    }
-//  }
 
   Uni<Void> sendUni(TaskCompletion taskCompletion) {
     return submissionService.submit(List.of(taskCompletion));

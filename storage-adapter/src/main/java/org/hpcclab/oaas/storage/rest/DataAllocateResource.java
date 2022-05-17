@@ -7,10 +7,9 @@ import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.hpcclab.oaas.storage.ContextUtil;
-import org.hpcclab.oaas.storage.adapter.S3Adapter;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 

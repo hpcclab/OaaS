@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskEvent;
 import org.hpcclab.oaas.repository.AggregateRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
 import org.hpcclab.oaas.taskmanager.factory.TaskEventFactory;
 import org.slf4j.Logger;

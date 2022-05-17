@@ -2,7 +2,7 @@ package org.hpcclab.oaas.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
+import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
