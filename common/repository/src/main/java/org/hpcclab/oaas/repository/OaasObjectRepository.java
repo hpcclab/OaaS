@@ -9,7 +9,6 @@ import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.mapper.ModelMapper;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +124,7 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
 
   public Uni<FunctionExecContext> persistFromCtx(FunctionExecContext context) {
     if (context.getFunction().getType()==OaasFunctionType.MACRO) {
-      var list = new ArrayList<>(context.getTaskOutputs());
+      var list = new ArrayList<>(context.getSubOutputs());
       list.add(context.getOutput());
       return persistAsync(list)
         .replaceWith(context);

@@ -51,9 +51,9 @@ public class TaskState {
   }
 
   public void update(TaskCompletion completion) {
-    status = completion.getStatus();
-    startTime = completion.startTime;
-    completionTime = completion.completionTime;
+//    status = completion.getStatus();
+//    startTime = completion.startTime;
+//    completionTime = completion.completionTime;
 //    debugLog = completion.debugLog;
   }
 }

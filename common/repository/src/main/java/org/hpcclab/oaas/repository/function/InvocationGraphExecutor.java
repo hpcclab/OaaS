@@ -6,10 +6,13 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
 import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.AggregateRepository;
+import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.Set;
 
 //@ApplicationScoped
 public class InvocationGraphExecutor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationGraphExecutor.class);
   TaskSubmitter submitter;
   GraphStateManager gsm;
   ContextLoader contextLoader;
@@ -28,10 +32,11 @@ public class InvocationGraphExecutor {
                                  ContextLoader contextLoader) {
     this.submitter = submitter;
     this.gsm = gsm;
+    this.contextLoader = contextLoader;
   }
 
 
-  public Uni<Void> markOrExec(FunctionExecContext ctx) {
+  public Uni<Void> exec(FunctionExecContext ctx) {
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
     var failDeps = Lists.mutable.<OaasObject>empty();
@@ -49,32 +54,58 @@ public class InvocationGraphExecutor {
         } // DO NOTHING
       }
     }
-    return markOrExec(waitForGraph, ctxToSubmit)
+    return traverseGraph(waitForGraph, ctxToSubmit)
+      .flatMap(v -> putAllEdge(waitForGraph))
+      .flatMap(v -> gsm.updateSubmitStatus(ctx, ctxToSubmit)
+        .collect().asList())
+      .flatMap(submittableContexts -> submitter.submit(submittableContexts))
+      .replaceWithVoid();
+  }
+
+  public Uni<Void> exec(OaasObject obj) {
+    MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
+    Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
+    waitForGraph.add(Map.entry(obj, null));
+    return traverseGraph(waitForGraph, ctxToSubmit)
       .flatMap(v -> putAllEdge(waitForGraph))
       .flatMap(v -> submitter.submit(ctxToSubmit))
       .replaceWithVoid();
   }
 
-  private Uni<Void> markOrExec(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-                               Set<TaskContext> ctxToSubmit) {
+  public Uni<Void> complete(TaskCompletion completion) {
+    return contextLoader.getObject(completion.getId())
+      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(completion.getId()))
+      .invoke(o -> {
+        o.getStatus().set(completion);
+        o.setEmbeddedRecord(completion.getEmbeddedRecord());
+      })
+      .onItem().transformToMulti(o -> gsm.handleComplete(o))
+      .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
+      .collect().asList()
+      .flatMap(list -> submitter.submit(list));
+  }
+
+  private Uni<Void> traverseGraph(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
+                                  Set<TaskContext> ctxToSubmit) {
+//    System.out.println("waitForGraph:"+ waitForGraph);
     return Multi.createBy().repeating()
-      .uni(() -> 0, i -> markOrExecRecursive(i, waitForGraph, ctxToSubmit))
-      .until(i -> i >= waitForGraph.size())
+      .uni(ResolveLoop::new, rl -> markOrExecRecursive(rl, waitForGraph, ctxToSubmit))
+      .until(rl -> rl.i >= waitForGraph.size())
       .collect().last()
       .replaceWithVoid();
   }
 
-  private Uni<Integer> markOrExecRecursive(int i,
-                                           List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-                                           Set<TaskContext> ctxToSubmit) {
-    if (i >= waitForGraph.size()) {
-      return Uni.createFrom().item(++i);
+  private Uni<ResolveLoop> markOrExecRecursive(ResolveLoop rl,
+                                               List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
+                                               Set<TaskContext> ctxToSubmit) {
+    if (rl.i >= waitForGraph.size()) {
+      return Uni.createFrom().item(rl);
     }
-    var entry = waitForGraph.get(i);
+    var entry = waitForGraph.get(rl.i++);
     OaasObject obj = entry.getKey();
     var ts = obj.getStatus().getTaskStatus();
     if (ts.isSubmitted() || ts.isFailed()) {
-      return Uni.createFrom().item(++i);
+      return Uni.createFrom().item(rl);
     }
     if (!obj.getStatus().isInitWaitFor()) {
       return contextLoader.getTaskContextAsync(obj)
@@ -88,21 +119,26 @@ public class InvocationGraphExecutor {
           }
           return subWfg;
         })
-        .replaceWith(++i);
+        .replaceWith(rl);
     }
 
     if (obj.getStatus().getWaitFor().isEmpty()) {
       return contextLoader.getTaskContextAsync(obj)
         .invoke(ctxToSubmit::add)
-        .replaceWith(++i);
+        .replaceWith(rl);
     }
 
     return Uni.createFrom().nullItem();
   }
 
-  public Uni<Void> putAllEdge(MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph) {
+  private Uni<Void> putAllEdge(MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph) {
     var edges = waitForGraph.collect(entry -> Map.entry(entry.getKey().getId(), entry
       .getValue().getId()));
     return gsm.persistEdge(edges);
+  }
+
+  static class ResolveLoop {
+    int i = 0;
+
   }
 }

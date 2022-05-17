@@ -15,7 +15,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasDataflow implements Serializable {
   @ProtoField(1)
-  List<OaasWorkflowStep> steps;
+  List<OaasDataflowStep> steps;
   @ProtoField(2)
   Set<OaasWorkflowExport> exports;
   @ProtoField(3)
@@ -25,7 +25,7 @@ public class OaasDataflow implements Serializable {
   }
 
   @ProtoFactory
-  public OaasDataflow(List<OaasWorkflowStep> steps,
+  public OaasDataflow(List<OaasDataflowStep> steps,
                       Set<OaasWorkflowExport> exports,
                       String export) {
     this.steps = steps;

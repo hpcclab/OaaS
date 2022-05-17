@@ -11,6 +11,7 @@ import org.hpcclab.oaas.model.task.TaskStatus;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Data
 @Accessors(chain = true)
@@ -26,7 +27,8 @@ public class TaskContext {
                              List<OaasObject> failDeps) {
     output.getStatus().initWaitFor();
     int fails = failDeps.size();
-    boolean completed = analyzeDeps(mainRefs.values(),
+    Map<String, OaasObject> refs = Objects.requireNonNullElse(mainRefs, Map.of());
+    boolean completed = analyzeDeps(refs.values(),
       waitForGraph, failDeps);
 
     if (output.getOrigin().isWfi()) {
@@ -63,6 +65,9 @@ public class TaskContext {
       failDeps.add(dep);
     } else {
       waitForGraph.add(Map.entry(dep, output));
+      if (output.getStatus().getWaitFor().isEmpty()) {
+        output.getStatus().setWaitFor(Lists.mutable.empty());
+      }
       output.getStatus().getWaitFor().add(dep.getId());
     }
     return false;

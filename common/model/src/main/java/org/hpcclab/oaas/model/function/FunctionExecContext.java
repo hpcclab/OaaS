@@ -20,7 +20,7 @@ public class FunctionExecContext extends TaskContext {
   OaasClass mainCls;
   OaasObject entry;
   OaasClass outputCls;
-  List<OaasObject> taskOutputs = Lists.mutable.empty();
+  List<OaasObject> subOutputs = Lists.mutable.empty();
   OaasFunctionBinding binding;
   Map<String, String> args = Map.of();
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
@@ -50,14 +50,14 @@ public class FunctionExecContext extends TaskContext {
   }
 
   public void addTaskOutput(OaasObject object) {
-    taskOutputs.add(object);
+    subOutputs.add(object);
     if (parent != null) {
       parent.addTaskOutput(object);
     }
   }
 
   public void addTaskOutput(Collection<OaasObject> objects) {
-    taskOutputs.addAll(objects);
+    subOutputs.addAll(objects);
     if (parent != null) {
       parent.addTaskOutput(objects);
     }
@@ -69,4 +69,5 @@ public class FunctionExecContext extends TaskContext {
       parent.addSubContext(ctx);
     }
   }
+
 }

@@ -13,6 +13,9 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public abstract class AbstractIfnpRepository<K, V> {
 
@@ -105,6 +108,17 @@ public abstract class AbstractIfnpRepository<K, V> {
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(remoteCache.removeAsync(key));
+    if (ctx!=null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
+  }
+
+  public Uni<V> computeAsync(K key, BiFunction<K, V, V> function) {
+    Objects.requireNonNull(key);
+    Objects.requireNonNull(function);
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom()
+      .completionStage(remoteCache.computeAsync(key,function));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;

@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasWorkflowStep;
+import org.hpcclab.oaas.model.function.OaasDataflowStep;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
@@ -34,6 +34,11 @@ public class RepoContextLoader implements ContextLoader{
     this.objectRepo = objectRepo;
     this.funcRepo = funcRepo;
     this.clsRepo = clsRepo;
+  }
+
+  @Override
+  public Uni<OaasObject> getObject(String id) {
+    return objectRepo.getAsync(id);
   }
 
   public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLangauge request) {
@@ -70,7 +75,7 @@ public class RepoContextLoader implements ContextLoader{
   }
 
   public Uni<FunctionExecContext> loadCtxAsync(FunctionExecContext baseCtx,
-                                               OaasWorkflowStep step) {
+                                               OaasDataflowStep step) {
     var newCtx = new FunctionExecContext();
     newCtx.setParent(baseCtx);
     newCtx.setArgs(step.getArgs());
@@ -96,7 +101,7 @@ public class RepoContextLoader implements ContextLoader{
   }
 
   private Uni<FunctionExecContext> resolveInputs(FunctionExecContext baseCtx,
-                                                 OaasWorkflowStep step) {
+                                                 OaasDataflowStep step) {
     return Multi.createFrom().iterable(step.getInputRefs())
       .onItem().transformToUniAndConcatenate(ref -> resolveTarget(baseCtx, ref))
       .collect().asList()

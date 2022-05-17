@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
@@ -19,7 +20,7 @@ import java.util.Set;
 public class TestUtil {
 
 
-  public static RepoContextLoader mockContextLoader(List<OaasObject> objects,
+  public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
                                                     List<OaasClass> classes,
                                                     List<OaasFunction> functions) {
     var objRepo = mockObjectRepo(objects);
@@ -29,13 +30,11 @@ public class TestUtil {
     return cl;
   }
 
-  public static OaasObjectRepository mockObjectRepo(List<OaasObject> objects) {
-    var map = Lists.fixedSize.ofAll(objects)
-      .groupByUniqueKey(OaasObject::getId);
+  public static OaasObjectRepository mockObjectRepo(MutableMap<String,OaasObject> objects) {
     return new OaasObjectRepository() {
       @Override
       public OaasObject get(String key) {
-        return map.get(key);
+        return objects.get(key);
       }
 
       @Override
@@ -46,7 +45,7 @@ public class TestUtil {
       @Override
       public List<OaasObject> listByIds(List<String> ids) {
         return ids.stream()
-          .map(map::get)
+          .map(objects::get)
           .toList();
       }
     };
