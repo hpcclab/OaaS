@@ -1,9 +1,8 @@
 package org.hpcclab.oaas.repository.impl;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 
@@ -41,16 +40,32 @@ public class RepoGraphStateManager extends AbstractGraphStateManager {
 
   @Override
   public Uni<Boolean> containEdge(String srcId, String desId) {
-    return null;
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(
+      edgeMap.containsEntry(srcId,desId));
+    if (ctx!=null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   @Override
-  public Uni<Boolean> persistEdge(String srcId, String desId) {
-    return null;
+  public Uni<Void> persistEdge(String srcId, String desId) {
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(
+      edgeMap.put(srcId,desId));
+    if (ctx!=null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 
   @Override
-  public Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap) {
-    return null;
+  public Uni<Void> persistEdge(List<Map.Entry<String, String>> list) {
+    var ctx = Vertx.currentContext();
+    var uni = Multi.createFrom().iterable(list)
+      .onItem().transformToUniAndMerge( entry -> persistEdge(entry.getKey(), entry.getValue()))
+      .collect().last();
+    if (ctx!=null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 }

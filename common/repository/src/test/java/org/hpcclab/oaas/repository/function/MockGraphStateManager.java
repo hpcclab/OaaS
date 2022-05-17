@@ -36,8 +36,9 @@ public class MockGraphStateManager extends AbstractGraphStateManager {
   }
 
   @Override
-  public Uni<Boolean> persistEdge(String srcId, String desId) {
-    return Uni.createFrom().item(multimap.put(srcId, desId));
+  public Uni<Void> persistEdge(String srcId, String desId) {
+    return Uni.createFrom().item(multimap.put(srcId, desId))
+      .replaceWithVoid();
   }
 
   @Override
