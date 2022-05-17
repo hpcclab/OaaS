@@ -149,6 +149,129 @@
           }
         }
       }
+    },
+    "/v2/oal" : {
+      "post" : {
+        "tags" : [ "V 2 Oal Resource" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ObjectAccessLangauge"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/oal/-/{filePath}" : {
+      "post" : {
+        "tags" : [ "V 2 Oal Resource" ],
+        "parameters" : [ {
+          "name" : "filePath",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "pattern" : ".*",
+            "type" : "string"
+          }
+        }, {
+          "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ObjectAccessLangauge"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/v2/oal/{oal}" : {
+      "get" : {
+        "tags" : [ "V 2 Oal Resource" ],
+        "parameters" : [ {
+          "name" : "oal",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/oal/{oal}/{filePath}" : {
+      "get" : {
+        "tags" : [ "V 2 Oal Resource" ],
+        "parameters" : [ {
+          "name" : "filePath",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "pattern" : ".*",
+            "type" : "string"
+          }
+        }, {
+          "name" : "oal",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -288,6 +411,12 @@
           "debugLog" : {
             "type" : "string"
           },
+          "initWaitFor" : {
+            "type" : "boolean"
+          },
+          "originator" : {
+            "type" : "string"
+          },
           "submittedTime" : {
             "format" : "int64",
             "type" : "integer"
@@ -319,10 +448,6 @@
       "TaskCompletion" : {
         "type" : "object",
         "properties" : {
-          "completionTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
           "debugLog" : {
             "type" : "string"
           },
@@ -332,12 +457,8 @@
           "id" : {
             "type" : "string"
           },
-          "startTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/TaskStatus"
+          "success" : {
+            "type" : "boolean"
           }
         }
       },

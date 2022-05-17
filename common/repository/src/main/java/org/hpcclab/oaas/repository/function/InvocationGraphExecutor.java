@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//@ApplicationScoped
 public class InvocationGraphExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationGraphExecutor.class);
   TaskSubmitter submitter;

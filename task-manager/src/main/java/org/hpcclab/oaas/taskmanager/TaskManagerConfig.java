@@ -6,7 +6,7 @@ import io.smallrye.config.WithDefault;
 @ConfigMapping(prefix = "oaas.tm",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
-  String objectControllerUrl();
+//  String objectControllerUrl();
   String storageAdapterUrl();
   @WithDefault("oaas-task-completions")
   String taskCompletionTopic();
@@ -14,8 +14,6 @@ public interface TaskManagerConfig {
   Integer taskCompletionPartitions();
   @WithDefault("3")
   int defaultTraverse();
-//  @WithDefault("true")
-//  boolean enableCloudEventHeaders();
   String brokerUrl();
   @WithDefault("300")
   int blockingTimeout();

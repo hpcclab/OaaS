@@ -3,11 +3,15 @@ package org.hpcclab.oaas.repository.init;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.NearCacheMode;
+import org.infinispan.client.hotrod.multimap.MultimapCacheManager;
+import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
+import org.infinispan.client.hotrod.multimap.RemoteMultimapCacheManager;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -18,7 +22,8 @@ public class InfinispanInit {
   public static final String CLASS_CACHE = "OaasClass";
   public static final String FUNCTION_CACHE = "OaasFunction";
   public static final String TASK_STATE_CACHE = "TaskState";
-  public static final String TASK_COMPLETION_CACHE = "TaskCompletion";
+
+  public static final String INVOCATION_GRAPH_CACHE = "InvocationGraph";
 
   // language=xml
   private static final String TEMPLATE_MEM_DIST_CONFIG = """
@@ -140,7 +145,6 @@ public class InfinispanInit {
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
     var objectCacheConfig = repositoryConfig.object();
-    var completionCacheConfig = repositoryConfig.completion();
     var stateCacheConfig = repositoryConfig.state();
     var clsCacheConfig = repositoryConfig.cls();
     var funcCacheConfig = repositoryConfig.func();
@@ -166,14 +170,7 @@ public class InfinispanInit {
             .nearCacheMaxEntries(funcCacheConfig.nearCacheMaxEntry());
         }
       });
-//    remoteCacheManager.getConfiguration()
-//      .addRemoteCache(TASK_COMPLETION_CACHE, c -> {
-//        if (completionCacheConfig.nearCacheMaxEntry() > 0) {
-//          c.nearCacheMode(NearCacheMode.INVALIDATED)
-//            .nearCacheMaxEntries(completionCacheConfig.nearCacheMaxEntry());
-//        }
-//        c.forceReturnValues(false);
-//      });
+
     remoteCacheManager.getConfiguration()
       .addRemoteCache(TASK_STATE_CACHE, c -> {
         if (stateCacheConfig.nearCacheMaxEntry() > 0) {
@@ -182,6 +179,7 @@ public class InfinispanInit {
         }
         c.forceReturnValues(false);
       });
+
 
     if (repositoryConfig.createOnStart()) {
       var distTemplate = objectCacheConfig.persist() ?
@@ -195,23 +193,31 @@ public class InfinispanInit {
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(FUNCTION_CACHE, "16MB")));
 
-//      distTemplate = completionCacheConfig.persist() ?
-//        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
-//      remoteCacheManager.administration().getOrCreateCache(TASK_COMPLETION_CACHE, new XMLStringConfiguration(distTemplate
-//        .formatted(TASK_COMPLETION_CACHE, completionCacheConfig.maxSize())));
-
       distTemplate = stateCacheConfig.persist() ?
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
       remoteCacheManager.administration().getOrCreateCache(TASK_STATE_CACHE, new XMLStringConfiguration(distTemplate
         .formatted(TASK_STATE_CACHE, stateCacheConfig.maxSize())));
+
+
+      remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(distTemplate
+        .formatted(INVOCATION_GRAPH_CACHE, stateCacheConfig.maxSize())));
     } else {
-      var list = List.of(OBJECT_CACHE,CLASS_CACHE,FUNCTION_CACHE,
-        TASK_STATE_CACHE, TASK_COMPLETION_CACHE);
+      var list = List.of(
+        OBJECT_CACHE,
+        CLASS_CACHE,
+        FUNCTION_CACHE,
+        TASK_STATE_CACHE,
+        INVOCATION_GRAPH_CACHE);
       for (String cacheName : list) {
         if (remoteCacheManager.getCache(cacheName) == null)
-          throw new RuntimeException("Cache '%s' is not ready".formatted(cacheName));
+          throw new IllegalStateException("Cache '%s' is not ready".formatted(cacheName));
       }
     }
+  }
 
+  @Produces
+  public RemoteMultimapCache<String,String> graph() {
+    var rmcm = new RemoteMultimapCacheManager<String,String>(remoteCacheManager);
+    return rmcm.get(INVOCATION_GRAPH_CACHE);
   }
 }

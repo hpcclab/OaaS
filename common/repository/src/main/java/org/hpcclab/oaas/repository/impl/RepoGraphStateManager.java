@@ -7,14 +7,20 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@ApplicationScoped
 public class RepoGraphStateManager extends AbstractGraphStateManager {
 
   RemoteMultimapCache<String, String> edgeMap;
+
+  public RepoGraphStateManager() {
+    super();
+  }
 
   @Inject
   public RepoGraphStateManager(OaasObjectRepository objRepo,

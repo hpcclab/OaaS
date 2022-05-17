@@ -15,6 +15,10 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   protected EntityRepository<String, OaasObject> objRepo;
 
+
+  public AbstractGraphStateManager() {
+  }
+
   public AbstractGraphStateManager(EntityRepository<String, OaasObject> objRepo) {
     this.objRepo = objRepo;
   }

@@ -450,7 +450,28 @@ components:
         steps:
           type: array
           items:
-            $ref: '#/components/schemas/OaasWorkflowStep'
+            $ref: '#/components/schemas/OaasDataflowStep'
+    OaasDataflowStep:
+      type: object
+      properties:
+        argRefs:
+          type: object
+          additionalProperties:
+            type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        as:
+          type: string
+        funcName:
+          type: string
+        inputRefs:
+          type: array
+          items:
+            type: string
+        target:
+          type: string
     OaasFunction:
       required:
       - name
@@ -554,27 +575,6 @@ components:
           type: string
         from:
           type: string
-    OaasWorkflowStep:
-      type: object
-      properties:
-        argRefs:
-          type: object
-          additionalProperties:
-            type: string
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        as:
-          type: string
-        funcName:
-          type: string
-        inputRefs:
-          type: array
-          items:
-            type: string
-        target:
-          type: string
     ObjectConstructRequest:
       type: object
       properties:
@@ -662,6 +662,10 @@ components:
           format: int64
           type: integer
         debugLog:
+          type: string
+        initWaitFor:
+          type: boolean
+        originator:
           type: string
         submittedTime:
           format: int64
