@@ -26,7 +26,7 @@ public class CloudEventTaskSubmitter implements TaskSubmitter {
       .map(taskFactory::genTask)
       .onItem().call(task -> taskBrokerService.submitTaskAsync(task.getId(),
         task.getFunction().getName(),
-        task.getFunction().getProvision().getType().toString(),
+//        task.getFunction().getProvision().getType().toString(),
         task)
       )
       .collect().last()

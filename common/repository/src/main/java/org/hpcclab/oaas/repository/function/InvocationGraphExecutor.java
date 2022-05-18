@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
@@ -38,13 +39,14 @@ public class InvocationGraphExecutor {
   public Uni<Void> exec(FunctionExecContext ctx) {
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
+    MutableList<Map.Entry<OaasObject, OaasObject>> innerWaitForGraph = Lists.mutable.empty();
     var failDeps = Lists.mutable.<OaasObject>empty();
     if (ctx.analyzeDeps(waitForGraph, failDeps)) {
       switch (ctx.getFunction().getType()) {
         case MACRO -> {
           for (var subCtx : ctx.getSubContexts()) {
             if (subCtx.getFunction().getType()==OaasFunctionType.TASK
-              && subCtx.analyzeDeps(waitForGraph, failDeps))
+              && subCtx.analyzeDeps(innerWaitForGraph, failDeps))
               ctxToSubmit.add(subCtx);
           }
         }
@@ -54,8 +56,10 @@ public class InvocationGraphExecutor {
       }
     }
     return traverseGraph(waitForGraph, ctxToSubmit)
+//      .invoke(() -> System.out.println("CTX TO SUBMIT "+ctxToSubmit.size()+": \n" + Json.encodePrettily(ctxToSubmit)))
+      .invoke(() -> waitForGraph.addAll(innerWaitForGraph))
       .flatMap(v -> putAllEdge(waitForGraph))
-      .flatMap(v -> gsm.updateSubmitStatus(ctx, ctxToSubmit)
+      .flatMap(v -> gsm.updateSubmittingStatus(ctx, ctxToSubmit)
         .collect().asList())
       .flatMap(submittableContexts -> submitter.submit(submittableContexts))
       .replaceWithVoid();
@@ -103,7 +107,7 @@ public class InvocationGraphExecutor {
     var entry = waitForGraph.get(rl.i++);
     OaasObject obj = entry.getKey();
     var ts = obj.getStatus().getTaskStatus();
-    if (ts.isSubmitted() || ts.isFailed()) {
+    if (obj.isReadyToUsed() || ts.isFailed()) {
       return Uni.createFrom().item(rl);
     }
     if (!obj.getStatus().isInitWaitFor()) {
@@ -131,7 +135,9 @@ public class InvocationGraphExecutor {
   }
 
   private Uni<Void> putAllEdge(MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph) {
-    var edges = waitForGraph.collect(entry -> Map.entry(entry.getKey().getId(), entry
+    var edges = waitForGraph
+      .select(e -> e.getValue() != null)
+      .collect(entry -> Map.entry(entry.getKey().getId(), entry
       .getValue().getId()));
     return gsm.persistEdge(edges);
   }

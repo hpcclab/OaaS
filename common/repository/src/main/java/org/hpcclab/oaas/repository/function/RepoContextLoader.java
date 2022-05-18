@@ -22,11 +22,12 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class RepoContextLoader implements ContextLoader{
+public class RepoContextLoader implements ContextLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(RepoContextLoader.class);
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
@@ -115,7 +116,8 @@ public class RepoContextLoader implements ContextLoader{
 
   private Uni<FunctionExecContext> resolveInputs(FunctionExecContext baseCtx,
                                                  OaasDataflowStep step) {
-    return Multi.createFrom().iterable(step.getInputRefs())
+    List<String> inputRefs = step.getInputRefs()==null ? List.of():step.getInputRefs();
+    return Multi.createFrom().iterable(inputRefs)
       .onItem().transformToUniAndConcatenate(ref -> resolveTarget(baseCtx, ref))
       .collect().asList()
       .invoke(baseCtx::setInputs)
@@ -152,13 +154,12 @@ public class RepoContextLoader implements ContextLoader{
     var inputIds = output.getOrigin().getInputs();
     var mainId = output.getOrigin().getParentId();
     Uni<TaskContext> uni;
-    if (mainId == null) {
+    if (mainId==null) {
       uni = Uni.createFrom().item(tc);
-    }
-    else {
+    } else {
       uni = objectRepo.getAsync(mainId)
         .call(main -> {
-          if (main.getRefs() != null && ! main.getRefs().isEmpty()) {
+          if (main.getRefs()!=null && !main.getRefs().isEmpty()) {
             var refSet = main.getRefs().stream().map(ObjectReference::getObjId)
               .collect(Collectors.toSet());
             return objectRepo.listAsync(refSet)

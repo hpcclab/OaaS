@@ -2,6 +2,9 @@ package org.hpcclab.oaas.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.function.OaasFunction;
@@ -13,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskContext {

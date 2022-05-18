@@ -24,5 +24,5 @@ public interface GraphStateManager {
 
 
   Multi<OaasObject> handleComplete(OaasObject completingObj);
-  Multi<TaskContext> updateSubmitStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts);
+  Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts);
 }

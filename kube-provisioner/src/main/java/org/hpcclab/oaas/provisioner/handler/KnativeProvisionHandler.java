@@ -133,7 +133,7 @@ public class KnativeProvisionHandler {
 //      .addToAttributes("kafkaheadercetasktype", "DURABLE")
       .addToAttributes("type", "oaas.task")
       .addToAttributes("function", function.getName())
-      .addToAttributes("tasktype", "DURABLE")
+//      .addToAttributes("tasktype", "DURABLE")
       .endFilter()
       .withNewSubscriber()
       .withNewRef(

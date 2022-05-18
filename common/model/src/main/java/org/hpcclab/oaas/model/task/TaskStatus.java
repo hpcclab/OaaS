@@ -12,7 +12,9 @@ public enum TaskStatus {
   @ProtoEnumValue(4)
   FAILED(true,true, true),
   @ProtoEnumValue(5)
-  DEPENDENCY_FAILED(false,false, true);
+  DEPENDENCY_FAILED(false,false, true),
+  @ProtoEnumValue(6)
+  READY(false,true, false);
 
   final boolean submitted;
   final boolean completed;

@@ -22,7 +22,6 @@ public class JobWatcher {
   @Inject
   KubernetesClient client;
 
-
   void startup(@Observes StartupEvent startupEvent) {
     if (!ProfileManager.getLaunchMode().isDevOrTest()) {
       client.batch().v1().jobs().inform(new ResourceEventHandler<>() {

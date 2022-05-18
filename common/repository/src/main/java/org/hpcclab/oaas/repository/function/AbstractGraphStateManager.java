@@ -2,7 +2,9 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -10,6 +12,7 @@ import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.EntityRepository;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public abstract class AbstractGraphStateManager implements GraphStateManager {
 
@@ -40,10 +43,13 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   public Multi<OaasObject> handleFailed(OaasObject failedObj) {
     return getDependentsRecursive(failedObj.getId())
+
       .onItem()
       .transformToUniAndConcatenate(id -> objRepo.computeAsync(id, (k, v) -> updateFailingObject(v)))
       .onCompletion()
-      .call(() -> objRepo.persistAsync(failedObj));
+      .call(() -> objRepo.persistAsync(failedObj))
+      .filter(i -> false);
+
   }
 
   public Multi<String> getDependentsRecursive(String srcId) {
@@ -53,18 +59,16 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
           return Multi.createFrom().empty();
         }
         return Multi.createFrom().iterable(edges)
-          .flatMap(this::getDependentsRecursive);
+          .flatMap(this::getDependentsRecursive)
+          .onCompletion().continueWith(edges);
       });
   }
 
   @Override
-  public Multi<TaskContext> updateSubmitStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
+  public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
     return Multi.createFrom().iterable(contexts)
       .onItem().transformToUniAndConcatenate(ctx -> {
-        var isSub = entryCtx.getSubContexts()
-          .stream()
-          .allMatch(subCtx -> subCtx==ctx);
-        if (isSub) {
+        if (entryCtx.contains(ctx)) {
           updateSubmittingObject(ctx.getOutput(), entryCtx.getOutput().getId());
           return Uni.createFrom().item(ctx);
         } else {
@@ -78,7 +82,10 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   private Uni<?> persistAll(FunctionExecContext ctx) {
     var objs = Lists.mutable.ofAll(ctx.getSubOutputs());
-    objs.add(ctx.getOutput());
+    var dataflow = ctx.getFunction().getMacro();
+    if (dataflow == null || dataflow.getExport() == null) {
+      objs.add(ctx.getOutput());
+    }
     return objRepo.persistAsync(objs);
   }
 
@@ -105,6 +112,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   OaasObject triggerObject(OaasObject object, String originator, String srcId) {
+    Objects.requireNonNull(object);
     var status = object.getStatus();
     var ts = status.getTaskStatus();
     status.getWaitFor().remove(srcId);

@@ -22,7 +22,7 @@ public class ObjectStatus {
   @ProtoField(value = 3, defaultValue = "-1")
   long submittedTime = -1;
   @ProtoField(value = 4, defaultValue = "-1")
-  long completionTime = -1;
+  long completedTime = -1;
   @ProtoField(5)
   String debugLog;
   @ProtoField(6)
@@ -38,11 +38,11 @@ public class ObjectStatus {
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completionTime, String debugLog, List<String> waitFor, boolean initWaitFor, String originator) {
+  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, String debugLog, List<String> waitFor, boolean initWaitFor, String originator) {
     this.taskStatus = taskStatus;
     this.createdTime = createdTime;
     this.submittedTime = submittedTime;
-    this.completionTime = completionTime;
+    this.completedTime = completedTime;
     this.debugLog = debugLog;
     this.waitFor = waitFor;
     this.initWaitFor = initWaitFor;
@@ -53,6 +53,7 @@ public class ObjectStatus {
     if (taskCompletion.isSuccess()) taskStatus = TaskStatus.SUCCEEDED;
     else taskStatus = TaskStatus.FAILED;
     debugLog = taskCompletion.getDebugLog();
+    completedTime = System.currentTimeMillis();
   }
 
   public void initWaitFor() {

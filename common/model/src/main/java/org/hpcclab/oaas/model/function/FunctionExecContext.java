@@ -1,7 +1,11 @@
 package org.hpcclab.oaas.model.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
@@ -12,10 +16,13 @@ import org.hpcclab.oaas.model.object.OaasObject;
 
 import java.util.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext extends TaskContext {
+  @JsonIgnore
   FunctionExecContext parent;
   OaasClass mainCls;
   OaasObject entry;
@@ -70,4 +77,16 @@ public class FunctionExecContext extends TaskContext {
     }
   }
 
+  public boolean contains(TaskContext taskContext) {
+    var outId = getOutput().getId();
+    if (taskContext.getOutput().getId().equals(outId))
+      return true;
+    for (FunctionExecContext subContext : subContexts) {
+      var b = subContext.contains(taskContext);
+      if (b) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

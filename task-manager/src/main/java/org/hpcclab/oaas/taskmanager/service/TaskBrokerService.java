@@ -24,7 +24,7 @@ public interface TaskBrokerService {
   @Operation(hidden = true)
   void submitTask(@HeaderParam("ce-id") String id,
                   @HeaderParam("ce-function") String function,
-                  @HeaderParam("ce-tasktype") String taskType,
+//                  @HeaderParam("ce-tasktype") String taskType,
                   OaasTask task);
 
 
@@ -35,6 +35,6 @@ public interface TaskBrokerService {
   @Operation(hidden = true)
   Uni<Void> submitTaskAsync(@HeaderParam("ce-id") String id,
                        @HeaderParam("ce-function") String function,
-                       @HeaderParam("ce-tasktype") String taskType,
+//                       @HeaderParam("ce-tasktype") String taskType,
                        OaasTask task);
 }

@@ -30,7 +30,7 @@ public class OaasObject {
   ObjectOrigin origin;
   @ProtoField(3)
   Long originHash;
-//  @ProtoField(4)
+  //  @ProtoField(4)
 //  ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
   @ProtoField(5)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
@@ -105,30 +105,35 @@ public class OaasObject {
   }
 
   public void updateStatus(TaskCompletion taskCompletion) {
-    if (status == null) status = new ObjectStatus();
+    if (status==null) status = new ObjectStatus();
     status.set(taskCompletion);
   }
 
   @JsonIgnore
   public boolean isReadyToUsed() {
-    return origin.isRoot() || status.getTaskStatus() == TaskStatus.SUCCEEDED;
+    return origin.isRoot() || (status.getTaskStatus().isCompleted() && !status.getTaskStatus().isFailed());
   }
 
-  public List<String> waitForList(){
+  public List<String> waitForList() {
     if (origin.isRoot()) {
       return List.of();
     }
-    var list = refs != null && !refs.isEmpty() ?
+    var list = refs!=null && !refs.isEmpty() ?
       Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
       Lists.mutable.<String>empty();
-    if (origin.isWfi() && origin.getInputs()!= null) {
+    if (origin.isWfi() && origin.getInputs()!=null) {
       list.addAll(origin.getInputs());
     }
-    if (refs != null) {
-       list.addAll(Lists.fixedSize.ofAll(refs)
-         .collect(ObjectReference::getObjId));
+    if (refs!=null) {
+      list.addAll(Lists.fixedSize.ofAll(refs)
+        .collect(ObjectReference::getObjId));
     }
     list.add(origin.getParentId());
     return list;
+  }
+
+  public ObjectStatus getStatus() {
+    if (status==null) status = new ObjectStatus();
+    return status;
   }
 }
