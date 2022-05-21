@@ -23,12 +23,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-@Path("/v2/oal/")
+@Path("/oal/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class V2OalResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger(V2OalResource.class);
+public class OalResource {
+  private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
   FunctionRouter router;
   @Inject

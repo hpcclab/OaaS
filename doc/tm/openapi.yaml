@@ -21,7 +21,12 @@ paths:
   /oal:
     post:
       tags:
-      - V 1 Oal Resource
+      - Oal Resource
+      parameters:
+      - name: await
+        in: query
+        schema:
+          type: boolean
       requestBody:
         content:
           application/json:
@@ -37,7 +42,7 @@ paths:
   /oal/-/{filePath}:
     post:
       tags:
-      - V 1 Oal Resource
+      - Oal Resource
       parameters:
       - name: filePath
         in: path
@@ -62,13 +67,17 @@ paths:
   /oal/{oal}:
     get:
       tags:
-      - V 1 Oal Resource
+      - Oal Resource
       parameters:
       - name: oal
         in: path
         required: true
         schema:
           type: string
+      - name: await
+        in: query
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK
@@ -79,99 +88,7 @@ paths:
   /oal/{oal}/{filePath}:
     get:
       tags:
-      - V 1 Oal Resource
-      parameters:
-      - name: filePath
-        in: path
-        required: true
-        schema:
-          pattern: .*
-          type: string
-      - name: oal
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: await
-        in: query
-        schema:
-          type: boolean
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json: {}
-  /v2/oal:
-    post:
-      tags:
-      - V 2 Oal Resource
-      parameters:
-      - name: await
-        in: query
-        schema:
-          type: boolean
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OaasObject'
-  /v2/oal/-/{filePath}:
-    post:
-      tags:
-      - V 2 Oal Resource
-      parameters:
-      - name: filePath
-        in: path
-        required: true
-        schema:
-          pattern: .*
-          type: string
-      - name: await
-        in: query
-        schema:
-          type: boolean
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json: {}
-  /v2/oal/{oal}:
-    get:
-      tags:
-      - V 2 Oal Resource
-      parameters:
-      - name: oal
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: await
-        in: query
-        schema:
-          type: boolean
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OaasObject'
-  /v2/oal/{oal}/{filePath}:
-    get:
-      tags:
-      - V 2 Oal Resource
+      - Oal Resource
       parameters:
       - name: filePath
         in: path

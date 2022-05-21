@@ -29,8 +29,6 @@ import java.util.function.Predicate;
 public class ObjectCompletionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger( ObjectCompletionListener.class );
 
-//  @Remote("TaskCompletion")
-//  RemoteCache<UUID, TaskCompletion> completionCache;
   @Inject
   OaasObjectRepository objectRepo;
   RemoteCache<String, OaasObject> remoteCache;

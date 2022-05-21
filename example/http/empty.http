@@ -26,7 +26,6 @@ GET {{cds}}/{{obj_0_id}}
 GET {{cds}}/{{obj_0_id}}:example.empty.function()/text?await=true
 ###
 GET {{cds}}/{{obj_0_id}}:example.empty.function()?await=true
-#GET {{tm}}/v2/oal/{{obj_0_id}}:example.empty.function()?await=true
 ###
 GET {{tm}}/oal/{{obj_0_id}}:example.empty.function()/tmp
 ###

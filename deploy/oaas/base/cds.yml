@@ -29,7 +29,7 @@ data:
           add_header Access-Control-Allow-Origin *;
           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
 
-          proxy_pass      http://backend/v2/oal/$1$is_args$args;
+          proxy_pass      http://backend/oal/$1$is_args$args;
           proxy_cache       contents;
           proxy_http_version 1.1;
           proxy_cache_key   $uri;
@@ -42,7 +42,7 @@ data:
 
           add_header Access-Control-Allow-Origin *;
           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-          proxy_pass      http://backend/v2/oal/;
+          proxy_pass      http://backend/oal/;
           #proxy_cache       contents;
           #proxy_http_version 1.1;
           #proxy_cache_key   $uri;
