@@ -31,7 +31,7 @@ spec:
             - configMapRef:
                 name: oaas-env
             - configMapRef:
-                name: msc-bucket
+                name: oaas-bucket
           env:
             - name: OAAS_SA_S3_URL
               value: 'http://${BUCKET_HOST}.cluster.local'
@@ -43,12 +43,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: AWS_ACCESS_KEY_ID
-                  name: msc-bucket
+                  name: oaas-bucket
             - name: OAAS_SA_S3_SECRETKEY
               valueFrom:
                 secretKeyRef:
                   key: AWS_SECRET_ACCESS_KEY
-                  name: msc-bucket
+                  name: oaas-bucket
           image: ghcr.io/hpcclab/oaas/storage-adapter:latest
           ports:
             - containerPort: 8080

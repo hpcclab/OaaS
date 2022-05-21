@@ -5,7 +5,7 @@ metadata:
   labels:
     app: task-manager
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: task-manager
@@ -30,11 +30,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
-            - configMapRef:
-                name: msc-bucket
-          env:
-            - name: OAAS_SA_S3PREFIXURL
-              value: 'http://${BUCKET_HOST}.cluster.local/${BUCKET_NAME}'
           image: ghcr.io/hpcclab/oaas/task-manager
           ports:
             - containerPort: 8080

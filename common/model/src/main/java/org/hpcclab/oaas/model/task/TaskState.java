@@ -17,7 +17,7 @@ public class TaskState {
   @ProtoField(3)
   Set<String> completedPrqTasks;
   @ProtoField(4)
-  TaskStatus status = TaskStatus.IDLE;
+  TaskStatus status = TaskStatus.LAZY;
   @ProtoField(value = 5, defaultValue = "-1")
   long submitTime = -1;
   @ProtoField(value = 6, defaultValue = "-1")

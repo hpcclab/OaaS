@@ -29,7 +29,8 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(OaasObject completingObj) {
     if (!completingObj.getStatus().getTaskStatus().isFailed()) {
-      return getAllEdge(completingObj.getId())
+      return objRepo.persistAsync(completingObj)
+        .flatMap(ignored -> getAllEdge(completingObj.getId()))
         .toMulti()
         .flatMap(l -> Multi.createFrom().iterable(l))
         .onItem()

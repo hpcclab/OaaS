@@ -4,7 +4,7 @@ import org.infinispan.protostream.annotations.ProtoEnumValue;
 
 public enum TaskStatus {
   @ProtoEnumValue(1)
-  IDLE(false,false, false),
+  LAZY(false,false, false),
   @ProtoEnumValue(2)
   DOING(true,false, false),
   @ProtoEnumValue(3)

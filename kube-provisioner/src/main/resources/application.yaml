@@ -18,6 +18,7 @@ quarkus:
   http:
     access-log:
       enabled: true
+      exclude-pattern: /q/.*
   vertx:
     prefer-native-transport: true
   container-image:

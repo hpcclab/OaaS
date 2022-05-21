@@ -10,6 +10,7 @@ import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectStatus;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class OaasObjectFactory {
     obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
+    status.setTaskStatus(TaskStatus.READY);
     status.setCreatedTime(System.currentTimeMillis());
     obj.setStatus(status);
     return obj;

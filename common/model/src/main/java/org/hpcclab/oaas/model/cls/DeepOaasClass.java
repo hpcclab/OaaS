@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.function.DeepOaasFunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
+import org.hpcclab.oaas.model.state.StateType;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class DeepOaasClass {
   String name;
   ObjectType objectType;
-  OaasObjectState.StateType stateType;
+  StateType stateType;
   Set<DeepOaasFunctionBinding> functions;
   StateSpecification stateSpec;
   Set<ReferenceSpecification> refSpec;

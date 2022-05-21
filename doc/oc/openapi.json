@@ -859,9 +859,6 @@
           },
           "stateId" : {
             "type" : "string"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/StateType"
           }
         }
       },
@@ -995,7 +992,7 @@
       "ObjectStatus" : {
         "type" : "object",
         "properties" : {
-          "completionTime" : {
+          "completedTime" : {
             "format" : "int64",
             "type" : "integer"
           },
@@ -1220,7 +1217,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "IDLE", "SUCCEEDED" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "LAZY", "READY", "SUCCEEDED" ],
         "type" : "string"
       },
       "Type" : {

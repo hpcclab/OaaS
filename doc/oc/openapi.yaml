@@ -566,8 +566,6 @@ components:
             type: string
         stateId:
           type: string
-        type:
-          $ref: '#/components/schemas/StateType'
     OaasWorkflowExport:
       type: object
       properties:
@@ -655,7 +653,7 @@ components:
     ObjectStatus:
       type: object
       properties:
-        completionTime:
+        completedTime:
           format: int64
           type: integer
         createdTime:
@@ -819,7 +817,8 @@ components:
       - DEPENDENCY_FAILED
       - DOING
       - FAILED
-      - IDLE
+      - LAZY
+      - READY
       - SUCCEEDED
       type: string
     Type:

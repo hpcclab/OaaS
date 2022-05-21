@@ -18,7 +18,7 @@ spec:
         - name: kowl
           env:
             - name: KAFKA_BROKERS
-              value: msc-kafka-bootstrap:9092
+              value: oaas-kafka-bootstrap:9092
           image: quay.io/cloudhut/kowl:master
           ports:
             - containerPort: 8080

@@ -113,7 +113,7 @@ public class JobProvisioner {
   private void putEnv(Map<String, String> env, OaasObject obj, String prefix) {
     env.put(prefix + "_ID", obj.getId().toString());
 //    env.put(prefix + "_RESOURCE_BASE_URL", obj.getState().getBaseUrl());
-    env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
+//    env.put(prefix + "_RESOURCE_TYPE", obj.getState().getType().toString());
   }
 
   String generateRandomString (int length) {

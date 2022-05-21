@@ -32,7 +32,7 @@ public class InfinispanInit {
                        mode="ASYNC">
       <indexing storage="local-heap">
         <indexed-entities>
-          <indexed-entity>org.hpcclab.oaas.model.object.OaasObject</indexed-entity>
+          <indexed-entity>oaas.OaasObject</indexed-entity>
         </indexed-entities>
       </indexing>
       <memory storage="OFF_HEAP"
@@ -54,7 +54,7 @@ public class InfinispanInit {
                        mode="SYNC">
       <indexing>
         <indexed-entities>
-          <indexed-entity>org.hpcclab.oaas.model.object.OaasObject</indexed-entity>
+          <indexed-entity>oaas.OaasObject</indexed-entity>
         </indexed-entities>
       </indexing>
       <memory storage="OFF_HEAP"
@@ -135,6 +135,23 @@ public class InfinispanInit {
    </distributed-cache>
     """;
 
+  // language=xml
+  private static final String TEMPLATE_MULTIMAP_CONFIG = """
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="ASYNC">
+      <memory storage="HEAP"
+              max-size="%s"/>
+      <encoding>
+          <key media-type="application/x-protostream"/>
+          <value media-type="application/x-protostream"/>
+      </encoding>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+    """;
+
   @Inject
   RemoteCacheManager remoteCacheManager;
   @Inject
@@ -198,8 +215,7 @@ public class InfinispanInit {
       remoteCacheManager.administration().getOrCreateCache(TASK_STATE_CACHE, new XMLStringConfiguration(distTemplate
         .formatted(TASK_STATE_CACHE, stateCacheConfig.maxSize())));
 
-
-      remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(distTemplate
+      remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
         .formatted(INVOCATION_GRAPH_CACHE, stateCacheConfig.maxSize())));
     } else {
       var list = List.of(

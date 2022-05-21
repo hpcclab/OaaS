@@ -4,6 +4,7 @@ import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.repository.impl.OaasClassRepository;
@@ -63,7 +64,7 @@ public class TaskFactory {
                             String b64Dac,
                             String prefix) {
     var cls = clsRepo.get(obj.getCls());
-    if (cls.getStateType()!=OaasObjectState.StateType.COLLECTION) {
+    if (cls.getStateType()!=StateType.COLLECTION) {
       for (KeySpecification keySpec : cls.getStateSpec().getKeySpecs()) {
         var url  =
           contentUrlGenerator.generateUrl(obj.getId(),keySpec.getName(),b64Dac);

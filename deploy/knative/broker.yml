@@ -5,7 +5,7 @@ metadata:
     # case-sensitive
     eventing.knative.dev/broker.class: Kafka
   name: default
-  namespace: msc
+  namespace: oaas
 spec:
   # Configuration specific to this broker.
   config:
@@ -13,13 +13,4 @@ spec:
     kind: ConfigMap
     name: kafka-broker-config
     namespace: knative-eventing
-  # Optional dead letter sink, you can specify either:
-  #  - deadLetterSink.ref, which is a reference to a Callable
-  #  - deadLetterSink.uri, which is an absolute URI to a Callable (It can potentially be out of the Kubernetes cluster)
-#  delivery:
-#    deadLetterSink:
-#      ref:
-#        apiVersion: serving.knative.dev/v1
-#        kind: Service
-#        name: dlq-service
 ---

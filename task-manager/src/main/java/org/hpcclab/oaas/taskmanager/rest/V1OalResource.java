@@ -27,8 +27,8 @@ import java.net.URI;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class OalResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
+public class V1OalResource {
+  private static final Logger LOGGER = LoggerFactory.getLogger(V1OalResource.class);
   @Inject
   FunctionRouter router;
   @Inject

@@ -44,12 +44,18 @@ public class V2OalResource {
   TaskManagerConfig config;
 
   @POST
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal) {
+  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal,
+                                           @QueryParam("await") Boolean await) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return execFunction(oal)
-        .call(obj -> graphExecutor.exec(obj));
+      var uni = execFunction(oal)
+        .call(ctx -> graphExecutor.exec(ctx))
+        .map(FunctionExecContext::getOutput);
+      if (await != null && await) {
+        uni = uni.flatMap(this::waitObj);
+      }
+      return uni;
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -59,10 +65,11 @@ public class V2OalResource {
 
   @GET
   @Path("{oal}")
-  public Uni<OaasObject> getObject(@PathParam("oal") String oal) {
+  public Uni<OaasObject> getObject(@PathParam("oal") String oal,
+                                   @QueryParam("await") Boolean await) {
     var oaeObj = ObjectAccessLangauge.parse(oal);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
-    return getObjectWithPost(oaeObj);
+    return getObjectWithPost(oaeObj, await);
   }
 
   @POST
@@ -74,21 +81,25 @@ public class V2OalResource {
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
       return execFunction(oal)
-        .flatMap(obj -> submitAndWaitObj(obj, await)
+        .flatMap(ctx -> submitAndWaitObj(ctx, await)
           .map(newObj -> createResponse(newObj, filePath))
         );
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .flatMap(obj -> {
-          if (obj.getOrigin().getParentId()==null) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          } else if (obj.getStatus()==null) {
-            return submitAndWaitObj(obj, await)
-              .map(newObj -> createResponse(newObj, filePath));
-          } else {
+          if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
+          if (obj.getStatus().getTaskStatus().isFailed()) {
+            return Uni.createFrom().item(createResponse(obj, filePath));
+          }
+          if (!obj.getStatus().getTaskStatus().isSubmitted()) {
+            return waitObj(obj)
+              .map(newObj -> createResponse(newObj, filePath));
+          }
+          return Uni.createFrom().item(createResponse(obj, filePath));
+
         });
     }
   }
@@ -104,10 +115,9 @@ public class V2OalResource {
     return postContentAndExec(filePath, await, oaeObj);
   }
 
-  public Uni<OaasObject> execFunction(ObjectAccessLangauge oal) {
+  public Uni<FunctionExecContext> execFunction(ObjectAccessLangauge oal) {
     var uni = router.invoke(oal)
-      .flatMap(objectRepo::persistFromCtx)
-      .map(FunctionExecContext::getOutput);
+      .flatMap(objectRepo::persistFromCtx);
     if (LOGGER.isDebugEnabled()) {
       uni = uni
         .invoke(() -> LOGGER.debug("Call function '{}' succeed", oal));
@@ -125,15 +135,16 @@ public class V2OalResource {
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
     if (object.getOrigin().getParentId()!=null) {
-      var taskCompletion = object.getStatus();
-      if (taskCompletion==null) {
-        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
+      var status = object.getStatus();
+      if (status==null) {
+        return Response.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).build();
       }
-      if (taskCompletion.getTaskStatus()==TaskStatus.DOING) {
-        return Response.status(HttpResponseStatus.NO_CONTENT.code())
+      var ts = status.getTaskStatus();
+      if (ts==TaskStatus.DOING) {
+        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
           .build();
       }
-      if (taskCompletion.getTaskStatus()!=TaskStatus.SUCCEEDED) {
+      if (ts.isFailed()) {
         return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
       }
     }
@@ -158,5 +169,26 @@ public class V2OalResource {
     }
     return uni1
       .replaceWith(obj);
+  }
+
+
+  public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
+    var uni1 = graphExecutor.exec(ctx);
+    if (await==null ? config.defaultBlockCompletion():await) {
+      var id = ctx.getOutput().getId();
+//      var uni2 = completionListener.wait(id);
+//      return Uni.combine().all().unis(uni1, uni2)
+//        .asTuple()
+//        .flatMap(event -> objectRepo.getAsync(id));
+      return uni1.flatMap(v -> completionListener.wait(id))
+        .flatMap(v -> objectRepo.getAsync(id));
+    }
+    return uni1
+      .replaceWith(ctx.getOutput());
+  }
+
+  public Uni<OaasObject> waitObj(OaasObject obj) {
+    return completionListener.wait(obj.getId())
+      .flatMap(event -> objectRepo.getAsync(obj.getId()));
   }
 }

@@ -55,6 +55,10 @@ public class ObjectConstructResource implements ObjectConstructService {
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .select(k -> construction.getKeys().contains(k.getName()));
+    if (ks.isEmpty()) {
+      return objRepo.persistAsync(obj)
+        .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
+    }
     DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, true);
     return allocationService.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))

@@ -1,29 +1,26 @@
 apiVersion: v1
 data:
   JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-  QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
+  QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
   QUARKUS_CONSOLE_COLOR: 'false'
   QUARKUS_HTTP_CORS: 'true'
-  KAFKA_BOOTSTRAP_SERVERS: msc-kafka-bootstrap:9092
-  OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
-  OAAS_OC_PROVISIONTOPIC: msc-provisions
+  KAFKA_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
+  OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_OC_PROVISIONTOPIC: oaas-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
-  OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.msc.svc.cluster.local
-  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/msc/default
-  OAAS_TM_TASKCOMPLETIONTOPIC: msc-task-completions
+  OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
   OAAS_TM_TASKCOMPLETIONPARTITIONS: '1'
 #  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
-  OAAS_KP_TASKCOMPLETIONTOPIC: msc-task-completions
-  OAAS_KP_PROVISIONTOPIC: msc-provisions
+  OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_TASKHANDLERSERVICE: task-completion-handler
   OAAS_KP_EXPOSEKNATIVE: 'true'
-  OAAS_TCH_TASKCOMPLETIONTOPIC: msc-task-completions
   OAAS_TCH_TASKMANAGERURL: http://task-manager
   INFINISPAN_SERVER: oaas-infinispan:11222
   INFINISPAN_USERNAME: oaas
   INFINISPAN_PASSWORD: oaas
-  OAAS_REPO_OBJECT_PERSIST: 'true'
-  OAAS_REPO_STATE_PERSIST: 'true'
+  OAAS_REPO_OBJECT_PERSIST: 'false'
+  OAAS_REPO_STATE_PERSIST: 'false'
   OAAS_REPO_CREATEONSTART: 'true'
 #  OAAS_REPO_OBJECT_NEARCACHEMAXENTRY: "-1"
 #  OAAS_REPO_CLS_NEARCACHEMAXENTRY: "-1"

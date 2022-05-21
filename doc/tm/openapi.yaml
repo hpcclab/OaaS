@@ -21,7 +21,7 @@ paths:
   /oal:
     post:
       tags:
-      - Oal Resource
+      - V 1 Oal Resource
       requestBody:
         content:
           application/json:
@@ -37,7 +37,7 @@ paths:
   /oal/-/{filePath}:
     post:
       tags:
-      - Oal Resource
+      - V 1 Oal Resource
       parameters:
       - name: filePath
         in: path
@@ -62,7 +62,7 @@ paths:
   /oal/{oal}:
     get:
       tags:
-      - Oal Resource
+      - V 1 Oal Resource
       parameters:
       - name: oal
         in: path
@@ -79,7 +79,7 @@ paths:
   /oal/{oal}/{filePath}:
     get:
       tags:
-      - Oal Resource
+      - V 1 Oal Resource
       parameters:
       - name: filePath
         in: path
@@ -105,6 +105,11 @@ paths:
     post:
       tags:
       - V 2 Oal Resource
+      parameters:
+      - name: await
+        in: query
+        schema:
+          type: boolean
       requestBody:
         content:
           application/json:
@@ -152,6 +157,10 @@ paths:
         required: true
         schema:
           type: string
+      - name: await
+        in: query
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK
@@ -225,8 +234,6 @@ components:
             type: string
         stateId:
           type: string
-        type:
-          $ref: '#/components/schemas/StateType'
     ObjectAccessLangauge:
       type: object
       properties:
@@ -269,7 +276,7 @@ components:
     ObjectStatus:
       type: object
       properties:
-        completionTime:
+        completedTime:
           format: int64
           type: integer
         createdTime:
@@ -290,11 +297,6 @@ components:
           type: array
           items:
             type: string
-    StateType:
-      enum:
-      - COLLECTION
-      - FILES
-      type: string
     StreamInfo:
       type: object
       properties:
@@ -317,6 +319,7 @@ components:
       - DEPENDENCY_FAILED
       - DOING
       - FAILED
-      - IDLE
+      - LAZY
+      - READY
       - SUCCEEDED
       type: string

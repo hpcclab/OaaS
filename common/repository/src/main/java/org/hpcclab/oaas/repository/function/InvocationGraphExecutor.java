@@ -2,7 +2,6 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
@@ -11,6 +10,7 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OaasObjects;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class InvocationGraphExecutor {
   public Uni<Void> exec(OaasObject obj) {
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
-    waitForGraph.add(Map.entry(obj, null));
+    waitForGraph.add(Map.entry(obj, OaasObjects.NULL));
     return traverseGraph(waitForGraph, ctxToSubmit)
       .flatMap(v -> putAllEdge(waitForGraph))
       .flatMap(v -> submitter.submit(ctxToSubmit))
@@ -136,9 +136,9 @@ public class InvocationGraphExecutor {
 
   private Uni<Void> putAllEdge(MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph) {
     var edges = waitForGraph
-      .select(e -> e.getValue() != null)
-      .collect(entry -> Map.entry(entry.getKey().getId(), entry
-      .getValue().getId()));
+      .select(e -> !OaasObjects.isNullObj(e.getValue()))
+      .collect(entry ->
+        Map.entry(entry.getKey().getId(), entry.getValue().getId()));
     return gsm.persistEdge(edges);
   }
 

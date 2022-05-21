@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
+import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class DataAccessResourceTest {
     var testCls = new OaasClass();
     testCls.setName("test");
     testCls.setObjectType(ObjectType.SIMPLE);
-    testCls.setStateType(OaasObjectState.StateType.FILES);
+    testCls.setStateType(StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(
         new KeySpecification("test", "s3")

@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
+import org.hpcclab.oaas.model.state.StateType;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -26,7 +27,7 @@ public class OaasClass {
   @ProtoField(3)
   ObjectType objectType;
   @ProtoField(4)
-  OaasObjectState.StateType stateType;
+  StateType stateType;
   @ProtoField(5)
   Set<OaasFunctionBinding> functions;
   @ProtoField(6)
@@ -40,7 +41,7 @@ public class OaasClass {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String genericType, ObjectType objectType, OaasObjectState.StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
+  public OaasClass(String name, String genericType, ObjectType objectType, StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
     this.name = name;
     this.genericType = genericType;
     this.objectType = objectType;
@@ -54,7 +55,7 @@ public class OaasClass {
   public void validate() {
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
-    if (stateType==OaasObjectState.StateType.COLLECTION
+    if (stateType==StateType.COLLECTION
       && stateSpec.getDefaultProvider()==null) {
       throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
     }

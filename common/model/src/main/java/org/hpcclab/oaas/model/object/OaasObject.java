@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Accessors(chain = true)
 @ProtoDoc("@Indexed")
 public class OaasObject {
 
@@ -69,8 +71,7 @@ public class OaasObject {
   public static OaasObject createFromClasses(OaasClass cls) {
     var o = new OaasObject();
     o.setCls(cls.getName());
-    o.setState(new OaasObjectState()
-      .setType(cls.getStateType()));
+    o.setState(new OaasObjectState());
     return o;
   }
 
@@ -96,12 +97,14 @@ public class OaasObject {
   }
 
   @JsonSetter
-  public void setEmbeddedRecord(JsonNode val) {
+  public OaasObject setEmbeddedRecord(JsonNode val) {
     this.embeddedRecord = val.toString();
+    return this;
   }
 
-  public void setEmbeddedRecord(String embeddedRecord) {
+  public OaasObject setEmbeddedRecord(String embeddedRecord) {
     this.embeddedRecord = embeddedRecord;
+    return this;
   }
 
   public void updateStatus(TaskCompletion taskCompletion) {

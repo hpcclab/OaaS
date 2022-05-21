@@ -16,7 +16,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectStatus {
   @ProtoField(1)
-  TaskStatus taskStatus = TaskStatus.IDLE;
+  TaskStatus taskStatus = TaskStatus.LAZY;
   @ProtoField(value = 2, defaultValue = "-1")
   long createdTime = -1;
   @ProtoField(value = 3, defaultValue = "-1")

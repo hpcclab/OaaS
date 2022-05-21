@@ -18,51 +18,28 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
-  StateType type;
+//  @ProtoField(1)
+//  StateType type;
+  @ProtoField(2)
   String stateId;
+  @ProtoField(number = 3, javaType = HashMap.class)
   Map<String,String> overrideUrls;
 
-  public enum StateType {
-    @ProtoEnumValue(2)
-    @JsonAlias("FILE")
-    FILES,
-    @ProtoEnumValue(3)
-    COLLECTION,
-  }
 
   public OaasObjectState() {
   }
 
-  public OaasObjectState(StateType type,
-                         String stateId,
+  public OaasObjectState(String stateId,
                          Map<String, String> overrideUrls) {
-    this.type = type;
     this.stateId = stateId;
     this.overrideUrls = overrideUrls;
   }
 
   @ProtoFactory
-  public OaasObjectState(StateType type,
-                         String stateId,
+  public OaasObjectState(String stateId,
                          HashMap<String, String> overrideUrls) {
-    this.type = type;
+//    this.type = type;
     this.stateId = stateId;
     this.overrideUrls = overrideUrls;
-  }
-
-  @ProtoField(1)
-  public StateType getType() {
-    return type;
-  }
-
-
-  @ProtoField(3)
-  public String getStateId() {
-    return stateId;
-  }
-
-  @ProtoField(number = 4, javaType = HashMap.class)
-  public Map<String, String> getOverrideUrls() {
-    return overrideUrls;
   }
 }

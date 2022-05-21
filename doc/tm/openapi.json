@@ -29,7 +29,7 @@
     },
     "/oal" : {
       "post" : {
-        "tags" : [ "Oal Resource" ],
+        "tags" : [ "V 1 Oal Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -55,7 +55,7 @@
     },
     "/oal/-/{filePath}" : {
       "post" : {
-        "tags" : [ "Oal Resource" ],
+        "tags" : [ "V 1 Oal Resource" ],
         "parameters" : [ {
           "name" : "filePath",
           "in" : "path",
@@ -92,7 +92,7 @@
     },
     "/oal/{oal}" : {
       "get" : {
-        "tags" : [ "Oal Resource" ],
+        "tags" : [ "V 1 Oal Resource" ],
         "parameters" : [ {
           "name" : "oal",
           "in" : "path",
@@ -117,7 +117,7 @@
     },
     "/oal/{oal}/{filePath}" : {
       "get" : {
-        "tags" : [ "Oal Resource" ],
+        "tags" : [ "V 1 Oal Resource" ],
         "parameters" : [ {
           "name" : "filePath",
           "in" : "path",
@@ -153,6 +153,13 @@
     "/v2/oal" : {
       "post" : {
         "tags" : [ "V 2 Oal Resource" ],
+        "parameters" : [ {
+          "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -222,6 +229,12 @@
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
           }
         } ],
         "responses" : {
@@ -331,9 +344,6 @@
           },
           "stateId" : {
             "type" : "string"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/StateType"
           }
         }
       },
@@ -400,7 +410,7 @@
       "ObjectStatus" : {
         "type" : "object",
         "properties" : {
-          "completionTime" : {
+          "completedTime" : {
             "format" : "int64",
             "type" : "integer"
           },
@@ -432,10 +442,6 @@
           }
         }
       },
-      "StateType" : {
-        "enum" : [ "COLLECTION", "FILES" ],
-        "type" : "string"
-      },
       "StreamInfo" : {
         "type" : "object",
         "properties" : {
@@ -463,7 +469,7 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "IDLE", "SUCCEEDED" ],
+        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "LAZY", "READY", "SUCCEEDED" ],
         "type" : "string"
       }
     }

@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 @ApplicationScoped
 public class ObjectCompletionListener {
@@ -88,11 +89,15 @@ public class ObjectCompletionListener {
     }
 
     public Uni<String> wait(String id, Duration timeout) {
-      LOGGER.debug("start wait for {}", id);
+      return wait(id, s -> s.equals(id), timeout);
+    }
+
+    public Uni<String> wait(String id, Predicate<? super String> selector, Duration timeout) {
+//      LOGGER.debug("start wait for {}", id);
       countingMap.computeIfAbsent(id, key -> new AtomicInteger())
         .incrementAndGet();
       return broadcastProcessor
-        .filter(event -> event.equals(id))
+        .filter(selector)
         .toUni()
         .ifNoItem().after(timeout)
         .recoverWithItem((String) null)

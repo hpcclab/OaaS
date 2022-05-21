@@ -4,7 +4,6 @@
       color: true
     log:
       min-level: TRACE
-
   oaas:
     log: TRACE
 
@@ -24,14 +23,6 @@
       auth-username: ${infinispan.username:}
       auth-password: ${infinispan.password:}
       server-list: ${infinispan.server:}
-  repo:
-    createOnStart: true
-    object:
-      persist: true
-    state:
-      persist: true
-    completion:
-      persist: true
   oaas:
     oc:
       kafkaEnabled: true
@@ -42,14 +33,6 @@ oaas:
     provisionTopic: oaas-provisions
     kafkaEnabled: false
   log: INFO
-  repo:
-    createOnStart: true
-    object:
-      persist: false
-    state:
-      persist: false
-    completion:
-      persist: false
 
 quarkus:
   console:
