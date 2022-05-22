@@ -13,7 +13,7 @@ functions:
         limitsCpu: '2'
 classes:
   - name: example.text
-    stateType: FILE
+    stateType: FILES
     objectType: SIMPLE
     stateSpec:
       keySpecs:

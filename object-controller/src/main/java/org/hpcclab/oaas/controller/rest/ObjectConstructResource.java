@@ -59,7 +59,7 @@ public class ObjectConstructResource implements ObjectConstructService {
       return objRepo.persistAsync(obj)
         .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
     }
-    DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, true);
+    DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, cls.getStateSpec().getDefaultProvider(), true);
     return allocationService.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
       .call(() -> objRepo.persistAsync(obj));

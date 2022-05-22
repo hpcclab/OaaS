@@ -295,9 +295,6 @@
             "format" : "int64",
             "type" : "integer"
           },
-          "debugLog" : {
-            "type" : "string"
-          },
           "initWaitFor" : {
             "type" : "boolean"
           },
@@ -331,10 +328,10 @@
       "TaskCompletion" : {
         "type" : "object",
         "properties" : {
-          "debugLog" : {
+          "embeddedRecord" : {
             "type" : "string"
           },
-          "embeddedRecord" : {
+          "errorMsg" : {
             "type" : "string"
           },
           "id" : {

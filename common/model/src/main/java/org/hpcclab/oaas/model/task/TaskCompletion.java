@@ -17,7 +17,7 @@ public class TaskCompletion {
   @ProtoField(value = 2, defaultValue = "true")
   boolean success;
   @ProtoField(3)
-  String debugLog;
+  String errorMsg;
   @JsonRawValue
   @ProtoField(4)
   String embeddedRecord;
@@ -26,10 +26,10 @@ public class TaskCompletion {
   }
 
   @ProtoFactory
-  public TaskCompletion(String id, boolean success, String debugLog, String embeddedRecord) {
+  public TaskCompletion(String id, boolean success, String errorMsg, String embeddedRecord) {
     this.id = id;
     this.success = success;
-    this.debugLog = debugLog;
+    this.errorMsg = errorMsg;
     this.embeddedRecord = embeddedRecord;
   }
 

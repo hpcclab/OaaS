@@ -659,8 +659,6 @@ components:
         createdTime:
           format: int64
           type: integer
-        debugLog:
-          type: string
         initWaitFor:
           type: boolean
         originator:

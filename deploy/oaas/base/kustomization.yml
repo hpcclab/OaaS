@@ -3,7 +3,6 @@ resources:
 ### kube-provisioner
   - kp.yml
   - kp-rb.yml
-#  - kp-trigger.yml
 ### task-manager
   - tm.yml
 ### object-controller

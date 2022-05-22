@@ -4,15 +4,18 @@ metadata:
   name: kube-provisioner
   labels:
     app: kube-provisioner
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: kube-provisioner
+      platform: oaas
   template:
     metadata:
       labels:
         app: kube-provisioner
+        platform: oaas
     spec:
       serviceAccountName: kp-sa
       containers:

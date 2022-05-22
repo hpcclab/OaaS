@@ -7,5 +7,6 @@ import io.smallrye.config.WithDefault;
 public interface OcConfig {
   String storageAdapterUrl();
   String provisionTopic();
-  Boolean kafkaEnabled();
+  @WithDefault("true")
+  boolean kafkaEnabled();
 }

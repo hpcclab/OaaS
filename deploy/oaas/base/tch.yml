@@ -4,15 +4,18 @@ metadata:
   name: task-completion-handler
   labels:
     app: task-completion-handler
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: task-completion-handler
+      platform: oaas
   template:
     metadata:
       labels:
         app: task-completion-handler
+        platform: oaas
     spec:
 #      nodeSelector:
 #        oaas.group: test

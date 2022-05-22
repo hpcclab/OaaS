@@ -199,8 +199,6 @@ components:
         createdTime:
           format: int64
           type: integer
-        debugLog:
-          type: string
         initWaitFor:
           type: boolean
         originator:
@@ -223,9 +221,9 @@ components:
     TaskCompletion:
       type: object
       properties:
-        debugLog:
-          type: string
         embeddedRecord:
+          type: string
+        errorMsg:
           type: string
         id:
           type: string

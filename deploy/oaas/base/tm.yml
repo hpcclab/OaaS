@@ -4,18 +4,19 @@ metadata:
   name: task-manager
   labels:
     app: task-manager
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: task-manager
+      platform: oaas
   template:
     metadata:
       labels:
         app: task-manager
+        platform: oaas
     spec:
-#      nodeSelector:
-#        oaas.group: test
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

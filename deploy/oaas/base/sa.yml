@@ -4,15 +4,18 @@ metadata:
   name: storage-adapter
   labels:
     app: storage-adapter
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: storage-adapter
+      platform: oaas
   template:
     metadata:
       labels:
         app: storage-adapter
+        platform: oaas
     spec:
 #      nodeSelector:
 #        oaas.group: test
@@ -93,6 +96,7 @@ metadata:
 spec:
   selector:
     app: storage-adapter
+    platform: oaas
   ports:
     - name: http
       protocol: TCP

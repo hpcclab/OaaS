@@ -12,5 +12,4 @@ public interface KpConfig {
   @WithDefault("true")
   boolean addAffinity();
   String provisionTopic();
-  String taskCompletionTopic();
 }

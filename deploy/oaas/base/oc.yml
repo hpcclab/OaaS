@@ -4,15 +4,18 @@ metadata:
   name: object-controller
   labels:
     app: object-controller
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: object-controller
+      platform: oaas
   template:
     metadata:
       labels:
         app: object-controller
+        platform: oaas
     spec:
       affinity:
         podAntiAffinity:

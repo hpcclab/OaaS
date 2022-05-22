@@ -55,10 +55,13 @@ public class OaasClass {
   public void validate() {
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
-    if (stateType==StateType.COLLECTION
-      && stateSpec.getDefaultProvider()==null) {
-      throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
+    if (stateSpec.getDefaultProvider() == null) {
+      stateSpec.setDefaultProvider("s3");
     }
+//    if (stateType==StateType.COLLECTION
+//      && stateSpec.getDefaultProvider()==null) {
+//      throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
+//    }
     for (OaasFunctionBinding function : functions) {
       if (function.getFunction() == null) {
         throw new OaasValidationException("The 'functions.function' in class must not be null.");
