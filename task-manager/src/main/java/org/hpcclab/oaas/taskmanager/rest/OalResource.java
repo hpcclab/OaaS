@@ -176,12 +176,9 @@ public class OalResource {
     var uni1 = graphExecutor.exec(ctx);
     if (await==null ? config.defaultBlockCompletion():await) {
       var id = ctx.getOutput().getId();
-//      var uni2 = completionListener.wait(id);
-//      return Uni.combine().all().unis(uni1, uni2)
-//        .asTuple()
-//        .flatMap(event -> objectRepo.getAsync(id));
       return uni1.flatMap(v -> completionListener.wait(id))
         .flatMap(v -> objectRepo.getAsync(id));
+//      return uni1.flatMap(v -> objectRepo.watch(id));
     }
     return uni1
       .replaceWith(ctx.getOutput());
@@ -190,5 +187,6 @@ public class OalResource {
   public Uni<OaasObject> waitObj(OaasObject obj) {
     return completionListener.wait(obj.getId())
       .flatMap(event -> objectRepo.getAsync(obj.getId()));
+//    return objectRepo.watch(obj.getId());
   }
 }

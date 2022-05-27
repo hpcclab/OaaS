@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.taskmanager.factory;
 
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.KeySpecification;
@@ -24,8 +25,7 @@ public class TaskFactory {
   OaasClassRepository clsRepo;
 
   public OaasTask genTask(TaskContext taskContext) {
-    var dac = new DataAccessContext(taskContext);
-    var b64Dac = contentUrlGenerator.genBase64Dac(dac);
+    var cls = clsRepo.get(taskContext.getOutput().getCls());
 
     var task = new OaasTask();
     task.setId(taskContext.getOutput().getId());
@@ -34,36 +34,47 @@ public class TaskFactory {
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());
 
-    task.setMainKeys(genUrls(taskContext.getMain(), taskContext.getMainRefs(), b64Dac));
+    task.setMainKeys(genUrls(taskContext.getMain(), cls, taskContext.getMainRefs()));
     var list = new ArrayList<Map<String,String>>();
     for (int i = 0; i < taskContext.getInputs().size(); i++) {
       list.add(genUrls(
         taskContext.getInputs().get(i),
-        null,
-        b64Dac
+        cls,
+        null
       ));
     }
     task.setInputKeys(list);
-    task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getOutput().getId(), b64Dac));
+    if (cls.getStateType() == StateType.COLLECTION ||
+      !cls.getStateSpec().getKeySpecs().isEmpty()) {
+      var b64Dac = DataAccessContext.generate(task.getOutput(),cls)
+        .encode();
+      task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getOutput().getId(), b64Dac));
+    }
+    task.setTs(System.currentTimeMillis());
     return task;
   }
 
 
 
   public Map<String, String> genUrls(OaasObject obj,
-                                     Map<String, OaasObject> refs,
-                                     String b64Dac) {
+                                     OaasClass cls,
+                                     Map<String, OaasObject> refs) {
     Map<String, String> m = new HashMap<>();
-    generateUrls(m, obj, refs, b64Dac, "");
+    generateUrls(m, obj, cls, refs, "");
     return m;
   }
 
   private void generateUrls(Map<String,String> map,
                             OaasObject obj,
+                            OaasClass cls,
                             Map<String, OaasObject> refs,
-                            String b64Dac,
+//                            String b64Dac,
                             String prefix) {
-    var cls = clsRepo.get(obj.getCls());
+    if (cls == null) {
+      cls = clsRepo.get(obj.getCls());
+    }
+    var dac = DataAccessContext.generate(obj, cls);
+    var b64Dac = dac.encode();
     if (cls.getStateType()!=StateType.COLLECTION) {
       for (KeySpecification keySpec : cls.getStateSpec().getKeySpecs()) {
         var url  =
@@ -86,7 +97,7 @@ public class TaskFactory {
           map,
           entry.getValue(),
           null,
-          b64Dac,
+          null,
           prefix + entry.getKey() + ".");
       }
     }

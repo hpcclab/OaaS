@@ -8,8 +8,14 @@ import io.smallrye.config.WithName;
 public interface KpConfig {
   @WithName("taskHandlerService")
   String taskHandler();
+
+  @WithDefault("/")
+  String taskHandlerPath();
+
   boolean exposeKnative();
+
   @WithDefault("true")
   boolean addAffinity();
+
   String provisionTopic();
 }

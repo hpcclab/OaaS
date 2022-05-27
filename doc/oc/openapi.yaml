@@ -631,8 +631,6 @@ components:
             type: string
         parentId:
           type: string
-        wfi:
-          type: boolean
     ObjectReference:
       type: object
       properties:
@@ -659,10 +657,6 @@ components:
         createdTime:
           format: int64
           type: integer
-        initWaitFor:
-          type: boolean
-        originator:
-          type: string
         submittedTime:
           format: int64
           type: integer

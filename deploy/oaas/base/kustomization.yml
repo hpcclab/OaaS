@@ -8,7 +8,7 @@ resources:
 ### object-controller
   - oc.yml
 ### task-completion-handler
-  - tch.yml
+#  - tch.yml
 ### content-delivery-service
   - cds.yml
 ### storage adapter

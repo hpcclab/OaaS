@@ -23,4 +23,5 @@ public class OaasTask {
   String allocOutputUrl;
   Map<String,String> mainKeys;
   List<Map<String,String>> inputKeys = List.of();
+  long ts = -1;
 }

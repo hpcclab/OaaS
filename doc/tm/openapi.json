@@ -27,6 +27,29 @@
         }
       }
     },
+    "/ce" : {
+      "post" : {
+        "tags" : [ "Cloud Event Handling Resource" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "format" : "binary",
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
     "/oal" : {
       "post" : {
         "tags" : [ "Oal Resource" ],
@@ -267,9 +290,6 @@
           },
           "parentId" : {
             "type" : "string"
-          },
-          "wfi" : {
-            "type" : "boolean"
           }
         }
       },
@@ -294,12 +314,6 @@
           "createdTime" : {
             "format" : "int64",
             "type" : "integer"
-          },
-          "initWaitFor" : {
-            "type" : "boolean"
-          },
-          "originator" : {
-            "type" : "string"
           },
           "submittedTime" : {
             "format" : "int64",
@@ -335,6 +349,9 @@
             "type" : "string"
           },
           "id" : {
+            "type" : "string"
+          },
+          "mergedRecord" : {
             "type" : "string"
           },
           "success" : {

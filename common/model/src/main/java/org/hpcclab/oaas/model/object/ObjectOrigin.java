@@ -18,7 +18,6 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectOrigin implements Serializable {
-//  String rootId;
   @ProtoField(2)
   String parentId;
   @ProtoField(3)
@@ -28,27 +27,23 @@ public class ObjectOrigin implements Serializable {
   @ProtoField(5)
   List<String> inputs = List.of();
 
-  @ProtoField(value = 6, defaultValue = "true")
-  boolean wfi = true;
 
   public ObjectOrigin() {
   }
 
-  public ObjectOrigin(String parentId, String funcName, Map<String, String> args, List<String> inputs, boolean wfi) {
+  public ObjectOrigin(String parentId, String funcName, Map<String, String> args, List<String> inputs) {
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
     this.inputs = inputs;
-    this.wfi = wfi;
   }
 
   @ProtoFactory
-  public ObjectOrigin(String parentId, String funcName, HashMap<String, String> args, List<String> inputs, boolean wfi) {
+  public ObjectOrigin(String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
     this.parentId = parentId;
     this.funcName = funcName;
     this.args = args;
     this.inputs = inputs;
-    this.wfi = wfi;
   }
 
   public ObjectOrigin copy() {
@@ -56,8 +51,7 @@ public class ObjectOrigin implements Serializable {
       parentId,
       funcName,
       args==null ? null:Map.copyOf(args),
-      inputs==null ? null:List.copyOf(inputs),
-      wfi
+      inputs==null ? null:List.copyOf(inputs)
     );
   }
 

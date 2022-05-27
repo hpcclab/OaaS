@@ -47,8 +47,7 @@ public class FunctionExecContext extends TaskContext {
       binding.getName(),
       finalArgs,
       getInputs().stream().map(OaasObject::getId)
-        .toList(),
-      getFunction().getType() == OaasFunctionType.TASK
+        .toList()
     );
   }
 

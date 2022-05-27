@@ -124,7 +124,7 @@ public class OaasObject {
     var list = refs!=null && !refs.isEmpty() ?
       Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
       Lists.mutable.<String>empty();
-    if (origin.isWfi() && origin.getInputs()!=null) {
+    if ( origin.getInputs()!=null) {
       list.addAll(origin.getInputs());
     }
     if (refs!=null) {

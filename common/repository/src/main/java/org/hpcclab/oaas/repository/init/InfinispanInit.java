@@ -51,7 +51,7 @@ public class InfinispanInit {
   private static final String TEMPLATE_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="SYNC">
+                       mode="ASYNC">
       <indexing>
         <indexed-entities>
           <indexed-entity>oaas.OaasObject</indexed-entity>
@@ -63,15 +63,17 @@ public class InfinispanInit {
           <key media-type="application/x-protostream"/>
           <value media-type="application/x-protostream"/>
       </encoding>
-      <persistence passivation="false">
+      <persistence passivation="true">
         <!--<file-store shared="false"
                     fetch-state="true"
                     purge="false"
                     preload="false">
-          <write-behind modification-queue-size="65536" />
+          <write-behind modification-queue-size="1024" />
         </file-store>-->
         <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
-                       fetch-state="true"/>
+                       fetch-state="false">
+          <write-behind modification-queue-size="8192"/>
+        </rocksdb-store>
       </persistence>
       <partition-handling when-split="ALLOW_READ_WRITES"
                           merge-policy="PREFERRED_NON_NULL"/>
@@ -162,7 +164,7 @@ public class InfinispanInit {
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
     var objectCacheConfig = repositoryConfig.object();
-    var stateCacheConfig = repositoryConfig.state();
+    var graphConfig = repositoryConfig.graph();
     var clsCacheConfig = repositoryConfig.cls();
     var funcCacheConfig = repositoryConfig.func();
     remoteCacheManager.getConfiguration()
@@ -188,15 +190,6 @@ public class InfinispanInit {
         }
       });
 
-    remoteCacheManager.getConfiguration()
-      .addRemoteCache(TASK_STATE_CACHE, c -> {
-        if (stateCacheConfig.nearCacheMaxEntry() > 0) {
-          c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(stateCacheConfig.nearCacheMaxEntry());
-        }
-        c.forceReturnValues(false);
-      });
-
 
     if (repositoryConfig.createOnStart()) {
       var distTemplate = objectCacheConfig.persist() ?
@@ -210,13 +203,8 @@ public class InfinispanInit {
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(FUNCTION_CACHE, "16MB")));
 
-      distTemplate = stateCacheConfig.persist() ?
-        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
-      remoteCacheManager.administration().getOrCreateCache(TASK_STATE_CACHE, new XMLStringConfiguration(distTemplate
-        .formatted(TASK_STATE_CACHE, stateCacheConfig.maxSize())));
-
       remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
-        .formatted(INVOCATION_GRAPH_CACHE, stateCacheConfig.maxSize())));
+        .formatted(INVOCATION_GRAPH_CACHE, graphConfig.maxSize())));
     } else {
       var list = List.of(
         OBJECT_CACHE,

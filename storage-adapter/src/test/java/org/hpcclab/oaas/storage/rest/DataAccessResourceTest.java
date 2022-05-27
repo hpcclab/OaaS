@@ -50,14 +50,13 @@ class DataAccessResourceTest {
   @Test
   void test() throws JsonProcessingException {
     var ctx = new DataAccessContext()
-      .setMainId(UUID.randomUUID().toString())
-      .setMainCls("test");
-    var ctxString = Json.encode(ctx);
-    var ctxKey = Base64.getUrlEncoder().encode(ctxString.getBytes());
+      .setId(UUID.randomUUID().toString())
+      .setCls("test");
+    var ctxKey = ctx.encode();
     given()
-      .pathParam("oid", ctx.getMainId())
+      .pathParam("oid", ctx.getId())
       .pathParam("key", "test")
-      .queryParam("contextKey", new String(ctxKey))
+      .queryParam("contextKey", ctxKey)
       .when().redirects().follow(false)
       .get("/contents/{oid}/{key}")
       .then()

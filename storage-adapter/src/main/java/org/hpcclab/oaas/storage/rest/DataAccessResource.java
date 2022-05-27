@@ -34,9 +34,9 @@ public class DataAccessResource {
                            String key,
                            @RestQuery String contextKey) {
     // TODO protect contextKey with encryption and signature
-    var dac = ContextUtil.parseDac(contextKey);
+    var dac = DataAccessContext.parse(contextKey);
     if (dac==null) throw new NoStackException("'contextKey' query param is required", 400);
-    var clsName = dac.getCls(oid);
+    var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  NoStackException.notFoundCls400(clsName);
     return handleDataAccess(oid, key, cls, dac);

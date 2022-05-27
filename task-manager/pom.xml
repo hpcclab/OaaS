@@ -49,10 +49,6 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-smallrye-metrics</artifactId>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
@@ -63,12 +59,8 @@
     </dependency>
 <!--    <dependency>-->
 <!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-kafka-streams</artifactId>-->
+<!--      <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>-->
 <!--    </dependency>-->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
-    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-container-image-jib</artifactId>
@@ -81,10 +73,6 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-opentelemetry-exporter-otlp</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.opentracing.contrib</groupId>-->
-<!--      <artifactId>opentracing-kafka-client</artifactId>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-transport-native-epoll</artifactId>

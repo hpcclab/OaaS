@@ -10,12 +10,12 @@ import io.smallrye.config.WithDefault;
 public interface RepositoryConfig {
   @WithDefault("true")
   boolean createOnStart();
-  ObjectCache object();
-  StateCache state();
-  ClassCache cls();
-  FunctionCache func();
+  ObjectConfig object();
+  GraphConfig graph();
+  ClassConfig cls();
+  FunctionConfig func();
 
-  interface ObjectCache{
+  interface ObjectConfig{
     @WithDefault("false")
     boolean persist();
     @WithDefault("256MB")
@@ -23,20 +23,19 @@ public interface RepositoryConfig {
     @WithDefault("-1")
     int nearCacheMaxEntry();
   }
-  interface StateCache{
+
+  interface GraphConfig{
     @WithDefault("false")
     boolean persist();
-    @WithDefault("128MB")
+    @WithDefault("256MB")
     String maxSize();
-    @WithDefault("-1")
-    int nearCacheMaxEntry();
   }
 
-  interface ClassCache{
+  interface ClassConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
   }
-  interface FunctionCache{
+  interface FunctionConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
   }

@@ -3,6 +3,7 @@ package org.hpcclab.oaas.storage.rest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
@@ -56,8 +57,8 @@ public class DataAllocateResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Uni<Map<String, String>> getAllocatedUrls(String oid,
                                                    @RestQuery String contextKey) {
-    var dac = ContextUtil.parseDac(contextKey);
-    var clsName = dac.getCls(oid);
+    var dac = DataAccessContext.parse(contextKey);
+    var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  NoStackException.notFoundCls400(clsName);
     return adapterLoader.aggregatedAllocate(new DataAllocateRequest(oid, cls.getStateSpec().getKeySpecs(), false));

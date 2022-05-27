@@ -164,6 +164,7 @@ public class KnativeProvisionHandler {
         kpConfig.taskHandler(),
         knativeClient.getNamespace()
       )
+      .withUri(kpConfig.taskHandlerPath())
       .endDeadLetterSink()
       .endDelivery()
       .build();
@@ -185,6 +186,7 @@ public class KnativeProvisionHandler {
         kpConfig.taskHandler(),
         knativeClient.getNamespace()
       )
+      .withUri(kpConfig.taskHandlerPath())
       .endReply()
       .endSpec()
       .build();

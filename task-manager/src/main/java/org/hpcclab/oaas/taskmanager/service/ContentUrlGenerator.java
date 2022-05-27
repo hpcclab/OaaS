@@ -17,10 +17,8 @@ public class ContentUrlGenerator {
 
   public String generateUrl(OaasObject obj,
                             String file) {
-    var dac = new DataAccessContext()
-      .setMainId(obj.getId())
-      .setMainCls(obj.getCls());
-    var b64 = genBase64Dac(dac);
+    var dac = DataAccessContext.generate(obj);
+    var b64 = dac.encode();
     return generateUrl(obj.getId(),file, b64);
   }
 
@@ -36,10 +34,5 @@ public class ContentUrlGenerator {
     var saUrl = config.storageAdapterUrl();
     return saUrl + "/allocate/%s?contextKey=%s"
       .formatted(oid, contextKey);
-  }
-
-  public String genBase64Dac(DataAccessContext dac) {
-
-    return encoder.encodeToString(Json.encode(dac).getBytes());
   }
 }

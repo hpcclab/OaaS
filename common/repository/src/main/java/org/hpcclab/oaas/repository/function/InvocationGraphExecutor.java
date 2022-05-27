@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
@@ -80,7 +81,18 @@ public class InvocationGraphExecutor {
       .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(completion.getId()))
       .invoke(o -> {
         o.getStatus().set(completion);
-        o.setEmbeddedRecord(completion.getEmbeddedRecord());
+        if (completion.getEmbeddedRecord() != null)
+          o.setEmbeddedRecord(completion.getEmbeddedRecord());
+        if (completion.getMergedRecord() != null) {
+          if (o.getEmbeddedRecord() == null) {
+            o.setEmbeddedRecord(completion.getMergedRecord());
+          } else {
+            var oldJson = new JsonObject(o.getEmbeddedRecord());
+            var newJson = new JsonObject(completion.getMergedRecord());
+            oldJson.mergeIn(newJson);
+            o.setEmbeddedRecord(oldJson.toString());
+          }
+        }
       })
       .onItem().transformToMulti(o -> gsm.handleComplete(o))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))

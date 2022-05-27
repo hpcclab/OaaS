@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,18 +27,14 @@ public class TaskContext {
   OaasFunction function;
   List<OaasObject> inputs = List.of();
 
-  public boolean analyzeDeps(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-                             List<OaasObject> failDeps) {
+  public boolean analyzeDeps(List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
     output.getStatus().initWaitFor();
     int fails = failDeps.size();
     Map<String, OaasObject> refs = Objects.requireNonNullElse(mainRefs, Map.of());
-    boolean completed = analyzeDeps(refs.values(),
-      waitForGraph, failDeps);
+    boolean completed = analyzeDeps(refs.values(), waitForGraph, failDeps);
 
-    if (output.getOrigin().isWfi()) {
-      completed &= analyzeDeps(inputs,
-        waitForGraph, failDeps);
-    }
+    completed &= analyzeDeps(inputs, waitForGraph, failDeps);
+
 
     completed &= analyzeDeps(main, waitForGraph, failDeps);
 
@@ -50,9 +45,7 @@ public class TaskContext {
     return completed;
   }
 
-  private boolean analyzeDeps(Collection<OaasObject> deps,
-                              List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-                              List<OaasObject> failDeps) {
+  private boolean analyzeDeps(Collection<OaasObject> deps, List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
     boolean completed = true;
     for (var o : deps) {
       completed &= analyzeDeps(o, waitForGraph, failDeps);
@@ -60,11 +53,8 @@ public class TaskContext {
     return completed;
   }
 
-  private boolean analyzeDeps(OaasObject dep,
-                              List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-                              List<OaasObject> failDeps) {
-    if (dep.isReadyToUsed())
-      return true;
+  private boolean analyzeDeps(OaasObject dep, List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
+    if (dep.isReadyToUsed()) return true;
     var ts = dep.getStatus().getTaskStatus();
     if (ts.isFailed()) {
       failDeps.add(dep);

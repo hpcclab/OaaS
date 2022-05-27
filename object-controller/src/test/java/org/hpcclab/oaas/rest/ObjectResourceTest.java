@@ -60,15 +60,6 @@ public class ObjectResourceTest {
         new ObjectReference().setName("obj2").setObjId(obj2.getId())
       )
     );
-    compound = TestUtils.create(compound);
-    given()
-      .pathParam("id", compound.getId())
-      .when().get("/api/objects/{id}/deep")
-      .then()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.equalTo(compound.getId()))
-      .body("refs.name", hasItems("obj1", "obj2"))
-      .body("refs.object", hasItems(obj1.getId(), obj2.getId()));
+    TestUtils.create(compound);
   }
 }

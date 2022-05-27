@@ -2,7 +2,6 @@ package org.hpcclab.oaas.taskmanager;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
 import org.slf4j.Logger;
@@ -22,11 +21,11 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TaskCompletionConsumer {
-  private static final Logger LOGGER = LoggerFactory.getLogger( TaskCompletionConsumer.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskCompletionConsumer.class);
   @Inject
   InvocationGraphExecutor executor;
 
-  @Incoming("task-completions")
+  //  @Incoming("task-completions")
   @POST
   public Uni<Void> handle(List<TaskCompletion> taskCompletions) {
     return Multi.createFrom().iterable(taskCompletions)

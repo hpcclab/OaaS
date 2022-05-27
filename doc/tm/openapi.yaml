@@ -18,6 +18,21 @@ paths:
       responses:
         "201":
           description: Created
+  /ce:
+    post:
+      tags:
+      - Cloud Event Handling Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              format: binary
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json: {}
   /oal:
     post:
       tags:
@@ -181,8 +196,6 @@ components:
             type: string
         parentId:
           type: string
-        wfi:
-          type: boolean
     ObjectReference:
       type: object
       properties:
@@ -199,10 +212,6 @@ components:
         createdTime:
           format: int64
           type: integer
-        initWaitFor:
-          type: boolean
-        originator:
-          type: string
         submittedTime:
           format: int64
           type: integer
@@ -226,6 +235,8 @@ components:
         errorMsg:
           type: string
         id:
+          type: string
+        mergedRecord:
           type: string
         success:
           type: boolean

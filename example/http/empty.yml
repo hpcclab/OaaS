@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/empty-function:0.2.3
+        image: core.harbor.10.131.36.2.nip.io/oaas/empty-function:0.3.0
 #        minScale: 12
         minScale: 1
         maxScale: 3

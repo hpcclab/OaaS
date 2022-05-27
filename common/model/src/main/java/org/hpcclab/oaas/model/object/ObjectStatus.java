@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.object;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -26,9 +27,11 @@ public class ObjectStatus {
   @ProtoField(6)
   List<String> waitFor = List.of();
   @ProtoField(value = 7, defaultValue = "false")
+  @JsonIgnore
   boolean initWaitFor = false;
 
   @ProtoField(8)
+  @JsonIgnore
   String originator;
 
   public ObjectStatus() {
@@ -54,6 +57,6 @@ public class ObjectStatus {
 
   public void initWaitFor() {
     initWaitFor = true;
-    if (waitFor == null) waitFor = Lists.mutable.empty();
+    if (waitFor==null) waitFor = Lists.mutable.empty();
   }
 }

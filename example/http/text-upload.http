@@ -30,8 +30,6 @@ Content-Type: text/plain
 ###
 GET {{cds}}/{{obj_0_id}}/text
 ###
-GET {{cds}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text
-###
 GET {{cds}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
 ###
 POST {{cds}}/-/text

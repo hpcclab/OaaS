@@ -3,47 +3,51 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-import java.util.List;
+import java.util.Base64;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class DataAccessContext {
-  String mainId;
-  String mainCls;
-  String outId;
-  String outCls;
-  List<String> inputIds;
-  List<String> inputCls;
+
+  public static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+  public static final Base64.Decoder DECODER = Base64.getUrlDecoder();
+
+  String id;
+  String cls;
+
   String sig;
 
-  public DataAccessContext() {
+
+  public String encode() {
+    String sb = id + ':' + cls;
+    return ENCODER.encodeToString(sb.getBytes());
   }
 
-  public DataAccessContext(TaskContext taskContext) {
-    mainId = taskContext.getMain().getId();
-    mainCls = taskContext.getMain().getCls();
-    outId = taskContext.getOutput().getId();
-    outCls = taskContext.getOutput().getCls();
-    if (!taskContext.getInputs().isEmpty()) {
-      inputIds = taskContext.getInputs()
-        .stream().map(OaasObject::getId).toList();
-      inputCls = taskContext.getInputs()
-        .stream()
-        .map(OaasObject::getCls).toList();
-    }
+  public static DataAccessContext generate(OaasObject obj, OaasClass cls) {
+    var dac = new DataAccessContext();
+    dac.id = obj.getId();
+    dac.cls = cls.getName();
+    return dac;
   }
 
-  public String getCls(String id) {
-    if (mainId != null && mainId.equals(id)) return mainCls;
-    if (outId != null && outId.equals(id)) return outCls;
-    if (inputIds == null) return null;
-    var i = inputIds.indexOf(id);
-    if (i < 0) return null;
-    return inputCls.get(i);
+  public static DataAccessContext generate(OaasObject obj) {
+    var dac = new DataAccessContext();
+    dac.id = obj.getId();
+    dac.cls = obj.getCls();
+    return dac;
   }
 
+  public static DataAccessContext parse(String b64) {
+    var bytes = DECODER.decode(b64);
+    var text = new String(bytes);
+    var dac = new DataAccessContext();
+    var splitText = text.split(":");
+    dac.id = splitText[0];
+    dac.cls = splitText[1];
+    return dac;
+  }
 }
