@@ -77,7 +77,7 @@ public class CloudEventHandlingResource {
     try {
       return Json.decodeValue(buffer, TaskCompletion.class);
     } catch (DecodeException decodeException) {
-      LOGGER.warn("Decode failed on id {}", id, decodeException);
+      LOGGER.warn("Decode failed on id {} : {}", id, decodeException.getMessage());
       return new TaskCompletion(
         id,
         true,

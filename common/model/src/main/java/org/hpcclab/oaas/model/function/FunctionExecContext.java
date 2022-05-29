@@ -44,7 +44,7 @@ public class FunctionExecContext extends TaskContext {
 
     return new ObjectOrigin(
       getMain().getId(),
-      binding.getName(),
+      binding.getFunction(),
       finalArgs,
       getInputs().stream().map(OaasObject::getId)
         .toList()
@@ -81,8 +81,7 @@ public class FunctionExecContext extends TaskContext {
     if (taskContext.getOutput().getId().equals(outId))
       return true;
     for (FunctionExecContext subContext : subContexts) {
-      var b = subContext.contains(taskContext);
-      if (b) {
+      if (subContext.contains(taskContext)) {
         return true;
       }
     }
