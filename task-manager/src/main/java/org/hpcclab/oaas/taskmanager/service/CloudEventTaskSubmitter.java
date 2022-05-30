@@ -21,15 +21,11 @@ public class CloudEventTaskSubmitter implements TaskSubmitter {
   TaskFactory taskFactory;
 
   @Override
-  public Uni<Void> submit(Collection<TaskContext> contexts) {
-    return Multi.createFrom().iterable(contexts)
-      .map(taskFactory::genTask)
-      .onItem().call(task -> taskBrokerService.submitTaskAsync(task.getId(),
-        task.getFunction().getName(),
-//        task.getFunction().getProvision().getType().toString(),
-        task)
-      )
-      .collect().last()
-      .replaceWithVoid();
+  public Uni<Void> submit(TaskContext context) {
+    var task = taskFactory.genTask(context);
+    return taskBrokerService.submitTaskAsync(task.getId(),
+      task.getFunction().getName(),
+      task);
   }
+
 }

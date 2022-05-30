@@ -10,10 +10,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "example.empty",
-  "embeddedRecord": {},
-  "keys": [],
-  "overrideUrls": {}
+  "cls": "example.record"
 }
 
 > {%
@@ -22,10 +19,15 @@ client.global.set("obj_0_id", response.body.object.id)
 ###
 GET {{cds}}/{{obj_0_id}}
 ###
-GET {{cds}}/{{obj_0_id}}:example.empty.function()/text?await=true
+GET {{cds}}/{{obj_0_id}}:json-update()?await=true
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}
+
 ###
-GET {{cds}}/{{obj_0_id}}:example.empty.function()?await=true
-###
-GET {{tm}}/oal/{{obj_0_id}}:example.empty.function()/tmp
-###
-GET {{cds}}/d8e51bdc-bdf5-42a9-bb8b-94060a336e00
+GET {{cds}}/{{obj_1_id}}:json-update()?await=true
+
+> {%
+client.global.set("obj_1_id", response.body.id)
+%}

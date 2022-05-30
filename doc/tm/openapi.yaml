@@ -236,8 +236,6 @@ components:
           type: string
         id:
           type: string
-        mergedRecord:
-          type: string
         success:
           type: boolean
     TaskStatus:

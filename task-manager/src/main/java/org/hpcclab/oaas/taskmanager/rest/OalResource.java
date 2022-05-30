@@ -52,7 +52,7 @@ public class OalResource {
       var uni = execFunction(oal)
         .call(ctx -> graphExecutor.exec(ctx))
         .map(FunctionExecContext::getOutput);
-      if (await != null && await) {
+      if (await!=null && await) {
         uni = uni.flatMap(this::waitObj);
       }
       return uni;
@@ -159,17 +159,17 @@ public class OalResource {
       .build();
   }
 
-  public Uni<OaasObject> submitAndWaitObj(OaasObject obj, Boolean await) {
-    var uni1 = graphExecutor.exec(obj);
-    if (await==null ? config.defaultBlockCompletion():await) {
-      var uni2 = completionListener.wait(obj.getId());
-      return Uni.combine().all().unis(uni1, uni2)
-        .asTuple()
-        .flatMap(event -> objectRepo.getAsync(obj.getId()));
-    }
-    return uni1
-      .replaceWith(obj);
-  }
+//  public Uni<OaasObject> submitAndWaitObj(OaasObject obj, Boolean await) {
+//    var uni1 = graphExecutor.exec(obj);
+//    if (await==null ? config.defaultBlockCompletion():await) {
+//      var uni2 = completionListener.wait(obj.getId());
+//      return Uni.combine().all().unis(uni1, uni2)
+//        .asTuple()
+//        .flatMap(event -> objectRepo.getAsync(obj.getId()));
+//    }
+//    return uni1
+//      .replaceWith(obj);
+//  }
 
 
   public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
@@ -185,8 +185,14 @@ public class OalResource {
   }
 
   public Uni<OaasObject> waitObj(OaasObject obj) {
+    var status = obj.getStatus();
+    var ts = status.getTaskStatus();
+    if (!ts.isSubmitted() && !status.isInitWaitFor()) {
+      return graphExecutor.exec(obj)
+        .flatMap(v -> completionListener.wait(obj.getId()))
+        .flatMap(v -> objectRepo.getAsync(obj.getId()));
+    }
     return completionListener.wait(obj.getId())
       .flatMap(event -> objectRepo.getAsync(obj.getId()));
-//    return objectRepo.watch(obj.getId());
   }
 }

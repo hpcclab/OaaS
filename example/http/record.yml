@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.1.0
+        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.1.2
         minScale: 1
         maxScale: -1
         requestsCpu: '0.5'

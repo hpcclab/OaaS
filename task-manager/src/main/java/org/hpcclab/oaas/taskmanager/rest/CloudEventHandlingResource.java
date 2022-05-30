@@ -71,7 +71,6 @@ public class CloudEventHandlingResource {
         id,
         true,
         null,
-        null,
         null);
     }
     try {
@@ -82,7 +81,6 @@ public class CloudEventHandlingResource {
         id,
         true,
 //        decodeException.getMessage(),
-        null,
         null,
         null);
     }
