@@ -1,0 +1,23 @@
+functions:
+  - name: example.record.json-update
+    type: TASK
+    outputCls: example.record
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.1.0
+        minScale: 1
+        maxScale: -1
+        requestsCpu: '0.5'
+        limitsCpu: '1'
+classes:
+  - name: example.record
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs: []
+    functions:
+      - access: PUBLIC
+        function: builtin.logical.copy
+      - access: PUBLIC
+        function: example.record.json-update

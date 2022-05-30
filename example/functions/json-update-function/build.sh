@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-tag=0.1.12
+tag=0.1.0
 base=core.harbor.10.131.36.2.nip.io/oaas/
-name=tohls-function
+name=json-update-function
 image=$base$name:$tag
 
 docker build -t $image .

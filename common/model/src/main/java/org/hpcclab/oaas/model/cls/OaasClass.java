@@ -53,6 +53,7 @@ public class OaasClass {
   }
 
   public void validate() {
+    if (stateType == null) stateType = StateType.FILES;
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
     if (stateSpec.getDefaultProvider() == null) {

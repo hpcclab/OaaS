@@ -39,4 +39,5 @@ nb-configuration.xml
 .env
 
 deploy/oaas/dev/
+example/http/http-client.env.json
 *.bkp
