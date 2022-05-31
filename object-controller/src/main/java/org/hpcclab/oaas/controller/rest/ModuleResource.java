@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
-import org.hpcclab.oaas.iface.service.BatchService;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunction;
@@ -19,8 +18,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 @RequestScoped
-public class BatchResource implements BatchService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BatchResource.class);
+public class ModuleResource implements BatchService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModuleResource.class);
 
   @Inject
   OaasClassRepository classRepo;
@@ -34,7 +33,7 @@ public class BatchResource implements BatchService {
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @Override
-  public Uni<Batch> create(Batch batch) {
+  public Uni<Module> create(Module batch) {
     var classes = batch.getClasses();
     var functions = batch.getFunctions();
     for (OaasClass cls : classes) {
@@ -54,9 +53,9 @@ public class BatchResource implements BatchService {
   }
 
   @Override
-  public Uni<Batch> createByYaml(String body) {
+  public Uni<Module> createByYaml(String body) {
     try {
-      var batch = yamlMapper.readValue(body, Batch.class);
+      var batch = yamlMapper.readValue(body, Module.class);
       return create(batch);
     } catch (JsonProcessingException e) {
       throw new NoStackException(e.getMessage(), 400);

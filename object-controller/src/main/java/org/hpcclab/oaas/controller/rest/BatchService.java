@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.iface.service;
+package org.hpcclab.oaas.controller.rest;
 
 import io.smallrye.mutiny.Uni;
 import lombok.Data;
@@ -15,19 +15,19 @@ import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/api/batch")
+@Path("/api/{a:batch|modules}")
 public interface BatchService {
 
   @POST
-  Uni<Batch> create(Batch batch);
+  Uni<Module> create(Module batch);
 
   @POST
   @Consumes("text/x-yaml")
-  Uni<Batch> createByYaml(String body);
+  Uni<Module> createByYaml(String body);
 
   @Data
   @Accessors(chain = true)
-  public static class Batch{
+  public static class Module {
     List<OaasClass> classes = List.of();
     List<OaasFunction> functions = List.of();
   }

@@ -17,12 +17,6 @@
       auth-password: ${infinispan.password:}
       server-list: ${infinispan.server:}
 oaas:
-  tm:
-    objectControllerUrl: http://localhost:8088
-    taskCompletionTopic: oaas-task-completions
-    taskCompletionPartitions: 10
-    defaultTraverse: 3
-    enableCompletionListener: true
   log: INFO
 
 quarkus:
@@ -68,16 +62,14 @@ quarkus:
   opentelemetry:
     enabled: false
 
-mp:
-  messaging:
-    incoming:
-      task-completions:
-        connector: smallrye-kafka
-        topic: ${oaas.tm.taskCompletionTopic}
-        auto:
-          offset:
-            reset: earliest
-        partitions: ${oaas.tm.taskCompletionPartitions}
-        batch: true
-#        interceptor:
-#          classes: io.opentracing.contrib.kafka.TracingConsumerInterceptor
+#mp:
+#  messaging:
+#    incoming:
+#      task-completions:
+#        connector: smallrye-kafka
+#        topic: ${oaas.tm.taskCompletionTopic}
+#        auto:
+#          offset:
+#            reset: earliest
+#        partitions: ${oaas.tm.taskCompletionPartitions}
+#        batch: true

@@ -14,7 +14,6 @@
 
   <modules>
     <module>model</module>
-    <module>service-interface</module>
     <module>repository</module>
   </modules>
 

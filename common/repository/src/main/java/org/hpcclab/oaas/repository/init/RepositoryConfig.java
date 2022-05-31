@@ -22,6 +22,9 @@ public interface RepositoryConfig {
     String maxSize();
     @WithDefault("-1")
     int nearCacheMaxEntry();
+
+    @WithDefault("8192")
+    int writeBackQueueSize();
   }
 
   interface GraphConfig{

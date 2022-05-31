@@ -7,7 +7,6 @@ import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
-import org.hpcclab.oaas.iface.service.FunctionService;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.impl.OaasFuncRepository;

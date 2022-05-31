@@ -161,10 +161,10 @@ public class KnativeProvisionHandler {
       .withNewRef(
         "v1",
         "Service",
-        kpConfig.taskHandler(),
+        kpConfig.completionHandlerService(),
         knativeClient.getNamespace()
       )
-      .withUri(kpConfig.taskHandlerPath())
+      .withUri(kpConfig.completionHandlerPath())
       .endDeadLetterSink()
       .endDelivery()
       .build();
@@ -183,10 +183,10 @@ public class KnativeProvisionHandler {
       .withNewRef(
         "v1",
         "Service",
-        kpConfig.taskHandler(),
+        kpConfig.completionHandlerService(),
         knativeClient.getNamespace()
       )
-      .withUri(kpConfig.taskHandlerPath())
+      .withUri(kpConfig.completionHandlerPath())
       .endReply()
       .endSpec()
       .build();

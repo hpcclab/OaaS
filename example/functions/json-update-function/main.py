@@ -20,12 +20,12 @@ async def handle(request: Request,
     output_obj = body['output']
     args = output_obj['origin'].get('args', {})
     record = body['main'].get('embeddedRecord', {})
-    no_keys = args.get('NO_KEYS', 10)
-    key_len = args.get('KEY_LEN', 10)
-    val_len = args.get('VAL_LEN', 10)
+    entries = args.get('entries', 10)
+    keys = args.get('keys', 10)
+    values = args.get('values', 10)
 
-    for _ in range(no_keys):
-      record[generate_text(key_len)] = generate_text(val_len)
+    for _ in range(entries):
+      record[generate_text(keys)] = generate_text(values)
 
     response.headers["Ce-Id"] = str(output_obj['id'])
     response.headers["Ce-specversion"] = "1.0"

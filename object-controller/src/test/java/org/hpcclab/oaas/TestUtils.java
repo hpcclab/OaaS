@@ -3,7 +3,7 @@ package org.hpcclab.oaas;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.iface.service.BatchService;
+import org.hpcclab.oaas.controller.rest.BatchService;
 import org.hpcclab.oaas.model.*;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -131,7 +131,7 @@ public class TestUtils {
     return ctx.getOutput();
   }
 
-  public static BatchService.Batch createBatchYaml(String clsText) {
+  public static BatchService.Module createBatchYaml(String clsText) {
     return given()
       .contentType("text/x-yaml")
       .body(clsText)
@@ -140,7 +140,7 @@ public class TestUtils {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(BatchService.Batch.class);
+      .extract().body().as(BatchService.Module.class);
   }
 
   public static List<OaasFunction> createFunctionYaml(String function) {

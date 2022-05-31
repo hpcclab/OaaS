@@ -5,7 +5,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
-import org.hpcclab.oaas.iface.service.ObjectConstructService;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;

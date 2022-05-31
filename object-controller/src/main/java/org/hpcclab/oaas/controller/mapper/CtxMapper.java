@@ -9,7 +9,5 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface CtxMapper {
 
-  FunctionExecContext copy(FunctionExecContext ctx);
-
   void set(OaasClass cls1, @MappingTarget OaasClass cls2);
 }

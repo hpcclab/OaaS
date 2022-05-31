@@ -4,23 +4,6 @@ info:
   title: object-controller API
   version: 0.2.0-SNAPSHOT
 paths:
-  /api/batch:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Batch'
-          text/x-yaml:
-            schema:
-              type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Batch'
   /api/classes:
     get:
       parameters:
@@ -260,85 +243,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
-  /api/stats/class/client:
-    get:
-      tags:
-      - Stat Reource
+  /api/{a}:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Module'
+          text/x-yaml:
+            schema:
+              type: string
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemoteCacheClientStatisticsMXBean'
-  /api/stats/class/server:
-    get:
-      tags:
-      - Stat Reource
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerStatistics'
-  /api/stats/function/client:
-    get:
-      tags:
-      - Stat Reource
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RemoteCacheClientStatisticsMXBean'
-  /api/stats/function/server:
-    get:
-      tags:
-      - Stat Reource
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerStatistics'
-  /api/stats/object/client:
-    get:
-      tags:
-      - Stat Reource
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RemoteCacheClientStatisticsMXBean'
-  /api/stats/object/server:
-    get:
-      tags:
-      - Stat Reource
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerStatistics'
+                $ref: '#/components/schemas/Module'
 components:
   schemas:
-    Batch:
-      type: object
-      properties:
-        classes:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasClass'
-        functions:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasFunction'
     FunctionAccessModifier:
       enum:
       - INTERNAL
@@ -409,6 +332,17 @@ components:
           type: string
         requestsMemory:
           type: string
+    Module:
+      type: object
+      properties:
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasClass'
+        functions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasFunction'
     OaasClass:
       type: object
       properties:
@@ -738,52 +672,6 @@ components:
           type: boolean
         name:
           type: string
-    RemoteCacheClientStatisticsMXBean:
-      type: object
-      properties:
-        remoteHits:
-          format: int64
-          type: integer
-        remoteMisses:
-          format: int64
-          type: integer
-        averageRemoteReadTime:
-          format: int64
-          type: integer
-        remoteStores:
-          format: int64
-          type: integer
-        averageRemoteStoreTime:
-          format: int64
-          type: integer
-        remoteRemoves:
-          format: int64
-          type: integer
-        averageRemoteRemovesTime:
-          format: int64
-          type: integer
-        nearCacheHits:
-          format: int64
-          type: integer
-        nearCacheMisses:
-          format: int64
-          type: integer
-        nearCacheInvalidations:
-          format: int64
-          type: integer
-        nearCacheSize:
-          format: int64
-          type: integer
-        timeSinceReset:
-          format: int64
-          type: integer
-    ServerStatistics:
-      type: object
-      properties:
-        statsMap:
-          type: object
-          additionalProperties:
-            type: string
     StateSpecification:
       type: object
       properties:

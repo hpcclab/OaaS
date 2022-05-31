@@ -8,17 +8,15 @@ import io.smallrye.config.WithDefault;
 public interface TaskManagerConfig {
 //  String objectControllerUrl();
   String storageAdapterUrl();
-  @WithDefault("oaas-task-completions")
-  String taskCompletionTopic();
+//  @WithDefault("oaas-task-completions")
+//  String taskCompletionTopic();
   @WithDefault("10")
   Integer taskCompletionPartitions();
-  @WithDefault("3")
-  int defaultTraverse();
   String brokerUrl();
   @WithDefault("300")
   int blockingTimeout();
   @WithDefault("true")
   boolean enableCompletionListener();
   @WithDefault("true")
-  boolean defaultBlockCompletion();
+  boolean defaultAwaitCompletion();
 }

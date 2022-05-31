@@ -10,7 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface ModelMapper {
 
-  void set(OaasClass cls1, @MappingTarget OaasClass cls2);
+//  void set(OaasClass cls1, @MappingTarget OaasClass cls2);
 
   @Mapping(target = "functions", ignore = true)
   DeepOaasClass deep(OaasClass cls);

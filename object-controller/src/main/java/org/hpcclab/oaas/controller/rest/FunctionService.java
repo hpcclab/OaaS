@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.iface.service;
+package org.hpcclab.oaas.controller.rest;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;

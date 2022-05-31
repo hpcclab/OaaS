@@ -174,7 +174,7 @@ public class OalResource {
 
   public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
     var uni1 = graphExecutor.exec(ctx);
-    if (await==null ? config.defaultBlockCompletion():await) {
+    if (await==null ? config.defaultAwaitCompletion():await) {
       var id = ctx.getOutput().getId();
       return uni1.flatMap(v -> completionListener.wait(id))
         .flatMap(v -> objectRepo.getAsync(id));

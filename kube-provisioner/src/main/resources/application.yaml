@@ -41,12 +41,3 @@ mp:
         auto:
           offset:
             reset: earliest
-#    outgoing:
-#      task-completions:
-#        merge: true
-#        connector: smallrye-kafka
-#        topic: ${oaas.kp.taskCompletionTopic}
-#        value:
-#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-#        cloud-events-source: ${quarkus.application.name}
-#        cloud-events-type: oaas.task-completion

@@ -21,7 +21,6 @@ public class InfinispanInit {
   public static final String OBJECT_CACHE = "OaasObject";
   public static final String CLASS_CACHE = "OaasClass";
   public static final String FUNCTION_CACHE = "OaasFunction";
-  public static final String TASK_STATE_CACHE = "TaskState";
 
   public static final String INVOCATION_GRAPH_CACHE = "InvocationGraph";
 
@@ -63,16 +62,10 @@ public class InfinispanInit {
           <key media-type="application/x-protostream"/>
           <value media-type="application/x-protostream"/>
       </encoding>
-      <persistence passivation="true">
-        <!--<file-store shared="false"
-                    fetch-state="true"
-                    purge="false"
-                    preload="false">
-          <write-behind modification-queue-size="1024" />
-        </file-store>-->
+      <persistence passivation="false">
         <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
-                       fetch-state="false">
-          <write-behind modification-queue-size="8192"/>
+                       fetch-state="true">
+          <write-behind modification-queue-size="%d"/>
         </rocksdb-store>
       </persistence>
       <partition-handling when-split="ALLOW_READ_WRITES"
@@ -98,9 +91,6 @@ public class InfinispanInit {
                     preload="false">
           <!--<write-behind modification-queue-size="65536" />-->
         </file-store>
-        <!--
-        <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
-                       fetch-state="true"/>-->
       </persistence>
       <partition-handling when-split="ALLOW_READ_WRITES"
                           merge-policy="PREFERRED_NON_NULL"/>
@@ -163,15 +153,15 @@ public class InfinispanInit {
     if (remoteCacheManager==null) {
       throw new RuntimeException("Cannot connect to infinispan cluster");
     }
-    var objectCacheConfig = repositoryConfig.object();
+    var objectConfig = repositoryConfig.object();
     var graphConfig = repositoryConfig.graph();
     var clsCacheConfig = repositoryConfig.cls();
     var funcCacheConfig = repositoryConfig.func();
     remoteCacheManager.getConfiguration()
       .addRemoteCache(OBJECT_CACHE, c -> {
-        if (objectCacheConfig.nearCacheMaxEntry() > 0) {
+        if (objectConfig.nearCacheMaxEntry() > 0) {
           c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(objectCacheConfig.nearCacheMaxEntry());
+            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry());
         }
         c.forceReturnValues(false);
       });
@@ -192,10 +182,11 @@ public class InfinispanInit {
 
 
     if (repositoryConfig.createOnStart()) {
-      var distTemplate = objectCacheConfig.persist() ?
+      var distTemplate = objectConfig.persist() ?
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
-      remoteCacheManager.administration().getOrCreateCache(OBJECT_CACHE, new XMLStringConfiguration(distTemplate
-        .formatted(OBJECT_CACHE, objectCacheConfig.maxSize())));
+
+      remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
+        .formatted(INVOCATION_GRAPH_CACHE, graphConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(CLASS_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(CLASS_CACHE, "16MB")));
@@ -203,14 +194,16 @@ public class InfinispanInit {
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
         .formatted(FUNCTION_CACHE, "16MB")));
 
-      remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
-        .formatted(INVOCATION_GRAPH_CACHE, graphConfig.maxSize())));
+      remoteCacheManager.administration().getOrCreateCache(OBJECT_CACHE, new XMLStringConfiguration(distTemplate
+        .formatted(OBJECT_CACHE,
+          objectConfig.maxSize(),
+          objectConfig.writeBackQueueSize())));
+
     } else {
       var list = List.of(
         OBJECT_CACHE,
         CLASS_CACHE,
         FUNCTION_CACHE,
-        TASK_STATE_CACHE,
         INVOCATION_GRAPH_CACHE);
       for (String cacheName : list) {
         if (remoteCacheManager.getCache(cacheName) == null)

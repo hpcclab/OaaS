@@ -6,16 +6,12 @@ import io.smallrye.config.WithName;
 
 @ConfigMapping(prefix = "oaas.kp", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface KpConfig {
-  @WithName("taskHandlerService")
-  String taskHandler();
+  String completionHandlerService();
 
-  @WithDefault("/")
-  String taskHandlerPath();
+  @WithDefault("/ce")
+  String completionHandlerPath();
 
   boolean exposeKnative();
-
-  @WithDefault("true")
-  boolean addAffinity();
 
   String provisionTopic();
 }

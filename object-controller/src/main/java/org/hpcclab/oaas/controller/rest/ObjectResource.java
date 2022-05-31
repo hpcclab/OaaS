@@ -2,7 +2,6 @@ package org.hpcclab.oaas.controller.rest;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.iface.service.ObjectService;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
