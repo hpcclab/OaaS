@@ -50,10 +50,6 @@ quarkus:
   smallrye-openapi:
     store-schema-directory: ../doc/oc
     enable: true
-#  index-dependency:
-#    service-interface:
-#      artifact-id: service-interface
-#      group-id: org.hpcclab.oaas
   log:
     category:
       "org.hpcclab.oaas":

@@ -33,10 +33,6 @@ quarkus:
     always-include: true
   smallrye-openapi:
     store-schema-directory: ../doc/tm
-  index-dependency:
-    service-interface:
-      artifact-id: service-interface
-      group-id: org.hpcclab.oaas
   console:
     color: true
   container-image:
@@ -53,8 +49,6 @@ quarkus:
         enabled: true
         path: jsonmetrics
   rest-client:
-    BlockingObjectService:
-      url: ${oaas.tm.objectControllerUrl}
     TaskBrokerService:
       url: ${oaas.tm.brokerUrl}
   native:
