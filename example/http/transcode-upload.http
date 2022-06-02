@@ -36,13 +36,3 @@ GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
 GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
-
-###
-GET {{cds}}/{{obj_0_id}}:tohls()()
-
-> {%
-client.global.set("obj_1_id", response.body.id)
-%}
-
-###
-GET {{cds}}/{{obj_1_id}}/video.m3u8

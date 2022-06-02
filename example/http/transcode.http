@@ -30,31 +30,3 @@ GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
 GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
-
-###
-GET {{cds}}/{{obj_0_id}}:tohls()()
-
-> {%
-client.global.set("obj_1_id", response.body.id)
-%}
-
-###
-GET {{oc}}/api/objects/{{obj_1_id}}
-
-###
-GET {{cds}}/{{obj_1_id}}/video.m3u8
-
-###
-#GET {{cds}}/{{obj_1_id}}:blur()()
-GET {{cds}}/{{obj_1_id}}:grayscale()()
-#GET {{cds}}/{{obj_1_id}}:mirror()()
-
-> {%
-client.global.set("obj_2_id", response.body.id)
-%}
-
-###
-GET {{oc}}/api/objects/{{obj_2_id}}
-
-###
-GET {{cds}}/{{obj_2_id}}/video.m3u8
