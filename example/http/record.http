@@ -1,5 +1,5 @@
 ###
-POST {{oc}}/api/batch
+POST {{oc}}/api/modules
 Content-Type: text/x-yaml
 
 < record.yml

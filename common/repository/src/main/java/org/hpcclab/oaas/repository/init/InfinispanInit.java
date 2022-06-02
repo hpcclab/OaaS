@@ -161,7 +161,8 @@ public class InfinispanInit {
       .addRemoteCache(OBJECT_CACHE, c -> {
         if (objectConfig.nearCacheMaxEntry() > 0) {
           c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry());
+            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry())
+            .forceReturnValues(false);
         }
         c.forceReturnValues(false);
       });
@@ -179,6 +180,10 @@ public class InfinispanInit {
             .nearCacheMaxEntries(funcCacheConfig.nearCacheMaxEntry());
         }
       });
+
+
+    remoteCacheManager.getConfiguration()
+      .addRemoteCache(INVOCATION_GRAPH_CACHE, c -> c.forceReturnValues(false));
 
 
     if (repositoryConfig.createOnStart()) {
