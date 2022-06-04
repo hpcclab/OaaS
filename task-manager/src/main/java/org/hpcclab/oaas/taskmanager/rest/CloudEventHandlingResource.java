@@ -74,7 +74,16 @@ public class CloudEventHandlingResource {
         null);
     }
     try {
-      return Json.decodeValue(buffer, TaskCompletion.class);
+      var completion = Json.decodeValue(buffer, TaskCompletion.class);
+      if (completion == null){
+        return new TaskCompletion(
+          id,
+          false,
+          "Can not parse the task completion message",
+          null
+        );
+      }
+      return completion;
     } catch (DecodeException decodeException) {
       LOGGER.warn("Decode failed on id {} : {}", id, decodeException.getMessage());
       return new TaskCompletion(

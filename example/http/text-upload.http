@@ -1,11 +1,11 @@
 ###
-POST {{oc}}/api/batch
+POST {{cds}}/api/batch
 Content-Type: text/x-yaml
 
 < text.yml
 
 ###
-POST {{oc}}/api/object-construct
+POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
@@ -43,8 +43,3 @@ Content-Type: application/json
     "APPEND": "NEW_TEXT"
   }
 }
-
-###
-GET {{tm}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text
-###
-GET http://task-manager.msc.knative.10.131.36.27.nip.io/oae/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT,PERSIST=false)/text

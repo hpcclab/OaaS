@@ -34,7 +34,6 @@ public class OalResource {
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
-//  TaskEventManager taskEventManager;
   InvocationGraphExecutor graphExecutor;
   @Inject
   ObjectCompletionListener completionListener;
@@ -87,6 +86,7 @@ public class OalResource {
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
+        .onItem().ifNull().failWith(() -> NoStackException.notFoundObject(oal.getTarget(),404))
         .flatMap(obj -> {
           if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
@@ -159,18 +159,6 @@ public class OalResource {
       .build();
   }
 
-//  public Uni<OaasObject> submitAndWaitObj(OaasObject obj, Boolean await) {
-//    var uni1 = graphExecutor.exec(obj);
-//    if (await==null ? config.defaultBlockCompletion():await) {
-//      var uni2 = completionListener.wait(obj.getId());
-//      return Uni.combine().all().unis(uni1, uni2)
-//        .asTuple()
-//        .flatMap(event -> objectRepo.getAsync(obj.getId()));
-//    }
-//    return uni1
-//      .replaceWith(obj);
-//  }
-
 
   public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
     var uni1 = graphExecutor.exec(ctx);
@@ -178,7 +166,6 @@ public class OalResource {
       var id = ctx.getOutput().getId();
       return uni1.flatMap(v -> completionListener.wait(id))
         .flatMap(v -> objectRepo.getAsync(id));
-//      return uni1.flatMap(v -> objectRepo.watch(id));
     }
     return uni1
       .replaceWith(ctx.getOutput());

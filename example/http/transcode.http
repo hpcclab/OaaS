@@ -1,11 +1,11 @@
 ###
-POST {{oc}}/api/batch
+POST {{cds}}/api/batch
 Content-Type: text/x-yaml
 
 < video.yml
 
 ###
-POST {{oc}}/api/object-construct
+POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 

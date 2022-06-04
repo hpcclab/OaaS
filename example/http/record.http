@@ -1,11 +1,11 @@
 ###
-POST {{oc}}/api/modules
+POST {{cds}}/api/modules
 Content-Type: text/x-yaml
 
 < record.yml
 
 ###
-POST {{oc}}/api/object-construct
+POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
