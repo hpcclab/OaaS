@@ -28,11 +28,11 @@ Content-Type: text/plain
 < ../../../oaas-load-test/test-files/test-10k.txt
 
 ###
-GET {{cds}}/{{obj_0_id}}/text
+GET {{cds}}/oal/{{obj_0_id}}/text
 ###
-GET {{cds}}/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
 ###
-POST {{cds}}/-/text
+POST {{cds}}/oal/-/text
 Content-Type: application/json
 
 {

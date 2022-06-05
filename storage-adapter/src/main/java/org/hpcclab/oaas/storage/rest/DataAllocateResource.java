@@ -10,7 +10,6 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
-import org.hpcclab.oaas.storage.ContextUtil;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 

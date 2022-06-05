@@ -32,7 +32,7 @@ Content-Type: application/octet-stream
 < ../../../oaas-load-test/test-files/test.mp4
 
 ###
-GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
+GET {{cds}}/oal/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
-GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
+GET {{cds}}/oal/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video

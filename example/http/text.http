@@ -25,6 +25,6 @@ client.global.set("obj_0_id", response.body.object.id)
 %}
 
 ###
-GET {{cds}}/{{obj_0_id}}:concat()(APPEND=NEW_TEXT,PERSIST=false)/text
+GET {{cds}}/oal/{{obj_0_id}}:concat()(append=NEW_TEXT,persist=false)/text
 ###
-GET {{cds}}/{{obj_0_id}}:concat()(APPEND=NEW_TEXT)/text
+GET {{cds}}/oal/{{obj_0_id}}:concat()(append=NEW_TEXT)/text
