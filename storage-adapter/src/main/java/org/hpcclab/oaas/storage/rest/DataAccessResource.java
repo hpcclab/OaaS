@@ -7,7 +7,6 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
-import org.hpcclab.oaas.storage.ContextUtil;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,8 @@ public class DataAccessResource {
                            String key,
                            @RestQuery String contextKey) {
     // TODO protect contextKey with encryption and signature
+    if (contextKey==null) throw new NoStackException("'contextKey' query param is required", 400);
     var dac = DataAccessContext.parse(contextKey);
-    if (dac==null) throw new NoStackException("'contextKey' query param is required", 400);
     var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  NoStackException.notFoundCls400(clsName);

@@ -105,16 +105,6 @@ public class S3Adapter implements StorageAdapter {
   }
 
   @Override
-  public Uni<Response> put(DataAccessRequest dar) {
-    return null;
-  }
-
-  @Override
-  public Uni<Response> delete(DataAccessRequest dar) {
-    return null;
-  }
-
-  @Override
   public Uni<Map<String, String>> allocate(InternalDataAllocateRequest request) {
     return Uni.createFrom().item(allocateBlocking(request));
   }
@@ -130,16 +120,4 @@ public class S3Adapter implements StorageAdapter {
     }
     return map;
   }
-
-//  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
-//    var keys = request.getKeys();
-//    var map = new HashMap<String, String>();
-//    for (String key : keys) {
-//      var url = generatePresigned(Method.PUT,
-//        request.getOid() + "/" + key,
-//        true);
-//      map.put(key, url);
-//    }
-//    return map;
-//  }
 }
