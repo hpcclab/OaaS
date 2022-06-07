@@ -20,9 +20,9 @@ async def handle(request: Request,
     output_obj = body['output']
     args = output_obj['origin'].get('args', {})
     record = body['main'].get('embeddedRecord', {})
-    entries = args.get('entries', 10)
-    keys = args.get('keys', 10)
-    values = args.get('values', 10)
+    entries = args.get('ENTRIES', 10)
+    keys = args.get('KEYS', 10)
+    values = args.get('VALUES', 10)
 
     for _ in range(entries):
       record[generate_text(keys)] = generate_text(values)
