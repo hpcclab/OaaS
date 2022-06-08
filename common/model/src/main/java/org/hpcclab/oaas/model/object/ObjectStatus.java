@@ -18,12 +18,12 @@ import java.util.List;
 public class ObjectStatus {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
-  @ProtoField(value = 2, defaultValue = "-1")
-  long createdTime = -1;
-  @ProtoField(value = 3, defaultValue = "-1")
-  long submittedTime = -1;
-  @ProtoField(value = 4, defaultValue = "-1")
-  long completedTime = -1;
+  @ProtoField(value = 2)
+  Long createdTime;
+  @ProtoField(value = 3)
+  Long submittedTime;
+  @ProtoField(value = 4)
+  Long completedTime;
   @ProtoField(6)
   List<String> waitFor = List.of();
   @ProtoField(value = 7, defaultValue = "false")
@@ -39,7 +39,7 @@ public class ObjectStatus {
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, List<String> waitFor, boolean initWaitFor, String originator) {
+  public ObjectStatus(TaskStatus taskStatus, Long createdTime, Long submittedTime, Long completedTime, List<String> waitFor, boolean initWaitFor, String originator) {
     this.taskStatus = taskStatus;
     this.createdTime = createdTime;
     this.submittedTime = submittedTime;
