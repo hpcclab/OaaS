@@ -10,7 +10,7 @@ data:
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
-  OAAS_TM_TASKCOMPLETIONPARTITIONS: '1'
+  OAAS_TM_BLOCKINGTIMEOUT: '10'
 #  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
   OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
@@ -24,7 +24,7 @@ data:
   OAAS_REPO_CREATEONSTART: 'true'
 #  OAAS_REPO_CLS_NEARCACHEMAXENTRY: "-1"
 #  OAAS_REPO_FUNC_NEARCACHEMAXENTRY: "-1"
-  QUARKUS_OPENTELEMETRY_ENABLED: 'false'
+  QUARKUS_OPENTELEMETRY_ENABLED: 'true'
 #  OAAS_SA_S3_RELAY: "true"
 #  QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector.default.svc.cluster.local:4317
 #  QUARKUS_OPENTELEMETRY_TRACER_SAMPLER: ratio

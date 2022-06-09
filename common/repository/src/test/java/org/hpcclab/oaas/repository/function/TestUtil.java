@@ -1,16 +1,10 @@
 package org.hpcclab.oaas.repository.function;
 
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.repository.impl.MapEntityRepository;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
-import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
-
-import java.util.List;
 
 public class TestUtil {
 

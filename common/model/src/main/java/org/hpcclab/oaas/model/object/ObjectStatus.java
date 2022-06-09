@@ -14,24 +14,26 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectStatus {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
-  @ProtoField(value = 2)
-  Long createdTime;
-  @ProtoField(value = 3)
-  Long submittedTime;
-  @ProtoField(value = 4)
-  Long completedTime;
-  @ProtoField(6)
+  @ProtoField(value = 2, defaultValue = "-1")
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long createdTime;
+  @ProtoField(value = 3, defaultValue = "-1")
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long submittedTime;
+  @ProtoField(value = 4, defaultValue = "-1")
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long completedTime;
+  @ProtoField(5)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   List<String> waitFor = List.of();
-  @ProtoField(value = 7, defaultValue = "false")
+  @ProtoField(value = 6, defaultValue = "false")
   @JsonIgnore
   boolean initWaitFor = false;
-
-  @ProtoField(8)
-  @JsonIgnore
+  @ProtoField(7)
+//  @JsonIgnore
   String originator;
 
   public ObjectStatus() {
@@ -39,7 +41,7 @@ public class ObjectStatus {
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus, Long createdTime, Long submittedTime, Long completedTime, List<String> waitFor, boolean initWaitFor, String originator) {
+  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, List<String> waitFor, boolean initWaitFor, String originator) {
     this.taskStatus = taskStatus;
     this.createdTime = createdTime;
     this.submittedTime = submittedTime;

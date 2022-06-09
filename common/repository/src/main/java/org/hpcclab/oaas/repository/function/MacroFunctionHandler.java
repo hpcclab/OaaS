@@ -49,8 +49,6 @@ public class MacroFunctionHandler implements FunctionHandler {
     validate(context);
     setupMap(context);
     var func = context.getFunction();
-    if (LOGGER.isDebugEnabled())
-      LOGGER.debug("func {}", func);
     return execWorkflow(context, func.getMacro())
       .map(ignored -> {
         var output = export(func.getMacro(), context);

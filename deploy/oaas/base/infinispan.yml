@@ -5,7 +5,7 @@ metadata:
 spec:
   image: quay.io/infinispan/server:13.0.10.Final
 #  image: quay.io/infinispan/server:14.0
-  replicas: 1
+  replicas: 3
   service:
     type: DataGrid
     container:

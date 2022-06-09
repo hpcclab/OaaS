@@ -1,26 +1,25 @@
 package org.hpcclab.oaas.repository.function;
 
 
+import ch.qos.logback.classic.Level;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.DefaultIdGenerator;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class FunctionRouterTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger( FunctionRouterTest.class );
 
   boolean debug = true;
 
@@ -34,6 +33,7 @@ class FunctionRouterTest {
 
   @BeforeEach
   public void setup() {
+
     var objects = MockupData.testObjects();
     var classes = MockupData.testClasses();
     var functions = MockupData.testFunctions();
@@ -78,21 +78,22 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o = objectRepo.get(ctx.getOutput().getId());
-    if (debug) {
-      System.out.printf("OUT:\n%s\n", Json.encodePrettily(o));
-    }
+    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(o));
     Assertions.assertTrue(o.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o.getStatus().getTaskStatus().isFailed());
   }
 
   void printDebug(FunctionExecContext ctx) {
     if (debug) {
-      System.out.printf("TASK MAP:\n%s\n", Json.encodePrettily(taskSubmitter.map));
-      System.out.printf("EDGE:\n%s\n", graphStateManager.multimap);
-      System.out.printf("FUNCTION EXEC CONTEXT:\n%s\n", Json.encodePrettily(ctx));
+      LOGGER.debug("TASK MAP: {}", Json.encodePrettily(taskSubmitter.map));
+      LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       System.out.println("REPO OBJ:");
+      int i = 0;
       for (var o: objectMap) {
-        System.out.println("\t"+ o);
+        LOGGER.debug("REPO OBJ {}: {}", i, Json.encode(o));
+        i++;
       }
     }
   }
@@ -119,9 +120,7 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    if (debug) {
-      System.out.printf("OBJECT o2:\n%s\n", Json.encodePrettily(o2));
-    }
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o2.getStatus().getTaskStatus().isFailed());
     Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
@@ -153,16 +152,14 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    if (debug) {
-      System.out.printf("OBJECT o2:\n%s\n", Json.encodePrettily(o2));
-    }
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertTrue(o2.getStatus().getTaskStatus().isFailed());
     Assertions.assertFalse(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
     var outObj = objectRepo.get(ctx.getOutput().getId());
-    if (debug) {
-      System.out.printf("OBJECT OUT:\n%s\n", Json.encodePrettily(outObj));
-    }
+
+    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(outObj));
+
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isCompleted());
     Assertions.assertTrue(outObj.getStatus().getTaskStatus().isFailed());
