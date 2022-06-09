@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class ObjectStatus {
+public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
   @ProtoField(value = 2, defaultValue = "-1")
@@ -33,7 +34,7 @@ public class ObjectStatus {
   @JsonIgnore
   boolean initWaitFor = false;
   @ProtoField(7)
-//  @JsonIgnore
+  @JsonIgnore
   String originator;
 
   public ObjectStatus() {
@@ -49,6 +50,18 @@ public class ObjectStatus {
     this.waitFor = waitFor;
     this.initWaitFor = initWaitFor;
     this.originator = originator;
+  }
+
+  public ObjectStatus copy() {
+    return new ObjectStatus(
+      taskStatus,
+      createdTime,
+      submittedTime,
+      completedTime,
+      waitFor==null ? null:List.copyOf(waitFor),
+      initWaitFor,
+      originator
+    );
   }
 
   public void set(TaskCompletion taskCompletion) {

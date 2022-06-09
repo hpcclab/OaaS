@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.digest.PureJavaCrc32;
+import org.hpcclab.oaas.model.Copyable;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ObjectOrigin implements Serializable {
+public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
   @ProtoField(2)
   String parentId;
   @ProtoField(3)

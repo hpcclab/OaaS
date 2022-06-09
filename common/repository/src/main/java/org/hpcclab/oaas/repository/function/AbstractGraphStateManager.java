@@ -55,7 +55,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   private OaasObject updateCompletedObject(OaasObject obj, TaskCompletion completion) {
     if (obj==null) throw NoStackException.notFoundObject400(completion.getId());
     if (obj.getStatus().getSubmittedTime() <= 0) {
-      LOGGER.warn("completing object {} has no submittedTime: {}", obj.getId(), Json.encode(obj));
+      LOGGER.warn("completing object {} has no submittedTime", obj.getId());
     }
     obj.updateStatus(completion);
     return obj;
@@ -97,7 +97,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .filter(ctx -> {
         var status = ctx.getOutput().getStatus();
         if (status.getSubmittedTime() <= 0) {
-          LOGGER.warn("Found object {} without SubmittedTime [originator={}, ctxId={}]",
+          LOGGER.warn("Detect object {} without SubmittedTime [originator={}, ctxId={}]",
             ctx.getOutput().getId(),
             status.getOriginator(),
             entryCtx.getOutput().getId());
@@ -145,7 +145,9 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     Objects.requireNonNull(object);
     var status = object.getStatus();
     var ts = status.getTaskStatus();
-    status.getWaitFor().remove(srcId);
+    var list = Lists.mutable.ofAll(status.getWaitFor());
+    list.remove(srcId);
+    status.setWaitFor(list);
     if (ts.isSubmitted() || ts.isFailed() || !status.getWaitFor().isEmpty())
       return object;
     status

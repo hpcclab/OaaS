@@ -42,4 +42,11 @@ public class OaasObjectState implements Serializable {
     this.stateId = stateId;
     this.overrideUrls = overrideUrls;
   }
+
+  public OaasObjectState copy() {
+    return new OaasObjectState(
+      stateId,
+      overrideUrls ==null? null: Map.copyOf(overrideUrls)
+    );
+  }
 }

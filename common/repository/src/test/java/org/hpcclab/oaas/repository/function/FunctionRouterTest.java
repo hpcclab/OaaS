@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.DefaultIdGenerator;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class FunctionRouterTest {
   private static final Logger LOGGER = LoggerFactory.getLogger( FunctionRouterTest.class );
@@ -67,9 +70,14 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
-    Assertions.assertTrue(graphStateManager.multimap.isEmpty());
+    assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    assertEquals(1, taskSubmitter.map.size());
+    assertTrue(graphStateManager.multimap.isEmpty());
+    var loadedObj = objectRepo.get(ctx.getOutput().getId());
+    assertNotNull(loadedObj);
+    assertNotNull(loadedObj.getStatus());
+    assertTrue(loadedObj.getStatus().getSubmittedTime() > 0);
+    assertEquals(TaskStatus.DOING,loadedObj.getStatus().getTaskStatus());
 
     var completion = new TaskCompletion()
       .setId(ctx.getOutput().getId())
@@ -79,8 +87,14 @@ class FunctionRouterTest {
       .await().indefinitely();
     var o = objectRepo.get(ctx.getOutput().getId());
     LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(o));
-    Assertions.assertTrue(o.getStatus().getTaskStatus().isCompleted());
+    assertTrue(o.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o.getStatus().getTaskStatus().isFailed());
+    loadedObj = objectRepo.get(ctx.getOutput().getId());
+    assertNotNull(loadedObj);
+    assertNotNull(loadedObj.getStatus());
+    assertTrue(loadedObj.getStatus().getCompletedTime() > 0);
+    assertEquals(TaskStatus.SUCCEEDED,
+      loadedObj.getStatus().getTaskStatus());
   }
 
   void printDebug(FunctionExecContext ctx) {
@@ -89,7 +103,6 @@ class FunctionRouterTest {
       LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap));
       LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
-      System.out.println("REPO OBJ:");
       int i = 0;
       for (var o: objectMap) {
         LOGGER.debug("REPO OBJ {}: {}", i, Json.encode(o));
@@ -107,10 +120,10 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey("o2"));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
+    assertTrue(taskSubmitter.map.containsKey("o2"));
+    assertEquals(1, taskSubmitter.map.size());
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
-    Assertions.assertTrue(graphStateManager.multimap.containsKey("o2"));
+    assertTrue(graphStateManager.multimap.containsKey("o2"));
 
 
     var completion = new TaskCompletion()
@@ -121,10 +134,10 @@ class FunctionRouterTest {
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
     LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
+    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o2.getStatus().getTaskStatus().isFailed());
-    Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
-    Assertions.assertTrue(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isSubmitted());
+    assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    assertTrue(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isFailed());
   }
@@ -139,10 +152,10 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey("o2"));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
+    assertTrue(taskSubmitter.map.containsKey("o2"));
+    assertEquals(1, taskSubmitter.map.size());
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
-    Assertions.assertTrue(graphStateManager.multimap.containsKey("o2"));
+    assertTrue(graphStateManager.multimap.containsKey("o2"));
 
 
     var completion = new TaskCompletion()
@@ -153,8 +166,8 @@ class FunctionRouterTest {
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
     LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isFailed());
+    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
+    assertTrue(o2.getStatus().getTaskStatus().isFailed());
     Assertions.assertFalse(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
     var outObj = objectRepo.get(ctx.getOutput().getId());
 
@@ -162,7 +175,7 @@ class FunctionRouterTest {
 
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isCompleted());
-    Assertions.assertTrue(outObj.getStatus().getTaskStatus().isFailed());
+    assertTrue(outObj.getStatus().getTaskStatus().isFailed());
   }
 
   @Test

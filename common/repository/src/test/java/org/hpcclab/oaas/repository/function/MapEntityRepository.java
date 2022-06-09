@@ -3,6 +3,8 @@ package org.hpcclab.oaas.repository.function;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
+import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,10 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
 
   @Override
   public V get(K key) {
-    return map.get(key);
+    var v = map.get(key);
+    if (v instanceof Copyable)
+      return (V) ((Copyable<V>) v).copy();
+    return v;
   }
 
   @Override
@@ -51,6 +56,8 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
 
   @Override
   public V put(K key, V value) {
+    if (value instanceof Copyable<?>)
+      return map.put(key, ((Copyable<V>) value).copy());
     return map.put(key,value);
   }
 
@@ -61,7 +68,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
 
   @Override
   public Uni<Void> putAllAsync(Map<K, V> m) {
-    this.map.putAll(m);
+    m.forEach(this::put);
     return Uni.createFrom().voidItem();
   }
 
@@ -81,7 +88,13 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
 
   @Override
   public Uni<V> computeAsync(K key, BiFunction<K, V, V> function) {
-    return Uni.createFrom().item(map.compute(key, function));
+
+    return Uni.createFrom().item(map.compute(key, (k,v) -> {
+      var out = function.apply(k,v);
+      if (out instanceof Copyable<?>)
+        return ((Copyable<V>) out).copy();
+      return out;
+    }));
   }
 
 

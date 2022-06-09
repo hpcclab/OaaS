@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -24,7 +25,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 @ProtoDoc("@Indexed")
-public class OaasObject {
+public class OaasObject implements Copyable<OaasObject> {
 
   @ProtoField(1)
   String id;
@@ -86,11 +87,11 @@ public class OaasObject {
       originHash,
       cls,
       labels==null ? null:Set.copyOf(labels),
-      state,
+      state.copy(),
       refs==null ? null:Set.copyOf(refs),
       embeddedRecord,
-      status,
-      streamInfo
+      status.copy(),
+      streamInfo == null? null:streamInfo.copy()
     );
   }
 
