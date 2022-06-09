@@ -14,24 +14,26 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectStatus {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
   @ProtoField(value = 2, defaultValue = "-1")
-  long createdTime = -1;
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long createdTime;
   @ProtoField(value = 3, defaultValue = "-1")
-  long submittedTime = -1;
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long submittedTime;
   @ProtoField(value = 4, defaultValue = "-1")
-  long completedTime = -1;
-  @ProtoField(6)
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  long completedTime;
+  @ProtoField(5)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   List<String> waitFor = List.of();
-  @ProtoField(value = 7, defaultValue = "false")
+  @ProtoField(value = 6, defaultValue = "false")
   @JsonIgnore
   boolean initWaitFor = false;
-
-  @ProtoField(8)
-  @JsonIgnore
+  @ProtoField(7)
+//  @JsonIgnore
   String originator;
 
   public ObjectStatus() {

@@ -315,6 +315,9 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "originator" : {
+            "type" : "string"
+          },
           "submittedTime" : {
             "format" : "int64",
             "type" : "integer"

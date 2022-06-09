@@ -37,9 +37,16 @@ public interface EntityRepository<K, V> {
   Uni<V> putAsync(K key, V value);
   Uni<Void> putAllAsync(Map<K, V> map);
 
-  Uni<V> persistAsync(V v);
+  default Uni<V> persistAsync(V v) {
+    return persistAsync(v, true);
+  }
+  Uni<V> persistAsync(V v, boolean notificationEnabled);
 
-  Uni<Void> persistAsync(Collection<V> v);
+  default Uni<Void> persistAsync(Collection<V> collection){
+    return persistAsync(collection, true);
+  }
+
+  Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled);
 
   Uni<V> computeAsync(K key, BiFunction<K, V, V> function);
 }

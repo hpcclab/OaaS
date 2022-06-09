@@ -2,6 +2,7 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
@@ -22,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.time.Duration;
 
 @Path("/oal/")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -48,13 +50,15 @@ public class OalResource {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      var uni = execFunction(oal)
-        .call(ctx -> graphExecutor.exec(ctx))
-        .map(FunctionExecContext::getOutput);
-      if (await!=null && await) {
-        uni = uni.flatMap(this::waitObj);
-      }
-      return uni;
+      return execFunction(oal)
+        .flatMap(ctx -> submitAndWaitObj(ctx, await!=null && await)
+          .invoke(o -> {
+            // NOTE Temporary fix for object status data lost problem.
+            if (o.getStatus().getSubmittedTime() <= 0)
+              o.getStatus().setSubmittedTime(ctx.getOutput().getStatus().getSubmittedTime());
+            if (o.getStatus().getCompletedTime() <= 0)
+              o.getStatus().setCompletedTime(System.currentTimeMillis());
+          }));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -86,7 +90,7 @@ public class OalResource {
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
-        .onItem().ifNull().failWith(() -> NoStackException.notFoundObject(oal.getTarget(),404))
+        .onItem().ifNull().failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
           if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
@@ -99,7 +103,6 @@ public class OalResource {
               .map(newObj -> createResponse(newObj, filePath));
           }
           return Uni.createFrom().item(createResponse(obj, filePath));
-
         });
     }
   }
@@ -161,13 +164,26 @@ public class OalResource {
 
 
   public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
-    var uni1 = graphExecutor.exec(ctx);
     if (await==null ? config.defaultAwaitCompletion():await) {
       var id = ctx.getOutput().getId();
-      return uni1.flatMap(v -> completionListener.wait(id))
-        .flatMap(v -> objectRepo.getAsync(id));
+//      return uni1.flatMap(v -> completionListener.wait(id))
+//        .flatMap(v -> objectRepo.getAsync(id));
+      var uni1 = completionListener.wait(id);
+      var uni2 = graphExecutor.exec(ctx);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
+        .flatMap(tuple -> objectRepo.getAsync(id)
+          .invoke(Unchecked.consumer(obj -> {
+            if (!obj.getStatus().getTaskStatus().isCompleted())
+              throw new IllegalStateException();
+          }))
+          .onFailure(IllegalStateException.class)
+          .retry().withBackOff(Duration.ofMillis(200)).atMost(2)
+          .onFailure(IllegalStateException.class)
+          .recoverWithUni(objectRepo.getAsync(id))
+        );
     }
-    return uni1
+    return graphExecutor.exec(ctx)
       .replaceWith(ctx.getOutput());
   }
 
@@ -175,9 +191,15 @@ public class OalResource {
     var status = obj.getStatus();
     var ts = status.getTaskStatus();
     if (!ts.isSubmitted() && !status.isInitWaitFor()) {
-      return graphExecutor.exec(obj)
-        .flatMap(v -> completionListener.wait(obj.getId()))
+//      return graphExecutor.exec(obj)
+//        .flatMap(v -> completionListener.wait(obj.getId()))
+//        .flatMap(v -> objectRepo.getAsync(obj.getId()));
+      var uni1 = completionListener.wait(obj.getId());
+      var uni2 = graphExecutor.exec(obj);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
         .flatMap(v -> objectRepo.getAsync(obj.getId()));
+
     }
     return completionListener.wait(obj.getId())
       .flatMap(event -> objectRepo.getAsync(obj.getId()));

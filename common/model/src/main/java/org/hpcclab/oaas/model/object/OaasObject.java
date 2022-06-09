@@ -32,23 +32,21 @@ public class OaasObject {
   ObjectOrigin origin;
   @ProtoField(3)
   Long originHash;
-  //  @ProtoField(4)
-//  ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
-  @ProtoField(5)
+  @ProtoField(4)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
-  @ProtoField(6)
+  @ProtoField(5)
   Set<String> labels;
-  @ProtoField(7)
+  @ProtoField(6)
   OaasObjectState state;
-  @ProtoField(8)
+  @ProtoField(7)
   Set<ObjectReference> refs;
   @JsonRawValue
-  @ProtoField(9)
+  @ProtoField(8)
   String embeddedRecord;
-  @ProtoField(10)
+  @ProtoField(value = 9)
   ObjectStatus status;
-  @ProtoField(11)
+  @ProtoField(10)
   StreamInfo streamInfo;
 
   public OaasObject() {
@@ -91,7 +89,7 @@ public class OaasObject {
       state,
       refs==null ? null:Set.copyOf(refs),
       embeddedRecord,
-      null,
+      status,
       streamInfo
     );
   }
@@ -108,8 +106,10 @@ public class OaasObject {
   }
 
   public void updateStatus(TaskCompletion taskCompletion) {
-    if (status==null) status = new ObjectStatus();
+//    if (status==null) status = new ObjectStatus();
     status.set(taskCompletion);
+    if (taskCompletion.getEmbeddedRecord()!=null)
+      setEmbeddedRecord(taskCompletion.getEmbeddedRecord());
   }
 
   @JsonIgnore
@@ -117,26 +117,21 @@ public class OaasObject {
     return origin.isRoot() || (status.getTaskStatus().isCompleted() && !status.getTaskStatus().isFailed());
   }
 
-  public List<String> waitForList() {
-    if (origin.isRoot()) {
-      return List.of();
-    }
-    var list = refs!=null && !refs.isEmpty() ?
-      Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
-      Lists.mutable.<String>empty();
-    if ( origin.getInputs()!=null) {
-      list.addAll(origin.getInputs());
-    }
-    if (refs!=null) {
-      list.addAll(Lists.fixedSize.ofAll(refs)
-        .collect(ObjectReference::getObjId));
-    }
-    list.add(origin.getParentId());
-    return list;
-  }
-
-  public ObjectStatus getStatus() {
-    if (status==null) status = new ObjectStatus();
-    return status;
-  }
+//  public List<String> waitForList() {
+//    if (origin.isRoot()) {
+//      return List.of();
+//    }
+//    var list = refs!=null && !refs.isEmpty() ?
+//      Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
+//      Lists.mutable.<String>empty();
+//    if ( origin.getInputs()!=null) {
+//      list.addAll(origin.getInputs());
+//    }
+//    if (refs!=null) {
+//      list.addAll(Lists.fixedSize.ofAll(refs)
+//        .collect(ObjectReference::getObjId));
+//    }
+//    list.add(origin.getParentId());
+//    return list;
+//  }
 }

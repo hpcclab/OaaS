@@ -28,7 +28,7 @@ public class InfinispanInit {
   private static final String TEMPLATE_MEM_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
+                       mode="SYNC">
       <indexing storage="local-heap">
         <indexed-entities>
           <indexed-entity>oaas.OaasObject</indexed-entity>
@@ -50,7 +50,7 @@ public class InfinispanInit {
   private static final String TEMPLATE_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
+                       mode="SYNC">
       <indexing>
         <indexed-entities>
           <indexed-entity>oaas.OaasObject</indexed-entity>
@@ -131,7 +131,7 @@ public class InfinispanInit {
   private static final String TEMPLATE_MULTIMAP_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
+                       mode="SYNC">
       <memory storage="HEAP"
               max-size="%s"/>
       <encoding>
@@ -161,8 +161,7 @@ public class InfinispanInit {
       .addRemoteCache(OBJECT_CACHE, c -> {
         if (objectConfig.nearCacheMaxEntry() > 0) {
           c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry())
-            .forceReturnValues(false);
+            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry());
         }
         c.forceReturnValues(false);
       });

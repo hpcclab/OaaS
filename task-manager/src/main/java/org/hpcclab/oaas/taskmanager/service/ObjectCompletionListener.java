@@ -3,6 +3,8 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
+import org.eclipse.collections.api.map.ConcurrentMutableMap;
+import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
@@ -21,7 +23,6 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
@@ -61,7 +62,7 @@ public class ObjectCompletionListener {
   public static class CacheWatcher {
 
     BroadcastProcessor<String> broadcastProcessor = BroadcastProcessor.create();
-    ConcurrentHashMap<String, AtomicInteger> countingMap = new ConcurrentHashMap<>();
+    ConcurrentMutableMap<String, AtomicInteger> countingMap = new ConcurrentHashMap<>();
 
 //    @ClientCacheEntryCreated
 //    public void onCreate(ClientCacheEntryCreatedEvent<UUID> e) {
@@ -73,7 +74,7 @@ public class ObjectCompletionListener {
 
     @ClientCacheEntryModified
     public void onUpdate(ClientCacheEntryModifiedEvent<String> e) {
-//      LOGGER.debug("onUpdate {}, countingMap {}", e, countingMap);
+//      LOGGER.info("onUpdate {}, countingMap {}", e, countingMap);
       if (countingMap.containsKey(e.getKey())) {
         broadcastProcessor.onNext(e.getKey());
       }
@@ -91,19 +92,24 @@ public class ObjectCompletionListener {
     }
 
     public Uni<String> wait(String id, Predicate<? super String> selector, Duration timeout) {
-//      LOGGER.debug("start wait for {}", id);
+//      LOGGER.info("start wait for {}", id);
       countingMap.computeIfAbsent(id, key -> new AtomicInteger())
         .incrementAndGet();
       return broadcastProcessor
         .filter(selector)
         .toUni()
         .ifNoItem().after(timeout)
+//        .recoverWithItem(() -> {
+//          LOGGER.warn("timeout on id {}", id);
+//          return (String) null;
+//        })
         .recoverWithItem((String) null)
         .eventually(() -> {
           var atomicInteger = countingMap.get(id);
           var i = atomicInteger.decrementAndGet();
           if (i==0) countingMap.remove(id);
-        });
+        })
+        ;
     }
   }
 }

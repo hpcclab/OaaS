@@ -1,9 +1,11 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.repository.EntityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,7 +14,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class MapEntityRepository<K,V> implements EntityRepository<K,V> {
-
+private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepository.class );
   MutableMap<K,V> map;
   Function<V,K> keyExtractor;
 
@@ -63,14 +65,16 @@ public class MapEntityRepository<K,V> implements EntityRepository<K,V> {
     return Uni.createFrom().voidItem();
   }
 
-  @Override
-  public Uni<V> persistAsync(V v) {
-    return putAsync(keyExtractor.apply(v), v);
-  }
 
   @Override
-  public Uni<Void> persistAsync(Collection<V> v) {
-    var m = Lists.fixedSize.ofAll(v)
+  public Uni<V> persistAsync(V v, boolean notificationEnabled) {
+    LOGGER.debug("persistAsync {}, {}", v, notificationEnabled);
+    return putAsync(keyExtractor.apply(v), v);
+  }
+  @Override
+  public Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled) {
+    LOGGER.debug("persistAsync {}, {}", collection, notificationEnabled);
+    var m = Lists.fixedSize.ofAll(collection)
       .groupByUniqueKey(keyExtractor::apply);
     return putAllAsync(m);
   }
