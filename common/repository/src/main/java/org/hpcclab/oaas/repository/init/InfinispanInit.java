@@ -106,7 +106,7 @@ public class InfinispanInit {
              max-size="%s"/>
      <locking isolation="REPEATABLE_READ"/>
      <transaction mode="NON_XA"
-                  locking="PESSIMISTIC"/>
+                  locking="OPTIMISTIC"/>
       <!--  locking="PESSIMISTIC"-->
       <!--  locking="OPTIMISTIC"-->
      <encoding>
@@ -114,12 +114,10 @@ public class InfinispanInit {
          <value media-type="application/x-protostream"/>
      </encoding>
      <persistence passivation="false">
-         <file-store shared="false"
-                     fetch-state="true"
-                     purge="false"
-                     preload="false">
-         <!--<write-behind modification-queue-size="65536" />-->
-         </file-store>
+         <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
+                       fetch-state="true">
+          <write-behind modification-queue-size="%d"/>
+        </rocksdb-store>
      </persistence>
      <partition-handling when-split="ALLOW_READ_WRITES"
                          merge-policy="PREFERRED_NON_NULL"/>
@@ -163,7 +161,6 @@ public class InfinispanInit {
           c.nearCacheMode(NearCacheMode.INVALIDATED)
             .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry());
         }
-        c.forceReturnValues(false);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(CLASS_CACHE, c -> {
@@ -190,13 +187,16 @@ public class InfinispanInit {
         TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
 
       remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
-        .formatted(INVOCATION_GRAPH_CACHE, graphConfig.maxSize())));
+        .formatted(INVOCATION_GRAPH_CACHE,
+          graphConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(CLASS_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
-        .formatted(CLASS_CACHE, "16MB")));
+        .formatted(CLASS_CACHE,
+          clsCacheConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
-        .formatted(FUNCTION_CACHE, "16MB")));
+        .formatted(FUNCTION_CACHE,
+          funcCacheConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(OBJECT_CACHE, new XMLStringConfiguration(distTemplate
         .formatted(OBJECT_CACHE,

@@ -42,16 +42,15 @@ public class OaasObject implements Copyable<OaasObject> {
   OaasObjectState state;
   @ProtoField(7)
   Set<ObjectReference> refs;
-  @JsonRawValue
-  @ProtoField(8)
-  String embeddedRecord;
-  @ProtoField(value = 9)
+  @ProtoField(value = 8)
   ObjectStatus status;
-  @ProtoField(10)
+  @ProtoField(9)
   StreamInfo streamInfo;
+  @JsonRawValue
+  @ProtoField(10)
+  String embeddedRecord;
 
-  public OaasObject() {
-  }
+  public OaasObject() {}
 
   @ProtoFactory
   public OaasObject(String id, ObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {

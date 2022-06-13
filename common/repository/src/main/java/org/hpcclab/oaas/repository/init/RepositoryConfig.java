@@ -37,9 +37,13 @@ public interface RepositoryConfig {
   interface ClassConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
+    @WithDefault("256MB")
+    String maxSize();
   }
   interface FunctionConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
+    @WithDefault("256MB")
+    String maxSize();
   }
 }

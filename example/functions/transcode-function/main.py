@@ -18,7 +18,7 @@ KEY_NAME = "video"
 
 @app.route('/', methods=['POST'])
 def handle():
-  error_msg = "Successfully execute task"
+  error_msg = None
   body = request.get_json(force=True)
 
   output_id = body['output']['id']
@@ -43,7 +43,12 @@ def handle():
     codec += ' -vcodec ' + vcodec
 
   tmp_in = f"in-{uuid.uuid4()}.mp4"
-  os.system(f"curl -L -o {tmp_in} {src_url}")
+  # os.system(f"curl -L -o {tmp_in} {src_url}")
+  with requests.get(src_url, stream=True) as r:
+    r.raise_for_status()
+    with open(tmp_in, 'wb') as f:
+      for chunk in r.iter_content(chunk_size=8192):
+        f.write(chunk)
 
   tmp_file = str(uuid.uuid4()) + '.' + video_format
   cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
@@ -59,26 +64,32 @@ def handle():
   resp_json = r.json()
   output_url = resp_json[KEY_NAME]
 
-  cmd = f'curl -T {tmp_file} \'{output_url}\''
-  full_cmd = f'{SHELL} -c "{cmd}"'
-  app.logger.warning(f'full_cmd = {full_cmd}')
+  # cmd = f'curl -T {tmp_file} \'{output_url}\''
+  # full_cmd = f'{SHELL} -c "{cmd}"'
+  # app.logger.warning(f'full_cmd = {full_cmd}')
+  #
+  # code = os.system(f'{SHELL} -c "{cmd}"')
+  # if code != 0:
+  #   error_msg = f"Fail to execute {cmd}"
+  with open(tmp_file, 'rb') as file_data:
+    rspn = requests.put(output_url, data=file_data)
+    if rspn.status_code >= 400:
+      error_msg = "Fail to persist output file"
 
-  code = os.system(f'{SHELL} -c "{cmd}"')
-  if code != 0:
-    error_msg = f"Fail to execute {cmd}"
-  code = os.system(f'{SHELL} -c "rm {tmp_file}"')
-  if code != 0:
-    error_msg = f"Fail to execute rm {tmp_file}"
+  if os.path.isfile(tmp_file):
+    os.remove(tmp_file)
+  if os.path.isfile(tmp_in):
+    os.remove(tmp_in)
 
-  app.logger.warning(f'Successfully execute task {output_url}')
-  return make_response(output_id,
-                       error_msg)
+  return make_completion(output_id,
+                         error_msg)
 
 
-def make_response(output_id: str,
-                  error: str = None,
-                  record: dict = None):
+def make_completion(output_id: str,
+                    error: str = None,
+                    record: dict = None):
   success = error is None
+  app.logger.warning(f'Execute task {output_id} success="{success}" error="{error}"')
   body = {
     "id": output_id,
     "success": success

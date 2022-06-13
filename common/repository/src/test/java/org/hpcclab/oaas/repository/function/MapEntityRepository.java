@@ -84,6 +84,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
     var m = Lists.fixedSize.ofAll(collection)
       .groupByUniqueKey(keyExtractor::apply);
     return putAllAsync(m);
+//    return Uni.createFrom().voidItem();
   }
 
   @Override

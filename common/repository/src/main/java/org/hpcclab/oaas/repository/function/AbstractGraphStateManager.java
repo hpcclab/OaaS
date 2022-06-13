@@ -114,9 +114,6 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       objs.add(ctx.getOutput());
     }
     return objRepo.persistAsync(objs, false);
-//    return Multi.createFrom().iterable(objs)
-//      .call(o -> objRepo.persistAsync(o,false))
-//      .collect().last();
   }
 
   OaasObject updateSubmittingObject(OaasObject object, String originator) {
@@ -128,6 +125,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .setTaskStatus(TaskStatus.DOING)
       .setSubmittedTime(System.currentTimeMillis())
       .setOriginator(originator);
+    object.setStatus(status);
     return object;
   }
 

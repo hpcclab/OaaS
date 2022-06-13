@@ -315,7 +315,7 @@
             "format" : "int64",
             "type" : "integer"
           },
-          "originator" : {
+          "errorMsg" : {
             "type" : "string"
           },
           "submittedTime" : {

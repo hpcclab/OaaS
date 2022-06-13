@@ -36,13 +36,16 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(7)
   @JsonIgnore
   String originator;
+  @ProtoField(8)
+  String errorMsg;
 
   public ObjectStatus() {
   }
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, List<String> waitFor, boolean initWaitFor, String originator) {
+  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, List<String> waitFor, boolean initWaitFor, String originator,
+                      String errorMsg) {
     this.taskStatus = taskStatus;
     this.createdTime = createdTime;
     this.submittedTime = submittedTime;
@@ -50,6 +53,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     this.waitFor = waitFor;
     this.initWaitFor = initWaitFor;
     this.originator = originator;
+    this.errorMsg = errorMsg;
   }
 
   public ObjectStatus copy() {
@@ -60,7 +64,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       completedTime,
       waitFor==null ? null:List.copyOf(waitFor),
       initWaitFor,
-      originator
+      originator,
+      errorMsg
     );
   }
 
@@ -68,6 +73,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     if (taskCompletion.isSuccess()) taskStatus = TaskStatus.SUCCEEDED;
     else taskStatus = TaskStatus.FAILED;
     completedTime = System.currentTimeMillis();
+    errorMsg = taskCompletion.getErrorMsg();
   }
 
   public void initWaitFor() {

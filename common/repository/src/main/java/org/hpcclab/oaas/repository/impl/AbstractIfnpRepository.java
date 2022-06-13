@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
+import org.infinispan.client.hotrod.MetadataValue;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.query.dsl.Query;
@@ -69,6 +70,15 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(remoteCache.getAsync(key));
+    if (ctx!=null)
+      uni = uni.emitOn(ctx::runOnContext);
+    return uni;
+  }
+
+  public Uni<MetadataValue<V>> getWithMetaAsync(K key) {
+    Objects.requireNonNull(key);
+    var ctx = Vertx.currentContext();
+    var uni = Uni.createFrom().completionStage(remoteCache.getWithMetadataAsync(key));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;

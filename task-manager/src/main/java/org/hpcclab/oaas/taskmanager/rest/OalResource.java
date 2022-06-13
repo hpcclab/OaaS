@@ -14,6 +14,7 @@ import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
+import org.infinispan.client.hotrod.MetadataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,21 +167,19 @@ public class OalResource {
   public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
     if (await==null ? config.defaultAwaitCompletion():await) {
       var id = ctx.getOutput().getId();
-//      return uni1.flatMap(v -> completionListener.wait(id))
-//        .flatMap(v -> objectRepo.getAsync(id));
       var uni1 = completionListener.wait(id);
       var uni2 = graphExecutor.exec(ctx);
       return Uni.combine().all().unis(uni1, uni2)
         .asTuple()
         .flatMap(tuple -> objectRepo.getAsync(id)
-          .invoke(Unchecked.consumer(obj -> {
-            if (!obj.getStatus().getTaskStatus().isCompleted())
-              throw new IllegalStateException();
-          }))
-          .onFailure(IllegalStateException.class)
-          .retry().withBackOff(Duration.ofMillis(200)).atMost(2)
-          .onFailure(IllegalStateException.class)
-          .recoverWithUni(objectRepo.getAsync(id))
+//          .invoke(Unchecked.consumer(obj -> {
+//            if (!obj.getStatus().getTaskStatus().isCompleted())
+//              throw new IllegalStateException();
+//          }))
+//          .onFailure(IllegalStateException.class)
+//          .retry().withBackOff(Duration.ofMillis(200)).atMost(2)
+//          .onFailure(IllegalStateException.class)
+//          .recoverWithUni(objectRepo.getAsync(id))
         );
     }
     return graphExecutor.exec(ctx)
