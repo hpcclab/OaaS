@@ -291,6 +291,7 @@ components:
           type: string
         requestsMemory:
           type: string
+      deprecated: true
     KeyAccessModifier:
       enum:
       - INTERNAL
@@ -331,6 +332,8 @@ components:
         requestsCpu:
           type: string
         requestsMemory:
+          type: string
+        scaleDownDelay:
           type: string
     Module:
       type: object

@@ -24,7 +24,7 @@ def handle():
   output_id = body['output']['id']
   alloc_url = body['allocOutputUrl']
   output_obj = body['output']
-  args = output_obj['origin']['args']
+  args = output_obj.get('origin', {}).get('args', {})
 
   src_url = body['mainKeys'][KEY_NAME]
   resolution = args.get('RESOLUTION', '720x480')

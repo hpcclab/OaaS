@@ -55,15 +55,3 @@ quarkus:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.1-java17
   opentelemetry:
     enabled: false
-
-#mp:
-#  messaging:
-#    incoming:
-#      task-completions:
-#        connector: smallrye-kafka
-#        topic: ${oaas.tm.taskCompletionTopic}
-#        auto:
-#          offset:
-#            reset: earliest
-#        partitions: ${oaas.tm.taskCompletionPartitions}
-#        batch: true

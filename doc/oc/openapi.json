@@ -458,7 +458,8 @@
           "requestsMemory" : {
             "type" : "string"
           }
-        }
+        },
+        "deprecated" : true
       },
       "KeyAccessModifier" : {
         "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
@@ -512,6 +513,9 @@
             "type" : "string"
           },
           "requestsMemory" : {
+            "type" : "string"
+          },
+          "scaleDownDelay" : {
             "type" : "string"
           }
         }

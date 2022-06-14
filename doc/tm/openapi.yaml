@@ -4,20 +4,6 @@ info:
   title: task-manager API
   version: 0.2.0-SNAPSHOT
 paths:
-  /api/task-completions:
-    post:
-      tags:
-      - Task Completion Consumer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/TaskCompletion'
-      responses:
-        "201":
-          description: Created
   /ce:
     post:
       tags:
@@ -229,17 +215,6 @@ components:
         count:
           format: int32
           type: integer
-    TaskCompletion:
-      type: object
-      properties:
-        embeddedRecord:
-          type: string
-        errorMsg:
-          type: string
-        id:
-          type: string
-        success:
-          type: boolean
     TaskStatus:
       enum:
       - DEPENDENCY_FAILED

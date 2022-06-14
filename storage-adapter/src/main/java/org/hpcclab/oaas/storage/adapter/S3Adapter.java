@@ -8,7 +8,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.storage.SaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,7 @@ public class S3Adapter implements StorageAdapter {
 
   private boolean relay;
   private WebClient webClient;
+  private String prefix;
 
   void setup(@Observes StartupEvent event) {
     var s3Config = config.s3();
@@ -49,6 +49,7 @@ public class S3Adapter implements StorageAdapter {
       .build();
     relay = config.s3().relay();
     webClient = WebClient.create(vertx);
+    prefix = s3Config.prefix();
   }
 
   @Override
@@ -61,7 +62,7 @@ public class S3Adapter implements StorageAdapter {
     var uni = Uni.createFrom()
       .item(() -> generatePresigned(
         Method.GET,
-        dar.getOid() + "/" + dar.getKey(),
+        prefix + dar.getOid() + "/" + dar.getKey(),
         false)
       );
     if (relay) {
@@ -114,7 +115,7 @@ public class S3Adapter implements StorageAdapter {
     var map = new HashMap<String, String>();
     for (String key : keys) {
       var url = generatePresigned(Method.PUT,
-        request.getId() + "/" + key,
+        prefix + request.getId() + "/" + key,
         true);
       map.put(key, url);
     }

@@ -37,6 +37,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @JsonIgnore
   String originator;
   @ProtoField(8)
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   String errorMsg;
 
   public ObjectStatus() {

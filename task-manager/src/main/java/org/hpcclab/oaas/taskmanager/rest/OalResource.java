@@ -55,10 +55,13 @@ public class OalResource {
         .flatMap(ctx -> submitAndWaitObj(ctx, await!=null && await)
           .invoke(o -> {
             // NOTE Temporary fix for object status data lost problem.
-            if (o.getStatus().getSubmittedTime() <= 0)
-              o.getStatus().setSubmittedTime(ctx.getOutput().getStatus().getSubmittedTime());
-            if (o.getStatus().getCompletedTime() <= 0)
-              o.getStatus().setCompletedTime(System.currentTimeMillis());
+            var status = o.getStatus();
+            if (status.getTaskStatus().isCompleted()) {
+              if (status.getSubmittedTime() <= 0)
+                status.setSubmittedTime(ctx.getOutput().getStatus().getSubmittedTime());
+              if (status.getCompletedTime() <= 0)
+                status.setCompletedTime(System.currentTimeMillis());
+            }
           }));
     } else {
       return objectRepo.getAsync(oal.getTarget())
