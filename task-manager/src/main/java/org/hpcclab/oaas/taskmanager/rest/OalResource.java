@@ -2,7 +2,6 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
@@ -14,7 +13,6 @@ import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
-import org.infinispan.client.hotrod.MetadataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.time.Duration;
 
 @Path("/oal/")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -193,9 +190,6 @@ public class OalResource {
     var status = obj.getStatus();
     var ts = status.getTaskStatus();
     if (!ts.isSubmitted() && !status.isInitWaitFor()) {
-//      return graphExecutor.exec(obj)
-//        .flatMap(v -> completionListener.wait(obj.getId()))
-//        .flatMap(v -> objectRepo.getAsync(obj.getId()));
       var uni1 = completionListener.wait(obj.getId());
       var uni2 = graphExecutor.exec(obj);
       return Uni.combine().all().unis(uni1, uni2)
