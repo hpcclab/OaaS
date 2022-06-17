@@ -1,9 +1,7 @@
 package org.hpcclab.oaas.repository.init;
 
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.NearCacheMode;
-import org.infinispan.client.hotrod.multimap.MultimapCacheManager;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCacheManager;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
@@ -47,7 +45,7 @@ public class InfinispanInit {
     """;
 
   // language=xml
-  private static final String TEMPLATE_DIST_CONFIG = """
+  private static final String TEMPLATE_ROCK_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
                        mode="SYNC">
@@ -73,6 +71,33 @@ public class InfinispanInit {
       <state-transfer timeout="300000"/>
     </distributed-cache>
     """;
+
+  // language=xml
+  private static final String TEMPLATE_FILE_DIST_CONFIG = """
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+      <indexing>
+        <indexed-entities>
+          <indexed-entity>oaas.OaasObject</indexed-entity>
+        </indexed-entities>
+      </indexing>
+      <memory storage="OFF_HEAP"
+              max-size="%s"/>
+      <encoding>
+          <key media-type="application/x-protostream"/>
+          <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+        <file-store fetch-state="true">
+          <write-behind modification-queue-size="%d"/>
+        </file-store>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+    """;
   // language=xml
   private static final String TEMPLATE_REP_CONFIG = """
     <replicated-cache name="%s"
@@ -89,7 +114,6 @@ public class InfinispanInit {
                     fetch-state="true"
                     purge="false"
                     preload="false">
-          <!--<write-behind modification-queue-size="65536" />-->
         </file-store>
       </persistence>
       <partition-handling when-split="ALLOW_READ_WRITES"
@@ -184,7 +208,9 @@ public class InfinispanInit {
 
     if (repositoryConfig.createOnStart()) {
       var distTemplate = objectConfig.persist() ?
-        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
+        TEMPLATE_FILE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
+      if (objectConfig.persist() && objectConfig.useRockdb())
+        distTemplate = TEMPLATE_ROCK_DIST_CONFIG;
 
       remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
         .formatted(INVOCATION_GRAPH_CACHE,
