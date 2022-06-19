@@ -89,7 +89,10 @@ public class InfinispanInit {
           <value media-type="application/x-protostream"/>
       </encoding>
       <persistence passivation="false">
-        <file-store fetch-state="true">
+        <file-store shared="false"
+                    fetch-state="true"
+                    purge="false"
+                    preload="false">
           <write-behind modification-queue-size="%d"/>
         </file-store>
       </persistence>
@@ -209,7 +212,7 @@ public class InfinispanInit {
     if (repositoryConfig.createOnStart()) {
       var distTemplate = objectConfig.persist() ?
         TEMPLATE_FILE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
-      if (objectConfig.persist() && objectConfig.useRockdb())
+      if (objectConfig.persist() && objectConfig.useRocksdb())
         distTemplate = TEMPLATE_ROCK_DIST_CONFIG;
 
       remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG

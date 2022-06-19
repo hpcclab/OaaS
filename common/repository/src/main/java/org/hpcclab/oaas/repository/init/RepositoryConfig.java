@@ -24,8 +24,8 @@ public interface RepositoryConfig {
     int nearCacheMaxEntry();
     @WithDefault("8192")
     int writeBackQueueSize();
-    @WithDefault("false")
-    boolean useRockdb();
+    @WithDefault("true")
+    boolean useRocksdb();
   }
 
   interface GraphConfig{
