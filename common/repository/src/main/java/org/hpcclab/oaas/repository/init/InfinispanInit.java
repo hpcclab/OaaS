@@ -126,31 +126,35 @@ public class InfinispanInit {
     """;
   // language=xml
   private static final String TEMPLATE_TX_CONFIG = """
-   <distributed-cache name="%s"
-                      statistics="true"
-                      mode="SYNC">
-     <memory storage="OFF_HEAP"
-             max-size="%s"/>
-     <locking isolation="REPEATABLE_READ"/>
-     <transaction mode="NON_XA"
-                  locking="OPTIMISTIC"/>
-      <!--  locking="PESSIMISTIC"-->
-      <!--  locking="OPTIMISTIC"-->
-     <encoding>
-         <key media-type="application/x-protostream"/>
-         <value media-type="application/x-protostream"/>
-     </encoding>
-     <persistence passivation="false">
-         <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
-                       fetch-state="true">
-          <write-behind modification-queue-size="%d"/>
-        </rocksdb-store>
-     </persistence>
-     <partition-handling when-split="ALLOW_READ_WRITES"
-                         merge-policy="PREFERRED_NON_NULL"/>
-     <state-transfer timeout="300000"/>
-   </distributed-cache>
-    """;
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+       <indexing>
+         <indexed-entities>
+           <indexed-entity>oaas.OaasObject</indexed-entity>
+         </indexed-entities>
+       </indexing>
+      <memory storage="OFF_HEAP"
+              max-size="%s"/>
+      <locking isolation="REPEATABLE_READ"/>
+      <transaction mode="NON_XA"
+                   locking="OPTIMISTIC"/>
+       <!--  locking="PESSIMISTIC"-->
+      <encoding>
+          <key media-type="application/x-protostream"/>
+          <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+          <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
+                        fetch-state="true">
+           <write-behind modification-queue-size="%d"/>
+         </rocksdb-store>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+     """;
 
   // language=xml
   private static final String TEMPLATE_MULTIMAP_CONFIG = """

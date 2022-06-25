@@ -45,13 +45,13 @@ def handle():
 
   tmp_in = f"in-{uuid.uuid4()}.mp4"
   # os.system(f"curl -L -o {tmp_in} {src_url}")
-  startTs = time.time()
+  start_ts = time.time()
   with requests.get(src_url, stream=True) as r:
     r.raise_for_status()
     with open(tmp_in, 'wb') as f:
       for chunk in r.iter_content(chunk_size=8192):
         f.write(chunk)
-  print(f"load file from '{src_url}' in {time.time() - startTs} s")
+  print(f"load file of oid '{body['main']['id']}' in {time.time() - start_ts} s")
 
   tmp_file = str(uuid.uuid4()) + '.' + video_format
   cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
@@ -67,18 +67,12 @@ def handle():
   resp_json = r.json()
   output_url = resp_json[KEY_NAME]
 
-  # cmd = f'curl -T {tmp_file} \'{output_url}\''
-  # full_cmd = f'{SHELL} -c "{cmd}"'
-  # app.logger.warning(f'full_cmd = {full_cmd}')
-  #
-  # code = os.system(f'{SHELL} -c "{cmd}"')
-  # if code != 0:
-  #   error_msg = f"Fail to execute {cmd}"
+  start_ts = time.time()
   with open(tmp_file, 'rb') as file_data:
     rspn = requests.put(output_url, data=file_data)
     if rspn.status_code >= 400:
       error_msg = "Fail to persist output file"
-  print(f"Save file to '{output_url}' in {time.time() - startTs} s")
+  print(f"Save file of oid '{output_id}' in {time.time() - start_ts} s")
 
   if os.path.isfile(tmp_file):
     os.remove(tmp_file)
