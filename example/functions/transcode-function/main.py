@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 import uuid
 
 import requests
@@ -44,11 +45,13 @@ def handle():
 
   tmp_in = f"in-{uuid.uuid4()}.mp4"
   # os.system(f"curl -L -o {tmp_in} {src_url}")
+  startTs = time.time()
   with requests.get(src_url, stream=True) as r:
     r.raise_for_status()
     with open(tmp_in, 'wb') as f:
       for chunk in r.iter_content(chunk_size=8192):
         f.write(chunk)
+  print(f"load file from '{src_url}' in {time.time() - startTs} s")
 
   tmp_file = str(uuid.uuid4()) + '.' + video_format
   cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
@@ -75,6 +78,7 @@ def handle():
     rspn = requests.put(output_url, data=file_data)
     if rspn.status_code >= 400:
       error_msg = "Fail to persist output file"
+  print(f"Save file to '{output_url}' in {time.time() - startTs} s")
 
   if os.path.isfile(tmp_file):
     os.remove(tmp_file)
