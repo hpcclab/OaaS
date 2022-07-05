@@ -35,5 +35,6 @@ async def handle(request: Request,
     return {
       'id': output_obj['id'],
       'success': True,
-      'embeddedRecord': record
+      'embeddedRecord': record,
+      'extensions': {'osts': str(body['ts'])}
     }

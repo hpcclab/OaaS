@@ -80,17 +80,20 @@ def handle():
     os.remove(tmp_in)
 
   return make_completion(output_id,
+                         body,
                          error_msg)
 
 
 def make_completion(output_id: str,
+                    task: dict,
                     error: str = None,
                     record: dict = None):
   success = error is None
   app.logger.warning(f'Execute task {output_id} success="{success}" error="{error}"')
   body = {
     "id": output_id,
-    "success": success
+    "success": success,
+    "ext": {'osts': str(task['ts'])}
   }
   if error is not None:
     body['errorMsg'] = error
