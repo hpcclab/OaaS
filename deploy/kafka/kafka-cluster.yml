@@ -38,7 +38,7 @@ spec:
         memory: 0.5G
     storage:
       type: persistent-claim
-      size: 10Gi
+      size: 20Gi
       deleteClaim: true
     config:
       offsets.topic.replication.factor: 3
@@ -50,7 +50,7 @@ spec:
     replicas: 1
     storage:
       type: persistent-claim
-      size: 10Gi
+      size: 5Gi
       deleteClaim: true
     resources:
       requests:

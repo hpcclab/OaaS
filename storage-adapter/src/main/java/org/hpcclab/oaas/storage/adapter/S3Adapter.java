@@ -78,11 +78,15 @@ public class S3Adapter implements StorageAdapter {
     return webClient.getAbs(url)
 //      .as(BodyCodec.buffer())
       .send()
-      .map(rspn -> {
-        if (rspn.statusCode() == 200) {
-          LOGGER.info("Relaying data from '{}' with {} bytes", url, rspn.bodyAsBuffer() == null? 0 :rspn.bodyAsBuffer().length());
-          return Response.ok(rspn.bodyAsBuffer()).build();
+      .map(resp -> {
+        if (resp.statusCode() == 200) {
+          var buffer = resp.bodyAsBuffer();
+          LOGGER.debug("Relaying data from '{}' with {} bytes",
+            url, buffer == null? 0 :buffer.length());
+          return Response.ok(buffer).build();
         } else {
+          LOGGER.warn("Error relaying data from '{}' code {}",
+            url, resp.statusCode());
           return Response.status(Response.Status.BAD_GATEWAY)
             .build();
         }

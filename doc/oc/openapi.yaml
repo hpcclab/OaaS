@@ -3,6 +3,11 @@ openapi: 3.0.3
 info:
   title: object-controller API
   version: 0.2.0-SNAPSHOT
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
 paths:
   /api/classes:
     get:
