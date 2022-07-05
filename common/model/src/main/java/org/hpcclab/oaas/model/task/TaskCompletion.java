@@ -41,7 +41,12 @@ public class TaskCompletion {
     this.embeddedRecord = embeddedRecord;
   }
 
-  public TaskCompletion(String id, boolean success, String errorMsg, String embeddedRecord, Map<String,String> extensions,long ts) {
+  public TaskCompletion(String id,
+                        boolean success,
+                        String errorMsg,
+                        String embeddedRecord,
+                        Map<String,String> extensions,
+                        long ts) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;

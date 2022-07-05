@@ -73,6 +73,7 @@ public class CloudEventHandlingResource {
         true,
         null,
         null,
+        null,
         ts);
     }
     try {
@@ -82,6 +83,7 @@ public class CloudEventHandlingResource {
           id,
           false,
           "Can not parse the task completion message",
+          null,
           null,
           ts
         );
@@ -93,6 +95,7 @@ public class CloudEventHandlingResource {
         id,
         true,
 //        decodeException.getMessage(),
+        null,
         null,
         null,
         ts);
