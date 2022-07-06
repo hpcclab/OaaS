@@ -68,37 +68,30 @@ public class CloudEventHandlingResource {
   TaskCompletion tryDecode(String id, Buffer buffer) {
     var ts = System.currentTimeMillis();
     if (buffer==null) {
-      return new TaskCompletion(
-        id,
-        true,
-        null,
-        null,
-        null,
-        ts);
+      return new TaskCompletion(id, false,
+        "Can not parse the task completion message because buffer is null",
+        null, null, ts);
     }
     try {
       var completion = Json.decodeValue(buffer, TaskCompletion.class);
-      if (completion == null){
-        return new TaskCompletion(
-          id,
-          false,
-          "Can not parse the task completion message",
-          null,
-          null,
-          ts
-        );
+      if (completion != null){
+        return completion
+          .setTs(ts);
       }
-      return completion;
+
     } catch (DecodeException decodeException) {
       LOGGER.warn("Decode failed on id {} : {}", id, decodeException.getMessage());
       return new TaskCompletion(
         id,
         true,
-//        decodeException.getMessage(),
-        null,
+        decodeException.getMessage(),
+//        null,
         null,
         null,
         ts);
     }
+
+    return new TaskCompletion(id, false,
+      "Can not parse the task completion message", null, null, ts);
   }
 }
