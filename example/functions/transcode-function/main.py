@@ -17,22 +17,12 @@ else:
 KEY_NAME = "video"
 
 
-@app.route('/', methods=['POST'])
-def handle():
-  error_msg = None
-  body = request.get_json(force=True)
-
-  output_id = body['output']['id']
-  alloc_url = body['allocOutputUrl']
-  output_obj = body['output']
-  args = output_obj.get('origin', {}).get('args', {})
-
-  src_url = body['mainKeys'][KEY_NAME]
+def run_ffmpeg(args,
+               tmp_in,
+               tmp_out):
   resolution = args.get('RESOLUTION', '720x480')
   acodec = args.get('ACODEC', 'copy')
   vcodec = args.get('VCODEC', '')
-  video_format = args.get('FORMAT', 'mp4')
-
   if resolution != 'no':
     resolution_cmd = f'-s {resolution}'
   else:
@@ -42,46 +32,37 @@ def handle():
     codec += ' -acodec ' + acodec
   if vcodec != '':
     codec += ' -vcodec ' + vcodec
+  cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_out}'
+  full_cmd = f'{SHELL} -c "{cmd}"'
+  app.logger.warning(f'full_cmd = {full_cmd}')
+  code = os.system(full_cmd)
+  if code != 0:
+    return f"Fail to execute {cmd}"
 
-  tmp_in = f"in-{uuid.uuid4()}.mp4"
-  # os.system(f"curl -L -o {tmp_in} {src_url}")
+
+def load_file(src_url, tmp_in, id):
   start_ts = time.time()
   with requests.get(src_url, stream=True) as r:
     r.raise_for_status()
     with open(tmp_in, 'wb') as f:
       for chunk in r.iter_content(chunk_size=8192):
         f.write(chunk)
-  print(f"load file of oid '{body['main']['id']}' in {time.time() - start_ts} s")
+  app.logger.warning(f"load file of oid '{id}' in {time.time() - start_ts} s")
 
-  tmp_file = str(uuid.uuid4()) + '.' + video_format
-  cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
-  full_cmd = f'{SHELL} -c "{cmd}"'
-  app.logger.warning(f'full_cmd = {full_cmd}')
-  code = os.system(full_cmd)
-  if code != 0:
-    error_msg = f"Fail to execute {cmd}"
 
-  r = requests.get(alloc_url)
-  if r.status_code != 200:
-    error_msg = "Got error when allocate keys"
-  resp_json = r.json()
+def save_file(alloc_url,
+              tmp_out,
+              output_id):
+  resp = requests.get(alloc_url)
+  resp.raise_for_status()
+  resp_json = resp.json()
   output_url = resp_json[KEY_NAME]
 
   start_ts = time.time()
-  with open(tmp_file, 'rb') as file_data:
-    rspn = requests.put(output_url, data=file_data)
-    if rspn.status_code >= 400:
-      error_msg = "Fail to persist output file"
-  print(f"Save file of oid '{output_id}' in {time.time() - start_ts} s")
-
-  if os.path.isfile(tmp_file):
-    os.remove(tmp_file)
-  if os.path.isfile(tmp_in):
-    os.remove(tmp_in)
-
-  return make_completion(output_id,
-                         body,
-                         error_msg)
+  with open(tmp_out, 'rb') as file_data:
+    resp = requests.put(output_url, data=file_data)
+    resp.raise_for_status()
+  app.logger.warning(f"Save file of oid '{output_id}' in {time.time() - start_ts} s")
 
 
 def make_completion(output_id: str,
@@ -106,6 +87,39 @@ def make_completion(output_id: str,
   response.headers["Ce-Source"] = "oaas/transcode"
   response.headers["Ce-Type"] = "oaas.task.result"
   return response
+
+
+@app.route('/', methods=['POST'])
+def handle():
+  error_msg = None
+  body = request.get_json(force=True)
+
+  output_id = body['output']['id']
+  main_id = body['main']['id']
+  alloc_url = body['allocOutputUrl']
+  output_obj = body['output']
+  args = output_obj.get('origin', {}).get('args', {})
+  video_format = args.get('FORMAT', 'mp4')
+
+  src_url = body['mainKeys'][KEY_NAME]
+  tmp_in = f"in-{uuid.uuid4()}.mp4"
+  tmp_out = str(uuid.uuid4()) + '.' + video_format
+
+  load_file(src_url, tmp_in, main_id)
+  err = run_ffmpeg(args, tmp_in, tmp_out)
+  if err is not None:
+    error_msg = err
+
+  save_file(alloc_url, tmp_out, output_id)
+
+  if os.path.isfile(tmp_out):
+    os.remove(tmp_out)
+  if os.path.isfile(tmp_in):
+    os.remove(tmp_in)
+
+  return make_completion(output_id,
+                         body,
+                         error_msg)
 
 
 if __name__ == '__main__':

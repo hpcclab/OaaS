@@ -1,4 +1,8 @@
 credentials:
+  - username: admin
+    password: 1q2w3e4r
+    roles:
+      - admin
   - username: oaas
     password: oaas
     roles:
