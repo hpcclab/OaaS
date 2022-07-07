@@ -59,7 +59,7 @@ public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
 
   public long hash() {
     StringBuilder sb = new StringBuilder()
-      .append(parentId == null? "null" :parentId.toString())
+      .append(parentId == null? "null" :parentId)
       .append(funcName);
     if (args != null && !args.isEmpty()) {
       args.entrySet()

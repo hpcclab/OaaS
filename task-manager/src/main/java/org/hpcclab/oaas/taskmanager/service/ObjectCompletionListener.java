@@ -7,6 +7,8 @@ import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Liveness;
+import org.eclipse.microprofile.health.Readiness;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -31,6 +33,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @ApplicationScoped
+@Readiness
+@Liveness
 public class ObjectCompletionListener implements HealthCheck {
   private static final Logger LOGGER = LoggerFactory.getLogger( ObjectCompletionListener.class );
 
