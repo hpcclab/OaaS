@@ -4,6 +4,7 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
+import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,14 +15,14 @@ public class ObjectCompletionListenerHealthCheck implements HealthCheck {
   @Inject
   ObjectCompletionListener listener;
   @Inject
-  OaasObjectRepository objectRepo;
+  TaskManagerConfig config;
+  private static final String NAME = "Object Completion Listener";
 
   @Override
   public HealthCheckResponse call() {
-    var listeners = objectRepo.getRemoteCache().getListeners();
-    if (listeners.contains(listener.watcher)) {
-      return HealthCheckResponse.up("Object Completion Listener");
+    if (config.enableCompletionListener() || listener.watcher != null){
+      return HealthCheckResponse.up(NAME);
     }
-    return HealthCheckResponse.down("Object Completion Listener");
+    return HealthCheckResponse.down(NAME);
   }
 }

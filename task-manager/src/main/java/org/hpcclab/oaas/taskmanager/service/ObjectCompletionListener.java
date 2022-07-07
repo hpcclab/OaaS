@@ -49,8 +49,9 @@ public class ObjectCompletionListener {
       remoteCache.removeClientListener(watcher);
     }
     if (config.enableCompletionListener()) {
-      watcher = new CacheWatcher(this::restartListener);
-      remoteCache.addClientListener(watcher);
+      var tmpWatcher = new CacheWatcher(this::restartListener);
+      remoteCache.addClientListener(tmpWatcher);
+      watcher = tmpWatcher;
     }
   }
 
