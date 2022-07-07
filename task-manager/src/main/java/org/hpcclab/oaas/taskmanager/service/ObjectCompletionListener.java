@@ -5,10 +5,6 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
-import org.eclipse.microprofile.health.HealthCheck;
-import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.Liveness;
-import org.eclipse.microprofile.health.Readiness;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -29,14 +25,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @ApplicationScoped
-@Readiness
-@Liveness
-public class ObjectCompletionListener implements HealthCheck {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ObjectCompletionListener.class );
+public class ObjectCompletionListener {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectCompletionListener.class);
 
   @Inject
   OaasObjectRepository objectRepo;
@@ -75,16 +68,6 @@ public class ObjectCompletionListener implements HealthCheck {
     return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
   }
 
-  @Override
-  public HealthCheckResponse call() {
-    var listeners = objectRepo.getRemoteCache().getListeners();
-    if (listeners.contains(watcher)) {
-      return HealthCheckResponse.up("Object Completion Listener");
-    }
-    return HealthCheckResponse.down("Object Completion Listener");
-  }
-
-
   @ClientListener
   public static class CacheWatcher {
 
@@ -95,14 +78,6 @@ public class ObjectCompletionListener implements HealthCheck {
     public CacheWatcher(Runnable failHandler) {
       this.failHandler = failHandler;
     }
-
-    //    @ClientCacheEntryCreated
-//    public void onCreate(ClientCacheEntryCreatedEvent<UUID> e) {
-////      LOGGER.debug("onCreate {}, countingMap {}", e, countingMap);
-//      if (countingMap.containsKey(e.getKey())) {
-//        broadcastProcessor.onNext(e.getKey());
-//      }
-//    }
 
     @ClientCacheEntryModified
     public void onUpdate(ClientCacheEntryModifiedEvent<String> e) {
