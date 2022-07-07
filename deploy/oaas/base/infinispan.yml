@@ -9,7 +9,7 @@ spec:
   service:
     type: DataGrid
     container:
-      storage: 10Gi
+      storage: 20Gi
   security:
     endpointSecretName: infinispan-connect-secret
   container:
