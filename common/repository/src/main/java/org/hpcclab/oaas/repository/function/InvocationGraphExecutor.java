@@ -82,11 +82,8 @@ public class InvocationGraphExecutor {
       .flatMap(list -> submitter.submit(list));
   }
 
-
-
   private Uni<Void> traverseGraph(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
                                   Set<TaskContext> ctxToSubmit) {
-//    System.out.println("waitForGraph:"+ waitForGraph);
     return Multi.createBy().repeating()
       .uni(ResolveLoop::new, rl -> markOrExecRecursive(rl, waitForGraph, ctxToSubmit))
       .until(rl -> rl.i >= waitForGraph.size())

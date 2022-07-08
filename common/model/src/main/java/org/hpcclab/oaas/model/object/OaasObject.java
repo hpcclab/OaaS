@@ -106,7 +106,6 @@ public class OaasObject implements Copyable<OaasObject> {
   }
 
   public void updateStatus(TaskCompletion taskCompletion) {
-//    if (status==null) status = new ObjectStatus();
     status.set(taskCompletion);
     if (taskCompletion.getEmbeddedRecord()!=null)
       setEmbeddedRecord(taskCompletion.getEmbeddedRecord());
@@ -116,22 +115,4 @@ public class OaasObject implements Copyable<OaasObject> {
   public boolean isReadyToUsed() {
     return origin.isRoot() || (status.getTaskStatus().isCompleted() && !status.getTaskStatus().isFailed());
   }
-
-//  public List<String> waitForList() {
-//    if (origin.isRoot()) {
-//      return List.of();
-//    }
-//    var list = refs!=null && !refs.isEmpty() ?
-//      Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
-//      Lists.mutable.<String>empty();
-//    if ( origin.getInputs()!=null) {
-//      list.addAll(origin.getInputs());
-//    }
-//    if (refs!=null) {
-//      list.addAll(Lists.fixedSize.ofAll(refs)
-//        .collect(ObjectReference::getObjId));
-//    }
-//    list.add(origin.getParentId());
-//    return list;
-//  }
 }

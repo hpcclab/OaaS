@@ -95,11 +95,12 @@ public class RepoContextLoader implements ContextLoader {
     newCtx.setArgs(step.getArgs());
     if (step.getArgRefs()!=null && !step.getArgRefs().isEmpty()) {
       var map = new HashMap<String, String>();
-      for (var entry : step.getArgRefs().entrySet()) {
-        var resolveArg = baseCtx.getArgs().get(entry.getValue());
-        if (resolveArg==null) throw new FunctionValidationException(
-          "Can not resolve args '%s' from step %s".formatted(entry.getValue(), step));
-        map.put(entry.getKey(), resolveArg);
+      Map<String,String> baseArgs = baseCtx.getArgs();
+      if (baseArgs != null) {
+        for (var entry : step.getArgRefs().entrySet()) {
+          var resolveArg = baseArgs.get(entry.getValue());
+          map.put(entry.getKey(), resolveArg);
+        }
       }
       if (newCtx.getArgs()!=null)
         newCtx.getArgs().putAll(map);

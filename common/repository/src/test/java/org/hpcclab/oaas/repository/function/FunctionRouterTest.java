@@ -82,7 +82,8 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId(ctx.getOutput().getId())
       .setSuccess(true)
-      .setEmbeddedRecord("{}");
+      .setEmbeddedRecord("{}")
+      .setTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o = objectRepo.get(ctx.getOutput().getId());
@@ -113,7 +114,7 @@ class FunctionRouterTest {
 
   @Test
   void testChainTaskInvocation() {
-    var oal = ObjectAccessLangauge.parse("o2:func1()");
+    var oal = ObjectAccessLangauge.parse("o2:func1()()");
     var ctx = router.invoke(oal)
       .await().indefinitely();
 
@@ -180,12 +181,15 @@ class FunctionRouterTest {
 
   @Test
   void testMacroInvocation() {
-    var oal = ObjectAccessLangauge.parse("o1:%s()".formatted(MockupData.MACRO_FUNC_1.getName()));
+    var oal = ObjectAccessLangauge.parse("o1:%s()(arg1=ttt)".formatted(MockupData.MACRO_FUNC_1.getName()));
     var ctx = router.invoke(oal)
       .await().indefinitely();
 
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
+    assertFalse(ctx.getOutput().getStatus().getTaskStatus().isSubmitted());
+    assertTrue(ctx.getSubOutputs().get(0).getStatus().getTaskStatus().isSubmitted());
+    assertTrue(ctx.getSubOutputs().get(0).getOrigin().getArgs().containsKey("key1"));
   }
 }

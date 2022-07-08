@@ -71,9 +71,15 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   }
 
   public void set(TaskCompletion taskCompletion) {
-    if (taskCompletion.isSuccess()) taskStatus = TaskStatus.SUCCEEDED;
-    else taskStatus = TaskStatus.FAILED;
-    completedTime = taskCompletion.getTs();
+    if (taskCompletion.isSuccess())
+      taskStatus = TaskStatus.SUCCEEDED;
+    else
+      taskStatus = TaskStatus.FAILED;
+    if (taskCompletion.getTs() > 0 ) {
+      completedTime = taskCompletion.getTs();
+    } else {
+      completedTime = System.currentTimeMillis();
+    }
     errorMsg = taskCompletion.getErrorMsg();
     var ext = taskCompletion.getExtensions();
     if (ext!=null && ext.containsKey("osts")) {
