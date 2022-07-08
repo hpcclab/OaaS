@@ -47,6 +47,7 @@ public class ObjectCompletionListener {
     remoteCache = objectRepo.getRemoteCache();
     if (watcher != null) {
       remoteCache.removeClientListener(watcher);
+      watcher = null;
     }
     if (config.enableCompletionListener()) {
       var tmpWatcher = new CacheWatcher(this::restartListener);

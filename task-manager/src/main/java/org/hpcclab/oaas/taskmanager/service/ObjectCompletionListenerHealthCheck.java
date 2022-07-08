@@ -3,7 +3,6 @@ package org.hpcclab.oaas.taskmanager.service;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
 import javax.enterprise.context.ApplicationScoped;

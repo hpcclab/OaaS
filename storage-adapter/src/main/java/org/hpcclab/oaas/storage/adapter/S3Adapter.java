@@ -8,6 +8,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.storage.SaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +98,7 @@ public class S3Adapter implements StorageAdapter {
                                    String path,
                                    boolean isPublicUrl) {
     try {
-      var client = isPublicUrl ? publicMinioClient:minioClient;
+      var client = isPublicUrl ? publicMinioClient: minioClient;
       var args = GetPresignedObjectUrlArgs.builder()
         .method(method)
         .bucket(config.s3().bucket())
@@ -105,7 +106,7 @@ public class S3Adapter implements StorageAdapter {
         .build();
       return client.getPresignedObjectUrl(args);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new StdOaasException(e.getMessage(),e);
     }
   }
 
@@ -118,9 +119,10 @@ public class S3Adapter implements StorageAdapter {
     var keys = request.getKeys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
-      var url = generatePresigned(Method.PUT,
-        prefix + request.getId() + "/" + key,
-        true);
+      var url = generatePresigned(
+        Method.PUT,
+        prefix + request.getOid() + "/" + key,
+        request.isPublicUrl());
       map.put(key, url);
     }
     return map;
