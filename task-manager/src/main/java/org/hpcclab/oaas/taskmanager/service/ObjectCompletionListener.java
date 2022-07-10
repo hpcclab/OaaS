@@ -61,13 +61,18 @@ public class ObjectCompletionListener {
     remoteCache.removeClientListener(watcher);
   }
 
-  public Uni<String> wait(String id) {
+  public Uni<String> wait(String id){
+    return wait(id, config.blockingTimeout());
+  }
+
+  public Uni<String> wait(String id, Integer timeout) {
     if (!config.enableCompletionListener())
       throw new StdOaasException("Completion Listener is not enabled");
     if (watcher == null) {
       throw new StdOaasException("Completion listener is not ready");
     }
-    return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
+    if (timeout == null) timeout = config.blockingTimeout();
+    return watcher.wait(id, Duration.ofSeconds(timeout));
   }
 
   @ClientListener
