@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface GraphStateManager {
   Uni<Collection<String>> getAllEdge(String srcId);
-  Uni<Boolean> containEdge(String srcId, String desId);
+//  Uni<Boolean> containEdge(String srcId, String desId);
   Uni<Void> persistEdge(String srcId, String desId);
   Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap);
 
