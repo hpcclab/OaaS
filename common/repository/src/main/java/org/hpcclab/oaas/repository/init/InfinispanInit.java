@@ -161,7 +161,7 @@ public class InfinispanInit {
     <distributed-cache name="%s"
                        statistics="true"
                        mode="SYNC">
-      <memory storage="HEAP"
+      <memory storage="OFF_HEAP"
               max-size="%s"/>
       <encoding>
           <key media-type="application/x-protostream"/>
