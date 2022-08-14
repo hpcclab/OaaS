@@ -33,6 +33,11 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       requestBody:
         content:
           application/json:
@@ -60,6 +65,11 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       requestBody:
         content:
           application/json:
@@ -84,6 +94,11 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       responses:
         "200":
           description: OK
@@ -111,6 +126,11 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       responses:
         "200":
           description: OK

@@ -6,7 +6,7 @@ metadata:
     app: storage-adapter
     platform: oaas
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: storage-adapter
@@ -17,8 +17,6 @@ spec:
         app: storage-adapter
         platform: oaas
     spec:
-#      nodeSelector:
-#        oaas.group: test
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

@@ -425,15 +425,12 @@ components:
         name:
           pattern: \S
           type: string
-          nullable: false
         outputCls:
           type: string
         provision:
           $ref: '#/components/schemas/ProvisionConfig'
         type:
-          allOf:
-          - $ref: '#/components/schemas/OaasFunctionType'
-          - nullable: false
+          $ref: '#/components/schemas/OaasFunctionType'
         validation:
           $ref: '#/components/schemas/OaasFunctionValidation'
     OaasFunctionBinding:

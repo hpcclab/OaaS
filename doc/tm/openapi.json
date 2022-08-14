@@ -44,6 +44,13 @@
           "schema" : {
             "type" : "boolean"
           }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
         } ],
         "requestBody" : {
           "content" : {
@@ -85,6 +92,13 @@
           "schema" : {
             "type" : "boolean"
           }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
         } ],
         "requestBody" : {
           "content" : {
@@ -120,6 +134,13 @@
           "in" : "query",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -159,6 +180,13 @@
           "in" : "query",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
