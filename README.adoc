@@ -145,4 +145,4 @@ kubectl apply -f oaas-ingress.yml
 == OaaS Usage
 
 * link:example/README.adoc[The example usage guide]
-* link:OAI.adoc[The detail of Object Access Interface (OAI)].
+* link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].
