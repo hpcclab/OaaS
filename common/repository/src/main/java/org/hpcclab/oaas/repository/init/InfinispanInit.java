@@ -1,9 +1,7 @@
 package org.hpcclab.oaas.repository.init;
 
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.NearCacheMode;
-import org.infinispan.client.hotrod.multimap.MultimapCacheManager;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCacheManager;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
@@ -28,7 +26,7 @@ public class InfinispanInit {
   private static final String TEMPLATE_MEM_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
+                       mode="SYNC">
       <indexing storage="local-heap">
         <indexed-entities>
           <indexed-entity>oaas.OaasObject</indexed-entity>
@@ -47,10 +45,10 @@ public class InfinispanInit {
     """;
 
   // language=xml
-  private static final String TEMPLATE_DIST_CONFIG = """
+  private static final String TEMPLATE_ROCK_DIST_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
+                       mode="SYNC">
       <indexing>
         <indexed-entities>
           <indexed-entity>oaas.OaasObject</indexed-entity>
@@ -73,6 +71,36 @@ public class InfinispanInit {
       <state-transfer timeout="300000"/>
     </distributed-cache>
     """;
+
+  // language=xml
+  private static final String TEMPLATE_FILE_DIST_CONFIG = """
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+      <indexing>
+        <indexed-entities>
+          <indexed-entity>oaas.OaasObject</indexed-entity>
+        </indexed-entities>
+      </indexing>
+      <memory storage="OFF_HEAP"
+              max-size="%s"/>
+      <encoding>
+          <key media-type="application/x-protostream"/>
+          <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+        <file-store shared="false"
+                    fetch-state="true"
+                    purge="false"
+                    preload="false">
+          <write-behind modification-queue-size="%d"/>
+        </file-store>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+    """;
   // language=xml
   private static final String TEMPLATE_REP_CONFIG = """
     <replicated-cache name="%s"
@@ -89,7 +117,6 @@ public class InfinispanInit {
                     fetch-state="true"
                     purge="false"
                     preload="false">
-          <!--<write-behind modification-queue-size="65536" />-->
         </file-store>
       </persistence>
       <partition-handling when-split="ALLOW_READ_WRITES"
@@ -99,40 +126,42 @@ public class InfinispanInit {
     """;
   // language=xml
   private static final String TEMPLATE_TX_CONFIG = """
-   <distributed-cache name="%s"
-                      statistics="true"
-                      mode="SYNC">
-     <memory storage="OFF_HEAP"
-             max-size="%s"/>
-     <locking isolation="REPEATABLE_READ"/>
-     <transaction mode="NON_XA"
-                  locking="PESSIMISTIC"/>
-      <!--  locking="PESSIMISTIC"-->
-      <!--  locking="OPTIMISTIC"-->
-     <encoding>
-         <key media-type="application/x-protostream"/>
-         <value media-type="application/x-protostream"/>
-     </encoding>
-     <persistence passivation="false">
-         <file-store shared="false"
-                     fetch-state="true"
-                     purge="false"
-                     preload="false">
-         <!--<write-behind modification-queue-size="65536" />-->
-         </file-store>
-     </persistence>
-     <partition-handling when-split="ALLOW_READ_WRITES"
-                         merge-policy="PREFERRED_NON_NULL"/>
-     <state-transfer timeout="300000"/>
-   </distributed-cache>
-    """;
+    <distributed-cache name="%s"
+                       statistics="true"
+                       mode="SYNC">
+       <indexing>
+         <indexed-entities>
+           <indexed-entity>oaas.OaasObject</indexed-entity>
+         </indexed-entities>
+       </indexing>
+      <memory storage="OFF_HEAP"
+              max-size="%s"/>
+      <locking isolation="REPEATABLE_READ"/>
+      <transaction mode="NON_XA"
+                   locking="OPTIMISTIC"/>
+       <!--  locking="PESSIMISTIC"-->
+      <encoding>
+          <key media-type="application/x-protostream"/>
+          <value media-type="application/x-protostream"/>
+      </encoding>
+      <persistence passivation="false">
+          <rocksdb-store xmlns="urn:infinispan:config:store:rocksdb:13.0"
+                        fetch-state="true">
+           <write-behind modification-queue-size="%d"/>
+         </rocksdb-store>
+      </persistence>
+      <partition-handling when-split="ALLOW_READ_WRITES"
+                          merge-policy="PREFERRED_NON_NULL"/>
+      <state-transfer timeout="300000"/>
+    </distributed-cache>
+     """;
 
   // language=xml
   private static final String TEMPLATE_MULTIMAP_CONFIG = """
     <distributed-cache name="%s"
                        statistics="true"
-                       mode="ASYNC">
-      <memory storage="HEAP"
+                       mode="SYNC">
+      <memory storage="OFF_HEAP"
               max-size="%s"/>
       <encoding>
           <key media-type="application/x-protostream"/>
@@ -161,10 +190,8 @@ public class InfinispanInit {
       .addRemoteCache(OBJECT_CACHE, c -> {
         if (objectConfig.nearCacheMaxEntry() > 0) {
           c.nearCacheMode(NearCacheMode.INVALIDATED)
-            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry())
-            .forceReturnValues(false);
+            .nearCacheMaxEntries(objectConfig.nearCacheMaxEntry());
         }
-        c.forceReturnValues(false);
       });
     remoteCacheManager.getConfiguration()
       .addRemoteCache(CLASS_CACHE, c -> {
@@ -188,16 +215,21 @@ public class InfinispanInit {
 
     if (repositoryConfig.createOnStart()) {
       var distTemplate = objectConfig.persist() ?
-        TEMPLATE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
+        TEMPLATE_FILE_DIST_CONFIG:TEMPLATE_MEM_DIST_CONFIG;
+      if (objectConfig.persist() && objectConfig.useRocksdb())
+        distTemplate = TEMPLATE_ROCK_DIST_CONFIG;
 
       remoteCacheManager.administration().getOrCreateCache(INVOCATION_GRAPH_CACHE, new XMLStringConfiguration(TEMPLATE_MULTIMAP_CONFIG
-        .formatted(INVOCATION_GRAPH_CACHE, graphConfig.maxSize())));
+        .formatted(INVOCATION_GRAPH_CACHE,
+          graphConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(CLASS_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
-        .formatted(CLASS_CACHE, "16MB")));
+        .formatted(CLASS_CACHE,
+          clsCacheConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(FUNCTION_CACHE, new XMLStringConfiguration(TEMPLATE_REP_CONFIG
-        .formatted(FUNCTION_CACHE, "16MB")));
+        .formatted(FUNCTION_CACHE,
+          funcCacheConfig.maxSize())));
 
       remoteCacheManager.administration().getOrCreateCache(OBJECT_CACHE, new XMLStringConfiguration(distTemplate
         .formatted(OBJECT_CACHE,

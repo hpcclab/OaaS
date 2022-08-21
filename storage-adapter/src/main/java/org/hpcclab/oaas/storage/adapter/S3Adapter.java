@@ -8,7 +8,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.storage.SaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ public class S3Adapter implements StorageAdapter {
 
   private boolean relay;
   private WebClient webClient;
+  private String prefix;
 
   void setup(@Observes StartupEvent event) {
     var s3Config = config.s3();
@@ -49,6 +50,7 @@ public class S3Adapter implements StorageAdapter {
       .build();
     relay = config.s3().relay();
     webClient = WebClient.create(vertx);
+    prefix = s3Config.prefix();
   }
 
   @Override
@@ -61,7 +63,7 @@ public class S3Adapter implements StorageAdapter {
     var uni = Uni.createFrom()
       .item(() -> generatePresigned(
         Method.GET,
-        dar.getOid() + "/" + dar.getKey(),
+        prefix + dar.getOid() + "/" + dar.getKey(),
         false)
       );
     if (relay) {
@@ -77,11 +79,15 @@ public class S3Adapter implements StorageAdapter {
     return webClient.getAbs(url)
 //      .as(BodyCodec.buffer())
       .send()
-      .map(rspn -> {
-        if (rspn.statusCode() == 200) {
-          LOGGER.info("Relaying data from '{}' with {} bytes", url, rspn.bodyAsBuffer() == null? 0 :rspn.bodyAsBuffer().length());
-          return Response.ok(rspn.bodyAsBuffer()).build();
+      .map(resp -> {
+        if (resp.statusCode() == 200) {
+          var buffer = resp.bodyAsBuffer();
+          LOGGER.debug("Relaying data from '{}' with {} bytes",
+            url, buffer == null? 0 :buffer.length());
+          return Response.ok(buffer).build();
         } else {
+          LOGGER.warn("Error relaying data from '{}' code {}",
+            url, resp.statusCode());
           return Response.status(Response.Status.BAD_GATEWAY)
             .build();
         }
@@ -92,7 +98,7 @@ public class S3Adapter implements StorageAdapter {
                                    String path,
                                    boolean isPublicUrl) {
     try {
-      var client = isPublicUrl ? publicMinioClient:minioClient;
+      var client = isPublicUrl ? publicMinioClient: minioClient;
       var args = GetPresignedObjectUrlArgs.builder()
         .method(method)
         .bucket(config.s3().bucket())
@@ -100,18 +106,8 @@ public class S3Adapter implements StorageAdapter {
         .build();
       return client.getPresignedObjectUrl(args);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new StdOaasException(e.getMessage(),e);
     }
-  }
-
-  @Override
-  public Uni<Response> put(DataAccessRequest dar) {
-    return null;
-  }
-
-  @Override
-  public Uni<Response> delete(DataAccessRequest dar) {
-    return null;
   }
 
   @Override
@@ -123,23 +119,12 @@ public class S3Adapter implements StorageAdapter {
     var keys = request.getKeys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
-      var url = generatePresigned(Method.PUT,
-        request.getId() + "/" + key,
-        true);
+      var url = generatePresigned(
+        Method.PUT,
+        prefix + request.getOid() + "/" + key,
+        request.isPublicUrl());
       map.put(key, url);
     }
     return map;
   }
-
-//  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
-//    var keys = request.getKeys();
-//    var map = new HashMap<String, String>();
-//    for (String key : keys) {
-//      var url = generatePresigned(Method.PUT,
-//        request.getOid() + "/" + key,
-//        true);
-//      map.put(key, url);
-//    }
-//    return map;
-//  }
 }

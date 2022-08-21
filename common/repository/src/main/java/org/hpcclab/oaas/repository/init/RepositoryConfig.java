@@ -22,9 +22,10 @@ public interface RepositoryConfig {
     String maxSize();
     @WithDefault("-1")
     int nearCacheMaxEntry();
-
     @WithDefault("8192")
     int writeBackQueueSize();
+    @WithDefault("true")
+    boolean useRocksdb();
   }
 
   interface GraphConfig{
@@ -37,9 +38,13 @@ public interface RepositoryConfig {
   interface ClassConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
+    @WithDefault("256MB")
+    String maxSize();
   }
   interface FunctionConfig{
     @WithDefault("1000")
     int nearCacheMaxEntry();
+    @WithDefault("256MB")
+    String maxSize();
   }
 }

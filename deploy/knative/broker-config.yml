@@ -5,8 +5,9 @@ metadata:
   namespace: knative-eventing
 data:
   # Number of topic partitions
-  default.topic.partitions: "9"
+  default.topic.partitions: "3"
   # Replication factor of topic messages.
   default.topic.replication.factor: "1"
+#  retention.bytes: 2097152000
   # A comma separated list of bootstrap servers. (It can be in or out the k8s cluster)
-  bootstrap.servers: "oaas-kafka-bootstrap.oaas:9092"
+  bootstrap.servers: "oaas-kafka-bootstrap.oaas.svc:9092"

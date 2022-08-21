@@ -3,6 +3,11 @@ openapi: 3.0.3
 info:
   title: object-controller API
   version: 0.2.0-SNAPSHOT
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
 paths:
   /api/classes:
     get:
@@ -291,6 +296,7 @@ components:
           type: string
         requestsMemory:
           type: string
+      deprecated: true
     KeyAccessModifier:
       enum:
       - INTERNAL
@@ -331,6 +337,8 @@ components:
         requestsCpu:
           type: string
         requestsMemory:
+          type: string
+        scaleDownDelay:
           type: string
     Module:
       type: object
@@ -417,15 +425,12 @@ components:
         name:
           pattern: \S
           type: string
-          nullable: false
         outputCls:
           type: string
         provision:
           $ref: '#/components/schemas/ProvisionConfig'
         type:
-          allOf:
-          - $ref: '#/components/schemas/OaasFunctionType'
-          - nullable: false
+          $ref: '#/components/schemas/OaasFunctionType'
         validation:
           $ref: '#/components/schemas/OaasFunctionValidation'
     OaasFunctionBinding:
@@ -591,6 +596,8 @@ components:
         createdTime:
           format: int64
           type: integer
+        errorMsg:
+          type: string
         submittedTime:
           format: int64
           type: integer

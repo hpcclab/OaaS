@@ -30,10 +30,10 @@ public class MockGraphStateManager extends AbstractGraphStateManager {
     return Uni.createFrom().item(multimap.get(srcId));
   }
 
-  @Override
-  public Uni<Boolean> containEdge(String srcId, String desId) {
-    return Uni.createFrom().item(multimap.containsKeyAndValue(srcId, desId));
-  }
+//  @Override
+//  public Uni<Boolean> containEdge(String srcId, String desId) {
+//    return Uni.createFrom().item(multimap.containsKeyAndValue(srcId, desId));
+//  }
 
   @Override
   public Uni<Void> persistEdge(String srcId, String desId) {

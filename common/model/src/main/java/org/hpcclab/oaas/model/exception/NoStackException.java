@@ -2,40 +2,33 @@ package org.hpcclab.oaas.model.exception;
 
 import java.util.UUID;
 
-public class NoStackException extends RuntimeException{
+public class NoStackException extends StdOaasException{
 
   public static final NoStackException INSTANCE = new NoStackException("INSTANCE",500);
 
-  int code;
-
   public NoStackException(int code) {
-    this.code = code;
+    super(null, null, false, code);
   }
 
   public NoStackException(String message) {
-    this(message, null, 500);
+    super(message, null, false, 500);
   }
 
 
   public NoStackException(String message, int code) {
-    this(message, null, code);
+    super(message, null, false, code);
   }
 
   public NoStackException(String message, Throwable cause) {
-    this(message, cause, 500);
+    super(message, cause, false, 500);
   }
 
   public NoStackException(String message, Throwable cause, int code) {
-    super(message, cause, false, false);
-    this.code = code;
-  }
-
-  public int getCode() {
-    return code;
+    super(message, cause, false, code);
   }
 
   public NoStackException setCode(int code) {
-    this.code = code;
+    super.setCode(code);
     return this;
   }
 

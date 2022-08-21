@@ -1,11 +1,11 @@
 ###
-POST {{oc}}/api/modules
+POST {{cds}}/api/modules
 Content-Type: text/x-yaml
 
 < record.yml
 
 ###
-POST {{oc}}/api/object-construct
+POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
@@ -17,16 +17,16 @@ Content-Type: application/json
 client.global.set("obj_0_id", response.body.object.id)
 %}
 ###
-GET {{cds}}/{{obj_0_id}}
+GET {{cds}}/oal/{{obj_0_id}}
 ###
-GET {{cds}}/{{obj_0_id}}:json-update()?await=true
+GET {{cds}}/oal/{{obj_0_id}}:json-update()?await=true
 
 > {%
 client.global.set("obj_1_id", response.body.id)
 %}
 
 ###
-GET {{cds}}/{{obj_1_id}}:json-update()?await=true
+GET {{cds}}/oal/{{obj_1_id}}:json-update()?await=true
 
 > {%
 client.global.set("obj_1_id", response.body.id)

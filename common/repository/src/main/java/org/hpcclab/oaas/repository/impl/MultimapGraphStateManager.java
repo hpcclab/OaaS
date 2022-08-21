@@ -12,18 +12,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@ApplicationScoped
-public class RepoGraphStateManager extends AbstractGraphStateManager {
+//@ApplicationScoped
+@Deprecated(forRemoval = true)
+public class MultimapGraphStateManager extends AbstractGraphStateManager {
 
   RemoteMultimapCache<String, String> edgeMap;
 
-  public RepoGraphStateManager() {
+  public MultimapGraphStateManager() {
     super();
   }
 
-  @Inject
-  public RepoGraphStateManager(OaasObjectRepository objRepo,
-                               RemoteMultimapCache<String, String> edgeMap) {
+//  @Inject
+  public MultimapGraphStateManager(OaasObjectRepository objRepo,
+                                   RemoteMultimapCache<String, String> edgeMap) {
     super(objRepo);
     this.edgeMap = edgeMap;
   }
@@ -38,15 +39,15 @@ public class RepoGraphStateManager extends AbstractGraphStateManager {
     return uni;
   }
 
-  @Override
-  public Uni<Boolean> containEdge(String srcId, String desId) {
-    var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(
-      edgeMap.containsEntry(srcId,desId));
-    if (ctx!=null)
-      uni = uni.emitOn(ctx::runOnContext);
-    return uni;
-  }
+//  @Override
+//  public Uni<Boolean> containEdge(String srcId, String desId) {
+//    var ctx = Vertx.currentContext();
+//    var uni = Uni.createFrom().completionStage(
+//      edgeMap.containsEntry(srcId,desId));
+//    if (ctx!=null)
+//      uni = uni.emitOn(ctx::runOnContext);
+//    return uni;
+//  }
 
   @Override
   public Uni<Void> persistEdge(String srcId, String desId) {

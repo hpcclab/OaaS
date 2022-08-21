@@ -31,6 +31,7 @@ public class MockupData {
         new OaasDataflowStep()
           .setFuncName(FUNC_1.getName())
           .setTarget("$")
+          .setArgRefs(Map.of("key1","arg1"))
           .setAs("tmp1"),
         new OaasDataflowStep()
           .setFuncName(FUNC_1.getName())

@@ -8,8 +8,12 @@ data:
       proxy_cache_path /cache keys_zone=contents:100m levels=1:2 inactive=100d max_size=10g;
       resolver 10.43.0.10 valid=30s;
 
-      upstream backend {
+      upstream task-manager {
         server task-manager.oaas.svc.cluster.local;
+      }
+
+      upstream object-controller {
+        server object-controller.oaas.svc.cluster.local;
       }
 
       server {
@@ -23,13 +27,26 @@ data:
         client_max_body_size 75M;
         recursive_error_pages on;
 
+        location /api/ {
+          add_header Access-Control-Allow-Origin *;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+          proxy_pass      http://object-controller/api/;
+        }
 
-        location ~ "^/([^:]*/.*)$" {
+        location /q/swagger-ui {
+          proxy_pass      http://object-controller/q/swagger-ui;
+        }
+
+        location /q/openapi {
+          proxy_pass      http://object-controller/q/openapi;
+        }
+
+        location ~ "^/oal/([^:]*/.*)$" {
 
           add_header Access-Control-Allow-Origin *;
           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
 
-          proxy_pass      http://backend/oal/$1$is_args$args;
+          proxy_pass      http://task-manager/oal/$1$is_args$args;
           proxy_cache       contents;
           proxy_http_version 1.1;
           proxy_cache_key   $uri;
@@ -38,11 +55,11 @@ data:
           error_page 301 302 303 307 = @handle_redirects;
         }
 
-        location / {
+        location /oal/ {
 
           add_header Access-Control-Allow-Origin *;
           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-          proxy_pass      http://backend/oal/;
+          proxy_pass      http://task-manager/oal/;
           #proxy_cache       contents;
           #proxy_http_version 1.1;
           #proxy_cache_key   $uri;

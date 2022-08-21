@@ -3,7 +3,10 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
+import org.eclipse.collections.api.map.ConcurrentMutableMap;
+import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
@@ -21,13 +24,12 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 @ApplicationScoped
 public class ObjectCompletionListener {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ObjectCompletionListener.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectCompletionListener.class);
 
   @Inject
   OaasObjectRepository objectRepo;
@@ -38,10 +40,19 @@ public class ObjectCompletionListener {
 
   @PostConstruct
   public void setup() {
+    restartListener();
+  }
+
+  private void restartListener() {
     remoteCache = objectRepo.getRemoteCache();
+    if (watcher != null) {
+      remoteCache.removeClientListener(watcher);
+      watcher = null;
+    }
     if (config.enableCompletionListener()) {
-      watcher = new CacheWatcher();
-      objectRepo.getRemoteCache().addClientListener(watcher);
+      var tmpWatcher = new CacheWatcher(this::restartListener);
+      remoteCache.addClientListener(tmpWatcher);
+      watcher = tmpWatcher;
     }
   }
 
@@ -50,30 +61,34 @@ public class ObjectCompletionListener {
     remoteCache.removeClientListener(watcher);
   }
 
-  public Uni<String> wait(String id) {
-    if (!config.enableCompletionListener())
-      throw new NoStackException("Completion Listener is not enabled");
-    return watcher.wait(id, Duration.ofSeconds(config.blockingTimeout()));
+  public Uni<String> wait(String id){
+    return wait(id, config.blockingTimeout());
   }
 
+  public Uni<String> wait(String id, Integer timeout) {
+    if (!config.enableCompletionListener())
+      throw new StdOaasException("Completion Listener is not enabled");
+    if (watcher == null) {
+      throw new StdOaasException("Completion listener is not ready");
+    }
+    if (timeout == null) timeout = config.blockingTimeout();
+    return watcher.wait(id, Duration.ofSeconds(timeout));
+  }
 
   @ClientListener
   public static class CacheWatcher {
 
     BroadcastProcessor<String> broadcastProcessor = BroadcastProcessor.create();
-    ConcurrentHashMap<String, AtomicInteger> countingMap = new ConcurrentHashMap<>();
+    ConcurrentMutableMap<String, AtomicInteger> countingMap = new ConcurrentHashMap<>();
+    Runnable failHandler;
 
-//    @ClientCacheEntryCreated
-//    public void onCreate(ClientCacheEntryCreatedEvent<UUID> e) {
-////      LOGGER.debug("onCreate {}, countingMap {}", e, countingMap);
-//      if (countingMap.containsKey(e.getKey())) {
-//        broadcastProcessor.onNext(e.getKey());
-//      }
-//    }
+    public CacheWatcher(Runnable failHandler) {
+      this.failHandler = failHandler;
+    }
 
     @ClientCacheEntryModified
     public void onUpdate(ClientCacheEntryModifiedEvent<String> e) {
-//      LOGGER.debug("onUpdate {}, countingMap {}", e, countingMap);
+      LOGGER.trace("onUpdate {}, countingMap {}", e, countingMap);
       if (countingMap.containsKey(e.getKey())) {
         broadcastProcessor.onNext(e.getKey());
       }
@@ -83,7 +98,7 @@ public class ObjectCompletionListener {
     public void onFail(ClientCacheFailoverEvent event) {
       broadcastProcessor.onError(new NoStackException(HttpResponseStatus.BAD_GATEWAY
         .code()));
-      broadcastProcessor = BroadcastProcessor.create();
+      failHandler.run();
     }
 
     public Uni<String> wait(String id, Duration timeout) {
@@ -91,7 +106,7 @@ public class ObjectCompletionListener {
     }
 
     public Uni<String> wait(String id, Predicate<? super String> selector, Duration timeout) {
-//      LOGGER.debug("start wait for {}", id);
+      LOGGER.trace("start wait for {}", id);
       countingMap.computeIfAbsent(id, key -> new AtomicInteger())
         .incrementAndGet();
       return broadcastProcessor

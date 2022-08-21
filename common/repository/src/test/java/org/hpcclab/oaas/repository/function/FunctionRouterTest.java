@@ -1,26 +1,28 @@
 package org.hpcclab.oaas.repository.function;
 
 
+import ch.qos.logback.classic.Level;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.DefaultIdGenerator;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FunctionRouterTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger( FunctionRouterTest.class );
 
   boolean debug = true;
 
@@ -34,6 +36,7 @@ class FunctionRouterTest {
 
   @BeforeEach
   public void setup() {
+
     var objects = MockupData.testObjects();
     var classes = MockupData.testClasses();
     var functions = MockupData.testFunctions();
@@ -67,49 +70,61 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
-    Assertions.assertTrue(graphStateManager.multimap.isEmpty());
+    assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    assertEquals(1, taskSubmitter.map.size());
+    assertTrue(graphStateManager.multimap.isEmpty());
+    var loadedObj = objectRepo.get(ctx.getOutput().getId());
+    assertNotNull(loadedObj);
+    assertNotNull(loadedObj.getStatus());
+    assertTrue(loadedObj.getStatus().getSubmittedTime() > 0);
+    assertEquals(TaskStatus.DOING,loadedObj.getStatus().getTaskStatus());
 
     var completion = new TaskCompletion()
       .setId(ctx.getOutput().getId())
       .setSuccess(true)
-      .setEmbeddedRecord("{}");
+      .setEmbeddedRecord("{}")
+      .setTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o = objectRepo.get(ctx.getOutput().getId());
-    if (debug) {
-      System.out.printf("OUT:\n%s\n", Json.encodePrettily(o));
-    }
-    Assertions.assertTrue(o.getStatus().getTaskStatus().isCompleted());
+    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(o));
+    assertTrue(o.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o.getStatus().getTaskStatus().isFailed());
+    loadedObj = objectRepo.get(ctx.getOutput().getId());
+    assertNotNull(loadedObj);
+    assertNotNull(loadedObj.getStatus());
+    assertTrue(loadedObj.getStatus().getCompletedTime() > 0);
+    assertEquals(TaskStatus.SUCCEEDED,
+      loadedObj.getStatus().getTaskStatus());
   }
 
   void printDebug(FunctionExecContext ctx) {
     if (debug) {
-      System.out.printf("TASK MAP:\n%s\n", Json.encodePrettily(taskSubmitter.map));
-      System.out.printf("EDGE:\n%s\n", graphStateManager.multimap);
-      System.out.printf("FUNCTION EXEC CONTEXT:\n%s\n", Json.encodePrettily(ctx));
-      System.out.println("REPO OBJ:");
+      LOGGER.debug("TASK MAP: {}", Json.encodePrettily(taskSubmitter.map));
+      LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
+      int i = 0;
       for (var o: objectMap) {
-        System.out.println("\t"+ o);
+        LOGGER.debug("REPO OBJ {}: {}", i, Json.encode(o));
+        i++;
       }
     }
   }
 
   @Test
   void testChainTaskInvocation() {
-    var oal = ObjectAccessLangauge.parse("o2:func1()");
+    var oal = ObjectAccessLangauge.parse("o2:func1()()");
     var ctx = router.invoke(oal)
       .await().indefinitely();
 
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey("o2"));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
+    assertTrue(taskSubmitter.map.containsKey("o2"));
+    assertEquals(1, taskSubmitter.map.size());
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
-    Assertions.assertTrue(graphStateManager.multimap.containsKey("o2"));
+    assertTrue(graphStateManager.multimap.containsKey("o2"));
 
 
     var completion = new TaskCompletion()
@@ -119,13 +134,11 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    if (debug) {
-      System.out.printf("OBJECT o2:\n%s\n", Json.encodePrettily(o2));
-    }
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
+    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o2.getStatus().getTaskStatus().isFailed());
-    Assertions.assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
-    Assertions.assertTrue(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isSubmitted());
+    assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    assertTrue(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isFailed());
   }
@@ -140,10 +153,10 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    Assertions.assertTrue(taskSubmitter.map.containsKey("o2"));
-    Assertions.assertEquals(1, taskSubmitter.map.size());
+    assertTrue(taskSubmitter.map.containsKey("o2"));
+    assertEquals(1, taskSubmitter.map.size());
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
-    Assertions.assertTrue(graphStateManager.multimap.containsKey("o2"));
+    assertTrue(graphStateManager.multimap.containsKey("o2"));
 
 
     var completion = new TaskCompletion()
@@ -153,29 +166,30 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    if (debug) {
-      System.out.printf("OBJECT o2:\n%s\n", Json.encodePrettily(o2));
-    }
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isCompleted());
-    Assertions.assertTrue(o2.getStatus().getTaskStatus().isFailed());
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
+    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
+    assertTrue(o2.getStatus().getTaskStatus().isFailed());
     Assertions.assertFalse(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
     var outObj = objectRepo.get(ctx.getOutput().getId());
-    if (debug) {
-      System.out.printf("OBJECT OUT:\n%s\n", Json.encodePrettily(outObj));
-    }
+
+    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(outObj));
+
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isCompleted());
-    Assertions.assertTrue(outObj.getStatus().getTaskStatus().isFailed());
+    assertTrue(outObj.getStatus().getTaskStatus().isFailed());
   }
 
   @Test
   void testMacroInvocation() {
-    var oal = ObjectAccessLangauge.parse("o1:%s()".formatted(MockupData.MACRO_FUNC_1.getName()));
+    var oal = ObjectAccessLangauge.parse("o1:%s()(arg1=ttt)".formatted(MockupData.MACRO_FUNC_1.getName()));
     var ctx = router.invoke(oal)
       .await().indefinitely();
 
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
+    assertFalse(ctx.getOutput().getStatus().getTaskStatus().isSubmitted());
+    assertTrue(ctx.getSubOutputs().get(0).getStatus().getTaskStatus().isSubmitted());
+    assertTrue(ctx.getSubOutputs().get(0).getOrigin().getArgs().containsKey("key1"));
   }
 }

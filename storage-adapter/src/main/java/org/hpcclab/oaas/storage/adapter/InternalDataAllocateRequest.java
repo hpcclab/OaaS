@@ -4,7 +4,7 @@ package org.hpcclab.oaas.storage.adapter;
 import java.util.List;
 
 public class InternalDataAllocateRequest {
-  String id;
+  String oid;
   List<String> keys;
   String provider;
   boolean publicUrl = false;
@@ -13,18 +13,18 @@ public class InternalDataAllocateRequest {
   }
 
   public InternalDataAllocateRequest(String id, List<String> keys, String provider, boolean publicUrl) {
-    this.id = id;
+    this.oid = id;
     this.keys = keys;
     this.provider = provider;
     this.publicUrl = publicUrl;
   }
 
-  public String getId() {
-    return id;
+  public String getOid() {
+    return oid;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public void setOid(String oid) {
+    this.oid = oid;
   }
 
   public List<String> getKeys() {

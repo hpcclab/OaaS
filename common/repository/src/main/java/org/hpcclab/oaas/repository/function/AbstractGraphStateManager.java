@@ -4,51 +4,67 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.EntityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
 
 public abstract class AbstractGraphStateManager implements GraphStateManager {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGraphStateManager.class);
   protected EntityRepository<String, OaasObject> objRepo;
 
 
-  public AbstractGraphStateManager() {
+  protected AbstractGraphStateManager() {
   }
 
-  public AbstractGraphStateManager(EntityRepository<String, OaasObject> objRepo) {
+  protected AbstractGraphStateManager(EntityRepository<String, OaasObject> objRepo) {
     this.objRepo = objRepo;
   }
 
   @Override
-  public Multi<OaasObject> handleComplete(OaasObject completingObj) {
-    if (!completingObj.getStatus().getTaskStatus().isFailed()) {
-      return objRepo.persistAsync(completingObj)
-        .flatMap(ignored -> getAllEdge(completingObj.getId()))
-        .toMulti()
-        .flatMap(l -> Multi.createFrom().iterable(l))
-        .onItem()
-        .transformToUniAndConcatenate(id -> objRepo.computeAsync(id,
-          (k, obj) -> triggerObject(obj, completingObj.getStatus().getOriginator(), completingObj.getId())))
-        .filter(obj -> obj.getStatus().getOriginator().equals(completingObj.getStatus().getOriginator()));
-    } else {
-      return handleFailed(completingObj);
+  public Multi<OaasObject> handleComplete(TaskCompletion completion) {
+    return objRepo.computeAsync(completion.getId(), (k, obj) -> updateCompletedObject(obj, completion))
+      .onItem()
+      .transformToMulti(completingObj -> {
+        if (!completingObj.getStatus().getTaskStatus().isFailed()) {
+          return loadNextSubmittable(completingObj);
+        } else {
+          return handleFailed(completingObj);
+        }
+      });
+  }
+
+  private Multi<OaasObject> loadNextSubmittable(OaasObject completedObject) {
+    return getAllEdge(completedObject.getId())
+      .toMulti()
+      .flatMap(l -> Multi.createFrom().iterable(l))
+      .onItem()
+      .transformToUniAndConcatenate(id -> objRepo.computeAsync(id,
+        (k, obj) -> triggerObject(obj, completedObject.getStatus().getOriginator(), completedObject.getId())))
+      .filter(obj -> obj.getStatus().getOriginator().equals(completedObject.getStatus().getOriginator()));
+  }
+
+  private OaasObject updateCompletedObject(OaasObject obj, TaskCompletion completion) {
+    if (obj==null) throw NoStackException.notFoundObject400(completion.getId());
+    if (obj.getStatus().getSubmittedTime() <= 0) {
+      LOGGER.warn("completing object {} has no submittedTime", obj.getId());
     }
+    obj.updateStatus(completion);
+    return obj;
   }
 
   public Multi<OaasObject> handleFailed(OaasObject failedObj) {
     return getDependentsRecursive(failedObj.getId())
-
       .onItem()
       .transformToUniAndConcatenate(id -> objRepo.computeAsync(id, (k, v) -> updateFailingObject(v)))
-      .onCompletion()
-      .call(() -> objRepo.persistAsync(failedObj))
       .filter(i -> false);
 
   }
@@ -67,27 +83,37 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   @Override
   public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
+    var originator = entryCtx.getOutput().getId();
     return Multi.createFrom().iterable(contexts)
       .onItem().transformToUniAndConcatenate(ctx -> {
         if (entryCtx.contains(ctx)) {
-          updateSubmittingObject(ctx.getOutput(), entryCtx.getOutput().getId());
+          updateSubmittingObject(ctx.getOutput(), originator);
           return Uni.createFrom().item(ctx);
         } else {
-          return objRepo.computeAsync(ctx.getOutput().getId(), (id, obj) -> updateSubmittingObject(obj, entryCtx.getOutput().getId()))
+          return objRepo.computeAsync(ctx.getOutput().getId(), (id, obj) -> updateSubmittingObject(obj, originator))
             .map(ctx::setOutput);
         }
       })
-      .filter(ctx -> ctx.getOutput().getStatus().getOriginator().equals(entryCtx.getOutput().getId()))
-      .onCompletion().call(() -> persistAll(entryCtx));
+      .filter(ctx -> {
+        var status = ctx.getOutput().getStatus();
+        if (status.getSubmittedTime() <= 0) {
+          LOGGER.warn("Detect object {} without SubmittedTime [originator={}, ctxId={}]",
+            ctx.getOutput().getId(),
+            status.getOriginator(),
+            entryCtx.getOutput().getId());
+        }
+        return ctx.getOutput().getStatus().getOriginator().equals(originator);
+      })
+      .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
   }
 
-  private Uni<?> persistAll(FunctionExecContext ctx) {
+  private Uni<?> persistAllWithoutNoti(FunctionExecContext ctx) {
     var objs = Lists.mutable.ofAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
-    if (dataflow == null || dataflow.getExport() == null) {
+    if (dataflow==null || dataflow.getExport()==null) {
       objs.add(ctx.getOutput());
     }
-    return objRepo.persistAsync(objs);
+    return objRepo.persistAsync(objs, false);
   }
 
   OaasObject updateSubmittingObject(OaasObject object, String originator) {
@@ -99,6 +125,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .setTaskStatus(TaskStatus.DOING)
       .setSubmittedTime(System.currentTimeMillis())
       .setOriginator(originator);
+    object.setStatus(status);
     return object;
   }
 
@@ -116,7 +143,9 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     Objects.requireNonNull(object);
     var status = object.getStatus();
     var ts = status.getTaskStatus();
-    status.getWaitFor().remove(srcId);
+    var list = Lists.mutable.ofAll(status.getWaitFor());
+    list.remove(srcId);
+    status.setWaitFor(list);
     if (ts.isSubmitted() || ts.isFailed() || !status.getWaitFor().isEmpty())
       return object;
     status

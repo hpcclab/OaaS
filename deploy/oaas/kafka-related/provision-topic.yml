@@ -2,7 +2,7 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   labels:
-    strimzi.io/cluster: msc
+    strimzi.io/cluster: oaas
   name: oaas-provisions
 spec:
   config: {}

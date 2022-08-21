@@ -4,6 +4,13 @@
     "title" : "object-controller API",
     "version" : "0.2.0-SNAPSHOT"
   },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ],
   "paths" : {
     "/api/classes" : {
       "get" : {
@@ -458,7 +465,8 @@
           "requestsMemory" : {
             "type" : "string"
           }
-        }
+        },
+        "deprecated" : true
       },
       "KeyAccessModifier" : {
         "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
@@ -512,6 +520,9 @@
             "type" : "string"
           },
           "requestsMemory" : {
+            "type" : "string"
+          },
+          "scaleDownDelay" : {
             "type" : "string"
           }
         }
@@ -636,8 +647,7 @@
           },
           "name" : {
             "pattern" : "\\S",
-            "type" : "string",
-            "nullable" : false
+            "type" : "string"
           },
           "outputCls" : {
             "type" : "string"
@@ -646,11 +656,7 @@
             "$ref" : "#/components/schemas/ProvisionConfig"
           },
           "type" : {
-            "allOf" : [ {
-              "$ref" : "#/components/schemas/OaasFunctionType"
-            }, {
-              "nullable" : false
-            } ]
+            "$ref" : "#/components/schemas/OaasFunctionType"
           },
           "validation" : {
             "$ref" : "#/components/schemas/OaasFunctionValidation"
@@ -894,6 +900,9 @@
           "createdTime" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "errorMsg" : {
+            "type" : "string"
           },
           "submittedTime" : {
             "format" : "int64",

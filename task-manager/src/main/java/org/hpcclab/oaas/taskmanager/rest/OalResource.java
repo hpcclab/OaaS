@@ -34,7 +34,6 @@ public class OalResource {
   @Inject
   OaasObjectRepository objectRepo;
   @Inject
-//  TaskEventManager taskEventManager;
   InvocationGraphExecutor graphExecutor;
   @Inject
   ObjectCompletionListener completionListener;
@@ -45,17 +44,23 @@ public class OalResource {
 
   @POST
   public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal,
-                                           @QueryParam("await") Boolean await) {
+                                           @QueryParam("await") Boolean await,
+                                           @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      var uni = execFunction(oal)
-        .call(ctx -> graphExecutor.exec(ctx))
-        .map(FunctionExecContext::getOutput);
-      if (await!=null && await) {
-        uni = uni.flatMap(this::waitObj);
-      }
-      return uni;
+      return execFunction(oal)
+        .flatMap(ctx -> submitAndWaitObj(ctx, await!=null && await, timeout)
+          .invoke(o -> {
+            // NOTE Temporary fix for object status data lost problem.
+            var status = o.getStatus();
+            if (status.getTaskStatus().isCompleted()) {
+              if (status.getSubmittedTime() <= 0)
+                status.setSubmittedTime(ctx.getOutput().getStatus().getSubmittedTime());
+              if (status.getCompletedTime() <= 0)
+                status.setCompletedTime(System.currentTimeMillis());
+            }
+          }));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -66,27 +71,30 @@ public class OalResource {
   @GET
   @Path("{oal}")
   public Uni<OaasObject> getObject(@PathParam("oal") String oal,
-                                   @QueryParam("await") Boolean await) {
+                                   @QueryParam("await") Boolean await,
+                                   @QueryParam("timeout") Integer timeout) {
     var oaeObj = ObjectAccessLangauge.parse(oal);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
-    return getObjectWithPost(oaeObj, await);
+    return getObjectWithPost(oaeObj, await, timeout);
   }
 
   @POST
   @Path("-/{filePath:.*}")
   public Uni<Response> postContentAndExec(@PathParam("filePath") String filePath,
                                           @QueryParam("await") Boolean await,
+                                          @QueryParam("timeout") Integer timeout,
                                           ObjectAccessLangauge oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
       return execFunction(oal)
-        .flatMap(ctx -> submitAndWaitObj(ctx, await)
+        .flatMap(ctx -> submitAndWaitObj(ctx, await, timeout)
           .map(newObj -> createResponse(newObj, filePath))
         );
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
+        .onItem().ifNull().failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
           if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
@@ -95,11 +103,10 @@ public class OalResource {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
           if (!obj.getStatus().getTaskStatus().isSubmitted()) {
-            return waitObj(obj)
+            return waitObj(obj, timeout)
               .map(newObj -> createResponse(newObj, filePath));
           }
           return Uni.createFrom().item(createResponse(obj, filePath));
-
         });
     }
   }
@@ -109,10 +116,11 @@ public class OalResource {
   @Path("{oal}/{filePath:.*}")
   public Uni<Response> getContentAndExec(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
-                                         @QueryParam("await") Boolean await) {
+                                         @QueryParam("await") Boolean await,
+                                         @QueryParam("timeout") Integer timeout) {
     var oaeObj = ObjectAccessLangauge.parse(oal);
     LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
-    return postContentAndExec(filePath, await, oaeObj);
+    return postContentAndExec(filePath, await, timeout, oaeObj);
   }
 
   public Uni<FunctionExecContext> execFunction(ObjectAccessLangauge oal) {
@@ -159,40 +167,44 @@ public class OalResource {
       .build();
   }
 
-//  public Uni<OaasObject> submitAndWaitObj(OaasObject obj, Boolean await) {
-//    var uni1 = graphExecutor.exec(obj);
-//    if (await==null ? config.defaultBlockCompletion():await) {
-//      var uni2 = completionListener.wait(obj.getId());
-//      return Uni.combine().all().unis(uni1, uni2)
-//        .asTuple()
-//        .flatMap(event -> objectRepo.getAsync(obj.getId()));
-//    }
-//    return uni1
-//      .replaceWith(obj);
-//  }
 
-
-  public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx, Boolean await) {
-    var uni1 = graphExecutor.exec(ctx);
+  public Uni<OaasObject> submitAndWaitObj(FunctionExecContext ctx,
+                                          Boolean await,
+                                          Integer timeout) {
     if (await==null ? config.defaultAwaitCompletion():await) {
       var id = ctx.getOutput().getId();
-      return uni1.flatMap(v -> completionListener.wait(id))
-        .flatMap(v -> objectRepo.getAsync(id));
-//      return uni1.flatMap(v -> objectRepo.watch(id));
+      var uni1 = completionListener.wait(id, timeout);
+      var uni2 = graphExecutor.exec(ctx);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
+        .flatMap(tuple -> objectRepo.getAsync(id)
+//          .invoke(Unchecked.consumer(obj -> {
+//            if (!obj.getStatus().getTaskStatus().isCompleted())
+//              throw new IllegalStateException();
+//          }))
+//          .onFailure(IllegalStateException.class)
+//          .retry().withBackOff(Duration.ofMillis(200)).atMost(2)
+//          .onFailure(IllegalStateException.class)
+//          .recoverWithUni(objectRepo.getAsync(id))
+        );
     }
-    return uni1
+    return graphExecutor.exec(ctx)
       .replaceWith(ctx.getOutput());
   }
 
-  public Uni<OaasObject> waitObj(OaasObject obj) {
+  public Uni<OaasObject> waitObj(OaasObject obj,
+                                 Integer timeout) {
     var status = obj.getStatus();
     var ts = status.getTaskStatus();
     if (!ts.isSubmitted() && !status.isInitWaitFor()) {
-      return graphExecutor.exec(obj)
-        .flatMap(v -> completionListener.wait(obj.getId()))
+      var uni1 = completionListener.wait(obj.getId(), timeout);
+      var uni2 = graphExecutor.exec(obj);
+      return Uni.combine().all().unis(uni1, uni2)
+        .asTuple()
         .flatMap(v -> objectRepo.getAsync(obj.getId()));
+
     }
-    return completionListener.wait(obj.getId())
+    return completionListener.wait(obj.getId(), timeout)
       .flatMap(event -> objectRepo.getAsync(obj.getId()));
   }
 }

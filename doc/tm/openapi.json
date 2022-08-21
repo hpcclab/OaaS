@@ -4,29 +4,14 @@
     "title" : "task-manager API",
     "version" : "0.2.0-SNAPSHOT"
   },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ],
   "paths" : {
-    "/api/task-completions" : {
-      "post" : {
-        "tags" : [ "Task Completion Consumer" ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "type" : "array",
-                "items" : {
-                  "$ref" : "#/components/schemas/TaskCompletion"
-                }
-              }
-            }
-          }
-        },
-        "responses" : {
-          "201" : {
-            "description" : "Created"
-          }
-        }
-      }
-    },
     "/ce" : {
       "post" : {
         "tags" : [ "Cloud Event Handling Resource" ],
@@ -58,6 +43,13 @@
           "in" : "query",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "requestBody" : {
@@ -100,6 +92,13 @@
           "schema" : {
             "type" : "boolean"
           }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
         } ],
         "requestBody" : {
           "content" : {
@@ -135,6 +134,13 @@
           "in" : "query",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -174,6 +180,13 @@
           "in" : "query",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "timeout",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -315,6 +328,9 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "errorMsg" : {
+            "type" : "string"
+          },
           "submittedTime" : {
             "format" : "int64",
             "type" : "integer"
@@ -336,23 +352,6 @@
           "count" : {
             "format" : "int32",
             "type" : "integer"
-          }
-        }
-      },
-      "TaskCompletion" : {
-        "type" : "object",
-        "properties" : {
-          "embeddedRecord" : {
-            "type" : "string"
-          },
-          "errorMsg" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "success" : {
-            "type" : "boolean"
           }
         }
       },

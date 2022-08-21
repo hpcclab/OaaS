@@ -202,6 +202,9 @@ public class KnativeProvisionHandler {
     if (provision.getMaxScale() >= 0)
       annotation.put("autoscaling.knative.dev/maxScale",
         String.valueOf(provision.getMaxScale()));
+    if (provision.getScaleDownDelay() != null)
+      annotation.put("autoscaling.knative.dev/scale-down-delay",
+        provision.getScaleDownDelay());
     Map<String, Quantity> requests = new HashMap<>();
     if (provision.getRequestsCpu()!=null) {
       requests.put("cpu", Quantity.parse(provision.getRequestsCpu()));

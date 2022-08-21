@@ -57,7 +57,6 @@ public class InvocationGraphExecutor {
       }
     }
     return traverseGraph(waitForGraph, ctxToSubmit)
-//      .invoke(() -> System.out.println("CTX TO SUBMIT "+ctxToSubmit.size()+": \n" + Json.encodePrettily(ctxToSubmit)))
       .invoke(() -> waitForGraph.addAll(innerWaitForGraph))
       .flatMap(v -> putAllEdge(waitForGraph))
       .flatMap(v -> gsm.updateSubmittingStatus(ctx, ctxToSubmit)
@@ -77,14 +76,7 @@ public class InvocationGraphExecutor {
   }
 
   public Uni<Void> complete(TaskCompletion completion) {
-    return contextLoader.getObject(completion.getId())
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(completion.getId()))
-      .invoke(o -> {
-        o.getStatus().set(completion);
-        if (completion.getEmbeddedRecord() != null)
-          o.setEmbeddedRecord(completion.getEmbeddedRecord());
-      })
-      .onItem().transformToMulti(o -> gsm.handleComplete(o))
+    return gsm.handleComplete(completion)
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()
       .flatMap(list -> submitter.submit(list));
@@ -92,7 +84,6 @@ public class InvocationGraphExecutor {
 
   private Uni<Void> traverseGraph(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
                                   Set<TaskContext> ctxToSubmit) {
-//    System.out.println("waitForGraph:"+ waitForGraph);
     return Multi.createBy().repeating()
       .uni(ResolveLoop::new, rl -> markOrExecRecursive(rl, waitForGraph, ctxToSubmit))
       .until(rl -> rl.i >= waitForGraph.size())

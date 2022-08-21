@@ -14,7 +14,7 @@ functions:
 
 classes:
   - name: example.video
-    stateType: FILE
+    stateType: FILES
     objectType: SIMPLE
     stateSpec:
       keySpecs:

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -24,7 +25,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 @ProtoDoc("@Indexed")
-public class OaasObject {
+public class OaasObject implements Copyable<OaasObject> {
 
   @ProtoField(1)
   String id;
@@ -32,27 +33,24 @@ public class OaasObject {
   ObjectOrigin origin;
   @ProtoField(3)
   Long originHash;
-  //  @ProtoField(4)
-//  ObjectAccessModifier access = ObjectAccessModifier.PUBLIC;
-  @ProtoField(5)
+  @ProtoField(4)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
-  @ProtoField(6)
+  @ProtoField(5)
   Set<String> labels;
-  @ProtoField(7)
+  @ProtoField(6)
   OaasObjectState state;
-  @ProtoField(8)
+  @ProtoField(7)
   Set<ObjectReference> refs;
-  @JsonRawValue
-  @ProtoField(9)
-  String embeddedRecord;
-  @ProtoField(10)
+  @ProtoField(value = 8)
   ObjectStatus status;
-  @ProtoField(11)
+  @ProtoField(9)
   StreamInfo streamInfo;
+  @JsonRawValue
+  @ProtoField(10)
+  String embeddedRecord;
 
-  public OaasObject() {
-  }
+  public OaasObject() {}
 
   @ProtoFactory
   public OaasObject(String id, ObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, String embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {
@@ -88,11 +86,11 @@ public class OaasObject {
       originHash,
       cls,
       labels==null ? null:Set.copyOf(labels),
-      state,
+      state.copy(),
       refs==null ? null:Set.copyOf(refs),
       embeddedRecord,
-      null,
-      streamInfo
+      status.copy(),
+      streamInfo == null? null:streamInfo.copy()
     );
   }
 
@@ -108,35 +106,13 @@ public class OaasObject {
   }
 
   public void updateStatus(TaskCompletion taskCompletion) {
-    if (status==null) status = new ObjectStatus();
     status.set(taskCompletion);
+    if (taskCompletion.getEmbeddedRecord()!=null)
+      setEmbeddedRecord(taskCompletion.getEmbeddedRecord());
   }
 
   @JsonIgnore
   public boolean isReadyToUsed() {
     return origin.isRoot() || (status.getTaskStatus().isCompleted() && !status.getTaskStatus().isFailed());
-  }
-
-  public List<String> waitForList() {
-    if (origin.isRoot()) {
-      return List.of();
-    }
-    var list = refs!=null && !refs.isEmpty() ?
-      Lists.fixedSize.ofAll(refs).collect(ObjectReference::getObjId):
-      Lists.mutable.<String>empty();
-    if ( origin.getInputs()!=null) {
-      list.addAll(origin.getInputs());
-    }
-    if (refs!=null) {
-      list.addAll(Lists.fixedSize.ofAll(refs)
-        .collect(ObjectReference::getObjId));
-    }
-    list.add(origin.getParentId());
-    return list;
-  }
-
-  public ObjectStatus getStatus() {
-    if (status==null) status = new ObjectStatus();
-    return status;
   }
 }

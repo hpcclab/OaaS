@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
+
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -22,6 +25,10 @@ public class TaskCompletion {
   @JsonRawValue
   @ProtoField(4)
   String embeddedRecord;
+  Map<String,String> extensions;
+
+  @JsonIgnore
+  long ts = -1;
 
   public TaskCompletion() {
   }
@@ -32,6 +39,20 @@ public class TaskCompletion {
     this.success = success;
     this.errorMsg = errorMsg;
     this.embeddedRecord = embeddedRecord;
+  }
+
+  public TaskCompletion(String id,
+                        boolean success,
+                        String errorMsg,
+                        String embeddedRecord,
+                        Map<String,String> extensions,
+                        long ts) {
+    this.id = id;
+    this.success = success;
+    this.errorMsg = errorMsg;
+    this.embeddedRecord = embeddedRecord;
+    this.extensions = extensions;
+    this.ts = ts;
   }
 
   @JsonSetter

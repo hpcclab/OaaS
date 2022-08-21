@@ -7,15 +7,12 @@ resources:
   - tm.yml
 ### object-controller
   - oc.yml
-### task-completion-handler
-#  - tch.yml
 ### content-delivery-service
   - cds.yml
 ### storage adapter
   - sa.yml
 ### infinispan
   - infinispan.yml
-#  - infinispan-cache.yml
 #  - monitor.yml
 
 secretGenerator:
