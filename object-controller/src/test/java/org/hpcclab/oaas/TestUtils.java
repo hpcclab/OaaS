@@ -135,7 +135,7 @@ public class TestUtils {
     return given()
       .contentType("text/x-yaml")
       .body(clsText)
-      .when().post("/api/batch?update=true")
+      .when().post("/api/modules?update=true")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
