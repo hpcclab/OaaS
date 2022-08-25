@@ -26,6 +26,7 @@ public class TaskFactory {
 
   public OaasTask genTask(TaskContext taskContext) {
     var cls = clsRepo.get(taskContext.getOutput().getCls());
+    var mainCls = clsRepo.get(taskContext.getMain().getCls());
 
     var task = new OaasTask();
     task.setId(taskContext.getOutput().getId());
@@ -34,7 +35,7 @@ public class TaskFactory {
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());
 
-    task.setMainKeys(genUrls(taskContext.getMain(), cls, taskContext.getMainRefs()));
+    task.setMainKeys(genUrls(taskContext.getMain(), mainCls, taskContext.getMainRefs()));
     var list = new ArrayList<Map<String,String>>();
     for (int i = 0; i < taskContext.getInputs().size(); i++) {
       list.add(genUrls(

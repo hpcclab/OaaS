@@ -2,11 +2,7 @@ classes:
   - name: builtin.basic.file
     stateType: FILES
     objectType: SIMPLE
-    functions:
-      - access: PUBLIC
-        function: builtin.logical.copy
-  - name: builtin.basic.compound
-    objectType: COMPOUND
-    functions:
-      - access: PUBLIC
-        function: builtin.logical.copy
+    functions: []
+    stateSpec:
+      keySpecs:
+        - name: file
