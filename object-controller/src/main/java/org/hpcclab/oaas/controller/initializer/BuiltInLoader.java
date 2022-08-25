@@ -3,7 +3,7 @@ package org.hpcclab.oaas.controller.initializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import org.hpcclab.oaas.controller.rest.BatchService;
+import org.hpcclab.oaas.controller.rest.ModuleService;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.slf4j.Logger;
@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
-@RegisterForReflection(targets = BatchService.Module.class)
+@RegisterForReflection(targets = ModuleService.Module.class)
 public class BuiltInLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInLoader.class);
 
   ObjectMapper mapper;
   @Inject
-  BatchService batchService;
+  ModuleService batchService;
 
   public void setup() throws ExecutionException, InterruptedException, IOException {
     mapper = new ObjectMapper(new YAMLFactory());
@@ -38,7 +38,7 @@ public class BuiltInLoader {
 
     for (String file : files) {
       var is = getClass().getResourceAsStream(file);
-      var batch = mapper.readValue(is, BatchService.Module.class);
+      var batch = mapper.readValue(is, ModuleService.Module.class);
       var funcNames = batch.getFunctions().stream().map(OaasFunction::getName).toList();
       var clsNames = batch.getClasses().stream().map(OaasClass::getName).toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
@@ -46,7 +46,7 @@ public class BuiltInLoader {
       functions.addAll(batch.getFunctions());
     }
 
-    BatchService.Module batch = new BatchService.Module()
+    ModuleService.Module batch = new ModuleService.Module()
       .setClasses(classes)
       .setFunctions(functions);
 

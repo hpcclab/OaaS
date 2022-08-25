@@ -1,5 +1,5 @@
 ###
-POST {{cds}}/api/batch
+POST {{cds}}/api/modules
 Content-Type: text/x-yaml
 
 < text.yml

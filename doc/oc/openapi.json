@@ -291,6 +291,36 @@
         }
       }
     },
+    "/api/modules" : {
+      "post" : {
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Module"
+              }
+            },
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Module"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/object-construct" : {
       "post" : {
         "requestBody" : {
@@ -388,36 +418,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/OaasObject"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/{a}" : {
-      "post" : {
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Module"
-              }
-            },
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Module"
                 }
               }
             }

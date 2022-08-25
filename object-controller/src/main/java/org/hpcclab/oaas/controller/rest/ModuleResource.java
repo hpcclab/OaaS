@@ -18,7 +18,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 @RequestScoped
-public class ModuleResource implements BatchService {
+public class ModuleResource implements ModuleService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ModuleResource.class);
 
   @Inject

@@ -15,8 +15,8 @@ import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/api/{a:batch|modules}")
-public interface BatchService {
+@Path("/api/modules")
+public interface ModuleService {
 
   @POST
   Uni<Module> create(Module batch);

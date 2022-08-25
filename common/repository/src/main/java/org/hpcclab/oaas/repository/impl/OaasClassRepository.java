@@ -31,60 +31,55 @@ public class OaasClassRepository extends AbstractIfnpRepository<String, OaasClas
   @Inject
   @Remote("OaasClass")
   RemoteCache<String, OaasClass> cache;
-  @Inject
-  OaasFuncRepository funcRepo;
-  @Inject
-  ModelMapper oaasMapper;
+//  @Inject
+//  OaasFuncRepository funcRepo;
+//  @Inject
+//  ModelMapper oaasMapper;
 
   @PostConstruct
   void setup() {
     setRemoteCache(cache);
   }
 
-//  @Override
-//  public RemoteCache<String, OaasClass> getRemoteCache() {
-//    return remoteCache;
-//  }
-
   @Override
   public String getEntityName() {
     return NAME;
-  }
-
-
-  public Uni<DeepOaasClass> getDeep(String name) {
-    return getAsync(name)
-      .flatMap(cls -> {
-        var funcNames = cls.getFunctions()
-          .stream()
-          .map(OaasFunctionBinding::getFunction)
-          .collect(Collectors.toSet());
-        return funcRepo.listAsync(funcNames)
-          .map(funcMap -> {
-            var deepCls = oaasMapper.deep(cls);
-            var fbSet =cls.getFunctions().stream()
-              .map(fb -> new DeepOaasFunctionBinding()
-                .setAccess(fb.getAccess())
-                .setFunction(funcMap.get(fb.getFunction()))
-              ).collect(Collectors.toSet());
-            deepCls.setFunctions(fbSet);
-            return deepCls;
-          });
-      });
-  }
-
-
-
-
-  public Optional<OaasFunctionBinding> findFunction(OaasClass cls, String funcName) {
-    return cls.getFunctions()
-      .stream()
-      .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
-      .findFirst();
   }
 
   @Override
   protected String extractKey(OaasClass oaasClass) {
     return oaasClass.getName();
   }
+
+//  public Uni<DeepOaasClass> getDeep(String name) {
+//    return getAsync(name)
+//      .flatMap(cls -> {
+//        var funcNames = cls.getFunctions()
+//          .stream()
+//          .map(OaasFunctionBinding::getFunction)
+//          .collect(Collectors.toSet());
+//        return funcRepo.listAsync(funcNames)
+//          .map(funcMap -> {
+//            var deepCls = oaasMapper.deep(cls);
+//            var fbSet =cls.getFunctions().stream()
+//              .map(fb -> new DeepOaasFunctionBinding()
+//                .setAccess(fb.getAccess())
+//                .setFunction(funcMap.get(fb.getFunction()))
+//              ).collect(Collectors.toSet());
+//            deepCls.setFunctions(fbSet);
+//            return deepCls;
+//          });
+//      });
+//  }
+//
+//
+//
+//
+//  public Optional<OaasFunctionBinding> findFunction(OaasClass cls, String funcName) {
+//    return cls.getFunctions()
+//      .stream()
+//      .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
+//      .findFirst();
+//  }
+
 }
