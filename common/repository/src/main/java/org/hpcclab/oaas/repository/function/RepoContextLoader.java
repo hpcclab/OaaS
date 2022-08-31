@@ -108,7 +108,7 @@ public class RepoContextLoader implements ContextLoader {
         newCtx.setArgs(map);
     }
     baseCtx.addSubContext(newCtx);
-    return resolveTarget(baseCtx, step.getTarget())
+    return resolveObjFromCtx(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
 //      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
       .map(ignore -> setClsAndFunc(newCtx, step.getFuncName()))
@@ -119,13 +119,13 @@ public class RepoContextLoader implements ContextLoader {
                                                  OaasDataflowStep step) {
     List<String> inputRefs = step.getInputRefs()==null ? List.of():step.getInputRefs();
     return Multi.createFrom().iterable(inputRefs)
-      .onItem().transformToUniAndConcatenate(ref -> resolveTarget(baseCtx, ref))
+      .onItem().transformToUniAndConcatenate(ref -> resolveObjFromCtx(baseCtx, ref))
       .collect().asList()
       .invoke(baseCtx::setInputs)
       .replaceWith(baseCtx);
   }
 
-  private Uni<OaasObject> resolveTarget(FunctionExecContext baseCtx, String ref) {
+  private Uni<OaasObject> resolveObjFromCtx(FunctionExecContext baseCtx, String ref) {
     if (ref.equals("$")) {
       return Uni.createFrom().item(baseCtx.getMain());
     }
@@ -140,9 +140,19 @@ public class RepoContextLoader implements ContextLoader {
           .invoke(o -> baseCtx.getMainRefs().put(id, o));
       }
     }
+    if (ref.startsWith("#")) {
+      try {
+        var i = Integer.parseInt(ref.substring(1));
+        if (i >= baseCtx.getInputs().size())
+          throw FunctionValidationException.cannotResolveMacro(ref,
+            "index out of range: >=" + baseCtx.getInputs().size());
+        return Uni.createFrom().item(baseCtx.getInputs().get(i));
+      } catch (NumberFormatException ignored){}
+    }
+
     if (baseCtx.getWorkflowMap().containsKey(ref))
       return Uni.createFrom().item(baseCtx.getWorkflowMap().get(ref));
-    throw new NoStackException("Can not resolve '" + ref + "'");
+    throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
 
 

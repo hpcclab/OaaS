@@ -18,7 +18,7 @@ public class ObjectConstructRequest {
   Set<String> labels = Set.of();
   Set<String> keys = Set.of();
   Map<String, String> overrideUrls;
-  Set<ObjectReference> members;
+  Set<ObjectReference> refs;
   List<ObjectConstructRequest> streamConstructs;
 
   @JsonRawValue

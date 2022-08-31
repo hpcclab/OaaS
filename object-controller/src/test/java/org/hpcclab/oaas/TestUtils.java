@@ -39,6 +39,10 @@ public class TestUtils {
               - funcName: builtin.logical.copy
                 target: obj1
                 as: new_obj1
+                args:
+                  k1: text_value
+                argRefs:
+                  k2: k1
                 inputRefs: []
               - funcName: builtin.logical.copy
                 target: obj2

@@ -45,9 +45,17 @@ public class ObjectConstructResource implements ObjectConstructService {
     };
   }
 
+  private void linkReference(ObjectConstructRequest request,
+                             OaasObject obj,
+                             OaasClass cls) {
+    //TODO validate the references of request
+    obj.setRefs(request.getRefs());
+  }
+
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
     var obj = objectFactory.createBase(construction, cls);
+    linkReference(construction, obj, cls);
     var stateSpec = cls.getStateSpec();
     if (stateSpec==null) return objRepo.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
@@ -69,6 +77,7 @@ public class ObjectConstructResource implements ObjectConstructService {
     var genericType = cls.getGenericType();
     var genericCls = clsRepo.get(genericType);
     var obj = objectFactory.createBase(construction, cls);
+    linkReference(construction, obj, cls);
     var sc = Lists.fixedSize.ofAll(construction.getStreamConstructs());
     var objStream = sc.collectWithIndex((c,i) -> objectFactory.createBase(c, genericCls, obj.getId() + '.' + i));
     var requestList = sc.zip(objStream).collect(pair -> {

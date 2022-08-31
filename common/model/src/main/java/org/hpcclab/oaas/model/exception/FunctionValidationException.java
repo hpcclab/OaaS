@@ -21,4 +21,11 @@ public class FunctionValidationException extends NoStackException{
       .formatted(objId, funcName)
     );
   }
+
+  public static FunctionValidationException cannotResolveMacro(String ref,
+                                                               String reason) {
+    if (reason == null) reason = "not found in context or wrong syntax";
+    return new FunctionValidationException("Can not resolve '%s' (%s)"
+      .formatted(ref, reason));
+  }
 }
