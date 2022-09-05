@@ -53,14 +53,14 @@
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/OaasClass"
-              }
-            },
             "text/x-yaml" : {
               "schema" : {
                 "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OaasClass"
               }
             }
           }
@@ -235,17 +235,17 @@
         } ],
         "requestBody" : {
           "content" : {
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
             "application/json" : {
               "schema" : {
                 "type" : "array",
                 "items" : {
                   "$ref" : "#/components/schemas/OaasFunction"
                 }
-              }
-            },
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
               }
             }
           }
@@ -295,14 +295,14 @@
       "post" : {
         "requestBody" : {
           "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Module"
-              }
-            },
             "text/x-yaml" : {
               "schema" : {
                 "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Module"
               }
             }
           }
@@ -547,6 +547,9 @@
       "OaasClass" : {
         "type" : "object",
         "properties" : {
+          "description" : {
+            "type" : "string"
+          },
           "functions" : {
             "uniqueItems" : true,
             "type" : "array",
@@ -642,6 +645,9 @@
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
+          "description" : {
+            "type" : "string"
+          },
           "macro" : {
             "$ref" : "#/components/schemas/OaasDataflow"
           },
@@ -674,6 +680,9 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "description" : {
+            "type" : "string"
           },
           "forwardRecords" : {
             "uniqueItems" : true,
@@ -800,17 +809,17 @@
               "type" : "string"
             }
           },
-          "members" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
-            }
-          },
           "overrideUrls" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
+            }
+          },
+          "refs" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectReference"
             }
           },
           "streamConstructs" : {

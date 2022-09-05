@@ -3,11 +3,10 @@ package org.hpcclab.oaas.model.cls;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.cls.ReferenceSpecification;
+import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -19,7 +18,7 @@ import java.util.Set;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasClass {
+public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(1)
   String name;
   @ProtoField(2)
@@ -36,13 +35,16 @@ public class OaasClass {
   Set<ReferenceSpecification> refSpec;
   @ProtoField(8)
   Set<String> parents;
+  @ProtoField(9)
+  String description;
 
   public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String genericType, ObjectType objectType, StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
+  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
     this.name = name;
+    this.description = description;
     this.genericType = genericType;
     this.objectType = objectType;
     this.stateType = stateType;
@@ -65,7 +67,7 @@ public class OaasClass {
 //    }
     for (OaasFunctionBinding function : functions) {
       if (function.getFunction() == null) {
-        throw new OaasValidationException("The 'functions.function' in class must not be null.");
+        throw new OaasValidationException("The 'functions[].function' in class must not be null.");
       }
       if (function.getName() == null) {
         var fullFuncName = function.getFunction();
@@ -81,5 +83,20 @@ public class OaasClass {
       .stream()
       .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
       .findFirst();
+  }
+
+  @Override
+  public OaasClass copy() {
+    return new OaasClass(
+      name,
+      description,
+      genericType,
+      objectType,
+      stateType,
+      Set.copyOf(functions),
+      stateSpec.copy(),
+      Set.copyOf(refSpec),
+      Set.copyOf(parents)
+    );
   }
 }

@@ -19,58 +19,38 @@ import javax.validation.constraints.NotNull;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunction {
   @NotBlank
+  @ProtoField(1)
   String name;
   @NotNull
+  @ProtoField(2)
   OaasFunctionType type;
+  @ProtoField(3)
   String outputCls;
 
+  @ProtoField(4)
   OaasFunctionValidation validation;
 
+  @ProtoField(5)
   OaasDataflow macro;
 
+  @ProtoField(6)
   ProvisionConfig provision;
+
+  @ProtoField(7)
+  String description;
 
   public OaasFunction() {
   }
 
   @ProtoFactory
-  public OaasFunction(String name, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasDataflow macro, ProvisionConfig provision) {
+  public OaasFunction(String name,String description, OaasFunctionType type, String outputCls, OaasFunctionValidation validation, OaasDataflow macro, ProvisionConfig provision) {
     this.name = name;
+    this.description = description;
     this.type = type;
     this.outputCls = outputCls;
     this.validation = validation;
     this.macro = macro;
     this.provision = provision;
-  }
-
-  @ProtoField(1)
-  public String getName() {
-    return name;
-  }
-
-  @ProtoField(2)
-  public OaasFunctionType getType() {
-    return type;
-  }
-
-  @ProtoField(3)
-  public String getOutputCls() {
-    return outputCls;
-  }
-
-  @ProtoField(4)
-  public OaasFunctionValidation getValidation() {
-    return validation;
-  }
-
-  @ProtoField(5)
-  public OaasDataflow getMacro() {
-    return macro;
-  }
-
-  @ProtoField(6)
-  public ProvisionConfig getProvision() {
-    return provision;
   }
 
   public void validate() {

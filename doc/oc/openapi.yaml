@@ -38,12 +38,12 @@ paths:
           type: boolean
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OaasClass'
           text/x-yaml:
             schema:
               type: string
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OaasClass'
       responses:
         "200":
           description: OK
@@ -153,14 +153,14 @@ paths:
           type: boolean
       requestBody:
         content:
+          text/x-yaml:
+            schema:
+              type: string
           application/json:
             schema:
               type: array
               items:
                 $ref: '#/components/schemas/OaasFunction'
-          text/x-yaml:
-            schema:
-              type: string
       responses:
         "200":
           description: OK
@@ -189,12 +189,12 @@ paths:
     post:
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Module'
           text/x-yaml:
             schema:
               type: string
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Module'
       responses:
         "200":
           description: OK
@@ -354,6 +354,8 @@ components:
     OaasClass:
       type: object
       properties:
+        description:
+          type: string
         functions:
           uniqueItems: true
           type: array
@@ -420,6 +422,8 @@ components:
       - type
       type: object
       properties:
+        description:
+          type: string
         macro:
           $ref: '#/components/schemas/OaasDataflow'
         name:
@@ -442,6 +446,8 @@ components:
           type: object
           additionalProperties:
             type: string
+        description:
+          type: string
         forwardRecords:
           uniqueItems: true
           type: array
@@ -529,15 +535,15 @@ components:
           type: array
           items:
             type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectReference'
         overrideUrls:
           type: object
           additionalProperties:
             type: string
+        refs:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference'
         streamConstructs:
           type: array
           items:

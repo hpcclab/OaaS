@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.impl;
 
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
@@ -6,8 +6,6 @@ import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.OaasFunctionBinding;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
-import org.hpcclab.oaas.repository.mapper.ModelMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,8 +20,6 @@ public class OaasClsResolver {
 
   @Inject
   OaasClassRepository clsRepo;
-  @Inject
-  ModelMapper modelMapper;
 
   @Inject
   @CacheName("resolvedClass")
@@ -50,7 +46,7 @@ public class OaasClsResolver {
     var fbMap = Stream.concat(parents.stream(), Stream.of(child))
       .flatMap(cls -> cls.getFunctions().stream())
       .collect(Collectors.toMap(OaasFunctionBinding::getFunction, Function.identity()));
-    var cls = modelMapper.copy(child);
+    var cls = child.copy();
     cls.setFunctions(Set.copyOf(fbMap.values()));
     return cls;
   }

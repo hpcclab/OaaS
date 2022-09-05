@@ -25,16 +25,19 @@ public class OaasFunctionBinding {
   Set<String> forwardRecords;
   @ProtoField(value = 5, javaType = HashMap.class)
   Map<String, String> defaultArgs;
+  @ProtoField(6)
+  String description;
 
   public OaasFunctionBinding() {
   }
 
-  public OaasFunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs) {
+  public OaasFunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
+    this.description = description;
   }
 
   @ProtoFactory
@@ -42,11 +45,13 @@ public class OaasFunctionBinding {
                              String function,
                              String name,
                              Set<String> forwardRecords,
-                             HashMap<String,String> defaultArgs) {
+                             HashMap<String,String> defaultArgs,
+                             String description) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
+    this.description = description;
   }
 }

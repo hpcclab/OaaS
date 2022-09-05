@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.model.exception;
 
-public class FunctionValidationException extends NoStackException{
+public class FunctionValidationException extends NoStackException {
   public FunctionValidationException(String message) {
     super(message, 400);
   }
