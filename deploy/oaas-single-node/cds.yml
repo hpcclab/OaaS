@@ -1,0 +1,151 @@
+apiVersion: v1
+data:
+  nginx.conf: |
+    events {
+      worker_connections  1024;
+    }
+    http {
+      proxy_cache_path /cache keys_zone=contents:100m levels=1:2 inactive=100d max_size=10g;
+      resolver 10.96.0.10 valid=30s;
+
+      upstream task-manager {
+        server task-manager.oaas.svc.cluster.local;
+      }
+
+      upstream object-controller {
+        server object-controller.oaas.svc.cluster.local;
+      }
+
+      server {
+
+        listen      80;
+        charset     utf-8;
+
+        sendfile    on;
+        keepalive_timeout  65;
+
+        client_max_body_size 75M;
+        recursive_error_pages on;
+
+        location /api/ {
+          add_header Access-Control-Allow-Origin *;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+          proxy_pass      http://object-controller/api/;
+        }
+
+        location /q/swagger-ui {
+          proxy_pass      http://object-controller/q/swagger-ui;
+        }
+
+        location /q/openapi {
+          proxy_pass      http://object-controller/q/openapi;
+        }
+
+        location ~ "^/oal/([^:]*/.*)$" {
+
+          add_header Access-Control-Allow-Origin *;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+
+          proxy_pass      http://task-manager/oal/$1$is_args$args;
+          proxy_cache       contents;
+          proxy_http_version 1.1;
+          proxy_cache_key   $uri;
+          proxy_cache_valid 200 206 3000h;
+          proxy_intercept_errors on;
+          error_page 301 302 303 307 = @handle_redirects;
+        }
+
+        location /oal/ {
+
+          add_header Access-Control-Allow-Origin *;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+          proxy_pass      http://task-manager/oal/;
+          #proxy_cache       contents;
+          #proxy_http_version 1.1;
+          #proxy_cache_key   $uri;
+          #proxy_cache_valid 200 206 3000h;
+          proxy_intercept_errors on;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
+        }
+
+        location @handle_redirects_nocache {
+          #store the current state of the world so we can reuse it in a minute
+          # We need to capture these values now, because as soon as we invoke
+          # the proxy_* directives, these will disappear
+          set $original_uri $uri;
+          set $orig_loc $upstream_http_location;
+
+          # nginx goes to fetch the value from the upstream Location header
+          proxy_pass $orig_loc;
+          proxy_intercept_errors on;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
+        }
+
+        location @handle_redirects {
+          #store the current state of the world so we can reuse it in a minute
+          # We need to capture these values now, because as soon as we invoke
+          # the proxy_* directives, these will disappear
+          set $original_uri $uri;
+          set $orig_loc $upstream_http_location;
+
+          # nginx goes to fetch the value from the upstream Location header
+          proxy_pass $orig_loc;
+          proxy_cache contents;
+          proxy_method GET;
+          # But we store the result with the cache key of the original request URI
+          # so that future clients don't need to follow the redirect too
+          proxy_cache_key $original_uri;
+          proxy_cache_valid 200 206 3000h;
+
+          proxy_intercept_errors on;
+          error_page 301 302 303 307 = @handle_redirects;
+        }
+      }
+    }
+
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-delivery-service
+  labels:
+    app: content-delivery-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: content-delivery-service
+  template:
+    metadata:
+      labels:
+        app: content-delivery-service
+    spec:
+      containers:
+        - name: content-delivery-service
+          image: nginx:1.21
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: conf
+              subPath: nginx.conf
+      volumes:
+        - name: conf
+          configMap:
+            name: nginx-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-delivery-service
+spec:
+  selector:
+    app: content-delivery-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

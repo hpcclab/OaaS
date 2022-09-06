@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-provisioner
+  labels:
+    app: kube-provisioner
+    platform: oaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-provisioner
+      platform: oaas
+  template:
+    metadata:
+      labels:
+        app: kube-provisioner
+        platform: oaas
+    spec:
+      serviceAccountName: kp-sa
+      containers:
+        - name: kube-provisioner
+          envFrom:
+            - configMapRef:
+                name: oaas-env
+          image: ghcr.io/hpcclab/oaas/kube-provisioner
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: '1'
+              memory: 256M
+            requests:
+              cpu: '0.125'
+              memory: 128M
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-provisioner
+spec:
+  selector:
+    app: kube-provisioner
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
