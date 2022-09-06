@@ -92,3 +92,7 @@ NOTE: Both of them have Swagger UI at `/q/swagger-ui`. Swagger UI provides the A
 
 == Troubleshooting
 * Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:cds.yml[]
+* In the case that you can not access Kubernetes via localhost, you need to change the hostname of `*.127.0.0.1.nip.io` to match your setup.
+** link:oaas-ingress.yml[]
+** link:minio.yml[]
+** link:sa.yml[]
