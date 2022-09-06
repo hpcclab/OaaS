@@ -2,7 +2,7 @@ package org.hpcclab.oaas.taskmanager.factory;
 
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.task.TaskEvent;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class TaskEventFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskEventFactory.class);
 
   @Inject
-  OaasObjectRepository objectRepo;
+  ObjectRepository objectRepo;
 
   public TaskEvent createStartingEvent(String id) {
     var object = objectRepo.get(id);

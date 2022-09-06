@@ -1,25 +1,26 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.infinispan;
 
 import io.quarkus.infinispan.client.Remote;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.proto.OaasSchema;
+import org.hpcclab.oaas.repository.FunctionRepository;
 import org.infinispan.client.hotrod.RemoteCache;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class OaasFuncRepository extends AbstractIfnpRepository<String, OaasFunction> {
+public class InfFuncRepository extends AbstractInfRepository<String, OaasFunction>
+implements FunctionRepository {
 
   private static final String NAME = OaasSchema.makeFullName(OaasFunction.class);
   @Inject
   @Remote("OaasFunction")
   RemoteCache<String, OaasFunction> cache;
 
-  @PostConstruct
-  void setup() {
-    setRemoteCache(cache);
+  @Override
+  public RemoteCache<String, OaasFunction> getRemoteCache() {
+    return cache;
   }
 
   @Override

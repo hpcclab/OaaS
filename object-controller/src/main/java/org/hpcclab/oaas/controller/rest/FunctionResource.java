@@ -7,10 +7,11 @@ import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
+import org.hpcclab.oaas.infinispan.InfFuncRepository;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.repository.FunctionRepository;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -22,7 +23,7 @@ import java.util.List;
 @RequestScoped
 public class FunctionResource implements FunctionService {
   @Inject
-  OaasFuncRepository funcRepo;
+  FunctionRepository funcRepo;
   @Inject
   OcConfig config;
   @Inject

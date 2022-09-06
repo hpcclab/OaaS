@@ -429,14 +429,14 @@
   "components" : {
     "schemas" : {
       "FunctionAccessModifier" : {
-        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
+        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "JobProvisionConfig" : {
         "type" : "object",
         "properties" : {
-          "argsToEnv" : {
-            "type" : "boolean"
+          "image" : {
+            "type" : "string"
           },
           "commands" : {
             "type" : "array",
@@ -450,7 +450,10 @@
               "type" : "string"
             }
           },
-          "image" : {
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
             "type" : "string"
           },
           "limitsCpu" : {
@@ -459,47 +462,55 @@
           "limitsMemory" : {
             "type" : "string"
           },
-          "requestsCpu" : {
-            "type" : "string"
-          },
-          "requestsMemory" : {
-            "type" : "string"
+          "argsToEnv" : {
+            "type" : "boolean"
           }
         },
         "deprecated" : true
       },
       "KeyAccessModifier" : {
-        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
+        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "KeySpecification" : {
         "type" : "object",
         "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/KeyAccessModifier"
-          },
           "name" : {
             "type" : "string"
           },
           "provider" : {
             "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier"
           }
         }
       },
       "KnativeProvision" : {
         "type" : "object",
         "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "concurrency" : {
             "format" : "int32",
             "type" : "integer"
           },
-          "env" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+          "scaleDownDelay" : {
+            "type" : "string"
           },
-          "image" : {
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
             "type" : "string"
           },
           "limitsCpu" : {
@@ -508,22 +519,11 @@
           "limitsMemory" : {
             "type" : "string"
           },
-          "maxScale" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "minScale" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "requestsCpu" : {
-            "type" : "string"
-          },
-          "requestsMemory" : {
-            "type" : "string"
-          },
-          "scaleDownDelay" : {
-            "type" : "string"
+          "env" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -547,8 +547,17 @@
       "OaasClass" : {
         "type" : "object",
         "properties" : {
-          "description" : {
+          "name" : {
             "type" : "string"
+          },
+          "genericType" : {
+            "type" : "string"
+          },
+          "objectType" : {
+            "$ref" : "#/components/schemas/ObjectType"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/StateType"
           },
           "functions" : {
             "uniqueItems" : true,
@@ -557,21 +566,8 @@
               "$ref" : "#/components/schemas/OaasFunctionBinding"
             }
           },
-          "genericType" : {
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "objectType" : {
-            "$ref" : "#/components/schemas/ObjectType"
-          },
-          "parents" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification"
           },
           "refSpec" : {
             "uniqueItems" : true,
@@ -580,19 +576,26 @@
               "$ref" : "#/components/schemas/ReferenceSpecification"
             }
           },
-          "stateSpec" : {
-            "$ref" : "#/components/schemas/StateSpecification"
+          "parents" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
-          "stateType" : {
-            "$ref" : "#/components/schemas/StateType"
+          "description" : {
+            "type" : "string"
           }
         }
       },
       "OaasDataflow" : {
         "type" : "object",
         "properties" : {
-          "export" : {
-            "type" : "string"
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasDataflowStep"
+            }
           },
           "exports" : {
             "uniqueItems" : true,
@@ -601,20 +604,26 @@
               "$ref" : "#/components/schemas/OaasWorkflowExport"
             }
           },
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasDataflowStep"
-            }
+          "export" : {
+            "type" : "string"
           }
         }
       },
       "OaasDataflowStep" : {
         "type" : "object",
         "properties" : {
-          "argRefs" : {
-            "type" : "object",
-            "additionalProperties" : {
+          "funcName" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "inputRefs" : {
+            "type" : "array",
+            "items" : {
               "type" : "string"
             }
           },
@@ -624,20 +633,11 @@
               "type" : "string"
             }
           },
-          "as" : {
-            "type" : "string"
-          },
-          "funcName" : {
-            "type" : "string"
-          },
-          "inputRefs" : {
-            "type" : "array",
-            "items" : {
+          "argRefs" : {
+            "type" : "object",
+            "additionalProperties" : {
               "type" : "string"
             }
-          },
-          "target" : {
-            "type" : "string"
           }
         }
       },
@@ -645,27 +645,27 @@
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
-          "description" : {
-            "type" : "string"
-          },
-          "macro" : {
-            "$ref" : "#/components/schemas/OaasDataflow"
-          },
           "name" : {
             "pattern" : "\\S",
             "type" : "string"
           },
+          "type" : {
+            "$ref" : "#/components/schemas/OaasFunctionType"
+          },
           "outputCls" : {
             "type" : "string"
+          },
+          "validation" : {
+            "$ref" : "#/components/schemas/OaasFunctionValidation"
+          },
+          "macro" : {
+            "$ref" : "#/components/schemas/OaasDataflow"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig"
           },
-          "type" : {
-            "$ref" : "#/components/schemas/OaasFunctionType"
-          },
-          "validation" : {
-            "$ref" : "#/components/schemas/OaasFunctionValidation"
+          "description" : {
+            "type" : "string"
           }
         }
       },
@@ -675,13 +675,10 @@
           "access" : {
             "$ref" : "#/components/schemas/FunctionAccessModifier"
           },
-          "defaultArgs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+          "function" : {
+            "type" : "string"
           },
-          "description" : {
+          "name" : {
             "type" : "string"
           },
           "forwardRecords" : {
@@ -691,16 +688,19 @@
               "type" : "string"
             }
           },
-          "function" : {
-            "type" : "string"
+          "defaultArgs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
-          "name" : {
+          "description" : {
             "type" : "string"
           }
         }
       },
       "OaasFunctionType" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
+        "enum" : [ "TASK", "MACRO", "LOGICAL" ],
         "type" : "string"
       },
       "OaasFunctionValidation" : {
@@ -720,13 +720,17 @@
       "OaasObject" : {
         "type" : "object",
         "properties" : {
-          "cls" : {
-            "type" : "string"
-          },
-          "embeddedRecord" : {
-            "type" : "string"
-          },
           "id" : {
+            "type" : "string"
+          },
+          "origin" : {
+            "$ref" : "#/components/schemas/ObjectOrigin"
+          },
+          "originHash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cls" : {
             "type" : "string"
           },
           "labels" : {
@@ -736,12 +740,8 @@
               "type" : "string"
             }
           },
-          "origin" : {
-            "$ref" : "#/components/schemas/ObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
+          "state" : {
+            "$ref" : "#/components/schemas/OaasObjectState"
           },
           "refs" : {
             "uniqueItems" : true,
@@ -750,38 +750,38 @@
               "$ref" : "#/components/schemas/ObjectReference"
             }
           },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
-          },
           "status" : {
             "$ref" : "#/components/schemas/ObjectStatus"
           },
           "streamInfo" : {
             "$ref" : "#/components/schemas/StreamInfo"
+          },
+          "embeddedRecord" : {
+            "type" : "string"
           }
         }
       },
       "OaasObjectState" : {
         "type" : "object",
         "properties" : {
+          "stateId" : {
+            "type" : "string"
+          },
           "overrideUrls" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
-          },
-          "stateId" : {
-            "type" : "string"
           }
         }
       },
       "OaasWorkflowExport" : {
         "type" : "object",
         "properties" : {
-          "as" : {
+          "from" : {
             "type" : "string"
           },
-          "from" : {
+          "as" : {
             "type" : "string"
           }
         }
@@ -795,14 +795,14 @@
           "embeddedRecord" : {
             "type" : "string"
           },
-          "keys" : {
+          "labels" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "labels" : {
+          "keys" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
@@ -836,16 +836,16 @@
           "object" : {
             "$ref" : "#/components/schemas/OaasObject"
           },
-          "streams" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectConstructResponse"
-            }
-          },
           "uploadUrls" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
+            }
+          },
+          "streams" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectConstructResponse"
             }
           }
         }
@@ -853,23 +853,23 @@
       "ObjectOrigin" : {
         "type" : "object",
         "properties" : {
+          "parentId" : {
+            "type" : "string"
+          },
+          "funcName" : {
+            "type" : "string"
+          },
           "args" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
             }
           },
-          "funcName" : {
-            "type" : "string"
-          },
           "inputs" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
-          },
-          "parentId" : {
-            "type" : "string"
           }
         }
       },
@@ -887,54 +887,62 @@
       "ObjectRequirement" : {
         "type" : "object",
         "properties" : {
-          "cls" : {
-            "type" : "string"
-          },
           "labels" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
               "type" : "string"
             }
+          },
+          "cls" : {
+            "type" : "string"
           }
         }
       },
       "ObjectStatus" : {
         "type" : "object",
         "properties" : {
-          "completedTime" : {
-            "format" : "int64",
-            "type" : "integer"
+          "taskStatus" : {
+            "$ref" : "#/components/schemas/TaskStatus"
           },
           "createdTime" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "errorMsg" : {
-            "type" : "string"
-          },
           "submittedTime" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "taskStatus" : {
-            "$ref" : "#/components/schemas/TaskStatus"
+          "completedTime" : {
+            "format" : "int64",
+            "type" : "integer"
           },
           "waitFor" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
+          },
+          "errorMsg" : {
+            "type" : "string"
           }
         }
       },
       "ObjectType" : {
-        "enum" : [ "COMPOUND", "SIMPLE", "STREAM" ],
+        "enum" : [ "SIMPLE", "COMPOUND", "STREAM" ],
         "type" : "string"
       },
       "PaginationOaasClass" : {
         "type" : "object",
         "properties" : {
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "offset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "itemCount" : {
             "format" : "int64",
             "type" : "integer"
@@ -944,20 +952,20 @@
             "items" : {
               "$ref" : "#/components/schemas/OaasClass"
             }
-          },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
           }
         }
       },
       "PaginationOaasFunction" : {
         "type" : "object",
         "properties" : {
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "offset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "itemCount" : {
             "format" : "int64",
             "type" : "integer"
@@ -967,20 +975,20 @@
             "items" : {
               "$ref" : "#/components/schemas/OaasFunction"
             }
-          },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
           }
         }
       },
       "PaginationOaasObject" : {
         "type" : "object",
         "properties" : {
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "offset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "itemCount" : {
             "format" : "int64",
             "type" : "integer"
@@ -990,14 +998,6 @@
             "items" : {
               "$ref" : "#/components/schemas/OaasObject"
             }
-          },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
           }
         }
       },
@@ -1018,33 +1018,33 @@
       "ReferenceSpecification" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
           "cls" : {
             "type" : "string"
           },
           "internal" : {
             "type" : "boolean"
-          },
-          "name" : {
-            "type" : "string"
           }
         }
       },
       "StateSpecification" : {
         "type" : "object",
         "properties" : {
-          "defaultProvider" : {
-            "type" : "string"
-          },
           "keySpecs" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/KeySpecification"
             }
+          },
+          "defaultProvider" : {
+            "type" : "string"
           }
         }
       },
       "StateType" : {
-        "enum" : [ "COLLECTION", "FILES" ],
+        "enum" : [ "FILES", "COLLECTION" ],
         "type" : "string"
       },
       "StreamInfo" : {
@@ -1057,11 +1057,11 @@
         }
       },
       "TaskStatus" : {
-        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "LAZY", "READY", "SUCCEEDED" ],
+        "enum" : [ "LAZY", "DOING", "SUCCEEDED", "FAILED", "DEPENDENCY_FAILED", "READY" ],
         "type" : "string"
       },
       "Type" : {
-        "enum" : [ "DURABLE", "EPHEMERAL" ],
+        "enum" : [ "EPHEMERAL", "DURABLE" ],
         "type" : "string"
       }
     }

@@ -7,9 +7,9 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
@@ -32,7 +32,7 @@ public class OalResource {
   @Inject
   FunctionRouter router;
   @Inject
-  OaasObjectRepository objectRepo;
+  ObjectRepository objectRepo;
   @Inject
   InvocationGraphExecutor graphExecutor;
   @Inject

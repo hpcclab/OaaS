@@ -1,14 +1,13 @@
 package org.hpcclab.oaas.taskmanager.factory;
 
+import org.hpcclab.oaas.infinispan.InfClassRepository;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,7 +21,7 @@ public class TaskFactory {
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
-  OaasClassRepository clsRepo;
+  InfClassRepository clsRepo;
 
   public OaasTask genTask(TaskContext taskContext) {
     var cls = clsRepo.get(taskContext.getOutput().getCls());

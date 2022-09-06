@@ -32,16 +32,16 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-infinispan-client</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.slf4j</groupId>
-          <artifactId>slf4j-jboss-logmanager</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-infinispan-client</artifactId>-->
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>org.jboss.slf4j</groupId>-->
+<!--          <artifactId>slf4j-jboss-logmanager</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>mutiny</artifactId>
@@ -54,17 +54,17 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-vertx</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct-processor</artifactId>
-      <version>${org.mapstruct.version}</version>
-      <scope>provided</scope>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.mapstruct</groupId>-->
+<!--      <artifactId>mapstruct</artifactId>-->
+<!--      <version>${org.mapstruct.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.mapstruct</groupId>-->
+<!--      <artifactId>mapstruct-processor</artifactId>-->
+<!--      <version>${org.mapstruct.version}</version>-->
+<!--      <scope>provided</scope>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>

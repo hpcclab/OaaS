@@ -4,23 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.infinispan.InfClassRepository;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,10 +38,10 @@ class DataAccessResourceTest {
         new KeySpecification("test", "s3")
       ))
     );
-    var mock = Mockito.mock(OaasClassRepository.class);
+    var mock = Mockito.mock(InfClassRepository.class);
     Mockito.when(mock.getAsync("test")).thenReturn(Uni.createFrom().item(testCls));
     Mockito.when(mock.get("test")).thenReturn(testCls);
-    QuarkusMock.installMockForType(mock, OaasClassRepository.class);
+    QuarkusMock.installMockForType(mock, InfClassRepository.class);
   }
 
   @Test

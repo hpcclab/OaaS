@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
+import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
-import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
-import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +22,9 @@ public class ModuleResource implements ModuleService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ModuleResource.class);
 
   @Inject
-  OaasClassRepository classRepo;
+  ClassRepository classRepo;
   @Inject
-  OaasFuncRepository funcRepo;
+  FunctionRepository funcRepo;
   @Inject
   FunctionProvisionPublisher provisionPublisher;
   @Inject

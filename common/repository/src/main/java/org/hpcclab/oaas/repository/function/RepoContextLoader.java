@@ -13,9 +13,6 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
-import org.hpcclab.oaas.repository.impl.OaasFuncRepository;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +31,6 @@ public class RepoContextLoader implements ContextLoader {
   EntityRepository<String, OaasClass> clsRepo;
 
   @Inject
-  public RepoContextLoader(OaasObjectRepository objectRepo,
-                           OaasFuncRepository funcRepo,
-                           OaasClassRepository clsRepo) {
-    this.objectRepo = objectRepo;
-    this.funcRepo = funcRepo;
-    this.clsRepo = clsRepo;
-  }
-
   public RepoContextLoader(EntityRepository<String, OaasObject> objectRepo,
                            EntityRepository<String, OaasFunction> funcRepo,
                            EntityRepository<String, OaasClass> clsRepo) {

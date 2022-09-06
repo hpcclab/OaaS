@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.infinispan;
 
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ApplicationScoped
-public class OaasClsResolver {
+public class InfClsResolver {
 
   @Inject
-  OaasClassRepository clsRepo;
+  InfClassRepository clsRepo;
 
   @Inject
   @CacheName("resolvedClass")

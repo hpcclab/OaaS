@@ -3,7 +3,7 @@ package org.hpcclab.oaas.controller.rest;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ import javax.ws.rs.NotFoundException;
 public class ObjectResource implements ObjectService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
-  OaasObjectRepository objectRepo;
+  ObjectRepository objectRepo;
 
   public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
     if (offset==null) offset = 0;

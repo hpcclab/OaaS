@@ -1,51 +1,41 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.infinispan;
 
-import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
-import org.hpcclab.oaas.model.object.ObjectGraph;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
-import org.hpcclab.oaas.repository.init.InfinispanInit;
-import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-@ApplicationScoped
-public class MapGraphStateManager extends AbstractGraphStateManager {
+//@ApplicationScoped
+@Deprecated(forRemoval = true)
+public class MultimapGraphStateManager extends AbstractGraphStateManager {
 
-  RemoteCache<String, ObjectGraph> graphMap;
+  RemoteMultimapCache<String, String> edgeMap;
 
-  public MapGraphStateManager() {
+  public MultimapGraphStateManager() {
     super();
   }
 
-  @Inject
-  public MapGraphStateManager(OaasObjectRepository objRepo,
-                              @Remote(InfinispanInit.INVOCATION_GRAPH_CACHE)
-                              RemoteCache<String, ObjectGraph> graphMap) {
+//  @Inject
+  public MultimapGraphStateManager(ObjectRepository objRepo,
+                                   RemoteMultimapCache<String, String> edgeMap) {
     super(objRepo);
-    this.graphMap = graphMap;
+    this.edgeMap = edgeMap;
   }
 
 
   @Override
   public Uni<Collection<String>> getAllEdge(String srcId) {
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(graphMap.getAsync(srcId));
+    var uni = Uni.createFrom().completionStage(edgeMap.get(srcId));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
-    return uni
-      .map(og -> {
-        if (og == null) return Set.of();
-        return og.getNextIds();
-      });
+    return uni;
   }
 
 //  @Override
@@ -62,15 +52,10 @@ public class MapGraphStateManager extends AbstractGraphStateManager {
   public Uni<Void> persistEdge(String srcId, String desId) {
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(
-      graphMap.computeAsync(srcId, (key, og)-> {
-        if (og == null) og = new ObjectGraph();
-        og.getNextIds().add(desId);
-        return og;
-      }));
+      edgeMap.put(srcId,desId));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
-    return uni
-      .replaceWithVoid();
+    return uni;
   }
 
   @Override

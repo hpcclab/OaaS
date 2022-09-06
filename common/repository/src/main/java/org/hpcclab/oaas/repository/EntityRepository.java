@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Pagination;
 
 import java.util.Collection;
 import java.util.List;
@@ -49,4 +50,8 @@ public interface EntityRepository<K, V> {
   Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled);
 
   Uni<V> computeAsync(K key, BiFunction<K, V, V> function);
+
+  default Pagination<V> pagination(long offset, int limit){
+    throw new IllegalStateException();
+  }
 }

@@ -1,11 +1,8 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.infinispan;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.MetadataValue;
@@ -17,28 +14,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K,V> {
+public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,V> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractIfnpRepository.class );
-
-  RemoteCache<K, V> remoteCache;
+  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractInfRepository.class );
   QueryFactory queryFactory;
 
-  public RemoteCache<K, V> getRemoteCache() {
-    return remoteCache;
-  }
+  public abstract RemoteCache<K, V> getRemoteCache();
 
-  public void setRemoteCache(RemoteCache<K, V> remoteCache) {
-    this.remoteCache = remoteCache;
-    this.queryFactory = Search.getQueryFactory(remoteCache);
+  QueryFactory getQueryFactory(){
+    if (queryFactory == null)
+      this.queryFactory = Search.getQueryFactory(getRemoteCache());
+    return this.queryFactory;
   }
 
   public abstract String getEntityName();
@@ -52,7 +42,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   }
 
   public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
-    Query<V> query = (Query<V>) queryFactory.create(queryString)
+    Query<V> query = (Query<V>) getQueryFactory().create(queryString)
       .setParameters(params)
       .startOffset(offset)
       .maxResults(limit);
@@ -63,13 +53,13 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
 
   public V get(K key) {
     Objects.requireNonNull(key);
-    return remoteCache.get(key);
+    return getRemoteCache().get(key);
   }
 
   public Uni<V> getAsync(K key) {
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache.getAsync(key));
+    var uni = Uni.createFrom().completionStage(getRemoteCache().getAsync(key));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
@@ -78,19 +68,19 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   public Uni<MetadataValue<V>> getWithMetaAsync(K key) {
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache.getWithMetadataAsync(key));
+    var uni = Uni.createFrom().completionStage(getRemoteCache().getWithMetadataAsync(key));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
   }
 
   public Map<K, V> list(Set<K> keys) {
-    return remoteCache.getAll(keys);
+    return getRemoteCache().getAll(keys);
   }
 
   public Uni<Map<K, V>> listAsync(Set<K> keys) {
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache
+    var uni = Uni.createFrom().completionStage(getRemoteCache()
       .getAllAsync(keys));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
@@ -99,14 +89,14 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
 
   public V put(K key, V value) {
     Objects.requireNonNull(key);
-    remoteCache.putAsync(key, value);
+    getRemoteCache().putAsync(key, value);
     return value;
   }
 
   public Uni<V> putAsync(K key, V value) {
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache.putAsync(key, value))
+    var uni = Uni.createFrom().completionStage(getRemoteCache().putAsync(key, value))
       .replaceWith(value);
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
@@ -116,7 +106,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   public Uni<Void> putAllAsync(Map<K, V> map) {
     Objects.requireNonNull(map);
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache.putAllAsync(map));
+    var uni = Uni.createFrom().completionStage(getRemoteCache().putAllAsync(map));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
@@ -126,7 +116,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   public Uni<V> removeAsync(K key) {
     Objects.requireNonNull(key);
     var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(remoteCache.removeAsync(key));
+    var uni = Uni.createFrom().completionStage(getRemoteCache().removeAsync(key));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
@@ -140,7 +130,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
 //    }
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom()
-      .completionStage(remoteCache.computeAsync(key,function));
+      .completionStage(getRemoteCache().computeAsync(key,function));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
@@ -163,7 +153,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   @Override
   public Uni<V> persistAsync(V v, boolean notificationEnabled) {
     if (!notificationEnabled) {
-      remoteCache.withFlags(Flag.SKIP_LISTENER_NOTIFICATION);
+      getRemoteCache().withFlags(Flag.SKIP_LISTENER_NOTIFICATION);
     }
     Objects.requireNonNull(v);
     K k = extractKey(v);
@@ -181,7 +171,7 @@ public abstract class AbstractIfnpRepository<K, V> implements EntityRepository<K
   public Uni<Void> persistAsync(Collection<V> collection,
                                 boolean notificationEnabled) {
     if (!notificationEnabled) {
-      remoteCache.withFlags(Flag.SKIP_LISTENER_NOTIFICATION);
+      getRemoteCache().withFlags(Flag.SKIP_LISTENER_NOTIFICATION);
     }
     var map = collection.stream()
       .collect(Collectors.toMap(this::extractKey, Function.identity()));

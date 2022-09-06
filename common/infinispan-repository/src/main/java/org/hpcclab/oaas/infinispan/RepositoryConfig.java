@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.init;
+package org.hpcclab.oaas.infinispan;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;

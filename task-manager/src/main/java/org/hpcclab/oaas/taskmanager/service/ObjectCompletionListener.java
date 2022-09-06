@@ -5,10 +5,10 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
+import org.hpcclab.oaas.infinispan.InfObjectRepository;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryModified;
@@ -32,7 +32,7 @@ public class ObjectCompletionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectCompletionListener.class);
 
   @Inject
-  OaasObjectRepository objectRepo;
+  InfObjectRepository objectRepo;
   RemoteCache<String, OaasObject> remoteCache;
   CacheWatcher watcher;
   @Inject

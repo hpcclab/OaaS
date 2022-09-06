@@ -9,8 +9,8 @@ import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
-import org.hpcclab.oaas.repository.impl.OaasObjectRepository;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +23,9 @@ import javax.ws.rs.NotFoundException;
 public class ClassResource implements ClassService {
   private static final Logger LOGGER = LoggerFactory.getLogger( ClassResource.class );
   @Inject
-  OaasClassRepository classRepo;
+  ClassRepository classRepo;
   @Inject
-  OaasObjectRepository objectRepo;
+  ObjectRepository objectRepo;
   @Inject
   CtxMapper oaasMapper;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());

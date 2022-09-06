@@ -1,11 +1,11 @@
 package org.hpcclab.oaas.storage.rest;
 
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.infinispan.InfClassRepository;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.repository.impl.OaasClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class DataAccessResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessResource.class);
 
   @Inject
-  OaasClassRepository clsRepo;
+  InfClassRepository clsRepo;
   @Inject
   AdapterLoader adapterLoader;
 

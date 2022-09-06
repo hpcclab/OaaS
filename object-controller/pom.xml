@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>repository</artifactId>
+      <artifactId>infinispan-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository.impl;
+package org.hpcclab.oaas.infinispan;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
@@ -9,35 +9,33 @@ import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.Search;
-import org.infinispan.query.api.continuous.ContinuousQueryListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static org.hpcclab.oaas.model.proto.OaasSchema.makeFullName;
 
 @ApplicationScoped
-public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObject> {
+public class InfObjectRepository extends AbstractInfRepository<String, OaasObject>
+  implements ObjectRepository {
   static final String NAME = makeFullName(OaasObject.class);
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OaasObjectRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InfObjectRepository.class);
 
   @Inject
-  OaasClassRepository classRepo;
+  InfClassRepository classRepo;
   @Inject
   @Remote("OaasObject")
   RemoteCache<String, OaasObject> cache;
 
-  @PostConstruct
-  void setup() {
-    setRemoteCache(cache);
+  @Override
+  public RemoteCache<String, OaasObject> getRemoteCache() {
+    return cache;
   }
 
   @Override
@@ -45,7 +43,7 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
     return NAME;
   }
 
-  public String generateId() {
+  private String generateId() {
     return UUID.randomUUID().toString();
   }
 
@@ -65,18 +63,6 @@ public class OaasObjectRepository extends AbstractIfnpRepository<String, OaasObj
       object.setRefs(null);
     }
     return this.putAsync(object.getId(), object);
-  }
-
-  public List<OaasObject> listByIds(List<String> ids) {
-    if (ids==null || ids.isEmpty()) return List.of();
-    var map = remoteCache.getAll(Set.copyOf(ids));
-    return ids.stream()
-      .map(id -> {
-        var obj = map.get(id);
-        if (obj==null) throw NoStackException.notFoundObject400(id);
-        return obj;
-      })
-      .toList();
   }
 
   public Pagination<OaasObject> listByCls(String clsName,
