@@ -22,6 +22,9 @@ concept,480]
 image:doc/diagrams/oaas_architecture_v7.dio.png[ architecture,480]
 
 == OaaS Installation
+
+NOTE: Go through  link:deploy/oaas-single-node/README.adoc[this guide] to try *OaaS* on single node Kubernetes (ex. Minikube, Docker Desktop).
+
 === Prerequisites
 * Kubernetes Cluster (at least 3 node if you plan to using https://rook.io/[Rook])
 * https://knative.dev/docs/[Knative] (Both Serving and Eventing)
