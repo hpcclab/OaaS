@@ -48,7 +48,7 @@ quarkus:
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.1-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.2-java17
   log:
     category:
       "org.hpcclab.oaas":
