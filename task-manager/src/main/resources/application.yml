@@ -39,10 +39,6 @@ quarkus:
     image: ${ci.registry.image:oaas}/task-manager${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: ${oaas.log:INFO}
   micrometer:
     export:
       json:
@@ -51,7 +47,7 @@ quarkus:
   rest-client:
     TaskBrokerService:
       url: ${oaas.tm.brokerUrl}
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.2-java17
+#  native:
+#    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.2-java17
   opentelemetry:
     enabled: false

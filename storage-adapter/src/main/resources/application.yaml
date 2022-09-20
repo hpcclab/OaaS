@@ -47,18 +47,7 @@ quarkus:
     image: ${ci.registry.image:oaas}/storage-adapter${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.2-java17
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: ${oaas.log:INFO}
-  index-dependency:
-    repository:
-      artifact-id: repository
-      group-id: org.hpcclab.oaas
-    model:
-      artifact-id: model
-      group-id: org.hpcclab.oaas
+#  native:
+#    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.2-java17
   opentelemetry:
     enabled: false

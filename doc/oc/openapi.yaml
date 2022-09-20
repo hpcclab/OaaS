@@ -337,6 +337,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DataflowStep_Public'
+    DeploymentCondition:
+      enum:
+      - DELETED
+      - DOWN
+      - PENDING
+      - RUNNING
+      type: string
+    DeploymentCondition_Public:
+      enum:
+      - DELETED
+      - DOWN
+      - PENDING
+      - RUNNING
+      type: string
     FunctionAccessModifier:
       enum:
       - INTERNAL
@@ -362,6 +376,20 @@ components:
         function:
           type: string
         name:
+          type: string
+    FunctionDeploymentStatus:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/DeploymentCondition'
+        invocationUrl:
+          type: string
+    FunctionDeploymentStatus_Public:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/DeploymentCondition_Public'
+        invocationUrl:
           type: string
     FunctionType:
       enum:
@@ -561,6 +589,8 @@ components:
       - type
       type: object
       properties:
+        deploymentStatus:
+          $ref: '#/components/schemas/FunctionDeploymentStatus'
         description:
           type: string
         _key:
@@ -588,6 +618,8 @@ components:
       - type
       type: object
       properties:
+        deploymentStatus:
+          $ref: '#/components/schemas/FunctionDeploymentStatus_Public'
         description:
           type: string
         macro:

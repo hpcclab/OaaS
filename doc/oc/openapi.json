@@ -532,6 +532,14 @@
           }
         }
       },
+      "DeploymentCondition" : {
+        "enum" : [ "DELETED", "DOWN", "PENDING", "RUNNING" ],
+        "type" : "string"
+      },
+      "DeploymentCondition_Public" : {
+        "enum" : [ "DELETED", "DOWN", "PENDING", "RUNNING" ],
+        "type" : "string"
+      },
       "FunctionAccessModifier" : {
         "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
         "type" : "string"
@@ -562,6 +570,28 @@
             "type" : "string"
           },
           "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FunctionDeploymentStatus" : {
+        "type" : "object",
+        "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/DeploymentCondition"
+          },
+          "invocationUrl" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FunctionDeploymentStatus_Public" : {
+        "type" : "object",
+        "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/DeploymentCondition_Public"
+          },
+          "invocationUrl" : {
             "type" : "string"
           }
         }
@@ -842,6 +872,9 @@
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
+          "deploymentStatus" : {
+            "$ref" : "#/components/schemas/FunctionDeploymentStatus"
+          },
           "description" : {
             "type" : "string"
           },
@@ -879,6 +912,9 @@
         "required" : [ "name", "type" ],
         "type" : "object",
         "properties" : {
+          "deploymentStatus" : {
+            "$ref" : "#/components/schemas/FunctionDeploymentStatus_Public"
+          },
           "description" : {
             "type" : "string"
           },
