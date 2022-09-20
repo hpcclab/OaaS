@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
@@ -40,13 +41,19 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
   @Override
-  public Map<K, V> list(Set<K> keys) {
+  public Map<K, V> list(Collection<K> keys) {
     return map.select((k,v) -> keys.contains(k));
   }
 
   @Override
-  public Uni<Map<K, V>> listAsync(Set<K> keys) {
+  public Uni<Map<K, V>> listAsync(Collection<K> keys) {
     return Uni.createFrom().item(list(keys));
+  }
+
+
+  @Override
+  public V remove(K key) {
+    return map.remove(key);
   }
 
   @Override
@@ -66,7 +73,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
     return Uni.createFrom().item(put(key, value));
   }
 
-  @Override
+//  @Override
   public Uni<Void> putAllAsync(Map<K, V> m) {
     m.forEach(this::put);
     return Uni.createFrom().voidItem();
@@ -99,5 +106,13 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
 
+  @Override
+  public Pagination<V> pagination(long offset, int limit) {
+    throw new IllegalStateException();
+  }
 
+  @Override
+  public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
+    throw new IllegalStateException();
+  }
 }

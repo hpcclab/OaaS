@@ -28,9 +28,14 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.hpcclab.oaas</groupId>-->
+<!--      <artifactId>infinispan-repository</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>infinispan-repository</artifactId>
+      <artifactId>arango-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

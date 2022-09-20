@@ -1,7 +1,9 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ public class ObjectResource implements ObjectService {
   @Inject
   ObjectRepository objectRepo;
 
+
+  @JsonView(Views.Public.class)
   public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
     if (offset==null) offset = 0;
     if (limit==null) limit = 20;
@@ -25,13 +29,15 @@ public class ObjectResource implements ObjectService {
     return Uni.createFrom().item(list);
   }
 
-  public Uni<OaasObject> create(OaasObject creating) {
-    return objectRepo.createRootAndPersist(creating)
-      .onFailure().invoke(e -> LOGGER.error("error", e));
-  }
 
+  @JsonView(Views.Public.class)
   public Uni<OaasObject> get(String id) {
     return objectRepo.getAsync(id)
       .onItem().ifNull().failWith(NotFoundException::new);
+  }
+
+  @JsonView(Views.Public.class)
+  public Uni<OaasObject> delete(String id) {
+    return objectRepo.removeAsync(id);
   }
 }

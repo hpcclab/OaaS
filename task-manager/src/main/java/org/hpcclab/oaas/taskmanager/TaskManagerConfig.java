@@ -6,10 +6,7 @@ import io.smallrye.config.WithDefault;
 @ConfigMapping(prefix = "oaas.tm",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
-//  String objectControllerUrl();
   String storageAdapterUrl();
-//  @WithDefault("oaas-task-completions")
-//  String taskCompletionTopic();
   @WithDefault("10")
   Integer taskCompletionPartitions();
   String brokerUrl();
@@ -19,4 +16,5 @@ public interface TaskManagerConfig {
   boolean enableCompletionListener();
   @WithDefault("true")
   boolean defaultAwaitCompletion();
+  String natsUrls();
 }

@@ -61,7 +61,7 @@ public class KnativeProvisionHandler {
     LOGGER.debug("Received Knative provision: {}", key);
     var function = functionRecord.value();
     if (function == null) {
-      boolean deleted = false;
+      boolean deleted;
       deleted = knativeClient
         .triggers()
         .withLabel(labelKey, key)
@@ -83,6 +83,7 @@ public class KnativeProvisionHandler {
       Service service = createService(function, svcName);
       var oldSvc = knativeClient.services().withName(svcName)
           .get();
+
       if (oldSvc != null) {
         knativeClient.services()
           .withName(svcName)

@@ -16,7 +16,6 @@ public class ObjectRequirement implements Serializable{
 
   @ProtoField(1)
   Set<String> labels = Set.of();
-
   @ProtoField(2)
   String cls;
 

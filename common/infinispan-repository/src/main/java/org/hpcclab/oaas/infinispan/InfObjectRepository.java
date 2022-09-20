@@ -4,8 +4,6 @@ import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectType;
@@ -74,18 +72,6 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
     return query(query, Map.of("clsName", clsName), offset, limit);
   }
 
-
-  public Uni<FunctionExecContext> persistFromCtx(FunctionExecContext context) {
-    if (context.getFunction().getType()==OaasFunctionType.MACRO) {
-      var list = new ArrayList<>(context.getSubOutputs());
-      list.add(context.getOutput());
-      return persistAsync(list)
-        .replaceWith(context);
-    } else {
-      return persistAsync(context.getOutput())
-        .replaceWith(context);
-    }
-  }
 
   @Override
   protected String extractKey(OaasObject object) {

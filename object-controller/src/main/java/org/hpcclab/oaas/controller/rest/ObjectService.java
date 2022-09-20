@@ -1,7 +1,9 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.object.OaasObject;
 
 import javax.validation.Valid;
@@ -16,12 +18,11 @@ public interface ObjectService {
   @GET
   Uni<Pagination<OaasObject>> list(@QueryParam("offset") Integer offset,
                                    @QueryParam("limit") Integer limit);
-
-  @POST
-  @Deprecated(forRemoval = true)
-  Uni<OaasObject> create(@Valid @NotNull OaasObject creating);
-
   @GET
   @Path("{id}")
   Uni<OaasObject> get(String id);
+
+  @DELETE
+  @Path("{id}")
+  Uni<OaasObject> delete(String id);
 }

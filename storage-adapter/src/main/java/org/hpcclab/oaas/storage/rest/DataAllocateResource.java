@@ -3,12 +3,12 @@ package org.hpcclab.oaas.storage.rest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.infinispan.InfClassRepository;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.state.KeySpecification;
+import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
@@ -26,7 +26,7 @@ public class DataAllocateResource {
   @Inject
   AdapterLoader adapterLoader;
   @Inject
-  InfClassRepository clsRepo;
+  ClassRepository clsRepo;
 
   @POST
   public Multi<DataAllocateResponse> allocate(List<DataAllocateRequest> requests) {

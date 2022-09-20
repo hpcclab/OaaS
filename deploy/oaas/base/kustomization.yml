@@ -12,12 +12,8 @@ resources:
 ### storage adapter
   - sa.yml
 ### infinispan
-  - infinispan.yml
 #  - monitor.yml
 
-secretGenerator:
-  - name: infinispan-connect-secret
-    files:
-      - identities.yaml
-generatorOptions:
-  disableNameSuffixHash: true
+re
+
+

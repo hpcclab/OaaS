@@ -39,6 +39,7 @@ nb-configuration.xml
 .env
 
 deploy/oaas/dev/
+/deploy/oaas/arango-version/
 example/http/http-client.env.json
 *.bkp
 doc/diagrams/*.pdf

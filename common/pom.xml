@@ -16,6 +16,7 @@
     <module>model</module>
     <module>repository</module>
     <module>infinispan-repository</module>
+
   </modules>
 
 </project>

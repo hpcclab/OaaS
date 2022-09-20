@@ -2,14 +2,12 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.JsonObject;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -46,7 +44,7 @@ public class InvocationGraphExecutor {
       switch (ctx.getFunction().getType()) {
         case MACRO -> {
           for (var subCtx : ctx.getSubContexts()) {
-            if (subCtx.getFunction().getType()==OaasFunctionType.TASK
+            if (subCtx.getFunction().getType()==FunctionType.TASK
               && subCtx.analyzeDeps(innerWaitForGraph, failDeps))
               ctxToSubmit.add(subCtx);
           }

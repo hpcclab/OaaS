@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.rest;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 
 @QuarkusTest
+@QuarkusTestResource(ArangoResource.class)
 class ClassResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResourceTest.class);
   @Test
@@ -29,7 +32,8 @@ class ClassResourceTest {
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200);
+      .statusCode(200)
+      .log().all();
   }
 
 //  @Test

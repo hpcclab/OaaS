@@ -1,10 +1,8 @@
 package org.hpcclab.oaas.repository;
 
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
-import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunctionBinding;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -50,17 +48,19 @@ public class OaasObjectFactory {
   public OaasObject createOutput(FunctionExecContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
-    OaasFunctionBinding binding = ctx.getBinding();
+    FunctionBinding binding = ctx.getBinding();
     var obj = OaasObject.createFromClasses(cls);
 
     if (source.getEmbeddedRecord() != null) {
+      var node = source.getEmbeddedRecord();
       var forwardRecords = binding.getForwardRecords();
       if (forwardRecords!=null && !forwardRecords.isEmpty()) {
-        JsonObject jo = new JsonObject(source.getEmbeddedRecord());
-        var m = Maps.mutable.ofMap(jo.getMap());
-        m.removeIf((k,v) -> !forwardRecords.contains(k));
-        obj.setEmbeddedRecord(Json.encode(m));
+        node = node.deepCopy();
+        var keys = Lists.mutable.ofAll(node::fieldNames);
+        keys.removeAllIterable(forwardRecords);
+        node.remove(keys);
       }
+      obj.setEmbeddedRecord(node);
     }
     obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));

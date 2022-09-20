@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.taskmanager.initializer;
 
 import io.quarkus.runtime.StartupEvent;
-import org.hpcclab.oaas.infinispan.InfinispanInit;
+import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -10,12 +10,14 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ServerInitializer {
 
+//  @Inject
+//  InfinispanInit infinispanInit;
   @Inject
-  InfinispanInit infinispanInit;
-
+  ArgRepositoryInitializer initializer;
 
   void onStart(@Observes StartupEvent startupEvent) {
-    infinispanInit.setup();
+//    infinispanInit.setup();
+    initializer.setup();
   }
 
 }

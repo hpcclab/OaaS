@@ -1,5 +1,0 @@
-resources:
-  - class-conf.yml
-  - object-conf.yml
-  - function-conf.yml
-  - graph-conf.yml

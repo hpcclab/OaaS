@@ -1,0 +1,9 @@
+resources:
+  - infinispan.yml
+
+secretGenerator:
+  - name: infinispan-connect-secret
+    files:
+      - identities.yaml
+generatorOptions:
+  disableNameSuffixHash: true

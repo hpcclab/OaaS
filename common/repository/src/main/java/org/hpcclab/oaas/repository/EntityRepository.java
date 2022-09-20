@@ -14,11 +14,11 @@ public interface EntityRepository<K, V> {
 
   Uni<V> getAsync(K key);
 
-  Map<K, V> list(Set<K> keys);
+  Map<K, V> list(Collection<K> keys);
 
-  Uni<Map<K, V>> listAsync(Set<K> keys);
+  Uni<Map<K, V>> listAsync(Collection<K> keys);
 
-  default Uni<List<V>> orderedListAsync(List<K> keys) {
+  default Uni<List<V>> orderedListAsync(Collection<K> keys) {
     if (keys==null || keys.isEmpty()) return Uni.createFrom().item(List.of());
     return this.listAsync(Set.copyOf(keys))
       .map(map -> keys.stream()
@@ -31,12 +31,14 @@ public interface EntityRepository<K, V> {
       );
   }
 
+  V remove(K key);
+
   Uni<V> removeAsync(K key);
 
   V put(K key, V value);
 
   Uni<V> putAsync(K key, V value);
-  Uni<Void> putAllAsync(Map<K, V> map);
+//  Uni<Void> putAllAsync(Map<K, V> map);
 
   default Uni<V> persistAsync(V v) {
     return persistAsync(v, true);
@@ -51,7 +53,11 @@ public interface EntityRepository<K, V> {
 
   Uni<V> computeAsync(K key, BiFunction<K, V, V> function);
 
-  default Pagination<V> pagination(long offset, int limit){
-    throw new IllegalStateException();
+  Pagination<V> pagination(long offset, int limit);
+
+  default Pagination<V> query(String queryString, long offset, int limit) {
+    return query(queryString, Map.of(), offset, limit);
   }
+
+  Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit);
 }

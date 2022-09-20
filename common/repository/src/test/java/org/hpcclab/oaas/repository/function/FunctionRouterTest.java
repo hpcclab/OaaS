@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository.function;
 
 
 import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
@@ -25,6 +26,7 @@ class FunctionRouterTest {
   private static final Logger LOGGER = LoggerFactory.getLogger( FunctionRouterTest.class );
 
   boolean debug = true;
+  ObjectMapper objectMapper = new ObjectMapper();
 
   FunctionRouter router;
   EntityRepository<String,OaasObject> objectRepo;
@@ -82,7 +84,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId(ctx.getOutput().getId())
       .setSuccess(true)
-      .setEmbeddedRecord("{}")
+      .setEmbeddedRecord(objectMapper.createObjectNode())
       .setTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
@@ -130,7 +132,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId("o2")
       .setSuccess(true)
-      .setEmbeddedRecord("{}");
+      .setEmbeddedRecord(objectMapper.createObjectNode());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
@@ -162,7 +164,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId("o2")
       .setSuccess(false)
-      .setEmbeddedRecord("{}");
+      .setEmbeddedRecord(objectMapper.createObjectNode());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");

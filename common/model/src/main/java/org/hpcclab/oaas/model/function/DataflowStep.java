@@ -14,7 +14,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasDataflowStep implements Serializable {
+public class DataflowStep implements Serializable {
   String funcName;
   String target;
   String as;
@@ -22,10 +22,10 @@ public class OaasDataflowStep implements Serializable {
   Map<String,String> args;
   Map<String,String> argRefs;
 
-  public OaasDataflowStep() {
+  public DataflowStep() {
   }
 
-  public OaasDataflowStep(String funcName, String target, String as, List<String> inputRefs, Map<String, String> args, Map<String, String> argRefs) {
+  public DataflowStep(String funcName, String target, String as, List<String> inputRefs, Map<String, String> args, Map<String, String> argRefs) {
     this.funcName = funcName;
     this.target = target;
     this.as = as;
@@ -35,7 +35,7 @@ public class OaasDataflowStep implements Serializable {
   }
 
   @ProtoFactory
-  public OaasDataflowStep(String funcName, String target, String as, List<String> inputRefs, HashMap<String, String> args, HashMap<String, String> argRefs) {
+  public DataflowStep(String funcName, String target, String as, List<String> inputRefs, HashMap<String, String> args, HashMap<String, String> argRefs) {
     this.funcName = funcName;
     this.target = target;
     this.as = as;

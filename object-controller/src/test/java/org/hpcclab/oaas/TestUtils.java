@@ -9,6 +9,8 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectConstructRequest;
+import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.repository.function.FunctionRouter;
 
 import javax.ws.rs.core.MediaType;
@@ -91,17 +93,18 @@ public class TestUtils {
       .getItems();
   }
 
-  public static OaasObject create(OaasObject o) {
+  public static OaasObject create(ObjectConstructRequest o) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(o))
-      .when().post("/api/objects")
+      .when().post("/api/object-construct")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+      .body("object.id", Matchers.notNullValue())
+      .extract().body().as(ObjectConstructResponse.class)
+      .getObject();
   }
 
   public static OaasObject getObject(String id) {

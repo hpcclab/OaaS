@@ -11,6 +11,10 @@ functions:
 #        concurrency: 1
 #        requestsCpu: '1'
 #        limitsCpu: '16'
+    variableDescriptions:
+      - name: RESOLUTION
+      - name: VCODEC
+      - name: FORMAT
 
 classes:
   - name: example.video

@@ -11,15 +11,15 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasWorkflowExport implements Serializable {
+public class WorkflowExport implements Serializable {
   private String from;
   private String as;
 
-  public OaasWorkflowExport() {
+  public WorkflowExport() {
   }
 
   @ProtoFactory
-  public OaasWorkflowExport(String from, String as) {
+  public WorkflowExport(String from, String as) {
     this.from = from;
     this.as = as;
   }

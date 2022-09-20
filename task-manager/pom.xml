@@ -30,9 +30,14 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.hpcclab.oaas</groupId>-->
+<!--      <artifactId>infinispan-repository</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>infinispan-repository</artifactId>
+      <artifactId>arango-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -67,9 +72,14 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-container-image-jib</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-infinispan-client</artifactId>-->
+<!--    </dependency>-->
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-infinispan-client</artifactId>
+      <groupId>io.nats</groupId>
+      <artifactId>jnats</artifactId>
+      <version>2.15.6</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -80,6 +90,7 @@
       <artifactId>netty-transport-native-epoll</artifactId>
       <classifier>linux-x86_64</classifier>
     </dependency>
+
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>

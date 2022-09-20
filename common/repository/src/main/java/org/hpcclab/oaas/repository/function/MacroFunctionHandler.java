@@ -4,8 +4,8 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasDataflow;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.function.Dataflow;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
@@ -32,7 +32,7 @@ public class MacroFunctionHandler implements FunctionHandler {
 
 
   public void validate(FunctionExecContext context) {
-    if (context.getFunction().getType()!=OaasFunctionType.MACRO)
+    if (context.getFunction().getType()!=FunctionType.MACRO)
       throw new FunctionValidationException("Function must be MACRO");
   }
 
@@ -57,7 +57,7 @@ public class MacroFunctionHandler implements FunctionHandler {
       });
   }
 
-  private OaasObject export(OaasDataflow dataflow,
+  private OaasObject export(Dataflow dataflow,
                             FunctionExecContext ctx) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
@@ -77,7 +77,7 @@ public class MacroFunctionHandler implements FunctionHandler {
   }
 
   private Uni<List<FunctionExecContext>> execWorkflow(FunctionExecContext context,
-                                                      OaasDataflow workflow) {
+                                                      Dataflow workflow) {
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
         LOGGER.trace("Execute step {}", step);

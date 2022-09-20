@@ -2,7 +2,7 @@ package org.hpcclab.oaas.model.function;
 
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
-public enum OaasFunctionType {
+public enum FunctionType {
   @ProtoEnumValue(1)
   TASK,
   @ProtoEnumValue(2)

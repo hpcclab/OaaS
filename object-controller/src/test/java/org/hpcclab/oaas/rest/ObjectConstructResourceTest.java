@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.rest;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -7,6 +8,7 @@ import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
@@ -27,6 +29,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
+@QuarkusTestResource(ArangoResource.class)
 public class ObjectConstructResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectConstructResourceTest.class);
 

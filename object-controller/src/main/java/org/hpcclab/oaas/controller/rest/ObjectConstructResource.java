@@ -1,10 +1,12 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
@@ -36,6 +38,7 @@ public class ObjectConstructResource implements ObjectConstructService {
 
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());
     if (cls==null) throw NoStackException.notFoundCls400(construction.getCls());

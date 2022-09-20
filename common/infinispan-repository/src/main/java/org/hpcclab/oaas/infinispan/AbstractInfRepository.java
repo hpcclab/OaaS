@@ -37,10 +37,6 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
     return query("FROM " + getEntityName(), offset, limit);
   }
 
-  public Pagination<V> query(String queryString, long offset, int limit) {
-    return query(queryString, Map.of(), offset, limit);
-  }
-
   public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
     Query<V> query = (Query<V>) getQueryFactory().create(queryString)
       .setParameters(params)
@@ -74,14 +70,16 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
     return uni;
   }
 
-  public Map<K, V> list(Set<K> keys) {
-    return getRemoteCache().getAll(keys);
+  public Map<K, V> list(Collection<K> keys) {
+    Set<K> keySet = keys instanceof Set<K>? (Set<K>) keys: Set.copyOf(keys);
+    return getRemoteCache().getAll(keySet);
   }
 
-  public Uni<Map<K, V>> listAsync(Set<K> keys) {
+  public Uni<Map<K, V>> listAsync(Collection<K> keys) {
+    Set<K> keySet = keys instanceof Set<K>? (Set<K>) keys: Set.copyOf(keys);
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(getRemoteCache()
-      .getAllAsync(keys));
+      .getAllAsync(keySet));
     if (ctx!=null)
       uni = uni.emitOn(ctx::runOnContext);
     return uni;
@@ -112,6 +110,10 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
     return uni;
   }
 
+  @Override
+  public V remove(K key) {
+    return getRemoteCache().remove(key);
+  }
 
   public Uni<V> removeAsync(K key) {
     Objects.requireNonNull(key);

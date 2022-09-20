@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -22,9 +23,9 @@ public class TaskCompletion {
   boolean success;
   @ProtoField(3)
   String errorMsg;
-  @JsonRawValue
-  @ProtoField(4)
-  String embeddedRecord;
+
+  @ProtoField(value = 4, javaType = ObjectNode.class)
+  ObjectNode embeddedRecord;
   Map<String,String> extensions;
 
   @JsonIgnore
@@ -34,7 +35,7 @@ public class TaskCompletion {
   }
 
   @ProtoFactory
-  public TaskCompletion(String id, boolean success, String errorMsg, String embeddedRecord) {
+  public TaskCompletion(String id, boolean success, String errorMsg, ObjectNode embeddedRecord) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
@@ -44,7 +45,7 @@ public class TaskCompletion {
   public TaskCompletion(String id,
                         boolean success,
                         String errorMsg,
-                        String embeddedRecord,
+                        ObjectNode embeddedRecord,
                         Map<String,String> extensions,
                         long ts) {
     this.id = id;
@@ -53,16 +54,5 @@ public class TaskCompletion {
     this.embeddedRecord = embeddedRecord;
     this.extensions = extensions;
     this.ts = ts;
-  }
-
-  @JsonSetter
-  public TaskCompletion setEmbeddedRecord(JsonNode val) {
-    this.embeddedRecord = val.toString();
-    return this;
-  }
-
-  public TaskCompletion setEmbeddedRecord(String embeddedState) {
-    this.embeddedRecord = embeddedState;
-    return this;
   }
 }

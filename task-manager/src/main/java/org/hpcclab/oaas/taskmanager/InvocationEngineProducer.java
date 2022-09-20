@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.taskmanager;
 
-import org.hpcclab.oaas.infinispan.MapGraphStateManager;
+import org.hpcclab.oaas.repository.function.GraphStateManager;
 import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
 import org.hpcclab.oaas.repository.function.RepoContextLoader;
 import org.hpcclab.oaas.repository.function.TaskSubmitter;
@@ -14,7 +14,7 @@ public class InvocationEngineProducer {
   @Inject
   TaskSubmitter taskSubmitter;
   @Inject
-  MapGraphStateManager graphStateManager;
+  GraphStateManager graphStateManager;
   @Inject
   RepoContextLoader contextLoader;
 

@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -7,6 +8,7 @@ import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -31,6 +33,7 @@ public class ClassResource implements ClassService {
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @Blocking
+  @JsonView(Views.Public.class)
   public Uni<Pagination<OaasClass>> list(Long offset, Integer limit) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
@@ -39,6 +42,7 @@ public class ClassResource implements ClassService {
   }
 
   @Blocking
+  @JsonView(Views.Public.class)
   public Pagination<OaasObject> listObject(String name, Long offset, Integer limit) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
@@ -46,12 +50,14 @@ public class ClassResource implements ClassService {
   }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<OaasClass> create(boolean update, OaasClass cls) {
     cls.validate();
     return classRepo.persistAsync(cls);
   }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<OaasClass> patch(String name, OaasClass clsPatch) {
     return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new)
@@ -63,6 +69,7 @@ public class ClassResource implements ClassService {
   }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<OaasClass> createByYaml(boolean update, String body) {
     try {
       var cls = yamlMapper.readValue(body, OaasClass.class);
@@ -73,6 +80,7 @@ public class ClassResource implements ClassService {
   }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<OaasClass> get(String name) {
     return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);
@@ -84,6 +92,7 @@ public class ClassResource implements ClassService {
 //  }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<OaasClass> delete(String name) {
     return classRepo.removeAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);

@@ -4,7 +4,7 @@ import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.OaasFunctionBinding;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.cls.OaasClass;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,7 +45,7 @@ public class InfClsResolver {
                            List<OaasClass> parents) {
     var fbMap = Stream.concat(parents.stream(), Stream.of(child))
       .flatMap(cls -> cls.getFunctions().stream())
-      .collect(Collectors.toMap(OaasFunctionBinding::getFunction, Function.identity()));
+      .collect(Collectors.toMap(FunctionBinding::getFunction, Function.identity()));
     var cls = child.copy();
     cls.setFunctions(Set.copyOf(fbMap.values()));
     return cls;

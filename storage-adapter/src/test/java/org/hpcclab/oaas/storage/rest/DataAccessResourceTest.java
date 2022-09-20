@@ -5,13 +5,13 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.infinispan.InfClassRepository;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
+import org.hpcclab.oaas.repository.ClassRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,10 +38,10 @@ class DataAccessResourceTest {
         new KeySpecification("test", "s3")
       ))
     );
-    var mock = Mockito.mock(InfClassRepository.class);
+    var mock = Mockito.mock(ClassRepository.class);
     Mockito.when(mock.getAsync("test")).thenReturn(Uni.createFrom().item(testCls));
     Mockito.when(mock.get("test")).thenReturn(testCls);
-    QuarkusMock.installMockForType(mock, InfClassRepository.class);
+    QuarkusMock.installMockForType(mock, ClassRepository.class);
   }
 
   @Test

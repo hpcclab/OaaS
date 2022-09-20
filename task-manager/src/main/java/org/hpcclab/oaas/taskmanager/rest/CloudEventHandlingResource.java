@@ -7,6 +7,7 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import org.hpcclab.oaas.model.ErrorMessage;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class CloudEventHandlingResource {
   RoutingContext ctx;
   @Inject
   InvocationGraphExecutor graphExecutor;
+  @Inject
+  ObjectCompletionPublisher completionPublisher;
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
@@ -62,7 +65,12 @@ public class CloudEventHandlingResource {
     var headers = ctx.request().headers();
     var ceId = headers.get("ce-id");
     LOGGER.debug("received task result: {}", ceId);
-    return graphExecutor.complete(tryDecode(ceId, body));
+    var tc = tryDecode(ceId, body);
+    var uni = graphExecutor.complete(tc);
+    if (tc.isSuccess()) {
+      uni = uni.invoke(() -> completionPublisher.publish(tc.getId()));
+    }
+    return uni;
   }
 
   TaskCompletion tryDecode(String id, Buffer buffer) {

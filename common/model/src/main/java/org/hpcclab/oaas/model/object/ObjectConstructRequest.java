@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,20 +14,11 @@ import java.util.Set;
 @Accessors(chain = true)
 public class ObjectConstructRequest {
   String cls;
-  @JsonRawValue
-  String embeddedRecord;
+  ObjectNode embeddedRecord;
   Set<String> labels = Set.of();
   Set<String> keys = Set.of();
   Map<String, String> overrideUrls;
   Set<ObjectReference> refs;
   List<ObjectConstructRequest> streamConstructs;
 
-  @JsonRawValue
-  public String getEmbeddedRecord() {
-    return embeddedRecord;
-  }
-
-  public void setEmbeddedRecord(JsonNode val) {
-    this.embeddedRecord = val.toString();
-  }
 }

@@ -1,7 +1,9 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 

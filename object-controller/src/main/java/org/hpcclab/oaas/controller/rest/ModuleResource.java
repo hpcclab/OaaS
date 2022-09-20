@@ -1,11 +1,13 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.OaasFunction;
@@ -33,6 +35,7 @@ public class ModuleResource implements ModuleService {
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<Module> create(Module batch) {
     var classes = batch.getClasses();
     var functions = batch.getFunctions();
@@ -53,6 +56,7 @@ public class ModuleResource implements ModuleService {
   }
 
   @Override
+  @JsonView(Views.Public.class)
   public Uni<Module> createByYaml(String body) {
     try {
       var batch = yamlMapper.readValue(body, Module.class);

@@ -18,22 +18,22 @@ public class MockupData {
 
   public static final OaasFunction FUNC_1 = new OaasFunction()
     .setName("func1")
-    .setType(OaasFunctionType.TASK)
+    .setType(FunctionType.TASK)
     .setOutputCls("cls1");
 
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")
-    .setType(OaasFunctionType.MACRO)
+    .setType(FunctionType.MACRO)
     .setOutputCls("cls1")
-    .setMacro(new OaasDataflow()
+    .setMacro(new Dataflow()
       .setSteps(List.of(
-        new OaasDataflowStep()
+        new DataflowStep()
           .setFuncName(FUNC_1.getName())
           .setTarget("$")
           .setArgRefs(Map.of("key1","arg1"))
           .setAs("tmp1"),
-        new OaasDataflowStep()
+        new DataflowStep()
           .setFuncName(FUNC_1.getName())
           .setTarget("tmp1")
           .setAs("tmp2")
@@ -45,10 +45,10 @@ public class MockupData {
     .setName("cls1")
     .setObjectType(ObjectType.SIMPLE)
     .setFunctions(Set.of(
-      new OaasFunctionBinding()
+      new FunctionBinding()
         .setName(FUNC_1.getName())
         .setFunction(FUNC_1.getName()),
-      new OaasFunctionBinding()
+      new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
         .setFunction(MACRO_FUNC_1.getName())
     ));

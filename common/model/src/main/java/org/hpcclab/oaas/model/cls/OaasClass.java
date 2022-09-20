@@ -1,11 +1,14 @@
 package org.hpcclab.oaas.model.cls;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.model.function.OaasFunctionBinding;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
@@ -19,6 +22,10 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasClass implements Copyable<OaasClass> {
+
+  @JsonProperty("_key")
+  @JsonView(Views.Internal.class)
+  String key;
   @ProtoField(1)
   String name;
   @ProtoField(2)
@@ -28,7 +35,7 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(4)
   StateType stateType;
   @ProtoField(5)
-  Set<OaasFunctionBinding> functions;
+  Set<FunctionBinding> functions;
   @ProtoField(6)
   StateSpecification stateSpec;
   @ProtoField(7)
@@ -42,8 +49,9 @@ public class OaasClass implements Copyable<OaasClass> {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, Set<OaasFunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
+  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, Set<FunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
     this.name = name;
+    this.key = name;
     this.description = description;
     this.genericType = genericType;
     this.objectType = objectType;
@@ -65,7 +73,7 @@ public class OaasClass implements Copyable<OaasClass> {
 //      && stateSpec.getDefaultProvider()==null) {
 //      throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
 //    }
-    for (OaasFunctionBinding function : functions) {
+    for (FunctionBinding function : functions) {
       if (function.getFunction() == null) {
         throw new OaasValidationException("The 'functions[].function' in class must not be null.");
       }
@@ -78,7 +86,7 @@ public class OaasClass implements Copyable<OaasClass> {
     }
   }
 
-  public Optional<OaasFunctionBinding> findFunction(String funcName){
+  public Optional<FunctionBinding> findFunction(String funcName){
     return getFunctions()
       .stream()
       .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
@@ -98,5 +106,11 @@ public class OaasClass implements Copyable<OaasClass> {
       Set.copyOf(refSpec),
       Set.copyOf(parents)
     );
+  }
+
+  public OaasClass setName(String name) {
+    this.name = name;
+    this.key = name;
+    return this;
   }
 }

@@ -13,16 +13,16 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunctionValidation implements Serializable {
+public class FunctionValidation implements Serializable {
   private ObjectRequirement bindingRequirement;
   private List<ObjectRequirement> inputs = List.of();
 
-  public OaasFunctionValidation() {
+  public FunctionValidation() {
   }
 
   @ProtoFactory
-  public OaasFunctionValidation(ObjectRequirement bindingRequirement,
-                                List<ObjectRequirement> inputs) {
+  public FunctionValidation(ObjectRequirement bindingRequirement,
+                            List<ObjectRequirement> inputs) {
     this.bindingRequirement = bindingRequirement;
     this.inputs = inputs;
   }

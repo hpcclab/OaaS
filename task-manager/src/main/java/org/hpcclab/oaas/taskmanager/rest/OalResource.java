@@ -1,18 +1,20 @@
 package org.hpcclab.oaas.taskmanager.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
+import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
-import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,7 @@ public class OalResource {
   TaskManagerConfig config;
 
   @POST
+  @JsonView(Views.Public.class)
   public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal,
                                            @QueryParam("await") Boolean await,
                                            @QueryParam("timeout") Integer timeout) {
@@ -70,6 +73,7 @@ public class OalResource {
 
   @GET
   @Path("{oal}")
+  @JsonView(Views.Public.class)
   public Uni<OaasObject> getObject(@PathParam("oal") String oal,
                                    @QueryParam("await") Boolean await,
                                    @QueryParam("timeout") Integer timeout) {
@@ -80,6 +84,7 @@ public class OalResource {
 
   @POST
   @Path("-/{filePath:.*}")
+  @JsonView(Views.Public.class)
   public Uni<Response> postContentAndExec(@PathParam("filePath") String filePath,
                                           @QueryParam("await") Boolean await,
                                           @QueryParam("timeout") Integer timeout,
@@ -113,6 +118,7 @@ public class OalResource {
 
 
   @GET
+  @JsonView(Views.Public.class)
   @Path("{oal}/{filePath:.*}")
   public Uni<Response> getContentAndExec(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,

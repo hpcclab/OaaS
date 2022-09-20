@@ -67,7 +67,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
+                  "$ref" : "#/components/schemas/OaasObject_Public"
                 }
               }
             }
@@ -149,7 +149,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
+                  "$ref" : "#/components/schemas/OaasObject_Public"
                 }
               }
             }
@@ -202,14 +202,28 @@
   },
   "components" : {
     "schemas" : {
-      "OaasObject" : {
+      "OaasObjectState_Public" : {
+        "type" : "object",
+        "properties" : {
+          "overrideUrls" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "stateId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasObject_Public" : {
         "type" : "object",
         "properties" : {
           "cls" : {
             "type" : "string"
           },
           "embeddedRecord" : {
-            "type" : "string"
+            "$ref" : "#/components/schemas/ObjectNode_Public"
           },
           "id" : {
             "type" : "string"
@@ -222,7 +236,7 @@
             }
           },
           "origin" : {
-            "$ref" : "#/components/schemas/ObjectOrigin"
+            "$ref" : "#/components/schemas/ObjectOrigin_Public"
           },
           "originHash" : {
             "format" : "int64",
@@ -232,30 +246,19 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
+              "$ref" : "#/components/schemas/ObjectReference_Public"
             }
           },
           "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
+            "$ref" : "#/components/schemas/OaasObjectState_Public"
           },
           "status" : {
-            "$ref" : "#/components/schemas/ObjectStatus"
+            "$ref" : "#/components/schemas/ObjectStatus_Public"
           },
           "streamInfo" : {
-            "$ref" : "#/components/schemas/StreamInfo"
-          }
-        }
-      },
-      "OaasObjectState" : {
-        "type" : "object",
-        "properties" : {
-          "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/StreamInfo_Public"
           },
-          "stateId" : {
+          "key" : {
             "type" : "string"
           }
         }
@@ -283,7 +286,10 @@
           }
         }
       },
-      "ObjectOrigin" : {
+      "ObjectNode_Public" : {
+        "type" : "array"
+      },
+      "ObjectOrigin_Public" : {
         "type" : "object",
         "properties" : {
           "args" : {
@@ -306,7 +312,7 @@
           }
         }
       },
-      "ObjectReference" : {
+      "ObjectReference_Public" : {
         "type" : "object",
         "properties" : {
           "name" : {
@@ -317,7 +323,7 @@
           }
         }
       },
-      "ObjectStatus" : {
+      "ObjectStatus_Public" : {
         "type" : "object",
         "properties" : {
           "completedTime" : {
@@ -336,7 +342,7 @@
             "type" : "integer"
           },
           "taskStatus" : {
-            "$ref" : "#/components/schemas/TaskStatus"
+            "$ref" : "#/components/schemas/TaskStatus_Public"
           },
           "waitFor" : {
             "type" : "array",
@@ -346,7 +352,7 @@
           }
         }
       },
-      "StreamInfo" : {
+      "StreamInfo_Public" : {
         "type" : "object",
         "properties" : {
           "count" : {
@@ -355,7 +361,7 @@
           }
         }
       },
-      "TaskStatus" : {
+      "TaskStatus_Public" : {
         "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "LAZY", "READY", "SUCCEEDED" ],
         "type" : "string"
       }

@@ -11,6 +11,8 @@ functions:
 #        maxScale: 6
         requestsCpu: '0.25'
         limitsCpu: '2'
+    variableDescriptions:
+      - name: append
 classes:
   - name: example.text
     stateType: FILES

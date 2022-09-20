@@ -2,7 +2,6 @@ package org.hpcclab.oaas.model.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,7 +27,7 @@ public class FunctionExecContext extends TaskContext {
   OaasObject entry;
   OaasClass outputCls;
   List<OaasObject> subOutputs = Lists.mutable.empty();
-  OaasFunctionBinding binding;
+  FunctionBinding binding;
   Map<String, String> args = Map.of();
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
   List<FunctionExecContext> subContexts = Lists.mutable.empty();

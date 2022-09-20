@@ -2,7 +2,7 @@ package org.hpcclab.oaas.repository.function;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunctionType;
+import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,13 +53,13 @@ public class FunctionRouter {
 
 
   public void validate(FunctionExecContext context) {
-    if (context.getFunction().getType()==OaasFunctionType.LOGICAL) {
+    if (context.getFunction().getType()==FunctionType.LOGICAL) {
       logicalFunctionHandler.validate(context);
     }
-    if (context.getFunction().getType()==OaasFunctionType.MACRO) {
+    if (context.getFunction().getType()==FunctionType.MACRO) {
       macroFunctionHandler.validate(context);
     }
-    if (context.getFunction().getType()==OaasFunctionType.TASK) {
+    if (context.getFunction().getType()==FunctionType.TASK) {
       taskFunctionHandler.validate(context);
     }
   }

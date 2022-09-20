@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,12 +14,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/modules")
 public interface ModuleService {
 
   @POST
+  @Consumes(MediaType.APPLICATION_JSON)
   Uni<Module> create(Module batch);
 
   @POST
@@ -27,7 +28,7 @@ public interface ModuleService {
 
   @Data
   @Accessors(chain = true)
-  public static class Module {
+  class Module {
     List<OaasClass> classes = List.of();
     List<OaasFunction> functions = List.of();
   }

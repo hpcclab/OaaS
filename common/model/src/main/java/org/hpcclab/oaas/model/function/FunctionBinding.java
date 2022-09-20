@@ -7,14 +7,13 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunctionBinding {
+public class FunctionBinding {
   @ProtoField(1)
   FunctionAccessModifier access = FunctionAccessModifier.PUBLIC;
   @ProtoField(2)
@@ -28,10 +27,10 @@ public class OaasFunctionBinding {
   @ProtoField(6)
   String description;
 
-  public OaasFunctionBinding() {
+  public FunctionBinding() {
   }
 
-  public OaasFunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description) {
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -41,12 +40,12 @@ public class OaasFunctionBinding {
   }
 
   @ProtoFactory
-  public OaasFunctionBinding(FunctionAccessModifier access,
-                             String function,
-                             String name,
-                             Set<String> forwardRecords,
-                             HashMap<String,String> defaultArgs,
-                             String description) {
+  public FunctionBinding(FunctionAccessModifier access,
+                         String function,
+                         String name,
+                         Set<String> forwardRecords,
+                         HashMap<String,String> defaultArgs,
+                         String description) {
     this.access = access;
     this.function = function;
     this.name = name;
