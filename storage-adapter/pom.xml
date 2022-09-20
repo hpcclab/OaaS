@@ -91,6 +91,12 @@
       <artifactId>quarkus-junit5-mockito</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.goodforgod</groupId>
+      <artifactId>arangodb-testcontainer</artifactId>
+      <scope>test</scope>
+      <version>2.0.0</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

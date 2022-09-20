@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.storage.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -12,6 +13,7 @@ import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.storage.ArangoResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
+@QuarkusTestResource(ArangoResource.class)
 class DataAccessResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessResourceTest.class);
 
