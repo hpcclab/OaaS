@@ -15,11 +15,15 @@ import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.storage.ArangoResource;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +34,11 @@ import static io.restassured.RestAssured.given;
 class DataAccessResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessResourceTest.class);
 
-  @BeforeAll
-  public static void beforeAll() {
+  @Inject
+  ClassRepository clsRepo;
+
+  @BeforeEach
+  public void setup() {
     var testCls = new OaasClass();
     testCls.setName("test");
     testCls.setObjectType(ObjectType.SIMPLE);
@@ -41,14 +48,11 @@ class DataAccessResourceTest {
         new KeySpecification("test", "s3")
       ))
     );
-    var mock = Mockito.mock(ClassRepository.class);
-    Mockito.when(mock.getAsync("test")).thenReturn(Uni.createFrom().item(testCls));
-    Mockito.when(mock.get("test")).thenReturn(testCls);
-    QuarkusMock.installMockForType(mock, ClassRepository.class);
+    clsRepo.put("test", testCls);
   }
 
   @Test
-  void test() throws JsonProcessingException {
+  void test() {
     var ctx = new DataAccessContext()
       .setId(UUID.randomUUID().toString())
       .setCls("test");
