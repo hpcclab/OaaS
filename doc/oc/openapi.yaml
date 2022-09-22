@@ -340,6 +340,7 @@ components:
     DeploymentCondition:
       enum:
       - DELETED
+      - DEPLOYING
       - DOWN
       - PENDING
       - RUNNING
@@ -347,6 +348,7 @@ components:
     DeploymentCondition_Public:
       enum:
       - DELETED
+      - DEPLOYING
       - DOWN
       - PENDING
       - RUNNING
@@ -382,6 +384,8 @@ components:
       properties:
         condition:
           $ref: '#/components/schemas/DeploymentCondition'
+        errorMsg:
+          type: string
         invocationUrl:
           type: string
     FunctionDeploymentStatus_Public:
@@ -389,6 +393,8 @@ components:
       properties:
         condition:
           $ref: '#/components/schemas/DeploymentCondition_Public'
+        errorMsg:
+          type: string
         invocationUrl:
           type: string
     FunctionType:

@@ -11,9 +11,4 @@ resources:
   - cds.yml
 ### storage adapter
   - sa.yml
-### infinispan
-#  - monitor.yml
-
-re
-
 

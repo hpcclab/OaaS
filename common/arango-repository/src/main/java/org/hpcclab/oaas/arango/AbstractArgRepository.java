@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -118,18 +117,40 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    var uni = Uni.createFrom().completionStage(() -> {
-        var doc = get(key);
-        var newDoc = function.apply(key, doc);
-        return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
-          .thenApply(__ -> newDoc);
-      })
+    var uni = Uni.createFrom()
+      .completionStage(() -> getCollectionAsync()
+        .getDocument(key, getValueCls())
+        .thenCompose(doc -> {
+          var newDoc = function.apply(key, doc);
+          return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
+            .thenApply(__ -> newDoc);
+        })
+      )
       .onFailure(ArangoDBException.class)
       .retry().atMost(5);
     var ctx = Vertx.currentContext();
     if (ctx!=null)
       return uni.emitOn(ctx::runOnContext);
     return uni;
+  }
+
+  @Override
+  public V compute(String key, BiFunction<String, V, V> function) {
+    var retryCount = 5;
+    var col = getCollection();
+    ArangoDBException exception = null;
+    while (retryCount >0) {
+      try {
+        var doc = col.getDocument(key,getValueCls());
+        var newDoc = function.apply(key, doc);
+        col.replaceDocument(key, newDoc, REPLACE_OPTIONS);
+        return newDoc;
+      } catch (ArangoDBException e) {
+        exception = e;
+      }
+      retryCount--;
+    }
+    throw exception;
   }
 
   @Override

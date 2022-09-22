@@ -95,14 +95,19 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
   @Override
-  public Uni<V> computeAsync(K key, BiFunction<K, V, V> function) {
-
-    return Uni.createFrom().item(map.compute(key, (k,v) -> {
+  public V compute(K key, BiFunction<K, V, V> function) {
+    return map.compute(key, (k,v) -> {
       var out = function.apply(k,v);
       if (out instanceof Copyable<?>)
         return ((Copyable<V>) out).copy();
       return out;
-    }));
+    });
+  }
+
+  @Override
+  public Uni<V> computeAsync(K key, BiFunction<K, V, V> function) {
+
+    return Uni.createFrom().item(compute(key,function));
   }
 
 

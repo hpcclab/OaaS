@@ -38,8 +38,8 @@ nb-configuration.xml
 # Local environment
 .env
 
-deploy/oaas/dev/
-/deploy/oaas/arango-version/
+/deploy/oaas/dev/
+/deploy/oaas/dev2/
 example/http/http-client.env.json
 *.bkp
 doc/diagrams/*.pdf

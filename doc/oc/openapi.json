@@ -533,11 +533,11 @@
         }
       },
       "DeploymentCondition" : {
-        "enum" : [ "DELETED", "DOWN", "PENDING", "RUNNING" ],
+        "enum" : [ "DELETED", "DEPLOYING", "DOWN", "PENDING", "RUNNING" ],
         "type" : "string"
       },
       "DeploymentCondition_Public" : {
-        "enum" : [ "DELETED", "DOWN", "PENDING", "RUNNING" ],
+        "enum" : [ "DELETED", "DEPLOYING", "DOWN", "PENDING", "RUNNING" ],
         "type" : "string"
       },
       "FunctionAccessModifier" : {
@@ -580,6 +580,9 @@
           "condition" : {
             "$ref" : "#/components/schemas/DeploymentCondition"
           },
+          "errorMsg" : {
+            "type" : "string"
+          },
           "invocationUrl" : {
             "type" : "string"
           }
@@ -590,6 +593,9 @@
         "properties" : {
           "condition" : {
             "$ref" : "#/components/schemas/DeploymentCondition_Public"
+          },
+          "errorMsg" : {
+            "type" : "string"
           },
           "invocationUrl" : {
             "type" : "string"

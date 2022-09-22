@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nats
+  name: oaas-nats
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nats
+      app: oaas-nats
   template:
     metadata:
       labels:
-        app: nats
+        app: oaas-nats
     spec:
       containers:
         - name: nats
@@ -21,9 +21,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nats
+  name: oaas-nats
 spec:
   selector:
-    app: nats
+    app: oaas-nats
   ports:
     - port: 4222

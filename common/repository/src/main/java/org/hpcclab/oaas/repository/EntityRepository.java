@@ -51,6 +51,7 @@ public interface EntityRepository<K, V> {
 
   Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled);
 
+  V compute(K key, BiFunction<K, V, V> function);
   Uni<V> computeAsync(K key, BiFunction<K, V, V> function);
 
   Pagination<V> pagination(long offset, int limit);

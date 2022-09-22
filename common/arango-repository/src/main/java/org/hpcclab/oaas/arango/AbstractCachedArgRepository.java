@@ -79,12 +79,18 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
     cache().invalidate(key);
-    var uni = Uni.createFrom().completionStage(() -> {
-        var doc = super.get(key);
-        var newDoc = function.apply(key, doc);
-        return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
-          .thenApply(__ -> newDoc);
-      })
+    var uni = Uni.createFrom()
+      .completionStage(() -> {
+        cache().invalidate(key);
+        return getCollectionAsync()
+            .getDocument(key, getValueCls())
+            .thenCompose(doc -> {
+              var newDoc = function.apply(key, doc);
+              return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
+                .thenApply(__ -> newDoc);
+            });
+        }
+      )
       .onFailure(ArangoDBException.class)
       .retry().atMost(5)
       .invoke(val -> cache().put(key, val));
@@ -92,5 +98,26 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
     if (ctx!=null)
       return uni.emitOn(ctx::runOnContext);
     return uni;
+  }
+
+  @Override
+  public V compute(String key, BiFunction<String, V, V> function) {
+    var retryCount = 5;
+    var col = getCollection();
+    ArangoDBException exception = null;
+    while (retryCount >0) {
+      try {
+        cache().invalidate(key);
+        var doc = col.getDocument(key,getValueCls());
+        var newDoc = function.apply(key, doc);
+        col.replaceDocument(key, newDoc, REPLACE_OPTIONS);
+        cache().put(key,newDoc);
+        return newDoc;
+      } catch (ArangoDBException e) {
+        exception = e;
+      }
+      retryCount--;
+    }
+    throw exception;
   }
 }

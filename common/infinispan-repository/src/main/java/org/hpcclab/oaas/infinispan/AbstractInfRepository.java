@@ -183,5 +183,13 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
     return this.putAllAsync(map);
   }
 
+  @Override
+  public V compute(K key, BiFunction<K, V, V> function) {
+    Objects.requireNonNull(key);
+    Objects.requireNonNull(function);
+    var ctx = Vertx.currentContext();
+    return getRemoteCache().compute(key,function);
+  }
+
   protected abstract K extractKey(V v);
 }

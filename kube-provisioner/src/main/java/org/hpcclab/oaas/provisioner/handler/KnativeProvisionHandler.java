@@ -19,6 +19,8 @@ import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.hpcclab.oaas.arango.ArgFunctionRepository;
+import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
@@ -28,6 +30,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 
 @ApplicationScoped
 @RegisterForReflection(targets = {
@@ -48,11 +52,13 @@ import java.util.Map;
 })
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
-  final String labelKey = "oaas.function";
+
   @Inject
   KnativeClient knativeClient;
   @Inject
   KpConfig kpConfig;
+  @Inject
+  ArgFunctionRepository functionRepo;
 
   @Incoming("provisions")
   @Blocking
@@ -64,17 +70,17 @@ public class KnativeProvisionHandler {
       boolean deleted;
       deleted = knativeClient
         .triggers()
-        .withLabel(labelKey, key)
+        .withLabel(LABEL_KEY, key)
         .delete();
       if (deleted) LOGGER.info("Deleted trigger: {}", key);
       deleted =knativeClient
         .sequences()
-        .withLabel(labelKey, key)
+        .withLabel(LABEL_KEY, key)
         .delete();
       if (deleted) LOGGER.info("Deleted sequence: {}", key);
       deleted =knativeClient
         .services()
-        .withLabel(labelKey, key)
+        .withLabel(LABEL_KEY, key)
         .delete();
       if (deleted) LOGGER.info("Deleted service: {}", key);
     } else {
@@ -114,8 +120,17 @@ public class KnativeProvisionHandler {
         knativeClient.triggers().create(trigger);
         LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
       }
-
     }
+  }
+
+  private void updateFunctionStatus(OaasFunction function,
+                                    Service service) {
+
+    functionRepo.compute(function.getName(), (k,func) -> {
+      func.getDeploymentStatus()
+        .setCondition(DeploymentCondition.DEPLOYING);
+      return func;
+    });
   }
 
   private Trigger createTrigger(OaasFunction function,
@@ -123,15 +138,12 @@ public class KnativeProvisionHandler {
     return new TriggerBuilder()
       .withNewMetadata()
       .withName(svcName + "-trigger")
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getName())
       .addToAnnotations("knative-eventing-injection", "enabled")
       .endMetadata()
       .withNewSpec()
       .withBroker("default")
       .withNewFilter()
-//      .addToAttributes("kafkaheadercetype", "oaas.task")
-//      .addToAttributes("kafkaheadercefunction", function.getName())
-//      .addToAttributes("kafkaheadercetasktype", "DURABLE")
       .addToAttributes("type", "oaas.task")
       .addToAttributes("function", function.getName())
 //      .addToAttributes("tasktype", "DURABLE")
@@ -172,7 +184,7 @@ public class KnativeProvisionHandler {
     return new SequenceBuilder()
       .withNewMetadata()
       .withName(svcName + "-sequence")
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getName())
       .endMetadata()
       .withNewSpec()
       .withNewChannelTemplate()
@@ -229,7 +241,7 @@ public class KnativeProvisionHandler {
       .build();
 
     var labels = new HashMap<String,String>();
-    labels.put(labelKey, function.getName());
+    labels.put(LABEL_KEY, function.getName());
     if (!kpConfig.exposeKnative()) {
       labels.put("networking.knative.dev/visibility","cluster-local");
     }
@@ -261,7 +273,7 @@ public class KnativeProvisionHandler {
       .withNewTemplate()
       .withNewMetadata()
       .withAnnotations(annotation)
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getName())
       .endMetadata()
       .withNewSpec()
 //      .withAffinity(affinity)

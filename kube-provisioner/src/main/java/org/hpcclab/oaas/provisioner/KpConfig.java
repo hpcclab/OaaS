@@ -14,4 +14,5 @@ public interface KpConfig {
   boolean exposeKnative();
 
   String provisionTopic();
+  public static final String LABEL_KEY = "oaas.function";
 }
