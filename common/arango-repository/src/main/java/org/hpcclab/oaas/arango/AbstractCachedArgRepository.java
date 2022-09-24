@@ -22,7 +22,11 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Uni<V> getAsync(String key) {
-    return Uni.createFrom().item(get(key));
+    var val = cache().getIfPresent(key);
+    if (val != null)
+      return Uni.createFrom().item(get(key));
+    return super.getAsync(key)
+      .invoke(item -> cache().put(key, item));
   }
 
   @Override

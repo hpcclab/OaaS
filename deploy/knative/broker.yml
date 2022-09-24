@@ -5,7 +5,6 @@ metadata:
     # case-sensitive
     eventing.knative.dev/broker.class: Kafka
   name: default
-  namespace: oaas
 spec:
   # Configuration specific to this broker.
   config:

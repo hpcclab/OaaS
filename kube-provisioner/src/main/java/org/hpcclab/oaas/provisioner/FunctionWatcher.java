@@ -69,7 +69,7 @@ public class FunctionWatcher {
           functionRepo.compute(functionName, (k, f) -> {
             f.getDeploymentStatus()
               .setCondition(DeploymentCondition.RUNNING)
-              .setInvocationUrl(service.getStatus().getUrl())
+              .setInvocationUrl(service.getStatus().getAddress().getUrl())
               .setErrorMsg(null);
             return f;
           });

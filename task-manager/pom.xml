@@ -41,6 +41,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>invoker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
     </dependency>

@@ -2,9 +2,8 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.DecodeException;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
+import org.hpcclab.invocation.TaskDecoder;
 import org.hpcclab.oaas.model.ErrorMessage;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
@@ -65,41 +64,11 @@ public class CloudEventHandlingResource {
     var headers = ctx.request().headers();
     var ceId = headers.get("ce-id");
     LOGGER.debug("received task result: {}", ceId);
-    var tc = tryDecode(ceId, body);
+    var tc = TaskDecoder.tryDecode(ceId, body);
     var uni = graphExecutor.complete(tc);
     if (tc.isSuccess()) {
       uni = uni.invoke(() -> completionPublisher.publish(tc.getId()));
     }
     return uni;
-  }
-
-  TaskCompletion tryDecode(String id, Buffer buffer) {
-    var ts = System.currentTimeMillis();
-    if (buffer==null) {
-      return new TaskCompletion(id, false,
-        "Can not parse the task completion message because buffer is null",
-        null, null, ts);
-    }
-    try {
-      var completion = Json.decodeValue(buffer, TaskCompletion.class);
-      if (completion != null){
-        return completion
-          .setTs(ts);
-      }
-
-    } catch (DecodeException decodeException) {
-      LOGGER.warn("Decode failed on id {} : {}", id, decodeException.getMessage());
-      return new TaskCompletion(
-        id,
-        true,
-        decodeException.getMessage(),
-//        null,
-        null,
-        null,
-        ts);
-    }
-
-    return new TaskCompletion(id, false,
-      "Can not parse the task completion message", null, null, ts);
   }
 }
