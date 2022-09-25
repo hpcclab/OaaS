@@ -16,7 +16,7 @@
     <module>model</module>
     <module>repository</module>
     <module>infinispan-repository</module>
-    <module>invoker</module>
+    <module>invocation</module>
   </modules>
 
 </project>

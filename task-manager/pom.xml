@@ -42,7 +42,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>invoker</artifactId>
+      <artifactId>invocation</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
