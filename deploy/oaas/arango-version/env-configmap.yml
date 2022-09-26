@@ -24,4 +24,4 @@ kind: ConfigMap
 metadata:
   name: oaas-env
 
-$patch: replace
+#$patch: replace

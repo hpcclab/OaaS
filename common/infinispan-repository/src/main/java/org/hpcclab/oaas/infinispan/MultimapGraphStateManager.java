@@ -3,8 +3,8 @@ package org.hpcclab.oaas.infinispan;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
-import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
 import org.infinispan.client.hotrod.multimap.RemoteMultimapCache;
 
 import java.util.Collection;

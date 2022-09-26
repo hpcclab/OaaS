@@ -5,6 +5,8 @@ import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 public abstract class AbstractCachedArgRepository<V> extends AbstractArgRepository<V>{
+  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractCachedArgRepository.class );
 
   abstract Cache<String, V> cache();
 
@@ -82,6 +85,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
+    LOGGER.debug("computeAsync(cache)[{}] {}",
+      getCollection().name(), key);
     cache().invalidate(key);
     var uni = Uni.createFrom()
       .completionStage(() -> {
@@ -106,6 +111,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public V compute(String key, BiFunction<String, V, V> function) {
+    LOGGER.debug("compute(cache)[{}] {}",
+      getCollection().name(), key);
     var retryCount = 5;
     var col = getCollection();
     ArangoDBException exception = null;

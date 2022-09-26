@@ -4,9 +4,9 @@ import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.model.object.ObjectGraph;
 import org.hpcclab.oaas.repository.ObjectRepository;
-import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
 import org.infinispan.client.hotrod.RemoteCache;
 
 import javax.enterprise.context.ApplicationScoped;

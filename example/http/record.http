@@ -26,6 +26,9 @@ client.global.set("obj_1_id", response.body.id)
 %}
 
 ###
+GET {{cds}}/oal/{{obj_1_id}}
+
+###
 GET {{cds}}/oal/{{obj_1_id}}:json-update()?await=true
 
 > {%

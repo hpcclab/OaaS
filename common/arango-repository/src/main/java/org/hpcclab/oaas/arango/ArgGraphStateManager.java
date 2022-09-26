@@ -2,10 +2,11 @@ package org.hpcclab.oaas.arango;
 
 import com.arangodb.async.ArangoCollectionAsync;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.EntityRepository;
+import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
-import org.hpcclab.oaas.repository.function.AbstractGraphStateManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,9 +14,11 @@ import javax.inject.Named;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
 public class ArgGraphStateManager extends AbstractGraphStateManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ArgGraphStateManager.class );
   @Inject
   @Named("OdeCollectionAsync")
   ArangoCollectionAsync edgeCollection;
@@ -30,6 +33,8 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
 
   @Override
   public Uni<Collection<String>> getAllEdge(String srcId) {
+    LOGGER.debug("getAllEdge[{}] {}",
+      edgeCollection.name(), srcId);
     var docId = objCollection.name() + "/" + srcId;
     // langauge=AQL
     var query = """
@@ -43,8 +48,7 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
         Map.of("@edges", edgeCollection.name(),
           "src", docId),
         ObjectDependencyEdge.class);
-    return Uni.createFrom()
-      .completionStage(future)
+    return createUni(future)
       .map(cursor -> cursor
         .stream()
         .map(ObjectDependencyEdge::getId)
@@ -53,21 +57,29 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
 
   @Override
   public Uni<Void> persistEdge(String srcId, String desId) {
+    LOGGER.debug("persistEdge[{}] {}",
+      edgeCollection.name(), srcId);
     var ode = new ObjectDependencyEdge(srcId, desId);
-    return Uni.createFrom().completionStage(
-        edgeCollection.insertDocument(ode)
-      )
+    return createUni(edgeCollection.insertDocument(ode))
       .replaceWithVoid();
   }
 
   @Override
   public Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap) {
+    LOGGER.debug("persistEdge(col)[{}] {}",
+      edgeCollection.name(), edgeMap.size());
     var odes = edgeMap.stream()
       .map(e -> new ObjectDependencyEdge(e.getKey(), e.getValue()))
       .toList();
-    return Uni.createFrom().completionStage(
-        edgeCollection.insertDocuments(odes)
-      )
+    return createUni(edgeCollection.insertDocuments(odes))
       .replaceWithVoid();
+  }
+
+  protected <T> Uni<T> createUni(CompletionStage<T> stage) {
+    var uni = Uni.createFrom().completionStage(stage);
+    var ctx = Vertx.currentContext();
+    if (ctx!=null)
+      return uni.emitOn(ctx::runOnContext);
+    return uni;
   }
 }

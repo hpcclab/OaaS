@@ -1,22 +1,19 @@
 package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.proto.JsonNodeAdapter;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 
@@ -111,6 +108,27 @@ public class OaasObject implements Copyable<OaasObject> {
   public OaasObject setId(String id) {
     this.id = id;
     setKey(id);
+    return this;
+  }
+
+  public OaasObject markAsSubmitted(String originator) {
+    var ts = status.getTaskStatus();
+    if (ts.isSubmitted() || ts.isFailed())
+      return this;
+    if (originator == null) originator = id;
+    status
+      .setTaskStatus(TaskStatus.DOING)
+      .setSubmittedTime(System.currentTimeMillis())
+      .setOriginator(originator);
+    return this;
+  }
+
+  public OaasObject markAsFailed() {
+    var ts = status.getTaskStatus();
+    if (ts.isSubmitted() || ts.isFailed())
+      return this;
+    status
+      .setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
     return this;
   }
 }

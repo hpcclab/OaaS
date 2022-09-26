@@ -1,4 +1,4 @@
 resources:
   - ../base
 patches:
-  - env-configmap.yml
+  - path: env-configmap.yml

@@ -4,18 +4,14 @@ import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.controller.rest.ModuleService;
-import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
-import org.hpcclab.oaas.repository.function.FunctionRouter;
 
 import javax.ws.rs.core.MediaType;
-
-import java.time.Duration;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -129,13 +125,6 @@ public class TestUtils {
       .statusCode(200)
       .body("name", Matchers.equalTo(name))
       .extract().body().as(OaasClass.class);
-  }
-
-
-  public static OaasObject execOal(ObjectAccessLangauge oal, FunctionRouter router) {
-    var ctx = router.invoke(oal)
-      .await().atMost(Duration.ofSeconds(1));
-    return ctx.getOutput();
   }
 
   public static ModuleService.Module createBatchYaml(String clsText) {

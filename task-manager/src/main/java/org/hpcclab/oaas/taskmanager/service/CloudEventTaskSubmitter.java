@@ -4,8 +4,8 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.repository.function.TaskSubmitter;
-import org.hpcclab.oaas.taskmanager.factory.TaskFactory;
+import org.hpcclab.oaas.invocation.function.TaskSubmitter;
+import org.hpcclab.oaas.invocation.TaskFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,5 +26,4 @@ public class CloudEventTaskSubmitter implements TaskSubmitter {
       task.getFunction().getName(),
       task);
   }
-
 }

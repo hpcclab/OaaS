@@ -3,11 +3,11 @@ package org.hpcclab.oaas.taskmanager.rest;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
-import org.hpcclab.invocation.TaskDecoder;
+import org.hpcclab.oaas.invocation.TaskDecoder;
 import org.hpcclab.oaas.model.ErrorMessage;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
-import org.hpcclab.oaas.repository.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

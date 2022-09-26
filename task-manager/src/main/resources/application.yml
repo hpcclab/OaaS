@@ -2,20 +2,18 @@
   quarkus:
     http:
       port: 8090
-    log:
-      category:
-        "org.hpcclab.oaas":
-          level: DEBUG
   oaas:
+    log: DEBUG
     tm:
       brokerUrl: http://localhost:8080
 
-"%prod":
-  quarkus:
-    infinispan-client:
-      auth-username: ${infinispan.username:}
-      auth-password: ${infinispan.password:}
-      server-list: ${infinispan.server:}
+#"%prod":
+#  quarkus:
+#    infinispan-client:
+#      auth-username: ${infinispan.username:}
+#      auth-password: ${infinispan.password:}
+#      server-list: ${infinispan.server:}
+
 oaas:
   log: INFO
 
@@ -26,6 +24,10 @@ quarkus:
       pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
       exclude-pattern: /q/.*
     record-request-start-time: true
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log}
   vertx:
     prefer-native-transport: true
     worker-pool-size: 100

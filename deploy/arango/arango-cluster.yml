@@ -8,7 +8,7 @@ spec:
     caSecretName: None
   externalAccess:
     type: NodePort
-    nodePort: 31234
+    nodePort: 31235
   agents:
     volumeClaimTemplate:
       spec:

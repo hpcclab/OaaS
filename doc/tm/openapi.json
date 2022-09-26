@@ -45,6 +45,12 @@
             "type" : "boolean"
           }
         }, {
+          "name" : "mq",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
           "name" : "timeout",
           "in" : "query",
           "schema" : {
@@ -93,6 +99,12 @@
             "type" : "boolean"
           }
         }, {
+          "name" : "mq",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
           "name" : "timeout",
           "in" : "query",
           "schema" : {
@@ -131,6 +143,12 @@
           }
         }, {
           "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "mq",
           "in" : "query",
           "schema" : {
             "type" : "boolean"
@@ -177,6 +195,12 @@
           }
         }, {
           "name" : "await",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "mq",
           "in" : "query",
           "schema" : {
             "type" : "boolean"

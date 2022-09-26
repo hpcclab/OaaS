@@ -35,7 +35,6 @@ public class TaskContext {
 
     completed &= analyzeDeps(inputs, waitForGraph, failDeps);
 
-
     completed &= analyzeDeps(main, waitForGraph, failDeps);
 
     if (!completed && fails < failDeps.size()) {
@@ -45,7 +44,9 @@ public class TaskContext {
     return completed;
   }
 
-  private boolean analyzeDeps(Collection<OaasObject> deps, List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
+  private boolean analyzeDeps(Collection<OaasObject> deps,
+                              List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
+                              List<OaasObject> failDeps) {
     boolean completed = true;
     for (var o : deps) {
       completed &= analyzeDeps(o, waitForGraph, failDeps);
@@ -53,12 +54,16 @@ public class TaskContext {
     return completed;
   }
 
-  private boolean analyzeDeps(OaasObject dep, List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
+  private boolean analyzeDeps(OaasObject dep,
+                              List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
+                              List<OaasObject> failDeps) {
     if (dep.isReadyToUsed()) return true;
     var ts = dep.getStatus().getTaskStatus();
     if (ts.isFailed()) {
+//      if (failDeps != null)
       failDeps.add(dep);
     } else {
+//      if (waitForGraph != null)
       waitForGraph.add(Map.entry(dep, output));
       if (output.getStatus().getWaitFor().isEmpty()) {
         output.getStatus().setWaitFor(Lists.mutable.empty());

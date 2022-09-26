@@ -33,6 +33,10 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: mq
+        in: query
+        schema:
+          type: boolean
       - name: timeout
         in: query
         schema:
@@ -65,6 +69,10 @@ paths:
         in: query
         schema:
           type: boolean
+      - name: mq
+        in: query
+        schema:
+          type: boolean
       - name: timeout
         in: query
         schema:
@@ -91,6 +99,10 @@ paths:
         schema:
           type: string
       - name: await
+        in: query
+        schema:
+          type: boolean
+      - name: mq
         in: query
         schema:
           type: boolean
@@ -123,6 +135,10 @@ paths:
         schema:
           type: string
       - name: await
+        in: query
+        schema:
+          type: boolean
+      - name: mq
         in: query
         schema:
           type: boolean

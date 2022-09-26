@@ -2,21 +2,18 @@ package org.hpcclab.oaas.rest;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import org.hamcrest.Matchers;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
+import org.hpcclab.oaas.invocation.function.FunctionRouter;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.state.OaasObjectState;
-import org.hpcclab.oaas.repository.function.FunctionRouter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
@@ -30,10 +27,6 @@ public class ObjectResourceTest {
 
   @Inject
   FunctionRouter router;
-
-  OaasObject call(ObjectAccessLangauge oal) {
-    return TestUtils.execOal(oal, router);
-  }
 
 
   @Test

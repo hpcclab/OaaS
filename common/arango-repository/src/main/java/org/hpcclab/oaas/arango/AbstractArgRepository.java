@@ -11,6 +11,8 @@ import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.repository.EntityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractArgRepository<V>
   implements EntityRepository<String, V> {
+  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractArgRepository.class );
 
   final static DocumentDeleteOptions DELETE_OPTIONS = new DocumentDeleteOptions().returnOld(true);
   final static DocumentCreateOptions CREATE_OPTIONS = new DocumentCreateOptions().overwriteMode(OverwriteMode.replace);
@@ -40,12 +43,14 @@ public abstract class AbstractArgRepository<V>
   @Override
   public V get(String key) {
     Objects.requireNonNull(key);
+    LOGGER.debug("get[{}] {}", getCollection().name(), key);
     return getCollection().getDocument(key, getValueCls());
   }
 
   @Override
   public Uni<V> getAsync(String key) {
     Objects.requireNonNull(key);
+    LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
     var future = getCollectionAsync()
       .getDocument(key, getValueCls());
     return createUni(future);
@@ -53,6 +58,7 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Map<String, V> list(Collection<String> keys) {
+    LOGGER.debug("list[{}] {}", getCollection().name(), keys.size());
     var multiDocument = getCollection().getDocuments(keys, getValueCls());
     return multiDocument.getDocuments()
       .stream()
@@ -61,6 +67,8 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
+    LOGGER.debug("listAsync[{}] {}", getCollection().name(),
+      keys.size());
     var future = getCollectionAsync().getDocuments(keys, getValueCls());
     return createUni(future)
       .map(multiDocument -> multiDocument.getDocuments()
@@ -71,12 +79,14 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public V remove(String key) {
+    LOGGER.debug("remove[{}] {}", getCollection().name(), key);
     var deleteEntity = getCollection().deleteDocument(key, getValueCls(), DELETE_OPTIONS);
     return deleteEntity.getOld();
   }
 
   @Override
   public Uni<V> removeAsync(String key) {
+    LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
     var future = getCollectionAsync().deleteDocument(key, getValueCls(), DELETE_OPTIONS);
     return createUni(future)
       .map(DocumentDeleteEntity::getOld);
@@ -84,12 +94,14 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public V put(String key, V value) {
+    LOGGER.debug("put[{}] {}", getCollection().name(), key);
     var doc = getCollection().insertDocument(value, CREATE_OPTIONS);
     return value;
   }
 
   @Override
   public Uni<V> putAsync(String key, V value) {
+    LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
     var future = getCollectionAsync().insertDocument(value, CREATE_OPTIONS);
     return createUni(future)
       .replaceWith(value);
@@ -105,6 +117,8 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<Void> persistAsync(Collection<V> collection,
                                 boolean notificationEnabled) {
+    LOGGER.debug("persistAsync(col)[{}] {}",
+      getCollection().name(), collection.size());
     var future = getCollectionAsync().insertDocuments(collection, CREATE_OPTIONS);
     return createUni(future)
       .invoke(Unchecked.consumer(mde -> {
@@ -117,6 +131,8 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
+    LOGGER.debug("computeAsync[{}] {}",
+      getCollection().name(), key);
     var uni = Uni.createFrom()
       .completionStage(() -> getCollectionAsync()
         .getDocument(key, getValueCls())

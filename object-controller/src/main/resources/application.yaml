@@ -11,9 +11,6 @@
   quarkus:
     http:
       port: 8088
-    datasource:
-      devservices:
-        port: 5432
   oaas:
     log: DEBUG
 
