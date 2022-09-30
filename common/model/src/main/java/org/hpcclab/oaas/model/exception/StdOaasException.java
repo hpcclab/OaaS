@@ -33,4 +33,31 @@ public class StdOaasException extends RuntimeException {
     this.code = code;
     return this;
   }
+
+
+  public static NoStackException notFoundObject400(String uuid) {
+    return notFoundObject(uuid, 400);
+  }
+  public static NoStackException notFoundObject(String uuid, int code) {
+    return new NoStackException("Not found object(id='" + uuid + "')", code);
+  }
+
+
+  public static NoStackException notFoundCls400(String name) {
+    return notFoundCls(name, 400);
+  }
+  public static NoStackException notFoundCls(String name, int code) {
+    return new NoStackException("Not found class(name='" + name + "')", code);
+  }
+
+  public static NoStackException notFoundFunc400(String name) {
+    return notFoundFunc(name, 400);
+  }
+  public static NoStackException notFoundFunc(String name, int code) {
+    return new NoStackException("Not found function(name='" + name + "')", code);
+  }
+
+  public static StdOaasException notImplemented() {
+    return new StdOaasException("The request is involve in the operation that not implemented", 501);
+  }
 }

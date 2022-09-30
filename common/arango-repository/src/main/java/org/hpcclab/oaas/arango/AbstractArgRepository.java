@@ -10,6 +10,7 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,25 +21,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class AbstractArgRepository<V>
   implements EntityRepository<String, V> {
   private static final Logger LOGGER = LoggerFactory.getLogger( AbstractArgRepository.class );
 
-  final static DocumentDeleteOptions DELETE_OPTIONS = new DocumentDeleteOptions().returnOld(true);
-  final static DocumentCreateOptions CREATE_OPTIONS = new DocumentCreateOptions().overwriteMode(OverwriteMode.replace);
-  static final DocumentReplaceOptions REPLACE_OPTIONS = new DocumentReplaceOptions().ignoreRevs(false);
-  static final AqlQueryOptions QUERY_OPTIONS = new AqlQueryOptions()
-    .fullCount(true);
+  public abstract ArangoCollection getCollection();
 
-  abstract ArangoCollection getCollection();
+  public abstract ArangoCollectionAsync getCollectionAsync();
 
-  abstract ArangoCollectionAsync getCollectionAsync();
+  public abstract Class<V> getValueCls();
 
-  abstract Class<V> getValueCls();
-
-  abstract String extractKey(V v);
+  public abstract String extractKey(V v);
 
   @Override
   public V get(String key) {
@@ -80,14 +76,14 @@ public abstract class AbstractArgRepository<V>
   @Override
   public V remove(String key) {
     LOGGER.debug("remove[{}] {}", getCollection().name(), key);
-    var deleteEntity = getCollection().deleteDocument(key, getValueCls(), DELETE_OPTIONS);
+    var deleteEntity = getCollection().deleteDocument(key, getValueCls(), deleteOptions());
     return deleteEntity.getOld();
   }
 
   @Override
   public Uni<V> removeAsync(String key) {
     LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
-    var future = getCollectionAsync().deleteDocument(key, getValueCls(), DELETE_OPTIONS);
+    var future = getCollectionAsync().deleteDocument(key, getValueCls(), deleteOptions());
     return createUni(future)
       .map(DocumentDeleteEntity::getOld);
   }
@@ -95,14 +91,14 @@ public abstract class AbstractArgRepository<V>
   @Override
   public V put(String key, V value) {
     LOGGER.debug("put[{}] {}", getCollection().name(), key);
-    var doc = getCollection().insertDocument(value, CREATE_OPTIONS);
+    var doc = getCollection().insertDocument(value, createOptions());
     return value;
   }
 
   @Override
   public Uni<V> putAsync(String key, V value) {
     LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
-    var future = getCollectionAsync().insertDocument(value, CREATE_OPTIONS);
+    var future = getCollectionAsync().insertDocument(value, createOptions());
     return createUni(future)
       .replaceWith(value);
   }
@@ -119,7 +115,7 @@ public abstract class AbstractArgRepository<V>
                                 boolean notificationEnabled) {
     LOGGER.debug("persistAsync(col)[{}] {}",
       getCollection().name(), collection.size());
-    var future = getCollectionAsync().insertDocuments(collection, CREATE_OPTIONS);
+    var future = getCollectionAsync().insertDocuments(collection, createOptions());
     return createUni(future)
       .invoke(Unchecked.consumer(mde -> {
         if (mde.getErrors().size() > 0) {
@@ -138,7 +134,7 @@ public abstract class AbstractArgRepository<V>
         .getDocument(key, getValueCls())
         .thenCompose(doc -> {
           var newDoc = function.apply(key, doc);
-          return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
+          return getCollectionAsync().replaceDocument(key, newDoc, replaceOptions())
             .thenApply(__ -> newDoc);
         })
       )
@@ -159,7 +155,7 @@ public abstract class AbstractArgRepository<V>
       try {
         var doc = col.getDocument(key,getValueCls());
         var newDoc = function.apply(key, doc);
-        col.replaceDocument(key, newDoc, REPLACE_OPTIONS);
+        col.replaceDocument(key, newDoc, replaceOptions());
         return newDoc;
       } catch (ArangoDBException e) {
         exception = e;
@@ -172,7 +168,7 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
     var cursor = getCollection().db()
-      .query(queryString, params, QUERY_OPTIONS, getValueCls());
+      .query(queryString, params, queryOptions(), getValueCls());
     try (cursor) {
       var items = cursor.asListRemaining();
       return new Pagination<>(
@@ -185,6 +181,25 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
+  public Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit) {
+    return createUni(() -> getCollectionAsync()
+      .db()
+      .query(queryString, params, queryOptions(), getValueCls())
+      .thenApply(cursor -> {
+        try (cursor) {
+          var items = cursor.streamRemaining().toList();
+          return new Pagination<>(
+            cursor.getStats().getFullCount(),
+            offset,
+            limit,
+            items);
+        } catch (IOException e) {
+          throw new DataAccessException(e);
+        }
+      }));
+  }
+
+  @Override
   public Pagination<V> pagination(long offset, int limit) {
     // langauge=AQL
     var query = """
@@ -194,8 +209,8 @@ public abstract class AbstractArgRepository<V>
       """;
     return query(query,
       Map.of("@col", getCollection().name(),
-        "off",offset,
-        "lim",limit),
+        "off", offset,
+        "lim", limit),
       offset,
       limit
     );
@@ -203,11 +218,63 @@ public abstract class AbstractArgRepository<V>
 
   protected <T> Uni<T> createUni(CompletionStage<T> stage) {
     var uni = Uni.createFrom().completionStage(stage);
-    var ctx = Vertx.currentContext();
-    if (ctx!=null)
-      return uni.emitOn(ctx::runOnContext);
+//    var ctx = Vertx.currentContext();
+//    if (ctx!=null)
+//      return uni.emitOn(ctx::runOnContext);
+    return uni;
+  }
+
+  protected <T> Uni<T> createUni(Supplier<CompletionStage<T>> stage) {
+    var uni = Uni.createFrom().completionStage(stage);
+//    var ctx = Vertx.currentContext();
+//    if (ctx!=null)
+//      return uni.emitOn(ctx::runOnContext);
     return uni;
   }
 
 
+  @Override
+  public Uni<Pagination<V>> paginationAsync(long offset, int limit) {
+    var query = """
+      FOR doc IN @@col
+        LIMIT @off, @lim
+        RETURN doc
+      """;
+    return queryAsync(query,
+      Map.of("@col", getCollection().name(),
+        "off", offset,
+        "lim", limit),
+      offset,
+      limit
+    );
+  }
+
+  @Override
+  public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
+    var query = """
+      FOR doc IN @@col
+        SORT doc.@sorted DESC
+        LIMIT @off, @lim
+        RETURN doc
+      """;
+    return queryAsync(query,
+      Map.of("@col", getCollection().name(),
+        "sorted", name,
+        "off", offset,
+        "lim", limit),
+      offset, limit);
+  }
+
+  static DocumentReplaceOptions replaceOptions() {
+    return new DocumentReplaceOptions().ignoreRevs(false);
+  }
+  static DocumentCreateOptions createOptions() {
+    return new DocumentCreateOptions().overwriteMode(OverwriteMode.replace);
+  }
+  static DocumentDeleteOptions deleteOptions() {
+    return new DocumentDeleteOptions().returnOld(true);
+  }
+  static AqlQueryOptions queryOptions() {
+    return new AqlQueryOptions().fullCount(true);
+  }
 }

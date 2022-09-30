@@ -563,7 +563,6 @@ components:
         description:
           type: string
         functions:
-          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/FunctionBinding'
@@ -576,15 +575,15 @@ components:
         objectType:
           $ref: '#/components/schemas/ObjectType'
         parents:
-          uniqueItems: true
           type: array
           items:
             type: string
         refSpec:
-          uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/ReferenceSpecification'
+        resolvedMember:
+          $ref: '#/components/schemas/ResolvedMember'
         stateSpec:
           $ref: '#/components/schemas/StateSpecification'
         stateType:
@@ -876,6 +875,21 @@ components:
           type: boolean
         name:
           type: string
+    ResolvedMember:
+      type: object
+      properties:
+        functionBindings:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FunctionBinding'
+        keySpecs:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/KeySpecification'
+        refSpecs:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ReferenceSpecification'
     StateSpecification:
       type: object
       properties:

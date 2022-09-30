@@ -3,6 +3,9 @@ package org.hpcclab.oaas.repository;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 
-public interface ClassRepository extends EntityRepository<String, OaasClass> {
+import java.util.Map;
 
+public interface ClassRepository extends EntityRepository<String, OaasClass> {
+//  OaasClass resolveInheritance (OaasClass baseCls);
+  Map<String,OaasClass> resolveInheritance (Map<String,OaasClass> clsMap);
 }

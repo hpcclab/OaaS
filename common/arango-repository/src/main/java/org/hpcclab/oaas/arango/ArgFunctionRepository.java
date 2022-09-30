@@ -32,22 +32,22 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
       .build();
   }
   @Override
-  ArangoCollection getCollection() {
+  public ArangoCollection getCollection() {
     return collection;
   }
 
   @Override
-  ArangoCollectionAsync getCollectionAsync() {
+  public ArangoCollectionAsync getCollectionAsync() {
     return collectionAsync;
   }
 
   @Override
-  Class<OaasFunction> getValueCls() {
+  public Class<OaasFunction> getValueCls() {
     return OaasFunction.class;
   }
 
   @Override
-  String extractKey(OaasFunction oaasFunction) {
+  public String extractKey(OaasFunction oaasFunction) {
     return oaasFunction.getName();
   }
 

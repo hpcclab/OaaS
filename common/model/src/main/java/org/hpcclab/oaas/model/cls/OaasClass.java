@@ -15,6 +15,7 @@ import org.hpcclab.oaas.model.state.StateType;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,21 +36,24 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(4)
   StateType stateType;
   @ProtoField(5)
-  Set<FunctionBinding> functions;
+  List<FunctionBinding> functions;
   @ProtoField(6)
   StateSpecification stateSpec;
   @ProtoField(7)
-  Set<ReferenceSpecification> refSpec;
+  List<ReferenceSpecification> refSpec;
   @ProtoField(8)
-  Set<String> parents;
+  List<String> parents;
   @ProtoField(9)
   String description;
+
+  @JsonView(Views.Internal.class)
+  ResolvedMember resolvedMember;
 
   public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, Set<FunctionBinding> functions, StateSpecification stateSpec, Set<ReferenceSpecification> refSpec, Set<String> parents) {
+  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents) {
     this.name = name;
     this.key = name;
     this.description = description;
@@ -101,11 +105,12 @@ public class OaasClass implements Copyable<OaasClass> {
       genericType,
       objectType,
       stateType,
-      Set.copyOf(functions),
+      List.copyOf(functions),
       stateSpec.copy(),
-      Set.copyOf(refSpec),
-      Set.copyOf(parents)
-    );
+      List.copyOf(refSpec),
+      List.copyOf(parents)
+    )
+      .setResolvedMember(resolvedMember.copy());
   }
 
   public OaasClass setName(String name) {

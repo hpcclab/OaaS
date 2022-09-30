@@ -32,12 +32,11 @@ public class FunctionResource implements FunctionService {
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-  @Blocking
   @JsonView(Views.Public.class)
-  public Pagination<OaasFunction> list(Long offset, Integer limit) {
+  public Uni<Pagination<OaasFunction>> list(Long offset, Integer limit) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
-    return funcRepo.pagination(offset, limit);
+    return funcRepo.sortedPaginationAsync("name",offset, limit);
   }
 
   @JsonView(Views.Public.class)

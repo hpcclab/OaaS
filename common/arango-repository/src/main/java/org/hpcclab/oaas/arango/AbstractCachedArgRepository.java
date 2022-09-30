@@ -95,7 +95,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
             .getDocument(key, getValueCls())
             .thenCompose(doc -> {
               var newDoc = function.apply(key, doc);
-              return getCollectionAsync().replaceDocument(key, newDoc, REPLACE_OPTIONS)
+              return getCollectionAsync().replaceDocument(key, newDoc, replaceOptions())
                 .thenApply(__ -> newDoc);
             });
         }
@@ -121,7 +121,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
         cache().invalidate(key);
         var doc = col.getDocument(key,getValueCls());
         var newDoc = function.apply(key, doc);
-        col.replaceDocument(key, newDoc, REPLACE_OPTIONS);
+        col.replaceDocument(key, newDoc, replaceOptions());
         cache().put(key,newDoc);
         return newDoc;
       } catch (ArangoDBException e) {

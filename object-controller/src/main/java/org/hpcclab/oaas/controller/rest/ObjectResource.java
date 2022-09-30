@@ -19,14 +19,12 @@ public class ObjectResource implements ObjectService {
   @Inject
   ObjectRepository objectRepo;
 
-
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
     if (offset==null) offset = 0;
     if (limit==null) limit = 20;
     if (limit > 100) limit = 100;
-    var list = objectRepo.pagination(offset, limit);
-    return Uni.createFrom().item(list);
+    return objectRepo.sortedPaginationAsync("_key",offset, limit);
   }
 
 

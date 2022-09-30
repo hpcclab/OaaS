@@ -118,4 +118,19 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
     throw new IllegalStateException();
   }
+
+  @Override
+  public Uni<Pagination<V>> paginationAsync(long offset, int limit) {
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit) {
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
+    throw new IllegalStateException();
+  }
 }

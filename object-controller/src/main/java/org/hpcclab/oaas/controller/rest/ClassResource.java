@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.arango.ArgClsRepository;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
@@ -20,6 +21,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import java.util.Map;
 
 @ApplicationScoped
 public class ClassResource implements ClassService {
@@ -32,18 +34,17 @@ public class ClassResource implements ClassService {
   CtxMapper oaasMapper;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-  @Blocking
+//  @Blocking
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasClass>> list(Long offset, Integer limit) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
-    var list = classRepo.pagination(offset, limit);
-    return Uni.createFrom().item(list);
+    return classRepo.sortedPaginationAsync("name",offset, limit);
   }
 
-  @Blocking
+//  @Blocking
   @JsonView(Views.Public.class)
-  public Pagination<OaasObject> listObject(String name, Long offset, Integer limit) {
+  public Uni<Pagination<OaasObject>> listObject(String name, Long offset, Integer limit) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
     return objectRepo.listByCls(name,offset, limit);

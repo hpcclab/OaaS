@@ -2,6 +2,7 @@ package org.hpcclab.oaas.infinispan;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -14,7 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.hpcclab.oaas.model.proto.OaasSchema.makeFullName;
 
@@ -30,6 +32,8 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
   @Inject
   @Remote("OaasObject")
   RemoteCache<String, OaasObject> cache;
+  @Inject
+  Vertx vertx;
 
   @Override
   public RemoteCache<String, OaasObject> getRemoteCache() {
@@ -63,13 +67,15 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
     return this.putAsync(object.getId(), object);
   }
 
-  public Pagination<OaasObject> listByCls(String clsName,
-                                          long offset,
-                                          int limit) {
-    if (clsName==null) return pagination(offset, limit);
-    var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
+  public Uni<Pagination<OaasObject>> listByCls(String clsName,
+                                               long offset,
+                                               int limit) {
 
-    return query(query, Map.of("clsName", clsName), offset, limit);
+    return vertx.executeBlocking(Uni.createFrom().item(() -> {
+      if (clsName==null) return pagination(offset, limit);
+      var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
+      return query(query, Map.of("clsName", clsName), offset, limit);
+    }));
   }
 
 

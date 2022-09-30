@@ -21,7 +21,7 @@ public interface ObjectRepository extends EntityRepository<String, OaasObject> {
     }
   }
 
-  Pagination<OaasObject> listByCls(String clsName,
+  Uni<Pagination<OaasObject>> listByCls(String clsName,
                                    long offset,
                                    int limit);
 }

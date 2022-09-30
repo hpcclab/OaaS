@@ -1,9 +1,7 @@
 package org.hpcclab.oaas.controller.rest;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 
@@ -21,7 +19,7 @@ public interface ClassService {
 
   @GET
   @Path("{name}/objects")
-  Pagination<OaasObject> listObject(String name,
+  Uni<Pagination<OaasObject>> listObject(String name,
                               @QueryParam("offset") Long offset,
                               @QueryParam("limit") Integer limit);
 

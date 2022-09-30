@@ -17,7 +17,7 @@ import java.util.List;
 public interface FunctionService {
   @GET
   @JsonView(Views.Public.class)
-  Pagination<OaasFunction> list(@QueryParam("offset") Long offset,
+  Uni<Pagination<OaasFunction>> list(@QueryParam("offset") Long offset,
                                 @QueryParam("limit") Integer limit);
 
   @POST

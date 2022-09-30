@@ -2,6 +2,7 @@ package org.hpcclab.oaas.arango;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
+import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
@@ -21,35 +22,36 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
   ArangoCollectionAsync collectionAsync;
 
   @Override
-  ArangoCollection getCollection() {
+  public ArangoCollection getCollection() {
     return collection;
   }
 
   @Override
-  ArangoCollectionAsync getCollectionAsync() {
+  public ArangoCollectionAsync getCollectionAsync() {
     return collectionAsync;
   }
 
   @Override
-  Class<OaasObject> getValueCls() {
+  public  Class<OaasObject> getValueCls() {
     return OaasObject.class;
   }
 
   @Override
-  String extractKey(OaasObject oaasObject) {
+  public String extractKey(OaasObject oaasObject) {
     return oaasObject.getId();
   }
 
   @Override
-  public Pagination<OaasObject> listByCls(String clsName, long offset, int limit) {
+  public Uni<Pagination<OaasObject>> listByCls(String clsName, long offset, int limit) {
     // langauge=AQL
     var query = """
       FOR obj IN @@col
         FILTER obj.cls == @cls
+        SORT obj._key
         LIMIT @off, @lim
         RETURN obj
       """;
-    return query(
+    return queryAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls",clsName,

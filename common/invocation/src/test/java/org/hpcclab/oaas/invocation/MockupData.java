@@ -44,7 +44,7 @@ public class MockupData {
   public static final OaasClass CLS_1 = new OaasClass()
     .setName("cls1")
     .setObjectType(ObjectType.SIMPLE)
-    .setFunctions(Set.of(
+    .setFunctions(List.of(
       new FunctionBinding()
         .setName(FUNC_1.getName())
         .setFunction(FUNC_1.getName()),
