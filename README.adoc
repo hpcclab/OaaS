@@ -31,7 +31,8 @@ NOTE: Go through  link:deploy/oaas-single-node/README.adoc[this guide] to try *O
 * S3-compatible storage (ex. https://rook.io/[Rook], https://min.io/[MinIO])
 * Operators
 ** operator to deploy Kafka (https://strimzi.io/[Strimzi Operator])
-** operator to deploy Infinispan (https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator])
+//** operator to deploy Infinispan (https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator])
+** operator to deploy ArangoDB (https://github.com/arangodb/kube-arangodb[ArangoDB Kubernetes Operator])
 
 
 === Edit configuration
@@ -56,7 +57,7 @@ We make these configuration files by assuming the cluster relies on Rook to prov
 +
 [source,bash]
 ----
-kubectl create ns msc
+kubectl create ns oaas
 ----
 
 . Deploy kafka via a following command.
@@ -87,6 +88,21 @@ kubectl apply -f deploy/knative/
 kubectl apply -f deploy/oaas/object-bucket.yml
 ----
 
+. Deploy ArangoDB
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/arango/arango-cluster.yml
+----
+
+. NATS
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/nats/nats.yml
+----
++
+NOTE: This deployment step is not a practical way. You can look at the official guide (https://github.com/nats-io/k8s) to deploy it properly.
 
 . Deploy the OaaS platform.
 +
