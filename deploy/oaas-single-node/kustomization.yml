@@ -11,8 +11,6 @@ resources:
   - cds.yml
 ### storage adapter
   - sa.yml
-### infinispan
-  - infinispan.yml
 ### ingress
   - oaas-ingress.yml
 
@@ -22,9 +20,6 @@ configMapGenerator:
       - BUCKET_HOST=minio.oaas.svc
       - BUCKET_NAME=oaas
 secretGenerator:
-  - name: infinispan-connect-secret
-    files:
-      - identities.yaml
   - name: oaas-bucket
     literals:
       - AWS_ACCESS_KEY_ID=minio_access_key

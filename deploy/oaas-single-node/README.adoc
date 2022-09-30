@@ -38,7 +38,7 @@ The deployment files for this guide are inside `deploy/oaas-single-node` directo
 . Operators
 .. Install https://operatorhub.io/[Operator Lifecycle Manager]. The guide will be shown if you select any operator to install.
 .. https://strimzi.io/[Strimzi Operator] (operator to deploy Kafka)
-.. https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator] (operator to deploy Infinispan)
+
 . MinIO (S3-compatible storage)
 .. Install MinIO
 +
@@ -69,6 +69,20 @@ kubectl apply -n oaas -f deploy/knative/broker.yml
 [source,bash]
 ----
 kubectl get broker -n oaas
+----
+
+. ArangoDB
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/arango/arango-single.yml
+----
+
+. NATS
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/nats/nats.yml
 ----
 
 === Install and Access OaaS

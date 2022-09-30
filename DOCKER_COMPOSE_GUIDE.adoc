@@ -13,148 +13,30 @@ This guide is for local development using docker-compose. This deployment only p
 == Deploy with docker-compose
 [source,bash]
 ----
-docker-compose -f docker-compose.oc.yml up -d
+docker-compose -f docker-compose.dev.yml up -d
 ----
+
+NOTE: The provided compose file will perform building container image from the local files. If you want to pull the images from Github, you have to uncomment `image: ...` and comment `build: ...` on each services in the compose file.
+
 After executing the above command, you have to manually create the `msc` bucket for storing the state data via going to the MinIO console (http://localhost:9001/). You can login with the access key `minio_access_key` and secret key `minio_secret_key`.
 
-== API Usage
-=== Video Class
-First, you have to create the video class using the REST API.
+== Access Services
 
-NOTE: You can send a request by using the Swagger UI (http://localhost:8088/q/swagger-ui)
+|===
+|Services |URL
 
-[source,http request]
-----
-POST http://localhost:8088/api/batch
-Content-Type: text/x-yaml
+|*Object Controller*
+|`http://localhost:8088`
 
-functions:
-  - name: example.video.transcode
-    type: TASK
-    outputCls: example.video
-    validation: {}
-    provision:
-      knative:
-        image: ghcr.io/hpcclab/oaas/transcode-function:latest
-classes:
-  - name: example.video
-    stateType: FILE
-    objectType: SIMPLE
-    stateSpec:
-      keySpecs:
-        - name: video
-    functions:
-      - access: PUBLIC
-        function: example.video.transcode
-----
+|*Task Manager*
+|`http://localhost:8089`
 
-=== Video Uploading
-Before you can upload the video, you have to create the video object.
+|*Storage Adapter*
+|`http://localhost:8090`
 
-NOTE: You can add the additional parameters into `embeddedRecord` to save them with the new object.
+|*Arangodb*
+|`http://localhost:8529`
 
-[source,http request]
-----
-POST http://localhost:8088/api/object-construct
-Accept: application/json
-Content-Type: application/json
-
-{
-  "cls": "example.video",
-  "embeddedRecord": {
-     "title": "video-title"
-  },
-  "keys": ["video"]
-}
-----
-
-Object Controller will reply with the detail of a new object and the URL to upload the state data.
-
-[source,json]
-----
-{
-  "object": {
-    "id": "050c4bfa-405c-4d5a-a286-6b62c85aad6b",
-    "origin": {
-      "rootId": "050c4bfa-405c-4d5a-a286-6b62c85aad6b"
-    },
-    "access": "PUBLIC",
-    "cls": "example.video",
-    "state": {
-      "type": "FILES"
-    },
-    "embeddedRecord": {
-      "title": "video-title"
-    }
-  },
-  "uploadUrls": {
-    "video": "http://localhost:9000/msc/050c4bfa-405c-4d5a-a286-6b62c85aad6b/video?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio_access_key%2F20220417%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220417T212359Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=62843759ba52277fc10bbb5ba2c0b38db5b0c32ef34d2fe9201bb23fe85bc69d"
-  }
-}
-----
-
-The next step is using that URL to upload video using `HTTP PUT`.
-
-[source,http request]
-----
-PUT <uploadUrls.video>
-Content-Type: text/plain
-
-<TEXT_FILE_DATA>
-----
-
-=== Listing Video Objects
-
-You can use the following REST API to list the video objects.
-
-[source,http request]
-----
-GET http://localhost:8088/api/classes/example.video/objects
-----
-Then, you will get the response as the pagination wrapper.
-[source,json]
-----
-{
-  "total": 2,
-  "offset": 0,
-  "itemCount": 2,
-  "items": [
-    {
-      "id": "37a866b7-4b06-4acf-9fba-bf4966d16726",
-      "origin": {
-        "rootId": "37a866b7-4b06-4acf-9fba-bf4966d16726"
-      },
-      "access": "PUBLIC",
-      "cls": "example.video",
-      "labels": [
-        "test"
-      ],
-      "state": {
-        "type": "FILES"
-      },
-      "embeddedRecord": {}
-    },
-    {
-      "id": "050c4bfa-405c-4d5a-a286-6b62c85aad6b",
-      "origin": {
-        "rootId": "050c4bfa-405c-4d5a-a286-6b62c85aad6b"
-      },
-      "access": "PUBLIC",
-      "cls": "example.video",
-      "state": {
-        "type": "FILES"
-      },
-      "embeddedRecord": {
-        "title": "video-title"
-      }
-    }
-  ]
-}
-----
-
-If you want to fetch the specific range, you have to add the query parameters `limit` and  `offset`. You can look at the example below.
-
-[source,http request]
-----
-GET http://localhost:8088/api/classes/example.video/objects?limit=10&offset=100
-----
+|*MinIO*
+|`http://localhost:9001`
+|===
