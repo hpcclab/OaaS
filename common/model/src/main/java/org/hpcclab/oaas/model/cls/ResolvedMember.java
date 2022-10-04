@@ -22,7 +22,10 @@ public class ResolvedMember implements Copyable<ResolvedMember> {
   public ResolvedMember() {
   }
 
-  public ResolvedMember(Map<String, FunctionBinding> functionBindings, Map<String, KeySpecification> keySpecs, Map<String, ReferenceSpecification> refSpecs, Set<String> identities) {
+  public ResolvedMember(Map<String, FunctionBinding> functionBindings,
+                        Map<String, KeySpecification> keySpecs,
+                        Map<String, ReferenceSpecification> refSpecs,
+                        Set<String> identities) {
     this.functionBindings = functionBindings;
     this.keySpecs = keySpecs;
     this.refSpecs = refSpecs;

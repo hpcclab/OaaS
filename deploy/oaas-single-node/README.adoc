@@ -33,7 +33,9 @@ The deployment files for this guide are inside `deploy/oaas-single-node` directo
 .. Use this https://kubernetes.github.io/ingress-nginx/deploy/#quick-start[guide] to install ingress controller if you doesn't have one
 . Knative
 .. Follow the official https://knative.dev/docs/install/yaml-install/serving/install-serving-with-yaml/[guide] to install Knative Serving. (*Kourier* is preferable)
-.. Follow the official https://knative.dev/docs/install/yaml-install/eventing/install-eventing-with-yaml/[guide] to install Knative eventing. *Apache Kafka broker is also required.*
+.. Follow the official https://knative.dev/docs/install/yaml-install/eventing/install-eventing-with-yaml/[guide] to install Knative eventing.
+... *In-Memory Channel is required*
+... *Apache Kafka broker is required*
 
 . Operators
 .. Install https://operatorhub.io/[Operator Lifecycle Manager]. The guide will be shown if you select any operator to install.
@@ -101,6 +103,7 @@ kubectl get pod -n oaas -w
 . Access OaaS
 .. Object controller: http://oc.oaas.127.0.0.1.nip.io
 .. Content Delivery Service: http://cds.127.0.0.1.nip.io
+.. ArangoDB console: http://localhost:31235
 +
 NOTE: Both of them have Swagger UI at `/q/swagger-ui`. Swagger UI provides the API schema and an easy way to try sending the request.
 

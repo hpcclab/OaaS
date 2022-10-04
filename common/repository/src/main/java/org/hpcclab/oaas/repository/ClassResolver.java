@@ -2,6 +2,7 @@ package org.hpcclab.oaas.repository;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.security.spec.KeySpec;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,8 @@ public class ClassResolver {
           .collect(Collectors.toMap(KeySpecification::getName, Function.identity())),
         base.getRefSpec()
           .stream()
-          .collect(Collectors.toMap(ReferenceSpecification::getName, Function.identity()))
+          .collect(Collectors.toMap(ReferenceSpecification::getName, Function.identity())),
+        Set.of()
       );
       return resolved.setResolvedMember(resolvedMember);
     }
@@ -41,11 +44,13 @@ public class ClassResolver {
     MutableMap<String, FunctionBinding> functionBindings = Maps.mutable.empty();
     MutableMap<String, KeySpecification> keySpecs = Maps.mutable.empty();
     MutableMap<String, ReferenceSpecification> refSpecs = Maps.mutable.empty();
+    Set<String> identities = Sets.mutable.empty();
     for (var parent : parentClasses) {
       var r = parent.getResolvedMember();
       functionBindings.putAll(r.getFunctionBindings());
       keySpecs.putAll(r.getKeySpecs());
       refSpecs.putAll(r.getRefSpecs());
+      identities.addAll(r.getIdentities());
     }
     base.getFunctions()
       .forEach(fb -> functionBindings.put(fb.getName(), fb));
@@ -53,10 +58,14 @@ public class ClassResolver {
       .forEach(ks -> keySpecs.put(ks.getName(), ks));
     base.getRefSpec()
       .forEach(rs -> refSpecs.put(rs.getName(), rs));
+    if (base.getParents() != null || !base.getParents().isEmpty()) {
+      identities.addAll(base.getParents());
+    }
     ResolvedMember resolvedMember = new ResolvedMember(
       functionBindings,
       keySpecs,
-      refSpecs
+      refSpecs,
+      identities
     );
     return resolved.setResolvedMember(resolvedMember);
   }

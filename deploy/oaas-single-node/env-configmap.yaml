@@ -10,7 +10,7 @@ data:
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
   OAAS_TM_BLOCKINGTIMEOUT: '15'
-  OAAS_TM_NATSURLS: nats://my-nats:4222
+  OAAS_TM_NATSURLS: nats://oaas-nats:4222
   OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
   OAAS_KP_COMPLETIONHANDLERPATH: /ce
