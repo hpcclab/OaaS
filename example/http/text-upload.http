@@ -3,6 +3,8 @@ POST {{cds}}/api/modules
 Content-Type: text/x-yaml
 
 < text.yml
+###
+GET {{cds}}/api/functions
 
 ###
 POST {{cds}}/api/object-construct
@@ -30,7 +32,7 @@ Content-Type: text/plain
 ###
 GET {{cds}}/oal/{{obj_0_id}}/text
 ###
-GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text?mq=true
 ###
 POST {{cds}}/oal/-/text
 Content-Type: application/json

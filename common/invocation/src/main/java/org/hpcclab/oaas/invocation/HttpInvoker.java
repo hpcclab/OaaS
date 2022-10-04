@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
@@ -36,6 +37,7 @@ public class HttpInvoker implements SyncInvoker {
       .flatMap(function -> {
         var url = function.getDeploymentStatus().getInvocationUrl();
         return webClient.postAbs(url)
+          .putHeaders(createHeader(task))
           .sendJson(task)
           .map(resp -> this.handleResp(task, resp))
           .onFailure()
@@ -52,6 +54,14 @@ public class HttpInvoker implements SyncInvoker {
   public Uni<TaskCompletion> invoke(TaskContext taskContext) {
     var task = taskFactory.genTask(taskContext);
     return invoke(task);
+  }
+
+  protected MultiMap createHeader(OaasTask task) {
+    return MultiMap.caseInsensitiveMultiMap()
+      .add("ce-type", "oaas.task")
+      .add("ce-function", task.getFunction().getName())
+      .add("ce-id", task.getId())
+      .add("ce-source", "oaas/task-manager");
   }
 
   TaskCompletion handleResp(OaasTask task, HttpResponse<Buffer> resp) {
