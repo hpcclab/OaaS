@@ -1299,6 +1299,13 @@
               "$ref" : "#/components/schemas/FunctionBinding"
             }
           },
+          "identities" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "keySpecs" : {
             "type" : "object",
             "additionalProperties" : {

@@ -8,6 +8,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -43,7 +44,11 @@ public class InvocationGraphExecutor {
 
 
   public boolean canSyncInvoke(FunctionExecContext ctx) {
-    if (ctx.getFunction().getType() != FunctionType.TASK){
+    var func = ctx.getFunction();
+    if (func.getType() != FunctionType.TASK){
+      return false;
+    }
+    if (func.getDeploymentStatus().getCondition() != DeploymentCondition.RUNNING) {
       return false;
     }
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
