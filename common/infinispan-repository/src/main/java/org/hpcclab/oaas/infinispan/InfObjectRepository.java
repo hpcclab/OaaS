@@ -74,7 +74,7 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
     return vertx.executeBlocking(Uni.createFrom().item(() -> {
       if (clsName==null) return pagination(offset, limit);
       var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
-      return query(query, Map.of("clsName", clsName), offset, limit);
+      return queryPagination(query, Map.of("clsName", clsName), offset, limit);
     }));
   }
 

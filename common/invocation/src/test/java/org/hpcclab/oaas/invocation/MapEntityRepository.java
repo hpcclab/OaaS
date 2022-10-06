@@ -115,7 +115,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
   @Override
-  public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
+  public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
     throw new IllegalStateException();
   }
 
@@ -125,7 +125,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
   @Override
-  public Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit) {
+  public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
     throw new IllegalStateException();
   }
 

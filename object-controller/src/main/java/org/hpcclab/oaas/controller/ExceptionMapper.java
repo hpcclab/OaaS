@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +35,11 @@ public class ExceptionMapper {
       .build();
   }
 
-  @ServerExceptionMapper(NoStackException.class)
-  public Response exceptionMapper(NoStackException noStackException) {
-    return Response.status(noStackException.getCode())
+  @ServerExceptionMapper(StdOaasException.class)
+  public Response exceptionMapper(StdOaasException exception) {
+    return Response.status(exception.getCode())
       .entity(new JsonObject()
-        .put("msg", noStackException.getMessage()))
+        .put("msg", exception.getMessage()))
       .build();
   }
 

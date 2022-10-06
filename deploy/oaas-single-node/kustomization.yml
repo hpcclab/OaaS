@@ -28,15 +28,15 @@ secretGenerator:
 images:
   - name: ghcr.io/hpcclab/oaas/object-controller
     newName: ghcr.io/pawissanutt/oaas/object-controller
-    newTag: migrate-arangodb
+    newTag: dev
   - name: ghcr.io/hpcclab/oaas/task-manager
     newName: ghcr.io/pawissanutt/oaas/task-manager
-    newTag: migrate-arangodb
+    newTag: dev
   - name: ghcr.io/hpcclab/oaas/kube-provisioner
     newName: ghcr.io/pawissanutt/oaas/kube-provisioner
-    newTag: migrate-arangodb
+    newTag: dev
   - name: ghcr.io/hpcclab/oaas/storage-adapter
     newName: ghcr.io/pawissanutt/oaas/storage-adapter
-    newTag: migrate-arangodb
+    newTag: dev
 generatorOptions:
   disableNameSuffixHash: true

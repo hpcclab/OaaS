@@ -2,7 +2,6 @@ package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.exception.StdOaasException;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,12 +59,15 @@ public interface EntityRepository<K, V> {
 
   Uni<Pagination<V>> sortedPaginationAsync(String name,long offset, int limit);
 
-  default Pagination<V> query(String queryString, long offset, int limit) {
-    return query(queryString, Map.of(), offset, limit);
+  default Pagination<V> queryPagination(String queryString, long offset, int limit) {
+    return queryPagination(queryString, Map.of(), offset, limit);
   }
 
-  Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit);
-  Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit);
+  List<V> query(String queryString, Map<String, Object> params);
+  Uni<List<V>> queryAsync(String queryString, Map<String, Object> params);
+
+  Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit);
+  Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit);
 
 
 }

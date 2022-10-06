@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import lombok.With;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
@@ -17,16 +18,19 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasClass implements Copyable<OaasClass> {
 
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
+
+  @JsonProperty("_rev")
+  @JsonView(Views.Internal.class)
+  String rev;
   @ProtoField(1)
   String name;
   @ProtoField(2)
@@ -36,18 +40,18 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(4)
   StateType stateType;
   @ProtoField(5)
-  List<FunctionBinding> functions;
+  List<FunctionBinding> functions = List.of();
   @ProtoField(6)
   StateSpecification stateSpec;
   @ProtoField(7)
-  List<ReferenceSpecification> refSpec;
+  List<ReferenceSpecification> refSpec = List.of();
   @ProtoField(8)
-  List<String> parents;
+  List<String> parents= List.of();
   @ProtoField(9)
   String description;
 
-  @JsonView(Views.Internal.class)
-  ResolvedMember resolvedMember;
+//  @JsonView(Views.Internal.class)
+  ResolvedMember resolved;
 
   public OaasClass() {
   }
@@ -77,6 +81,7 @@ public class OaasClass implements Copyable<OaasClass> {
 //      && stateSpec.getDefaultProvider()==null) {
 //      throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
 //    }
+    if (functions == null) functions = List.of();
     for (FunctionBinding function : functions) {
       if (function.getFunction() == null) {
         throw new OaasValidationException("The 'functions[].function' in class must not be null.");
@@ -107,15 +112,20 @@ public class OaasClass implements Copyable<OaasClass> {
       stateType,
       List.copyOf(functions),
       stateSpec.copy(),
-      List.copyOf(refSpec),
-      List.copyOf(parents)
+      refSpec == null ? null: List.copyOf(refSpec),
+      parents == null ? null: List.copyOf(parents)
     )
-      .setResolvedMember(resolvedMember.copy());
+      .setResolved(resolved.copy());
   }
 
   public OaasClass setName(String name) {
     this.name = name;
     this.key = name;
     return this;
+  }
+
+  public ResolvedMember getResolved() {
+    if (resolved == null) resolved = new ResolvedMember();
+    return resolved;
   }
 }

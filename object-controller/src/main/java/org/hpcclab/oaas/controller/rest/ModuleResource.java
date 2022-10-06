@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.Json;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.hpcclab.oaas.model.Views;
@@ -18,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class ModuleResource implements ModuleService {
@@ -45,7 +48,11 @@ public class ModuleResource implements ModuleService {
     for (OaasFunction function : functions) {
       function.validate();
     }
-    var uni = classRepo.persistAsync(classes)
+    var clsMap = classes.stream()
+      .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
+    var changedClasses = classRepo.resolveInheritance(clsMap);
+//    LOGGER.info("changedClasses {}", Json.encodePrettily(changedClasses));
+    var uni = classRepo.persistAsync(changedClasses.values())
       .flatMap(ignore -> funcRepo.persistAsync(functions));
     if (config.kafkaEnabled()) {
       return uni.call(ignored -> provisionPublisher.submitNewFunction(batch.getFunctions().stream()))

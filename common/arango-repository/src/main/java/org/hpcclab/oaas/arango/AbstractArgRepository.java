@@ -10,13 +10,13 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
@@ -165,55 +165,32 @@ public abstract class AbstractArgRepository<V>
     throw exception;
   }
 
+  static AqlQueryOptions queryOptions() {
+    return new AqlQueryOptions();
+  }
+
   @Override
-  public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
-    var cursor = getCollection().db()
-      .query(queryString, params, queryOptions(), getValueCls());
+  public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
+    var cursor = getCollection().db().query(queryString, params, queryOptions().fullCount(true), getValueCls());
     try (cursor) {
       var items = cursor.asListRemaining();
-      return new Pagination<>(
-        cursor.getStats().getFullCount(),
-        offset,
-        limit, items);
+      return new Pagination<>(cursor.getStats().getFullCount(), offset, limit, items);
     } catch (IOException e) {
       throw new DataAccessException(e);
     }
   }
 
   @Override
-  public Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit) {
-    return createUni(() -> getCollectionAsync()
-      .db()
-      .query(queryString, params, queryOptions(), getValueCls())
-      .thenApply(cursor -> {
-        try (cursor) {
-          var items = cursor.streamRemaining().toList();
-          return new Pagination<>(
-            cursor.getStats().getFullCount(),
-            offset,
-            limit,
+  public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
+    return createUni(() -> getCollectionAsync().db().query(queryString, params, queryOptions().fullCount(true), getValueCls()).thenApply(cursor -> {
+      try (cursor) {
+        var items = cursor.streamRemaining().toList();
+        return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
             items);
         } catch (IOException e) {
           throw new DataAccessException(e);
         }
       }));
-  }
-
-  @Override
-  public Pagination<V> pagination(long offset, int limit) {
-    // langauge=AQL
-    var query = """
-      FOR doc IN @@col
-        LIMIT @off, @lim
-        RETURN doc
-      """;
-    return query(query,
-      Map.of("@col", getCollection().name(),
-        "off", offset,
-        "lim", limit),
-      offset,
-      limit
-    );
   }
 
   protected <T> Uni<T> createUni(CompletionStage<T> stage) {
@@ -232,6 +209,16 @@ public abstract class AbstractArgRepository<V>
     return uni;
   }
 
+  @Override
+  public Pagination<V> pagination(long offset, int limit) {
+    // langauge=AQL
+    var query = """
+      FOR doc IN @@col
+        LIMIT @off, @lim
+        RETURN doc
+      """;
+    return queryPagination(query, Map.of("@col", getCollection().name(), "off", offset, "lim", limit), offset, limit);
+  }
 
   @Override
   public Uni<Pagination<V>> paginationAsync(long offset, int limit) {
@@ -240,13 +227,7 @@ public abstract class AbstractArgRepository<V>
         LIMIT @off, @lim
         RETURN doc
       """;
-    return queryAsync(query,
-      Map.of("@col", getCollection().name(),
-        "off", offset,
-        "lim", limit),
-      offset,
-      limit
-    );
+    return queryPaginationAsync(query, Map.of("@col", getCollection().name(), "off", offset, "lim", limit), offset, limit);
   }
 
   @Override
@@ -257,24 +238,41 @@ public abstract class AbstractArgRepository<V>
         LIMIT @off, @lim
         RETURN doc
       """;
-    return queryAsync(query,
-      Map.of("@col", getCollection().name(),
-        "sorted", name,
-        "off", offset,
-        "lim", limit),
-      offset, limit);
+    return queryPaginationAsync(query, Map.of("@col", getCollection().name(), "sorted", name, "off", offset, "lim", limit), offset, limit);
+  }
+
+  @Override
+  public List<V> query(String queryString, Map<String, Object> params) {
+    var cursor = getCollection().db().query(queryString, params, queryOptions(), getValueCls());
+    try (cursor) {
+      return cursor.asListRemaining();
+    } catch (IOException e) {
+      throw new DataAccessException(e);
+    }
+  }
+
+
+  @Override
+  public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
+    return createUni(() -> getCollectionAsync().db().query(queryString, params, queryOptions(), getValueCls()).thenApply(cursor -> {
+      try (cursor) {
+        return cursor.streamRemaining().toList();
+      } catch (IOException e) {
+        throw new DataAccessException(e);
+      }
+    }));
   }
 
   static DocumentReplaceOptions replaceOptions() {
     return new DocumentReplaceOptions().ignoreRevs(false);
   }
+
   static DocumentCreateOptions createOptions() {
     return new DocumentCreateOptions().overwriteMode(OverwriteMode.replace);
   }
+
   static DocumentDeleteOptions deleteOptions() {
     return new DocumentDeleteOptions().returnOld(true);
   }
-  static AqlQueryOptions queryOptions() {
-    return new AqlQueryOptions().fullCount(true);
-  }
+
 }

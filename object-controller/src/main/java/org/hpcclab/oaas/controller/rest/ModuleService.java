@@ -29,6 +29,7 @@ public interface ModuleService {
   @Data
   @Accessors(chain = true)
   class Module {
+    String name;
     List<OaasClass> classes = List.of();
     List<OaasFunction> functions = List.of();
   }

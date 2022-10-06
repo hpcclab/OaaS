@@ -3,7 +3,6 @@ package org.hpcclab.oaas.infinispan;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
@@ -36,10 +35,10 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
   public abstract String getEntityName();
 
   public Pagination<V> pagination(long offset, int limit) {
-    return query("FROM " + getEntityName(), offset, limit);
+    return queryPagination("FROM " + getEntityName(), offset, limit);
   }
 
-  public Pagination<V> query(String queryString, Map<String, Object> params, long offset, int limit) {
+  public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
     Query<V> query = (Query<V>) getQueryFactory().create(queryString)
       .setParameters(params)
       .startOffset(offset)
@@ -201,7 +200,7 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
   }
 
   @Override
-  public Uni<Pagination<V>> queryAsync(String queryString, Map<String, Object> params, long offset, int limit) {
+  public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
     throw StdOaasException.notImplemented();
   }
   @Override

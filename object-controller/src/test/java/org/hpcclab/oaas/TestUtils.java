@@ -25,13 +25,9 @@ public class TestUtils {
       - name: test.dummy.task
         type: TASK
         outputCls: test.dummy.simple
-        validation: {}
-        provision:
-          job: {}
       - name: test.dummy.macro
         type: MACRO
         outputCls: test.dummy.compound
-        validation: {}
         macro:
             steps:
               - funcName: builtin.logical.copy
@@ -86,6 +82,16 @@ public class TestUtils {
       .statusCode(200)
       .log().ifValidationFails()
       .extract().body().as( new TypeRef<Pagination<OaasObject>>() {})
+      .getItems();
+  }
+  public static List<OaasClass> listClasses() {
+    return given()
+      .when().get("/api/classes")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .log().ifValidationFails()
+      .extract().body().as( new TypeRef<Pagination<OaasClass>>() {})
       .getItems();
   }
 

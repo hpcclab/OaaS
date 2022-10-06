@@ -6,6 +6,5 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import java.util.Map;
 
 public interface ClassRepository extends EntityRepository<String, OaasClass> {
-//  OaasClass resolveInheritance (OaasClass baseCls);
   Map<String,OaasClass> resolveInheritance (Map<String,OaasClass> clsMap);
 }

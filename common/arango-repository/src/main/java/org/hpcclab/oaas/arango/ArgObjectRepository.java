@@ -51,7 +51,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
         LIMIT @off, @lim
         RETURN obj
       """;
-    return queryAsync(
+    return queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls",clsName,

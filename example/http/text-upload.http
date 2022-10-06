@@ -32,7 +32,7 @@ Content-Type: text/plain
 ###
 GET {{cds}}/oal/{{obj_0_id}}/text
 ###
-GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text?mq=true
+GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
 ###
 POST {{cds}}/oal/-/text
 Content-Type: application/json
