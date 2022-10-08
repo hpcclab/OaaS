@@ -3,6 +3,7 @@ package org.hpcclab.oaas.infinispan;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
@@ -46,6 +47,26 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
     var qr= query.execute();
     var items = qr.list();
     return new Pagination<>(qr.hitCount().orElse(0), offset, items.size(), items);
+  }
+
+
+  @Override
+  public List<V> query(String queryString, Map<String, Object> params) {
+    Query<V> query = (Query<V>) getQueryFactory().create(queryString)
+      .setParameters(params);
+    var qr= query.execute();
+    var items = qr.list();
+    return items;
+  }
+
+  @Override
+  public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
+    return Uni.createFrom().item(() -> {
+      Query<V> query = (Query<V>) getQueryFactory().create(queryString)
+        .setParameters(params);
+      var qr= query.execute();
+      return qr.list();
+    });
   }
 
   public V get(K key) {

@@ -43,6 +43,11 @@ public interface EntityRepository<K, V> {
   default Uni<V> persistAsync(V v) {
     return persistAsync(v, true);
   }
+
+  default Uni<V> persistWithPreconditionAsync(V v) {
+    return persistAsync(v);
+  }
+
   Uni<V> persistAsync(V v, boolean notificationEnabled);
 
   default Uni<Void> persistAsync(Collection<V> collection){
@@ -50,6 +55,10 @@ public interface EntityRepository<K, V> {
   }
 
   Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled);
+
+  default Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
+    return persistAsync(collection);
+  }
 
   V compute(K key, BiFunction<K, V, V> function);
   Uni<V> computeAsync(K key, BiFunction<K, V, V> function);

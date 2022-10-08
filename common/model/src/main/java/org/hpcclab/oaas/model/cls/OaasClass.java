@@ -95,11 +95,17 @@ public class OaasClass implements Copyable<OaasClass> {
     }
   }
 
-  public Optional<FunctionBinding> findFunction(String funcName){
-    return getFunctions()
+  public FunctionBinding findFunction(String funcName){
+    var func = resolved.getFunctions()
+      .get(funcName);
+    if (func !=null) return func;
+    return resolved
+      .getFunctions()
+      .values()
       .stream()
       .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
-      .findFirst();
+      .findAny()
+      .orElse(null);
   }
 
   @Override
@@ -111,11 +117,11 @@ public class OaasClass implements Copyable<OaasClass> {
       objectType,
       stateType,
       List.copyOf(functions),
-      stateSpec.copy(),
+      stateSpec == null? null : stateSpec.copy(),
       refSpec == null ? null: List.copyOf(refSpec),
       parents == null ? null: List.copyOf(parents)
     )
-      .setResolved(resolved.copy());
+      .setResolved(resolved == null? null: resolved.copy());
   }
 
   public OaasClass setName(String name) {
@@ -127,5 +133,10 @@ public class OaasClass implements Copyable<OaasClass> {
   public ResolvedMember getResolved() {
     if (resolved == null) resolved = new ResolvedMember();
     return resolved;
+  }
+
+  public StateSpecification getStateSpec() {
+    if (stateSpec == null) stateSpec = new StateSpecification();
+    return stateSpec;
   }
 }

@@ -31,7 +31,8 @@ public class ClassResolver {
         base.getFunctions()
           .stream()
           .collect(Collectors.toMap(FunctionBinding::getName, Function.identity())),
-        base.getStateSpec().getKeySpecs()
+        base.getStateSpec()
+          .getKeySpecs()
           .stream()
           .collect(Collectors.toMap(KeySpecification::getName, Function.identity())),
         base.getRefSpec()

@@ -37,7 +37,7 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
   }
 
   @Override
-  public ArangoCollectionAsync getCollectionAsync() {
+  public ArangoCollectionAsync getAsyncCollection() {
     return collectionAsync;
   }
 

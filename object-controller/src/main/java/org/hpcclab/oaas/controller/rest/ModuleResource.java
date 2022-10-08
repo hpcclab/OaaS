@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
+import org.hpcclab.oaas.arango.DataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.hpcclab.oaas.model.Views;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.QueryParam;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +41,8 @@ public class ModuleResource implements ModuleService {
 
   @Override
   @JsonView(Views.Public.class)
-  public Uni<Module> create(Module batch) {
+  public Uni<Module> create(Boolean update,
+                            Module batch) {
     var classes = batch.getClasses();
     var functions = batch.getFunctions();
     for (OaasClass cls : classes) {
@@ -48,14 +51,26 @@ public class ModuleResource implements ModuleService {
     for (OaasFunction function : functions) {
       function.validate();
     }
-    var clsMap = classes.stream()
-      .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
-    var changedClasses = classRepo.resolveInheritance(clsMap);
-//    LOGGER.info("changedClasses {}", Json.encodePrettily(changedClasses));
-    var uni = classRepo.persistAsync(changedClasses.values())
-      .flatMap(ignore -> funcRepo.persistAsync(functions));
+
+    var uni = Uni.createFrom().deferred(() -> {
+        var clsMap = classes.stream()
+          .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
+        var changedClasses = classRepo.resolveInheritance(clsMap);
+        var partitioned = changedClasses.values()
+          .stream()
+          .collect(Collectors.partitioningBy(cls -> cls.getRev() == null));
+        var newClasses = partitioned.get(true);
+        var oldClasses = partitioned.get(false);
+      return classRepo
+        .persistWithPreconditionAsync(oldClasses)
+        .flatMap(__ -> classRepo.persistAsync(newClasses))
+        .flatMap(__ -> funcRepo.persistAsync(functions));
+      })
+      .onFailure(DataAccessException.class)
+      .retry().atMost(3);
     if (config.kafkaEnabled()) {
-      return uni.call(ignored -> provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
+      return uni.call(__ ->
+          provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
         .replaceWith(batch);
     } else {
       return uni.replaceWith(batch);
@@ -64,10 +79,11 @@ public class ModuleResource implements ModuleService {
 
   @Override
   @JsonView(Views.Public.class)
-  public Uni<Module> createByYaml(String body) {
+  public Uni<Module> createByYaml(Boolean update,
+                                  String body) {
     try {
       var batch = yamlMapper.readValue(body, Module.class);
-      return create(batch);
+      return create(update, batch);
     } catch (JsonProcessingException e) {
       throw new NoStackException(e.getMessage(), 400);
     }

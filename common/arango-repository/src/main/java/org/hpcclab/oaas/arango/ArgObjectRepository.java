@@ -27,7 +27,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
   }
 
   @Override
-  public ArangoCollectionAsync getCollectionAsync() {
+  public ArangoCollectionAsync getAsyncCollection() {
     return collectionAsync;
   }
 

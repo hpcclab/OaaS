@@ -4,7 +4,6 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -51,7 +50,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   }
 
   @Override
-  public ArangoCollectionAsync getCollectionAsync() {
+  public ArangoCollectionAsync getAsyncCollection() {
     return collectionAsync;
   }
 
@@ -99,7 +98,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
           cls = clsMap.get(clsName);
         else
           cls = get(clsName);
-        if (!cls.getResolved().isFFinal()) {
+        if (!cls.getResolved().isFlag()) {
           cls = resolveInheritance(cls, clsMap, path);
         }
         return cls;
@@ -122,13 +121,13 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     var startingClasses = List.copyOf(clsMap.values());
     var ctxMap = Maps.mutable.ofMap(clsMap);
     for (var cls : startingClasses) {
-      cls.getResolved().setFFinal(false);
+      cls.getResolved().setFlag(false);
       resolveInheritance(cls, ctxMap, Sets.mutable.empty());
     }
     for (var cls : startingClasses) {
       var children = loadChildren(cls);
       for (var child: children) {
-        child.getResolved().setFFinal(false);
+        child.getResolved().setFlag(false);
         resolveInheritance(child, ctxMap, Sets.mutable.empty());
       }
     }

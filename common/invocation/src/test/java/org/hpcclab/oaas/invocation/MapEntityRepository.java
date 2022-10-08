@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -133,4 +134,16 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
     throw new IllegalStateException();
   }
+
+  @Override
+  public List<V> query(String queryString, Map<String, Object> params) {
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
+    throw new IllegalStateException();
+  }
+
+
 }

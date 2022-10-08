@@ -8,10 +8,10 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.repository.ClassResolver;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class MockupData {
 
@@ -54,8 +54,9 @@ public class MockupData {
     ));
 
   public static MutableMap<String,OaasClass> testClasses() {
+    var clsResolver = new ClassResolver();
     return Lists.fixedSize.of(
-      CLS_1
+        clsResolver.resolve(CLS_1, List.of())
     )
       .groupByUniqueKey(OaasClass::getName);
   }

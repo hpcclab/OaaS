@@ -23,4 +23,13 @@ public class DataAccessException extends StdOaasException {
   public void setErrors(Collection<ErrorEntity> errors) {
     this.errors = errors;
   }
+
+  @Override
+  public String toString() {
+    var err = errors.stream()
+      .map(ErrorEntity::getErrorMessage).toList();
+    return "DataAccessException{" +
+      "errors=" + err +
+      '}';
+  }
 }

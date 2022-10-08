@@ -48,7 +48,8 @@ public class RepoContextLoader implements ContextLoader {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
-      .onItem().ifNull().failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
+      .onItem().ifNull()
+      .failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
       .invoke(ctx::setMain)
       .invoke(ctx::setEntry)
       .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
@@ -63,10 +64,11 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setMainCls(mainCls);
     var binding = mainCls
       .findFunction(funcName);
-    if (binding.isEmpty()) throw FunctionValidationException.noFunction(main.getId(), funcName);
-    ctx.setBinding(binding.get());
+    if (binding == null)
+      throw FunctionValidationException.noFunction(main.getId(), funcName);
+    ctx.setBinding(binding);
 
-    var func = funcRepo.get(binding.get().getFunction());
+    var func = funcRepo.get(binding.getFunction());
     if (func==null)
       throw NoStackException.notFoundFunc400(funcName);
     ctx.setFunction(func);

@@ -1,12 +1,12 @@
 package org.hpcclab.oaas.model.exception;
 
-public class FunctionValidationException extends NoStackException {
+public class FunctionValidationException extends OaasValidationException {
   public FunctionValidationException(String message) {
-    super(message, 400);
+    super(message);
   }
 
   public FunctionValidationException(String message, Throwable cause) {
-    super(message, cause, 400);
+    super(message, cause);
   }
 
   public static FunctionValidationException noFunction(String objId, String funcName) {
@@ -27,5 +27,9 @@ public class FunctionValidationException extends NoStackException {
     if (reason == null) reason = "not found in context or wrong syntax";
     return new FunctionValidationException("Can not resolve '%s' (%s)"
       .formatted(ref, reason));
+  }
+
+  public static FunctionValidationException format(String template, Object... params) {
+    return new FunctionValidationException(template.formatted(params));
   }
 }

@@ -20,7 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +35,8 @@ public class ClassResource {
   ObjectRepository objectRepo;
   @Inject
   CtxMapper oaasMapper;
+  @Inject
+  ModuleResource moduleResource;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @GET
@@ -62,10 +63,11 @@ public class ClassResource {
   @JsonView(Views.Public.class)
   public Uni<OaasClass> create(@RestQuery boolean update, OaasClass cls) {
     cls.validate();
-    var changedClasses = classRepo
-      .resolveInheritance(Map.of(cls.getName(), cls));
-    return classRepo.persistAsync(changedClasses.values())
-      .replaceWith(cls);
+    return moduleResource.create(update, new ModuleService.Module()
+      .setClasses(List.of(cls)))
+      .map(module ->module.getClasses().isEmpty()? null:module.getClasses()
+        .get(0)
+      );
   }
 
   @PATCH
@@ -97,8 +99,7 @@ public class ClassResource {
   @GET
   @Path("{name}")
   @JsonView(Views.Public.class)
-  public Uni<OaasClass> get(@QueryParam("resolve") Boolean resolve,
-                            String name) {
+  public Uni<OaasClass> get(String name) {
     return classRepo.getAsync(name)
       .onItem().ifNull().failWith(NotFoundException::new);
   }

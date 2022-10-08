@@ -4,8 +4,11 @@ import java.util.Collection;
 
 public class OaasValidationException extends StdOaasException{
   public OaasValidationException(String message) {
-    super(message);
-    setCode(400);
+    super(message, 400);
+  }
+
+  public OaasValidationException(String message, Throwable throwable) {
+    super(message, throwable, false, 400);
   }
 
   public static OaasValidationException errorClassCyclicInheritance(Collection<String> path) {

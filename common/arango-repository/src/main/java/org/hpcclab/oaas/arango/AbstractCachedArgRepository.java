@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.arango;
 
 import com.arangodb.ArangoDBException;
-import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 public abstract class AbstractCachedArgRepository<V> extends AbstractArgRepository<V>{
@@ -91,11 +89,11 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
     var uni = Uni.createFrom()
       .completionStage(() -> {
         cache().invalidate(key);
-        return getCollectionAsync()
+        return getAsyncCollection()
             .getDocument(key, getValueCls())
             .thenCompose(doc -> {
               var newDoc = function.apply(key, doc);
-              return getCollectionAsync().replaceDocument(key, newDoc, replaceOptions())
+              return getAsyncCollection().replaceDocument(key, newDoc, replaceOptions())
                 .thenApply(__ -> newDoc);
             });
         }

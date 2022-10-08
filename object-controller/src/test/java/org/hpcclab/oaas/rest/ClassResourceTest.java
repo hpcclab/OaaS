@@ -1,21 +1,12 @@
 package org.hpcclab.oaas.rest;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.common.mapper.TypeRef;
-import org.hamcrest.Matchers;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
-import org.hpcclab.oaas.controller.rest.ModuleService;
-import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import javax.ws.rs.core.MediaType;
 
@@ -26,29 +17,10 @@ import static org.hamcrest.Matchers.*;
 @QuarkusTestResource(ArangoResource.class)
 class ClassResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResourceTest.class);
-  @Test
-  void create() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
-    given()
-      .when().get("/api/classes")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("items.name", hasItems("test.dummy.simple", "test.dummy.compound"));
-    given()
-      .when().get("/api/classes/test.dummy.simple")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .log().all();
-  }
 
-  @Test
-  void inheritance() {
-    // language=yaml
-    var clsText = """
+
+  // language=yaml
+  String clsText1 = """
       functions:
         - name: f1
           type: TASK
@@ -85,7 +57,43 @@ class ClassResourceTest {
             - function: f3
               name: func1
       """;
-    TestUtils.createBatchYaml(clsText);
+
+  // language=yaml
+  String clsText2 = """
+      classes:
+        - name: test.add-func
+          parents: [base]
+          stateSpec:
+            keySpecs:
+              - name: k3
+          functions:
+            - function: f2
+              name: func2
+            - function: f3
+              name: func3
+      """;
+
+  @Test
+  void create() {
+    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+    given()
+      .when().get("/api/classes")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("items.name", hasItems("test.dummy.simple", "test.dummy.compound"));
+    given()
+      .when().get("/api/classes/test.dummy.simple")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200);
+  }
+
+  @Test
+  void inheritance() {
+    TestUtils.createBatchYaml(clsText1);
     given()
       .when().get("/api/classes/base")
       .then()
@@ -135,6 +143,47 @@ class ClassResourceTest {
       .body("resolved.keySpecs.k1.name", is("k1"))
       .body("resolved.keySpecs.k2.name", is("k2"))
       .log().ifValidationFails();
+  }
+
+  @Test
+  void testUpdateChild() {
+    TestUtils.createBatchYaml(clsText1);
+    TestUtils.createBatchYaml(clsText2);
+    given()
+      .when().get("/api/classes/test.add-func")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("resolved.functions.func1.name", is("func1"))
+      .body("resolved.functions.func1.function", is("f1"))
+      .body("resolved.functions.func2.name", is("func2"))
+      .body("resolved.functions.func2.function", is("f2"))
+      .body("resolved.functions.func3.name", is("func3"))
+      .body("resolved.functions.func3.function", is("f3"))
+      .body("resolved.keySpecs.k1.name", is("k1"))
+      .body("resolved.keySpecs.k3.name", is("k3"))
+      .log().ifValidationFails();
+
+
+
+    given()
+      .when().get("/api/classes/test.override-func")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("resolved.functions.func1.name", is("func1"))
+      .body("resolved.functions.func1.function", is("f3"))
+      .body("resolved.functions.func2.name", is("func2"))
+      .body("resolved.functions.func2.function", is("f2"))
+      .body("resolved.functions.func3.name", is("func3"))
+      .body("resolved.functions.func3.function", is("f3"))
+      .body("resolved.keySpecs.k1.name", is("k1"))
+      .body("resolved.keySpecs.k2.name", is("k2"))
+      .body("resolved.keySpecs.k3.name", is("k3"))
+      .log().ifValidationFails();
+
   }
 
 

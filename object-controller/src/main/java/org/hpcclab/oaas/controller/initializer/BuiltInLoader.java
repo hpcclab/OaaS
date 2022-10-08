@@ -50,7 +50,7 @@ public class BuiltInLoader {
       .setClasses(classes)
       .setFunctions(functions);
 
-    batchService.create(batch)
-      .subscribeAsCompletionStage().get();
+    batchService.create(true, batch)
+      .await().indefinitely();
   }
 }

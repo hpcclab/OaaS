@@ -30,7 +30,7 @@ public abstract class AbstractArgRepository<V>
 
   public abstract ArangoCollection getCollection();
 
-  public abstract ArangoCollectionAsync getCollectionAsync();
+  public abstract ArangoCollectionAsync getAsyncCollection();
 
   public abstract Class<V> getValueCls();
 
@@ -47,7 +47,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<V> getAsync(String key) {
     Objects.requireNonNull(key);
     LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
-    var future = getCollectionAsync()
+    var future = getAsyncCollection()
       .getDocument(key, getValueCls());
     return createUni(future);
   }
@@ -65,7 +65,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
     LOGGER.debug("listAsync[{}] {}", getCollection().name(),
       keys.size());
-    var future = getCollectionAsync().getDocuments(keys, getValueCls());
+    var future = getAsyncCollection().getDocuments(keys, getValueCls());
     return createUni(future)
       .map(multiDocument -> multiDocument.getDocuments()
         .stream()
@@ -83,7 +83,7 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<V> removeAsync(String key) {
     LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
-    var future = getCollectionAsync().deleteDocument(key, getValueCls(), deleteOptions());
+    var future = getAsyncCollection().deleteDocument(key, getValueCls(), deleteOptions());
     return createUni(future)
       .map(DocumentDeleteEntity::getOld);
   }
@@ -98,7 +98,7 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<V> putAsync(String key, V value) {
     LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
-    var future = getCollectionAsync().insertDocument(value, createOptions());
+    var future = getAsyncCollection().insertDocument(value, createOptions());
     return createUni(future)
       .replaceWith(value);
   }
@@ -111,12 +111,22 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
+  public Uni<V> persistWithPreconditionAsync(V v) {
+    String key = extractKey(v);
+    LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
+    var future = getAsyncCollection()
+      .replaceDocument(key, replaceOptions());
+    return createUni(future)
+      .replaceWith(v);
+  }
+
+  @Override
   public Uni<Void> persistAsync(Collection<V> collection,
                                 boolean notificationEnabled) {
     LOGGER.debug("persistAsync(col)[{}] {}",
       getCollection().name(), collection.size());
-    var future = getCollectionAsync().insertDocuments(collection, createOptions());
-    return createUni(future)
+    return createUni(() -> getAsyncCollection()
+      .insertDocuments(collection, createOptions()))
       .invoke(Unchecked.consumer(mde -> {
         if (mde.getErrors().size() > 0) {
           throw new DataAccessException(mde.getErrors());
@@ -126,15 +136,30 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
+  public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
+    LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
+      getCollection().name(), collection.size());
+
+    return createUni(() -> getAsyncCollection()
+      .updateDocuments(collection, new DocumentUpdateOptions()
+        .ignoreRevs(false)))
+      .invoke(Unchecked.consumer(entities -> {
+        if (!entities.getErrors().isEmpty())
+          throw new DataAccessException(entities.getErrors());
+      }))
+      .replaceWithVoid();
+  }
+
+  @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
     LOGGER.debug("computeAsync[{}] {}",
       getCollection().name(), key);
     var uni = Uni.createFrom()
-      .completionStage(() -> getCollectionAsync()
+      .completionStage(() -> getAsyncCollection()
         .getDocument(key, getValueCls())
         .thenCompose(doc -> {
           var newDoc = function.apply(key, doc);
-          return getCollectionAsync().replaceDocument(key, newDoc, replaceOptions())
+          return getAsyncCollection().replaceDocument(key, newDoc, replaceOptions())
             .thenApply(__ -> newDoc);
         })
       )
@@ -182,7 +207,7 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
-    return createUni(() -> getCollectionAsync().db().query(queryString, params, queryOptions().fullCount(true), getValueCls()).thenApply(cursor -> {
+    return createUni(() -> getAsyncCollection().db().query(queryString, params, queryOptions().fullCount(true), getValueCls()).thenApply(cursor -> {
       try (cursor) {
         var items = cursor.streamRemaining().toList();
         return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
@@ -254,7 +279,7 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
-    return createUni(() -> getCollectionAsync().db().query(queryString, params, queryOptions(), getValueCls()).thenApply(cursor -> {
+    return createUni(() -> getAsyncCollection().db().query(queryString, params, queryOptions(), getValueCls()).thenApply(cursor -> {
       try (cursor) {
         return cursor.streamRemaining().toList();
       } catch (IOException e) {
@@ -268,7 +293,8 @@ public abstract class AbstractArgRepository<V>
   }
 
   static DocumentCreateOptions createOptions() {
-    return new DocumentCreateOptions().overwriteMode(OverwriteMode.replace);
+    return new DocumentCreateOptions()
+      .overwriteMode(OverwriteMode.replace);
   }
 
   static DocumentDeleteOptions deleteOptions() {

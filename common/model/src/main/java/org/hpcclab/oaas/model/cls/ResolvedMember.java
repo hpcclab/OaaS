@@ -1,8 +1,10 @@
 package org.hpcclab.oaas.model.cls;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.state.KeySpecification;
 
@@ -12,11 +14,12 @@ import java.util.Set;
 @Data
 @Accessors(chain = true)
 public class ResolvedMember implements Copyable<ResolvedMember> {
-  Map<String, FunctionBinding> functions;
-  Map<String, KeySpecification> keySpecs;
-  Map<String, ReferenceSpecification> refSpecs;
-  Set<String> identities;
-  boolean fFinal = false;
+  private Map<String, FunctionBinding> functions;
+  private Map<String, KeySpecification> keySpecs;
+  private Map<String, ReferenceSpecification> refSpecs;
+  private Set<String> identities;
+  @JsonView(Views.Internal.class)
+  private  boolean flag = false;
 
   public ResolvedMember() {
   }
@@ -38,12 +41,12 @@ public class ResolvedMember implements Copyable<ResolvedMember> {
                         Map<String, KeySpecification> keySpecs,
                         Map<String, ReferenceSpecification> refSpecs,
                         Set<String> identities,
-                        boolean fFinal) {
+                        boolean flag) {
     this.functions = functionBindings;
     this.keySpecs = keySpecs;
     this.refSpecs = refSpecs;
     this.identities = identities;
-    this.fFinal = fFinal;
+    this.flag = flag;
   }
 
   @Override
@@ -53,7 +56,7 @@ public class ResolvedMember implements Copyable<ResolvedMember> {
       keySpecs==null ? null:Map.copyOf(keySpecs),
       refSpecs==null ? null:Map.copyOf(refSpecs),
       identities==null? null : Set.copyOf(identities),
-      fFinal
+      flag
     );
   }
 }
