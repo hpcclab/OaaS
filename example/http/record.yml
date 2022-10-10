@@ -6,7 +6,7 @@ functions:
     provision:
       knative:
         image: ghcr.io/pawissanutt/oaas/json-update-function:latest
-        minScale: 6
+        minScale: 1
         maxScale: -1
         requestsCpu: '0.5'
         limitsCpu: '1'

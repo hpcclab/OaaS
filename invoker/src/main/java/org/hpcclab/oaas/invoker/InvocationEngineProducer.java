@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskmanager;
+package org.hpcclab.oaas.invoker;
 
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
@@ -12,23 +12,14 @@ import org.hpcclab.oaas.repository.GraphStateManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class InvocationEngineProducer {
 
   @Produces
-  InvocationGraphExecutor invocationGraphExecutor(
-    TaskSubmitter taskSubmitter,
-    GraphStateManager graphStateManager,
-    RepoContextLoader contextLoader,
-    SyncInvoker syncInvoker) {
-    return new InvocationGraphExecutor(taskSubmitter, graphStateManager, contextLoader, syncInvoker);
-  }
-
-  @Produces
-  InvocationConfig invocationConfig(TaskManagerConfig config) {
-    return new InvocationConfig().setStorageAdapterUrl(config.storageAdapterUrl());
+  InvocationConfig invocationConfig(InvokerConfig invokerConfig) {
+    return new InvocationConfig()
+      .setStorageAdapterUrl(invokerConfig.storageAdapterUrl());
   }
 
   @Produces
@@ -39,7 +30,7 @@ public class InvocationEngineProducer {
   @Produces
   HttpInvokerConfig invokerConfig(){
     return HttpInvokerConfig.builder()
-      .appName("oaas/taskmanager")
+      .appName("oaas/invoker")
       .build();
   }
 }

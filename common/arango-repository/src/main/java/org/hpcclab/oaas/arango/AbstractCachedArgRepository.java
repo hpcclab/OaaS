@@ -4,6 +4,7 @@ import com.arangodb.ArangoDBException;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.repository.CachedEntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public abstract class AbstractCachedArgRepository<V> extends AbstractArgRepository<V>{
+public abstract class AbstractCachedArgRepository<V> extends AbstractArgRepository<V>
+  implements CachedEntityRepository<String, V> {
   private static final Logger LOGGER = LoggerFactory.getLogger( AbstractCachedArgRepository.class );
 
   abstract Cache<String, V> cache();
@@ -26,8 +28,21 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
     var val = cache().getIfPresent(key);
     if (val != null)
       return Uni.createFrom().item(get(key));
+    return getWithoutCacheAsync(key);
+  }
+
+
+  @Override
+  public V getWithoutCache(String key) {
+    var v =  super.get(key);
+    cache().put(key, v);
+    return v;
+  }
+
+  @Override
+  public Uni<V> getWithoutCacheAsync(String key) {
     return super.getAsync(key)
-      .invoke(item -> cache().put(key, item));
+      .invoke(v -> cache().put(key, v));
   }
 
   @Override
@@ -109,8 +124,9 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public V compute(String key, BiFunction<String, V, V> function) {
-    LOGGER.debug("compute(cache)[{}] {}",
-      getCollection().name(), key);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("compute(cache)[{}] {}", getCollection().name(), key);
+    }
     var retryCount = 5;
     var col = getCollection();
     ArangoDBException exception = null;
@@ -129,4 +145,10 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
     }
     throw exception;
   }
+
+  @Override
+  public void invalidate(String key) {
+    cache().invalidate(key);
+  }
+
 }

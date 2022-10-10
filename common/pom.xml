@@ -15,6 +15,7 @@
   <modules>
     <module>model</module>
     <module>repository</module>
+    <module>arango-repository</module>
     <module>infinispan-repository</module>
     <module>invocation</module>
   </modules>

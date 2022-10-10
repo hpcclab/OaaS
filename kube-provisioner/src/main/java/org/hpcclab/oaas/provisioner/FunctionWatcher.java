@@ -66,6 +66,8 @@ public class FunctionWatcher {
         var ready = condition.get().getStatus().equals("True");
         var reason = condition.get().getReason();
         if (ready) {
+          LOGGER.info("updating status {} to {}",
+            functionName, DeploymentCondition.RUNNING);
           functionRepo.compute(functionName, (k, f) -> {
             f.getDeploymentStatus()
               .setCondition(DeploymentCondition.RUNNING)
@@ -74,6 +76,8 @@ public class FunctionWatcher {
             return f;
           });
         } else if (reason!=null) {
+          LOGGER.info("updating of status {} to {}",
+            functionName, DeploymentCondition.DOWN);
           functionRepo.compute(functionName, (k, f) -> {
             f.getDeploymentStatus()
               .setCondition(DeploymentCondition.DOWN)
@@ -96,8 +100,7 @@ public class FunctionWatcher {
           );
         return f;
       });
-      default -> {
-      }
+      default -> {}
     }
   }
 }

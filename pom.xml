@@ -8,11 +8,11 @@
   <packaging>pom</packaging>
   <modules>
     <module>common</module>
+    <module>invoker</module>
     <module>kube-provisioner</module>
     <module>object-controller</module>
     <module>task-manager</module>
     <module>storage-adapter</module>
-    <module>common/arango-repository</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>

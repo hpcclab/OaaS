@@ -6,5 +6,5 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-public interface FunctionRepository extends EntityRepository<String, OaasFunction> {
+public interface FunctionRepository extends CachedEntityRepository<String, OaasFunction> {
 }

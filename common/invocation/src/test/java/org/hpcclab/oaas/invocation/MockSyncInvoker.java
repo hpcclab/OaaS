@@ -7,7 +7,7 @@ import org.hpcclab.oaas.model.task.TaskCompletion;
 
 public class MockSyncInvoker implements SyncInvoker{
   @Override
-  public Uni<TaskCompletion> invoke(OaasTask task) {
+  public Uni<TaskCompletion> invoke(InvokingDetail<?> invokingDetail) {
     //TODO
     return Uni.createFrom().nullItem();
   }

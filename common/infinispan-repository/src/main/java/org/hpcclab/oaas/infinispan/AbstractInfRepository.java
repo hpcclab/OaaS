@@ -5,6 +5,8 @@ import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.repository.CachedEntityRepository;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.MetadataValue;
@@ -20,7 +22,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,V> {
+public abstract class AbstractInfRepository<K, V> implements CachedEntityRepository<K,V> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger( AbstractInfRepository.class );
   QueryFactory queryFactory;
@@ -227,6 +229,20 @@ public abstract class AbstractInfRepository<K, V> implements EntityRepository<K,
   @Override
   public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
     throw StdOaasException.notImplemented();
+  }
+
+  @Override
+  public void invalidate(K key) {
+  }
+
+  @Override
+  public V getWithoutCache(K key) {
+    return this.get(key);
+  }
+
+  @Override
+  public Uni<V> getWithoutCacheAsync(K key) {
+    return this.getAsync(key);
   }
 
 }

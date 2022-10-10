@@ -6,6 +6,9 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 
 public interface SyncInvoker {
-  Uni<TaskCompletion> invoke(OaasTask task);
+  default Uni<TaskCompletion> invoke(OaasTask task) {
+    return invoke(InvokingDetail.of(task));
+  }
   Uni<TaskCompletion> invoke(TaskContext taskContext);
+  Uni<TaskCompletion> invoke(InvokingDetail<?> invokingDetail);
 }

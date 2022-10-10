@@ -14,13 +14,7 @@
   oaas:
     log: DEBUG
 
-
 "%prod":
-#  quarkus:
-#    infinispan-client:
-#      auth-username: ${infinispan.username:}
-#      auth-password: ${infinispan.password:}
-#      server-list: ${infinispan.server:}
   oaas:
     oc:
       kafkaEnabled: true
@@ -31,7 +25,7 @@ oaas:
     provisionTopic: oaas-provisions
     kafkaEnabled: false
   log: INFO
-  name: object-controller
+  name: invoker
 
 quarkus:
   console:
@@ -47,7 +41,6 @@ quarkus:
   swagger-ui:
     always-include: true
   smallrye-openapi:
-    store-schema-directory: ../doc/oc
     enable: true
   log:
     category:
@@ -67,20 +60,5 @@ quarkus:
       includes:
         - builtin/**
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
-  opentelemetry:
-    enabled: false
-  rest-client:
-    allocation-api:
-      url: ${oaas.oc.storageAdapterUrl}
-  kafka:
-    devservices:
-      enabled: false
-mp:
-  messaging:
-    outgoing:
-      provisions:
-        enabled: ${oaas.oc.kafkaEnabled}
-        connector: smallrye-kafka
-        topic: ${oaas.oc.provisionTopic}
-        value:
-          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+#  opentelemetry:
+#    enabled: false

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.controller.initializer;
+package org.hpcclab.oaas.invoker;
 
 import io.quarkus.runtime.StartupEvent;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
@@ -11,17 +11,12 @@ import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
 public class ServerInitializer {
-
-  @Inject
-  BuiltInLoader builtInLoader;
   @Inject
   ArgRepositoryInitializer initializer;
 
 
-  void onStart(@Observes StartupEvent startupEvent) throws IOException, ExecutionException, InterruptedException {
-//    infinispanInit.setup();
+  void onStart(@Observes StartupEvent startupEvent){
     initializer.setup();
-    builtInLoader.setup();
   }
 
 }
