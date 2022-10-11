@@ -10,21 +10,17 @@ data:
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
   OAAS_TM_BLOCKINGTIMEOUT: '15'
+  OAAS_TM_TASKTOPIC: oaas-tasks
   OAAS_TM_NATSURLS: nats://my-nats:4222
 #  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
   OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
   OAAS_KP_COMPLETIONHANDLERPATH: /ce
   OAAS_KP_EXPOSEKNATIVE: 'false'
-  INFINISPAN_SERVER: oaas-infinispan:11222
-  INFINISPAN_USERNAME: oaas
-  INFINISPAN_PASSWORD: oaas
-  OAAS_REPO_OBJECT_PERSIST: 'true'
-  OAAS_REPO_CREATEONSTART: 'true'
-  OAAS_REPO_OBJECT_USEROCKSDB: 'true'
-  OAAS_REPO_OBJECT_WRITEBACKQUEUESIZE: '8096'
-#  OAAS_REPO_CLS_NEARCACHEMAXENTRY: "-1"
-#  OAAS_REPO_FUNC_NEARCACHEMAXENTRY: "-1"
+  OAAS_INVOKER_NATSURLS: nats://my-nats:4222
+  OAAS_INVOKER_KAFKA: oaas-kafka-bootstrap:9092
+  OAAS_INVOKER_TOPICS: oaas-tasks
+  OAAS_INVOKER_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   QUARKUS_OPENTELEMETRY_ENABLED: 'false'
 #  OAAS_SA_S3_RELAY: "true"
 #  QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector.default.svc.cluster.local:4317

@@ -7,8 +7,8 @@ import io.smallrye.config.WithDefault;
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
   String storageAdapterUrl();
-  @WithDefault("10")
-  Integer taskCompletionPartitions();
+  @WithDefault("oaas-tasks")
+  String taskTopic();
   String brokerUrl();
   @WithDefault("300")
   int blockingTimeout();

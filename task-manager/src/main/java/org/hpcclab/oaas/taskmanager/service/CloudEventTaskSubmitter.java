@@ -10,7 +10,7 @@ import org.hpcclab.oaas.invocation.TaskFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class CloudEventTaskSubmitter implements TaskSubmitter {
 
   @Inject

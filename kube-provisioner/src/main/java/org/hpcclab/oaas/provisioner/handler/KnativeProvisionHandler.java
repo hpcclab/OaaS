@@ -10,10 +10,9 @@ import io.fabric8.knative.internal.pkg.apis.duck.v1.Destination;
 import io.fabric8.knative.internal.pkg.apis.duck.v1.KReference;
 import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
 import io.fabric8.knative.serving.v1.*;
-import io.fabric8.knative.serving.v1.Service;
-import io.fabric8.knative.serving.v1.ServiceBuilder;
-import io.fabric8.knative.serving.v1.ServiceSpec;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
@@ -31,6 +30,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hpcclab.oaas.provisioner.FunctionWatcher.extractReadyCondition;
 import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 
 @ApplicationScoped
@@ -90,8 +90,9 @@ public class KnativeProvisionHandler {
       var oldSvc = knativeClient.services().withName(svcName)
           .get();
 
+      Service newSvc;
       if (oldSvc != null) {
-        knativeClient.services()
+        newSvc = knativeClient.services()
           .withName(svcName)
           .edit(svc -> {
             svc.setSpec(service.getSpec());
@@ -101,9 +102,10 @@ public class KnativeProvisionHandler {
       } else {
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
-        knativeClient.services().create(service);
+        newSvc = knativeClient.services().create(service);
         LOGGER.info("Created service: {}",service.getMetadata().getName());
       }
+      updateFunctionStatus(function, newSvc);
 
       Sequence sequence = createSequence(function, svcName);
       var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
@@ -125,12 +127,23 @@ public class KnativeProvisionHandler {
 
   private void updateFunctionStatus(OaasFunction function,
                                     Service service) {
-
-    functionRepo.compute(function.getName(), (k,func) -> {
-      func.getDeploymentStatus()
-        .setCondition(DeploymentCondition.DEPLOYING);
-      return func;
-    });
+    var condition = extractReadyCondition(service);
+    var ready = condition.get().getStatus().equals("True");
+    if (ready) {
+      functionRepo.compute(function.getName(), (k, f) -> {
+        f.getDeploymentStatus()
+          .setCondition(DeploymentCondition.RUNNING)
+          .setInvocationUrl(service.getStatus().getAddress().getUrl())
+          .setErrorMsg(null);
+        return f;
+      });
+    } else {
+      functionRepo.compute(function.getName(), (k, func) -> {
+        func.getDeploymentStatus()
+          .setCondition(DeploymentCondition.DEPLOYING);
+        return func;
+      });
+    }
   }
 
   private Trigger createTrigger(OaasFunction function,

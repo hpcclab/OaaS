@@ -65,10 +65,7 @@ public class CloudEventHandlingResource {
     var ceId = headers.get("ce-id");
     LOGGER.debug("received task result: {}", ceId);
     var tc = TaskDecoder.tryDecode(ceId, body);
-    var uni = graphExecutor.complete(tc);
-    if (tc.isSuccess()) {
-      uni = uni.invoke(() -> completionPublisher.publish(tc.getId()));
-    }
-    return uni;
+    return graphExecutor.complete(tc)
+      .invoke(() -> completionPublisher.publish(tc.getId()));
   }
 }

@@ -29,7 +29,7 @@ public class FunctionWatcher {
 
   Watch watch;
 
-  static Optional<Condition> extractReadyCondition(Service service) {
+  public static Optional<Condition> extractReadyCondition(Service service) {
     return service.getStatus()
       .getConditions()
       .stream()

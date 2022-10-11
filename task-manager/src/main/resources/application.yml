@@ -53,3 +53,14 @@ quarkus:
     builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
   opentelemetry:
     enabled: false
+
+
+mp:
+  messaging:
+    outgoing:
+      tasks:
+#        enabled: ${oaas.tm.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oaas.tm.taskTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

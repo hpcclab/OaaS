@@ -15,4 +15,5 @@ public interface InvokerConfig {
   String kafkaGroup();
   Set<String> topics();
   String storageAdapterUrl();
+  String natsUrls();
 }
