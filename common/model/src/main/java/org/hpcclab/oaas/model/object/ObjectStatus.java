@@ -20,13 +20,13 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   TaskStatus taskStatus = TaskStatus.LAZY;
   @ProtoField(value = 2, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long createdTime;
+  long createdTs;
   @ProtoField(value = 3, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long submittedTime;
+  long submittedTs;
   @ProtoField(value = 4, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long completedTime;
+  long completedTs;
   @ProtoField(5)
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   List<String> waitFor = List.of();
@@ -45,12 +45,12 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus, long createdTime, long submittedTime, long completedTime, List<String> waitFor, boolean initWaitFor, String originator,
+  public ObjectStatus(TaskStatus taskStatus, long createdTs, long submittedTs, long completedTs, List<String> waitFor, boolean initWaitFor, String originator,
                       String errorMsg) {
     this.taskStatus = taskStatus;
-    this.createdTime = createdTime;
-    this.submittedTime = submittedTime;
-    this.completedTime = completedTime;
+    this.createdTs = createdTs;
+    this.submittedTs = submittedTs;
+    this.completedTs = completedTs;
     this.waitFor = waitFor;
     this.initWaitFor = initWaitFor;
     this.originator = originator;
@@ -60,9 +60,9 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   public ObjectStatus copy() {
     return new ObjectStatus(
       taskStatus,
-      createdTime,
-      submittedTime,
-      completedTime,
+      createdTs,
+      submittedTs,
+      completedTs,
       waitFor==null ? null:List.copyOf(waitFor),
       initWaitFor,
       originator,
@@ -76,15 +76,15 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     else
       taskStatus = TaskStatus.FAILED;
     if (taskCompletion.getTs() > 0 ) {
-      completedTime = taskCompletion.getTs();
+      completedTs = taskCompletion.getTs();
     } else {
-      completedTime = System.currentTimeMillis();
+      completedTs = System.currentTimeMillis();
     }
     errorMsg = taskCompletion.getErrorMsg();
     var ext = taskCompletion.getExtensions();
     if (ext!=null && ext.containsKey("osts")) {
       try {
-        submittedTime = Long.parseLong(ext.get("osts"));
+        submittedTs = Long.parseLong(ext.get("osts"));
       } catch (NumberFormatException ignore) {
       }
     }

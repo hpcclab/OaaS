@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.arango;
+package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoDBException;
 import com.github.benmanes.caffeine.cache.Cache;

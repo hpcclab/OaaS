@@ -52,7 +52,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   private OaasObject updateCompletedObject(OaasObject obj, TaskCompletion completion) {
     if (obj==null) throw NoStackException.notFoundObject400(completion.getId());
-    if (obj.getStatus().getSubmittedTime() <= 0) {
+    if (obj.getStatus().getSubmittedTs() <= 0) {
       LOGGER.warn("completing object {} has no submittedTime", obj.getId());
     }
     obj.updateStatus(completion);
@@ -94,7 +94,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       })
       .filter(ctx -> {
         var status = ctx.getOutput().getStatus();
-        if (status.getSubmittedTime() <= 0) {
+        if (status.getSubmittedTs() <= 0) {
           LOGGER.warn("Detect object {} without SubmittedTime [originator={}, ctxId={}]",
             ctx.getOutput().getId(),
             status.getOriginator(),
@@ -148,7 +148,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       return object;
     status
       .setTaskStatus(TaskStatus.DOING)
-      .setSubmittedTime(System.currentTimeMillis())
+      .setSubmittedTs(System.currentTimeMillis())
       .setOriginator(originator);
     return object;
   }

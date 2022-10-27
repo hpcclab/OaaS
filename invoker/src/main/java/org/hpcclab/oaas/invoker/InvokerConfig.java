@@ -13,7 +13,16 @@ public interface InvokerConfig {
   String kafka();
   @WithDefault("oaas-invoker")
   String kafkaGroup();
-  Set<String> topics();
+
+  @WithDefault("oaas-fn-")
+  String functionTopicPrefix();
   String storageAdapterUrl();
   String natsUrls();
+
+  @WithDefault("100")
+  int connectionPoolMaxSize();
+  @WithDefault("5")
+  int h2ConnectionPoolMaxSize();
+  @WithDefault("1")
+  int numOfVerticle();
 }

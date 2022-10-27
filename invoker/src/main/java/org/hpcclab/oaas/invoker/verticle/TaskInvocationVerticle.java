@@ -16,6 +16,8 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.util.Objects;
+import java.util.Set;
 
 @Dependent
 public class TaskInvocationVerticle extends AbstractVerticle {
@@ -33,11 +35,16 @@ public class TaskInvocationVerticle extends AbstractVerticle {
   @Inject
   KafkaClientOptions options;
 
+  Set<String> topics;
+
   private KafkaConsumer<Buffer, Buffer> kafkaConsumer;
   private TaskMessageConsumer taskMessageConsumer;
 
   @Override
   public void init(Vertx vertx, Context context) {
+    if (topics == null || topics.isEmpty()) {
+      throw new IllegalStateException("topics must not be null or empty");
+    }
     kafkaConsumer = KafkaConsumer.create(
       io.vertx.mutiny.core.Vertx.newInstance(vertx),
       options);
@@ -46,9 +53,12 @@ public class TaskInvocationVerticle extends AbstractVerticle {
       funcRepo,
       graphExecutor,
       objCompPublisher,
-      config,
-      kafkaConsumer
+      kafkaConsumer,
+      topics
     );
+  }
+  public void  setTopics(Set<String> topics) {
+    this.topics = topics;
   }
 
   @Override

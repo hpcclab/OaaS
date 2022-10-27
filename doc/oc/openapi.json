@@ -1084,6 +1084,10 @@
           "embeddedRecord" : {
             "$ref" : "#/components/schemas/ObjectNode"
           },
+          "hash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "id" : {
             "type" : "string"
           },
@@ -1099,10 +1103,6 @@
           },
           "origin" : {
             "$ref" : "#/components/schemas/ObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
           },
           "refs" : {
             "uniqueItems" : true,
@@ -1159,6 +1159,10 @@
           "embeddedRecord" : {
             "$ref" : "#/components/schemas/ObjectNode_Public"
           },
+          "hash" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "id" : {
             "type" : "string"
           },
@@ -1171,10 +1175,6 @@
           },
           "origin" : {
             "$ref" : "#/components/schemas/ObjectOrigin_Public"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
           },
           "refs" : {
             "uniqueItems" : true,
@@ -1368,18 +1368,18 @@
       "ObjectStatus" : {
         "type" : "object",
         "properties" : {
-          "completedTime" : {
+          "completedTs" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "createdTime" : {
+          "createdTs" : {
             "format" : "int64",
             "type" : "integer"
           },
           "errorMsg" : {
             "type" : "string"
           },
-          "submittedTime" : {
+          "submittedTs" : {
             "format" : "int64",
             "type" : "integer"
           },
@@ -1397,18 +1397,18 @@
       "ObjectStatus_Public" : {
         "type" : "object",
         "properties" : {
-          "completedTime" : {
+          "completedTs" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "createdTime" : {
+          "createdTs" : {
             "format" : "int64",
             "type" : "integer"
           },
           "errorMsg" : {
             "type" : "string"
           },
-          "submittedTime" : {
+          "submittedTs" : {
             "format" : "int64",
             "type" : "integer"
           },

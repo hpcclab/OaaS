@@ -4,6 +4,7 @@ data:
   QUARKUS_CONSOLE_COLOR: 'false'
   QUARKUS_HTTP_CORS: 'true'
   KAFKA_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
+#  OAAS_LOG: DEBUG
   OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_OC_PROVISIONTOPIC: oaas-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
@@ -12,6 +13,7 @@ data:
   OAAS_TM_BLOCKINGTIMEOUT: '15'
   OAAS_TM_TASKTOPIC: oaas-tasks
   OAAS_TM_NATSURLS: nats://my-nats:4222
+  OAAS_TM_CONNECTIONPOOLMAXSIZE: '100'
 #  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
   OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
@@ -21,6 +23,8 @@ data:
   OAAS_INVOKER_KAFKA: oaas-kafka-bootstrap:9092
   OAAS_INVOKER_TOPICS: oaas-tasks
   OAAS_INVOKER_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_INVOKER_CONNECTIONPOOLMAXSIZE: '100'
+  OAAS_INVOKER_NUMOFVERTICLE: '2'
   QUARKUS_OPENTELEMETRY_ENABLED: 'false'
 #  OAAS_SA_S3_RELAY: "true"
 #  QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector.default.svc.cluster.local:4317

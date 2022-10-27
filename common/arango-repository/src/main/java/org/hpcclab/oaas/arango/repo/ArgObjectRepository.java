@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.arango;
+package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;

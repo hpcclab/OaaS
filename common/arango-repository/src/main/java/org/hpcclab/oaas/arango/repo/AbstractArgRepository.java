@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.arango;
+package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDBException;
@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
+import org.hpcclab.oaas.arango.DataAccessException;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
@@ -47,9 +48,8 @@ public abstract class AbstractArgRepository<V>
   public Uni<V> getAsync(String key) {
     Objects.requireNonNull(key);
     LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
-    var future = getAsyncCollection()
-      .getDocument(key, getValueCls());
-    return createUni(future);
+    return createUni(() -> getAsyncCollection()
+      .getDocument(key, getValueCls()));
   }
 
   @Override
@@ -65,8 +65,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
     LOGGER.debug("listAsync[{}] {}", getCollection().name(),
       keys.size());
-    var future = getAsyncCollection().getDocuments(keys, getValueCls());
-    return createUni(future)
+    return createUni(() -> getAsyncCollection().getDocuments(keys, getValueCls()))
       .map(multiDocument -> multiDocument.getDocuments()
         .stream()
         .collect(Collectors.toMap(this::extractKey, Functions.identity()))
@@ -83,8 +82,7 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<V> removeAsync(String key) {
     LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
-    var future = getAsyncCollection().deleteDocument(key, getValueCls(), deleteOptions());
-    return createUni(future)
+    return createUni(() -> getAsyncCollection().deleteDocument(key, getValueCls(), deleteOptions()))
       .map(DocumentDeleteEntity::getOld);
   }
 
@@ -98,8 +96,7 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<V> putAsync(String key, V value) {
     LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
-    var future = getAsyncCollection().insertDocument(value, createOptions());
-    return createUni(future)
+    return createUni(() -> getAsyncCollection().insertDocument(value, createOptions()))
       .replaceWith(value);
   }
 
@@ -114,9 +111,8 @@ public abstract class AbstractArgRepository<V>
   public Uni<V> persistWithPreconditionAsync(V v) {
     String key = extractKey(v);
     LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
-    var future = getAsyncCollection()
-      .replaceDocument(key, replaceOptions());
-    return createUni(future)
+    return createUni(() ->  getAsyncCollection()
+      .replaceDocument(key, replaceOptions()))
       .replaceWith(v);
   }
 
@@ -154,8 +150,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
     LOGGER.debug("computeAsync[{}] {}",
       getCollection().name(), key);
-    var uni = Uni.createFrom()
-      .completionStage(() -> getAsyncCollection()
+    var uni = createUni(() -> getAsyncCollection()
         .getDocument(key, getValueCls())
         .thenCompose(doc -> {
           var newDoc = function.apply(key, doc);
@@ -218,19 +213,11 @@ public abstract class AbstractArgRepository<V>
       }));
   }
 
-  protected <T> Uni<T> createUni(CompletionStage<T> stage) {
-    var uni = Uni.createFrom().completionStage(stage);
-//    var ctx = Vertx.currentContext();
-//    if (ctx!=null)
-//      return uni.emitOn(ctx::runOnContext);
-    return uni;
-  }
-
   protected <T> Uni<T> createUni(Supplier<CompletionStage<T>> stage) {
     var uni = Uni.createFrom().completionStage(stage);
-//    var ctx = Vertx.currentContext();
-//    if (ctx!=null)
-//      return uni.emitOn(ctx::runOnContext);
+    var ctx = Vertx.currentContext();
+    if (ctx!=null)
+      return uni.emitOn(ctx::runOnContext);
     return uni;
   }
 

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.arango;
+package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -36,12 +37,13 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   @Inject
   ClassResolver classResolver;
 
-  Cache<String, OaasClass> cache;
+  @Inject
+  CacheFactory cacheFactory;
+  private Cache<String, OaasClass> cache;
 
   @PostConstruct
   void setup() {
-    cache = Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(10))
-      .build();
+    cache = cacheFactory.get();
   }
 
   @Override

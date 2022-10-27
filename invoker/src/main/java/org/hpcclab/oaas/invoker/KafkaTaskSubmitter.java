@@ -29,10 +29,10 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   @Override
   public Uni<Void> submit(TaskContext context) {
     var task = taskFactory.genTask(context);
-    var topic = config.topics().stream().findFirst().orElseThrow();
+    var topic = selectTopic(context);
     var record = KafkaProducerRecord.create(
         topic,
-        (Buffer)null,
+        (Buffer) null,
         Json.encodeToBuffer(task)
       )
       .addHeaders(List.of(
@@ -42,5 +42,10 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
 
     return producer.send(record)
       .replaceWithVoid();
+  }
+
+  public String selectTopic(TaskContext context) {
+//    return config.topics().stream().findFirst().orElseThrow();
+    return config.functionTopicPrefix() + context.getFunction().getName();
   }
 }

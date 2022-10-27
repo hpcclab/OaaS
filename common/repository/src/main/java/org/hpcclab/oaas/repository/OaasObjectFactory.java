@@ -40,7 +40,7 @@ public class OaasObjectFactory {
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setTaskStatus(TaskStatus.READY);
-    status.setCreatedTime(System.currentTimeMillis());
+    status.setCreatedTs(System.currentTimeMillis());
     obj.setStatus(status);
     return obj;
   }
@@ -65,7 +65,7 @@ public class OaasObjectFactory {
     obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
-    status.setCreatedTime(System.currentTimeMillis());
+    status.setCreatedTs(System.currentTimeMillis());
     obj.setStatus(status);
     return obj;
   }

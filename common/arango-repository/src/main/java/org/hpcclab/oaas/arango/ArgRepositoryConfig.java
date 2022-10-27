@@ -27,4 +27,7 @@ public interface ArgRepositoryConfig {
   String classCollection();
   @WithDefault("OaasObjectDependEdge")
   String odeCollection();
+
+  @WithDefault("10000")
+  int cacheTimeout();
 }

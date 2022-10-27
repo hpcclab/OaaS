@@ -1,11 +1,13 @@
 package org.hpcclab.oaas.taskmanager.event;
 
 import io.nats.client.Connection;
+import io.nats.client.Dispatcher;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,6 +16,13 @@ public class NatsObjCompListener implements ObjectCompletionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger( NatsObjCompListener.class );
   @Inject
   Connection nc;
+  private ThreadLocal<Dispatcher> localDispatcher;
+
+  @PostConstruct
+  void setup() {
+    localDispatcher = ThreadLocal.withInitial(() -> nc.createDispatcher());
+  }
+
   @Override
   public void cleanup() {
     try {
@@ -27,18 +36,21 @@ public class NatsObjCompListener implements ObjectCompletionListener {
   public Uni<String> wait(String id, Integer timeout) {
     var subject = "objects/" + id;
     return Uni.createFrom().emitter(emitter -> {
+      var dispatcher = localDispatcher.get();
       LOGGER.debug("start subscribe to {}", id);
-      var dispatcher = nc.createDispatcher((msg) -> {
+      dispatcher.subscribe(subject, msg -> {
         LOGGER.debug("receive event from {}", id);
         emitter.complete(id);
       });
       emitter.onTermination(() -> dispatcher.unsubscribe(subject));
-      dispatcher.subscribe(subject);
     });
   }
 
   @Override
   public boolean healthcheck() {
-    return nc.getStatus() == Connection.Status.CONNECTED;
+    if (nc.getStatus() == Connection.Status.CONNECTED)
+      return true;
+    LOGGER.error("NATS client status is {}", nc.getStatus());
+    return false;
   }
 }

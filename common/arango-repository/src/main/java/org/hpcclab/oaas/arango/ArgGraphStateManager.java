@@ -57,8 +57,8 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
 
   @Override
   public Uni<Void> persistEdge(String srcId, String desId) {
-    LOGGER.debug("persistEdge[{}] {}",
-      edgeCollection.name(), srcId);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("persistEdge[{}] {}", edgeCollection.name(), srcId);
     var ode = new ObjectDependencyEdge(srcId, desId);
     return createUni(edgeCollection.insertDocument(ode))
       .replaceWithVoid();
@@ -66,8 +66,10 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
 
   @Override
   public Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap) {
-    LOGGER.debug("persistEdge(col)[{}] {}",
-      edgeCollection.name(), edgeMap.size());
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("persistEdge(col)[{}] {}", edgeCollection.name(), edgeMap.size());
+    if (edgeMap.isEmpty())
+      return Uni.createFrom().voidItem();
     var odes = edgeMap.stream()
       .map(e -> new ObjectDependencyEdge(e.getKey(), e.getValue()))
       .toList();

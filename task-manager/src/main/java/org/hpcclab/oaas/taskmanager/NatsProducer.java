@@ -2,6 +2,9 @@ package org.hpcclab.oaas.taskmanager;
 
 import io.nats.client.Connection;
 import io.nats.client.Nats;
+import io.nats.client.Options;
+import io.vertx.core.Vertx;
+import io.vertx.core.impl.VertxInternal;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -14,7 +17,11 @@ public class NatsProducer {
   TaskManagerConfig config;
 
   @Produces
-  public Connection nats() throws IOException, InterruptedException {
-    return Nats.connect(config.natsUrls());
+  public Connection nats(Vertx vertx) throws IOException, InterruptedException {
+    var executor = ((VertxInternal) vertx).getWorkerPool().executor();
+    return Nats.connect(new Options.Builder()
+      .server(config.natsUrls())
+      .executor(executor)
+      .build());
   }
 }

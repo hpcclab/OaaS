@@ -17,4 +17,13 @@ public interface TaskManagerConfig {
   @WithDefault("true")
   boolean defaultAwaitCompletion();
   String natsUrls();
+
+
+  @WithDefault("100")
+  int connectionPoolMaxSize();
+  @WithDefault("5")
+  int h2ConnectionPoolMaxSize();
+
+  @WithDefault("oaas-fn-")
+  String functionTopicPrefix();
 }

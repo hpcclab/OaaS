@@ -31,7 +31,7 @@ public class OaasObject implements Copyable<OaasObject> {
   @ProtoField(2)
   ObjectOrigin origin;
   @ProtoField(3)
-  Long originHash;
+  Long hash;
   @ProtoField(4)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
@@ -52,11 +52,11 @@ public class OaasObject implements Copyable<OaasObject> {
   public OaasObject() {}
 
   @ProtoFactory
-  public OaasObject(String id, ObjectOrigin origin, Long originHash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {
+  public OaasObject(String id, ObjectOrigin origin, Long hash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {
     this.id = id;
     this.key = id;
     this.origin = origin;
-    this.originHash = originHash;
+    this.hash = hash;
     this.cls = cls;
     this.labels = labels;
     this.state = state;
@@ -83,7 +83,7 @@ public class OaasObject implements Copyable<OaasObject> {
     return new OaasObject(
       id,
       origin==null ? null:origin.copy(),
-      originHash,
+      hash,
       cls,
       labels==null ? null:Set.copyOf(labels),
       state.copy(),
@@ -118,7 +118,7 @@ public class OaasObject implements Copyable<OaasObject> {
     if (originator == null) originator = id;
     status
       .setTaskStatus(TaskStatus.DOING)
-      .setSubmittedTime(System.currentTimeMillis())
+      .setSubmittedTs(System.currentTimeMillis())
       .setOriginator(originator);
     return this;
   }

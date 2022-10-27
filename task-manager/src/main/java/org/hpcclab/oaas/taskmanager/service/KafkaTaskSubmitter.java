@@ -15,6 +15,7 @@ import org.hpcclab.oaas.invocation.function.TaskSubmitter;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +27,8 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   MutinyEmitter<OaasTask> taskEmitter;
   @Inject
   TaskFactory taskFactory;
+  @Inject
+  TaskManagerConfig config;
 
   @Override
   public Uni<Void> submit(TaskContext context) {
@@ -36,7 +39,13 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
           .add("ce_id", task.getId().getBytes())
           .add("ce_function", context.getFunction().getName().getBytes())
         )
+        .withTopic(selectTopic(context))
         .build());
     return taskEmitter.sendMessage(message);
+  }
+
+  public String selectTopic(TaskContext context) {
+    return config.functionTopicPrefix() + context.getFunction().getName();
+//      .replaceAll("\\.","-");
   }
 }

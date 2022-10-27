@@ -748,6 +748,9 @@ components:
           type: string
         embeddedRecord:
           $ref: '#/components/schemas/ObjectNode'
+        hash:
+          format: int64
+          type: integer
         id:
           type: string
         _key:
@@ -759,9 +762,6 @@ components:
             type: string
         origin:
           $ref: '#/components/schemas/ObjectOrigin'
-        originHash:
-          format: int64
-          type: integer
         refs:
           uniqueItems: true
           type: array
@@ -798,6 +798,9 @@ components:
           type: string
         embeddedRecord:
           $ref: '#/components/schemas/ObjectNode_Public'
+        hash:
+          format: int64
+          type: integer
         id:
           type: string
         labels:
@@ -807,9 +810,6 @@ components:
             type: string
         origin:
           $ref: '#/components/schemas/ObjectOrigin_Public'
-        originHash:
-          format: int64
-          type: integer
         refs:
           uniqueItems: true
           type: array
@@ -937,15 +937,15 @@ components:
     ObjectStatus:
       type: object
       properties:
-        completedTime:
+        completedTs:
           format: int64
           type: integer
-        createdTime:
+        createdTs:
           format: int64
           type: integer
         errorMsg:
           type: string
-        submittedTime:
+        submittedTs:
           format: int64
           type: integer
         taskStatus:
@@ -957,15 +957,15 @@ components:
     ObjectStatus_Public:
       type: object
       properties:
-        completedTime:
+        completedTs:
           format: int64
           type: integer
-        createdTime:
+        createdTs:
           format: int64
           type: integer
         errorMsg:
           type: string
-        submittedTime:
+        submittedTs:
           format: int64
           type: integer
         taskStatus:

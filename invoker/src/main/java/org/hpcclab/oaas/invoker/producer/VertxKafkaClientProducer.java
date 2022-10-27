@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Dependent
-public class VertxKafkaProducer {
+public class VertxKafkaClientProducer {
 
   @Produces
   public KafkaClientOptions options(InvokerConfig invokerConfig) {
@@ -23,6 +23,7 @@ public class VertxKafkaProducer {
     config.put("value.deserializer", "io.vertx.kafka.client.serialization.BufferDeserializer");
     config.put("group.id", invokerConfig.kafkaGroup());
     config.put("auto.offset.reset", "earliest");
+    config.put("fetch.min.bytes", "1");
     config.put("enable.auto.commit", "true");
     return new KafkaClientOptions()
       .setConfig(config);

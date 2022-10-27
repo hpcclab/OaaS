@@ -71,6 +71,7 @@ public class HttpInvoker implements SyncInvoker {
       .add("ce-function", config.getAppName())
       .add("ce-id", detail.getId())
       .add("ce-source", config.getAppName())
+      .add("ce-specversion", "1.0")
       .add("content-type", "application/json");
   }
 
@@ -82,7 +83,7 @@ public class HttpInvoker implements SyncInvoker {
         detail.getId(),
         false,
         "Fail to perform invocation: function return not 200 code (%s)"
-          .formatted(resp.cookies()),
+          .formatted(resp.statusCode()),
         null
       );
   }

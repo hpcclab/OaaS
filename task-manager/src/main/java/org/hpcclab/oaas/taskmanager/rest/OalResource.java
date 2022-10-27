@@ -60,10 +60,10 @@ public class OalResource {
             // NOTE Temporary fix for object status data lost problem.
             var status = o.getStatus();
             if (status.getTaskStatus().isCompleted()) {
-              if (status.getSubmittedTime() <= 0)
-                status.setSubmittedTime(ctx.getOutput().getStatus().getSubmittedTime());
-              if (status.getCompletedTime() <= 0)
-                status.setCompletedTime(System.currentTimeMillis());
+              if (status.getSubmittedTs() <= 0)
+                status.setSubmittedTs(ctx.getOutput().getStatus().getSubmittedTs());
+              if (status.getCompletedTs() <= 0)
+                status.setCompletedTs(System.currentTimeMillis());
             }
           }));
     } else {

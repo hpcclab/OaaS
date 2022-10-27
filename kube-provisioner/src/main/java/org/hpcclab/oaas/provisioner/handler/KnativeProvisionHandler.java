@@ -18,7 +18,7 @@ import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.arango.ArgFunctionRepository;
+import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.KpConfig;
@@ -258,24 +258,6 @@ public class KnativeProvisionHandler {
     if (!kpConfig.exposeKnative()) {
       labels.put("networking.knative.dev/visibility","cluster-local");
     }
-
-//    var wpat = new WeightedPodAffinityTermBuilder()
-//      .withWeight(100)
-//      .withNewPodAffinityTerm()
-//      .withNewLabelSelector()
-//      .addToMatchLabels(labelKey, function.getName())
-//      .endLabelSelector()
-//      .withTopologyKey("kubernetes.io/hostname")
-//      .endPodAffinityTerm()
-//      .build();
-//    AffinityBuilder ab = new AffinityBuilder();
-//    Affinity affinity = null;
-//    if (kpConfig.addAffinity()) {
-//      affinity = ab.withNewPodAntiAffinity()
-//        .addToPreferredDuringSchedulingIgnoredDuringExecution(wpat)
-//        .endPodAntiAffinity()
-//        .build();
-//    }
 
     return new ServiceBuilder()
       .withNewMetadata()
