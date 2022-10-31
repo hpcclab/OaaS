@@ -68,16 +68,16 @@ public class KnativeProvisionHandler {
     var function = functionRecord.value();
     if (function == null) {
       boolean deleted;
-      deleted = knativeClient
-        .triggers()
-        .withLabel(LABEL_KEY, key)
-        .delete();
-      if (deleted) LOGGER.info("Deleted trigger: {}", key);
-      deleted =knativeClient
-        .sequences()
-        .withLabel(LABEL_KEY, key)
-        .delete();
-      if (deleted) LOGGER.info("Deleted sequence: {}", key);
+//      deleted = knativeClient
+//        .triggers()
+//        .withLabel(LABEL_KEY, key)
+//        .delete();
+//      if (deleted) LOGGER.info("Deleted trigger: {}", key);
+//      deleted =knativeClient
+//        .sequences()
+//        .withLabel(LABEL_KEY, key)
+//        .delete();
+//      if (deleted) LOGGER.info("Deleted sequence: {}", key);
       deleted =knativeClient
         .services()
         .withLabel(LABEL_KEY, key)
@@ -107,21 +107,21 @@ public class KnativeProvisionHandler {
       }
       updateFunctionStatus(function, newSvc);
 
-      Sequence sequence = createSequence(function, svcName);
-      var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
-        .get();
-      if (oldSq == null) {
-        knativeClient.sequences().createOrReplace(sequence);
-        LOGGER.info("Created sequence: {}",sequence.getMetadata().getName());
-      }
-
-      Trigger trigger = createTrigger(function, svcName);
-      var oldTg = knativeClient.triggers().withName(svcName+ "-trigger")
-        .get();
-      if (oldTg == null) {
-        knativeClient.triggers().create(trigger);
-        LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
-      }
+//      Sequence sequence = createSequence(function, svcName);
+//      var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
+//        .get();
+//      if (oldSq == null) {
+//        knativeClient.sequences().createOrReplace(sequence);
+//        LOGGER.info("Created sequence: {}",sequence.getMetadata().getName());
+//      }
+//
+//      Trigger trigger = createTrigger(function, svcName);
+//      var oldTg = knativeClient.triggers().withName(svcName+ "-trigger")
+//        .get();
+//      if (oldTg == null) {
+//        knativeClient.triggers().create(trigger);
+//        LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
+//      }
     }
   }
 

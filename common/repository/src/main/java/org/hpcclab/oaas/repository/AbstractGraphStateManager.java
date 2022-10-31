@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -51,10 +51,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   private OaasObject updateCompletedObject(OaasObject obj, TaskCompletion completion) {
-    if (obj==null) throw NoStackException.notFoundObject400(completion.getId());
-    if (obj.getStatus().getSubmittedTs() <= 0) {
-      LOGGER.warn("completing object {} has no submittedTime", obj.getId());
-    }
+    if (obj==null) throw StdOaasException.notFoundObject400(completion.getId());
     obj.updateStatus(completion);
     return obj;
   }
@@ -85,16 +82,16 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     return Multi.createFrom().iterable(contexts)
       .onItem().transformToUniAndConcatenate(ctx -> {
         if (entryCtx.contains(ctx)) {
-          ctx.getOutput().markAsSubmitted(originator);
+          ctx.getOutput().markAsSubmitted(originator, true);
           return Uni.createFrom().item(ctx);
         } else {
-          return objRepo.computeAsync(ctx.getOutput().getId(), (id, obj) -> obj.markAsSubmitted(originator))
+          return objRepo.computeAsync(ctx.getOutput().getId(), (id, obj) -> obj.markAsSubmitted(originator, true))
             .map(ctx::setOutput);
         }
       })
       .filter(ctx -> {
         var status = ctx.getOutput().getStatus();
-        if (status.getSubmittedTs() <= 0) {
+        if (status.getSmtTs() <= 0) {
           LOGGER.warn("Detect object {} without SubmittedTime [originator={}, ctxId={}]",
             ctx.getOutput().getId(),
             status.getOriginator(),
@@ -148,7 +145,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       return object;
     status
       .setTaskStatus(TaskStatus.DOING)
-      .setSubmittedTs(System.currentTimeMillis())
+      .setSmtTs(System.currentTimeMillis())
       .setOriginator(originator);
     return object;
   }

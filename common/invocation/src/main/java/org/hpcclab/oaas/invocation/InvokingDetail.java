@@ -15,13 +15,15 @@ public class InvokingDetail<V> {
   String funcName;
   String funcUrl;
   V content;
+  long smtTs = -1;
 
   public static InvokingDetail<OaasTask> of(OaasTask task) {
     return new InvokingDetail<>(
       task.getId(),
       task.getFunction().getName(),
       task.getFunction().getDeploymentStatus().getInvocationUrl(),
-      task
+      task,
+      -1
     );
   }
 }

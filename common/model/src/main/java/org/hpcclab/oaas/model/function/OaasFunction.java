@@ -30,6 +30,7 @@ public class OaasFunction {
   @NotNull
   @ProtoField(3)
   FunctionType type;
+  @NotBlank
   @ProtoField(4)
   String outputCls;
 
@@ -48,12 +49,25 @@ public class OaasFunction {
   @ProtoField(9)
   FunctionDeploymentStatus deploymentStatus;
 
+  @ProtoField(10)
+  FunctionState state = FunctionState.ENABLED;
+
+
+
   public OaasFunction() {
   }
 
   @ProtoFactory
-  public OaasFunction(String name, String description, FunctionType type, String outputCls, FunctionValidation validation, Dataflow macro, ProvisionConfig provision, List<VariableDescription> variableDescriptions,
-                      FunctionDeploymentStatus deploymentStatus) {
+  public OaasFunction(String name,
+                      String description,
+                      FunctionType type,
+                      String outputCls,
+                      FunctionValidation validation,
+                      Dataflow macro,
+                      ProvisionConfig provision,
+                      List<VariableDescription> variableDescriptions,
+                      FunctionDeploymentStatus deploymentStatus,
+                      FunctionState state) {
     this.name = name;
     this.key = name;
     this.description = description;
@@ -64,6 +78,7 @@ public class OaasFunction {
     this.provision = provision;
     this.variableDescriptions = variableDescriptions;
     this.deploymentStatus = deploymentStatus;
+    this.state = state;
   }
 
   public void validate() {

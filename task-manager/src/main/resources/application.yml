@@ -64,3 +64,14 @@ mp:
         topic: ${oaas.tm.taskTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+        batch:
+          size: 65536
+        linger:
+          ms: 0
+        max:
+          in:
+            flight:
+              requests:
+                per:
+                  connection: 5
+        max-inflight-messages: 0

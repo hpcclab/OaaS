@@ -111,15 +111,20 @@ public class OaasObject implements Copyable<OaasObject> {
     return this;
   }
 
-  public OaasObject markAsSubmitted(String originator) {
+  public OaasObject markAsSubmitted(String originator,
+                                    boolean queue) {
     var ts = status.getTaskStatus();
     if (ts.isSubmitted() || ts.isFailed())
       return this;
     if (originator == null) originator = id;
     status
       .setTaskStatus(TaskStatus.DOING)
-      .setSubmittedTs(System.currentTimeMillis())
       .setOriginator(originator);
+    if (queue)
+      status.setQueTs(System.currentTimeMillis());
+    else
+      status.setSmtTs(System.currentTimeMillis());
+
     return this;
   }
 

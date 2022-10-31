@@ -61,7 +61,10 @@ public class HttpInvoker implements SyncInvoker {
             invokingDetail.getId(),
             false,
             "Fail to perform invocation: " + e.getMessage(),
-            null)
+            null,
+            null,
+            invokingDetail.getSmtTs(),
+            System.currentTimeMillis())
           );
   }
 
@@ -77,14 +80,18 @@ public class HttpInvoker implements SyncInvoker {
 
   TaskCompletion handleResp(InvokingDetail<?> detail, HttpResponse<Buffer> resp) {
     if (resp.statusCode() == 200)
-      return TaskDecoder.tryDecode(detail.getId(), resp.bodyAsBuffer().getDelegate());
+      return TaskDecoder.tryDecode(detail.getId(), resp.bodyAsBuffer().getDelegate())
+        .setSmtTs(detail.getSmtTs());
     else
       return new TaskCompletion(
         detail.getId(),
         false,
         "Fail to perform invocation: function return not 200 code (%s)"
           .formatted(resp.statusCode()),
-        null
+        null,
+        null,
+        detail.smtTs,
+        System.currentTimeMillis()
       );
   }
 

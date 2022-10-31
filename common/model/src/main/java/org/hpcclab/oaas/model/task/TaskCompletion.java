@@ -2,9 +2,6 @@ package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -29,7 +26,10 @@ public class TaskCompletion {
   Map<String,String> extensions;
 
   @JsonIgnore
-  long ts = -1;
+  long cmpTs = -1;
+  @JsonIgnore
+  long smtTs = -1;
+
 
   public TaskCompletion() {
   }
@@ -47,12 +47,14 @@ public class TaskCompletion {
                         String errorMsg,
                         ObjectNode embeddedRecord,
                         Map<String,String> extensions,
-                        long ts) {
+                        long smtTs,
+                        long cmpTs) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
     this.embeddedRecord = embeddedRecord;
     this.extensions = extensions;
-    this.ts = ts;
+    this.smtTs = smtTs;
+    this.cmpTs = cmpTs;
   }
 }

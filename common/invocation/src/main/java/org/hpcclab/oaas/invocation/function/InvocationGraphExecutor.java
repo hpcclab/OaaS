@@ -99,7 +99,7 @@ public class InvocationGraphExecutor {
 
   public Uni<FunctionExecContext> syncExec(FunctionExecContext ctx) {
     var output = ctx.getOutput();
-    output.markAsSubmitted(null);
+    output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(ctx);
     return uni.invoke(output::updateStatus)
       .call(() -> gsm.persistAllWithoutNoti(ctx))

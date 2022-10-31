@@ -56,16 +56,17 @@ public class OalResource {
     if (oal.getFunctionName()!=null) {
       return applyFunction(oal)
         .flatMap(ctx -> invokeThenAwait(ctx, await!=null && await, timeout, mq)
-          .invoke(o -> {
-            // NOTE Temporary fix for object status data lost problem.
-            var status = o.getStatus();
-            if (status.getTaskStatus().isCompleted()) {
-              if (status.getSubmittedTs() <= 0)
-                status.setSubmittedTs(ctx.getOutput().getStatus().getSubmittedTs());
-              if (status.getCompletedTs() <= 0)
-                status.setCompletedTs(System.currentTimeMillis());
-            }
-          }));
+//          .invoke(o -> {
+//            // NOTE Temporary fix for object status data lost problem.
+//            var status = o.getStatus();
+//            if (status.getTaskStatus().isCompleted()) {
+//              if (status.getSubmittedTs() <= 0)
+//                status.setSubmittedTs(ctx.getOutput().getStatus().getSubmittedTs());
+//              if (status.getCompletedTs() <= 0)
+//                status.setCompletedTs(System.currentTimeMillis());
+//            }
+//          })
+        );
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()

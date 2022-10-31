@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task-manager
+  name: invoker
   labels:
-    app: task-manager
+    app: invoker
     platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: task-manager
+      app: invoker
       platform: oaas
   template:
     metadata:
       labels:
-        app: task-manager
+        app: invoker
         platform: oaas
     spec:
       affinity:
@@ -24,22 +24,23 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app: task-manager
+                    app: invoker
                 topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: task-manager
+        - name: invoker
           envFrom:
             - configMapRef:
                 name: oaas-env
-          image: ghcr.io/hpcclab/oaas/task-manager
+          image: ghcr.io/hpcclab/oaas/invoker:latest
           ports:
             - containerPort: 8080
+              name: http
           resources:
             limits:
-              memory: 4G
-              cpu: '16'
+              memory: 2G
+              cpu: '8'
             requests:
-              cpu: '0.5'
+              cpu: '0.1'
               memory: 256M
           imagePullPolicy: Always
           livenessProbe:
@@ -66,13 +67,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: task-manager
-  annotations:
-    service.kubernetes.io/topology-aware-hints: auto
+  name: invoker
+  labels:
+    app: invoker
 spec:
   selector:
-    app: task-manager
+    app: invoker
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 8080

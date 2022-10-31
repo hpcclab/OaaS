@@ -8,20 +8,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskDecoder {
-  private static final Logger LOGGER = LoggerFactory.getLogger( TaskDecoder.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskDecoder.class);
 
   public static TaskCompletion tryDecode(String id, Buffer buffer) {
     var ts = System.currentTimeMillis();
     if (buffer==null) {
       return new TaskCompletion(id, false,
         "Can not parse the task completion message because buffer is null",
-        null, null, ts);
+        null, null, -1, ts);
     }
     try {
       var completion = Json.decodeValue(buffer, TaskCompletion.class);
-      if (completion != null){
+      if (completion!=null) {
         return completion
-          .setTs(ts);
+          .setCmpTs(ts);
       }
 
     } catch (DecodeException decodeException) {
@@ -33,10 +33,13 @@ public class TaskDecoder {
 //        null,
         null,
         null,
+        -1,
         ts);
     }
 
     return new TaskCompletion(id, false,
-      "Can not parse the task completion message", null, null, ts);
+      "Can not parse the task completion message",
+      null, null,
+      -1, ts);
   }
 }

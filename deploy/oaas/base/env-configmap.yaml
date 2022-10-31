@@ -9,9 +9,6 @@ data:
   OAAS_OC_PROVISIONTOPIC: oaas-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
-  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
-  OAAS_TM_BLOCKINGTIMEOUT: '15'
-  OAAS_TM_TASKTOPIC: oaas-tasks
   OAAS_TM_NATSURLS: nats://my-nats:4222
   OAAS_TM_CONNECTIONPOOLMAXSIZE: '100'
 #  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
@@ -21,7 +18,6 @@ data:
   OAAS_KP_EXPOSEKNATIVE: 'false'
   OAAS_INVOKER_NATSURLS: nats://my-nats:4222
   OAAS_INVOKER_KAFKA: oaas-kafka-bootstrap:9092
-  OAAS_INVOKER_TOPICS: oaas-tasks
   OAAS_INVOKER_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_INVOKER_CONNECTIONPOOLMAXSIZE: '100'
   OAAS_INVOKER_NUMOFVERTICLE: '2'

@@ -40,21 +40,24 @@ public abstract class AbstractArgRepository<V>
   @Override
   public V get(String key) {
     Objects.requireNonNull(key);
-    LOGGER.debug("get[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("get[{}] {}", getCollection().name(), key);
     return getCollection().getDocument(key, getValueCls());
   }
 
   @Override
   public Uni<V> getAsync(String key) {
     Objects.requireNonNull(key);
-    LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
     return createUni(() -> getAsyncCollection()
       .getDocument(key, getValueCls()));
   }
 
   @Override
   public Map<String, V> list(Collection<String> keys) {
-    LOGGER.debug("list[{}] {}", getCollection().name(), keys.size());
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("list[{}] {}", getCollection().name(), keys.size());
     var multiDocument = getCollection().getDocuments(keys, getValueCls());
     return multiDocument.getDocuments()
       .stream()
@@ -63,7 +66,8 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
-    LOGGER.debug("listAsync[{}] {}", getCollection().name(),
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("listAsync[{}] {}", getCollection().name(),
       keys.size());
     return createUni(() -> getAsyncCollection().getDocuments(keys, getValueCls()))
       .map(multiDocument -> multiDocument.getDocuments()
@@ -74,28 +78,32 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public V remove(String key) {
-    LOGGER.debug("remove[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("remove[{}] {}", getCollection().name(), key);
     var deleteEntity = getCollection().deleteDocument(key, getValueCls(), deleteOptions());
     return deleteEntity.getOld();
   }
 
   @Override
   public Uni<V> removeAsync(String key) {
-    LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
     return createUni(() -> getAsyncCollection().deleteDocument(key, getValueCls(), deleteOptions()))
       .map(DocumentDeleteEntity::getOld);
   }
 
   @Override
   public V put(String key, V value) {
-    LOGGER.debug("put[{}] {}", getCollection().name(), key);
-    var doc = getCollection().insertDocument(value, createOptions());
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("put[{}] {}", getCollection().name(), key);
+    getCollection().insertDocument(value, createOptions());
     return value;
   }
 
   @Override
   public Uni<V> putAsync(String key, V value) {
-    LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("putAsync[{}] {}", getCollection().name(), key);
     return createUni(() -> getAsyncCollection().insertDocument(value, createOptions()))
       .replaceWith(value);
   }
@@ -110,7 +118,8 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<V> persistWithPreconditionAsync(V v) {
     String key = extractKey(v);
-    LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
     return createUni(() ->  getAsyncCollection()
       .replaceDocument(key, replaceOptions()))
       .replaceWith(v);
@@ -119,12 +128,13 @@ public abstract class AbstractArgRepository<V>
   @Override
   public Uni<Void> persistAsync(Collection<V> collection,
                                 boolean notificationEnabled) {
-    LOGGER.debug("persistAsync(col)[{}] {}",
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("persistAsync(col)[{}] {}",
       getCollection().name(), collection.size());
     return createUni(() -> getAsyncCollection()
       .insertDocuments(collection, createOptions()))
       .invoke(Unchecked.consumer(mde -> {
-        if (mde.getErrors().size() > 0) {
+        if (!mde.getErrors().isEmpty()) {
           throw new DataAccessException(mde.getErrors());
         }
       }))
@@ -133,7 +143,8 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
-    LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
       getCollection().name(), collection.size());
 
     return createUni(() -> getAsyncCollection()
@@ -148,13 +159,15 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    LOGGER.debug("computeAsync[{}] {}",
-      getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("computeAsync[{}] {}",
+        getCollection().name(), key);
     var uni = createUni(() -> getAsyncCollection()
         .getDocument(key, getValueCls())
         .thenCompose(doc -> {
           var newDoc = function.apply(key, doc);
-          return getAsyncCollection().replaceDocument(key, newDoc, replaceOptions())
+          return getAsyncCollection()
+            .replaceDocument(key, newDoc, replaceOptions())
             .thenApply(__ -> newDoc);
         })
       )

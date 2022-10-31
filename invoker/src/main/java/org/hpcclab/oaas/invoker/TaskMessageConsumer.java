@@ -33,7 +33,7 @@ public class TaskMessageConsumer {
   FunctionRepository funcRepo;
   InvocationGraphExecutor graphExecutor;
   ObjectCompletionPublisher objCompPublisher;
-  KafkaConsumer<Buffer, Buffer> kafkaConsumer;
+  KafkaConsumer<String, Buffer> kafkaConsumer;
 
   Set<String> topics;
 
@@ -41,7 +41,7 @@ public class TaskMessageConsumer {
                              FunctionRepository funcRepo,
                              InvocationGraphExecutor graphExecutor,
                              ObjectCompletionPublisher objCompPublisher,
-                             KafkaConsumer<Buffer, Buffer> kafkaConsumer,
+                             KafkaConsumer<String, Buffer> kafkaConsumer,
                              Set<String> topics) {
     this.invoker = invoker;
     this.funcRepo = funcRepo;
@@ -64,7 +64,7 @@ public class TaskMessageConsumer {
     return kafkaConsumer.close();
   }
 
-  void setHandler(KafkaConsumer<Buffer, Buffer> kafkaConsumer) {
+  void setHandler(KafkaConsumer<String, Buffer> kafkaConsumer) {
     kafkaConsumer.toMulti()
       .onItem()
       .transformToUni(record -> invoke(record)
@@ -87,7 +87,7 @@ public class TaskMessageConsumer {
         });
   }
 
-  void setHandlerDebug(KafkaConsumer<Buffer, Buffer> kafkaConsumer) {
+  void setHandlerDebug(KafkaConsumer<String, Buffer> kafkaConsumer) {
     kafkaConsumer.toMulti()
       .onItem()
       .transformToUni(kafkaConsumerRecord -> {
@@ -127,7 +127,7 @@ public class TaskMessageConsumer {
         });
   }
 
-  Uni<TaskCompletion> invoke(KafkaConsumerRecord<Buffer, Buffer> record) {
+  Uni<TaskCompletion> invoke(KafkaConsumerRecord<String, Buffer> record) {
     var startTime = System.currentTimeMillis();
     if (LOGGER.isDebugEnabled()) {
       logLatency(record.value());
@@ -152,7 +152,8 @@ public class TaskMessageConsumer {
         id,
         funcName,
         url,
-        record.value()
+        record.value(),
+        System.currentTimeMillis()
       );
       var invokedUni = invoker.invoke(invokingDetail)
         .onFailure()
@@ -166,10 +167,10 @@ public class TaskMessageConsumer {
 
       if (LOGGER.isDebugEnabled()) {
         invokedUni = invokedUni.invoke(() -> {
-          LOGGER.debug("task[{}]: invoked in {} ms", id,
-            System.currentTimeMillis() - startTime);
+          LOGGER.debug("task[{}]: invoked in {} ms", id, System.currentTimeMillis() - startTime);
         });
       }
+
       return invokedUni;
     });
   }

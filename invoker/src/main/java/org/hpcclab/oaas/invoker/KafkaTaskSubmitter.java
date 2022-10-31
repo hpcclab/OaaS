@@ -20,7 +20,7 @@ import java.util.List;
 public class KafkaTaskSubmitter implements TaskSubmitter {
 
   @Inject
-  KafkaProducer<Buffer, Buffer> producer;
+  KafkaProducer<String, Buffer> producer;
   @Inject
   TaskFactory taskFactory;
   @Inject
@@ -32,20 +32,17 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
     var topic = selectTopic(context);
     var record = KafkaProducerRecord.create(
         topic,
-        (Buffer) null,
+        (String) null,
         Json.encodeToBuffer(task)
       )
-      .addHeaders(List.of(
-        KafkaHeader.header("ce_id", task.getId()),
-        KafkaHeader.header("ce_function", context.getFunction().getName())
-      ));
+      .addHeader("ce_id", task.getId())
+      .addHeader("ce_function", context.getFunction().getName());
 
     return producer.send(record)
       .replaceWithVoid();
   }
 
   public String selectTopic(TaskContext context) {
-//    return config.topics().stream().findFirst().orElseThrow();
     return config.functionTopicPrefix() + context.getFunction().getName();
   }
 }

@@ -1,16 +1,9 @@
 apiVersion: v1
 data:
-  OAAS_LOG: DEBUG
-  JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
-  QUARKUS_CONSOLE_COLOR: 'false'
-  QUARKUS_HTTP_CORS: 'true'
-  KAFKA_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
   OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
   OAAS_OC_PROVISIONTOPIC: oaas-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
-  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
-  OAAS_TM_BLOCKINGTIMEOUT: '15'
   OAAS_TM_NATSURLS: nats://my-nats:4222
   OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager

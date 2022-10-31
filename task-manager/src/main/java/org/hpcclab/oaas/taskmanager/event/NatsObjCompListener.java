@@ -2,13 +2,16 @@ package org.hpcclab.oaas.taskmanager.event;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import io.quarkus.runtime.ShutdownEvent;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 @ApplicationScoped
@@ -21,6 +24,10 @@ public class NatsObjCompListener implements ObjectCompletionListener {
   @PostConstruct
   void setup() {
     localDispatcher = ThreadLocal.withInitial(() -> nc.createDispatcher());
+  }
+
+  public void onShutdown(@Observes ShutdownEvent event) {
+    cleanup();
   }
 
   @Override

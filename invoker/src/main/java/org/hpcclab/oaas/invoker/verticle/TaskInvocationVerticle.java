@@ -31,13 +31,11 @@ public class TaskInvocationVerticle extends AbstractVerticle {
   @Inject
   ObjectCompletionPublisher objCompPublisher;
   @Inject
-  InvokerConfig config;
-  @Inject
   KafkaClientOptions options;
 
   Set<String> topics;
 
-  private KafkaConsumer<Buffer, Buffer> kafkaConsumer;
+  private KafkaConsumer<String, Buffer> kafkaConsumer;
   private TaskMessageConsumer taskMessageConsumer;
 
   @Override

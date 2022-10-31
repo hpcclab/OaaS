@@ -77,14 +77,14 @@ class FunctionRouterTest {
     var loadedObj = objectRepo.get(ctx.getOutput().getId());
     assertNotNull(loadedObj);
     assertNotNull(loadedObj.getStatus());
-    assertTrue(loadedObj.getStatus().getSubmittedTs() > 0);
+    assertTrue(loadedObj.getStatus().getSmtTs() > 0);
     assertEquals(TaskStatus.DOING,loadedObj.getStatus().getTaskStatus());
 
     var completion = new TaskCompletion()
       .setId(ctx.getOutput().getId())
       .setSuccess(true)
       .setEmbeddedRecord(objectMapper.createObjectNode())
-      .setTs(System.currentTimeMillis());
+      .setCmpTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(completion)
       .await().indefinitely();
     var o = objectRepo.get(ctx.getOutput().getId());
@@ -94,7 +94,7 @@ class FunctionRouterTest {
     loadedObj = objectRepo.get(ctx.getOutput().getId());
     assertNotNull(loadedObj);
     assertNotNull(loadedObj.getStatus());
-    assertTrue(loadedObj.getStatus().getCompletedTs() > 0);
+    assertTrue(loadedObj.getStatus().getCptTs() > 0);
     assertEquals(TaskStatus.SUCCEEDED,
       loadedObj.getStatus().getTaskStatus());
   }

@@ -11,4 +11,6 @@ resources:
   - cds.yml
 ### storage adapter
   - sa.yml
+### invoker
+  - invoker.yml
 

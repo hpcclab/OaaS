@@ -18,8 +18,6 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
-//  @ProtoField(1)
-//  StateType type;
   @ProtoField(2)
   String stateId;
   @ProtoField(number = 3, javaType = HashMap.class)
@@ -38,7 +36,6 @@ public class OaasObjectState implements Serializable {
   @ProtoFactory
   public OaasObjectState(String stateId,
                          HashMap<String, String> overrideUrls) {
-//    this.type = type;
     this.stateId = stateId;
     this.overrideUrls = overrideUrls;
   }

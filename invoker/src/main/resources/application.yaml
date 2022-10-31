@@ -50,6 +50,7 @@ quarkus:
     image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
+    jvm-arguments: -Djava.util.logging.manager=org.jboss.logmanager.LogManager
   micrometer:
     export:
       json:
