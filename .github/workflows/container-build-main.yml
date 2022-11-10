@@ -6,7 +6,7 @@ name: Container Build (Main)
 on:
   push:
     branches:
-      - 'src'
+      - 'main'
 
 jobs:
   build:
