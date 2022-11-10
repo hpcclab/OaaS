@@ -29,8 +29,8 @@ class FunctionResourceTest {
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("items.name", hasItems("builtin.logical.copy",
-        "test.dummy.task", "test.dummy.macro"))
+      .body("items.name", hasItems("copy",
+        "task", "macro"))
       .log().ifValidationFails();
   }
 }

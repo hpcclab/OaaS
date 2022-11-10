@@ -25,7 +25,7 @@ public class TaskFunctionHandler implements FunctionHandler {
     if (context.getOutputCls() == null)
       throw FunctionValidationException.format(
         "Cannot call function('%s') because outputCls('%s') is not exist",
-        context.getFunction().getName(),
+        context.getFunction().getKey(),
         context.getFunction().getOutputCls()
       );
   }

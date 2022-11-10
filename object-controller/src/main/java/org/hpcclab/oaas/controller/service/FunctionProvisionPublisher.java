@@ -24,7 +24,7 @@ public class FunctionProvisionPublisher {
       return Uni.createFrom().nullItem();
     }
     return provisionEmitter
-      .send(Record.of(function.getName(), function));
+      .send(Record.of(function.getKey(), function));
   }
 
   public Uni<Void> submitDelete(String funcName) {

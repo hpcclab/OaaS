@@ -3,7 +3,8 @@ package org.hpcclab.oaas;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.controller.rest.ModuleService;
+import org.hpcclab.oaas.controller.rest.PackageService;
+import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
@@ -21,11 +22,12 @@ public class TestUtils {
 
   // language=yaml
   public static final String DUMMY_BATCH = """
+    name: test.dummy
     functions:
-      - name: test.dummy.task
+      - name: task
         type: TASK
         outputCls: test.dummy.simple
-      - name: test.dummy.macro
+      - name: macro
         type: MACRO
         outputCls: test.dummy.compound
         macro:
@@ -48,7 +50,7 @@ public class TestUtils {
               - from: new_obj2
                 as: obj2
     classes:
-      - name: test.dummy.simple
+      - name: simple
         stateType: FILES
         objectType: SIMPLE
         stateSpec:
@@ -60,14 +62,14 @@ public class TestUtils {
           function: builtin.logical.copy
         - access: PUBLIC
           function: test.dummy.task
-      - name: test.dummy.compound
+      - name: compound
         objectType: COMPOUND
         functions:
           - access: PUBLIC
             function: builtin.logical.copy
           - access: PUBLIC
             function: test.dummy.macro
-      - name: test.dummy.stream
+      - name: stream
         objectType: STREAM
         genericType: test.dummy.simple
         functions: []
@@ -133,16 +135,16 @@ public class TestUtils {
       .extract().body().as(OaasClass.class);
   }
 
-  public static ModuleService.Module createBatchYaml(String clsText) {
+  public static OaasPackageContainer createBatchYaml(String clsText) {
     return given()
       .contentType("text/x-yaml")
       .body(clsText)
-      .when().post("/api/modules?update=true")
+      .when().post("/api/packages?update=true")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(ModuleService.Module.class);
+      .extract().body().as(OaasPackageContainer.class);
   }
 
   public static List<OaasFunction> createFunctionYaml(String function) {

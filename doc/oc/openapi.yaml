@@ -196,29 +196,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasFunction_Public'
-  /api/modules:
-    post:
-      parameters:
-      - name: update
-        in: query
-        schema:
-          default: "true"
-          type: boolean
-      requestBody:
-        content:
-          text/x-yaml:
-            schema:
-              type: string
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Module'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Module'
   /api/object-construct:
     post:
       requestBody:
@@ -282,175 +259,237 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasObject'
+  /api/packages:
+    post:
+      parameters:
+      - name: update
+        in: query
+        schema:
+          default: "true"
+          type: boolean
+      requestBody:
+        content:
+          text/x-yaml:
+            schema:
+              type: string
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OaasPackageContainer'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OaasPackageContainer'
+  /api/packages/{name}:
+    patch:
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          text/x-yaml:
+            schema:
+              type: string
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OaasPackageContainer'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OaasPackageContainer'
 components:
   schemas:
     Dataflow:
       type: object
       properties:
-        export:
-          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataflowStep'
         exports:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/WorkflowExport'
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataflowStep'
+        export:
+          type: string
     DataflowStep:
       type: object
       properties:
-        argRefs:
-          type: object
-          additionalProperties:
-            type: string
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        as:
-          type: string
         funcName:
+          type: string
+        target:
+          type: string
+        as:
           type: string
         inputRefs:
           type: array
           items:
             type: string
-        target:
-          type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        argRefs:
+          type: object
+          additionalProperties:
+            type: string
     DataflowStep_Public:
       type: object
       properties:
-        argRefs:
-          type: object
-          additionalProperties:
-            type: string
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        as:
-          type: string
         funcName:
+          type: string
+        target:
+          type: string
+        as:
           type: string
         inputRefs:
           type: array
           items:
             type: string
-        target:
-          type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        argRefs:
+          type: object
+          additionalProperties:
+            type: string
     Dataflow_Public:
       type: object
       properties:
-        export:
-          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataflowStep_Public'
         exports:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/WorkflowExport_Public'
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataflowStep_Public'
+        export:
+          type: string
     DeploymentCondition:
       enum:
-      - DELETED
-      - DEPLOYING
-      - DOWN
       - PENDING
+      - DEPLOYING
       - RUNNING
+      - DOWN
+      - DELETED
       type: string
     DeploymentCondition_Public:
       enum:
-      - DELETED
-      - DEPLOYING
-      - DOWN
       - PENDING
+      - DEPLOYING
       - RUNNING
+      - DOWN
+      - DELETED
       type: string
     FunctionAccessModifier:
       enum:
+      - PUBLIC
       - INTERNAL
       - PRIVATE
-      - PUBLIC
       type: string
     FunctionAccessModifier_Public:
       enum:
+      - PUBLIC
       - INTERNAL
       - PRIVATE
-      - PUBLIC
       type: string
     FunctionBinding:
       type: object
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier'
-        defaultArgs:
-          type: object
-          additionalProperties:
-            type: string
-        description:
+        function:
+          type: string
+        name:
           type: string
         forwardRecords:
           uniqueItems: true
           type: array
           items:
             type: string
-        function:
-          type: string
-        name:
+        defaultArgs:
+          type: object
+          additionalProperties:
+            type: string
+        description:
           type: string
     FunctionBinding_Public:
       type: object
       properties:
         access:
           $ref: '#/components/schemas/FunctionAccessModifier_Public'
-        defaultArgs:
-          type: object
-          additionalProperties:
-            type: string
-        description:
+        function:
+          type: string
+        name:
           type: string
         forwardRecords:
           uniqueItems: true
           type: array
           items:
             type: string
-        function:
-          type: string
-        name:
+        defaultArgs:
+          type: object
+          additionalProperties:
+            type: string
+        description:
           type: string
     FunctionDeploymentStatus:
       type: object
       properties:
         condition:
           $ref: '#/components/schemas/DeploymentCondition'
-        errorMsg:
-          type: string
         invocationUrl:
+          type: string
+        errorMsg:
           type: string
     FunctionDeploymentStatus_Public:
       type: object
       properties:
         condition:
           $ref: '#/components/schemas/DeploymentCondition_Public'
-        errorMsg:
-          type: string
         invocationUrl:
           type: string
+        errorMsg:
+          type: string
+    FunctionState:
+      enum:
+      - ENABLED
+      - DISABLED
+      - REMOVING
+      type: string
+    FunctionState_Public:
+      enum:
+      - ENABLED
+      - DISABLED
+      - REMOVING
+      type: string
     FunctionType:
       enum:
-      - LOGICAL
-      - MACRO
       - TASK
+      - MACRO
+      - LOGICAL
+      - READONLY
+      - CONSTRUCTOR
       type: string
     FunctionType_Public:
       enum:
-      - LOGICAL
-      - MACRO
       - TASK
+      - MACRO
+      - LOGICAL
+      - READONLY
+      - CONSTRUCTOR
       type: string
     FunctionValidation:
       type: object
@@ -473,8 +512,8 @@ components:
     JobProvisionConfig:
       type: object
       properties:
-        argsToEnv:
-          type: boolean
+        image:
+          type: string
         commands:
           type: array
           items:
@@ -483,22 +522,22 @@ components:
           type: array
           items:
             type: string
-        image:
+        requestsCpu:
+          type: string
+        requestsMemory:
           type: string
         limitsCpu:
           type: string
         limitsMemory:
           type: string
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
+        argsToEnv:
+          type: boolean
       deprecated: true
     JobProvisionConfig_Public:
       type: object
       properties:
-        argsToEnv:
-          type: boolean
+        image:
+          type: string
         commands:
           type: array
           items:
@@ -507,178 +546,169 @@ components:
           type: array
           items:
             type: string
-        image:
+        requestsCpu:
+          type: string
+        requestsMemory:
           type: string
         limitsCpu:
           type: string
         limitsMemory:
           type: string
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
+        argsToEnv:
+          type: boolean
       deprecated: true
     KeyAccessModifier:
       enum:
+      - PUBLIC
       - INTERNAL
       - PRIVATE
-      - PUBLIC
       type: string
     KeyAccessModifier_Public:
       enum:
+      - PUBLIC
       - INTERNAL
       - PRIVATE
-      - PUBLIC
       type: string
     KeySpecification:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/KeyAccessModifier'
         name:
           type: string
         provider:
           type: string
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier'
     KeySpecification_Public:
       type: object
       properties:
-        access:
-          $ref: '#/components/schemas/KeyAccessModifier_Public'
         name:
           type: string
         provider:
           type: string
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier_Public'
     KnativeProvision:
       type: object
       properties:
+        image:
+          type: string
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
+          format: int32
+          type: integer
         concurrency:
           format: int32
           type: integer
-        env:
-          type: object
-          additionalProperties:
-            type: string
-        image:
+        scaleDownDelay:
+          type: string
+        requestsCpu:
+          type: string
+        requestsMemory:
           type: string
         limitsCpu:
           type: string
         limitsMemory:
           type: string
-        maxScale:
-          format: int32
-          type: integer
-        minScale:
-          format: int32
-          type: integer
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
-        scaleDownDelay:
-          type: string
+        env:
+          type: object
+          additionalProperties:
+            type: string
     KnativeProvision_Public:
       type: object
       properties:
+        image:
+          type: string
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
+          format: int32
+          type: integer
         concurrency:
           format: int32
           type: integer
-        env:
-          type: object
-          additionalProperties:
-            type: string
-        image:
+        scaleDownDelay:
+          type: string
+        requestsCpu:
+          type: string
+        requestsMemory:
           type: string
         limitsCpu:
           type: string
         limitsMemory:
           type: string
-        maxScale:
-          format: int32
-          type: integer
-        minScale:
-          format: int32
-          type: integer
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
-        scaleDownDelay:
-          type: string
-    Module:
-      type: object
-      properties:
-        name:
-          type: string
-        classes:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasClass'
-        functions:
-          type: array
-          items:
-            $ref: '#/components/schemas/OaasFunction'
+        env:
+          type: object
+          additionalProperties:
+            type: string
     OaasClass:
       type: object
       properties:
-        description:
+        _key:
           type: string
+        _rev:
+          type: string
+        name:
+          type: string
+        packageName:
+          type: string
+        genericType:
+          type: string
+        objectType:
+          $ref: '#/components/schemas/ObjectType'
+        stateType:
+          $ref: '#/components/schemas/StateType'
         functions:
           type: array
           items:
             $ref: '#/components/schemas/FunctionBinding'
-        genericType:
-          type: string
-        _key:
-          type: string
-        name:
-          type: string
-        objectType:
-          $ref: '#/components/schemas/ObjectType'
-        parents:
-          type: array
-          items:
-            type: string
+        stateSpec:
+          $ref: '#/components/schemas/StateSpecification'
         refSpec:
           type: array
           items:
             $ref: '#/components/schemas/ReferenceSpecification'
-        resolved:
-          $ref: '#/components/schemas/ResolvedMember'
-        _rev:
-          type: string
-        stateSpec:
-          $ref: '#/components/schemas/StateSpecification'
-        stateType:
-          $ref: '#/components/schemas/StateType'
-    OaasClass_Public:
-      type: object
-      properties:
-        description:
-          type: string
-        functions:
-          type: array
-          items:
-            $ref: '#/components/schemas/FunctionBinding_Public'
-        genericType:
-          type: string
-        name:
-          type: string
-        objectType:
-          $ref: '#/components/schemas/ObjectType_Public'
         parents:
           type: array
           items:
             type: string
+        description:
+          type: string
+        resolved:
+          $ref: '#/components/schemas/ResolvedMember'
+    OaasClass_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        packageName:
+          type: string
+        genericType:
+          type: string
+        objectType:
+          $ref: '#/components/schemas/ObjectType_Public'
+        stateType:
+          $ref: '#/components/schemas/StateType_Public'
+        functions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionBinding_Public'
+        stateSpec:
+          $ref: '#/components/schemas/StateSpecification_Public'
         refSpec:
           type: array
           items:
             $ref: '#/components/schemas/ReferenceSpecification_Public'
+        parents:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
-        stateSpec:
-          $ref: '#/components/schemas/StateSpecification_Public'
-        stateType:
-          $ref: '#/components/schemas/StateType_Public'
         key:
           type: string
         rev:
@@ -687,142 +717,171 @@ components:
       required:
       - name
       - type
+      - outputCls
       type: object
       properties:
-        deploymentStatus:
-          $ref: '#/components/schemas/FunctionDeploymentStatus'
-        description:
-          type: string
         _key:
           type: string
-        macro:
-          $ref: '#/components/schemas/Dataflow'
         name:
           pattern: \S
           type: string
-        outputCls:
+        packageName:
           type: string
-        provision:
-          $ref: '#/components/schemas/ProvisionConfig'
+        description:
+          type: string
         type:
           $ref: '#/components/schemas/FunctionType'
+        outputCls:
+          pattern: \S
+          type: string
         validation:
           $ref: '#/components/schemas/FunctionValidation'
+        macro:
+          $ref: '#/components/schemas/Dataflow'
+        provision:
+          $ref: '#/components/schemas/ProvisionConfig'
         variableDescriptions:
           type: array
           items:
             $ref: '#/components/schemas/VariableDescription'
+        deploymentStatus:
+          $ref: '#/components/schemas/FunctionDeploymentStatus'
+        state:
+          $ref: '#/components/schemas/FunctionState'
     OaasFunction_Public:
       required:
       - name
       - type
+      - outputCls
       type: object
       properties:
-        deploymentStatus:
-          $ref: '#/components/schemas/FunctionDeploymentStatus_Public'
-        description:
-          type: string
-        macro:
-          $ref: '#/components/schemas/Dataflow_Public'
         name:
           pattern: \S
           type: string
-        outputCls:
+        packageName:
           type: string
-        provision:
-          $ref: '#/components/schemas/ProvisionConfig_Public'
+        description:
+          type: string
         type:
           $ref: '#/components/schemas/FunctionType_Public'
+        outputCls:
+          pattern: \S
+          type: string
         validation:
           $ref: '#/components/schemas/FunctionValidation_Public'
+        macro:
+          $ref: '#/components/schemas/Dataflow_Public'
+        provision:
+          $ref: '#/components/schemas/ProvisionConfig_Public'
         variableDescriptions:
           type: array
           items:
             $ref: '#/components/schemas/VariableDescription_Public'
+        deploymentStatus:
+          $ref: '#/components/schemas/FunctionDeploymentStatus_Public'
+        state:
+          $ref: '#/components/schemas/FunctionState_Public'
         key:
           type: string
     OaasObject:
       type: object
       properties:
-        cls:
+        _key:
           type: string
-        embeddedRecord:
-          $ref: '#/components/schemas/ObjectNode'
+        id:
+          type: string
+        origin:
+          $ref: '#/components/schemas/ObjectOrigin'
         hash:
           format: int64
           type: integer
-        id:
-          type: string
-        _key:
+        cls:
           type: string
         labels:
           uniqueItems: true
           type: array
           items:
             type: string
-        origin:
-          $ref: '#/components/schemas/ObjectOrigin'
+        state:
+          $ref: '#/components/schemas/OaasObjectState'
         refs:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/ObjectReference'
-        state:
-          $ref: '#/components/schemas/OaasObjectState'
         status:
           $ref: '#/components/schemas/ObjectStatus'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo'
+        embeddedRecord:
+          $ref: '#/components/schemas/ObjectNode'
     OaasObjectState:
       type: object
       properties:
+        stateId:
+          type: string
         overrideUrls:
           type: object
           additionalProperties:
             type: string
-        stateId:
-          type: string
     OaasObjectState_Public:
       type: object
       properties:
+        stateId:
+          type: string
         overrideUrls:
           type: object
           additionalProperties:
             type: string
-        stateId:
-          type: string
     OaasObject_Public:
       type: object
       properties:
-        cls:
+        id:
           type: string
-        embeddedRecord:
-          $ref: '#/components/schemas/ObjectNode_Public'
+        origin:
+          $ref: '#/components/schemas/ObjectOrigin_Public'
         hash:
           format: int64
           type: integer
-        id:
+        cls:
           type: string
         labels:
           uniqueItems: true
           type: array
           items:
             type: string
-        origin:
-          $ref: '#/components/schemas/ObjectOrigin_Public'
+        state:
+          $ref: '#/components/schemas/OaasObjectState_Public'
         refs:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/ObjectReference_Public'
-        state:
-          $ref: '#/components/schemas/OaasObjectState_Public'
         status:
           $ref: '#/components/schemas/ObjectStatus_Public'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo_Public'
+        embeddedRecord:
+          $ref: '#/components/schemas/ObjectNode_Public'
         key:
           type: string
+    OaasPackageContainer:
+      type: object
+      properties:
+        name:
+          type: string
+        required:
+          type: array
+          items:
+            type: string
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasClass'
+        functions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OaasFunction'
     ObjectConstructRequest:
       type: object
       properties:
@@ -830,12 +889,12 @@ components:
           type: string
         embeddedRecord:
           $ref: '#/components/schemas/ObjectNode'
-        keys:
+        labels:
           uniqueItems: true
           type: array
           items:
             type: string
-        labels:
+        keys:
           uniqueItems: true
           type: array
           items:
@@ -858,14 +917,14 @@ components:
       properties:
         object:
           $ref: '#/components/schemas/OaasObject'
-        streams:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectConstructResponse'
         uploadUrls:
           type: object
           additionalProperties:
             type: string
+        streams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectConstructResponse'
     ObjectNode:
       type: array
     ObjectNode_Public:
@@ -873,33 +932,33 @@ components:
     ObjectOrigin:
       type: object
       properties:
+        parentId:
+          type: string
+        funcName:
+          type: string
         args:
           type: object
           additionalProperties:
             type: string
-        funcName:
-          type: string
         inputs:
           type: array
           items:
             type: string
-        parentId:
-          type: string
     ObjectOrigin_Public:
       type: object
       properties:
+        parentId:
+          type: string
+        funcName:
+          type: string
         args:
           type: object
           additionalProperties:
             type: string
-        funcName:
-          type: string
         inputs:
           type: array
           items:
             type: string
-        parentId:
-          type: string
     ObjectReference:
       type: object
       properties:
@@ -917,78 +976,90 @@ components:
     ObjectRequirement:
       type: object
       properties:
-        cls:
-          type: string
         labels:
           uniqueItems: true
           type: array
           items:
             type: string
+        cls:
+          type: string
     ObjectRequirement_Public:
       type: object
       properties:
-        cls:
-          type: string
         labels:
           uniqueItems: true
           type: array
           items:
             type: string
+        cls:
+          type: string
     ObjectStatus:
       type: object
       properties:
-        completedTs:
-          format: int64
-          type: integer
-        createdTs:
-          format: int64
-          type: integer
-        errorMsg:
-          type: string
-        submittedTs:
-          format: int64
-          type: integer
         taskStatus:
           $ref: '#/components/schemas/TaskStatus'
+        crtTs:
+          format: int64
+          type: integer
+        queTs:
+          format: int64
+          type: integer
+        smtTs:
+          format: int64
+          type: integer
+        cptTs:
+          format: int64
+          type: integer
         waitFor:
           type: array
           items:
             type: string
+        errorMsg:
+          type: string
     ObjectStatus_Public:
       type: object
       properties:
-        completedTs:
-          format: int64
-          type: integer
-        createdTs:
-          format: int64
-          type: integer
-        errorMsg:
-          type: string
-        submittedTs:
-          format: int64
-          type: integer
         taskStatus:
           $ref: '#/components/schemas/TaskStatus_Public'
+        crtTs:
+          format: int64
+          type: integer
+        queTs:
+          format: int64
+          type: integer
+        smtTs:
+          format: int64
+          type: integer
+        cptTs:
+          format: int64
+          type: integer
         waitFor:
           type: array
           items:
             type: string
+        errorMsg:
+          type: string
     ObjectType:
       enum:
-      - COMPOUND
       - SIMPLE
+      - COMPOUND
       - STREAM
       type: string
     ObjectType_Public:
       enum:
-      - COMPOUND
       - SIMPLE
+      - COMPOUND
       - STREAM
       type: string
     PaginationOaasClass_Public:
       type: object
       properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
         itemCount:
           format: int64
           type: integer
@@ -996,15 +1067,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasClass_Public'
-        offset:
-          format: int64
-          type: integer
-        total:
-          format: int64
-          type: integer
     PaginationOaasFunction_Public:
       type: object
       properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
         itemCount:
           format: int64
           type: integer
@@ -1012,15 +1083,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasFunction_Public'
-        offset:
-          format: int64
-          type: integer
-        total:
-          format: int64
-          type: integer
     PaginationOaasObject:
       type: object
       properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
         itemCount:
           format: int64
           type: integer
@@ -1028,15 +1099,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasObject'
-        offset:
-          format: int64
-          type: integer
-        total:
-          format: int64
-          type: integer
     PaginationOaasObject_Public:
       type: object
       properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
         itemCount:
           format: int64
           type: integer
@@ -1044,12 +1115,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OaasObject_Public'
-        offset:
-          format: int64
-          type: integer
-        total:
-          format: int64
-          type: integer
     ProvisionConfig:
       type: object
       properties:
@@ -1071,35 +1136,28 @@ components:
     ReferenceSpecification:
       type: object
       properties:
+        name:
+          type: string
         cls:
           type: string
         internal:
           type: boolean
-        name:
-          type: string
     ReferenceSpecification_Public:
       type: object
       properties:
+        name:
+          type: string
         cls:
           type: string
         internal:
           type: boolean
-        name:
-          type: string
     ResolvedMember:
       type: object
       properties:
-        flag:
-          type: boolean
         functions:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/FunctionBinding'
-        identities:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         keySpecs:
           type: object
           additionalProperties:
@@ -1108,6 +1166,13 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/ReferenceSpecification'
+        identities:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        flag:
+          type: boolean
     ResolvedMember_Public:
       type: object
       properties:
@@ -1115,11 +1180,6 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/FunctionBinding_Public'
-        identities:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         keySpecs:
           type: object
           additionalProperties:
@@ -1128,35 +1188,40 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/ReferenceSpecification_Public'
+        identities:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
         flag:
           type: boolean
     StateSpecification:
       type: object
       properties:
-        defaultProvider:
-          type: string
         keySpecs:
           type: array
           items:
             $ref: '#/components/schemas/KeySpecification'
+        defaultProvider:
+          type: string
     StateSpecification_Public:
       type: object
       properties:
-        defaultProvider:
-          type: string
         keySpecs:
           type: array
           items:
             $ref: '#/components/schemas/KeySpecification_Public'
+        defaultProvider:
+          type: string
     StateType:
       enum:
-      - COLLECTION
       - FILES
+      - COLLECTION
       type: string
     StateType_Public:
       enum:
-      - COLLECTION
       - FILES
+      - COLLECTION
       type: string
     StreamInfo:
       type: object
@@ -1172,31 +1237,31 @@ components:
           type: integer
     TaskStatus:
       enum:
-      - DEPENDENCY_FAILED
-      - DOING
-      - FAILED
       - LAZY
-      - READY
+      - DOING
       - SUCCEEDED
+      - FAILED
+      - DEPENDENCY_FAILED
+      - READY
       type: string
     TaskStatus_Public:
       enum:
-      - DEPENDENCY_FAILED
-      - DOING
-      - FAILED
       - LAZY
-      - READY
+      - DOING
       - SUCCEEDED
+      - FAILED
+      - DEPENDENCY_FAILED
+      - READY
       type: string
     Type:
       enum:
-      - DURABLE
       - EPHEMERAL
+      - DURABLE
       type: string
     Type_Public:
       enum:
-      - DURABLE
       - EPHEMERAL
+      - DURABLE
       type: string
     VariableDescription:
       type: object
@@ -1211,14 +1276,14 @@ components:
     WorkflowExport:
       type: object
       properties:
-        as:
-          type: string
         from:
+          type: string
+        as:
           type: string
     WorkflowExport_Public:
       type: object
       properties:
-        as:
-          type: string
         from:
+          type: string
+        as:
           type: string

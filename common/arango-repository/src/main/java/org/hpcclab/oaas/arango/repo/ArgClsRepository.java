@@ -63,7 +63,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
 
   @Override
   public String extractKey(OaasClass cls) {
-    return cls.getName();
+    return cls.getKey();
   }
 
   @Override
@@ -74,32 +74,33 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   public List<OaasClass> loadChildren(OaasClass cls) {
     var query = """
       FOR cls IN @@col
-        FILTER cls.resolved.identities ANY == @name
+        FILTER cls.resolved.identities ANY == @key
         return cls
       """;
     return query(query,
       Map.of(
         "@col", getCollection().name(),
-        "name", cls.getName())
+        "key", cls.getKey())
     );
   }
 
   public OaasClass resolveInheritance(OaasClass baseCls,
                                       Map<String, OaasClass> clsMap,
                                       Set<String> path) {
-    if (path.contains(baseCls.getName())){
+    if (path.contains(baseCls.getKey())){
       throw OaasValidationException.errorClassCyclicInheritance(path);
     }
-    path.add(baseCls.getName());
+    path.add(baseCls.getKey());
     if (baseCls.getParents() ==null) baseCls.setParents(List.of());
+    LOGGER.info("resolve {} {}", baseCls, baseCls.getParents());
     var parentClasses = baseCls.getParents()
       .stream()
-      .map(clsName -> {
+      .map(clsKey -> {
         OaasClass cls;
-        if (clsMap.containsKey(clsName))
-          cls = clsMap.get(clsName);
+        if (clsMap.containsKey(clsKey))
+          cls = clsMap.get(clsKey);
         else
-          cls = get(clsName);
+          cls = get(clsKey);
         if (!cls.getResolved().isFlag()) {
           cls = resolveInheritance(cls, clsMap, path);
         }
@@ -115,7 +116,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     if (parent.getResolved().getIdentities()==null
       || parent.getResolved().getIdentities().isEmpty())
       return false;
-    return (parent.getResolved().getIdentities().contains(baseCls.getName()));
+    return (parent.getResolved().getIdentities().contains(baseCls.getKey()));
   }
 
   @Override

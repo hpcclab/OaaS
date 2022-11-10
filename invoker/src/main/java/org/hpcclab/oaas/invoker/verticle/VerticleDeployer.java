@@ -48,15 +48,15 @@ public class VerticleDeployer {
 
 
     functionListener.setHandler(func -> {
-      LOGGER.info("receive function[{}] update event", func.getName());
+      LOGGER.info("receive function[{}] update event", func.getKey());
       if (func.getState()==FunctionState.ENABLED) {
-        deployVerticleIfNew(func.getName())
+        deployVerticleIfNew(func.getKey())
           .subscribe().with(__ -> {},
-            e -> LOGGER.error("Cannot deploy verticle for function {}", func.getName()));
+            e -> LOGGER.error("Cannot deploy verticle for function {}", func.getKey()));
       } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
-        deleteVerticle(func.getName())
+        deleteVerticle(func.getKey())
           .subscribe().with(__ -> {},
-            e -> LOGGER.error("Cannot delete verticle for function {}", func.getName()));
+            e -> LOGGER.error("Cannot delete verticle for function {}", func.getKey()));
       }
     });
     functionListener.start().await().indefinitely();
@@ -64,7 +64,7 @@ public class VerticleDeployer {
     Multi.createFrom().iterable(funcList)
       .filter(function -> function.getState()==FunctionState.ENABLED)
       .filter(function -> function.getType()!=FunctionType.LOGICAL)
-      .onItem().transformToUniAndConcatenate(func -> deployVerticleIfNew(func.getName()))
+      .onItem().transformToUniAndConcatenate(func -> deployVerticleIfNew(func.getKey()))
       .collect().asList()
       .await().indefinitely();
   }

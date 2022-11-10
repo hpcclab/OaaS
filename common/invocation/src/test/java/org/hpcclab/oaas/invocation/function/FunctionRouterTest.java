@@ -77,7 +77,7 @@ class FunctionRouterTest {
     var loadedObj = objectRepo.get(ctx.getOutput().getId());
     assertNotNull(loadedObj);
     assertNotNull(loadedObj.getStatus());
-    assertTrue(loadedObj.getStatus().getSmtTs() > 0);
+    assertTrue(loadedObj.getStatus().getQueTs() > 0);
     assertEquals(TaskStatus.DOING,loadedObj.getStatus().getTaskStatus());
 
     var completion = new TaskCompletion()

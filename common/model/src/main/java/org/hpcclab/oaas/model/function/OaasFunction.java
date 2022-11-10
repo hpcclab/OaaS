@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -18,40 +20,42 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunction {
+public class OaasFunction implements Copyable<OaasFunction> {
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
   @NotBlank
   @ProtoField(1)
   String name;
+
   @ProtoField(2)
+  String packageName;
+  @ProtoField(3)
   String description;
   @NotNull
-  @ProtoField(3)
+  @ProtoField(4)
   FunctionType type;
   @NotBlank
-  @ProtoField(4)
+  @ProtoField(5)
   String outputCls;
 
-  @ProtoField(5)
+  @ProtoField(6)
   FunctionValidation validation;
 
-  @ProtoField(6)
+  @ProtoField(7)
   Dataflow macro;
 
-  @ProtoField(7)
+  @ProtoField(8)
   ProvisionConfig provision;
 
-  @ProtoField(8)
+  @ProtoField(9)
   List<VariableDescription> variableDescriptions;
 
-  @ProtoField(9)
+  @ProtoField(10)
   FunctionDeploymentStatus deploymentStatus;
 
-  @ProtoField(10)
+  @ProtoField(11)
   FunctionState state = FunctionState.ENABLED;
-
 
 
   public OaasFunction() {
@@ -59,6 +63,7 @@ public class OaasFunction {
 
   @ProtoFactory
   public OaasFunction(String name,
+                      String packageName,
                       String description,
                       FunctionType type,
                       String outputCls,
@@ -69,7 +74,9 @@ public class OaasFunction {
                       FunctionDeploymentStatus deploymentStatus,
                       FunctionState state) {
     this.name = name;
-    this.key = name;
+    this.packageName = packageName;
+    if (packageName != null)
+      this.key = packageName + '.' + name;
     this.description = description;
     this.type = type;
     this.outputCls = outputCls;
@@ -100,7 +107,34 @@ public class OaasFunction {
 
   public OaasFunction setName(String name) {
     this.name = name;
-    this.key = name;
+    if (packageName!=null) {
+      this.key = packageName + '.' + name;
+    }
     return this;
+  }
+
+  public OaasFunction setPackageName(String packageName) {
+    this.packageName = packageName;
+    if (name!=null) {
+      this.key = packageName + '.' + name;
+    }
+    return this;
+  }
+
+  @Override
+  public OaasFunction copy() {
+    return new OaasFunction(
+      name,
+      packageName,
+      description,
+      type,
+      outputCls,
+      validation,
+      macro,
+      provision,
+      variableDescriptions == null? null : List.copyOf(variableDescriptions),
+      deploymentStatus,
+      state
+    );
   }
 }

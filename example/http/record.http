@@ -1,5 +1,5 @@
 ###
-POST {{cds}}/api/modules
+POST {{cds}}/api/packages
 Content-Type: text/x-yaml
 
 < record.yml
@@ -19,7 +19,7 @@ client.global.set("obj_0_id", response.body.object.id)
 ###
 GET {{cds}}/oal/{{obj_0_id}}
 ###
-GET {{cds}}/oal/{{obj_0_id}}:json-update()?await=true&mq=true
+GET {{cds}}/oal/{{obj_0_id}}:json-update()?await=true&mq=false
 
 > {%
 client.global.set("obj_1_id", response.body.id)

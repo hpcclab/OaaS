@@ -21,7 +21,7 @@ public class LogicalFunctionHandler implements FunctionHandler {
   }
 
   public Uni<FunctionExecContext> apply(FunctionExecContext context) {
-    if (context.getFunction().getName().equals("builtin.logical.copy")) {
+    if (context.getFunction().getKey().equals("builtin.logical.copy")) {
       LOGGER.debug("Call function 'copy' {}", context.getMain().getId());
       var o = context.getMain().copy();
       o.setOrigin(context.createOrigin());

@@ -2,8 +2,8 @@ package org.hpcclab.oaas.controller.initializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.quarkus.runtime.annotations.RegisterForReflection;
-import org.hpcclab.oaas.controller.rest.ModuleService;
+import org.hpcclab.oaas.controller.rest.PackageService;
+import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.slf4j.Logger;
@@ -17,13 +17,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
-@RegisterForReflection(targets = ModuleService.Module.class)
 public class BuiltInLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInLoader.class);
 
   ObjectMapper mapper;
   @Inject
-  ModuleService batchService;
+  PackageService pkgService;
 
   public void setup() throws ExecutionException, InterruptedException, IOException {
     mapper = new ObjectMapper(new YAMLFactory());
@@ -38,19 +37,23 @@ public class BuiltInLoader {
 
     for (String file : files) {
       var is = getClass().getResourceAsStream(file);
-      var batch = mapper.readValue(is, ModuleService.Module.class);
-      var funcNames = batch.getFunctions().stream().map(OaasFunction::getName).toList();
-      var clsNames = batch.getClasses().stream().map(OaasClass::getName).toList();
+      var pkg = mapper.readValue(is, OaasPackageContainer.class);
+      var funcList = pkg.getFunctions();
+      var funcNames = funcList==null ? List.of()
+        :funcList.stream()
+        .map(f -> f.setPackageName(pkg.getName()))
+        .map(OaasFunction::getKey)
+        .toList();
+      var clsList = pkg.getClasses();
+      var clsNames = clsList==null ? List.of()
+        :clsList.stream()
+        .map(c -> c.setPackageName(pkg.getName()))
+        .map(OaasClass::getKey)
+        .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
-      classes.addAll(batch.getClasses());
-      functions.addAll(batch.getFunctions());
+      pkgService.create(true, pkg)
+        .await().indefinitely();
     }
 
-    ModuleService.Module batch = new ModuleService.Module()
-      .setClasses(classes)
-      .setFunctions(functions);
-
-    batchService.create(true, batch)
-      .await().indefinitely();
   }
 }

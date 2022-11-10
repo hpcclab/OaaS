@@ -30,7 +30,7 @@ public class DataAccessContext {
   public static DataAccessContext generate(OaasObject obj, OaasClass cls) {
     var dac = new DataAccessContext();
     dac.id = obj.getId();
-    dac.cls = cls.getName();
+    dac.cls = cls.getKey();
     return dac;
   }
 

@@ -6,7 +6,7 @@ name: Container Build
 on:
   push:
     branches-ignore:
-      - 'main'
+      - 'src'
     tags:
       - 'v*'
 

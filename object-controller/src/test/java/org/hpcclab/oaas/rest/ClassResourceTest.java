@@ -82,7 +82,7 @@ class ClassResourceTest {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("items.name", hasItems("test.dummy.simple", "test.dummy.compound"));
+      .body("items.name", hasItems("simple", "compound"));
     given()
       .when().get("/api/classes/test.dummy.simple")
       .then()
@@ -209,7 +209,7 @@ class ClassResourceTest {
     given()
       .contentType("text/x-yaml")
       .body(clsText)
-      .when().post("/api/modules?update=true")
+      .when().post("/api/packages?update=true")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)

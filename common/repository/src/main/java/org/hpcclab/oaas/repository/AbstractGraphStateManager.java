@@ -89,16 +89,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
             .map(ctx::setOutput);
         }
       })
-      .filter(ctx -> {
-        var status = ctx.getOutput().getStatus();
-        if (status.getSmtTs() <= 0) {
-          LOGGER.warn("Detect object {} without SubmittedTime [originator={}, ctxId={}]",
-            ctx.getOutput().getId(),
-            status.getOriginator(),
-            entryCtx.getOutput().getId());
-        }
-        return ctx.getOutput().getStatus().getOriginator().equals(originator);
-      })
+      .filter(ctx -> ctx.getOutput().getStatus().getOriginator().equals(originator))
       .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
   }
 

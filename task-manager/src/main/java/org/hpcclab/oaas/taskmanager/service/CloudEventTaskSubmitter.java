@@ -23,7 +23,7 @@ public class CloudEventTaskSubmitter implements TaskSubmitter {
   public Uni<Void> submit(TaskContext context) {
     var task = taskFactory.genTask(context);
     return taskBrokerService.submitTaskAsync(task.getId(),
-      task.getFunction().getName(),
+      task.getFunction().getKey(),
       task);
   }
 }

@@ -5,13 +5,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.hpcclab.oaas.arango.DataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -20,13 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.QueryParam;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequestScoped
-public class ModuleResource implements ModuleService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ModuleResource.class);
+public class PackageResource implements PackageService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PackageResource.class);
 
   @Inject
   ClassRepository classRepo;
@@ -41,51 +40,68 @@ public class ModuleResource implements ModuleService {
 
   @Override
   @JsonView(Views.Public.class)
-  public Uni<Module> create(Boolean update,
-                            Module batch) {
-    var classes = batch.getClasses();
-    var functions = batch.getFunctions();
+  public Uni<OaasPackageContainer> create(Boolean update,
+                                          OaasPackageContainer pkg) {
+    var classes = pkg.getClasses();
+    var functions = pkg.getFunctions();
     for (OaasClass cls : classes) {
+      cls.setPackageName(pkg.getName());
       cls.validate();
     }
     for (OaasFunction function : functions) {
+      function.setPackageName(pkg.getName());
       function.validate();
     }
 
     var uni = Uni.createFrom().deferred(() -> {
         var clsMap = classes.stream()
-          .collect(Collectors.toMap(OaasClass::getName, Function.identity()));
+          .collect(Collectors.toMap(OaasClass::getKey, Function.identity()));
         var changedClasses = classRepo.resolveInheritance(clsMap);
         var partitioned = changedClasses.values()
           .stream()
-          .collect(Collectors.partitioningBy(cls -> cls.getRev() == null));
+          .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
         var newClasses = partitioned.get(true);
         var oldClasses = partitioned.get(false);
-      return classRepo
-        .persistWithPreconditionAsync(oldClasses)
-        .flatMap(__ -> classRepo.persistAsync(newClasses))
-        .flatMap(__ -> funcRepo.persistAsync(functions));
+        return classRepo
+          .persistWithPreconditionAsync(oldClasses)
+          .flatMap(__ -> classRepo.persistAsync(newClasses))
+          .flatMap(__ -> funcRepo.persistAsync(functions));
       })
       .onFailure(DataAccessException.class)
       .retry().atMost(3);
     if (config.kafkaEnabled()) {
       return uni.call(__ ->
-          provisionPublisher.submitNewFunction(batch.getFunctions().stream()))
-        .replaceWith(batch);
+          provisionPublisher.submitNewFunction(pkg.getFunctions().stream()))
+        .replaceWith(pkg);
     } else {
-      return uni.replaceWith(batch);
+      return uni.replaceWith(pkg);
+    }
+  }
+
+  @Override
+  public Uni<OaasPackageContainer> patch(String name, OaasPackageContainer oaasPackage) {
+    return null;
+  }
+
+  @Override
+  public Uni<OaasPackageContainer> patchByYaml(String name, String body) {
+    try {
+      var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
+      return patch(name, pkg);
+    } catch (JsonProcessingException e) {
+      throw new StdOaasException(e.getMessage(), 400);
     }
   }
 
   @Override
   @JsonView(Views.Public.class)
-  public Uni<Module> createByYaml(Boolean update,
-                                  String body) {
+  public Uni<OaasPackageContainer> createByYaml(Boolean update,
+                                                String body) {
     try {
-      var batch = yamlMapper.readValue(body, Module.class);
-      return create(update, batch);
+      var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
+      return create(update, pkg);
     } catch (JsonProcessingException e) {
-      throw new NoStackException(e.getMessage(), 400);
+      throw new StdOaasException(e.getMessage(), 400);
     }
   }
 }

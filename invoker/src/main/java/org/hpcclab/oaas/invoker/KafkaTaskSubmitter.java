@@ -36,13 +36,13 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
         Json.encodeToBuffer(task)
       )
       .addHeader("ce_id", task.getId())
-      .addHeader("ce_function", context.getFunction().getName());
+      .addHeader("ce_function", context.getFunction().getKey());
 
     return producer.send(record)
       .replaceWithVoid();
   }
 
   public String selectTopic(TaskContext context) {
-    return config.functionTopicPrefix() + context.getFunction().getName();
+    return config.functionTopicPrefix() + context.getFunction().getKey();
   }
 }

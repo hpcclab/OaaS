@@ -1,5 +1,5 @@
 ###
-POST {{cds}}/api/modules
+POST {{cds}}/api/packages
 Content-Type: text/x-yaml
 
 < video.yml

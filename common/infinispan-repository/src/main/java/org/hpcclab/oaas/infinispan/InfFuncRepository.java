@@ -33,7 +33,7 @@ implements FunctionRepository {
 
   @Override
   protected String extractKey(OaasFunction oaasFunction) {
-    return oaasFunction.getName();
+    return oaasFunction.getKey();
   }
 
 

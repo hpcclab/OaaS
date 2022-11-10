@@ -157,76 +157,76 @@ components:
     OaasObjectState_Public:
       type: object
       properties:
+        stateId:
+          type: string
         overrideUrls:
           type: object
           additionalProperties:
             type: string
-        stateId:
-          type: string
     OaasObject_Public:
       type: object
       properties:
-        cls:
+        id:
           type: string
-        embeddedRecord:
-          $ref: '#/components/schemas/ObjectNode_Public'
+        origin:
+          $ref: '#/components/schemas/ObjectOrigin_Public'
         hash:
           format: int64
           type: integer
-        id:
+        cls:
           type: string
         labels:
           uniqueItems: true
           type: array
           items:
             type: string
-        origin:
-          $ref: '#/components/schemas/ObjectOrigin_Public'
+        state:
+          $ref: '#/components/schemas/OaasObjectState_Public'
         refs:
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/ObjectReference_Public'
-        state:
-          $ref: '#/components/schemas/OaasObjectState_Public'
         status:
           $ref: '#/components/schemas/ObjectStatus_Public'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo_Public'
+        embeddedRecord:
+          $ref: '#/components/schemas/ObjectNode_Public'
         key:
           type: string
     ObjectAccessLangauge:
       type: object
       properties:
+        target:
+          type: string
+        functionName:
+          type: string
         args:
           type: object
           additionalProperties:
             type: string
-        functionName:
-          type: string
         inputs:
           type: array
           items:
             type: string
-        target:
-          type: string
     ObjectNode_Public:
       type: array
     ObjectOrigin_Public:
       type: object
       properties:
+        parentId:
+          type: string
+        funcName:
+          type: string
         args:
           type: object
           additionalProperties:
             type: string
-        funcName:
-          type: string
         inputs:
           type: array
           items:
             type: string
-        parentId:
-          type: string
     ObjectReference_Public:
       type: object
       properties:
@@ -237,23 +237,26 @@ components:
     ObjectStatus_Public:
       type: object
       properties:
-        completedTs:
-          format: int64
-          type: integer
-        createdTs:
-          format: int64
-          type: integer
-        errorMsg:
-          type: string
-        submittedTs:
-          format: int64
-          type: integer
         taskStatus:
           $ref: '#/components/schemas/TaskStatus_Public'
+        crtTs:
+          format: int64
+          type: integer
+        queTs:
+          format: int64
+          type: integer
+        smtTs:
+          format: int64
+          type: integer
+        cptTs:
+          format: int64
+          type: integer
         waitFor:
           type: array
           items:
             type: string
+        errorMsg:
+          type: string
     StreamInfo_Public:
       type: object
       properties:
@@ -262,10 +265,10 @@ components:
           type: integer
     TaskStatus_Public:
       enum:
-      - DEPENDENCY_FAILED
-      - DOING
-      - FAILED
       - LAZY
-      - READY
+      - DOING
       - SUCCEEDED
+      - FAILED
+      - DEPENDENCY_FAILED
+      - READY
       type: string

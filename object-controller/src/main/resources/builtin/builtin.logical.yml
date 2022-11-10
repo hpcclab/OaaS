@@ -1,3 +1,4 @@
+name: builtin.logical
 functions:
-  - name: builtin.logical.copy
+  - name: copy
     type: LOGICAL

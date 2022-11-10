@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
-import lombok.With;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
@@ -17,7 +16,6 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
-import java.util.Optional;
 
 @Data
 @Accessors(chain = true)
@@ -34,32 +32,44 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(1)
   String name;
   @ProtoField(2)
-  String genericType;
+  String packageName;
   @ProtoField(3)
-  ObjectType objectType;
+  String genericType;
   @ProtoField(4)
-  StateType stateType;
+  ObjectType objectType;
   @ProtoField(5)
-  List<FunctionBinding> functions = List.of();
+  StateType stateType;
   @ProtoField(6)
-  StateSpecification stateSpec;
+  List<FunctionBinding> functions = List.of();
   @ProtoField(7)
-  List<ReferenceSpecification> refSpec = List.of();
+  StateSpecification stateSpec;
   @ProtoField(8)
-  List<String> parents= List.of();
+  List<ReferenceSpecification> refSpec = List.of();
   @ProtoField(9)
+  List<String> parents = List.of();
+  @ProtoField(10)
   String description;
 
-//  @JsonView(Views.Internal.class)
+
+  //  @JsonView(Views.Internal.class)
   ResolvedMember resolved;
 
   public OaasClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name, String description, String genericType, ObjectType objectType, StateType stateType, List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents) {
+  public OaasClass(String name,
+                   String packageName,
+                   String description,
+                   String genericType,
+                   ObjectType objectType,
+                   StateType stateType,
+                   List<FunctionBinding> functions,
+                   StateSpecification stateSpec,
+                   List<ReferenceSpecification> refSpec,
+                   List<String> parents) {
     this.name = name;
-    this.key = name;
+    this.packageName = packageName;
     this.description = description;
     this.genericType = genericType;
     this.objectType = objectType;
@@ -68,37 +78,35 @@ public class OaasClass implements Copyable<OaasClass> {
     this.stateSpec = stateSpec;
     this.refSpec = refSpec;
     this.parents = parents;
+
+    updateKey();
   }
 
   public void validate() {
-    if (stateType == null) stateType = StateType.FILES;
+    if (stateType==null) stateType = StateType.FILES;
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
-    if (stateSpec.getDefaultProvider() == null) {
+    if (stateSpec.getDefaultProvider()==null) {
       stateSpec.setDefaultProvider("s3");
     }
-//    if (stateType==StateType.COLLECTION
-//      && stateSpec.getDefaultProvider()==null) {
-//      throw new OaasValidationException("Class with COLLECTION type must define 'stateSpec.defaultProvider'");
-//    }
-    if (functions == null) functions = List.of();
+    if (functions==null) functions = List.of();
     for (FunctionBinding function : functions) {
-      if (function.getFunction() == null) {
+      if (function.getFunction()==null) {
         throw new OaasValidationException("The 'functions[].function' in class must not be null.");
       }
-      if (function.getName() == null) {
+      if (function.getName()==null) {
         var fullFuncName = function.getFunction();
         var i = fullFuncName.lastIndexOf('.');
         if (i < 0) function.setName(fullFuncName);
-        else function.setName(fullFuncName.substring(i+1));
+        else function.setName(fullFuncName.substring(i + 1));
       }
     }
   }
 
-  public FunctionBinding findFunction(String funcName){
+  public FunctionBinding findFunction(String funcName) {
     var func = resolved.getFunctions()
       .get(funcName);
-    if (func !=null) return func;
+    if (func!=null) return func;
     return resolved
       .getFunctions()
       .values()
@@ -112,31 +120,46 @@ public class OaasClass implements Copyable<OaasClass> {
   public OaasClass copy() {
     return new OaasClass(
       name,
+      packageName,
       description,
       genericType,
       objectType,
       stateType,
       List.copyOf(functions),
-      stateSpec == null? null : stateSpec.copy(),
-      refSpec == null ? null: List.copyOf(refSpec),
-      parents == null ? null: List.copyOf(parents)
+      stateSpec==null ? null:stateSpec.copy(),
+      refSpec==null ? null:List.copyOf(refSpec),
+      parents==null ? null:List.copyOf(parents)
     )
-      .setResolved(resolved == null? null: resolved.copy());
+      .setResolved(resolved==null ? null:resolved.copy());
   }
 
   public OaasClass setName(String name) {
     this.name = name;
-    this.key = name;
+    updateKey();
     return this;
   }
 
+  public OaasClass setPackageName(String packageName) {
+    this.packageName = packageName;
+    updateKey();
+    return this;
+  }
+
+  public void updateKey(){
+    if (packageName!=null) {
+      this.key = packageName + '.' + name;
+    } else {
+      this.key = name;
+    }
+  }
+
   public ResolvedMember getResolved() {
-    if (resolved == null) resolved = new ResolvedMember();
+    if (resolved==null) resolved = new ResolvedMember();
     return resolved;
   }
 
   public StateSpecification getStateSpec() {
-    if (stateSpec == null) stateSpec = new StateSpecification();
+    if (stateSpec==null) stateSpec = new StateSpecification();
     return stateSpec;
   }
 }

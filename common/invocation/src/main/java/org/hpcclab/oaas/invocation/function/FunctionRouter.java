@@ -3,6 +3,7 @@ package org.hpcclab.oaas.invocation.function;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
@@ -39,6 +40,7 @@ public class FunctionRouter {
       case LOGICAL -> logicalFunctionHandler.apply(context);
       case TASK -> taskFunctionHandler.apply(context);
       case MACRO -> macroFunctionHandler.apply(context);
+      default -> throw StdOaasException.notImplemented();
     };
   }
 
@@ -61,7 +63,7 @@ public class FunctionRouter {
     var access = context.getBinding().getAccess();
 
     if (context.getEntry()==main && access!=FunctionAccessModifier.PUBLIC) {
-      throw FunctionValidationException.accessError(main.getId(), func.getName());
+      throw FunctionValidationException.accessError(main.getId(), func.getKey());
     }
 
     if (context.getFunction().getType()==FunctionType.LOGICAL) {

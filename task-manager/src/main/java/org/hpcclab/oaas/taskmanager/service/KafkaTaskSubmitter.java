@@ -37,7 +37,7 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
       .addMetadata( OutgoingKafkaRecordMetadata.builder()
         .withHeaders(new RecordHeaders()
           .add("ce_id", task.getId().getBytes())
-          .add("ce_function", context.getFunction().getName().getBytes())
+          .add("ce_function", context.getFunction().getKey().getBytes())
         )
         .withTopic(selectTopic(context))
         .build());
@@ -45,7 +45,7 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   }
 
   public String selectTopic(TaskContext context) {
-    return config.functionTopicPrefix() + context.getFunction().getName();
+    return config.functionTopicPrefix() + context.getFunction().getKey();
 //      .replaceAll("\\.","-");
   }
 }

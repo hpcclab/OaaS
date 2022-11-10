@@ -68,7 +68,7 @@ public class OaasObject implements Copyable<OaasObject> {
 
   public static OaasObject createFromClasses(OaasClass cls) {
     var o = new OaasObject();
-    o.setCls(cls.getName());
+    o.setCls(cls.getKey());
     o.setState(new OaasObjectState());
     return o;
   }

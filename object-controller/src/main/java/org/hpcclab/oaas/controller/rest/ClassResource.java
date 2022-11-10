@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
+import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -21,7 +22,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
@@ -36,7 +36,7 @@ public class ClassResource {
   @Inject
   CtxMapper oaasMapper;
   @Inject
-  ModuleResource moduleResource;
+  PackageResource moduleResource;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @GET
@@ -63,7 +63,7 @@ public class ClassResource {
   @JsonView(Views.Public.class)
   public Uni<OaasClass> create(@RestQuery boolean update, OaasClass cls) {
     cls.validate();
-    return moduleResource.create(update, new ModuleService.Module()
+    return moduleResource.create(update, new OaasPackageContainer()
       .setClasses(List.of(cls)))
       .map(module ->module.getClasses().isEmpty()? null:module.getClasses()
         .get(0)

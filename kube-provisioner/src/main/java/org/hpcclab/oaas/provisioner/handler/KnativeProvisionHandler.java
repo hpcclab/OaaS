@@ -84,7 +84,7 @@ public class KnativeProvisionHandler {
         .delete();
       if (deleted) LOGGER.info("Deleted service: {}", key);
     } else {
-      var svcName = "oaas-" + function.getName().replaceAll("[/.]", "-")
+      var svcName = "oaas-" + function.getKey().replaceAll("[/.]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
       var oldSvc = knativeClient.services().withName(svcName)
@@ -130,7 +130,7 @@ public class KnativeProvisionHandler {
     var condition = extractReadyCondition(service);
     var ready = condition.get().getStatus().equals("True");
     if (ready) {
-      functionRepo.compute(function.getName(), (k, f) -> {
+      functionRepo.compute(function.getKey(), (k, f) -> {
         f.getDeploymentStatus()
           .setCondition(DeploymentCondition.RUNNING)
           .setInvocationUrl(service.getStatus().getAddress().getUrl())
@@ -138,7 +138,7 @@ public class KnativeProvisionHandler {
         return f;
       });
     } else {
-      functionRepo.compute(function.getName(), (k, func) -> {
+      functionRepo.compute(function.getKey(), (k, func) -> {
         func.getDeploymentStatus()
           .setCondition(DeploymentCondition.DEPLOYING);
         return func;
@@ -151,14 +151,14 @@ public class KnativeProvisionHandler {
     return new TriggerBuilder()
       .withNewMetadata()
       .withName(svcName + "-trigger")
-      .addToLabels(LABEL_KEY, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .addToAnnotations("knative-eventing-injection", "enabled")
       .endMetadata()
       .withNewSpec()
       .withBroker("default")
       .withNewFilter()
       .addToAttributes("type", "oaas.task")
-      .addToAttributes("function", function.getName())
+      .addToAttributes("function", function.getKey())
 //      .addToAttributes("tasktype", "DURABLE")
       .endFilter()
       .withNewSubscriber()
@@ -197,7 +197,7 @@ public class KnativeProvisionHandler {
     return new SequenceBuilder()
       .withNewMetadata()
       .withName(svcName + "-sequence")
-      .addToLabels(LABEL_KEY, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .endMetadata()
       .withNewSpec()
       .withNewChannelTemplate()
@@ -254,7 +254,7 @@ public class KnativeProvisionHandler {
       .build();
 
     var labels = new HashMap<String,String>();
-    labels.put(LABEL_KEY, function.getName());
+    labels.put(LABEL_KEY, function.getKey());
     if (!kpConfig.exposeKnative()) {
       labels.put("networking.knative.dev/visibility","cluster-local");
     }
@@ -268,7 +268,7 @@ public class KnativeProvisionHandler {
       .withNewTemplate()
       .withNewMetadata()
       .withAnnotations(annotation)
-      .addToLabels(LABEL_KEY, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .endMetadata()
       .withNewSpec()
 //      .withAffinity(affinity)

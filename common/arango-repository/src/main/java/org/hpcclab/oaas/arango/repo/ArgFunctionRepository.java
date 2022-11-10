@@ -51,7 +51,7 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
 
   @Override
   public String extractKey(OaasFunction oaasFunction) {
-    return oaasFunction.getName();
+    return oaasFunction.getKey();
   }
 
   @Override

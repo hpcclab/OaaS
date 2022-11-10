@@ -1,5 +1,6 @@
+name: example
 functions:
-  - name: example.record.json-update
+  - name: json-update
     type: TASK
     outputCls: example.record
     validation: {}
@@ -12,9 +13,8 @@ functions:
         maxScale: -1
         requestsCpu: '0.5'
         limitsCpu: '1'
-#    state: DISABLED
 classes:
-  - name: example.record
+  - name: record
     stateType: FILES
     objectType: SIMPLE
     stateSpec:
@@ -23,4 +23,4 @@ classes:
       - access: PUBLIC
         function: builtin.logical.copy
       - access: PUBLIC
-        function: example.record.json-update
+        function: example.json-update
