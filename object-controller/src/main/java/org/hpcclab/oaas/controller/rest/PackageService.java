@@ -9,7 +9,6 @@ import javax.ws.rs.core.MediaType;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/packages")
-@ApplicationScoped
 public interface PackageService {
 
   @POST

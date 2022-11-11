@@ -184,6 +184,12 @@
             "format" : "int64",
             "type" : "integer"
           }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -336,6 +342,12 @@
           "schema" : {
             "format" : "int32",
             "type" : "integer"
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -977,6 +989,9 @@
       "OaasClass_Public" : {
         "type" : "object",
         "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
           "name" : {
             "type" : "string"
           },
@@ -1018,9 +1033,6 @@
           },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"
-          },
-          "key" : {
-            "type" : "string"
           },
           "rev" : {
             "type" : "string"
@@ -1078,6 +1090,9 @@
         "required" : [ "name", "type", "outputCls" ],
         "type" : "object",
         "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
           "name" : {
             "pattern" : "\\S",
             "type" : "string"
@@ -1115,9 +1130,6 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/FunctionState_Public"
-          },
-          "key" : {
-            "type" : "string"
           }
         }
       },

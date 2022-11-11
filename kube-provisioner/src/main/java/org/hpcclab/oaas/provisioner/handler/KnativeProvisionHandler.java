@@ -78,10 +78,11 @@ public class KnativeProvisionHandler {
 //        .withLabel(LABEL_KEY, key)
 //        .delete();
 //      if (deleted) LOGGER.info("Deleted sequence: {}", key);
-      deleted =knativeClient
+      deleted = !knativeClient
         .services()
         .withLabel(LABEL_KEY, key)
-        .delete();
+        .delete()
+        .isEmpty();
       if (deleted) LOGGER.info("Deleted service: {}", key);
     } else {
       var svcName = "oaas-" + function.getKey().replaceAll("[/.]", "-")
@@ -163,7 +164,8 @@ public class KnativeProvisionHandler {
       .endFilter()
       .withNewSubscriber()
       .withNewRef(
-        "flows.knative.dev/v1",
+        "v1",
+        "flows.knative.dev",
         "Sequence",
         svcName + "-sequence",
         knativeClient.getNamespace()
@@ -177,7 +179,8 @@ public class KnativeProvisionHandler {
                                   String svcName) {
     var step = new SequenceStepBuilder()
       .withNewRef(
-        "serving.knative.dev/v1",
+        "v1",
+        "serving.knative.dev",
         "Service",
         svcName,
         knativeClient.getNamespace()
@@ -186,6 +189,7 @@ public class KnativeProvisionHandler {
       .withNewDeadLetterSink()
       .withNewRef(
         "v1",
+        null,
         "Service",
         kpConfig.completionHandlerService(),
         knativeClient.getNamespace()
@@ -208,6 +212,7 @@ public class KnativeProvisionHandler {
       .withNewReply()
       .withNewRef(
         "v1",
+        null,
         "Service",
         kpConfig.completionHandlerService(),
         knativeClient.getNamespace()

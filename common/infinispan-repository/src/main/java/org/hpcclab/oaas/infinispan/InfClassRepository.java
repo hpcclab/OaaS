@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.infinispan.client.hotrod.RemoteCache;
+import org.infinispan.commons.api.AsyncCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

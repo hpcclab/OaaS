@@ -128,6 +128,10 @@ paths:
         schema:
           format: int64
           type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
       responses:
         "200":
           description: OK
@@ -223,6 +227,10 @@ paths:
         schema:
           format: int32
           type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
       responses:
         "200":
           description: OK
@@ -681,6 +689,8 @@ components:
     OaasClass_Public:
       type: object
       properties:
+        _key:
+          type: string
         name:
           type: string
         packageName:
@@ -709,8 +719,6 @@ components:
           type: string
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
-        key:
-          type: string
         rev:
           type: string
     OaasFunction:
@@ -755,6 +763,8 @@ components:
       - outputCls
       type: object
       properties:
+        _key:
+          type: string
         name:
           pattern: \S
           type: string
@@ -781,8 +791,6 @@ components:
           $ref: '#/components/schemas/FunctionDeploymentStatus_Public'
         state:
           $ref: '#/components/schemas/FunctionState_Public'
-        key:
-          type: string
     OaasObject:
       type: object
       properties:

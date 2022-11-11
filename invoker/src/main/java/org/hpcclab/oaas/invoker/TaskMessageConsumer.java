@@ -2,11 +2,8 @@ package org.hpcclab.oaas.invoker;
 
 
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.vertx.MutinyHelper;
-import io.smallrye.mutiny.vertx.UniHelper;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
-import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -24,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class TaskMessageConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskMessageConsumer.class);
@@ -68,23 +64,19 @@ public class TaskMessageConsumer {
     kafkaConsumer.toMulti()
       .onItem()
       .transformToUni(record -> invoke(record)
-          .call(taskCompletion -> graphExecutor.complete(taskCompletion)
+        .call(taskCompletion -> graphExecutor.complete(taskCompletion)
           .onFailure()
           .retry().withBackOff(Duration.ofMillis(500))
           .atMost(3)
-          )
+        )
       )
       .merge(4096)
       .subscribe()
-      .with(item -> {
-          objCompPublisher.publish(item.getId());
-        },
-        error -> {
-          LOGGER.error("multi error", error);
-        },
-        () -> {
-          LOGGER.error("multi unexpectedly completed");
-        });
+      .with(
+        item -> objCompPublisher.publish(item.getId()),
+        error -> LOGGER.error("multi error", error),
+        () -> LOGGER.error("multi unexpectedly completed")
+      );
   }
 
   void setHandlerDebug(KafkaConsumer<String, Buffer> kafkaConsumer) {
@@ -92,7 +84,7 @@ public class TaskMessageConsumer {
       .onItem()
       .transformToUni(kafkaConsumerRecord -> {
         var ts = System.currentTimeMillis();
-        var uni = invoke(kafkaConsumerRecord)
+        return invoke(kafkaConsumerRecord)
           .map(tc -> Tuples.pair(tc, ts))
           .call(tuple -> {
               var ts2 = System.currentTimeMillis();
@@ -108,8 +100,6 @@ public class TaskMessageConsumer {
                 });
             }
           );
-//        return Vertx.currentContext().executeBlocking(uni, false);
-        return uni;
       })
       .merge(4096)
       .subscribe()
@@ -119,12 +109,8 @@ public class TaskMessageConsumer {
             tuple.getOne().getId(),
             System.currentTimeMillis() - tuple.getTwo());
         },
-        error -> {
-          LOGGER.error("multi error", error);
-        },
-        () -> {
-          LOGGER.error("multi unexpectedly completed");
-        });
+        error -> LOGGER.error("multi error", error),
+        () -> LOGGER.error("multi unexpectedly completed"));
   }
 
   Uni<TaskCompletion> invoke(KafkaConsumerRecord<String, Buffer> record) {
@@ -166,9 +152,8 @@ public class TaskMessageConsumer {
         );
 
       if (LOGGER.isDebugEnabled()) {
-        invokedUni = invokedUni.invoke(() -> {
-          LOGGER.debug("task[{}]: invoked in {} ms", id, System.currentTimeMillis() - startTime);
-        });
+        invokedUni = invokedUni.invoke(() -> LOGGER.debug(
+          "task[{}]: invoked in {} ms", id, System.currentTimeMillis() - startTime));
       }
 
       return invokedUni;

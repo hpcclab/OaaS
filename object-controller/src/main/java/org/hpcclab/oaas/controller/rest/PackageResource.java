@@ -18,12 +18,13 @@ import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@RequestScoped
+@ApplicationScoped
 public class PackageResource implements PackageService {
   private static final Logger LOGGER = LoggerFactory.getLogger(PackageResource.class);
 

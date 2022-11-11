@@ -2,6 +2,7 @@ package org.hpcclab.oaas.controller.initializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.hpcclab.oaas.controller.rest.PackageResource;
 import org.hpcclab.oaas.controller.rest.PackageService;
 import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -22,13 +23,10 @@ public class BuiltInLoader {
 
   ObjectMapper mapper;
   @Inject
-  PackageService pkgService;
+  PackageResource pkgService;
 
-  public void setup() throws ExecutionException, InterruptedException, IOException {
+  public void setup() throws IOException {
     mapper = new ObjectMapper(new YAMLFactory());
-
-    List<OaasClass> classes = new ArrayList<>();
-    List<OaasFunction> functions = new ArrayList<>();
 
     var files = List.of(
       "/builtin/builtin.logical.yml",
