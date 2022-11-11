@@ -1,12 +1,10 @@
 package org.hpcclab.oaas.arango;
 
-import com.arangodb.ArangoCollection;
-import com.arangodb.ArangoDB;
-import com.arangodb.ArangoDatabase;
-import com.arangodb.DbName;
+import com.arangodb.*;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.async.ArangoDBAsync;
 import com.arangodb.async.ArangoDatabaseAsync;
+import com.arangodb.async.ArangoViewAsync;
 import com.arangodb.mapping.ArangoJack;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -58,10 +56,24 @@ public class ArgClientProducer {
   }
 
   @Produces
+  @Named("ObjectView")
+  public ArangoView objView(ArangoDatabase database){
+    return database.view(config.objectView());
+  }
+
+  @Produces
   @Named("ObjectCollectionAsync")
   public ArangoCollectionAsync objColAsync(ArangoDatabaseAsync database){
     return database.collection(config.objectCollection());
   }
+
+
+  @Produces
+  @Named("ObjectViewAsync")
+  public ArangoViewAsync objView(ArangoDatabaseAsync database){
+    return database.view(config.objectView());
+  }
+
 
   @Produces
   @Named("FunctionCollection")

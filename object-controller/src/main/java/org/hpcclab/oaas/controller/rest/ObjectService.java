@@ -1,13 +1,9 @@
 package org.hpcclab.oaas.controller.rest;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -17,7 +13,8 @@ import javax.ws.rs.core.MediaType;
 public interface ObjectService {
   @GET
   Uni<Pagination<OaasObject>> list(@QueryParam("offset") Integer offset,
-                                   @QueryParam("limit") Integer limit);
+                                   @QueryParam("limit") Integer limit,
+                                   @QueryParam("sort") String sort);
   @GET
   @Path("{id}")
   Uni<OaasObject> get(String id);

@@ -52,11 +52,15 @@ public class ClassResource {
   @Path("{name}/objects")
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasObject>> listObject(String name,
+                                                @RestQuery String sort,
                                                 @RestQuery Long offset,
                                                 @RestQuery Integer limit) {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
-    return objectRepo.listByCls(name, offset, limit);
+    if (sort == null) sort = "_key";
+    if (sort.equals("_"))
+      return objectRepo.listByCls(name, offset, limit);
+    return objectRepo.sortedListByCls(name, "_key", offset, limit);
   }
 
   @POST

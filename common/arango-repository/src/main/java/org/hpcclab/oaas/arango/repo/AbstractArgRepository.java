@@ -259,7 +259,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
     var query = """
       FOR doc IN @@col
-        SORT doc.@sorted DESC
+        SORT doc.@sorted
         LIMIT @off, @lim
         RETURN doc
       """;

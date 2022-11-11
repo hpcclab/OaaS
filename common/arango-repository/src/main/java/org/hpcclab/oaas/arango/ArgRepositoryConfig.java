@@ -21,6 +21,9 @@ public interface ArgRepositoryConfig {
   String db();
   @WithDefault("OaasObject")
   String objectCollection();
+
+  @WithDefault("OaasView")
+  String objectView();
   @WithDefault("OaasFunction")
   String functionCollection();
   @WithDefault("OaasClass")

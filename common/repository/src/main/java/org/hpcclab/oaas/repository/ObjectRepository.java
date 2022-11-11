@@ -22,6 +22,11 @@ public interface ObjectRepository extends EntityRepository<String, OaasObject> {
   }
 
   Uni<Pagination<OaasObject>> listByCls(String clsName,
-                                   long offset,
-                                   int limit);
+                                        long offset,
+                                        int limit);
+
+  Uni<Pagination<OaasObject>> sortedListByCls(String clsName,
+                                              String sortKey,
+                                              long offset,
+                                              int limit);
 }

@@ -78,6 +78,11 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
     }));
   }
 
+  @Override
+  public Uni<Pagination<OaasObject>> sortedListByCls(String clsName, String sortKey, long offset, int limit) {
+    return listByCls(clsName, offset, limit);
+  }
+
 
   @Override
   protected String extractKey(OaasObject object) {

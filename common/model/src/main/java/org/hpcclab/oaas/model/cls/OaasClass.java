@@ -23,7 +23,7 @@ import java.util.List;
 public class OaasClass implements Copyable<OaasClass> {
 
   @JsonProperty("_key")
-  @JsonView(Views.Internal.class)
+//  @JsonView(Views.Internal.class)
   String key;
 
   @JsonProperty("_rev")

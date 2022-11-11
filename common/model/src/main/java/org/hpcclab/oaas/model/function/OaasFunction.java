@@ -22,7 +22,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasFunction implements Copyable<OaasFunction> {
   @JsonProperty("_key")
-  @JsonView(Views.Internal.class)
+//  @JsonView(Views.Internal.class)
   String key;
   @NotBlank
   @ProtoField(1)

@@ -20,11 +20,16 @@ public class ObjectResource implements ObjectService {
   ObjectRepository objectRepo;
 
   @JsonView(Views.Public.class)
-  public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
+  public Uni<Pagination<OaasObject>> list(Integer offset,
+                                          Integer limit,
+                                          String sort) {
     if (offset==null) offset = 0;
     if (limit==null) limit = 20;
     if (limit > 100) limit = 100;
-    return objectRepo.sortedPaginationAsync("_key",offset, limit);
+    if (sort == null) sort = "_key";
+    if (sort.equals("_"))
+      return objectRepo.paginationAsync(offset, limit);
+    return objectRepo.sortedPaginationAsync(sort,offset, limit);
   }
 
 

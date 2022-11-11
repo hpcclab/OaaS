@@ -3,6 +3,7 @@ package org.hpcclab.oaas.provisioner;
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.internal.pkg.apis.Condition;
 import io.fabric8.knative.serving.v1.Service;
+import io.fabric8.knative.serving.v1.ServiceStatus;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.Optional;
 
 import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
@@ -30,9 +32,11 @@ public class FunctionWatcher {
   Watch watch;
 
   public static Optional<Condition> extractReadyCondition(Service service) {
-    return service.getStatus()
-      .getConditions()
+    return Optional.of(service)
+      .map(Service::getStatus)
+      .map(ServiceStatus::getConditions)
       .stream()
+      .flatMap(Collection::stream)
       .filter(c -> c.getType().equals("Ready"))
       .findAny();
   }
