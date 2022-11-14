@@ -48,4 +48,8 @@ implements ClassRepository {
     throw StdOaasException.notImplemented();
   }
 
+  @Override
+  public Uni<List<String>> listSubCls(String clsKey) {
+    throw StdOaasException.notImplemented();
+  }
 }

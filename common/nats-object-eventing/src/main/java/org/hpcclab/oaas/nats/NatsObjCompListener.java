@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskmanager.event;
+package org.hpcclab.oaas.nats;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -14,19 +14,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-@ApplicationScoped
 public class NatsObjCompListener implements ObjectCompletionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger( NatsObjCompListener.class );
-  @Inject
   Connection nc;
   private ThreadLocal<Dispatcher> localDispatcher;
 
-  @PostConstruct
-  void setup() {
-    localDispatcher = ThreadLocal.withInitial(() -> nc.createDispatcher());
+
+  public NatsObjCompListener(Connection nc) {
+    this.nc = nc;
+    localDispatcher = ThreadLocal.withInitial(nc::createDispatcher);
   }
 
-  public void onShutdown(@Observes ShutdownEvent event) {
+  @PreDestroy
+  public void onShutdown() {
     cleanup();
   }
 

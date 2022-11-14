@@ -2,12 +2,9 @@ package org.hpcclab.oaas.model.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
-import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -29,7 +26,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
   String name;
 
   @ProtoField(2)
-  String packageName;
+  String pkg;
   @ProtoField(3)
   String description;
   @NotNull
@@ -63,7 +60,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
 
   @ProtoFactory
   public OaasFunction(String name,
-                      String packageName,
+                      String pkg,
                       String description,
                       FunctionType type,
                       String outputCls,
@@ -74,9 +71,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
                       FunctionDeploymentStatus deploymentStatus,
                       FunctionState state) {
     this.name = name;
-    this.packageName = packageName;
-    if (packageName != null)
-      this.key = packageName + '.' + name;
+    this.pkg = pkg;
     this.description = description;
     this.type = type;
     this.outputCls = outputCls;
@@ -86,6 +81,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
     this.variableDescriptions = variableDescriptions;
     this.deploymentStatus = deploymentStatus;
     this.state = state;
+    updateKey();
   }
 
   public void validate() {
@@ -107,25 +103,29 @@ public class OaasFunction implements Copyable<OaasFunction> {
 
   public OaasFunction setName(String name) {
     this.name = name;
-    if (packageName!=null) {
-      this.key = packageName + '.' + name;
-    }
+    updateKey();
     return this;
   }
 
-  public OaasFunction setPackageName(String packageName) {
-    this.packageName = packageName;
-    if (name!=null) {
-      this.key = packageName + '.' + name;
-    }
+  public OaasFunction setPkg(String pkg) {
+    this.pkg = pkg;
+    updateKey();
     return this;
+  }
+
+  public void updateKey(){
+    if (pkg!=null) {
+      this.key = pkg + '.' + name;
+    } else {
+      this.key = name;
+    }
   }
 
   @Override
   public OaasFunction copy() {
     return new OaasFunction(
       name,
-      packageName,
+      pkg,
       description,
       type,
       outputCls,

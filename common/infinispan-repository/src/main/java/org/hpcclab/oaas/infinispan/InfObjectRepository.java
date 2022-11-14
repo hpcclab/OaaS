@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,22 +68,20 @@ public class InfObjectRepository extends AbstractInfRepository<String, OaasObjec
     return this.putAsync(object.getId(), object);
   }
 
-  public Uni<Pagination<OaasObject>> listByCls(String clsName,
-                                               long offset,
+  public Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys, long offset,
                                                int limit) {
 
     return vertx.executeBlocking(Uni.createFrom().item(() -> {
-      if (clsName==null) return pagination(offset, limit);
+      if (clsKeys==null || clsKeys.isEmpty()) return pagination(offset, limit);
       var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
-      return queryPagination(query, Map.of("clsName", clsName), offset, limit);
+      return queryPagination(query, Map.of("clsName", clsKeys), offset, limit);
     }));
   }
 
   @Override
-  public Uni<Pagination<OaasObject>> sortedListByCls(String clsName, String sortKey, long offset, int limit) {
-    return listByCls(clsName, offset, limit);
+  public Uni<Pagination<OaasObject>> sortedListByCls(List<String> clsKeys, String sortKey, boolean desc, long offset, int limit) {
+    return listByCls(clsKeys, offset, limit);
   }
-
 
   @Override
   protected String extractKey(OaasObject object) {

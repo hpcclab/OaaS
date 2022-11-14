@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractArgRepository<V>
   implements EntityRepository<String, V> {
-  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractArgRepository.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractArgRepository.class);
 
   public abstract ArangoCollection getCollection();
 
@@ -68,7 +68,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("listAsync[{}] {}", getCollection().name(),
-      keys.size());
+        keys.size());
     return createUni(() -> getAsyncCollection().getDocuments(keys, getValueCls()))
       .map(multiDocument -> multiDocument.getDocuments()
         .stream()
@@ -120,7 +120,7 @@ public abstract class AbstractArgRepository<V>
     String key = extractKey(v);
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
-    return createUni(() ->  getAsyncCollection()
+    return createUni(() -> getAsyncCollection()
       .replaceDocument(key, replaceOptions()))
       .replaceWith(v);
   }
@@ -130,7 +130,7 @@ public abstract class AbstractArgRepository<V>
                                 boolean notificationEnabled) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistAsync(col)[{}] {}",
-      getCollection().name(), collection.size());
+        getCollection().name(), collection.size());
     return createUni(() -> getAsyncCollection()
       .insertDocuments(collection, createOptions()))
       .invoke(Unchecked.consumer(mde -> {
@@ -145,7 +145,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
-      getCollection().name(), collection.size());
+        getCollection().name(), collection.size());
 
     return createUni(() -> getAsyncCollection()
       .updateDocuments(collection, new DocumentUpdateOptions()
@@ -163,14 +163,14 @@ public abstract class AbstractArgRepository<V>
       LOGGER.debug("computeAsync[{}] {}",
         getCollection().name(), key);
     var uni = createUni(() -> getAsyncCollection()
-        .getDocument(key, getValueCls())
-        .thenCompose(doc -> {
-          var newDoc = function.apply(key, doc);
-          return getAsyncCollection()
-            .replaceDocument(key, newDoc, replaceOptions())
-            .thenApply(__ -> newDoc);
-        })
-      )
+      .getDocument(key, getValueCls())
+      .thenCompose(doc -> {
+        var newDoc = function.apply(key, doc);
+        return getAsyncCollection()
+          .replaceDocument(key, newDoc, replaceOptions())
+          .thenApply(__ -> newDoc);
+      })
+    )
       .onFailure(ArangoDBException.class)
       .retry().atMost(5);
     var ctx = Vertx.currentContext();
@@ -184,9 +184,9 @@ public abstract class AbstractArgRepository<V>
     var retryCount = 5;
     var col = getCollection();
     ArangoDBException exception = null;
-    while (retryCount >0) {
+    while (retryCount > 0) {
       try {
-        var doc = col.getDocument(key,getValueCls());
+        var doc = col.getDocument(key, getValueCls());
         var newDoc = function.apply(key, doc);
         col.replaceDocument(key, newDoc, replaceOptions());
         return newDoc;
@@ -215,10 +215,13 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
-    return createUni(() -> getAsyncCollection().db().query(queryString, params, queryOptions().fullCount(true), getValueCls()).thenApply(cursor -> {
-      try (cursor) {
-        var items = cursor.streamRemaining().toList();
-        return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
+    return createUni(() -> getAsyncCollection()
+      .db()
+      .query(queryString, params, queryOptions().fullCount(true), getValueCls())
+      .thenApply(cursor -> {
+        try (cursor) {
+          var items = cursor.streamRemaining().toList();
+          return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
             items);
         } catch (IOException e) {
           throw new DataAccessException(e);
@@ -256,14 +259,22 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
+  public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
+
     var query = """
       FOR doc IN @@col
-        SORT doc.@sorted
+        SORT doc.@sorted @order
         LIMIT @off, @lim
         RETURN doc
       """;
-    return queryPaginationAsync(query, Map.of("@col", getCollection().name(), "sorted", name, "off", offset, "lim", limit), offset, limit);
+    return queryPaginationAsync(query, Map.of(
+        "@col", getCollection().name(),
+        "sorted", name.split("\\."),
+        "off", offset,
+        "lim", limit,
+        "order", desc ? "ASC":"DESC"
+      ),
+      offset, limit);
   }
 
   @Override
@@ -279,13 +290,21 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
-    return createUni(() -> getAsyncCollection().db().query(queryString, params, queryOptions(), getValueCls()).thenApply(cursor -> {
-      try (cursor) {
-        return cursor.streamRemaining().toList();
-      } catch (IOException e) {
-        throw new DataAccessException(e);
-      }
-    }));
+    return queryAsync(queryString, getValueCls(), params);
+  }
+
+
+  public <T> Uni<List<T>> queryAsync(String queryString, Class<T> resultCls, Map<String, Object> params) {
+    return createUni(() -> getAsyncCollection()
+      .db()
+      .query(queryString, params, queryOptions(), resultCls).thenApply(cursor -> {
+        try (cursor) {
+          return cursor.streamRemaining().toList();
+        } catch (IOException e) {
+          throw new DataAccessException(e);
+        }
+      })
+    );
   }
 
   static DocumentReplaceOptions replaceOptions() {

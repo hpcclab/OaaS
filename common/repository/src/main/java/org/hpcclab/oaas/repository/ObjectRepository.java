@@ -6,7 +6,9 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface ObjectRepository extends EntityRepository<String, OaasObject> {
   default Uni<FunctionExecContext> persistFromCtx(FunctionExecContext context) {
@@ -21,12 +23,13 @@ public interface ObjectRepository extends EntityRepository<String, OaasObject> {
     }
   }
 
-  Uni<Pagination<OaasObject>> listByCls(String clsName,
+  Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys,
                                         long offset,
                                         int limit);
 
-  Uni<Pagination<OaasObject>> sortedListByCls(String clsName,
+  Uni<Pagination<OaasObject>> sortedListByCls(List<String> clsKeys,
                                               String sortKey,
+                                              boolean desc,
                                               long offset,
                                               int limit);
 }

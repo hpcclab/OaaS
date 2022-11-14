@@ -20,11 +20,19 @@ import org.hpcclab.oaas.repository.ObjectRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class ObjectConstructResource implements ObjectConstructService {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/api/object-construct")
+public class ObjectConstructResource {
 
   @Inject
   ClassRepository clsRepo;
@@ -37,7 +45,7 @@ public class ObjectConstructResource implements ObjectConstructService {
   OaasObjectFactory objectFactory;
 
 
-  @Override
+  @POST
   @JsonView(Views.Public.class)
   public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());

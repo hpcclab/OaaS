@@ -45,7 +45,7 @@ public class ClassResource {
                                          @RestQuery Integer limit) {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
-    return classRepo.sortedPaginationAsync("name", offset, limit);
+    return classRepo.sortedPaginationAsync("name", false, offset, limit);
   }
 
   @GET
@@ -53,14 +53,22 @@ public class ClassResource {
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasObject>> listObject(String name,
                                                 @RestQuery String sort,
+                                                @RestQuery @DefaultValue("false") boolean desc,
                                                 @RestQuery Long offset,
-                                                @RestQuery Integer limit) {
-    if (offset==null) offset = 0L;
-    if (limit==null) limit = 20;
-    if (sort == null) sort = "_key";
-    if (sort.equals("_"))
-      return objectRepo.listByCls(name, offset, limit);
-    return objectRepo.sortedListByCls(name, "_key", offset, limit);
+                                                @RestQuery Integer limit,
+                                                @RestQuery @DefaultValue("false") boolean includeSub) {
+    final var fOffset = offset==null ? 0L:offset;
+    final var fLimit = limit==null ? 20:limit;
+    final var fSort = sort==null ? "_key":sort;
+    var uni = includeSub ?
+      classRepo.listSubCls(name)
+      :Uni.createFrom().item(List.of(name));
+    Uni<Pagination<OaasObject>> uni2;
+    if (fSort.equals("_"))
+      uni2 = uni.flatMap(keys -> objectRepo.listByCls(keys, fOffset, fLimit));
+    else
+      uni2 = uni.flatMap(keys -> objectRepo.sortedListByCls(keys, fSort, desc, fOffset, fLimit));
+    return uni2;
   }
 
   @POST
@@ -68,8 +76,8 @@ public class ClassResource {
   public Uni<OaasClass> create(@RestQuery boolean update, OaasClass cls) {
     cls.validate();
     return moduleResource.create(update, new OaasPackageContainer()
-      .setClasses(List.of(cls)))
-      .map(module ->module.getClasses().isEmpty()? null:module.getClasses()
+        .setClasses(List.of(cls)))
+      .map(module -> module.getClasses().isEmpty() ? null:module.getClasses()
         .get(0)
       );
   }

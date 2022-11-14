@@ -23,7 +23,6 @@ import java.util.List;
 public class OaasClass implements Copyable<OaasClass> {
 
   @JsonProperty("_key")
-//  @JsonView(Views.Internal.class)
   String key;
 
   @JsonProperty("_rev")
@@ -32,7 +31,7 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(1)
   String name;
   @ProtoField(2)
-  String packageName;
+  String pkg;
   @ProtoField(3)
   String genericType;
   @ProtoField(4)
@@ -50,8 +49,7 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(10)
   String description;
 
-
-  //  @JsonView(Views.Internal.class)
+//  @JsonView(Views.Internal.class)
   ResolvedMember resolved;
 
   public OaasClass() {
@@ -59,7 +57,7 @@ public class OaasClass implements Copyable<OaasClass> {
 
   @ProtoFactory
   public OaasClass(String name,
-                   String packageName,
+                   String pkg,
                    String description,
                    String genericType,
                    ObjectType objectType,
@@ -69,7 +67,7 @@ public class OaasClass implements Copyable<OaasClass> {
                    List<ReferenceSpecification> refSpec,
                    List<String> parents) {
     this.name = name;
-    this.packageName = packageName;
+    this.pkg = pkg;
     this.description = description;
     this.genericType = genericType;
     this.objectType = objectType;
@@ -83,6 +81,7 @@ public class OaasClass implements Copyable<OaasClass> {
   }
 
   public void validate() {
+    if (objectType==null) objectType = ObjectType.SIMPLE;
     if (stateType==null) stateType = StateType.FILES;
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
@@ -120,7 +119,7 @@ public class OaasClass implements Copyable<OaasClass> {
   public OaasClass copy() {
     return new OaasClass(
       name,
-      packageName,
+      pkg,
       description,
       genericType,
       objectType,
@@ -139,15 +138,15 @@ public class OaasClass implements Copyable<OaasClass> {
     return this;
   }
 
-  public OaasClass setPackageName(String packageName) {
-    this.packageName = packageName;
+  public OaasClass setPkg(String pkg) {
+    this.pkg = pkg;
     updateKey();
     return this;
   }
 
   public void updateKey(){
-    if (packageName!=null) {
-      this.key = packageName + '.' + name;
+    if (pkg!=null) {
+      this.key = pkg + '.' + name;
     } else {
       this.key = name;
     }

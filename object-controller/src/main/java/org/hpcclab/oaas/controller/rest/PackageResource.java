@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
+import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.arango.DataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
@@ -15,17 +16,21 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class PackageResource implements PackageService {
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/api/packages")
+public class PackageResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(PackageResource.class);
 
   @Inject
@@ -39,18 +44,19 @@ public class PackageResource implements PackageService {
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-  @Override
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
   @JsonView(Views.Public.class)
-  public Uni<OaasPackageContainer> create(Boolean update,
+  public Uni<OaasPackageContainer> create(@RestQuery Boolean update,
                                           OaasPackageContainer pkg) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     for (OaasClass cls : classes) {
-      cls.setPackageName(pkg.getName());
+      cls.setPkg(pkg.getName());
       cls.validate();
     }
     for (OaasFunction function : functions) {
-      function.setPackageName(pkg.getName());
+      function.setPkg(pkg.getName());
       function.validate();
     }
 
@@ -66,26 +72,38 @@ public class PackageResource implements PackageService {
         return classRepo
           .persistWithPreconditionAsync(oldClasses)
           .flatMap(__ -> classRepo.persistAsync(newClasses))
-          .flatMap(__ -> funcRepo.persistAsync(functions));
+          .flatMap(__ -> funcRepo.persistAsync(functions))
+          .replaceWith(() -> {
+            var pkgCls = changedClasses.values()
+              .stream()
+              .filter(cls -> cls.getPkg().equals(pkg.getName()))
+              .toList();
+            return pkg.setClasses(pkgCls);
+          });
       })
       .onFailure(DataAccessException.class)
       .retry().atMost(3);
     if (config.kafkaEnabled()) {
       return uni.call(__ ->
-          provisionPublisher.submitNewFunction(pkg.getFunctions().stream()))
-        .replaceWith(pkg);
-    } else {
-      return uni.replaceWith(pkg);
+        provisionPublisher.submitNewFunction(pkg.getFunctions().stream()));
     }
+    return uni;
   }
 
-  @Override
-  public Uni<OaasPackageContainer> patch(String name, OaasPackageContainer oaasPackage) {
-    return null;
+  @Path("{name}")
+  @PATCH
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Uni<OaasPackageContainer> patch(String name,
+                                         OaasPackageContainer oaasPackage) {
+    // TODO
+    throw new NotImplementedException();
   }
 
-  @Override
-  public Uni<OaasPackageContainer> patchByYaml(String name, String body) {
+  @Path("{name}")
+  @PATCH
+  @Consumes("text/x-yaml")
+  public Uni<OaasPackageContainer> patchByYaml(String name,
+                                               String body) {
     try {
       var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
       return patch(name, pkg);
@@ -94,9 +112,9 @@ public class PackageResource implements PackageService {
     }
   }
 
-  @Override
-  @JsonView(Views.Public.class)
-  public Uni<OaasPackageContainer> createByYaml(Boolean update,
+  @POST
+  @Consumes("text/x-yaml")
+  public Uni<OaasPackageContainer> createByYaml(@RestQuery Boolean update,
                                                 String body) {
     try {
       var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);

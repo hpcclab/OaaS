@@ -22,7 +22,7 @@ public interface ArgRepositoryConfig {
   @WithDefault("OaasObject")
   String objectCollection();
 
-  @WithDefault("OaasView")
+  @WithDefault("ObjectView")
   String objectView();
   @WithDefault("OaasFunction")
   String functionCollection();

@@ -69,7 +69,7 @@ public class ArgRepositoryInitializer {
   void createObjectView() {
     var as = database.arangoSearch(objView.name());
     var exist = objView.exists();
-    LOGGER.info("ObjectView exists {}", exist);
+//    LOGGER.info("ObjectView exists {}", exist);
     if (!exist) {
       var view = as.create(
         new ArangoSearchCreateOptions()
@@ -77,11 +77,10 @@ public class ArgRepositoryInitializer {
             .analyzers("identity")
             .fields(
               FieldLink.on("_key"),
-              FieldLink.on("cls"),
-              FieldLink.on("status.taskStatus")
+              FieldLink.on("cls")
             )
           )
-          .primarySort(PrimarySort.on("_key").ascending(true)));
+          .primarySort(PrimarySort.on("status.crtTs").ascending(false)));
       LOGGER.info("create ObjectView {}", view);
     }
   }

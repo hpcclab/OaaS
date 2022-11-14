@@ -3,11 +3,8 @@ package org.hpcclab.oaas.infinispan;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.CachedEntityRepository;
-import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.MetadataValue;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -227,7 +224,7 @@ public abstract class AbstractInfRepository<K, V> implements CachedEntityReposit
     throw StdOaasException.notImplemented();
   }
   @Override
-  public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
+  public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
     throw StdOaasException.notImplemented();
   }
 

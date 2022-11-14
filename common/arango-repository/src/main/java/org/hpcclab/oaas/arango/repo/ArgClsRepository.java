@@ -4,6 +4,7 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.arango.CacheFactory;
@@ -41,9 +42,12 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   CacheFactory cacheFactory;
   private Cache<String, OaasClass> cache;
 
+  private Cache<String, List<String>> subClsCache;
+
   @PostConstruct
   void setup() {
     cache = cacheFactory.get();
+    subClsCache = cacheFactory.getLongTermVer();
   }
 
   @Override
@@ -71,7 +75,24 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     return cache;
   }
 
-  public List<OaasClass> loadChildren(OaasClass cls) {
+  public Uni<List<String>> listSubCls(String clsKey) {
+    var res = subClsCache.getIfPresent(clsKey);
+    if (res != null)
+      return Uni.createFrom().item(res);
+    var query = """
+      FOR cls IN @@col
+        FILTER cls.resolved.identities ANY == @key
+        return cls._key
+      """;
+    var param = Map.<String, Object>of(
+      "@col", getCollection().name(),
+      "key", clsKey
+    );
+    return this.queryAsync(query, String.class, param)
+      .invoke(l -> subClsCache.put(clsKey, l));
+  }
+
+  public List<OaasClass> loadChildren(String clsKey) {
     var query = """
       FOR cls IN @@col
         FILTER cls.resolved.identities ANY == @key
@@ -80,7 +101,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     return query(query,
       Map.of(
         "@col", getCollection().name(),
-        "key", cls.getKey())
+        "key", clsKey)
     );
   }
 
@@ -111,14 +132,6 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     clsMap.put(baseCls.getKey(), newCls);
     return newCls;
   }
-
-  public boolean checkCycle(OaasClass baseCls, OaasClass parent) {
-    if (parent.getResolved().getIdentities()==null
-      || parent.getResolved().getIdentities().isEmpty())
-      return false;
-    return (parent.getResolved().getIdentities().contains(baseCls.getKey()));
-  }
-
   @Override
   public Map<String, OaasClass> resolveInheritance(Map<String, OaasClass> clsMap) {
     var startingClasses = List.copyOf(clsMap.values());
@@ -128,7 +141,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
       resolveInheritance(cls, ctxMap, Sets.mutable.empty());
     }
     for (var cls : startingClasses) {
-      var children = loadChildren(cls);
+      var children = loadChildren(cls.getKey());
       for (var child: children) {
         child.getResolved().setFlag(false);
         resolveInheritance(child, ctxMap, Sets.mutable.empty());

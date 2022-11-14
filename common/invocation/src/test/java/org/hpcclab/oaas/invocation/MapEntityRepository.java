@@ -131,7 +131,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   }
 
   @Override
-  public Uni<Pagination<V>> sortedPaginationAsync(String name, long offset, int limit) {
+  public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
     throw new IllegalStateException();
   }
 

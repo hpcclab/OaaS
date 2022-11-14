@@ -3,7 +3,6 @@ package org.hpcclab.oaas.controller.initializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.hpcclab.oaas.controller.rest.PackageResource;
-import org.hpcclab.oaas.controller.rest.PackageService;
 import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
@@ -13,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
 public class BuiltInLoader {
@@ -39,13 +36,13 @@ public class BuiltInLoader {
       var funcList = pkg.getFunctions();
       var funcNames = funcList==null ? List.of()
         :funcList.stream()
-        .map(f -> f.setPackageName(pkg.getName()))
+        .map(f -> f.setPkg(pkg.getName()))
         .map(OaasFunction::getKey)
         .toList();
       var clsList = pkg.getClasses();
       var clsNames = clsList==null ? List.of()
         :clsList.stream()
-        .map(c -> c.setPackageName(pkg.getName()))
+        .map(c -> c.setPkg(pkg.getName()))
         .map(OaasClass::getKey)
         .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);

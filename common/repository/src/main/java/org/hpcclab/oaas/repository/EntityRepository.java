@@ -66,7 +66,7 @@ public interface EntityRepository<K, V> {
   Pagination<V> pagination(long offset, int limit);
   Uni<Pagination<V>> paginationAsync(long offset, int limit);
 
-  Uni<Pagination<V>> sortedPaginationAsync(String name,long offset, int limit);
+  Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc,long offset, int limit);
 
   default Pagination<V> queryPagination(String queryString, long offset, int limit) {
     return queryPagination(queryString, Map.of(), offset, limit);

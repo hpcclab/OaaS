@@ -19,7 +19,7 @@ concept,480]
 
 
 == Architecture
-image:doc/diagrams/oaas_architecture_v7.dio.png[ architecture,480]
+image:doc/diagrams/oaas_architecture_v8.dio.png[ architecture,480]
 
 == OaaS Installation
 

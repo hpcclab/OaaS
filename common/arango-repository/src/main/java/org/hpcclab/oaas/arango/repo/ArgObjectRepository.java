@@ -6,14 +6,18 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
 public class ArgObjectRepository extends AbstractArgRepository<OaasObject> implements ObjectRepository {
+  private static final Logger LOGGER = LoggerFactory.getLogger( ArgObjectRepository.class );
   @Inject
   @Named("ObjectCollection")
   ArangoCollection collection;
@@ -42,20 +46,20 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
   }
 
   @Override
-  public Uni<Pagination<OaasObject>> listByCls(String clsName,
+  public Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys,
                                                long offset,
                                                int limit) {
     // langauge=AQL
     var query = """
       FOR obj IN @@col
-        FILTER obj.cls == @cls
+        FILTER obj.cls in @cls
         LIMIT @off, @lim
         RETURN obj
       """;
     return queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
-        "cls", clsName,
+        "cls", clsKeys,
         "off", offset,
         "lim", limit
       ),
@@ -64,25 +68,30 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
     );
   }
 
-  public Uni<Pagination<OaasObject>> sortedListByCls(String clsName,
+  public Uni<Pagination<OaasObject>> sortedListByCls(List<String> clsKeys,
                                                      String sortKey,
+                                                     boolean desc,
                                                      long offset,
                                                      int limit) {
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("sortedListByCls {}, {}, {}",
+        clsKeys, sortKey, desc);
     // langauge=AQL
     var query = """
       FOR obj IN @@col
-        FILTER obj.cls == @cls
-        SORT obj.@sort
+        FILTER obj.cls in @cls
+        SORT obj.@sort @order
         LIMIT @off, @lim
         RETURN obj
       """;
     return queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
-        "cls", clsName,
+        "cls", clsKeys,
+        "order",  desc? "DESC" : "ASC",
         "off", offset,
         "lim", limit,
-        "sort", sortKey
+        "sort", sortKey.split("\\.")
       ),
       offset,
       limit

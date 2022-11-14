@@ -19,22 +19,9 @@ public class ResolvedMember implements Copyable<ResolvedMember> {
   private Map<String, ReferenceSpecification> refSpecs;
   private Set<String> identities;
   @JsonView(Views.Internal.class)
-  private  boolean flag = false;
+  private boolean flag = false;
 
   public ResolvedMember() {
-  }
-
-  public ResolvedMember(Map<String, FunctionBinding> functionBindings,
-                        Map<String, KeySpecification> keySpecs,
-                        Map<String, ReferenceSpecification> refSpecs,
-                        Set<String> identities) {
-    this(
-      functionBindings,
-      keySpecs,
-      refSpecs,
-      identities,
-      false
-    );
   }
 
   public ResolvedMember(Map<String, FunctionBinding> functionBindings,

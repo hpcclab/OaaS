@@ -19,4 +19,10 @@ public class CacheFactory {
       .expireAfterWrite(Duration.ofMillis(config.cacheTimeout()))
       .build();
   }
+
+  public <V> Cache<String, V> getLongTermVer() {
+    return Caffeine.newBuilder()
+      .expireAfterWrite(Duration.ofMillis(config.cacheTimeout() * 10L))
+      .build();
+  }
 }

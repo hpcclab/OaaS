@@ -171,6 +171,20 @@
             "type" : "string"
           }
         }, {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "includeSub",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -207,6 +221,7 @@
     },
     "/api/functions" : {
       "get" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "limit",
           "in" : "query",
@@ -236,11 +251,11 @@
         }
       },
       "post" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
           "schema" : {
-            "default" : false,
             "type" : "boolean"
           }
         } ],
@@ -280,6 +295,7 @@
     },
     "/api/functions/{funcName}" : {
       "get" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "funcName",
           "in" : "path",
@@ -304,6 +320,7 @@
     },
     "/api/object-construct" : {
       "post" : {
+        "tags" : [ "Object Construct Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -319,7 +336,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ObjectConstructResponse"
+                  "$ref" : "#/components/schemas/ObjectConstructResponse_Public"
                 }
               }
             }
@@ -329,7 +346,15 @@
     },
     "/api/objects" : {
       "get" : {
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -356,7 +381,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasObject"
+                  "$ref" : "#/components/schemas/PaginationOaasObject_Public"
                 }
               }
             }
@@ -366,6 +391,7 @@
     },
     "/api/objects/{id}" : {
       "get" : {
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -380,7 +406,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
+                  "$ref" : "#/components/schemas/OaasObject_Public"
                 }
               }
             }
@@ -388,6 +414,7 @@
         }
       },
       "delete" : {
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -402,7 +429,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
+                  "$ref" : "#/components/schemas/OaasObject_Public"
                 }
               }
             }
@@ -412,11 +439,11 @@
     },
     "/api/packages" : {
       "post" : {
+        "tags" : [ "Package Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
           "schema" : {
-            "default" : "true",
             "type" : "boolean"
           }
         } ],
@@ -429,7 +456,7 @@
             },
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasPackageContainer"
+                "$ref" : "#/components/schemas/OaasPackageContainer_Public"
               }
             }
           }
@@ -440,7 +467,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasPackageContainer"
+                  "$ref" : "#/components/schemas/OaasPackageContainer_Public"
                 }
               }
             }
@@ -450,6 +477,7 @@
     },
     "/api/packages/{name}" : {
       "patch" : {
+        "tags" : [ "Package Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -467,7 +495,7 @@
             },
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasPackageContainer"
+                "$ref" : "#/components/schemas/OaasPackageContainer_Public"
               }
             }
           }
@@ -478,7 +506,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasPackageContainer"
+                  "$ref" : "#/components/schemas/OaasPackageContainer_Public"
                 }
               }
             }
@@ -945,7 +973,7 @@
           "name" : {
             "type" : "string"
           },
-          "packageName" : {
+          "pkg" : {
             "type" : "string"
           },
           "genericType" : {
@@ -995,7 +1023,7 @@
           "name" : {
             "type" : "string"
           },
-          "packageName" : {
+          "pkg" : {
             "type" : "string"
           },
           "genericType" : {
@@ -1050,7 +1078,7 @@
             "pattern" : "\\S",
             "type" : "string"
           },
-          "packageName" : {
+          "pkg" : {
             "type" : "string"
           },
           "description" : {
@@ -1097,7 +1125,7 @@
             "pattern" : "\\S",
             "type" : "string"
           },
-          "packageName" : {
+          "pkg" : {
             "type" : "string"
           },
           "description" : {
@@ -1130,67 +1158,6 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/FunctionState_Public"
-          }
-        }
-      },
-      "OaasObject" : {
-        "type" : "object",
-        "properties" : {
-          "_key" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "origin" : {
-            "$ref" : "#/components/schemas/ObjectOrigin"
-          },
-          "hash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "cls" : {
-            "type" : "string"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
-          },
-          "refs" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
-            }
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/ObjectStatus"
-          },
-          "streamInfo" : {
-            "$ref" : "#/components/schemas/StreamInfo"
-          },
-          "embeddedRecord" : {
-            "$ref" : "#/components/schemas/ObjectNode"
-          }
-        }
-      },
-      "OaasObjectState" : {
-        "type" : "object",
-        "properties" : {
-          "stateId" : {
-            "type" : "string"
-          },
-          "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
           }
         }
       },
@@ -1281,6 +1248,32 @@
           }
         }
       },
+      "OaasPackageContainer_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "required" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "classes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasClass_Public"
+            }
+          },
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasFunction_Public"
+            }
+          }
+        }
+      },
       "ObjectConstructRequest" : {
         "type" : "object",
         "properties" : {
@@ -1325,11 +1318,11 @@
           }
         }
       },
-      "ObjectConstructResponse" : {
+      "ObjectConstructResponse_Public" : {
         "type" : "object",
         "properties" : {
           "object" : {
-            "$ref" : "#/components/schemas/OaasObject"
+            "$ref" : "#/components/schemas/OaasObject_Public"
           },
           "uploadUrls" : {
             "type" : "object",
@@ -1340,7 +1333,7 @@
           "streams" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/ObjectConstructResponse"
+              "$ref" : "#/components/schemas/ObjectConstructResponse_Public"
             }
           }
         }
@@ -1350,29 +1343,6 @@
       },
       "ObjectNode_Public" : {
         "type" : "array"
-      },
-      "ObjectOrigin" : {
-        "type" : "object",
-        "properties" : {
-          "parentId" : {
-            "type" : "string"
-          },
-          "funcName" : {
-            "type" : "string"
-          },
-          "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        }
       },
       "ObjectOrigin_Public" : {
         "type" : "object",
@@ -1445,39 +1415,6 @@
             }
           },
           "cls" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ObjectStatus" : {
-        "type" : "object",
-        "properties" : {
-          "taskStatus" : {
-            "$ref" : "#/components/schemas/TaskStatus"
-          },
-          "crtTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "queTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "smtTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "cptTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "waitFor" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "errorMsg" : {
             "type" : "string"
           }
         }
@@ -1565,29 +1502,6 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunction_Public"
-            }
-          }
-        }
-      },
-      "PaginationOaasObject" : {
-        "type" : "object",
-        "properties" : {
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "itemCount" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "items" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasObject"
             }
           }
         }
@@ -1773,15 +1687,6 @@
         "enum" : [ "FILES", "COLLECTION" ],
         "type" : "string"
       },
-      "StreamInfo" : {
-        "type" : "object",
-        "properties" : {
-          "count" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        }
-      },
       "StreamInfo_Public" : {
         "type" : "object",
         "properties" : {
@@ -1790,10 +1695,6 @@
             "type" : "integer"
           }
         }
-      },
-      "TaskStatus" : {
-        "enum" : [ "LAZY", "DOING", "SUCCEEDED", "FAILED", "DEPENDENCY_FAILED", "READY" ],
-        "type" : "string"
       },
       "TaskStatus_Public" : {
         "enum" : [ "LAZY", "DOING", "SUCCEEDED", "FAILED", "DEPENDENCY_FAILED", "READY" ],

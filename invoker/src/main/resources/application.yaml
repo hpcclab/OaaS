@@ -14,16 +14,8 @@
   oaas:
     log: DEBUG
 
-"%prod":
-  oaas:
-    oc:
-      kafkaEnabled: true
 
 oaas:
-  oc:
-    storageAdapterUrl: http://localhost:8093
-    provisionTopic: oaas-provisions
-    kafkaEnabled: false
   log: INFO
   name: invoker
 
@@ -38,10 +30,6 @@ quarkus:
     record-request-start-time: true
   vertx:
     prefer-native-transport: true
-  swagger-ui:
-    always-include: true
-  smallrye-openapi:
-    enable: true
   log:
     category:
       "org.hpcclab.oaas":
