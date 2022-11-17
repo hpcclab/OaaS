@@ -39,16 +39,24 @@ public class FunctionResource {
   @GET
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasFunction>> list(@RestQuery Long offset,
-                                            @RestQuery Integer limit) {
+                                            @RestQuery Integer limit,
+                                            @RestQuery String sort,
+                                            @RestQuery @DefaultValue("false") boolean desc) {
     if (offset== null) offset = 0L;
     if (limit== null) limit = 20;
-    return funcRepo.sortedPaginationAsync("name", false, offset, limit);
+    if (sort == null) sort = "_key";
+    return funcRepo.sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @POST
   @JsonView(Views.Public.class)
   public Uni<List<OaasFunction>> create(@RestQuery boolean update,
                                         List<OaasFunction> functionDtos) {
+    for (OaasFunction functionDto : functionDtos) {
+      if (functionDto.getPkg() == null) {
+        functionDto.setPkg("default");
+      }
+    }
     var uni = Multi.createFrom().iterable(functionDtos)
       .onItem()
       .transformToUniAndConcatenate(funcDto -> funcRepo.persistAsync(funcDto)

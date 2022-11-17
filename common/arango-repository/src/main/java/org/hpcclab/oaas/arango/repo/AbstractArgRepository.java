@@ -272,7 +272,7 @@ public abstract class AbstractArgRepository<V>
         "sorted", name.split("\\."),
         "off", offset,
         "lim", limit,
-        "order", desc ? "ASC":"DESC"
+        "order", desc ? "DESC": "ASC"
       ),
       offset, limit);
   }

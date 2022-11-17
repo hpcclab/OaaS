@@ -24,6 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,7 @@ public class PackageResource {
           .replaceWith(() -> {
             var pkgCls = changedClasses.values()
               .stream()
-              .filter(cls -> cls.getPkg().equals(pkg.getName()))
+              .filter(cls -> Objects.equals(cls.getPkg(), pkg.getName()))
               .toList();
             return pkg.setClasses(pkgCls);
           });

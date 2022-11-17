@@ -20,6 +20,7 @@ import io.vertx.core.json.Json;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
+import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
@@ -85,7 +86,7 @@ public class KnativeProvisionHandler {
         .isEmpty();
       if (deleted) LOGGER.info("Deleted service: {}", key);
     } else {
-      var svcName = "oaas-" + function.getKey().replaceAll("[/.]", "-")
+      var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
       var oldSvc = knativeClient.services().withName(svcName)
@@ -129,9 +130,11 @@ public class KnativeProvisionHandler {
   private void updateFunctionStatus(OaasFunction function,
                                     Service service) {
     var condition = extractReadyCondition(service);
-    var ready = condition.get().getStatus().equals("True");
+    var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
       functionRepo.compute(function.getKey(), (k, f) -> {
+        if (f.getDeploymentStatus() ==null)
+          f.setDeploymentStatus(new FunctionDeploymentStatus());
         f.getDeploymentStatus()
           .setCondition(DeploymentCondition.RUNNING)
           .setInvocationUrl(service.getStatus().getAddress().getUrl())

@@ -36,16 +36,19 @@ public class ClassResource {
   @Inject
   CtxMapper oaasMapper;
   @Inject
-  PackageResource moduleResource;
+  PackageResource packageResource;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @GET
   @JsonView(Views.Public.class)
   public Uni<Pagination<OaasClass>> list(@RestQuery Long offset,
-                                         @RestQuery Integer limit) {
+                                         @RestQuery Integer limit,
+                                         @RestQuery String sort,
+                                         @RestQuery @DefaultValue("false") boolean desc) {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
-    return classRepo.sortedPaginationAsync("name", false, offset, limit);
+    if (sort == null) sort = "_key";
+    return classRepo.sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @GET
@@ -59,7 +62,7 @@ public class ClassResource {
                                                 @RestQuery @DefaultValue("false") boolean includeSub) {
     final var fOffset = offset==null ? 0L:offset;
     final var fLimit = limit==null ? 20:limit;
-    final var fSort = sort==null ? "_key":sort;
+    final var fSort = sort==null ? "_key" : sort;
     var uni = includeSub ?
       classRepo.listSubCls(name)
       :Uni.createFrom().item(List.of(name));
@@ -75,8 +78,11 @@ public class ClassResource {
   @JsonView(Views.Public.class)
   public Uni<OaasClass> create(@RestQuery boolean update, OaasClass cls) {
     cls.validate();
-    return moduleResource.create(update, new OaasPackageContainer()
-        .setClasses(List.of(cls)))
+    var pkgName = cls.getPkg()==null ? "default":cls.getPkg();
+    var pkg = new OaasPackageContainer();
+    pkg.setClasses(List.of(cls))
+      .setName(pkgName);
+    return packageResource.create(update, pkg)
       .map(module -> module.getClasses().isEmpty() ? null:module.getClasses()
         .get(0)
       );
