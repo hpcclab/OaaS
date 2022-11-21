@@ -4,6 +4,8 @@ import com.arangodb.ArangoDBException;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.repository.CachedEntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +49,26 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Map<String, V> list(Collection<String> keys) {
+    if (keys.isEmpty()) return Map.of();
     return cache().getAll(keys, kl -> super.list((Collection<String>) kl));
   }
 
   @Override
   public Uni<Map<String, V>> listAsync(Collection<String> keys) {
-    return Uni.createFrom().item(list(keys));
+    if (keys.isEmpty()) return Uni.createFrom().item(Map.of());
+    var results = cache().getAllPresent(keys);
+    if (results.size() == keys.size()) {
+      return Uni.createFrom().item(results);
+    }
+    var keyToLoad = Sets.mutable.ofAll(keys);
+    keyToLoad.removeAll(results.keySet());
+    return super.listAsync(keyToLoad)
+      .map(loadedResults -> {
+        var m = Maps.mutable.ofMap(results);
+        m.putAll(loadedResults);
+        cache().putAll(loadedResults);
+        return m;
+      });
   }
 
   @Override
@@ -70,7 +86,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   @Override
   public V put(String key, V value) {
     var v = super.put(key, value);
-    cache().put(key, value);
+    cache().put(key, v);
     return v;
   }
 

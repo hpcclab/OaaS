@@ -5,7 +5,10 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -27,23 +30,20 @@ public class ObjectAccessLangauge {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer(target.toString());
-    if (functionName == null)
+    StringBuilder sb = new StringBuilder(target);
+    if (functionName==null)
       return sb.toString();
-    sb.append(':');
-    sb.append(functionName);
-    if (inputs== null || inputs.isEmpty()) {
-      sb.append("()");
-    } else {
-      sb.append('(');
-      for (int i = 0; i < inputs.size(); i++) {
-        if (i != 0) sb.append(',');
-        sb.append(inputs.get(i).toString());
-      }
-      sb.append(')');
+    sb.append(':').append(functionName);
+    sb.append('(');
+    var size = inputs==null ? 0:inputs.size();
+    for (int i = 0; i < size; i++) {
+      if (i!=0) sb.append(',');
+      sb.append(inputs.get(i));
     }
+    sb.append(')');
 
-    if (args != null && !args.isEmpty()) {
+
+    if (args!=null && !args.isEmpty()) {
       sb.append('(');
       var sorted = new TreeMap<>(args);
       boolean first = true;
@@ -69,27 +69,27 @@ public class ObjectAccessLangauge {
   }
 
   public static ObjectAccessLangauge parse(String expr) {
-    var matcher=EXPR_PATTERN.matcher(expr);
+    var matcher = EXPR_PATTERN.matcher(expr);
     if (!matcher.find())
-      throw new OalParsingException("The given expression('"+expr+"') doesn't match the pattern.");
+      throw new OalParsingException("The given expression('" + expr + "') doesn't match the pattern.");
     var target = matcher.group("target");
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
     var oal = new ObjectAccessLangauge();
     oal.target = target;
-    if (func == null) return oal;
+    if (func==null) return oal;
     oal.functionName = func;
-    if (inputs != null && !inputs.isEmpty()) {
+    if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();
       oal.setInputs(list);
     }
-    if (args != null && !args.isEmpty()) {
-      var argMap  = Arrays.stream(args.split(","))
+    if (args!=null && !args.isEmpty()) {
+      var argMap = Arrays.stream(args.split(","))
         .map(pair -> {
           var kv = pair.split("=");
-          if (kv.length != 2) throw new OalParsingException("Arguments parsing exception");
+          if (kv.length!=2) throw new OalParsingException("Arguments parsing exception");
           return Map.entry(kv[0], kv[1]);
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
