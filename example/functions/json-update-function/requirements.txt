@@ -1,4 +1,6 @@
 # requests
 fastapi
+aiohttp
 uvicorn
 gunicorn
+oaas_sdk_py @ git+https://gitlab.com/Pawissanutt/oaas-sdk-py.git

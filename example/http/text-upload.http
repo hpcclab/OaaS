@@ -4,9 +4,6 @@ Content-Type: text/x-yaml
 
 < text.yml
 ###
-GET {{cds}}/api/functions
-
-###
 POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
