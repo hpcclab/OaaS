@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.function.FunctionRouter;
+import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -33,7 +33,7 @@ import java.net.URI;
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
-  FunctionRouter router;
+  UnifiedFunctionRouter router;
   @Inject
   ObjectRepository objectRepo;
   @Inject
@@ -55,22 +55,11 @@ public class OalResource {
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
       return applyFunction(oal)
-        .flatMap(ctx -> invokeThenAwait(ctx, await!=null && await, timeout, mq)
-//          .invoke(o -> {
-//            // NOTE Temporary fix for object status data lost problem.
-//            var status = o.getStatus();
-//            if (status.getTaskStatus().isCompleted()) {
-//              if (status.getSubmittedTs() <= 0)
-//                status.setSubmittedTs(ctx.getOutput().getStatus().getSubmittedTs());
-//              if (status.getCompletedTs() <= 0)
-//                status.setCompletedTs(System.currentTimeMillis());
-//            }
-//          })
-        );
+        .flatMap(ctx -> invokeThenAwait(ctx, await!=null && await, timeout, mq));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
-        .failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404));
+        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404));
     }
   }
 
@@ -104,7 +93,8 @@ public class OalResource {
 
     } else {
       return objectRepo.getAsync(oal.getTarget())
-        .onItem().ifNull().failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404))
+        .onItem().ifNull()
+        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
           if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
@@ -137,7 +127,6 @@ public class OalResource {
 
   public Uni<FunctionExecContext> applyFunction(ObjectAccessLangauge oal) {
     var uni = router.apply(oal);
-//      .flatMap(objectRepo::persistFromCtx);
     if (LOGGER.isDebugEnabled()) {
       uni = uni
         .invoke(() -> LOGGER.debug("Applying function '{}' succeed", oal));
@@ -185,7 +174,7 @@ public class OalResource {
                                          Integer timeout,
                                          Boolean mq) {
     if (await==null ? config.defaultAwaitCompletion():await) {
-      if ((mq==null || !mq) && graphExecutor.canSyncInvoke(ctx)) {
+      if (mq==null ? graphExecutor.canSyncInvoke(ctx) : !mq) {
         return graphExecutor.syncExec(ctx)
           .map(TaskContext::getOutput);
       }

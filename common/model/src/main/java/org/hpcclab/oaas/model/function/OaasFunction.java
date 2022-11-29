@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -85,6 +86,10 @@ public class OaasFunction implements Copyable<OaasFunction> {
   }
 
   public void validate() {
+    if (name == null)
+      throw new FunctionValidationException("Function's name can not be null");
+    if (!name.matches("^[a-zA-Z0-9_-]*$"))
+      throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9_-]*$'");
     if (provision!=null) provision.validate();
     if (type==FunctionType.TASK) {
       macro = null;
@@ -92,7 +97,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
     if (type==FunctionType.MACRO) {
       provision = null;
       if (macro==null) {
-        throw new OaasValidationException(
+        throw new FunctionValidationException(
           "Macro function('%s') must be defined 'macro' parameter".formatted(name)
         );
       }

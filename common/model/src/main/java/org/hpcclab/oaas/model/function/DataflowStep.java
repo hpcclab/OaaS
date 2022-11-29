@@ -15,7 +15,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataflowStep implements Serializable {
-  String funcName;
+  String func;
   String target;
   String as;
   List<String> inputRefs;
@@ -26,7 +26,7 @@ public class DataflowStep implements Serializable {
   }
 
   public DataflowStep(String funcName, String target, String as, List<String> inputRefs, Map<String, String> args, Map<String, String> argRefs) {
-    this.funcName = funcName;
+    this.func = funcName;
     this.target = target;
     this.as = as;
     this.inputRefs = inputRefs;
@@ -36,7 +36,7 @@ public class DataflowStep implements Serializable {
 
   @ProtoFactory
   public DataflowStep(String funcName, String target, String as, List<String> inputRefs, HashMap<String, String> args, HashMap<String, String> argRefs) {
-    this.funcName = funcName;
+    this.func = funcName;
     this.target = target;
     this.as = as;
     this.inputRefs = inputRefs;
@@ -47,8 +47,8 @@ public class DataflowStep implements Serializable {
 
 
   @ProtoField(1)
-  public String getFuncName() {
-    return funcName;
+  public String getFunc() {
+    return func;
   }
 
   @ProtoField(2)

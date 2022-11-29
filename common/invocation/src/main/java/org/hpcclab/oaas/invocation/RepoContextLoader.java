@@ -39,11 +39,6 @@ public class RepoContextLoader implements ContextLoader {
     this.clsRepo = clsRepo;
   }
 
-  @Override
-  public Uni<OaasObject> getObject(String id) {
-    return objectRepo.getAsync(id);
-  }
-
   public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLangauge request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
@@ -102,7 +97,7 @@ public class RepoContextLoader implements ContextLoader {
     return resolveObjFromCtx(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
 //      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
-      .map(ignore -> setClsAndFunc(newCtx, step.getFuncName()))
+      .map(ignore -> setClsAndFunc(newCtx, step.getFunc()))
       .chain(() -> resolveInputs(newCtx, step));
   }
 

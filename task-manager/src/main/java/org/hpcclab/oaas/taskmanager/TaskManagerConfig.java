@@ -13,7 +13,7 @@ public interface TaskManagerConfig {
   boolean defaultAwaitCompletion();
   @WithDefault("100")
   int connectionPoolMaxSize();
-  @WithDefault("5")
+  @WithDefault("8")
   int h2ConnectionPoolMaxSize();
 
   @WithDefault("oaas-fn-")

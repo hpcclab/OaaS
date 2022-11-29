@@ -22,18 +22,20 @@ public class KnativeProvision {
 
   @ProtoField(value = 4, defaultValue = "-1")
   int concurrency = -1;
+  @ProtoField(value = 5, defaultValue = "-1")
+  int targetConcurrency = -1;
 
-  @ProtoField(value = 5)
+  @ProtoField(value = 6)
   String scaleDownDelay = "0s";
-  @ProtoField(6)
-  String requestsCpu;
   @ProtoField(7)
-  String requestsMemory;
+  String requestsCpu;
   @ProtoField(8)
-  String limitsCpu;
+  String requestsMemory;
   @ProtoField(9)
+  String limitsCpu;
+  @ProtoField(10)
   String limitsMemory;
-  @ProtoField(value = 10, javaType = HashMap.class)
+  @ProtoField(value = 11, javaType = HashMap.class)
   Map<String, String> env;
 
   public KnativeProvision() {
@@ -43,6 +45,7 @@ public class KnativeProvision {
                           int minScale,
                           int maxScale,
                           int concurrency,
+                          int targetConcurrency,
                           String scaleDownDelay,
                           String requestsCpu,
                           String requestsMemory,
@@ -53,6 +56,7 @@ public class KnativeProvision {
     this.minScale = minScale;
     this.maxScale = maxScale;
     this.concurrency = concurrency;
+    this.targetConcurrency = targetConcurrency;
     this.scaleDownDelay = scaleDownDelay;
     this.requestsCpu = requestsCpu;
     this.requestsMemory = requestsMemory;
@@ -66,6 +70,7 @@ public class KnativeProvision {
                           int minScale,
                           int maxScale,
                           int concurrency,
+                          int targetConcurrency,
                           String scaleDownDelay,
                           String requestsCpu,
                           String requestsMemory,
@@ -76,6 +81,7 @@ public class KnativeProvision {
     this.minScale = minScale;
     this.maxScale = maxScale;
     this.concurrency = concurrency;
+    this.targetConcurrency = targetConcurrency;
     this.scaleDownDelay = scaleDownDelay;
     this.requestsCpu = requestsCpu;
     this.requestsMemory = requestsMemory;

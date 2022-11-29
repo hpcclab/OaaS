@@ -28,7 +28,7 @@ class FunctionRouterTest {
   boolean debug = true;
   ObjectMapper objectMapper = new ObjectMapper();
 
-  FunctionRouter router;
+  UnifiedFunctionRouter router;
   EntityRepository<String,OaasObject> objectRepo;
   MockGraphStateManager graphStateManager;
   MockTaskSubmitter taskSubmitter;
@@ -53,7 +53,7 @@ class FunctionRouterTest {
     var macro = new MacroFunctionHandler();
     macro.contextLoader = cl;
     macro.objectFactory = objectFactory;
-    router = new FunctionRouter(logical, macro, task, cl);
+    router = new UnifiedFunctionRouter(logical, macro, task, cl);
     macro.router = router;
 
     graphStateManager = new MockGraphStateManager(objectRepo, objectMap);

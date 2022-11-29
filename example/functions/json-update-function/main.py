@@ -17,17 +17,17 @@ def generate_text(num):
 async def handle(request: Request,
                  response: Response):
   body = await request.json()
-  task = oaas.parse_task_from_dict(body)
+  ctx = oaas.parse_ctx_from_dict(body)
   # output_obj = body['output']
   # args = output_obj['origin'].get('args', {})
-  record = task.main_obj.record
-  entries = int(task.args.get('ENTRIES', '10'))
-  keys = int(task.args.get('KEYS', '10'))
-  values = int(task.args.get('VALUES', '10'))
+  record = ctx.task.main_obj.record
+  entries = int(ctx.args.get('ENTRIES', '10'))
+  keys = int(ctx.args.get('KEYS', '10'))
+  values = int(ctx.args.get('VALUES', '10'))
 
   for _ in range(entries):
     record[generate_text(keys)] = generate_text(values)
 
-  task.create_reply_header(response.headers)
+  ctx.create_reply_header(response.headers)
   record['ts'] = round(time.time() * 1000)
-  return task.create_completion(success=True, record=record)
+  return ctx.create_completion(success=True, record=record)

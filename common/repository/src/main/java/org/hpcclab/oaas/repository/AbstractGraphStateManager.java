@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
@@ -30,6 +31,23 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(TaskCompletion completion) {
     return objRepo.computeAsync(completion.getId(), (k, obj) -> updateCompletedObject(obj, completion))
+      .onItem()
+      .transformToMulti(completingObj -> {
+        if (!completingObj.getStatus().getTaskStatus().isFailed()) {
+          return loadNextSubmittable(completingObj);
+        } else {
+          return handleFailed(completingObj);
+        }
+      });
+  }
+
+
+  @Override
+  public Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completion) {
+    var out = task.getOutput();
+    var updatedOut = updateCompletedObject(out, completion);
+    return objRepo
+      .persistAsync(updatedOut)
       .onItem()
       .transformToMulti(completingObj -> {
         if (!completingObj.getStatus().getTaskStatus().isFailed()) {

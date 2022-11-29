@@ -13,6 +13,7 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
@@ -108,6 +109,13 @@ public class InvocationGraphExecutor {
 
   public Uni<Void> complete(TaskCompletion completion) {
     return gsm.handleComplete(completion)
+      .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
+      .collect().asList()
+      .flatMap(list -> submitter.submit(list));
+  }
+
+  public Uni<Void> complete(OaasTask task, TaskCompletion completion) {
+    return gsm.handleComplete(task, completion)
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()
       .flatMap(list -> submitter.submit(list));

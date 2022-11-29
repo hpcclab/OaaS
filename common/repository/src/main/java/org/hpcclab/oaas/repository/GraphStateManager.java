@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 
 import java.util.Collection;
@@ -19,6 +20,7 @@ public interface GraphStateManager {
 
 
   Multi<OaasObject> handleComplete(TaskCompletion completingObj);
+  Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completingObj);
   Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts);
 
   Uni<?> persistAllWithoutNoti(FunctionExecContext ctx);

@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invocation.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.RepoContextLoader;
+import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
@@ -25,15 +25,16 @@ public class MacroFunctionHandler implements FunctionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(MacroFunctionHandler.class);
 
   @Inject
-  FunctionRouter router;
+  UnifiedFunctionRouter router;
   @Inject
-  RepoContextLoader contextLoader;
+  ContextLoader contextLoader;
   @Inject
   OaasObjectFactory objectFactory;
 
   public void validate(FunctionExecContext context) {
     if (context.getFunction().getType()!=FunctionType.MACRO)
       throw new FunctionValidationException("Function must be MACRO");
+
   }
 
   private void setupMap(FunctionExecContext ctx) {

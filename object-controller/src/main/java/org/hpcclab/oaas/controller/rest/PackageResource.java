@@ -9,6 +9,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.arango.DataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.model.OaasPackageContainer;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -42,6 +43,8 @@ public class PackageResource {
   FunctionProvisionPublisher provisionPublisher;
   @Inject
   OcConfig config;
+  @Inject
+  PackageValidator validator;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -49,19 +52,11 @@ public class PackageResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @JsonView(Views.Public.class)
   public Uni<OaasPackageContainer> create(@RestQuery Boolean update,
-                                          OaasPackageContainer pkg) {
-    var classes = pkg.getClasses();
-    var functions = pkg.getFunctions();
-    for (OaasClass cls : classes) {
-      cls.setPkg(pkg.getName());
-      cls.validate();
-    }
-    for (OaasFunction function : functions) {
-      function.setPkg(pkg.getName());
-      function.validate();
-    }
-
-    var uni = Uni.createFrom().deferred(() -> {
+                                          OaasPackageContainer packageContainer) {
+    var uni = validator.validate(packageContainer)
+      .flatMap(pkg -> {
+        var classes = pkg.getClasses();
+        var functions = pkg.getFunctions();
         var clsMap = classes.stream()
           .collect(Collectors.toMap(OaasClass::getKey, Function.identity()));
         var changedClasses = classRepo.resolveInheritance(clsMap);
@@ -85,7 +80,7 @@ public class PackageResource {
       .onFailure(DataAccessException.class)
       .retry().atMost(3);
     if (config.kafkaEnabled()) {
-      return uni.call(__ ->
+      return uni.call(pkg ->
         provisionPublisher.submitNewFunction(pkg.getFunctions().stream()));
     }
     return uni;

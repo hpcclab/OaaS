@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.invocation.function;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.RepoContextLoader;
+import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
@@ -15,19 +15,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class FunctionRouter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FunctionRouter.class);
+public class UnifiedFunctionRouter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UnifiedFunctionRouter.class);
 
   LogicalFunctionHandler logicalFunctionHandler;
   MacroFunctionHandler macroFunctionHandler;
   TaskFunctionHandler taskFunctionHandler;
-  RepoContextLoader contextLoader;
+  ContextLoader contextLoader;
 
   @Inject
-  public FunctionRouter(LogicalFunctionHandler logicalFunctionHandler,
-                        MacroFunctionHandler macroFunctionHandler,
-                        TaskFunctionHandler taskFunctionHandler,
-                        RepoContextLoader contextLoader) {
+  public UnifiedFunctionRouter(LogicalFunctionHandler logicalFunctionHandler,
+                               MacroFunctionHandler macroFunctionHandler,
+                               TaskFunctionHandler taskFunctionHandler,
+                               ContextLoader contextLoader) {
     this.logicalFunctionHandler = logicalFunctionHandler;
     this.macroFunctionHandler = macroFunctionHandler;
     this.taskFunctionHandler = taskFunctionHandler;
@@ -43,12 +43,6 @@ public class FunctionRouter {
       default -> throw StdOaasException.notImplemented();
     };
   }
-
-//  public Uni<FunctionExecContext> functionCallBlocking(ObjectAccessLangauge request) {
-//    var ctx = cachedCtxLoader.loadCtx(request);
-//    validate(ctx);
-//    return functionCall(ctx);
-//  }
 
   public Uni<FunctionExecContext> apply(ObjectAccessLangauge request) {
     return contextLoader.loadCtxAsync(request)

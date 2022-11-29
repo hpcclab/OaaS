@@ -76,6 +76,7 @@ public class ClassResource {
 
   @POST
   @JsonView(Views.Public.class)
+  @Deprecated(forRemoval = true)
   public Uni<OaasClass> create(@RestQuery boolean update, OaasClass cls) {
     cls.validate();
     var pkgName = cls.getPkg()==null ? "default":cls.getPkg();
@@ -104,6 +105,7 @@ public class ClassResource {
   @POST
   @Consumes("text/x-yaml")
   @Produces(MediaType.APPLICATION_JSON)
+  @Deprecated(forRemoval = true)
   @JsonView(Views.Public.class)
   public Uni<OaasClass> createByYaml(@RestQuery boolean update, String body) {
     try {

@@ -1,8 +1,10 @@
 package org.hpcclab.oaas.invoker;
 
 
+import com.arangodb.ArangoDBException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
@@ -63,20 +65,30 @@ public class TaskMessageConsumer {
   void setHandler(KafkaConsumer<String, Buffer> kafkaConsumer) {
     kafkaConsumer.toMulti()
       .onItem()
-      .transformToUni(record -> invoke(record)
-        .call(taskCompletion -> graphExecutor.complete(taskCompletion)
-          .onFailure()
-          .retry().withBackOff(Duration.ofMillis(500))
-          .atMost(3)
-        )
+      .transformToUni(kafkaRecord -> invoke(kafkaRecord)
+        .call(taskCompletion -> handleComplete(kafkaRecord, taskCompletion))
       )
       .merge(4096)
+      .onFailure(KafkaInvokeException.class)
+      .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(
-        item -> objCompPublisher.publish(item.getId()),
+        item -> {
+          if (item!=null) objCompPublisher.publish(item.getId());
+        },
         error -> LOGGER.error("multi error", error),
         () -> LOGGER.error("multi unexpectedly completed")
       );
+  }
+
+  TaskCompletion handleFailInvocation(Throwable exception) {
+    if (exception instanceof KafkaInvokeException kafkaInvokeException) {
+      var msg = kafkaInvokeException.getCause()!=null ? kafkaInvokeException
+        .getCause().getMessage():null;
+      LOGGER.warn("Catch invocation fail on '{}' with message '{}'", kafkaInvokeException.getTaskCompletion().getId(), msg);
+      // TODO send to dead letter topic
+    }
+    return null;
   }
 
   void setHandlerDebug(KafkaConsumer<String, Buffer> kafkaConsumer) {
@@ -88,22 +100,18 @@ public class TaskMessageConsumer {
           .map(tc -> Tuples.pair(tc, ts))
           .call(tuple -> {
               var ts2 = System.currentTimeMillis();
-              return graphExecutor.complete(tuple.getOne())
-                .onFailure()
-                .retry().withBackOff(Duration.ofMillis(500))
-                .atMost(3)
-                .invoke(() -> {
-                  LOGGER.debug("task[{}]: persisted completion in {} ms (from start {} ms)",
-                    tuple.getOne().getId(),
-                    System.currentTimeMillis() - ts2,
-                    System.currentTimeMillis() - tuple.getTwo());
-                });
+              return handleComplete(kafkaConsumerRecord, tuple.getOne())
+                .invoke(() -> LOGGER.debug("task[{}]: persisted completion in {} ms (from start {} ms)",
+                  tuple.getOne().getId(),
+                  System.currentTimeMillis() - ts2,
+                  System.currentTimeMillis() - tuple.getTwo()));
             }
           );
       })
       .merge(4096)
       .subscribe()
       .with(tuple -> {
+          if (tuple==null) return;
           objCompPublisher.publish(tuple.getOne().getId());
           LOGGER.debug("task[{}]: completed in {} ms",
             tuple.getOne().getId(),
@@ -113,19 +121,40 @@ public class TaskMessageConsumer {
         () -> LOGGER.error("multi unexpectedly completed"));
   }
 
-  Uni<TaskCompletion> invoke(KafkaConsumerRecord<String, Buffer> record) {
+  Uni<Void> handleComplete(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                           TaskCompletion completion) {
+//    return graphExecutor.complete(completion)
+//      .onFailure()
+//      .retry().withBackOff(Duration.ofMillis(500))
+//      .atMost(3)
+//      .onFailure().transform(e -> new KafkaInvokeException(e, completion));
+    try {
+      var task = Json.decodeValue(kafkaRecord.value(), OaasTask.class);
+      return graphExecutor.complete(task, completion)
+        .onFailure(ArangoDBException.class)
+        .retry()
+        .withBackOff(Duration.ofMillis(500))
+        .atMost(3)
+        .onFailure()
+        .transform(e -> new KafkaInvokeException(e, completion));
+    } catch (DecodeException decodeException) {
+      return Uni.createFrom().failure(new KafkaInvokeException(decodeException, completion));
+    }
+  }
+
+  Uni<TaskCompletion> invoke(KafkaConsumerRecord<String, Buffer> kafkaRecord) {
     var startTime = System.currentTimeMillis();
     if (LOGGER.isDebugEnabled()) {
-      logLatency(record.value());
+      logLatency(kafkaRecord.value());
     }
-    var funcName = record.headers()
+    var funcName = kafkaRecord.headers()
       .stream()
       .filter(kafkaHeader -> kafkaHeader.key().equals("ce_function"))
       .findAny()
       .orElseThrow()
       .value()
       .toString();
-    var id = record.headers()
+    var id = kafkaRecord.headers()
       .stream()
       .filter(kafkaHeader -> kafkaHeader.key().equals("ce_id"))
       .findAny()
@@ -138,7 +167,7 @@ public class TaskMessageConsumer {
         id,
         funcName,
         url,
-        record.value(),
+        kafkaRecord.value(),
         System.currentTimeMillis()
       );
       var invokedUni = invoker.invoke(invokingDetail)
