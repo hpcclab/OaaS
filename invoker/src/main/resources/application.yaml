@@ -48,6 +48,6 @@ quarkus:
     resources:
       includes:
         - builtin/**
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17
 #  opentelemetry:
 #    enabled: false
