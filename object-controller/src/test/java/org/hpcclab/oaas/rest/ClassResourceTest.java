@@ -75,7 +75,7 @@ class ClassResourceTest {
 
   @Test
   void create() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
     given()
       .when().get("/api/classes")
       .then()

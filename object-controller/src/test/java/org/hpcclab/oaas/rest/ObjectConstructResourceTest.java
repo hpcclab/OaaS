@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -35,7 +34,7 @@ public class ObjectConstructResourceTest {
 
   @BeforeEach
   public void setUp() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
     var as = new DataAllocationService(){
       @Override
       public Uni<List<DataAllocateResponse>> allocate(List<DataAllocateRequest> requests) {

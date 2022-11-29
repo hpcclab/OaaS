@@ -14,6 +14,11 @@ paths:
       tags:
       - Class Resource
       parameters:
+      - name: desc
+        in: query
+        schema:
+          default: false
+          type: boolean
       - name: limit
         in: query
         schema:
@@ -24,6 +29,10 @@ paths:
         schema:
           format: int64
           type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
       responses:
         "200":
           description: OK
@@ -54,6 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasClass_Public'
+      deprecated: true
   /api/classes/{name}:
     get:
       tags:
@@ -154,6 +164,11 @@ paths:
       tags:
       - Function Resource
       parameters:
+      - name: desc
+        in: query
+        schema:
+          default: false
+          type: boolean
       - name: limit
         in: query
         schema:
@@ -164,6 +179,10 @@ paths:
         schema:
           format: int64
           type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
       responses:
         "200":
           description: OK
@@ -198,6 +217,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OaasFunction_Public'
+      deprecated: true
   /api/functions/{funcName}:
     get:
       tags:
@@ -363,7 +383,7 @@ components:
     DataflowStep:
       type: object
       properties:
-        funcName:
+        function:
           type: string
         target:
           type: string
@@ -384,7 +404,7 @@ components:
     DataflowStep_Public:
       type: object
       properties:
-        funcName:
+        function:
           type: string
         target:
           type: string
@@ -640,6 +660,9 @@ components:
         concurrency:
           format: int32
           type: integer
+        targetConcurrency:
+          format: int32
+          type: integer
         scaleDownDelay:
           type: string
         requestsCpu:
@@ -666,6 +689,9 @@ components:
           format: int32
           type: integer
         concurrency:
+          format: int32
+          type: integer
+        targetConcurrency:
           format: int32
           type: integer
         scaleDownDelay:

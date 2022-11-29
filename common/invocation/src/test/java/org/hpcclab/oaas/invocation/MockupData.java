@@ -18,12 +18,14 @@ public class MockupData {
 
   public static final OaasFunction FUNC_1 = new OaasFunction()
     .setName("func1")
+    .setPkg("ex")
     .setType(FunctionType.TASK)
     .setOutputCls("cls1");
 
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")
+    .setPkg("ex")
     .setType(FunctionType.MACRO)
     .setOutputCls("cls1")
     .setMacro(new Dataflow()
@@ -43,6 +45,7 @@ public class MockupData {
 
   public static final OaasClass CLS_1 = new OaasClass()
     .setName("cls1")
+    .setPkg("ex")
     .setObjectType(ObjectType.SIMPLE)
     .setFunctions(List.of(
       new FunctionBinding()

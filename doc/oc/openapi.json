@@ -16,6 +16,13 @@
       "get" : {
         "tags" : [ "Class Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -28,6 +35,12 @@
           "schema" : {
             "format" : "int64",
             "type" : "integer"
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -77,7 +90,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/api/classes/{name}" : {
@@ -223,6 +237,13 @@
       "get" : {
         "tags" : [ "Function Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -235,6 +256,12 @@
           "schema" : {
             "format" : "int64",
             "type" : "integer"
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -290,7 +317,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/api/functions/{funcName}" : {
@@ -541,7 +569,7 @@
       "DataflowStep" : {
         "type" : "object",
         "properties" : {
-          "funcName" : {
+          "function" : {
             "type" : "string"
           },
           "target" : {
@@ -573,7 +601,7 @@
       "DataflowStep_Public" : {
         "type" : "object",
         "properties" : {
-          "funcName" : {
+          "function" : {
             "type" : "string"
           },
           "target" : {
@@ -897,6 +925,10 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "targetConcurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "scaleDownDelay" : {
             "type" : "string"
           },
@@ -935,6 +967,10 @@
             "type" : "integer"
           },
           "concurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "targetConcurrency" : {
             "format" : "int32",
             "type" : "integer"
           },

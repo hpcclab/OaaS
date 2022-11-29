@@ -49,16 +49,31 @@ public class PackageValidator {
         throw new FunctionValidationException(
           "Function '%s', step[%d]: Detected null target value in ."
             .formatted(function.getKey(), i));
+
+      if (step.getAs() != null) {
+        if (outSet.contains(step.getAs())) {
+          throw new FunctionValidationException(
+            "Function '%s', step[%d]: Detect duplication of as value of '%s'"
+              .formatted(function.getKey(), i, step.getAs())
+          );
+        }
+        if (step.getAs().equals(step.getTarget())) {
+          throw new FunctionValidationException(
+            "Function '%s', step[%d]: target and as values '%s' can not be the same"
+              .formatted(function.getKey(), i, step.getAs())
+          );
+        }
+        outSet.add(step.getAs());
+      }
       if (target.startsWith("$") || target.startsWith("#"))
         continue;
       var paths = target.split("\\.");
       if (!outSet.contains(paths[0]))
         throw new FunctionValidationException(
-          "Function '%s', step[%d]: Detect unresolvable target name"
-            .formatted(function.getKey(), i)
+          "Function '%s', step[%d]: Detect unresolvable target name('%s')"
+            .formatted(function.getKey(), i, target)
         );
-      if (step.getAs() != null)
-        outSet.add(step.getAs());
+//
     }
   }
 }

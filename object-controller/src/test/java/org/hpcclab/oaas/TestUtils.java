@@ -20,7 +20,7 @@ import static io.restassured.RestAssured.given;
 public class TestUtils {
 
   // language=yaml
-  public static final String DUMMY_BATCH = """
+  public static final String DUMMY_PACKAGE = """
     name: test.dummy
     functions:
       - name: task
@@ -31,16 +31,16 @@ public class TestUtils {
         outputCls: test.dummy.compound
         macro:
             steps:
-              - funcName: builtin.logical.copy
-                target: obj1
+              - function: copy
+                target: $
                 as: new_obj1
                 args:
                   k1: text_value
                 argRefs:
                   k2: k1
                 inputRefs: []
-              - funcName: builtin.logical.copy
-                target: obj2
+              - function: copy
+                target: new_obj1
                 as: new_obj2
                 inputRefs: []
             exports:

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,7 +31,7 @@ public class ObjectResourceTest {
 
   @Test
   void testCompound() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
     var oReq1 = new ObjectConstructRequest();
     oReq1.setCls("test.dummy.simple");
     var obj1 = TestUtils.create(oReq1);

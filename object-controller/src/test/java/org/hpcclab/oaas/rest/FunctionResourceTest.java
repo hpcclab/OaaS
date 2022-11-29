@@ -4,14 +4,11 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
-import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -23,7 +20,7 @@ class FunctionResourceTest {
 
   @Test
   void create() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_BATCH);
+    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
     given()
       .when().get("/api/functions")
       .then()
