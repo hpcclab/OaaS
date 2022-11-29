@@ -97,7 +97,7 @@ public class RepoContextLoader implements ContextLoader {
     return resolveObjFromCtx(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
 //      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
-      .map(ignore -> setClsAndFunc(newCtx, step.getFunc()))
+      .map(ignore -> setClsAndFunc(newCtx, step.getFunction()))
       .chain(() -> resolveInputs(newCtx, step));
   }
 

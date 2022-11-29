@@ -29,12 +29,12 @@ public class MockupData {
     .setMacro(new Dataflow()
       .setSteps(List.of(
         new DataflowStep()
-          .setFunc(FUNC_1.getName())
+          .setFunction(FUNC_1.getName())
           .setTarget("$")
           .setArgRefs(Map.of("key1","arg1"))
           .setAs("tmp1"),
         new DataflowStep()
-          .setFunc(FUNC_1.getName())
+          .setFunction(FUNC_1.getName())
           .setTarget("tmp1")
           .setAs("tmp2")
       ))
