@@ -2,9 +2,12 @@ package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
+@RegisterForReflection(
+  targets = {
+    OaasObject.class
+  },
+  registerFullHierarchy = true
+)
 public class ArgObjectRepository extends AbstractArgRepository<OaasObject> implements ObjectRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger( ArgObjectRepository.class );
   @Inject

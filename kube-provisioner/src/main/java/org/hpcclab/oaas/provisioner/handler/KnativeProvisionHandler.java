@@ -35,22 +35,25 @@ import static org.hpcclab.oaas.provisioner.FunctionWatcher.extractReadyCondition
 import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 
 @ApplicationScoped
-@RegisterForReflection(targets = {
-  Service.class,
-  ServiceSpec.class,
-  TrafficTarget.class,
-  RevisionTemplateSpec.class,
-  RevisionSpec.class,
-  Sequence.class,
-  SequenceSpec.class,
-  SequenceStep.class,
-  ChannelTemplateSpec.class,
-  KReference.class,
-  Trigger.class,
-  TriggerSpec.class,
-  TriggerFilter.class,
-  Destination.class
-})
+@RegisterForReflection(
+  targets = {
+    Service.class,
+    ServiceSpec.class,
+    TrafficTarget.class,
+    RevisionTemplateSpec.class,
+    RevisionSpec.class,
+    Sequence.class,
+    SequenceSpec.class,
+    SequenceStep.class,
+    ChannelTemplateSpec.class,
+    KReference.class,
+    Trigger.class,
+    TriggerSpec.class,
+    TriggerFilter.class,
+    Destination.class
+  },
+  ignoreNested = false
+)
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
 
@@ -67,7 +70,7 @@ public class KnativeProvisionHandler {
     var key = functionRecord.key();
     LOGGER.debug("Received Knative provision: {}", key);
     var function = functionRecord.value();
-    if (function == null) {
+    if (function==null) {
       boolean deleted;
 //      deleted = knativeClient
 //        .triggers()
@@ -90,22 +93,22 @@ public class KnativeProvisionHandler {
         .toLowerCase();
       Service service = createService(function, svcName);
       var oldSvc = knativeClient.services().withName(svcName)
-          .get();
+        .get();
 
       Service newSvc;
-      if (oldSvc != null) {
+      if (oldSvc!=null) {
         newSvc = knativeClient.services()
           .withName(svcName)
           .edit(svc -> {
             svc.setSpec(service.getSpec());
             return svc;
           });
-        LOGGER.info("Patched service: {}",service.getMetadata().getName());
+        LOGGER.info("Patched service: {}", service.getMetadata().getName());
       } else {
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
         newSvc = knativeClient.services().create(service);
-        LOGGER.info("Created service: {}",service.getMetadata().getName());
+        LOGGER.info("Created service: {}", service.getMetadata().getName());
       }
       updateFunctionStatus(function, newSvc);
 
@@ -133,7 +136,7 @@ public class KnativeProvisionHandler {
     var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
       functionRepo.compute(function.getKey(), (k, f) -> {
-        if (f.getDeploymentStatus() ==null)
+        if (f.getDeploymentStatus()==null)
           f.setDeploymentStatus(new FunctionDeploymentStatus());
         f.getDeploymentStatus()
           .setCondition(DeploymentCondition.RUNNING)
@@ -236,7 +239,7 @@ public class KnativeProvisionHandler {
     if (provision.getMaxScale() >= 0)
       annotation.put("autoscaling.knative.dev/maxScale",
         String.valueOf(provision.getMaxScale()));
-    if (provision.getScaleDownDelay() != null)
+    if (provision.getScaleDownDelay()!=null)
       annotation.put("autoscaling.knative.dev/scale-down-delay",
         provision.getScaleDownDelay());
     if (provision.getTargetConcurrency() > 0)
@@ -264,10 +267,10 @@ public class KnativeProvisionHandler {
       .endResources()
       .build();
 
-    var labels = new HashMap<String,String>();
+    var labels = new HashMap<String, String>();
     labels.put(LABEL_KEY, function.getKey());
     if (!kpConfig.exposeKnative()) {
-      labels.put("networking.knative.dev/visibility","cluster-local");
+      labels.put("networking.knative.dev/visibility", "cluster-local");
     }
 
     return new ServiceBuilder()

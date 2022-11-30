@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker;
 
 
 import com.arangodb.ArangoDBException;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.DecodeException;
@@ -24,6 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Set;
 
+@RegisterForReflection(
+  targets = {OaasTask.class, TaskCompletion.class},
+  registerFullHierarchy = true
+)
 public class TaskMessageConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskMessageConsumer.class);
 

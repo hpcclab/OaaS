@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invocation.function;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
@@ -23,7 +24,13 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+@RegisterForReflection(
+  targets = {
+    OaasTask.class,
+    TaskCompletion.class
+  },
+  registerFullHierarchy = true
+)
 public class InvocationGraphExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationGraphExecutor.class);
   TaskSubmitter submitter;

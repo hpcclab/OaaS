@@ -1,8 +1,11 @@
 package org.hpcclab.oaas.arango;
 
 import com.arangodb.async.ArangoCollectionAsync;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
@@ -17,6 +20,12 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
+@RegisterForReflection(
+  targets = {
+    ObjectDependencyEdge.class
+  },
+  registerFullHierarchy = true
+)
 public class ArgGraphStateManager extends AbstractGraphStateManager {
   private static final Logger LOGGER = LoggerFactory.getLogger( ArgGraphStateManager.class );
   @Inject

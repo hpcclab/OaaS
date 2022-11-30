@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invoker.verticle;
 
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.DeploymentOptions;
@@ -8,8 +9,8 @@ import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 import org.hpcclab.oaas.invoker.FunctionListener;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.model.function.FunctionState;
-import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.function.*;
+import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
-public class VerticleDeployer {
+@RegisterForReflection(
+  targets = {
+    OaasFunction.class
+  },
+  registerFullHierarchy = true
+)
+class VerticleDeployer {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
   @Inject
   ArgRepositoryInitializer initializer;
@@ -51,11 +58,13 @@ public class VerticleDeployer {
       LOGGER.info("receive function[{}] update event", func.getKey());
       if (func.getState()==FunctionState.ENABLED) {
         deployVerticleIfNew(func.getKey())
-          .subscribe().with(__ -> {},
+          .subscribe().with(__ -> {
+            },
             e -> LOGGER.error("Cannot deploy verticle for function {}", func.getKey()));
       } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
         deleteVerticle(func.getKey())
-          .subscribe().with(__ -> {},
+          .subscribe().with(__ -> {
+            },
             e -> LOGGER.error("Cannot delete verticle for function {}", func.getKey()));
       }
     });

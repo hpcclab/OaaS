@@ -41,7 +41,12 @@
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
-      <version>6.19.0</version>
+      <version>6.20.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.quarkus</groupId>
+      <artifactId>camel-quarkus-arangodb</artifactId>
+      <version>2.14.0</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>

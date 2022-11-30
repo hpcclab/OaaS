@@ -4,12 +4,14 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.slf4j.Logger;
@@ -25,6 +27,12 @@ import java.util.Map;
 import java.util.Set;
 
 @ApplicationScoped
+@RegisterForReflection(
+  targets = {
+    OaasClass.class
+  },
+  registerFullHierarchy = true
+)
 public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger( ArgClsRepository.class );
 

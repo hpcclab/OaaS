@@ -1,7 +1,10 @@
 package org.hpcclab.oaas.invoker.producer;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.kafka.client.common.KafkaClientOptions;
+import io.vertx.kafka.client.serialization.BufferDeserializer;
+import io.vertx.kafka.client.serialization.BufferSerializer;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
@@ -15,6 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Dependent
+@RegisterForReflection(
+  targets = {
+    BufferSerializer.class,
+    BufferDeserializer.class,
+  }
+)
 public class VertxKafkaClientProducer {
 
   @Produces
