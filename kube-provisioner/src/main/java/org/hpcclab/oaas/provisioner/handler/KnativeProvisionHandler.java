@@ -37,6 +37,7 @@ import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 @ApplicationScoped
 @RegisterForReflection(
   targets = {
+    OaasFunction.class,
     Service.class,
     ServiceSpec.class,
     TrafficTarget.class,
@@ -52,7 +53,7 @@ import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
     TriggerFilter.class,
     Destination.class
   },
-  ignoreNested = false
+  registerFullHierarchy = true
 )
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
