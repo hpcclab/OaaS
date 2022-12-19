@@ -3,7 +3,7 @@ package org.hpcclab.oaas;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.model.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;

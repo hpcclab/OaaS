@@ -49,7 +49,6 @@ public class OaasClass implements Copyable<OaasClass> {
   @ProtoField(10)
   String description;
 
-//  @JsonView(Views.Internal.class)
   ResolvedMember resolved;
 
   public OaasClass() {

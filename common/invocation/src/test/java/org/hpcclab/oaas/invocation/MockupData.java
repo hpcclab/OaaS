@@ -20,14 +20,14 @@ public class MockupData {
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
-    .setOutputCls("cls1");
+    .setOutputCls("ex.cls1");
 
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setOutputCls("cls1")
+    .setOutputCls("ex.cls1")
     .setMacro(new Dataflow()
       .setSteps(List.of(
         new DataflowStep()
@@ -50,10 +50,10 @@ public class MockupData {
     .setFunctions(List.of(
       new FunctionBinding()
         .setName(FUNC_1.getName())
-        .setFunction(FUNC_1.getName()),
+        .setFunction( FUNC_1.getKey()),
       new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
-        .setFunction(MACRO_FUNC_1.getName())
+        .setFunction(MACRO_FUNC_1.getKey())
     ));
 
   public static MutableMap<String,OaasClass> testClasses() {
@@ -61,7 +61,7 @@ public class MockupData {
     return Lists.fixedSize.of(
         clsResolver.resolve(CLS_1, List.of())
     )
-      .groupByUniqueKey(OaasClass::getName);
+      .groupByUniqueKey(OaasClass::getKey);
   }
 
   public static MutableMap<String,OaasFunction> testFunctions() {
@@ -69,7 +69,7 @@ public class MockupData {
       FUNC_1,
       MACRO_FUNC_1
     )
-      .groupByUniqueKey(OaasFunction::getName);
+      .groupByUniqueKey(OaasFunction::getKey);
   }
 
   public static List<OaasObject> testObjects() {

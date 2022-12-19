@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
-import org.hpcclab.oaas.model.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;

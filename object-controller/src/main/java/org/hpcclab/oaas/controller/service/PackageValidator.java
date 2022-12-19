@@ -3,7 +3,7 @@ package org.hpcclab.oaas.controller.service;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.impl.factory.Sets;
-import org.hpcclab.oaas.model.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionType;

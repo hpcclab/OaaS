@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.verticle;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
@@ -32,7 +33,8 @@ public class TaskInvocationVerticle extends AbstractVerticle {
   ObjectCompletionPublisher objCompPublisher;
   @Inject
   KafkaClientOptions options;
-
+  @Inject
+  MeterRegistry registry;
   Set<String> topics;
 
   private KafkaConsumer<String, Buffer> kafkaConsumer;
@@ -52,7 +54,8 @@ public class TaskInvocationVerticle extends AbstractVerticle {
       graphExecutor,
       objCompPublisher,
       kafkaConsumer,
-      topics
+      topics,
+      registry
     );
   }
   public void  setTopics(Set<String> topics) {

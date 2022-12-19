@@ -3,7 +3,7 @@ package org.hpcclab.oaas.controller.initializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.hpcclab.oaas.controller.rest.PackageResource;
-import org.hpcclab.oaas.model.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.slf4j.Logger;

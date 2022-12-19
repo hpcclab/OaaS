@@ -12,5 +12,7 @@ public enum FunctionType {
   @ProtoEnumValue(4)
   READONLY,
   @ProtoEnumValue(5)
-  CONSTRUCTOR,
+  STATIC,
+  @ProtoEnumValue(6)
+  STATIC_READONLY,
 }

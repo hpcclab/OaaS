@@ -764,11 +764,11 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "CONSTRUCTOR" ],
+        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "STATIC", "STATIC_READONLY" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "CONSTRUCTOR" ],
+        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "STATIC", "STATIC_READONLY" ],
         "type" : "string"
       },
       "FunctionValidation" : {

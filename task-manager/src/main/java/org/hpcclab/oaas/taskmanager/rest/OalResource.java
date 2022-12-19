@@ -2,9 +2,7 @@ package org.hpcclab.oaas.taskmanager.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.arango.ObjectDependencyEdge;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
@@ -12,10 +10,8 @@ import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
@@ -51,7 +47,7 @@ public class OalResource {
 
   @POST
   @JsonView(Views.Public.class)
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal,
+  public Uni<OaasObject> getObjectWithPost(ObjectAccessLanguage oal,
                                            @QueryParam("await") Boolean await,
                                            @QueryParam("timeout") Integer timeout,
                                            @QueryParam("mq") Boolean mq) {
@@ -74,7 +70,7 @@ public class OalResource {
                                    @QueryParam("await") Boolean await,
                                    @QueryParam("timeout") Integer timeout,
                                    @QueryParam("mq") Boolean mq) {
-    var oaeObj = ObjectAccessLangauge.parse(oal);
+    var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
     return getObjectWithPost(oaeObj, await, timeout,mq);
   }
@@ -86,7 +82,7 @@ public class OalResource {
                                           @QueryParam("await") Boolean await,
                                           @QueryParam("timeout") Integer timeout,
                                           @QueryParam("mq") Boolean mq,
-                                          ObjectAccessLangauge oal) {
+                                          ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
@@ -124,12 +120,12 @@ public class OalResource {
                                          @QueryParam("await") Boolean await,
                                          @QueryParam("timeout") Integer timeout,
                                          @QueryParam("mq") Boolean mq) {
-    var oaeObj = ObjectAccessLangauge.parse(oal);
+    var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
     return postContentAndExec(filePath, await,  timeout, mq, oaeObj);
   }
 
-  public Uni<FunctionExecContext> applyFunction(ObjectAccessLangauge oal) {
+  public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {
     var uni = router.apply(oal);
     if (LOGGER.isDebugEnabled()) {
       uni = uni
@@ -182,12 +178,18 @@ public class OalResource {
         return graphExecutor.syncExec(ctx)
           .map(TaskContext::getOutput);
       }
+
       var id = ctx.getOutput().getId();
-      var uni1 = completionListener.wait(id, timeout);
-      var uni2 = graphExecutor.exec(ctx);
-      return Uni.combine().all().unis(uni1, uni2)
-        .asTuple()
-        .flatMap(tuple -> objectRepo.getAsync(id));
+      if (completionListener.enabled()) {
+        var uni1 = completionListener.wait(id, timeout);
+        var uni2 = graphExecutor.exec(ctx);
+        return Uni.combine().all().unis(uni1, uni2)
+          .asTuple()
+          .flatMap(tuple -> objectRepo.getAsync(id));
+      } else {
+        return graphExecutor.exec(ctx)
+          .replaceWith(ctx.getOutput());
+      }
     }
     return graphExecutor.exec(ctx)
       .replaceWith(ctx.getOutput());

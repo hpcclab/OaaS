@@ -540,7 +540,8 @@ components:
       - MACRO
       - LOGICAL
       - READONLY
-      - CONSTRUCTOR
+      - STATIC
+      - STATIC_READONLY
       type: string
     FunctionType_Public:
       enum:
@@ -548,7 +549,8 @@ components:
       - MACRO
       - LOGICAL
       - READONLY
-      - CONSTRUCTOR
+      - STATIC
+      - STATIC_READONLY
       type: string
     FunctionValidation:
       type: object

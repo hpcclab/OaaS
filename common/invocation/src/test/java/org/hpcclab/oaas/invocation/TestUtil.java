@@ -25,11 +25,11 @@ public class TestUtil {
 
 
   public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String,OaasClass> classes) {
-    return new MapEntityRepository<>(classes, OaasClass::getName);
+    return new MapEntityRepository<>(classes, OaasClass::getKey);
   }
 
   public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String,OaasFunction> functions) {
-    return new MapEntityRepository<>(functions, OaasFunction::getName);
+    return new MapEntityRepository<>(functions, OaasFunction::getKey);
   }
 
 

@@ -19,7 +19,7 @@ public interface InvokerConfig {
   String storageAdapterUrl();
   @WithDefault("100")
   int connectionPoolMaxSize();
-  @WithDefault("5")
+  @WithDefault("10")
   int h2ConnectionPoolMaxSize();
   @WithDefault("1")
   int numOfVerticle();

@@ -7,11 +7,11 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.hpcclab.oaas.repository.DefaultIdGenerator;
+import org.hpcclab.oaas.repository.UuidGenerator;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.junit.jupiter.api.Assertions;
@@ -46,7 +46,7 @@ class FunctionRouterTest {
       .groupByUniqueKey(OaasObject::getId);
     var cl = TestUtil.mockContextLoader(objectMap, classes, functions);
     objectRepo = cl.getObjectRepo();
-    var idGen = new DefaultIdGenerator();
+    var idGen = new UuidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);
     var logical = new LogicalFunctionHandler(idGen);
     var task = new TaskFunctionHandler(objectFactory);
@@ -64,7 +64,7 @@ class FunctionRouterTest {
 
   @Test
   void testSimpleTaskInvocation() {
-    var oal = ObjectAccessLangauge.parse("o1:func1()");
+    var oal = ObjectAccessLanguage.parse("o1:func1()");
     var ctx = router.apply(oal)
       .await().indefinitely();
 
@@ -115,7 +115,8 @@ class FunctionRouterTest {
 
   @Test
   void testChainTaskInvocation() {
-    var oal = ObjectAccessLangauge.parse("o2:func1()()");
+    var oal = ObjectAccessLanguage.parse("o2:func1()()");
+    System.out.println();
     var ctx = router.apply(oal)
       .await().indefinitely();
 
@@ -147,7 +148,7 @@ class FunctionRouterTest {
 
   @Test
   void testFailChainTaskInvocation() {
-    var oal = ObjectAccessLangauge.parse("o2:func1()");
+    var oal = ObjectAccessLanguage.parse("o2:func1()");
     var ctx = router.apply(oal)
       .await().indefinitely();
 
@@ -182,7 +183,7 @@ class FunctionRouterTest {
 
   @Test
   void testMacroInvocation() {
-    var oal = ObjectAccessLangauge.parse("o1:%s()(arg1=ttt)".formatted(MockupData.MACRO_FUNC_1.getName()));
+    var oal = ObjectAccessLanguage.parse("o1:%s()(arg1=ttt)".formatted(MockupData.MACRO_FUNC_1.getName()));
     var ctx = router.apply(oal)
       .await().indefinitely();
 

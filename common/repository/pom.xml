@@ -12,6 +12,7 @@
   <artifactId>repository</artifactId>
 
   <properties>
+    <tsid-creator.version>5.0.2</tsid-creator.version>
   </properties>
 
   <dependencyManagement>
@@ -43,6 +44,11 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-vertx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.f4b6a3</groupId>
+      <artifactId>tsid-creator</artifactId>
+      <version>${tsid-creator.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

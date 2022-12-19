@@ -20,7 +20,6 @@ public class TaskCompletion {
   boolean success;
   @ProtoField(3)
   String errorMsg;
-
   @ProtoField(value = 4, javaType = ObjectNode.class)
   ObjectNode embeddedRecord;
   Map<String,String> extensions;

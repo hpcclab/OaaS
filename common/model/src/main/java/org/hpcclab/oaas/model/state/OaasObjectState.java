@@ -18,9 +18,9 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
-  @ProtoField(2)
+  @ProtoField(1)
   String stateId;
-  @ProtoField(number = 3, javaType = HashMap.class)
+  @ProtoField(number = 2, javaType = HashMap.class)
   Map<String,String> overrideUrls;
 
 

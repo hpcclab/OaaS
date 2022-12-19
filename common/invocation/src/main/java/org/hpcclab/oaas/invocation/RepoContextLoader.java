@@ -6,10 +6,11 @@ import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.repository.EntityRepository;
@@ -39,7 +40,7 @@ public class RepoContextLoader implements ContextLoader {
     this.clsRepo = clsRepo;
   }
 
-  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLangauge request) {
+  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLanguage request) {
     var ctx = new FunctionExecContext()
       .setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
@@ -56,6 +57,8 @@ public class RepoContextLoader implements ContextLoader {
   private FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
+    if (mainCls == null)
+      throw StdOaasException.format("Can not find class '%s'", main.getCls());
     ctx.setMainCls(mainCls);
     var binding = mainCls
       .findFunction(funcName);
@@ -65,7 +68,7 @@ public class RepoContextLoader implements ContextLoader {
 
     var func = funcRepo.get(binding.getFunction());
     if (func==null)
-      throw NoStackException.notFoundFunc400(funcName);
+      throw StdOaasException.notFoundFunc(binding.getFunction(), 500);
     ctx.setFunction(func);
     if (func.getOutputCls()!=null) {
       var outputClass = clsRepo.get(func.getOutputCls());

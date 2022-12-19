@@ -62,4 +62,7 @@ public class StdOaasException extends RuntimeException {
   }
 
 
+  public static StdOaasException format(String template, Object... args) {
+    return new StdOaasException(template.formatted(args));
+  }
 }

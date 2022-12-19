@@ -7,7 +7,11 @@ public interface ObjectCompletionListener {
   Uni<String> wait(String id, Integer timeout);
   default boolean healthcheck() {return true;}
 
-  class Noop implements ObjectCompletionListener{
+  default boolean enabled() {
+    return true;
+  }
+
+    class Noop implements ObjectCompletionListener{
 
     @Override
     public void cleanup() {
@@ -18,5 +22,11 @@ public interface ObjectCompletionListener {
     public Uni<String> wait(String id, Integer timeout) {
       return Uni.createFrom().item(id);
     }
+
+    @Override
+    public boolean enabled() {
+      return false;
+    }
   }
+
 }

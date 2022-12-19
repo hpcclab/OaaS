@@ -46,7 +46,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
+              $ref: '#/components/schemas/ObjectAccessLanguage'
       responses:
         "200":
           description: OK
@@ -82,7 +82,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
+              $ref: '#/components/schemas/ObjectAccessLanguage'
       responses:
         "200":
           description: OK
@@ -195,10 +195,12 @@ components:
           $ref: '#/components/schemas/ObjectNode_Public'
         key:
           type: string
-    ObjectAccessLangauge:
+    ObjectAccessLanguage:
       type: object
       properties:
         target:
+          type: string
+        targetCls:
           type: string
         functionName:
           type: string

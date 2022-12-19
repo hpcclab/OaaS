@@ -62,7 +62,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ObjectAccessLangauge"
+                "$ref" : "#/components/schemas/ObjectAccessLanguage"
               }
             }
           }
@@ -116,7 +116,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ObjectAccessLangauge"
+                "$ref" : "#/components/schemas/ObjectAccessLanguage"
               }
             }
           }
@@ -287,10 +287,13 @@
           }
         }
       },
-      "ObjectAccessLangauge" : {
+      "ObjectAccessLanguage" : {
         "type" : "object",
         "properties" : {
           "target" : {
+            "type" : "string"
+          },
+          "targetCls" : {
             "type" : "string"
           },
           "functionName" : {

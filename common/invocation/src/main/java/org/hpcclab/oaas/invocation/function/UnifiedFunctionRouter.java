@@ -7,7 +7,7 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class UnifiedFunctionRouter {
     };
   }
 
-  public Uni<FunctionExecContext> apply(ObjectAccessLangauge request) {
+  public Uni<FunctionExecContext> apply(ObjectAccessLanguage request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::apply);

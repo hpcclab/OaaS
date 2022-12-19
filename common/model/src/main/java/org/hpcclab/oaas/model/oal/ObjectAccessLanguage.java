@@ -15,14 +15,15 @@ import java.util.stream.Collectors;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ObjectAccessLangauge {
+public class ObjectAccessLanguage {
   String target;
+  String targetCls;
   String functionName;
   Map<String, String> args;
   List<String> inputs;
 
-  public static ObjectAccessLangauge from(ObjectOrigin origin) {
-    return new ObjectAccessLangauge()
+  public static ObjectAccessLanguage from(ObjectOrigin origin) {
+    return new ObjectAccessLanguage()
       .setTarget(origin.getParentId())
       .setFunctionName(origin.getFuncName())
       .setArgs(origin.getArgs())
@@ -30,7 +31,12 @@ public class ObjectAccessLangauge {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder(target);
+    StringBuilder sb = new StringBuilder();
+    if (targetCls != null)
+      sb.append('_')
+        .append(targetCls);
+    else
+      sb.append(target);
     if (functionName==null)
       return sb.toString();
     sb.append(':').append(functionName);
@@ -61,14 +67,14 @@ public class ObjectAccessLangauge {
 
   // language=RegExp
   private static final String EXPR_REGEX =
-    "^(?<target>[a-zA-Z0-9-]+)(:(?<func>[a-zA-Z0-9._-]+)\\((?<inputs>[a-zA-Z0-9,-]*)\\))?(\\((?<args>[^\\)]*)\\))?$";
+    "^(?<target>_?[a-zA-Z0-9-]+)(?::(?<func>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^\\)]*)\\))?)?)?$";
   private static final Pattern EXPR_PATTERN = Pattern.compile(EXPR_REGEX);
 
   public static boolean validate(String expr) {
     return EXPR_PATTERN.matcher(expr).matches();
   }
 
-  public static ObjectAccessLangauge parse(String expr) {
+  public static ObjectAccessLanguage parse(String expr) {
     var matcher = EXPR_PATTERN.matcher(expr);
     if (!matcher.find())
       throw new OalParsingException("The given expression('" + expr + "') doesn't match the pattern.");
@@ -76,8 +82,12 @@ public class ObjectAccessLangauge {
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
-    var oal = new ObjectAccessLangauge();
-    oal.target = target;
+    var oal = new ObjectAccessLanguage();
+    if (target.startsWith("_")) {
+      oal.targetCls = target.substring(1);
+    } else {
+      oal.target = target;
+    }
     if (func==null) return oal;
     oal.functionName = func;
     if (inputs!=null && !inputs.isEmpty()) {

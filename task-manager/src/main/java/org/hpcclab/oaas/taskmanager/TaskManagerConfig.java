@@ -3,8 +3,6 @@ package org.hpcclab.oaas.taskmanager;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 
-import java.util.Optional;
-
 @ConfigMapping(prefix = "oaas.tm",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface TaskManagerConfig {
@@ -13,7 +11,7 @@ public interface TaskManagerConfig {
   boolean defaultAwaitCompletion();
   @WithDefault("100")
   int connectionPoolMaxSize();
-  @WithDefault("8")
+  @WithDefault("10")
   int h2ConnectionPoolMaxSize();
 
   @WithDefault("oaas-fn-")
