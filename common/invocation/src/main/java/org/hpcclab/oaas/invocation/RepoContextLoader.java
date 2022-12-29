@@ -41,8 +41,8 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLanguage request) {
-    var ctx = new FunctionExecContext()
-      .setArgs(request.getArgs());
+    var ctx = new FunctionExecContext();
+    ctx.setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull()
       .failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
@@ -70,8 +70,8 @@ public class RepoContextLoader implements ContextLoader {
     if (func==null)
       throw StdOaasException.notFoundFunc(binding.getFunction(), 500);
     ctx.setFunction(func);
-    if (func.getOutputCls()!=null) {
-      var outputClass = clsRepo.get(func.getOutputCls());
+    if (binding.getOutputCls()!=null) {
+      var outputClass = clsRepo.get(binding.getOutputCls());
       ctx.setOutputCls(outputClass);
     }
     return ctx;
@@ -144,6 +144,10 @@ public class RepoContextLoader implements ContextLoader {
     throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
 
+  public Uni<TaskContext> getTaskContextAsync(String outputId) {
+    return objectRepo.getAsync(outputId)
+      .flatMap(this::getTaskContextAsync);
+  }
 
   public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
     var tc = new TaskContext();

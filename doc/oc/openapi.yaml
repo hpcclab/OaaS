@@ -484,6 +484,8 @@ components:
             type: string
         description:
           type: string
+        outputCls:
+          type: string
     FunctionBinding_Public:
       type: object
       properties:
@@ -503,6 +505,8 @@ components:
           additionalProperties:
             type: string
         description:
+          type: string
+        outputCls:
           type: string
     FunctionDeploymentStatus:
       type: object
@@ -537,19 +541,21 @@ components:
     FunctionType:
       enum:
       - TASK
-      - MACRO
+      - IM_TASK
       - LOGICAL
-      - READONLY
+      - MACRO
       - STATIC
+      - READONLY
       - STATIC_READONLY
       type: string
     FunctionType_Public:
       enum:
       - TASK
-      - MACRO
+      - IM_TASK
       - LOGICAL
-      - READONLY
+      - MACRO
       - STATIC
+      - READONLY
       - STATIC_READONLY
       type: string
     FunctionValidation:
@@ -621,12 +627,14 @@ components:
     KeyAccessModifier:
       enum:
       - PUBLIC
+      - DEP
       - INTERNAL
       - PRIVATE
       type: string
     KeyAccessModifier_Public:
       enum:
       - PUBLIC
+      - DEP
       - INTERNAL
       - PRIVATE
       type: string
@@ -887,9 +895,11 @@ components:
           $ref: '#/components/schemas/ObjectStatus_Public'
         streamInfo:
           $ref: '#/components/schemas/StreamInfo_Public'
-        embeddedRecord:
+        data:
           $ref: '#/components/schemas/ObjectNode_Public'
         key:
+          type: string
+        rev:
           type: string
     OaasPackageContainer:
       type: object

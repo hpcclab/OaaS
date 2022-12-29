@@ -11,4 +11,5 @@ public interface ContextLoader {
   Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLanguage request);
   Uni<FunctionExecContext> loadCtxAsync(FunctionExecContext baseCtx, DataflowStep step);
   Uni<TaskContext> getTaskContextAsync(OaasObject output);
+  Uni<TaskContext> getTaskContextAsync(String outputId);
 }

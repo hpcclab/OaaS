@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.cls;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -88,16 +89,8 @@ public class OaasClass implements Copyable<OaasClass> {
       stateSpec.setDefaultProvider("s3");
     }
     if (functions==null) functions = List.of();
-    for (FunctionBinding function : functions) {
-      if (function.getFunction()==null) {
-        throw new OaasValidationException("The 'functions[].function' in class must not be null.");
-      }
-      if (function.getName()==null) {
-        var fullFuncName = function.getFunction();
-        var i = fullFuncName.lastIndexOf('.');
-        if (i < 0) function.setName(fullFuncName);
-        else function.setName(fullFuncName.substring(i + 1));
-      }
+    for (FunctionBinding binding : functions) {
+      binding.validate();
     }
   }
 
@@ -143,7 +136,7 @@ public class OaasClass implements Copyable<OaasClass> {
     return this;
   }
 
-  public void updateKey(){
+  public void updateKey() {
     if (pkg!=null) {
       this.key = pkg + '.' + name;
     } else {
@@ -159,5 +152,12 @@ public class OaasClass implements Copyable<OaasClass> {
   public StateSpecification getStateSpec() {
     if (stateSpec==null) stateSpec = new StateSpecification();
     return stateSpec;
+  }
+
+  @JsonIgnore
+  public boolean isSamePackage(String classKey) {
+    var i = classKey.lastIndexOf('.');
+    var otherPkg = classKey.substring(0, i);
+    return otherPkg.equals(pkg);
   }
 }

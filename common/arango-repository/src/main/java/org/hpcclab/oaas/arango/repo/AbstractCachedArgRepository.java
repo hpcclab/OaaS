@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public abstract class AbstractCachedArgRepository<V> extends AbstractArgRepository<V>
@@ -44,6 +45,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   @Override
   public Uni<V> getWithoutCacheAsync(String key) {
     return super.getAsync(key)
+      .onItem().ifNotNull()
       .invoke(v -> cache().put(key, v));
   }
 
@@ -85,6 +87,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public V put(String key, V value) {
+    Objects.requireNonNull(key);
+    Objects.requireNonNull(value);
     var v = super.put(key, value);
     cache().put(key, v);
     return v;
@@ -92,6 +96,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Uni<V> putAsync(String key, V value) {
+    Objects.requireNonNull(key);
+    Objects.requireNonNull(value);
     return super.putAsync(key, value)
       .invoke(v -> cache().put(key, v));
   }

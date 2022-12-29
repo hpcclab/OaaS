@@ -146,7 +146,7 @@ public class TaskMessageConsumer {
   Uni<Void> handleComplete(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                            TaskCompletion completion) {
     try {
-      var invokingTime = completion.getCmpTs() - completion.getSmtTs();
+      var invokingTime = completion.getCptTs() - completion.getSmtTs();
       invokingTimer.record(invokingTime, TimeUnit.MILLISECONDS);
       var task = Json.decodeValue(kafkaRecord.value(), OaasTask.class);
       var ts = System.currentTimeMillis();
@@ -193,12 +193,9 @@ public class TaskMessageConsumer {
       );
       var invokedUni = invoker.invoke(invokingDetail)
         .onFailure()
-        .recoverWithItem(err -> new TaskCompletion(
+        .recoverWithItem(err -> TaskCompletion.error(
             invokingDetail.getId(),
-            false,
             err.getMessage(),
-            null,
-            null,
             startTime,
             System.currentTimeMillis()
           )

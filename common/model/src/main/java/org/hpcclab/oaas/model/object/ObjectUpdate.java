@@ -11,6 +11,11 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 public class ObjectUpdate {
-  ObjectNode embeddedRecord;
+  ObjectNode data;
   Set<ObjectReference> refs;
+
+  public ObjectUpdate(ObjectNode data, Set<ObjectReference> refs) {
+    this.data = data;
+    this.refs = refs;
+  }
 }

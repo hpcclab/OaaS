@@ -2,10 +2,7 @@ package org.hpcclab.oaas.invocation.function;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,24 +19,24 @@ public class TaskFunctionHandler implements FunctionHandler {
   }
 
   public void validate(FunctionExecContext context) {
-    if (context.getOutputCls() == null)
+    if (context.getBinding().getOutputCls() != null && context.getOutputCls()==null)
       throw FunctionValidationException.format(
         "Cannot call function('%s') because outputCls('%s') is not exist",
         context.getFunction().getKey(),
-        context.getFunction().getOutputCls()
+        context.getBinding().getOutputCls()
       );
   }
 
   public Uni<FunctionExecContext> apply(FunctionExecContext ctx) {
+    if (ctx.getBinding().getOutputCls()!=null) {
+      var output = objectFactory.createOutput(ctx);
 
-    var output = objectFactory.createOutput(ctx);
-
-    var rootCtx = ctx;
-    while (rootCtx.getParent() != null) {
-      rootCtx = rootCtx.getParent();
+      var rootCtx = ctx;
+      while (rootCtx.getParent()!=null) {
+        rootCtx = rootCtx.getParent();
+      }
+      ctx.setOutput(output);
     }
-//    rootCtx.getTaskOutputs().add(output);
-    ctx.setOutput(output);
     return Uni.createFrom().item(ctx);
   }
 }

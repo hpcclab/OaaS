@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -26,17 +27,21 @@ public class FunctionBinding {
   Map<String, String> defaultArgs;
   @ProtoField(6)
   String description;
+  @ProtoField(7)
+  String outputCls;
+
 
   public FunctionBinding() {
   }
 
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description) {
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
     this.description = description;
+    this.outputCls = outputCls;
   }
 
   @ProtoFactory
@@ -44,13 +49,35 @@ public class FunctionBinding {
                          String function,
                          String name,
                          Set<String> forwardRecords,
-                         HashMap<String,String> defaultArgs,
-                         String description) {
+                         HashMap<String, String> defaultArgs,
+                         String description,
+                         String outputCls) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
     this.description = description;
+    this.outputCls = outputCls;
+  }
+
+  public void validate() {
+    if (function==null) {
+      throw new OaasValidationException("The 'functions[].function' in class must not be null.");
+    }
+    if (name==null) {
+      var i = function.lastIndexOf('.');
+      if (i < 0) name = function;
+      else name = function.substring(i + 1);
+    }
+  }
+
+  public void validate(OaasFunction oaasFunction) {
+    if (outputCls==null) {
+      outputCls = oaasFunction.getOutputCls();
+    } else if (outputCls.equalsIgnoreCase("none") ||
+      outputCls.equalsIgnoreCase("void")) {
+      outputCls = null;
+    }
   }
 }

@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 
 import java.util.*;
 
@@ -28,17 +29,18 @@ public class FunctionExecContext extends TaskContext {
   OaasClass outputCls;
   List<OaasObject> subOutputs = Lists.mutable.empty();
   FunctionBinding binding;
-  Map<String, String> args = Map.of();
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
   List<FunctionExecContext> subContexts = Lists.mutable.empty();
+
+  TaskCompletion completion;
 
   public ObjectOrigin createOrigin() {
     var finalArgs = binding.getDefaultArgs();
     if (finalArgs == null) {
-      finalArgs = args;
+      finalArgs = getArgs();
     }
-    else if (args != null) {
-      finalArgs.putAll(args);
+    else if (getArgs() != null) {
+      finalArgs.putAll(getArgs());
     }
 
     return new ObjectOrigin(
@@ -55,6 +57,7 @@ public class FunctionExecContext extends TaskContext {
   }
 
   public void addTaskOutput(OaasObject object) {
+    if (object == null) return;
     subOutputs.add(object);
     if (parent != null) {
       parent.addTaskOutput(object);

@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 @RegisterForReflection(
   targets = {
     OaasTask.class,
@@ -53,10 +54,10 @@ public class InvocationGraphExecutor {
 
   public boolean canSyncInvoke(FunctionExecContext ctx) {
     var func = ctx.getFunction();
-    if (func.getType() != FunctionType.TASK){
+    if (func.getType()!=FunctionType.TASK) {
       return false;
     }
-    if (func.getDeploymentStatus().getCondition() != DeploymentCondition.RUNNING) {
+    if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
       return false;
     }
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
@@ -81,9 +82,10 @@ public class InvocationGraphExecutor {
               ctxToSubmit.add(subCtx);
           }
         }
-        case TASK -> ctxToSubmit.add(ctx);
-        case LOGICAL -> {
-        } // DO NOTHING
+        case TASK, IM_TASK -> ctxToSubmit.add(ctx);
+        default -> {
+          // DO NOTHING
+        }
       }
     }
     return traverseGraph(waitForGraph, ctxToSubmit)
@@ -107,18 +109,27 @@ public class InvocationGraphExecutor {
 
   public Uni<FunctionExecContext> syncExec(FunctionExecContext ctx) {
     var output = ctx.getOutput();
-    output.markAsSubmitted(null, false);
+    if (output != null)
+      output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(ctx);
-    return uni.invoke(output::updateStatus)
-      .call(() -> gsm.persistAllWithoutNoti(ctx))
+    return uni.invoke(tc -> {
+        if (tc.getMain() != null)
+          ctx.getMain().update(tc.getMain());
+        if (output != null)
+          output.updateStatus(tc);
+        ctx.setCompletion(tc);
+      })
+      .call(() -> gsm.persistAllWithoutNoti(ctx, Lists.mutable.of(ctx.getMain())))
       .replaceWith(ctx);
   }
 
   public Uni<Void> complete(TaskCompletion completion) {
-    return gsm.handleComplete(completion)
-      .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
-      .collect().asList()
-      .flatMap(list -> submitter.submit(list));
+    return contextLoader.getTaskContextAsync(completion.getId())
+      .flatMap(ctx -> gsm.handleComplete(ctx, completion)
+        .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
+        .collect().asList()
+        .flatMap(list -> submitter.submit(list))
+      );
   }
 
   public Uni<Void> complete(OaasTask task, TaskCompletion completion) {

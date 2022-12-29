@@ -2,6 +2,7 @@ package org.hpcclab.oaas.rest;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.hamcrest.Matchers;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -24,13 +25,10 @@ class ClassResourceTest {
       functions:
         - name: f1
           type: TASK
-          outputCls: base
         - name: f2
           type: TASK
-          outputCls: base
         - name: f3
           type: TASK
-          outputCls: base
       classes:
         - name: base
           stateType: FILES
@@ -41,11 +39,13 @@ class ClassResourceTest {
           functions:
             - function: f1
               name: func1
+              outputCls: base
         - name: test.add-func
           parents: [base]
           functions:
             - function: f2
               name: func2
+              outputCls: base
         - name: test.add-key
           parents: [base]
           stateSpec:
@@ -56,6 +56,7 @@ class ClassResourceTest {
           functions:
             - function: f3
               name: func1
+              outputCls: base
       """;
 
   // language=yaml
@@ -69,8 +70,10 @@ class ClassResourceTest {
           functions:
             - function: f2
               name: func2
+              outputCls: base
             - function: f3
               name: func3
+              outputCls: base
       """;
 
   @Test
@@ -88,7 +91,8 @@ class ClassResourceTest {
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200);
+      .statusCode(200)
+      .body("functions[1].outputCls", Matchers.nullValue());
   }
 
   @Test

@@ -10,36 +10,38 @@ import org.slf4j.LoggerFactory;
 public class TaskDecoder {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskDecoder.class);
 
+  private TaskDecoder() {
+  }
+
   public static TaskCompletion tryDecode(String id, Buffer buffer) {
     var ts = System.currentTimeMillis();
     if (buffer==null) {
-      return new TaskCompletion(id, false,
-        "Can not parse the task completion message because buffer is null",
-        null, null, -1, ts);
+      return TaskCompletion.error(
+        id,
+        "Can not parse the task completion message because response body is null",
+        -1,
+        ts);
     }
     try {
       var completion = Json.decodeValue(buffer, TaskCompletion.class);
       if (completion!=null) {
         return completion
-          .setCmpTs(ts);
+          .setCptTs(ts);
       }
 
     } catch (DecodeException decodeException) {
-      LOGGER.warn("Decode failed on id {} : {}", id, decodeException.getMessage());
-      return new TaskCompletion(
+      LOGGER.info("Decode failed on id {} : {}", id, decodeException.getMessage());
+      return TaskCompletion.error(
         id,
-        true,
-        decodeException.getMessage(),
-//        null,
-        null,
-        null,
+        "Can not parse the task completion message. [%s]".formatted(decodeException.getMessage()),
         -1,
         ts);
     }
 
-    return new TaskCompletion(id, false,
+    return TaskCompletion.error(
+      id,
       "Can not parse the task completion message",
-      null, null,
-      -1, ts);
+      -1,
+      ts);
   }
 }

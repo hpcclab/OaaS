@@ -34,7 +34,7 @@ public class OaasObjectFactory {
                                String id) {
     var obj = OaasObject.createFromClasses(cls);
     obj.setId(id);
-    obj.setEmbeddedRecord(construct.getEmbeddedRecord());
+    obj.setData(construct.getEmbeddedRecord());
     obj.setLabels(construct.getLabels());
     obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
@@ -51,8 +51,8 @@ public class OaasObjectFactory {
     FunctionBinding binding = ctx.getBinding();
     var obj = OaasObject.createFromClasses(cls);
 
-    if (source.getEmbeddedRecord() != null) {
-      var node = source.getEmbeddedRecord();
+    if (source.getData() != null) {
+      var node = source.getData();
       var forwardRecords = binding.getForwardRecords();
       if (forwardRecords!=null && !forwardRecords.isEmpty()) {
         node = node.deepCopy();
@@ -60,7 +60,7 @@ public class OaasObjectFactory {
         keys.removeAllIterable(forwardRecords);
         node.remove(keys);
       }
-      obj.setEmbeddedRecord(node);
+      obj.setData(node);
     }
     obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));

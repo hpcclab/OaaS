@@ -23,7 +23,7 @@ public class InvokingDetail<V> {
       task.getFunction().getKey(),
       task.getFunction().getDeploymentStatus().getInvocationUrl(),
       task,
-      -1
+      task.getTs()
     );
   }
 }

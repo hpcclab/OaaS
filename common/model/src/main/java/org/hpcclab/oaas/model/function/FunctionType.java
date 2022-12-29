@@ -3,16 +3,17 @@ package org.hpcclab.oaas.model.function;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
 public enum FunctionType {
-  @ProtoEnumValue(1)
-  TASK,
-  @ProtoEnumValue(2)
-  MACRO,
-  @ProtoEnumValue(3)
-  LOGICAL,
-  @ProtoEnumValue(4)
-  READONLY,
-  @ProtoEnumValue(5)
-  STATIC,
-  @ProtoEnumValue(6)
-  STATIC_READONLY,
+  /**
+   * The type for mutable task
+   */
+  @ProtoEnumValue(1) TASK,
+  /**
+   * The type for immutable task
+   */
+  @ProtoEnumValue(2) IM_TASK,
+  @ProtoEnumValue(3) LOGICAL,
+  @ProtoEnumValue(4) MACRO,
+  @ProtoEnumValue(5) STATIC,
+  @ProtoEnumValue(6) READONLY,
+  @ProtoEnumValue(7) STATIC_READONLY,
 }

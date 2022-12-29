@@ -103,6 +103,12 @@ public class OaasFunction implements Copyable<OaasFunction> {
     }
     deploymentStatus = new FunctionDeploymentStatus();
     deploymentStatus.setCondition(DeploymentCondition.PENDING);
+
+    if (outputCls != null &&
+      (outputCls.equalsIgnoreCase("none") ||
+      outputCls.equalsIgnoreCase("void"))) {
+      outputCls = null;
+    }
   }
 
   public OaasFunction setName(String name) {

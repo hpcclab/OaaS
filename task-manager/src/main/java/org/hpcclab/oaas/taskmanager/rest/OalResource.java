@@ -176,7 +176,15 @@ public class OalResource {
     if (await==null ? config.defaultAwaitCompletion():await) {
       if (mq==null ? graphExecutor.canSyncInvoke(ctx) : !mq) {
         return graphExecutor.syncExec(ctx)
-          .map(TaskContext::getOutput);
+          .map(tc -> {
+            if (tc.getOutput() == null) {
+              var main = tc.getMain();
+              var completion = tc.getCompletion();
+              main.getStatus().set(completion);
+              return main;
+            }
+            return tc.getOutput();
+          });
       }
 
       var id = ctx.getOutput().getId();

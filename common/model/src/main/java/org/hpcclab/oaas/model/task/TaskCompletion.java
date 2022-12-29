@@ -2,11 +2,9 @@ package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
+import org.hpcclab.oaas.model.object.ObjectUpdate;
 
 import java.util.Map;
 
@@ -14,18 +12,17 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
-  @ProtoField(1)
   String id;
-  @ProtoField(value = 2, defaultValue = "true")
   boolean success;
-  @ProtoField(3)
   String errorMsg;
-  @ProtoField(value = 4, javaType = ObjectNode.class)
-  ObjectNode embeddedRecord;
-  Map<String,String> extensions;
+  //  ObjectNode embeddedRecord;
+  Map<String, String> ext;
+
+  ObjectUpdate main;
+  ObjectUpdate output;
 
   @JsonIgnore
-  long cmpTs = -1;
+  long cptTs = -1;
   @JsonIgnore
   long smtTs = -1;
 
@@ -33,27 +30,38 @@ public class TaskCompletion {
   public TaskCompletion() {
   }
 
-  @ProtoFactory
-  public TaskCompletion(String id, boolean success, String errorMsg, ObjectNode embeddedRecord) {
-    this.id = id;
-    this.success = success;
-    this.errorMsg = errorMsg;
-    this.embeddedRecord = embeddedRecord;
-  }
 
   public TaskCompletion(String id,
                         boolean success,
                         String errorMsg,
-                        ObjectNode embeddedRecord,
-                        Map<String,String> extensions,
-                        long smtTs,
-                        long cmpTs) {
+                        Map<String, String> ext,
+                        ObjectUpdate main,
+                        ObjectUpdate out,
+                        long cptTs,
+                        long smtTs) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
-    this.embeddedRecord = embeddedRecord;
-    this.extensions = extensions;
+    this.ext = ext;
+    this.main = main;
+    this.output = out;
+    this.cptTs = cptTs;
     this.smtTs = smtTs;
-    this.cmpTs = cmpTs;
+  }
+
+  public static TaskCompletion error(String id,
+                                     String errorMsg,
+                                     long cptTs,
+                                     long smtTs) {
+    return new TaskCompletion(
+      id,
+      false,
+      errorMsg,
+      null,
+      null,
+      null,
+      cptTs,
+      smtTs
+    );
   }
 }

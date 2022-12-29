@@ -14,14 +14,12 @@ import java.util.Map;
 
 public interface GraphStateManager {
   Uni<Collection<String>> getAllEdge(String srcId);
-//  Uni<Boolean> containEdge(String srcId, String desId);
   Uni<Void> persistEdge(String srcId, String desId);
   Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap);
-
-
-  Multi<OaasObject> handleComplete(TaskCompletion completingObj);
   Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completingObj);
+  Multi<OaasObject> handleComplete(TaskContext taskContext, TaskCompletion completingObj);
   Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts);
 
   Uni<?> persistAllWithoutNoti(FunctionExecContext ctx);
+  Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objects);
 }

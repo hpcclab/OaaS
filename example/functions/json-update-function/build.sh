@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-tag=0.1.8
+tag=0.2.7
 base=core.harbor.10.131.36.2.nip.io/oaas/
 name=json-update-function
 image=$base$name:$tag

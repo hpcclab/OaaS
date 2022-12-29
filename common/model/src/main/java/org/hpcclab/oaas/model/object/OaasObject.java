@@ -14,8 +14,11 @@ import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -26,6 +29,10 @@ public class OaasObject implements Copyable<OaasObject> {
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
+
+  @JsonProperty("_rev")
+  @JsonView(Views.Internal.class)
+  String rev;
   @ProtoField(1)
   String id;
   @ProtoField(2)
@@ -47,12 +54,12 @@ public class OaasObject implements Copyable<OaasObject> {
   StreamInfo streamInfo;
 
   @ProtoField(value = 10, javaType = ObjectNode.class)
-  ObjectNode embeddedRecord;
+  ObjectNode data;
 
   public OaasObject() {}
 
   @ProtoFactory
-  public OaasObject(String id, ObjectOrigin origin, Long hash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode embeddedRecord, ObjectStatus status, StreamInfo streamInfo) {
+  public OaasObject(String id, ObjectOrigin origin, Long hash, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status, StreamInfo streamInfo) {
     this.id = id;
     this.key = id;
     this.origin = origin;
@@ -61,7 +68,7 @@ public class OaasObject implements Copyable<OaasObject> {
     this.labels = labels;
     this.state = state;
     this.refs = refs;
-    this.embeddedRecord = embeddedRecord;
+    this.data = data;
     this.status = status;
     this.streamInfo = streamInfo;
   }
@@ -88,7 +95,7 @@ public class OaasObject implements Copyable<OaasObject> {
       labels==null ? null:Set.copyOf(labels),
       state.copy(),
       refs==null ? null:Set.copyOf(refs),
-      embeddedRecord,
+      data,
       status.copy(),
       streamInfo == null? null:streamInfo.copy()
     );
@@ -96,8 +103,23 @@ public class OaasObject implements Copyable<OaasObject> {
 
   public void updateStatus(TaskCompletion taskCompletion) {
     status.set(taskCompletion);
-    if (taskCompletion.getEmbeddedRecord()!=null)
-      setEmbeddedRecord(taskCompletion.getEmbeddedRecord());
+    update(taskCompletion.getOutput());
+  }
+
+  public void update(ObjectUpdate update) {
+    if (update ==null)
+      return;
+    if (update.getData()!= null)
+      setData(update.getData());
+    var refsUpdate = update.getRefs();
+    if (refsUpdate != null && !refsUpdate.isEmpty()) {
+      var map = this.refs.stream()
+        .collect(Collectors.toMap(ObjectReference::getName, Function.identity()));
+      for (var ref: refsUpdate) {
+        map.put(ref.getName(), ref);
+      }
+      this.refs = Set.copyOf(map.values());
+    }
   }
 
   @JsonIgnore

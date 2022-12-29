@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class AbstractGraphStateManager implements GraphStateManager {
@@ -29,31 +30,39 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<OaasObject> handleComplete(TaskCompletion completion) {
-    return objRepo.computeAsync(completion.getId(), (k, obj) -> updateCompletedObject(obj, completion))
-      .onItem()
-      .transformToMulti(completingObj -> {
-        if (!completingObj.getStatus().getTaskStatus().isFailed()) {
-          return loadNextSubmittable(completingObj);
-        } else {
-          return handleFailed(completingObj);
-        }
-      });
+  public Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completion) {
+    var main = task.getMain();
+    main.update(completion.getMain());
+    var out = task.getOutput();
+    if (out != null)
+      out.updateStatus(completion);
+    return persistThenLoadNext(main, out, !completion.isSuccess());
   }
 
-
   @Override
-  public Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completion) {
-    var out = task.getOutput();
-    var updatedOut = updateCompletedObject(out, completion);
-    return objRepo
-      .persistAsync(updatedOut)
-      .onItem()
-      .transformToMulti(completingObj -> {
-        if (!completingObj.getStatus().getTaskStatus().isFailed()) {
-          return loadNextSubmittable(completingObj);
+  public Multi<OaasObject> handleComplete(TaskContext taskContext, TaskCompletion completion) {
+    var main = taskContext.getMain();
+    main.update(completion.getMain());
+    var out = taskContext.getOutput();
+    if (out != null)
+      out.updateStatus(completion);
+    return persistThenLoadNext(main, out, !completion.isSuccess());
+  }
+
+  private Multi<OaasObject> persistThenLoadNext(OaasObject main,
+                                                OaasObject out,
+                                                boolean isFail) {
+    var objs = out == null? List.of(main): List.of(main,out);
+    Uni<Void> uni =  objRepo
+      .persistWithPreconditionAsync(objs);
+    if (out == null)
+      return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
+    return uni.onItem()
+      .transformToMulti(__ -> {
+        if (!isFail) {
+          return loadNextSubmittable(out);
         } else {
-          return handleFailed(completingObj);
+          return handleFailed(out);
         }
       });
   }
@@ -68,11 +77,6 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .filter(obj -> obj.getStatus().getOriginator().equals(completedObject.getStatus().getOriginator()));
   }
 
-  private OaasObject updateCompletedObject(OaasObject obj, TaskCompletion completion) {
-    if (obj==null) throw StdOaasException.notFoundObject400(completion.getId());
-    obj.updateStatus(completion);
-    return obj;
-  }
 
   public Multi<OaasObject> handleFailed(OaasObject failedObj) {
     return getDependentsRecursive(failedObj.getId())
@@ -96,9 +100,14 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   @Override
   public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
-    var originator = entryCtx.getOutput().getId();
+    var originator = entryCtx.getOutput() != null?
+      entryCtx.getOutput().getId()
+      : entryCtx.getMain().getId();
     return Multi.createFrom().iterable(contexts)
       .onItem().transformToUniAndConcatenate(ctx -> {
+        if (ctx.getOutput() == null){
+          return Uni.createFrom().item(ctx);
+        }
         if (entryCtx.contains(ctx)) {
           ctx.getOutput().markAsSubmitted(originator, true);
           return Uni.createFrom().item(ctx);
@@ -107,41 +116,22 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
             .map(ctx::setOutput);
         }
       })
-      .filter(ctx -> ctx.getOutput().getStatus().getOriginator().equals(originator))
+      .filter(ctx -> ctx.getOutput() == null || ctx.getOutput().getStatus().getOriginator().equals(originator))
       .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
   }
 
   public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx) {
-    var objs = Lists.mutable.ofAll(ctx.getSubOutputs());
+    return persistAllWithoutNoti(ctx, Lists.mutable.empty());
+  }
+  public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objs) {
+    objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
-    if (dataflow==null || dataflow.getExport()==null) {
+    if (ctx.getOutput() != null && (dataflow==null || dataflow.getExport()==null)) {
       objs.add(ctx.getOutput());
     }
+
     return objRepo.persistAsync(objs, false);
   }
-
-//  OaasObject updateSubmittingObject(OaasObject object, String originator) {
-//    var status = object.getStatus();
-//    var ts = status.getTaskStatus();
-//    if (ts.isSubmitted() || ts.isFailed())
-//      return object;
-//    status
-//      .setTaskStatus(TaskStatus.DOING)
-//      .setSubmittedTime(System.currentTimeMillis())
-//      .setOriginator(originator);
-//    object.setStatus(status);
-//    return object;
-//  }
-
-//  OaasObject updateFailingObject(OaasObject object) {
-//    var status = object.getStatus();
-//    var ts = status.getTaskStatus();
-//    if (ts.isSubmitted() || ts.isFailed())
-//      return object;
-//    status
-//      .setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
-//    return object;
-//  }
 
   OaasObject triggerObject(OaasObject object, String originator, String srcId) {
     Objects.requireNonNull(object);

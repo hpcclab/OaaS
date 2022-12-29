@@ -34,7 +34,6 @@ public class MacroFunctionHandler implements FunctionHandler {
   public void validate(FunctionExecContext context) {
     if (context.getFunction().getType()!=FunctionType.MACRO)
       throw new FunctionValidationException("Function must be MACRO");
-
   }
 
   private void setupMap(FunctionExecContext ctx) {

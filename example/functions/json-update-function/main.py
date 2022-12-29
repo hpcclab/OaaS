@@ -18,9 +18,8 @@ async def handle(request: Request,
                  response: Response):
   body = await request.json()
   ctx = oaas.parse_ctx_from_dict(body)
-  # output_obj = body['output']
-  # args = output_obj['origin'].get('args', {})
-  record = ctx.task.main_obj.record
+  # print(f"ctx {str(body)}")
+  record = ctx.task.main_obj.data
   entries = int(ctx.args.get('ENTRIES', '10'))
   keys = int(ctx.args.get('KEYS', '10'))
   values = int(ctx.args.get('VALUES', '10'))
@@ -30,4 +29,6 @@ async def handle(request: Request,
 
   ctx.create_reply_header(response.headers)
   record['ts'] = round(time.time() * 1000)
-  return ctx.create_completion(success=True, record=record)
+  main_record = None if ctx.task.main_obj is None else record
+  out_record = None if ctx.task.output_obj is None else record
+  return ctx.create_completion(success=True, main_data=main_record, output_data=out_record)

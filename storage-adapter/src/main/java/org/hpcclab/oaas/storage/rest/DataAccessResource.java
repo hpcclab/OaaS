@@ -5,6 +5,7 @@ import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
 import org.jboss.resteasy.reactive.RestQuery;
@@ -37,7 +38,7 @@ public class DataAccessResource {
     var dac = DataAccessContext.parse(contextKey);
     var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
-    if (cls == null) throw  NoStackException.notFoundCls400(clsName);
+    if (cls == null) throw  StdOaasException.notFoundCls400(clsName);
     return handleDataAccess(oid, key, cls, dac);
   }
 

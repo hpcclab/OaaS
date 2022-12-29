@@ -34,11 +34,12 @@ public class UnifiedFunctionRouter {
     this.contextLoader = contextLoader;
   }
 
+
   public Uni<FunctionExecContext> apply(FunctionExecContext context) {
     var type = context.getFunction().getType();
     return switch (type) {
       case LOGICAL -> logicalFunctionHandler.apply(context);
-      case TASK -> taskFunctionHandler.apply(context);
+      case TASK, IM_TASK -> taskFunctionHandler.apply(context);
       case MACRO -> macroFunctionHandler.apply(context);
       default -> throw StdOaasException.notImplemented();
     };

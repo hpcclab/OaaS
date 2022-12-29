@@ -26,9 +26,11 @@ public class TaskContext {
   Map<String, OaasObject> mainRefs;
   OaasFunction function;
   List<OaasObject> inputs = List.of();
+  Map<String, String> args = Map.of();
 
   public boolean analyzeDeps(List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
-    output.getStatus().initWaitFor();
+    if (output != null)
+      output.getStatus().initWaitFor();
     int fails = failDeps.size();
     Map<String, OaasObject> refs = Objects.requireNonNullElse(mainRefs, Map.of());
     boolean completed = analyzeDeps(refs.values(), waitForGraph, failDeps);
@@ -38,7 +40,8 @@ public class TaskContext {
     completed &= analyzeDeps(main, waitForGraph, failDeps);
 
     if (!completed && fails < failDeps.size()) {
-      output.getStatus().setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
+      if (output!= null)
+        output.getStatus().setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
       return false;
     }
     return completed;
@@ -60,10 +63,8 @@ public class TaskContext {
     if (dep.isReadyToUsed()) return true;
     var ts = dep.getStatus().getTaskStatus();
     if (ts.isFailed()) {
-//      if (failDeps != null)
       failDeps.add(dep);
-    } else {
-//      if (waitForGraph != null)
+    } else if (output != null) {
       waitForGraph.add(Map.entry(dep, output));
       if (output.getStatus().getWaitFor().isEmpty()) {
         output.getStatus().setWaitFor(Lists.mutable.empty());

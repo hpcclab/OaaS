@@ -25,10 +25,8 @@ public class TestUtils {
     functions:
       - name: task
         type: TASK
-        outputCls: test.dummy.simple
       - name: macro
         type: MACRO
-        outputCls: test.dummy.compound
         macro:
             steps:
               - function: copy
@@ -58,16 +56,14 @@ public class TestUtils {
               provider: s3
         functions:
         - access: PUBLIC
-          function: builtin.logical.copy
-        - access: PUBLIC
           function: test.dummy.task
+          outputCls: void
       - name: compound
         objectType: COMPOUND
         functions:
           - access: PUBLIC
-            function: builtin.logical.copy
-          - access: PUBLIC
             function: test.dummy.macro
+            outputCls: test.dummy.compound
       - name: stream
         objectType: STREAM
         genericType: test.dummy.simple

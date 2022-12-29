@@ -87,8 +87,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       taskStatus = TaskStatus.SUCCEEDED;
     else
       taskStatus = TaskStatus.FAILED;
-    if (taskCompletion.getCmpTs() > 0 ) {
-      cptTs = taskCompletion.getCmpTs();
+    if (taskCompletion.getCptTs() > 0 ) {
+      cptTs = taskCompletion.getCptTs();
     } else {
       cptTs = System.currentTimeMillis();
     }
@@ -96,7 +96,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       smtTs = taskCompletion.getSmtTs();
     }
     errorMsg = taskCompletion.getErrorMsg();
-    var ext = taskCompletion.getExtensions();
+    var ext = taskCompletion.getExt();
     if (ext!=null && ext.containsKey("osts")) {
       try {
         smtTs = Long.parseLong(ext.get("osts"));

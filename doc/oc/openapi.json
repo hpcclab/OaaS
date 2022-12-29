@@ -694,6 +694,9 @@
           },
           "description" : {
             "type" : "string"
+          },
+          "outputCls" : {
+            "type" : "string"
           }
         }
       },
@@ -723,6 +726,9 @@
             }
           },
           "description" : {
+            "type" : "string"
+          },
+          "outputCls" : {
             "type" : "string"
           }
         }
@@ -764,11 +770,11 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "STATIC", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "MACRO", "LOGICAL", "READONLY", "STATIC", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
         "type" : "string"
       },
       "FunctionValidation" : {
@@ -872,11 +878,11 @@
         "deprecated" : true
       },
       "KeyAccessModifier" : {
-        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
+        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "KeyAccessModifier_Public" : {
-        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
+        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "KeySpecification" : {
@@ -1250,10 +1256,13 @@
           "streamInfo" : {
             "$ref" : "#/components/schemas/StreamInfo_Public"
           },
-          "embeddedRecord" : {
+          "data" : {
             "$ref" : "#/components/schemas/ObjectNode_Public"
           },
           "key" : {
+            "type" : "string"
+          },
+          "rev" : {
             "type" : "string"
           }
         }

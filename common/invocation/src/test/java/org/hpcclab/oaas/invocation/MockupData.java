@@ -20,14 +20,15 @@ public class MockupData {
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
-    .setOutputCls("ex.cls1");
+//    .setOutputCls("ex.cls1")
+    ;
 
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setOutputCls("ex.cls1")
+//    .setOutputCls("ex.cls1")
     .setMacro(new Dataflow()
       .setSteps(List.of(
         new DataflowStep()
@@ -50,10 +51,16 @@ public class MockupData {
     .setFunctions(List.of(
       new FunctionBinding()
         .setName(FUNC_1.getName())
-        .setFunction( FUNC_1.getKey()),
+        .setFunction( FUNC_1.getKey())
+        .setOutputCls("ex.cls1"),
+      new FunctionBinding()
+        .setName("func2")
+        .setFunction( FUNC_1.getKey())
+        .setOutputCls(null),
       new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
         .setFunction(MACRO_FUNC_1.getKey())
+        .setOutputCls("ex.cls1")
     ));
 
   public static MutableMap<String,OaasClass> testClasses() {
