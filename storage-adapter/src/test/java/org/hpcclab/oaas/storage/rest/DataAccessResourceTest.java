@@ -6,6 +6,7 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -55,7 +56,8 @@ class DataAccessResourceTest {
   void test() {
     var ctx = new DataAccessContext()
       .setId(UUID.randomUUID().toString())
-      .setCls("test");
+      .setCls("test")
+      .setLevel(AccessLevel.UNIDENTIFIED);
     var ctxKey = ctx.encode();
     given()
       .pathParam("oid", ctx.getId())

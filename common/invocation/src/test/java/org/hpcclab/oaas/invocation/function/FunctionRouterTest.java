@@ -19,10 +19,13 @@ import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FunctionRouterTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger( FunctionRouterTest.class );
 
   boolean debug = true;
   ObjectMapper objectMapper = new ObjectMapper();
@@ -136,13 +139,13 @@ class FunctionRouterTest {
 
   void printDebug(FunctionExecContext ctx) {
     if (debug) {
-      System.out.printf("TASK MAP: %s%n", Json.encodePrettily(taskSubmitter.map));
-      System.out.printf("EDGE: %s%n", Json.encodePrettily(graphStateManager.multimap));
-      System.out.printf("FUNCTION EXEC CONTEXT: %s%n", Json.encodePrettily(ctx));
-      System.out.printf("FUNCTION EXEC CONTEXT: %s%n", Json.encodePrettily(ctx));
+      LOGGER.debug("TASK MAP: {}", Json.encodePrettily(taskSubmitter.map));
+      LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
+      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       int i = 0;
       for (var o: objectMap) {
-        System.out.printf("REPO OBJ %s: %s%n", i, Json.encode(o));
+        LOGGER.debug("REPO OBJ {}: {}", i, Json.encode(o));
         i++;
       }
     }
@@ -151,7 +154,6 @@ class FunctionRouterTest {
   @Test
   void testChainTaskInvocation() {
     var oal = ObjectAccessLanguage.parse("o2:func1()()");
-    System.out.println();
     var ctx = router.apply(oal)
       .await().indefinitely();
 
@@ -173,7 +175,7 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    System.out.printf("OBJECT o2: %s%n", Json.encodePrettily(o2));
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o2.getStatus().getTaskStatus().isFailed());
     assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
@@ -207,13 +209,13 @@ class FunctionRouterTest {
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
-    System.out.printf("OBJECT o2: %s%n", Json.encodePrettily(o2));
+    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     assertTrue(o2.getStatus().getTaskStatus().isFailed());
     Assertions.assertFalse(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
     var outObj = objectRepo.get(ctx.getOutput().getId());
 
-    System.out.printf("OBJECT OUT: %s%n", Json.encodePrettily(outObj));
+    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(outObj));
 
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(outObj.getStatus().getTaskStatus().isCompleted());
