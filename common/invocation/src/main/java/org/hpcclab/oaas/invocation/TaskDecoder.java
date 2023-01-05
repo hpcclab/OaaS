@@ -18,6 +18,7 @@ public class TaskDecoder {
     if (buffer==null) {
       return TaskCompletion.error(
         id,
+        null,
         "Can not parse the task completion message because response body is null",
         -1,
         ts);
@@ -33,6 +34,7 @@ public class TaskDecoder {
       LOGGER.info("Decode failed on id {} : {}", id, decodeException.getMessage());
       return TaskCompletion.error(
         id,
+        null,
         "Can not parse the task completion message. [%s]".formatted(decodeException.getMessage()),
         -1,
         ts);
@@ -40,6 +42,7 @@ public class TaskDecoder {
 
     return TaskCompletion.error(
       id,
+      null,
       "Can not parse the task completion message",
       -1,
       ts);

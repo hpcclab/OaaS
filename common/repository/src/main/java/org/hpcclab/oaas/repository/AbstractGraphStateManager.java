@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.TaskContext;
-import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.OaasTask;
@@ -32,7 +31,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completion) {
     var main = task.getMain();
-    main.update(completion.getMain());
+    main.update(completion.getMain(), task.getVId());
     var out = task.getOutput();
     if (out != null)
       out.updateStatus(completion);
@@ -42,7 +41,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(TaskContext taskContext, TaskCompletion completion) {
     var main = taskContext.getMain();
-    main.update(completion.getMain());
+    main.update(completion.getMain(), completion.getVId());
     var out = taskContext.getOutput();
     if (out != null)
       out.updateStatus(completion);

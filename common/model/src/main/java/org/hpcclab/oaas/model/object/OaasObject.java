@@ -14,7 +14,7 @@ import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -102,10 +102,10 @@ public class OaasObject implements Copyable<OaasObject> {
 
   public void updateStatus(TaskCompletion taskCompletion) {
     status.set(taskCompletion);
-    update(taskCompletion.getOutput());
+    update(taskCompletion.getOutput(), taskCompletion.getVId());
   }
 
-  public void update(ObjectUpdate update) {
+  public void update(ObjectUpdate update, String newVerId) {
     if (update ==null)
       return;
     if (update.getData()!= null)
@@ -118,6 +118,19 @@ public class OaasObject implements Copyable<OaasObject> {
         map.put(ref.getName(), ref);
       }
       this.refs = Set.copyOf(map.values());
+    }
+    var updatedKeys = update.getUpdatedKeys();
+    if (updatedKeys != null && !updatedKeys.isEmpty()) {
+      var verIds = state.getVerIds()
+        .entrySet().stream()
+        .map(e -> {
+          if (updatedKeys.contains(e.getKey()))
+            return Map.entry(e.getKey(), newVerId);
+          else
+            return e;
+        })
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      state.setVerIds(verIds);
     }
   }
 

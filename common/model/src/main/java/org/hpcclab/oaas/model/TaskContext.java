@@ -21,6 +21,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskContext {
+  String vId;
   OaasObject output;
   OaasObject main;
   Map<String, OaasObject> mainRefs;

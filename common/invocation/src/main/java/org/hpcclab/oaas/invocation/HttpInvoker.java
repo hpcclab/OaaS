@@ -54,6 +54,7 @@ public class HttpInvoker implements SyncInvoker {
       .onFailure()
       .recoverWithItem(e -> TaskCompletion.error(
         invokingDetail.getId(),
+        invokingDetail.getVId(),
         "Fail to perform invocation: " + e.getMessage(),
         invokingDetail.getSmtTs(),
         System.currentTimeMillis())
@@ -77,6 +78,7 @@ public class HttpInvoker implements SyncInvoker {
     else
       return TaskCompletion.error(
         detail.getId(),
+        detail.getVId(),
         "Fail to perform invocation: function return not 200 code (%s)"
           .formatted(resp.statusCode()),
         System.currentTimeMillis(),

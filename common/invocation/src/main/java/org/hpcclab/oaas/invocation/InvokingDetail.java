@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.task.OaasTask;
 @Accessors(chain = true)
 public class InvokingDetail<V> {
   String id;
+  String vId;
   String funcName;
   String funcUrl;
   V content;
@@ -20,6 +21,7 @@ public class InvokingDetail<V> {
   public static InvokingDetail<OaasTask> of(OaasTask task) {
     return new InvokingDetail<>(
       task.getId(),
+      task.getVId(),
       task.getFunction().getKey(),
       task.getFunction().getDeploymentStatus().getInvocationUrl(),
       task,

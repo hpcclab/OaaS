@@ -21,7 +21,7 @@ public interface SaConfig {
     @WithDefault("false")
     boolean relay();
 
-    @WithDefault("oaas-")
+    @WithDefault("oaas/")
     String prefix();
   }
 }

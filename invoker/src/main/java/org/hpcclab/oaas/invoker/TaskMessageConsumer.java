@@ -6,11 +6,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
@@ -88,7 +91,7 @@ public class TaskMessageConsumer {
     kafkaConsumer.toMulti()
       .onItem()
       .transformToUni(kafkaRecord -> invoke(kafkaRecord)
-        .call(taskCompletion -> handleComplete(kafkaRecord, taskCompletion))
+        .call(tuple -> handleComplete(tuple.getOne(), tuple.getTwo()))
       )
       .merge(1024)
       .onFailure(KafkaInvokeException.class)
@@ -96,14 +99,14 @@ public class TaskMessageConsumer {
       .subscribe()
       .with(
         item -> {
-          if (item!=null) objCompPublisher.publish(item.getId());
+          if (item!=null) objCompPublisher.publish(item.getTwo().getId());
         },
         error -> LOGGER.error("multi error", error),
         () -> LOGGER.error("multi unexpectedly completed")
       );
   }
 
-  TaskCompletion handleFailInvocation(Throwable exception) {
+  Pair<OaasTask, TaskCompletion> handleFailInvocation(Throwable exception) {
     if (exception instanceof KafkaInvokeException kafkaInvokeException) {
       var msg = kafkaInvokeException.getCause()!=null ? kafkaInvokeException
         .getCause().getMessage():null;
@@ -119,14 +122,14 @@ public class TaskMessageConsumer {
       .transformToUni(kafkaConsumerRecord -> {
         var ts = System.currentTimeMillis();
         return invoke(kafkaConsumerRecord)
-          .map(tc -> Tuples.pair(tc, ts))
+          .map(tuple -> Tuples.triple(tuple.getOne(), tuple.getTwo(), ts))
           .call(tuple -> {
               var ts2 = System.currentTimeMillis();
-              return handleComplete(kafkaConsumerRecord, tuple.getOne())
+              return handleComplete(tuple.getOne(), tuple.getTwo())
                 .invoke(() -> LOGGER.debug("task[{}]: persisted completion in {} ms (from start {} ms)",
-                  tuple.getOne().getId(),
+                  tuple.getTwo().getId(),
                   System.currentTimeMillis() - ts2,
-                  System.currentTimeMillis() - tuple.getTwo()));
+                  System.currentTimeMillis() - tuple.getThree()));
             }
           );
       })
@@ -134,21 +137,20 @@ public class TaskMessageConsumer {
       .subscribe()
       .with(tuple -> {
           if (tuple==null) return;
-          objCompPublisher.publish(tuple.getOne().getId());
+          objCompPublisher.publish(tuple.getTwo().getId());
           LOGGER.debug("task[{}]: completed in {} ms",
-            tuple.getOne().getId(),
-            System.currentTimeMillis() - tuple.getTwo());
+            tuple.getTwo().getId(),
+            System.currentTimeMillis() - tuple.getThree());
         },
         error -> LOGGER.error("multi error", error),
         () -> LOGGER.error("multi unexpectedly completed"));
   }
 
-  Uni<Void> handleComplete(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+  Uni<Void> handleComplete(OaasTask task,
                            TaskCompletion completion) {
     try {
       var invokingTime = completion.getCptTs() - completion.getSmtTs();
       invokingTimer.record(invokingTime, TimeUnit.MILLISECONDS);
-      var task = Json.decodeValue(kafkaRecord.value(), OaasTask.class);
       var ts = System.currentTimeMillis();
       return graphExecutor.complete(task, completion)
         .onFailure(ArangoDBException.class)
@@ -163,7 +165,7 @@ public class TaskMessageConsumer {
     }
   }
 
-  Uni<TaskCompletion> invoke(KafkaConsumerRecord<String, Buffer> kafkaRecord) {
+  Uni<Pair<OaasTask, TaskCompletion>> invoke(KafkaConsumerRecord<String, Buffer> kafkaRecord) {
     var startTime = System.currentTimeMillis();
     if (LOGGER.isDebugEnabled()) {
       logLatency(kafkaRecord.value());
@@ -182,10 +184,12 @@ public class TaskMessageConsumer {
       .orElseThrow()
       .value()
       .toString();
+    var task = Json.decodeValue(kafkaRecord.value(), OaasTask.class);
 
     return loadFuncUrl(funcName).flatMap(url -> {
       var invokingDetail = new InvokingDetail<Buffer>(
         id,
+        task.getVId(),
         funcName,
         url,
         kafkaRecord.value(),
@@ -195,6 +199,7 @@ public class TaskMessageConsumer {
         .onFailure()
         .recoverWithItem(err -> TaskCompletion.error(
             invokingDetail.getId(),
+            invokingDetail.getVId(),
             err.getMessage(),
             startTime,
             System.currentTimeMillis()
@@ -206,7 +211,8 @@ public class TaskMessageConsumer {
           "task[{}]: invoked in {} ms", id, System.currentTimeMillis() - startTime));
       }
 
-      return invokedUni;
+      return invokedUni
+        .map(com -> Tuples.pair(task, com));
     });
   }
 

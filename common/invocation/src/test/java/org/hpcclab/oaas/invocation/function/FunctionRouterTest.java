@@ -88,7 +88,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId(task.getId())
       .setSuccess(true)
-      .setOutput(new ObjectUpdate( objectMapper.createObjectNode(), null))
+      .setOutput(new ObjectUpdate( objectMapper.createObjectNode()))
       .setCptTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
@@ -128,7 +128,7 @@ class FunctionRouterTest {
       .setId(task.getId())
       .setSuccess(true)
       .setMain(new ObjectUpdate( objectMapper.createObjectNode()
-        .put("aaa", "bbb"), null))
+        .put("aaa", "bbb")))
       .setCptTs(System.currentTimeMillis());
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
@@ -169,7 +169,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId("o1")
       .setSuccess(true)
-      .setOutput(new ObjectUpdate( objectMapper.createObjectNode(), null));
+      .setOutput(new ObjectUpdate( objectMapper.createObjectNode()));
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");
@@ -203,7 +203,7 @@ class FunctionRouterTest {
     var completion = new TaskCompletion()
       .setId("o2")
       .setSuccess(false)
-      .setOutput(new ObjectUpdate( objectMapper.createObjectNode(), null));
+      .setOutput(new ObjectUpdate( objectMapper.createObjectNode()));
     invocationGraphExecutor.complete(task, completion)
       .await().indefinitely();
     var o2 = objectRepo.get("o2");

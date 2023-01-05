@@ -13,6 +13,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
   String id;
+  String vId;
   boolean success;
   String errorMsg;
   //  ObjectNode embeddedRecord;
@@ -32,6 +33,7 @@ public class TaskCompletion {
 
 
   public TaskCompletion(String id,
+                        String vId,
                         boolean success,
                         String errorMsg,
                         Map<String, String> ext,
@@ -40,6 +42,7 @@ public class TaskCompletion {
                         long cptTs,
                         long smtTs) {
     this.id = id;
+    this.vId = vId;
     this.success = success;
     this.errorMsg = errorMsg;
     this.ext = ext;
@@ -50,11 +53,13 @@ public class TaskCompletion {
   }
 
   public static TaskCompletion error(String id,
+                                     String vId,
                                      String errorMsg,
                                      long cptTs,
                                      long smtTs) {
     return new TaskCompletion(
       id,
+      vId,
       false,
       errorMsg,
       null,

@@ -15,6 +15,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasTask {
   String id;
+  String vId;
   OaasObject main;
   OaasObject output;
   @JsonIgnore

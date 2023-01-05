@@ -114,7 +114,7 @@ public class InvocationGraphExecutor {
     var uni = syncInvoker.invoke(ctx);
     return uni.invoke(tc -> {
         if (tc.getMain() != null)
-          ctx.getMain().update(tc.getMain());
+          ctx.getMain().update(tc.getMain(), tc.getVId());
         if (output != null)
           output.updateStatus(tc);
         ctx.setCompletion(tc);
