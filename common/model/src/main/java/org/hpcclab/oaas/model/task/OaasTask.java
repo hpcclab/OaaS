@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasTask {
+public class OaasTask implements TaskDetail{
   String id;
   String vId;
   OaasObject main;

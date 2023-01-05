@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.model.task.TaskStatus;
 
 import java.util.Collection;
@@ -20,7 +21,7 @@ import java.util.Objects;
 @ToString
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaskContext {
+public class TaskContext implements TaskDetail {
   String vId;
   OaasObject output;
   OaasObject main;

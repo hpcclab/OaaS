@@ -226,13 +226,20 @@
   },
   "components" : {
     "schemas" : {
+      "KeyAccessModifier_Public" : {
+        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
+        "type" : "string"
+      },
       "OaasObjectState_Public" : {
         "type" : "object",
         "properties" : {
-          "stateId" : {
-            "type" : "string"
-          },
           "overrideUrls" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "verIds" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
@@ -279,10 +286,13 @@
           "streamInfo" : {
             "$ref" : "#/components/schemas/StreamInfo_Public"
           },
-          "embeddedRecord" : {
+          "data" : {
             "$ref" : "#/components/schemas/ObjectNode_Public"
           },
           "key" : {
+            "type" : "string"
+          },
+          "rev" : {
             "type" : "string"
           }
         }
@@ -347,6 +357,9 @@
           },
           "objId" : {
             "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier_Public"
           }
         }
       },

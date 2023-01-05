@@ -36,10 +36,12 @@ public class TaskFactory {
   }
 
   public OaasTask genTask(TaskContext taskContext) {
+    var verId = idGenerator.generate();
     var mainCls = clsRepo.get(taskContext.getMain().getCls());
 
     var task = new OaasTask();
     task.setId(taskContext.getMain().getId());
+    task.setVId(verId);
     task.setMain(taskContext.getMain());
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());

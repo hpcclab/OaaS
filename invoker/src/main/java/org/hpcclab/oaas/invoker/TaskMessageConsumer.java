@@ -43,7 +43,6 @@ public class TaskMessageConsumer {
   InvocationGraphExecutor graphExecutor;
   ObjectCompletionPublisher objCompPublisher;
   KafkaConsumer<String, Buffer> kafkaConsumer;
-
   Set<String> topics;
 
   private final MeterRegistry registry;

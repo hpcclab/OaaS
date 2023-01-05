@@ -57,6 +57,7 @@ public class ConcatHandler {
         .source("oaas/concat")
         .build(new TaskCompletion()
           .setId(task.getOutput().getId())
+          .setVId(task.getVId())
           .setSuccess(true)
         )
       );

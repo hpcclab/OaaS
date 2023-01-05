@@ -102,37 +102,10 @@ public class OaasObject implements Copyable<OaasObject> {
 
   public void updateStatus(TaskCompletion taskCompletion) {
     status.set(taskCompletion);
-    update(taskCompletion.getOutput(), taskCompletion.getVId());
+    taskCompletion.getOutput().update(this, taskCompletion.getVId());
   }
 
-  public void update(ObjectUpdate update, String newVerId) {
-    if (update ==null)
-      return;
-    if (update.getData()!= null)
-      setData(update.getData());
-    var refsUpdate = update.getRefs();
-    if (refsUpdate != null && !refsUpdate.isEmpty()) {
-      var map = this.refs.stream()
-        .collect(Collectors.toMap(ObjectReference::getName, Function.identity()));
-      for (var ref: refsUpdate) {
-        map.put(ref.getName(), ref);
-      }
-      this.refs = Set.copyOf(map.values());
-    }
-    var updatedKeys = update.getUpdatedKeys();
-    if (updatedKeys != null && !updatedKeys.isEmpty()) {
-      var verIds = state.getVerIds()
-        .entrySet().stream()
-        .map(e -> {
-          if (updatedKeys.contains(e.getKey()))
-            return Map.entry(e.getKey(), newVerId);
-          else
-            return e;
-        })
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      state.setVerIds(verIds);
-    }
-  }
+
 
   @JsonIgnore
   public boolean isReadyToUsed() {

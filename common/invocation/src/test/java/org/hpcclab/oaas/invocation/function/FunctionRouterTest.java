@@ -62,7 +62,8 @@ class FunctionRouterTest {
     var taskFactory = new TaskFactory(contentUrlGenerator, cl.getClsRepo(), new TsidGenerator());
     taskSubmitter = new MockTaskSubmitter(taskFactory);
     invocationGraphExecutor = new InvocationGraphExecutor(taskSubmitter,
-      graphStateManager, cl, new MockSyncInvoker());
+      graphStateManager, cl, new MockSyncInvoker(),
+      new CompletionValidator(cl.getClsRepo()));
   }
 
   @Test

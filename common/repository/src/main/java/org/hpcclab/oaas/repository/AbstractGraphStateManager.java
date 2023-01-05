@@ -6,8 +6,8 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,22 +29,15 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<OaasObject> handleComplete(OaasTask task, TaskCompletion completion) {
+  public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
     var main = task.getMain();
-    main.update(completion.getMain(), task.getVId());
+    if (completion.getMain() != null) {
+      completion.getMain().update(main, task.getVId());
+    }
     var out = task.getOutput();
-    if (out != null)
+    if (out != null) {
       out.updateStatus(completion);
-    return persistThenLoadNext(main, out, !completion.isSuccess());
-  }
-
-  @Override
-  public Multi<OaasObject> handleComplete(TaskContext taskContext, TaskCompletion completion) {
-    var main = taskContext.getMain();
-    main.update(completion.getMain(), completion.getVId());
-    var out = taskContext.getOutput();
-    if (out != null)
-      out.updateStatus(completion);
+    }
     return persistThenLoadNext(main, out, !completion.isSuccess());
   }
 
