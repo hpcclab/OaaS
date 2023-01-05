@@ -39,15 +39,6 @@ public class DataAccessResource {
     var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  StdOaasException.notFoundCls400(clsName);
-    return handleDataAccess(oid, key, cls, dac);
-  }
-
-
-
-  private Uni<Response> handleDataAccess(String oid,
-                                         String key,
-                                         OaasClass cls,
-                                         DataAccessContext dac) {
     var adapter = adapterLoader.load(key, cls);
     return adapter.get(new DataAccessRequest(oid, cls, key, dac));
   }

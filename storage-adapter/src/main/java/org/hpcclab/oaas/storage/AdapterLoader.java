@@ -32,11 +32,16 @@ public class AdapterLoader {
   }
 
   public  Uni<Map<String, String>> aggregatedAllocate(DataAllocateRequest request) {
-    var requests= Lists.fixedSize.ofAll(request.getKeys())
+    var requests = Lists.fixedSize.ofAll(request.getKeys())
       .groupBy(ks -> Objects.requireNonNullElse(ks.getProvider(), request.getDefaultProvider()))
       .keyMultiValuePairsView()
       .collect(entry -> new InternalDataAllocateRequest(
-        request.getOid(), entry.getTwo().collect(KeySpecification::getName).toList(), entry.getOne(), request.isPublicUrl()))
+        request.getOid(),
+        request.getVid(),
+        entry.getTwo().collect(KeySpecification::getName).toList(),
+        entry.getOne(),
+        request.isPublicUrl())
+      )
       .toList();
 
     return Multi.createFrom().iterable(requests)
@@ -49,7 +54,7 @@ public class AdapterLoader {
   }
 
   public Uni<Map<String,String>> aggregatedAllocate(InternalDataAllocateRequest request) {
-    if (Objects.equals(request.getProvider(), s3Adapter.name())) {
+    if (Objects.equals(request.provider(), s3Adapter.name())) {
       return s3Adapter.allocate(request);
     } else {
       return Uni.createFrom().nullItem();

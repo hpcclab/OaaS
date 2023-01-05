@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
@@ -43,11 +44,12 @@ public class DataAllocateResource {
   @Path("{oid}")
   @Produces(MediaType.APPLICATION_JSON)
   public Uni<Map<String,String>> allocate(@RestPath String oid,
-                                         @RestQuery String contextKey,
-                                         List<String> keys) {
+                                          @RestQuery String contextKey,
+                                          List<String> keys) {
+    var dac = DataAccessContext.parse(contextKey);
     var ksl = Lists.fixedSize.ofAll(keys)
       .collect(KeySpecification::new);
-    var req = new DataAllocateRequest(oid,ksl,"s3", false);
+    var req = new DataAllocateRequest(oid,dac.getVid(),ksl,"s3", false);
     return adapterLoader.aggregatedAllocate(req);
   }
 
@@ -59,7 +61,12 @@ public class DataAllocateResource {
     var dac = DataAccessContext.parse(contextKey);
     var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);
-    if (cls == null) throw  NoStackException.notFoundCls400(clsName);
-    return adapterLoader.aggregatedAllocate(new DataAllocateRequest(oid, cls.getStateSpec().getKeySpecs(), false));
+    if (cls == null) throw  StdOaasException.notFoundCls400(clsName);
+    var req = new DataAllocateRequest(oid,
+      dac.getVid(),
+      cls.getStateSpec().getKeySpecs(),
+      null,
+      false);
+    return adapterLoader.aggregatedAllocate(req);
   }
 }

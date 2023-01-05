@@ -52,7 +52,6 @@ public class OaasObject implements Copyable<OaasObject> {
   ObjectStatus status;
   @ProtoField(9)
   StreamInfo streamInfo;
-
   @ProtoField(value = 10, javaType = ObjectNode.class)
   ObjectNode data;
 

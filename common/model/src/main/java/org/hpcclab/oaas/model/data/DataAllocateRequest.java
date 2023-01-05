@@ -13,6 +13,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataAllocateRequest {
   String oid;
+  String vid;
   List<KeySpecification> keys;
   String defaultProvider;
   boolean publicUrl = false;
@@ -22,12 +23,26 @@ public class DataAllocateRequest {
 
   public DataAllocateRequest(String oid, List<KeySpecification> keys, boolean publicUrl) {
     this.oid = oid;
+    this.vid = oid;
     this.keys = keys;
     this.publicUrl = publicUrl;
   }
 
   public DataAllocateRequest(String oid, List<KeySpecification> keys, String defaultProvider, boolean publicUrl) {
     this.oid = oid;
+    this.vid = oid;
+    this.keys = keys;
+    this.defaultProvider = defaultProvider;
+    this.publicUrl = publicUrl;
+  }
+
+  public DataAllocateRequest(String oid,
+                             String vid,
+                             List<KeySpecification> keys,
+                             String defaultProvider,
+                             boolean publicUrl) {
+    this.oid = oid;
+    this.vid = vid;
     this.keys = keys;
     this.defaultProvider = defaultProvider;
     this.publicUrl = publicUrl;

@@ -23,7 +23,7 @@ import java.util.Map;
 
 @ApplicationScoped
 public class S3Adapter implements StorageAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger( S3Adapter.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(S3Adapter.class);
   @Inject
   SaConfig config;
   @Inject
@@ -50,7 +50,7 @@ public class S3Adapter implements StorageAdapter {
       .build();
     relay = config.s3().relay();
     webClient = WebClient.create(vertx);
-    prefix = s3Config.prefix();
+    prefix = s3Config.prefix() == null? "" : s3Config.prefix();
   }
 
   @Override
@@ -80,10 +80,10 @@ public class S3Adapter implements StorageAdapter {
 //      .as(BodyCodec.buffer())
       .send()
       .map(resp -> {
-        if (resp.statusCode() == 200) {
+        if (resp.statusCode()==200) {
           var buffer = resp.bodyAsBuffer();
           LOGGER.debug("Relaying data from '{}' with {} bytes",
-            url, buffer == null? 0 :buffer.length());
+            url, buffer==null ? 0:buffer.length());
           return Response.ok(buffer).build();
         } else {
           LOGGER.warn("Error relaying data from '{}' code {}",
@@ -98,7 +98,7 @@ public class S3Adapter implements StorageAdapter {
                                    String path,
                                    boolean isPublicUrl) {
     try {
-      var client = isPublicUrl ? publicMinioClient: minioClient;
+      var client = isPublicUrl ? publicMinioClient:minioClient;
       var args = GetPresignedObjectUrlArgs.builder()
         .method(method)
         .bucket(config.s3().bucket())
@@ -106,7 +106,7 @@ public class S3Adapter implements StorageAdapter {
         .build();
       return client.getPresignedObjectUrl(args);
     } catch (Exception e) {
-      throw new StdOaasException(e.getMessage(),e);
+      throw new StdOaasException(e.getMessage(), e);
     }
   }
 
@@ -116,15 +116,25 @@ public class S3Adapter implements StorageAdapter {
   }
 
   public Map<String, String> allocateBlocking(InternalDataAllocateRequest request) {
-    var keys = request.getKeys();
+    var keys = request.keys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
+      var path = generatePath(request, key);
       var url = generatePresigned(
         Method.PUT,
-        prefix + request.getOid() + "/" + key,
-        request.isPublicUrl());
+        path,
+        request.publicUrl());
       map.put(key, url);
     }
     return map;
+  }
+
+  String generatePath(InternalDataAllocateRequest request, String key) {
+    return prefix +
+      request.oid() +
+      '/' +
+      request.vid() +
+      '/' +
+      key;
   }
 }

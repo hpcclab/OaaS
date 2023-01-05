@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
@@ -50,6 +50,25 @@ public class ObjectConstructResourceTest {
     QuarkusMock.installMockForType(as, DataAllocationService.class, RestClient.LITERAL);
   }
 
+  @Test
+  public void testSimple() {
+    var req = new ObjectConstructRequest()
+      .setCls("test.dummy.simple")
+      .setStreamConstructs(Lists.fixedSize.of(
+        new ObjectConstructRequest()
+          .setKeys(Sets.fixedSize.of("test"))
+      ));
+    given()
+      .when()
+      .body(Json.encodePrettily(req))
+      .contentType(MediaType.APPLICATION_JSON)
+      .post("/api/object-construct")
+      .then()
+      .log().ifValidationFails()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("object.state.verIds.test", notNullValue());
+  }
 
   @Test
   public void testStream() {

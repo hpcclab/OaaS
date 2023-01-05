@@ -74,9 +74,9 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    assertTrue(taskSubmitter.map.containsKey(ctx.getMain().getId()));
-    assertEquals(1, taskSubmitter.map.size());
-    var task = taskSubmitter.map.get(ctx.getMain().getId());
+    assertTrue(taskSubmitter.multimap.containsKey(ctx.getMain().getId()));
+    assertEquals(1, taskSubmitter.multimap.size());
+    var task = taskSubmitter.multimap.get(ctx.getMain().getId()).getAny();
     assertNotNull(task);
     assertTrue(graphStateManager.multimap.isEmpty());
     var loadedObj = objectRepo.get(ctx.getOutput().getId());
@@ -113,9 +113,9 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    assertTrue(taskSubmitter.map.containsKey(ctx.getMain().getId()));
-    assertEquals(1, taskSubmitter.map.size());
-    var task = taskSubmitter.map.get(ctx.getMain().getId());
+    assertTrue(taskSubmitter.multimap.containsKey(ctx.getMain().getId()));
+    assertEquals(1, taskSubmitter.multimap.size());
+    var task = taskSubmitter.multimap.get(ctx.getMain().getId()).getAny();
     assertNotNull(task);
     assertTrue(graphStateManager.multimap.isEmpty());
 //    var loadedObj = objectRepo.get(ctx.getOutput().getId());
@@ -139,9 +139,8 @@ class FunctionRouterTest {
 
   void printDebug(FunctionExecContext ctx) {
     if (debug) {
-      LOGGER.debug("TASK MAP: {}", Json.encodePrettily(taskSubmitter.map));
-      LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap));
-      LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
+      LOGGER.debug("TASK MAP: {}", Json.encodePrettily(taskSubmitter.multimap.toMap()));
+      LOGGER.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap.toMap()));
       LOGGER.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       int i = 0;
       for (var o: objectMap) {
@@ -160,16 +159,15 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    assertTrue(taskSubmitter.map.containsKey("o2"));
-    assertEquals(1, taskSubmitter.map.size());
-    var task = taskSubmitter.map.get(ctx.getOutput().getId());
+    assertEquals(1, taskSubmitter.multimap.size());
+    var task = taskSubmitter.multimap.get("o1").getAny();
     assertNotNull(task);
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
     assertTrue(graphStateManager.multimap.containsKey("o2"));
 
 
     var completion = new TaskCompletion()
-      .setId("o2")
+      .setId("o1")
       .setSuccess(true)
       .setOutput(new ObjectUpdate( objectMapper.createObjectNode(), null));
     invocationGraphExecutor.complete(task, completion)
@@ -178,11 +176,12 @@ class FunctionRouterTest {
     LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(o2.getStatus().getTaskStatus().isFailed());
-    assertTrue(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    assertTrue(taskSubmitter.multimap.containsKey("o2"));
     assertTrue(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isSubmitted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isCompleted());
     Assertions.assertFalse(objectRepo.get(ctx.getOutput().getId()).getStatus().getTaskStatus().isFailed());
   }
+
 
 
   @Test
@@ -194,9 +193,8 @@ class FunctionRouterTest {
     invocationGraphExecutor.exec(ctx)
       .await().indefinitely();
     printDebug(ctx);
-    assertTrue(taskSubmitter.map.containsKey("o2"));
-    assertEquals(1, taskSubmitter.map.size());
-    var task = taskSubmitter.map.get(ctx.getOutput().getId());
+    assertEquals(1, taskSubmitter.multimap.size());
+    var task = taskSubmitter.multimap.get("o1").getAny();
     assertNotNull(task);
     Assertions.assertFalse(graphStateManager.multimap.isEmpty());
     assertTrue(graphStateManager.multimap.containsKey("o2"));
@@ -212,7 +210,7 @@ class FunctionRouterTest {
     LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
     assertTrue(o2.getStatus().getTaskStatus().isCompleted());
     assertTrue(o2.getStatus().getTaskStatus().isFailed());
-    Assertions.assertFalse(taskSubmitter.map.containsKey(ctx.getOutput().getId()));
+    Assertions.assertFalse(taskSubmitter.multimap.containsKey("o2"));
     var outObj = objectRepo.get(ctx.getOutput().getId());
 
     LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(outObj));

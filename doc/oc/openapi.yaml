@@ -861,9 +861,11 @@ components:
     OaasObjectState_Public:
       type: object
       properties:
-        stateId:
-          type: string
         overrideUrls:
+          type: object
+          additionalProperties:
+            type: string
+        verIds:
           type: object
           additionalProperties:
             type: string
@@ -1004,6 +1006,8 @@ components:
           type: string
         objId:
           type: string
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier'
     ObjectReference_Public:
       type: object
       properties:
@@ -1011,6 +1015,8 @@ components:
           type: string
         objId:
           type: string
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier_Public'
     ObjectRequirement:
       type: object
       properties:

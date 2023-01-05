@@ -1206,10 +1206,13 @@
       "OaasObjectState_Public" : {
         "type" : "object",
         "properties" : {
-          "stateId" : {
-            "type" : "string"
-          },
           "overrideUrls" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "verIds" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
@@ -1420,6 +1423,9 @@
           },
           "objId" : {
             "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier"
           }
         }
       },
@@ -1431,6 +1437,9 @@
           },
           "objId" : {
             "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier_Public"
           }
         }
       },

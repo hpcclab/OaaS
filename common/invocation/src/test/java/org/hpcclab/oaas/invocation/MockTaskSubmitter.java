@@ -2,12 +2,11 @@ package org.hpcclab.oaas.invocation;
 
 
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.multimap.MutableMultimap;
+import org.eclipse.collections.impl.factory.Multimaps;
 import org.hpcclab.oaas.invocation.function.TaskSubmitter;
 import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.task.OaasTask;
-
-import java.util.Map;
 
 public class MockTaskSubmitter implements TaskSubmitter {
 
@@ -17,11 +16,11 @@ public class MockTaskSubmitter implements TaskSubmitter {
     this.taskFactory = taskFactory;
   }
 
-  public Map<String, OaasTask> map = Maps.mutable.empty();
+  public MutableMultimap<String, OaasTask> multimap = Multimaps.mutable.list.empty();
   @Override
   public Uni<Void> submit(TaskContext context) {
     var task = taskFactory.genTask(context);
-    map.put(task.getId(), task);
+    multimap.put(task.getId(), task);
     return Uni.createFrom().nullItem();
   }
 

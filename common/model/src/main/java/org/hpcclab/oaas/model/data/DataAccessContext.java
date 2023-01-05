@@ -18,6 +18,7 @@ public class DataAccessContext {
   String id;
   String cls;
   AccessLevel level;
+  String vid;
 
   String sig;
 
@@ -26,16 +27,24 @@ public class DataAccessContext {
   }
 
   public String encode() {
-    String sb = id + ':' + cls + ':' + level.getLevel();
-    return ENCODER.encodeToString(sb.getBytes());
+    StringBuilder sb = new StringBuilder();
+    if (id != null)
+      sb.append(id);
+    sb.append(':');
+    if (cls != null)
+      sb.append(cls);
+    sb.append(':');
+    if (level != null)
+      sb.append(level.getLevel());
+    sb.append(':');
+    if (vid != null)
+      sb.append(vid);
+    sb.append(':');
+    if (sig != null)
+      sb.append(sig);
+    return ENCODER.encodeToString(sb.toString().getBytes());
   }
 
-//  public static DataAccessContext generate(OaasObject obj, OaasClass cls) {
-//    var dac = new DataAccessContext();
-//    dac.id = obj.getId();
-//    dac.cls = cls.getKey();
-//    return dac;
-//  }
 
   public static DataAccessContext generate(OaasObject obj) {
     return generate(obj, AccessLevel.UNIDENTIFIED);
@@ -58,7 +67,12 @@ public class DataAccessContext {
     var splitText = text.split(":");
     dac.id = splitText[0];
     dac.cls = splitText[1];
-    dac.level = AccessLevel.fromLevel(Integer.parseInt(splitText[2]));
+    if (splitText.length > 2)
+      dac.level = AccessLevel.fromLevel(Integer.parseInt(splitText[2]));
+    if (splitText.length > 3)
+      dac.vid = splitText[3];
+    if (splitText.length > 4)
+      dac.sig = splitText[4];
     return dac;
   }
 }
