@@ -51,10 +51,22 @@ public class DataAccessContext {
   }
 
 
+
   public static DataAccessContext generate(OaasObject obj,
                                            AccessLevel level) {
     var dac = new DataAccessContext();
     dac.id = obj.getId();
+    dac.cls = obj.getCls();
+    dac.level = level;
+    return dac;
+  }
+
+  public static DataAccessContext generate(OaasObject obj,
+                                           AccessLevel level,
+                                           String vid) {
+    var dac = new DataAccessContext();
+    dac.id = obj.getId();
+    dac.vid = vid;
     dac.cls = obj.getCls();
     dac.level = level;
     return dac;

@@ -1,12 +1,14 @@
+name: example
 functions:
-  - name: example.text.concat
+  - name: concat
     type: TASK
     outputCls: example.text
     validation: {}
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/concat-function:latest
-#        concurrency: 256
+#        image: ghcr.io/pawissanutt/oaas/concat-function:latest
+        image: ghcr.io/pawissanutt/oaas/concat-function:mutable
+        targetConcurrency: 32
         minScale: 1
 #        maxScale: 6
         requestsCpu: '0.25'
@@ -14,7 +16,7 @@ functions:
     variableDescriptions:
       - name: append
 classes:
-  - name: example.text
+  - name: text
     stateType: FILES
     objectType: SIMPLE
     stateSpec:
@@ -22,4 +24,5 @@ classes:
         - name: text
     functions:
       - access: PUBLIC
-        function: example.text.concat
+        function: example.concat
+

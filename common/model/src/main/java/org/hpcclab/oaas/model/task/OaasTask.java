@@ -23,8 +23,6 @@ public class OaasTask implements TaskDetail{
   List<OaasObject> inputs = List.of();
   String allocOutputUrl;
   Map<String,String> mainKeys;
-  @Deprecated(forRemoval = true)
-  List<Map<String,String>> inputKeys = List.of();
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
   long ts = -1;

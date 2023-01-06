@@ -102,7 +102,8 @@ public class OaasObject implements Copyable<OaasObject> {
 
   public void updateStatus(TaskCompletion taskCompletion) {
     status.set(taskCompletion);
-    taskCompletion.getOutput().update(this, taskCompletion.getVId());
+    if (taskCompletion.getOutput() != null)
+      taskCompletion.getOutput().update(this, taskCompletion.getVId());
   }
 
 

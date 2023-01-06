@@ -29,7 +29,7 @@ Content-Type: text/plain
 ###
 GET {{cds}}/oal/{{obj_0_id}}/text
 ###
-GET {{cds}}/oal/{{obj_0_id}}:example.text.concat()(APPEND=NEW_TEXT)/text
+GET {{cds}}/oal/{{obj_0_id}}:concat()(APPEND=NEW_TEXT)/text
 ###
 POST {{cds}}/oal/-/text
 Content-Type: application/json
@@ -42,3 +42,5 @@ Content-Type: application/json
     "APPEND": "NEW_TEXT"
   }
 }
+###
+GET {{cds}}/api/classes/example.text/objects

@@ -31,7 +31,6 @@ public class S3Adapter implements StorageAdapter {
 
   private MinioClient minioClient;
   private MinioClient publicMinioClient;
-
   private boolean relay;
   private WebClient webClient;
   private String prefix;
@@ -50,7 +49,7 @@ public class S3Adapter implements StorageAdapter {
       .build();
     relay = config.s3().relay();
     webClient = WebClient.create(vertx);
-    prefix = s3Config.prefix() == null? "" : s3Config.prefix();
+    prefix = s3Config.prefix()==null ? "":s3Config.prefix();
   }
 
   @Override
@@ -63,7 +62,7 @@ public class S3Adapter implements StorageAdapter {
     var uni = Uni.createFrom()
       .item(() -> generatePresigned(
         Method.GET,
-        prefix + dar.getOid() + "/" + dar.getKey(),
+        convertToPath(dar.oid(), dar.vid(), dar.key()),
         false)
       );
     if (relay) {
@@ -77,7 +76,6 @@ public class S3Adapter implements StorageAdapter {
 
   public Uni<Response> relay(String url) {
     return webClient.getAbs(url)
-//      .as(BodyCodec.buffer())
       .send()
       .map(resp -> {
         if (resp.statusCode()==200) {
@@ -130,10 +128,14 @@ public class S3Adapter implements StorageAdapter {
   }
 
   String generatePath(InternalDataAllocateRequest request, String key) {
+    return convertToPath(request.oid(), request.vid(), key);
+  }
+
+  String convertToPath(String oid, String vid, String key) {
     return prefix +
-      request.oid() +
+      oid +
       '/' +
-      request.vid() +
+      vid +
       '/' +
       key;
   }

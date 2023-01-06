@@ -29,8 +29,9 @@ public class DataAccessResource {
   AdapterLoader adapterLoader;
 
   @GET
-  @Path("{oid}/{key}")
+  @Path("{oid}/{vid}/{key}")
   public Uni<Response> get(String oid,
+                           String vid,
                            String key,
                            @RestQuery String contextKey) {
     // TODO protect contextKey with encryption and signature
@@ -40,6 +41,6 @@ public class DataAccessResource {
     var cls =  clsRepo.get(clsName);
     if (cls == null) throw  StdOaasException.notFoundCls400(clsName);
     var adapter = adapterLoader.load(key, cls);
-    return adapter.get(new DataAccessRequest(oid, cls, key, dac));
+    return adapter.get(new DataAccessRequest(oid, vid, cls, key, dac));
   }
 }

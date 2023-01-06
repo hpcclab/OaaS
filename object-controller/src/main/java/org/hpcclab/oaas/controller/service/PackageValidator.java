@@ -32,6 +32,7 @@ public class PackageValidator {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
+      .map(f -> f.setPkg(pkg.getName()))
       .collect(Collectors.toMap(OaasFunction::getKey, Function.identity()));
     for (OaasFunction function : functions) {
       function.setPkg(pkg.getName());
@@ -69,6 +70,7 @@ public class PackageValidator {
         .item(functionMap.get(binding.getFunction()))
         .onItem().ifNull()
         .switchTo(() -> functionRepo.getWithoutCacheAsync(binding.getFunction()))
+        .onItem().ifNull().failWith(() -> new FunctionValidationException("Can not find function [%s]".formatted(binding.getFunction())))
         .invoke(func -> binding.validate(func)))
       .collect().last()
       .replaceWithVoid();

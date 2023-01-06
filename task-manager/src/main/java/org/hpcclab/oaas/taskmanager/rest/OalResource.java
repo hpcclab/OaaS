@@ -6,8 +6,8 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
-import org.hpcclab.oaas.model.TaskContext;
 import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
@@ -78,11 +78,11 @@ public class OalResource {
   @POST
   @Path("-/{filePath:.*}")
   @JsonView(Views.Public.class)
-  public Uni<Response> postContentAndExec(@PathParam("filePath") String filePath,
-                                          @QueryParam("await") Boolean await,
-                                          @QueryParam("timeout") Integer timeout,
-                                          @QueryParam("mq") Boolean mq,
-                                          ObjectAccessLanguage oal) {
+  public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
+                                             @QueryParam("await") Boolean await,
+                                             @QueryParam("timeout") Integer timeout,
+                                             @QueryParam("mq") Boolean mq,
+                                             ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
@@ -115,14 +115,14 @@ public class OalResource {
   @GET
   @JsonView(Views.Public.class)
   @Path("{oal}/{filePath:.*}")
-  public Uni<Response> getContentAndExec(@PathParam("oal") String oal,
+  public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
                                          @QueryParam("await") Boolean await,
                                          @QueryParam("timeout") Integer timeout,
                                          @QueryParam("mq") Boolean mq) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
-    return postContentAndExec(filePath, await,  timeout, mq, oaeObj);
+    return execAndGetContentPost(filePath, await,  timeout, mq, oaeObj);
   }
 
   public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {
@@ -162,7 +162,7 @@ public class OalResource {
       return Response.status(redirectCode)
         .location(URI.create(oUrl.get(filePath)))
         .build();
-    var fileUrl = contentUrlGenerator.generateUrl(object, filePath);
+    var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();

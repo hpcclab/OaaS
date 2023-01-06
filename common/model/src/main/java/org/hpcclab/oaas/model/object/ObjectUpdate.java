@@ -63,15 +63,15 @@ public class ObjectUpdate {
       obj.setRefs(Set.copyOf(map.values()));
     }
     if (updatedKeys != null && !updatedKeys.isEmpty()) {
-      var verIds = obj.getState().getVerIds()
-        .entrySet().stream()
-        .map(e -> {
-          if (updatedKeys.contains(e.getKey()))
-            return Map.entry(e.getKey(), newVerId);
-          else
-            return e;
-        })
+      var verIds = updatedKeys.stream()
+        .map(key -> Map.entry(key, newVerId))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      var oldVerIds = obj.getState().getVerIds();
+      if (oldVerIds == null || oldVerIds.isEmpty())
+        obj.getState().setVerIds(verIds);
+      else
+        oldVerIds.putAll(verIds);
+
       obj.getState().setVerIds(verIds);
     }
   }

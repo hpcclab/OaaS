@@ -61,6 +61,9 @@ public class StdOaasException extends RuntimeException {
     return new StdOaasException("The request is involve in the operation that not implemented", 501);
   }
 
+  public static StdOaasException notKeyInObj(String oid, int code) {
+    return new StdOaasException("No such key exist in object(%s)".formatted(oid), code);
+  }
 
   public static StdOaasException format(String template, Object... args) {
     return new StdOaasException(template.formatted(args));

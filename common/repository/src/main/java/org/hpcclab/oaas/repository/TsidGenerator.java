@@ -1,11 +1,7 @@
 package org.hpcclab.oaas.repository;
 
-
-import com.github.f4b6a3.tsid.TsidCreator;
 import com.github.f4b6a3.tsid.TsidFactory;
-
 import javax.enterprise.context.ApplicationScoped;
-import java.util.UUID;
 
 @ApplicationScoped
 public class TsidGenerator implements IdGenerator{
