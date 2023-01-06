@@ -49,8 +49,6 @@ quarkus:
   rest-client:
     TaskBrokerService:
       url: ${oaas.tm.brokerUrl}
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17
   opentelemetry:
     enabled: false
 

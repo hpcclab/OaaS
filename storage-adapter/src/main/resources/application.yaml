@@ -41,8 +41,6 @@ quarkus:
     image: ${ci.registry.image:oaas}/storage-adapter${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17
   opentelemetry:
     enabled: false
   log:

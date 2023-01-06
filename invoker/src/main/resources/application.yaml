@@ -44,10 +44,3 @@ quarkus:
       json:
         enabled: true
         path: jsonmetrics
-  native:
-    resources:
-      includes:
-        - builtin/**
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17
-#  opentelemetry:
-#    enabled: false
