@@ -19,8 +19,10 @@ public class CompletionValidator {
   EntityRepository<String, OaasFunction> funcRepo;
 
   @Inject
-  public CompletionValidator(EntityRepository<String, OaasClass> clsRepo) {
+  public CompletionValidator(EntityRepository<String, OaasClass> clsRepo,
+                             EntityRepository<String, OaasFunction> funcRepo) {
     this.clsRepo = clsRepo;
+    this.funcRepo = funcRepo;
   }
 
   public Uni<TaskCompletion> validateUpdate(TaskDetail taskDetail, TaskCompletion completion){

@@ -63,7 +63,7 @@ class FunctionRouterTest {
     taskSubmitter = new MockTaskSubmitter(taskFactory);
     invocationGraphExecutor = new InvocationGraphExecutor(taskSubmitter,
       graphStateManager, cl, new MockSyncInvoker(),
-      new CompletionValidator(cl.getClsRepo()));
+      new CompletionValidator(cl.getClsRepo(), cl.getFuncRepo()));
   }
 
   @Test
