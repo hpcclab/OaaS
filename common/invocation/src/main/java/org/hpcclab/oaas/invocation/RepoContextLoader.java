@@ -155,6 +155,7 @@ public class RepoContextLoader implements ContextLoader {
     var funcName = output.getOrigin().getFuncName();
     var func = funcRepo.get(funcName);
     tc.setFunction(func);
+    LOGGER.debug("func {} {}", funcName, func);
     var inputIds = output.getOrigin().getInputs();
     var mainId = output.getOrigin().getParentId();
     Uni<TaskContext> uni;

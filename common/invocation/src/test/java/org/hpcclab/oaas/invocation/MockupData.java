@@ -91,7 +91,7 @@ public class MockupData {
     o2.setId("o2");
     o2.setOrigin(new ObjectOrigin()
       .setParentId(o1.getId())
-      .setFuncName(FUNC_1.getName())
+      .setFuncName(FUNC_1.getKey())
     );
     o2.setStatus(new ObjectStatus());
     l.add(o2);

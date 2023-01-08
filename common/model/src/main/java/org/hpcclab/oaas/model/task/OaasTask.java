@@ -31,7 +31,7 @@ public class OaasTask implements TaskDetail{
 
   public OaasTask setFunction(OaasFunction function) {
     this.function = function;
-    funcName = function.getKey();
+    this.funcName = function.getKey();
     return this;
   }
 }
