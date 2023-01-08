@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ArangoResource implements
   QuarkusTestResourceLifecycleManager {
-  private static final ArangoContainer container = new ArangoContainer("3.9").withoutAuth();
+  private static final ArangoContainer container = new ArangoContainer("3.10").withoutAuth();
 
   @Override
   public Map<String, String> start() {
