@@ -58,6 +58,11 @@ public class TaskFactory {
       }
     }
 
+    if (taskContext.getFunction().getType().isAllowUpdateMain()) {
+      var b64Dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId)
+        .encode();
+      task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getMain().getId(), b64Dac));
+    }
     task.setMainKeys(genUrls(taskContext.getMain(), taskContext.getMainRefs()));
 
     var inputContextKeys = new ArrayList<String>();

@@ -21,6 +21,7 @@ public class OaasTask implements TaskDetail{
   @JsonIgnore
   OaasFunction function;
   List<OaasObject> inputs = List.of();
+  String allocMainUrl;
   String allocOutputUrl;
   Map<String,String> mainKeys;
   List<String> inputContextKeys = List.of();

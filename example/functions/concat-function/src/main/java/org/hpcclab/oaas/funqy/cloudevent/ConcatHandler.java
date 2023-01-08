@@ -45,18 +45,26 @@ public class ConcatHandler {
     responseType = "oaas.task.result"
   )
   public Uni<CloudEvent<TaskCompletion>> handle(OaasTask task, @Context CloudEvent<OaasTask> event) {
-    var args = task.getOutput().getOrigin().getArgs();
+    var args = task.getArgs();
     var inputUrl = task.getMainKeys().get("text");
+    var inPlace = Boolean.parseBoolean(args.getOrDefault("INPLACE", "false"));
+    var update = new ObjectUpdate().setUpdatedKeys(Set.of("text"));
     var tc = new TaskCompletion()
-      .setId(task.getOutput().getId())
+      .setId(task.getId())
       .setVId(task.getVId())
-      .setSuccess(true)
-      .setOutput(new ObjectUpdate().setUpdatedKeys(Set.of("text")));
+      .setSuccess(true);
+    if (inPlace)
+      tc.setMain(update);
+    else
+      tc.setOutput(update);
+
     return getText(inputUrl)
       .flatMap(text -> {
         var append = args.getOrDefault("APPEND", "");
         text += append;
-        return putText(task.getAllocOutputUrl(), text);
+        return putText(
+          inPlace ? task.getAllocMainUrl():task.getAllocOutputUrl(),
+          text);
       })
       .map(text -> CloudEventBuilder.create()
         .id(task.getId())
