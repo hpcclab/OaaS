@@ -2,6 +2,8 @@ name: Functions Container Build
 
 on:
   push:
+    branches:
+      - '**'
     tags:
       - 'v*'
 
