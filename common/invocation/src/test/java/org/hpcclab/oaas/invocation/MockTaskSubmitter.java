@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.hpcclab.oaas.invocation.function.TaskSubmitter;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.OaasTask;
 
 public class MockTaskSubmitter implements TaskSubmitter {

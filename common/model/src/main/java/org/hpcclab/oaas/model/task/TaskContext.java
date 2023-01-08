@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
@@ -77,4 +77,8 @@ public class TaskContext implements TaskDetail {
   }
 
 
+  @Override
+  public String getFuncName() {
+    return function.getKey();
+  }
 }

@@ -7,4 +7,6 @@ public interface TaskDetail {
   String getVId();
   OaasObject getMain();
   OaasObject getOutput();
+
+  String getFuncName();
 }

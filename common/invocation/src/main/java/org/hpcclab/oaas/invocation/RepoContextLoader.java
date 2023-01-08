@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.NoStackException;

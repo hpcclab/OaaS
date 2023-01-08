@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.invocation;
 
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.repository.EntityRepository;

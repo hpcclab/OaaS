@@ -3,7 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;

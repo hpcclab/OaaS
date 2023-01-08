@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invocation.function;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 
 import java.util.Collection;
 

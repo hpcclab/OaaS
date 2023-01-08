@@ -22,7 +22,7 @@ public class InvokingDetail<V> {
     return new InvokingDetail<>(
       task.getId(),
       task.getVId(),
-      task.getFunction().getKey(),
+      task.getFuncName(),
       task.getFunction().getDeploymentStatus().getInvocationUrl(),
       task,
       task.getTs()

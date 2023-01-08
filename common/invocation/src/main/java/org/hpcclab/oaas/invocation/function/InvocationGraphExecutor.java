@@ -10,7 +10,7 @@ import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.CompletionValidator;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.model.TaskContext;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
@@ -118,7 +118,7 @@ public class InvocationGraphExecutor {
       output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(ctx);
     return uni
-      .flatMap(tc -> completionValidator.validate(ctx, tc))
+      .flatMap(tc -> completionValidator.validateUpdate(ctx, tc))
       .invoke(tc -> {
         if (tc.getMain() != null)
           tc.getMain().update(ctx.getMain(), tc.getVId());
@@ -132,7 +132,7 @@ public class InvocationGraphExecutor {
 
   public Uni<Void> complete(TaskCompletion completion) {
     return contextLoader.getTaskContextAsync(completion.getId())
-      .flatMap(ctx -> completionValidator.validate(ctx, completion)
+      .flatMap(ctx -> completionValidator.validateUpdate(ctx, completion)
         .map(cmp -> Tuples.pair(ctx, cmp))
       )
       .flatMap(pair -> gsm.handleComplete(pair.getOne(), pair.getTwo())
@@ -143,7 +143,7 @@ public class InvocationGraphExecutor {
   }
 
   public Uni<Void> complete(OaasTask task, TaskCompletion completion) {
-    return completionValidator.validate(task, completion)
+    return completionValidator.validateUpdate(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()

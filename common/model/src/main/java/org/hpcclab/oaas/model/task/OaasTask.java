@@ -25,5 +25,12 @@ public class OaasTask implements TaskDetail{
   Map<String,String> mainKeys;
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
+  String funcName;
   long ts = -1;
+
+  public OaasTask setFunction(OaasFunction function) {
+    this.function = function;
+    funcName = function.getKey();
+    return this;
+  }
 }
