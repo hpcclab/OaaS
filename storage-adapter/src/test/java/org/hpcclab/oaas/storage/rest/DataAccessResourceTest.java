@@ -65,10 +65,11 @@ class DataAccessResourceTest {
     var ctxKey = ctx.encode();
     given()
       .pathParam("oid", ctx.getId())
+      .pathParam("vid", ctx.getVid())
       .pathParam("key", "test")
       .queryParam("contextKey", ctxKey)
       .when().redirects().follow(false)
-      .get("/contents/{oid}/{key}")
+      .get("/contents/{oid}/{vid}/{key}")
       .then()
       .log().ifValidationFails()
       .statusCode(Matchers.is(307));
