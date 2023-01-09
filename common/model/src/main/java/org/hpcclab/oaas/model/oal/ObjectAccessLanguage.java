@@ -25,7 +25,7 @@ public class ObjectAccessLanguage {
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
     return new ObjectAccessLanguage()
       .setTarget(origin.getParentId())
-      .setFunctionName(origin.getFuncName())
+      .setFunctionName(origin.getFbName())
       .setArgs(origin.getArgs())
       .setInputs(origin.getInputs());
   }

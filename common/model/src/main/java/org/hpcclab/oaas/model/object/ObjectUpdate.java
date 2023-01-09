@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
@@ -69,10 +70,11 @@ public class ObjectUpdate {
       var oldVerIds = obj.getState().getVerIds();
       if (oldVerIds == null || oldVerIds.isEmpty())
         obj.getState().setVerIds(verIds);
-      else
-        oldVerIds.putAll(verIds);
-
-      obj.getState().setVerIds(verIds);
+      else {
+        var tmp = Maps.mutable.ofMap(oldVerIds);
+        tmp.putAll(verIds);
+        obj.getState().setVerIds(tmp);
+      }
     }
   }
 }

@@ -6,6 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.hpcclab.oaas.invocation.TaskDecoder;
 import org.hpcclab.oaas.model.ErrorMessage;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class CloudEventHandlingResource {
     LOGGER.debug("received dead letter: {}", ceId);
     var error = headers.get("ce-knativeerrordata");
     var taskCompletion = new TaskCompletion()
-      .setId(ceId)
+      .setId(TaskIdentity.decode(ceId))
       .setSuccess(false)
       .setErrorMsg(error);
     return graphExecutor.complete(taskCompletion);
@@ -65,7 +66,9 @@ public class CloudEventHandlingResource {
     var ceId = headers.get("ce-id");
     LOGGER.debug("received task result: {}", ceId);
     var tc = TaskDecoder.tryDecode(ceId, body);
+    var id = tc.getId();
     return graphExecutor.complete(tc)
-      .invoke(() -> completionPublisher.publish(tc.getId()));
+      .invoke(() -> completionPublisher.publish(id.oId() == null?
+        id.mId():tc.getId().oId()));
   }
 }

@@ -6,8 +6,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.tuples.Tuple2;
-import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
@@ -22,6 +20,7 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
@@ -91,14 +90,17 @@ public class TaskMessageConsumer {
       .onItem()
       .transformToUni(kafkaRecord -> invoke(kafkaRecord)
         .call(tuple -> handleComplete(tuple.getOne(), tuple.getTwo()))
+        .onFailure()
+        .recoverWithItem(this::handleFailInvocation)
       )
       .merge(1024)
-      .onFailure(KafkaInvokeException.class)
-      .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(
         item -> {
-          if (item!=null) objCompPublisher.publish(item.getTwo().getId());
+          if (item!=null) {
+            var taskId = item.getTwo().getId();
+            objCompPublisher.publish(taskId.oId() ==null? taskId.mId() : taskId.oId());
+          }
         },
         error -> LOGGER.error("multi error", error),
         () -> LOGGER.error("multi unexpectedly completed")
@@ -109,7 +111,9 @@ public class TaskMessageConsumer {
     if (exception instanceof KafkaInvokeException kafkaInvokeException) {
       var msg = kafkaInvokeException.getCause()!=null ? kafkaInvokeException
         .getCause().getMessage():null;
-      LOGGER.warn("Catch invocation fail on '{}' with message '{}'", kafkaInvokeException.getTaskCompletion().getId(), msg);
+      if (LOGGER.isWarnEnabled())
+        LOGGER.warn("Catch invocation fail on '{}' with message '{}'",
+          kafkaInvokeException.getTaskCompletion().getId().encode(), msg);
       // TODO send to dead letter topic
     }
     return null;
@@ -136,7 +140,8 @@ public class TaskMessageConsumer {
       .subscribe()
       .with(tuple -> {
           if (tuple==null) return;
-          objCompPublisher.publish(tuple.getTwo().getId());
+          var taskId = tuple.getTwo().getId();
+          objCompPublisher.publish(taskId.oId() == null? taskId.mId(): taskId.oId());
           LOGGER.debug("task[{}]: completed in {} ms",
             tuple.getTwo().getId(),
             System.currentTimeMillis() - tuple.getThree());
@@ -152,10 +157,6 @@ public class TaskMessageConsumer {
       invokingTimer.record(invokingTime, TimeUnit.MILLISECONDS);
       var ts = System.currentTimeMillis();
       return graphExecutor.complete(task, completion)
-        .onFailure(ArangoDBException.class)
-        .retry()
-        .withBackOff(Duration.ofMillis(500))
-        .atMost(3)
         .onFailure()
         .transform(e -> new KafkaInvokeException(e, completion))
         .eventually(() -> completionTimer.record(System.currentTimeMillis() - ts, TimeUnit.MILLISECONDS));
@@ -197,8 +198,7 @@ public class TaskMessageConsumer {
       var invokedUni = invoker.invoke(invokingDetail)
         .onFailure()
         .recoverWithItem(err -> TaskCompletion.error(
-            invokingDetail.getId(),
-            invokingDetail.getVId(),
+          TaskIdentity.decode(invokingDetail.getId()),
             err.getMessage(),
             startTime,
             System.currentTimeMillis()

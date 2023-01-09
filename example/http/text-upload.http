@@ -31,6 +31,8 @@ GET {{cds}}/oal/{{obj_0_id}}/text
 ###
 GET {{cds}}/oal/{{obj_0_id}}:concat()(APPEND=NEW_TEXT)/text
 ###
+GET {{cds}}/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW_TEXT)/text
+###
 POST {{cds}}/oal/-/text
 Content-Type: application/json
 

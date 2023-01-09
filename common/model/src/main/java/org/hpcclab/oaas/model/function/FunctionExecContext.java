@@ -35,14 +35,7 @@ public class FunctionExecContext extends TaskContext {
   TaskCompletion completion;
 
   public ObjectOrigin createOrigin() {
-    var finalArgs = binding.getDefaultArgs();
-    if (finalArgs == null) {
-      finalArgs = getArgs();
-    }
-    else if (getArgs() != null) {
-      finalArgs.putAll(getArgs());
-    }
-
+    var finalArgs = resolveArgs(binding);
     return new ObjectOrigin(
       getMain().getId(),
       binding.getFunction(),
@@ -69,6 +62,11 @@ public class FunctionExecContext extends TaskContext {
     if (parent != null) {
       parent.addTaskOutput(objects);
     }
+  }
+
+  @Override
+  public String getFbName() {
+    return binding.getName();
   }
 
   public void addSubContext(FunctionExecContext ctx) {

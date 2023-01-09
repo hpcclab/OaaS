@@ -1,23 +1,28 @@
 package org.hpcclab.oaas.invocation;
 
-import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskContext;
+import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.IdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @ApplicationScoped
 public class TaskFactory {
+  private static final Logger LOGGER = LoggerFactory.getLogger( TaskFactory.class );
   private final ContentUrlGenerator contentUrlGenerator;
 
   private final EntityRepository<String, OaasClass> clsRepo;
@@ -35,15 +40,22 @@ public class TaskFactory {
 
   public OaasTask genTask(TaskContext taskContext) {
     var verId = idGenerator.generate();
+    taskContext.setVId(verId);
     var mainCls = clsRepo.get(taskContext.getMain().getCls());
 
     var task = new OaasTask();
-    task.setId(taskContext.getMain().getId());
+    task.setId(new TaskIdentity(taskContext).encode());
+    task.setPartKey(taskContext.getMain().getId());
     task.setVId(verId);
+    task.setFbName(taskContext.getFbName());
     task.setMain(taskContext.getMain());
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());
-    task.setArgs(taskContext.getArgs());
+    var binding = mainCls.findFunction(taskContext.getFbName());
+    task.setArgs(taskContext.resolveArgs(binding));
+    LOGGER.info("binding {} args {} finalArgs {}", binding, taskContext.getArgs(),
+        task.getArgs()
+      );
 
     if (taskContext.getOutput()!=null) {
       task.setOutput(taskContext.getOutput());

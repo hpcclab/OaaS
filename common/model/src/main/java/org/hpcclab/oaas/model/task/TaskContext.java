@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskDetail;
@@ -27,6 +29,7 @@ public class TaskContext implements TaskDetail {
   OaasObject main;
   Map<String, OaasObject> mainRefs;
   OaasFunction function;
+  String fbName;
   List<OaasObject> inputs = List.of();
   Map<String, String> args = Map.of();
 
@@ -76,9 +79,22 @@ public class TaskContext implements TaskDetail {
     return false;
   }
 
+  public Map<String, String> resolveArgs(FunctionBinding binding) {
+    var defaultArgs = binding.getDefaultArgs();
+    if (args!=null && defaultArgs!=null) {
+      var finalArgs = Maps.mutable.ofMap(defaultArgs);
+      finalArgs.putAll(args);
+      return finalArgs;
+    } else if (args==null && defaultArgs!=null) {
+      return defaultArgs;
+    } else if (args!=null) {
+      return args;
+    }
+    return Map.of();
+  }
 
   @Override
-  public String getFuncName() {
+  public String getFuncKey() {
     return function.getKey();
   }
 }

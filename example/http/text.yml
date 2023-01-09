@@ -7,7 +7,7 @@ functions:
     provision:
       knative:
 #        image: ghcr.io/pawissanutt/oaas/concat-function:latest
-        image: ghcr.io/pawissanutt/oaas/concat-function:mutable
+        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:mutable
         targetConcurrency: 32
         minScale: 1
 #        maxScale: 6
@@ -25,4 +25,12 @@ classes:
     functions:
       - access: PUBLIC
         function: example.concat
+      - access: PUBLIC
+        function: example.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
+
+
 

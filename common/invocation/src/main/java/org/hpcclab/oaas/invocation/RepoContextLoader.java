@@ -152,10 +152,8 @@ public class RepoContextLoader implements ContextLoader {
   public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
     var tc = new TaskContext();
     tc.setOutput(output);
-    var funcName = output.getOrigin().getFuncName();
-    var func = funcRepo.get(funcName);
-    tc.setFunction(func);
-    LOGGER.debug("func {} {}", funcName, func);
+    var fbName = output.getOrigin().getFbName();
+    tc.setFbName(fbName);
     var inputIds = output.getOrigin().getInputs();
     var mainId = output.getOrigin().getParentId();
     Uni<TaskContext> uni;
@@ -177,9 +175,15 @@ public class RepoContextLoader implements ContextLoader {
           }
           return Uni.createFrom().nullItem();
         })
-        .map(tc::setMain);
-
+        .map(tc::setMain)
+        .call(__ -> clsRepo.getAsync(tc.getMain().getCls())
+          .map(cls -> cls.findFunction(fbName).getFunction())
+          .call(funcKey -> funcRepo.getAsync(funcKey)
+            .invoke(tc::setFunction))
+        );
     }
+
+
 
     if (!inputIds.isEmpty()) {
       uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)

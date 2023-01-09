@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
@@ -12,8 +13,8 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
-  String id;
-  String vId;
+  @JsonUnwrapped
+  TaskIdentity id;
   boolean success;
   String errorMsg;
   //  ObjectNode embeddedRecord;
@@ -32,7 +33,8 @@ public class TaskCompletion {
   }
 
 
-  public TaskCompletion(String id,
+  public TaskCompletion(String mid,
+                        String oid,
                         String vId,
                         boolean success,
                         String errorMsg,
@@ -41,8 +43,7 @@ public class TaskCompletion {
                         ObjectUpdate out,
                         long cptTs,
                         long smtTs) {
-    this.id = id;
-    this.vId = vId;
+    this.id = new TaskIdentity(mid, oid, vId);
     this.success = success;
     this.errorMsg = errorMsg;
     this.ext = ext;
@@ -52,14 +53,31 @@ public class TaskCompletion {
     this.smtTs = smtTs;
   }
 
-  public static TaskCompletion error(String id,
-                                     String vId,
+  public TaskCompletion(TaskIdentity id,
+                        boolean success,
+                        String errorMsg,
+                        Map<String, String> ext,
+                        ObjectUpdate main,
+                        ObjectUpdate out,
+                        long cptTs,
+                        long smtTs) {
+    this.id = id;
+    this.success = success;
+    this.errorMsg = errorMsg;
+    this.ext = ext;
+    this.main = main;
+    this.output = out;
+    this.cptTs = cptTs;
+    this.smtTs = smtTs;
+  }
+
+
+  public static TaskCompletion error(TaskIdentity id,
                                      String errorMsg,
                                      long cptTs,
                                      long smtTs) {
     return new TaskCompletion(
       id,
-      vId,
       false,
       errorMsg,
       null,
@@ -69,4 +87,21 @@ public class TaskCompletion {
       smtTs
     );
   }
+
+
+  public TaskCompletion setIdFromTask(TaskDetail task) {
+    id = new TaskIdentity(
+      task.getMain()!=null ? task.getMain().getId():null,
+      task.getOutput()!=null ? task.getOutput().getId():null,
+      task.getVId()
+    );
+    return this;
+  }
+
+  public TaskIdentity getId(){
+    if (id == null) id = new TaskIdentity();
+    return id;
+  }
+
+
 }

@@ -16,6 +16,7 @@ import java.util.Map;
 public class OaasTask implements TaskDetail{
   String id;
   String vId;
+  String partKey;
   OaasObject main;
   OaasObject output;
   @JsonIgnore
@@ -26,12 +27,13 @@ public class OaasTask implements TaskDetail{
   Map<String,String> mainKeys;
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
-  String funcName;
+  String fbName;
   long ts = -1;
 
-  public OaasTask setFunction(OaasFunction function) {
-    this.function = function;
-    this.funcName = function.getKey();
-    return this;
+
+  @Override
+  @JsonIgnore
+  public String getFuncKey() {
+    return function.getKey();
   }
 }

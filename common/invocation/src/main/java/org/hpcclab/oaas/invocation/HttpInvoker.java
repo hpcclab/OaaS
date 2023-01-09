@@ -8,6 +8,7 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +54,7 @@ public class HttpInvoker implements SyncInvoker {
       .map(resp -> this.handleResp(invokingDetail, resp))
       .onFailure()
       .recoverWithItem(e -> TaskCompletion.error(
-        invokingDetail.getId(),
-        invokingDetail.getVId(),
+        TaskIdentity.decode(invokingDetail.getId()),
         "Fail to perform invocation: " + e.getMessage(),
         invokingDetail.getSmtTs(),
         System.currentTimeMillis())
@@ -77,8 +77,7 @@ public class HttpInvoker implements SyncInvoker {
         .setSmtTs(detail.getSmtTs());
     else
       return TaskCompletion.error(
-        detail.getId(),
-        detail.getVId(),
+        TaskIdentity.decode(detail.getId()),
         "Fail to perform invocation: function return not 200 code (%s)"
           .formatted(resp.statusCode()),
         System.currentTimeMillis(),

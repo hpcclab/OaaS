@@ -121,7 +121,7 @@ public class InvocationGraphExecutor {
       .flatMap(tc -> completionValidator.validateUpdate(ctx, tc))
       .invoke(tc -> {
         if (tc.getMain() != null)
-          tc.getMain().update(ctx.getMain(), tc.getVId());
+          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
         if (output != null)
           output.updateStatus(tc);
         ctx.setCompletion(tc);
@@ -131,7 +131,7 @@ public class InvocationGraphExecutor {
   }
 
   public Uni<Void> complete(TaskCompletion completion) {
-    return contextLoader.getTaskContextAsync(completion.getId())
+    return contextLoader.getTaskContextAsync(completion.getId().oId())
       .flatMap(ctx -> completionValidator.validateUpdate(ctx, completion)
         .map(cmp -> Tuples.pair(ctx, cmp))
       )

@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invocation;
 
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
@@ -8,6 +9,10 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.model.state.KeyAccessModifier;
+import org.hpcclab.oaas.model.state.KeySpecification;
+import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.ClassResolver;
 
 import java.util.List;
@@ -32,12 +37,12 @@ public class MockupData {
     .setMacro(new Dataflow()
       .setSteps(List.of(
         new DataflowStep()
-          .setFunction(FUNC_1.getName())
+          .setFunction("f1")
           .setTarget("$")
           .setArgRefs(Map.of("key1","arg1"))
           .setAs("tmp1"),
         new DataflowStep()
-          .setFunction(FUNC_1.getName())
+          .setFunction("f1")
           .setTarget("tmp1")
           .setAs("tmp2")
       ))
@@ -48,11 +53,21 @@ public class MockupData {
     .setName("cls1")
     .setPkg("ex")
     .setObjectType(ObjectType.SIMPLE)
+    .setStateSpec(new StateSpecification()
+      .setKeySpecs(
+        List.of(
+          new KeySpecification()
+            .setName("k1")
+            .setAccess(KeyAccessModifier.PUBLIC)
+            .setProvider("s3")
+        )
+      ))
     .setFunctions(List.of(
       new FunctionBinding()
-        .setName(FUNC_1.getName())
+        .setName("f1")
         .setFunction( FUNC_1.getKey())
-        .setOutputCls("ex.cls1"),
+        .setOutputCls("ex.cls1")
+        .setDefaultArgs(Map.of("aa", "aa", "aaa", "aaa")),
       new FunctionBinding()
         .setName("func2")
         .setFunction( FUNC_1.getKey())
@@ -85,13 +100,17 @@ public class MockupData {
     o1.setId("o1");
     o1.setOrigin(new ObjectOrigin());
     o1.setStatus(new ObjectStatus());
+    o1.setState(new OaasObjectState()
+      .setVerIds(Maps.mutable.of("k1", "kkkk"))
+    );
+
     l.add(o1);
 
     var o2 = OaasObject.createFromClasses(CLS_1);
     o2.setId("o2");
     o2.setOrigin(new ObjectOrigin()
       .setParentId(o1.getId())
-      .setFuncName(FUNC_1.getKey())
+      .setFbName("f1")
     );
     o2.setStatus(new ObjectStatus());
     l.add(o2);

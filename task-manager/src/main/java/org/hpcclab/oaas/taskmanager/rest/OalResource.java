@@ -200,7 +200,7 @@ public class OalResource {
       }
     }
     return graphExecutor.exec(ctx)
-      .replaceWith(ctx.getOutput());
+      .replaceWith(ctx.getOutput() == null? ctx.getMain(): ctx.getOutput());
   }
 
   public Uni<OaasObject> awaitCompletion(OaasObject obj,

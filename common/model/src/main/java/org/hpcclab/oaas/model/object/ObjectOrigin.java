@@ -22,7 +22,7 @@ public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
   @ProtoField(2)
   String parentId;
   @ProtoField(3)
-  String funcName;
+  String fbName;
   @ProtoField(number = 4, javaType = HashMap.class)
   Map<String, String> args;
   @ProtoField(5)
@@ -32,17 +32,17 @@ public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
   public ObjectOrigin() {
   }
 
-  public ObjectOrigin(String parentId, String funcName, Map<String, String> args, List<String> inputs) {
+  public ObjectOrigin(String parentId, String fbName, Map<String, String> args, List<String> inputs) {
     this.parentId = parentId;
-    this.funcName = funcName;
+    this.fbName = fbName;
     this.args = args;
     this.inputs = inputs;
   }
 
   @ProtoFactory
-  public ObjectOrigin(String parentId, String funcName, HashMap<String, String> args, List<String> inputs) {
+  public ObjectOrigin(String parentId, String fbName, HashMap<String, String> args, List<String> inputs) {
     this.parentId = parentId;
-    this.funcName = funcName;
+    this.fbName = fbName;
     this.args = args;
     this.inputs = inputs;
   }
@@ -50,7 +50,7 @@ public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
   public ObjectOrigin copy() {
     return new ObjectOrigin(
       parentId,
-      funcName,
+      fbName,
       args==null ? null:Map.copyOf(args),
       inputs==null ? null:List.copyOf(inputs)
     );
@@ -60,7 +60,7 @@ public class ObjectOrigin implements Serializable, Copyable<ObjectOrigin> {
   public long hash() {
     StringBuilder sb = new StringBuilder()
       .append(parentId == null? "null" :parentId)
-      .append(funcName);
+      .append(fbName);
     if (args != null && !args.isEmpty()) {
       args.entrySet()
         .stream()

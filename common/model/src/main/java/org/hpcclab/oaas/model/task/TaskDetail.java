@@ -8,5 +8,6 @@ public interface TaskDetail {
   OaasObject getMain();
   OaasObject getOutput();
 
-  String getFuncName();
+  String getFuncKey();
+  String getFbName();
 }

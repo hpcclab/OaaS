@@ -50,20 +50,27 @@ public class ConcatHandler {
     var inPlace = Boolean.parseBoolean(args.getOrDefault("INPLACE", "false"));
     var update = new ObjectUpdate().setUpdatedKeys(Set.of("text"));
     var tc = new TaskCompletion()
-      .setId(task.getId())
-      .setVId(task.getVId())
+      .setIdFromTask(task)
       .setSuccess(true);
     if (inPlace)
       tc.setMain(update);
     else
       tc.setOutput(update);
+    var allocUrl = inPlace ? task.getAllocMainUrl():task.getAllocOutputUrl();
+    if (allocUrl == null)
+      return Uni.createFrom()
+        .item(CloudEventBuilder.create()
+          .id(task.getId())
+          .type("oaas.task.result")
+          .source("oaas/concat")
+          .build(tc.setSuccess(false).setErrorMsg("Can not find proper alloc URL")));
 
     return getText(inputUrl)
       .flatMap(text -> {
         var append = args.getOrDefault("APPEND", "");
         text += append;
         return putText(
-          inPlace ? task.getAllocMainUrl():task.getAllocOutputUrl(),
+          allocUrl,
           text);
       })
       .map(text -> CloudEventBuilder.create()

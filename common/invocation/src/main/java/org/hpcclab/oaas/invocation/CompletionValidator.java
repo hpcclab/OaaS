@@ -3,7 +3,6 @@ package org.hpcclab.oaas.invocation;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.CompletionCheckException;
-import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -32,7 +31,9 @@ public class CompletionValidator {
     } else {
       uni = Uni.createFrom().voidItem();
     }
-    if (completion.getOutput() != null) {
+    if (taskDetail.getOutput() == null)
+      completion.setOutput(null);
+    else if (completion.getOutput() != null) {
       uni = uni.flatMap(__ -> validateUpdate(taskDetail.getOutput().getCls(), completion.getOutput()));
     }
     uni = uni.flatMap(__ -> validateFunction(taskDetail, completion));
@@ -47,7 +48,7 @@ public class CompletionValidator {
   }
 
   private Uni<Void> validateFunction(TaskDetail taskDetail, TaskCompletion completion) {
-    return funcRepo.getAsync(taskDetail.getFuncName())
+    return funcRepo.getAsync(taskDetail.getFuncKey())
       .onItem()
       .ifNull().failWith(() -> new CompletionCheckException("Can not find the matched function"))
       .invoke(func -> {
