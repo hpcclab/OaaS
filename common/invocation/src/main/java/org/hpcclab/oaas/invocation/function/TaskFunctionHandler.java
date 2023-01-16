@@ -28,6 +28,7 @@ public class TaskFunctionHandler implements FunctionHandler {
   }
 
   public Uni<FunctionExecContext> apply(FunctionExecContext ctx) {
+    ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isAllowUpdateMain());
     if (ctx.getBinding().getOutputCls()!=null) {
       var output = objectFactory.createOutput(ctx);
 

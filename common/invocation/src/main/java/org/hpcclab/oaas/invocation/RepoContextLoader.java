@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class RepoContextLoader implements ContextLoader {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RepoContextLoader.class);
+
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
   EntityRepository<String, OaasClass> clsRepo;
@@ -45,7 +45,7 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull()
-      .failWith(() -> NoStackException.notFoundObject400(request.getTarget()))
+      .failWith(() -> StdOaasException.notFoundObject400(request.getTarget()))
       .invoke(ctx::setMain)
       .invoke(ctx::setEntry)
       .map(ignore -> setClsAndFunc(ctx, request.getFunctionName()))
@@ -182,8 +182,6 @@ public class RepoContextLoader implements ContextLoader {
             .invoke(tc::setFunction))
         );
     }
-
-
 
     if (!inputIds.isEmpty()) {
       uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)

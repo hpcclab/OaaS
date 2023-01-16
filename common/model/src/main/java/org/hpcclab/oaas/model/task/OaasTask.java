@@ -29,5 +29,6 @@ public class OaasTask implements TaskDetail{
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
   String fbName;
+  boolean immutable;
   long ts = -1;
 }

@@ -27,9 +27,10 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   public Uni<Void> submit(TaskContext context) {
     var task = taskFactory.genTask(context);
     var topic = selectTopic(context);
+    var key = task.isImmutable()? null: task.getPartKey();
     var record = KafkaProducerRecord.create(
         topic,
-        (String) null,
+        key,
         Json.encodeToBuffer(task)
       )
       .addHeader("ce_id", task.getId())

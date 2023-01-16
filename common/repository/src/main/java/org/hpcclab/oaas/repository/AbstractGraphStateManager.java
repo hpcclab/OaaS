@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -38,20 +39,21 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     if (out != null) {
       out.updateStatus(completion);
     }
-    return persistThenLoadNext(main, out, !completion.isSuccess());
-  }
+    List<OaasObject> objs = new ArrayList<>();
+    if (completion.getMain() != null) {
+      objs.add(main);
+    }
+    if (out != null){
+      objs.add(out);
+    }
 
-  private Multi<OaasObject> persistThenLoadNext(OaasObject main,
-                                                OaasObject out,
-                                                boolean isFail) {
-    var objs = out == null? List.of(main): List.of(main,out);
     Uni<Void> uni =  objRepo
       .persistWithPreconditionAsync(objs);
     if (out == null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
     return uni.onItem()
       .transformToMulti(__ -> {
-        if (!isFail) {
+        if (completion.isSuccess()) {
           return loadNextSubmittable(out);
         } else {
           return handleFailed(out);

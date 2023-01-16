@@ -1,9 +1,11 @@
 package org.hpcclab.oaas.invoker;
 
+import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
@@ -45,13 +47,12 @@ public class VerticleDeployer {
   @Inject
   FunctionListener functionListener;
 
-  final ConcurrentHashMap<String, Set<String>> verticleIds = new ConcurrentHashMap<>();
+  final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
 
   void init(@Observes StartupEvent ev) {
     initializer.setup();
     var funcPage = funcRepo.pagination(0, 1000);
     var funcList = funcPage.getItems();
-
 
     functionListener.setHandler(func -> {
       LOGGER.info("receive function[{}] update event", func.getKey());
@@ -77,8 +78,18 @@ public class VerticleDeployer {
       .await().indefinitely();
   }
 
+  void cleanup(@Observes ShutdownEvent event) {
+    Multi.createFrom().iterable(verticleMap.values())
+      .flatMap(set -> Multi.createFrom().iterable(set))
+      .call(vert -> vertx.undeploy(vert.deploymentID()))
+      .collect()
+      .asList()
+      .replaceWithVoid()
+      .await().indefinitely();
+  }
+
   public Uni<Void> deployVerticleIfNew(String function) {
-    if (verticleIds.containsKey(function) && !verticleIds.get(function).isEmpty()) {
+    if (verticleMap.containsKey(function) && !verticleMap.get(function).isEmpty()) {
       return Uni.createFrom().nullItem();
     }
     int size = config.numOfVerticle();
@@ -91,7 +102,12 @@ public class VerticleDeployer {
                                      DeploymentOptions options,
                                      int size) {
     return vertx
-      .deployVerticle(() -> verticleFactory.createVerticle(function),
+      .deployVerticle(() -> {
+          AbstractVerticle vert = (AbstractVerticle) verticleFactory.createVerticle(function);
+          verticleMap.computeIfAbsent(function, key -> new HashSet<>())
+            .add(vert);
+          return vert;
+        },
         options)
       .repeat().atMost(size)
       .invoke(id -> {
@@ -99,8 +115,6 @@ public class VerticleDeployer {
           LOGGER.info("deploy verticle[id={}] for function {} successfully",
             id, function);
         }
-        verticleIds.computeIfAbsent(function, key -> new HashSet<>())
-          .add(id);
       })
       .collect()
       .last()
@@ -108,19 +122,19 @@ public class VerticleDeployer {
   }
 
   public Uni<Void> deleteVerticle(String function) {
-    var ids = verticleIds.get(function);
-    if (ids!=null) {
-      return Multi.createFrom().iterable(ids)
-        .call(id -> vertx.undeploy(id))
+    var verticleSet = verticleMap.get(function);
+    if (verticleSet!=null) {
+      return Multi.createFrom().iterable(verticleSet)
+        .call(vert -> vertx.undeploy(vert.deploymentID()))
         .invoke(id -> LOGGER.info("Undeploy verticle[id={}] for function {} successfully", id, function))
         .collect().last()
         .replaceWithVoid()
-        .invoke(() -> verticleIds.remove(function));
+        .invoke(() -> verticleMap.remove(function));
     }
     return Uni.createFrom().nullItem();
   }
 
-  public Map<String, Set<String>> getVerticleIds() {
-    return verticleIds;
+  public Map<String, Set<AbstractVerticle>> getVerticleIds() {
+    return verticleMap;
   }
 }

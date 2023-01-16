@@ -7,7 +7,7 @@ public interface TaskDetail {
   String getVId();
   OaasObject getMain();
   OaasObject getOutput();
-
   String getFuncKey();
   String getFbName();
+  boolean isImmutable();
 }

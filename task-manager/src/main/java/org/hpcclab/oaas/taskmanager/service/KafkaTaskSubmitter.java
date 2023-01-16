@@ -9,8 +9,8 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.oaas.invocation.TaskFactory;
 import org.hpcclab.oaas.invocation.function.TaskSubmitter;
-import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -29,14 +29,16 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   @Override
   public Uni<Void> submit(TaskContext context) {
     var task = taskFactory.genTask(context);
+    var metaBuilder = OutgoingKafkaRecordMetadata.builder()
+      .withHeaders(new RecordHeaders()
+        .add("ce_id", task.getId().getBytes())
+        .add("ce_function", context.getFunction().getKey().getBytes())
+      )
+      .withTopic(selectTopic(context));
+    if (!context.isImmutable())
+      metaBuilder = metaBuilder.withKey(task.getPartKey());
     var message = Message.of(task)
-      .addMetadata( OutgoingKafkaRecordMetadata.builder()
-        .withHeaders(new RecordHeaders()
-          .add("ce_id", task.getId().getBytes())
-          .add("ce_function", context.getFunction().getKey().getBytes())
-        )
-        .withTopic(selectTopic(context))
-        .build());
+      .addMetadata(metaBuilder.build());
     return taskEmitter.sendMessage(message);
   }
 

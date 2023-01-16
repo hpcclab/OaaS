@@ -12,7 +12,6 @@ import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -20,18 +19,24 @@ import java.util.stream.Collectors;
 
 public class OffsetManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(OffsetManager.class);
-  static final long COMMIT_INTERVAL = 5000L;
+  static final long COMMIT_INTERVAL = 10000L;
   final Map<TopicPartition, OffsetTracker> trackerMap;
   KafkaConsumer<?, ?> kafkaConsumer;
+
+  long timerId = -1;
 
   public OffsetManager(KafkaConsumer<?, ?> kafkaConsumer) {
     this.kafkaConsumer = kafkaConsumer;
     this.trackerMap = new ConcurrentHashMap<>();
   }
 
-  public void setPeriodic(Vertx vertx) {
-    vertx.setPeriodic(COMMIT_INTERVAL,
-      l -> commitAll());
+  public void setPeriodicCommit(Vertx vertx) {
+    timerId = vertx.setPeriodic(COMMIT_INTERVAL,
+      l -> commitAll().subscribe().asCompletionStage());
+  }
+
+  public void removePeriodicCommit(Vertx vertx) {
+    vertx.cancelTimer(timerId);
   }
 
   public void handlePartitionRevoked(Set<TopicPartition> topicPartitions) {
@@ -78,7 +83,7 @@ public class OffsetManager {
   }
 
 
-  public void commitAll() {
+  public Uni<Void> commitAll() {
     var map = trackerMap.entrySet()
       .stream()
       .map(entry -> Map.entry(entry.getKey(),
@@ -89,6 +94,8 @@ public class OffsetManager {
     }
     Future<Map<TopicPartition, OffsetAndMetadata>> future =
       kafkaConsumer.getDelegate().commit(map);
-    future.onFailure(e -> LOGGER.error("fail to commit {}", map, e));
+    return UniHelper.toUni(future)
+      .onFailure().invoke(e -> LOGGER.error("fail to commit {}", map, e))
+      .replaceWithVoid();
   }
 }

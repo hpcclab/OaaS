@@ -97,7 +97,7 @@ public class TaskVerticlePoolDispatcher {
         var verticle = verticles.get(hashIndex);
         verticle.offer(rec);
       } else {
-        var verticle =verticles.get(random.nextInt() % verticles.size());
+        var verticle =verticles.get(random.nextInt(verticles.size()));
         verticle.offer(rec);
       }
     }

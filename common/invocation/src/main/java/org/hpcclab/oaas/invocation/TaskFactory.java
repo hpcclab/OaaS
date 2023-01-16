@@ -52,11 +52,9 @@ public class TaskFactory {
     task.setFuncKey(taskContext.getFuncKey());
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());
+    task.setImmutable(taskContext.isImmutable());
     var binding = mainCls.findFunction(taskContext.getFbName());
     task.setArgs(taskContext.resolveArgs(binding));
-//    LOGGER.info("binding {} args {} finalArgs {}", binding, taskContext.getArgs(),
-//        task.getArgs()
-//      );
 
     if (taskContext.getOutput()!=null) {
       task.setOutput(taskContext.getOutput());

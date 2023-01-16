@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskDetail;
@@ -32,6 +33,7 @@ public class TaskContext implements TaskDetail {
   String fbName;
   List<OaasObject> inputs = List.of();
   Map<String, String> args = Map.of();
+  boolean immutable;
 
   public boolean analyzeDeps(List<Map.Entry<OaasObject, OaasObject>> waitForGraph, List<OaasObject> failDeps) {
     if (output != null)
@@ -97,4 +99,5 @@ public class TaskContext implements TaskDetail {
   public String getFuncKey() {
     return function.getKey();
   }
+
 }

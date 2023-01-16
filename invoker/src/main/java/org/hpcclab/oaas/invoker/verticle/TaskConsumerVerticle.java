@@ -42,7 +42,7 @@ public class TaskConsumerVerticle extends AbstractVerticle {
     consumer.exceptionHandler(this::handleException);
     consumer.partitionsRevokedHandler(offsetManager::handlePartitionRevoked);
     taskDispatcher.setDrainHandler(this::poll);
-    offsetManager.setPeriodic(vertx);
+    offsetManager.setPeriodicCommit(vertx);
     return taskDispatcher.deploy(numberOfVerticle)
       .call(() -> consumer.subscribe(topics))
       .invoke(this::poll);
@@ -52,8 +52,9 @@ public class TaskConsumerVerticle extends AbstractVerticle {
   public Uni<Void> asyncStop() {
     LOGGER.info("stopping task consumer verticle for topics {}", topics);
     closed.set(true);
+    offsetManager.removePeriodicCommit(vertx);
     return taskDispatcher.waitTillQueueEmpty()
-      .invoke(offsetManager::commitAll);
+      .call(offsetManager::commitAll);
   }
 
   public Set<String> getTopics() {
