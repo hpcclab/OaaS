@@ -11,6 +11,7 @@ import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 
@@ -29,12 +30,14 @@ public class InvocationEngineProducer {
   }
 
   @Produces
+  @ApplicationScoped
   InvocationConfig invocationConfig(InvokerConfig invokerConfig) {
     return new InvocationConfig()
       .setStorageAdapterUrl(invokerConfig.storageAdapterUrl());
   }
 
   @Produces
+  @ApplicationScoped
   WebClient webClient(Vertx vertx, InvokerConfig config) {
     WebClientOptions options = new WebClientOptions()
       .setFollowRedirects(false)
@@ -47,9 +50,11 @@ public class InvocationEngineProducer {
   }
 
   @Produces
-  HttpInvokerConfig invokerConfig(){
+  @ApplicationScoped
+  HttpInvokerConfig invokerConfig(InvokerConfig config){
     return HttpInvokerConfig.builder()
       .appName("oaas/invoker")
+      .timout(config.invokeTimeout())
       .build();
   }
 }

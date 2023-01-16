@@ -12,10 +12,10 @@ import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-@ApplicationScoped
+@Dependent
 public class HttpInvoker implements SyncInvoker {
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpInvoker.class);
   WebClient webClient;
@@ -50,6 +50,7 @@ public class HttpInvoker implements SyncInvoker {
     }
     return webClient.postAbs(invokingDetail.getFuncUrl())
       .putHeaders(createHeader(invokingDetail))
+      .timeout(config.getTimout())
       .sendBuffer(contentBuffer)
       .map(resp -> this.handleResp(invokingDetail, resp))
       .onFailure()

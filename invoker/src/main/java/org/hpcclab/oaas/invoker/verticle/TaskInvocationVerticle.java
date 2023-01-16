@@ -10,17 +10,16 @@ import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
-import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.TaskMessageConsumer;
+import org.hpcclab.oaas.invoker.TaskConsumer;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.util.Objects;
 import java.util.Set;
 
-@Dependent
+//@Dependent
+@Deprecated(forRemoval = true)
 public class TaskInvocationVerticle extends AbstractVerticle {
 
   @Inject
@@ -38,7 +37,7 @@ public class TaskInvocationVerticle extends AbstractVerticle {
   Set<String> topics;
 
   private KafkaConsumer<String, Buffer> kafkaConsumer;
-  private TaskMessageConsumer taskMessageConsumer;
+  private TaskConsumer taskMessageConsumer;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -48,7 +47,7 @@ public class TaskInvocationVerticle extends AbstractVerticle {
     kafkaConsumer = KafkaConsumer.create(
       io.vertx.mutiny.core.Vertx.newInstance(vertx),
       options);
-    taskMessageConsumer = new TaskMessageConsumer(
+    taskMessageConsumer = new TaskConsumer(
       invoker,
       funcRepo,
       graphExecutor,

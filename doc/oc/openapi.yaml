@@ -989,7 +989,7 @@ components:
       properties:
         parentId:
           type: string
-        funcName:
+        fbName:
           type: string
         args:
           type: object

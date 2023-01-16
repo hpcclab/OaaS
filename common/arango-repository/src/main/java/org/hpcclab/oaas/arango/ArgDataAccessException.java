@@ -1,17 +1,18 @@
 package org.hpcclab.oaas.arango;
 
 import com.arangodb.entity.ErrorEntity;
+import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 
 import java.util.Collection;
 
-public class DataAccessException extends StdOaasException {
+public class ArgDataAccessException extends DataAccessException {
   Collection<ErrorEntity> errors;
 
-  public DataAccessException(Throwable e) {
+  public ArgDataAccessException(Throwable e) {
     super(null, e);
   }
-  public DataAccessException(Collection<ErrorEntity> errors) {
+  public ArgDataAccessException(Collection<ErrorEntity> errors) {
     super(500);
     this.errors = errors;
   }

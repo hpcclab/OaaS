@@ -24,27 +24,49 @@ public class CompletionValidator {
     this.funcRepo = funcRepo;
   }
 
-  public Uni<TaskCompletion> validateUpdate(TaskDetail taskDetail, TaskCompletion completion){
+  public Uni<TaskCompletion> validateCompletion(TaskDetail taskDetail, TaskCompletion completion) {
     Uni<Void> uni;
-    if (completion.getMain() != null) {
-      uni = validateUpdate(taskDetail.getMain().getCls(), completion.getMain());
+    if (completion.getMain()!=null) {
+      uni = validateUpdate(
+        taskDetail.getMain().getCls(),
+        taskDetail.getFbName(),
+        true,
+        completion.getMain())
+        .invoke(completion::setMain)
+        .replaceWithVoid();
     } else {
       uni = Uni.createFrom().voidItem();
     }
-    if (taskDetail.getOutput() == null)
+    if (taskDetail.getOutput()==null)
       completion.setOutput(null);
-    else if (completion.getOutput() != null) {
-      uni = uni.flatMap(__ -> validateUpdate(taskDetail.getOutput().getCls(), completion.getOutput()));
+    else if (completion.getOutput()!=null) {
+      uni = uni.flatMap(__ -> validateUpdate(
+          taskDetail.getOutput().getCls(),
+          taskDetail.getFbName(),
+          false,
+          completion.getOutput()))
+        .invoke(completion::setOutput)
+        .replaceWithVoid();
     }
     uni = uni.flatMap(__ -> validateFunction(taskDetail, completion));
 
     return uni.replaceWith(completion);
   }
 
-  private Uni<Void> validateUpdate(String clsKey, ObjectUpdate update) {
+  private Uni<ObjectUpdate> validateUpdate(String clsKey,
+                                           String fbName,
+                                           boolean isMain,
+                                           ObjectUpdate update) {
     return clsRepo.getAsync(clsKey)
-      .invoke(update::filterKeys)
-      .replaceWithVoid();
+      .map(cls -> {
+        if (isMain) {
+          var fb = cls.findFunction(fbName);
+          if (fb.isForceImmutable())
+            return null;
+        }
+        update.filterKeys(cls);
+        return update;
+      });
   }
 
   private Uni<Void> validateFunction(TaskDetail taskDetail, TaskCompletion completion) {

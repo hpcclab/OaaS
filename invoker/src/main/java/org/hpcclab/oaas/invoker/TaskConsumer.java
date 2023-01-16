@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.invoker;
 
 
-import com.arangodb.ArangoDBException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -34,8 +33,8 @@ import java.util.concurrent.TimeUnit;
   targets = {OaasTask.class, TaskCompletion.class},
   registerFullHierarchy = true
 )
-public class TaskMessageConsumer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TaskMessageConsumer.class);
+public class TaskConsumer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskConsumer.class);
 
   SyncInvoker invoker;
   FunctionRepository funcRepo;
@@ -48,13 +47,13 @@ public class TaskMessageConsumer {
   private final Timer invokingTimer;
   private final Timer completionTimer;
 
-  public TaskMessageConsumer(SyncInvoker invoker,
-                             FunctionRepository funcRepo,
-                             InvocationGraphExecutor graphExecutor,
-                             ObjectCompletionPublisher objCompPublisher,
-                             KafkaConsumer<String, Buffer> kafkaConsumer,
-                             Set<String> topics,
-                             MeterRegistry registry) {
+  public TaskConsumer(SyncInvoker invoker,
+                      FunctionRepository funcRepo,
+                      InvocationGraphExecutor graphExecutor,
+                      ObjectCompletionPublisher objCompPublisher,
+                      KafkaConsumer<String, Buffer> kafkaConsumer,
+                      Set<String> topics,
+                      MeterRegistry registry) {
     this.invoker = invoker;
     this.funcRepo = funcRepo;
     this.graphExecutor = graphExecutor;
@@ -170,20 +169,8 @@ public class TaskMessageConsumer {
     if (LOGGER.isDebugEnabled()) {
       logLatency(kafkaRecord.value());
     }
-    var funcName = kafkaRecord.headers()
-      .stream()
-      .filter(kafkaHeader -> kafkaHeader.key().equals("ce_function"))
-      .findAny()
-      .orElseThrow()
-      .value()
-      .toString();
-    var id = kafkaRecord.headers()
-      .stream()
-      .filter(kafkaHeader -> kafkaHeader.key().equals("ce_id"))
-      .findAny()
-      .orElseThrow()
-      .value()
-      .toString();
+    var funcName = extractFuncKey(kafkaRecord);
+    var id = extractId(kafkaRecord);
     var task = Json.decodeValue(kafkaRecord.value(), OaasTask.class);
 
     return loadFuncUrl(funcName).flatMap(url -> {
@@ -243,5 +230,24 @@ public class TaskMessageConsumer {
     LOGGER.debug("task[{}]: Kafka latency {} ms", task.getTs(),
       System.currentTimeMillis() - submittedTs
     );
+  }
+
+  public static String extractFuncKey(KafkaConsumerRecord<String, Buffer> kafkaRecord){
+    return kafkaRecord.headers()
+      .stream()
+      .filter(kafkaHeader -> kafkaHeader.key().equals("ce_function"))
+      .findAny()
+      .orElseThrow()
+      .value()
+      .toString();
+  }
+  public static String extractId(KafkaConsumerRecord<String, Buffer> kafkaRecord){
+    return kafkaRecord.headers()
+      .stream()
+      .filter(kafkaHeader -> kafkaHeader.key().equals("ce_id"))
+      .findAny()
+      .orElseThrow()
+      .value()
+      .toString();
   }
 }

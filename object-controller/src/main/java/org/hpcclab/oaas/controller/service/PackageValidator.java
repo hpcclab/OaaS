@@ -7,6 +7,7 @@ import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
@@ -66,6 +67,7 @@ public class PackageValidator {
   public Uni<Void> validateFunctionBinding(OaasClass cls,
                                            Map<String, OaasFunction> functionMap) {
     return Multi.createFrom().iterable(cls.getFunctions())
+      .map(binding -> binding.replaceRelative(cls.getPkg()))
       .call(binding -> Uni.createFrom()
         .item(functionMap.get(binding.getFunction()))
         .onItem().ifNull()

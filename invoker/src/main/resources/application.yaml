@@ -4,8 +4,14 @@
       color: true
     log:
       min-level: TRACE
+    kafka:
+      devservices:
+        port: 9092
   oaas:
     log: TRACE
+    invoker:
+      kafka: localhost:9092
+      storageAdapterUrl: "http://localhost:8000"
 
 "%dev":
   quarkus:

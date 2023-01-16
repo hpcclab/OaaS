@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker.verticle;
+package org.hpcclab.oaas.invoker;
 
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -7,19 +7,19 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
-import org.hpcclab.oaas.invoker.FunctionListener;
-import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.model.function.*;
-import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
+import org.hpcclab.oaas.model.function.FunctionState;
+import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,14 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
   },
   registerFullHierarchy = true
 )
-class VerticleDeployer {
+public class VerticleDeployer {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
   @Inject
   ArgRepositoryInitializer initializer;
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  Instance<TaskInvocationVerticle> verticles;
+  VerticleFactory<?> verticleFactory;
   @Inject
   Vertx vertx;
   @Inject
@@ -45,8 +45,7 @@ class VerticleDeployer {
   @Inject
   FunctionListener functionListener;
 
-
-  private final ConcurrentHashMap<String, Set<String>> verticleIds = new ConcurrentHashMap<>();
+  final ConcurrentHashMap<String, Set<String>> verticleIds = new ConcurrentHashMap<>();
 
   void init(@Observes StartupEvent ev) {
     initializer.setup();
@@ -78,21 +77,21 @@ class VerticleDeployer {
       .await().indefinitely();
   }
 
-  public Uni<String> deployVerticleIfNew(String function) {
+  public Uni<Void> deployVerticleIfNew(String function) {
     if (verticleIds.containsKey(function) && !verticleIds.get(function).isEmpty()) {
       return Uni.createFrom().nullItem();
     }
     int size = config.numOfVerticle();
-    var options = new DeploymentOptions()
-//      .setWorker(true)
-      .setInstances(size);
+    var options = new DeploymentOptions();
 
+    return deployVerticle(function, options, size);
+  }
+
+  protected Uni<Void> deployVerticle(String function,
+                                     DeploymentOptions options,
+                                     int size) {
     return vertx
-      .deployVerticle(() -> {
-          var verticle = verticles.get();
-          verticle.setTopics(Set.of(config.functionTopicPrefix() + function));
-          return verticle;
-        },
+      .deployVerticle(() -> verticleFactory.createVerticle(function),
         options)
       .repeat().atMost(size)
       .invoke(id -> {
@@ -104,7 +103,8 @@ class VerticleDeployer {
           .add(id);
       })
       .collect()
-      .last();
+      .last()
+      .replaceWithVoid();
   }
 
   public Uni<Void> deleteVerticle(String function) {
@@ -118,5 +118,9 @@ class VerticleDeployer {
         .invoke(() -> verticleIds.remove(function));
     }
     return Uni.createFrom().nullItem();
+  }
+
+  public Map<String, Set<String>> getVerticleIds() {
+    return verticleIds;
   }
 }

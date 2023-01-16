@@ -19,7 +19,7 @@ client.global.set("obj_0_id", response.body.object.id)
 ###
 GET {{cds}}/oal/{{obj_0_id}}
 ###
-GET {{cds}}/oal/{{obj_0_id}}:json-update?await=true
+GET {{cds}}/oal/{{obj_0_id}}:json-update
 
 > {%
 client.global.set("obj_1_id", response.body.id)
@@ -34,3 +34,5 @@ GET {{cds}}/oal/{{obj_1_id}}:json-update()?await=true
 > {%
 client.global.set("obj_1_id", response.body.id)
 %}
+###
+GET {{cds}}/oal/0B5S5Q75M1GH9:json-update()(ENTRIES=10,VALUES=40)?await=true&timeout=3

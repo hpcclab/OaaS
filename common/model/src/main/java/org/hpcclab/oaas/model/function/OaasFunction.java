@@ -126,6 +126,8 @@ public class OaasFunction implements Copyable<OaasFunction> {
   public void updateKey(){
     if (pkg!=null) {
       this.key = pkg + '.' + name;
+      if (outputCls!= null && outputCls.startsWith("."))
+        outputCls = pkg + outputCls;
     } else {
       this.key = name;
     }

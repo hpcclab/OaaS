@@ -23,12 +23,14 @@ async def handle(request: Request,
   entries = int(ctx.args.get('ENTRIES', '10'))
   keys = int(ctx.args.get('KEYS', '10'))
   values = int(ctx.args.get('VALUES', '10'))
+  inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
+  print(f"inplace {inplace}")
 
   for _ in range(entries):
     record[generate_text(keys)] = generate_text(values)
 
   ctx.create_reply_header(response.headers)
   record['ts'] = round(time.time() * 1000)
-  main_record = None if ctx.task.main_obj is None else record
+  main_record = record if inplace else None
   out_record = None if ctx.task.output_obj is None else record
   return ctx.create_completion(success=True, main_data=main_record, output_data=out_record)

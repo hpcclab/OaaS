@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class AbstractGraphStateManager implements GraphStateManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGraphStateManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractGraphStateManager.class);
   protected EntityRepository<String, OaasObject> objRepo;
 
 
@@ -121,8 +121,22 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     if (ctx.getOutput() != null && (dataflow==null || dataflow.getExport()==null)) {
       objs.add(ctx.getOutput());
     }
+    var newObjs = objs.stream()
+      .filter(o -> o.getRev() == null)
+      .toList();
 
-    return objRepo.persistAsync(objs, false);
+    var oldObjs = objs.stream()
+      .filter(o -> o.getRev() != null)
+      .toList();
+    if (oldObjs.isEmpty()) {
+      return objRepo.persistAsync(newObjs);
+    } else if (newObjs.isEmpty()) {
+      return objRepo.persistWithPreconditionAsync(oldObjs);
+    } else {
+      return objRepo
+        .persistWithPreconditionAsync(oldObjs)
+        .flatMap(__ -> objRepo.persistAsync(newObjs));
+    }
   }
 
   OaasObject triggerObject(OaasObject object, String originator, String srcId) {

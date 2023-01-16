@@ -332,7 +332,7 @@
           "parentId" : {
             "type" : "string"
           },
-          "funcName" : {
+          "fbName" : {
             "type" : "string"
           },
           "args" : {

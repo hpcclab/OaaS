@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -55,7 +55,7 @@ public class OalResource {
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
       return applyFunction(oal)
-        .flatMap(ctx -> invokeThenAwait(ctx, await!=null && await, timeout, mq));
+        .flatMap(ctx -> invokeThenAwait(ctx, await, timeout, mq));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -177,7 +177,7 @@ public class OalResource {
       if (mq==null ? graphExecutor.canSyncInvoke(ctx) : !mq) {
         return graphExecutor.syncExec(ctx)
           .map(tc -> {
-            if (tc.getOutput() == null) {
+            if (tc.getOutput()==null) {
               var main = tc.getMain();
               var completion = tc.getCompletion();
               main.getStatus().set(completion);
@@ -187,16 +187,18 @@ public class OalResource {
           });
       }
 
-      var id = ctx.getOutput().getId();
-      if (completionListener.enabled()) {
-        var uni1 = completionListener.wait(id, timeout);
-        var uni2 = graphExecutor.exec(ctx);
-        return Uni.combine().all().unis(uni1, uni2)
-          .asTuple()
-          .flatMap(tuple -> objectRepo.getAsync(id));
-      } else {
-        return graphExecutor.exec(ctx)
-          .replaceWith(ctx.getOutput());
+      if (ctx.getOutput()!=null) {
+        var id = ctx.getOutput().getId();
+        if (completionListener.enabled()) {
+          var uni1 = completionListener.wait(id, timeout);
+          var uni2 = graphExecutor.exec(ctx);
+          return Uni.combine().all().unis(uni1, uni2)
+            .asTuple()
+            .flatMap(tuple -> objectRepo.getAsync(id));
+        } else {
+          return graphExecutor.exec(ctx)
+            .replaceWith(ctx.getOutput());
+        }
       }
     }
     return graphExecutor.exec(ctx)

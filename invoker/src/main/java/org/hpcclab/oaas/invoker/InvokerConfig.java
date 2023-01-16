@@ -23,4 +23,12 @@ public interface InvokerConfig {
   int h2ConnectionPoolMaxSize();
   @WithDefault("1")
   int numOfVerticle();
+  @WithDefault("2")
+  int numOfInvokerVerticle();
+  @WithDefault("600000")
+  int invokeTimeout();
+  @WithDefault("64")
+  int invokeConcurrency();
+  @WithDefault("500")
+  int maxInflight();
 }

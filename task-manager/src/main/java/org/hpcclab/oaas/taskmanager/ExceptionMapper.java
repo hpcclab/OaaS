@@ -28,6 +28,8 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper(StdOaasException.class)
   public Response exceptionMapper(StdOaasException exception) {
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("mapping exception({})", exception.getCode(), exception);
     return Response.status(exception.getCode())
       .entity(new JsonObject()
         .put("msg", exception.getMessage()))

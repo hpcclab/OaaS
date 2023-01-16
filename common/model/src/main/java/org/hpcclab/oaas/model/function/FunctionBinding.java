@@ -29,12 +29,15 @@ public class FunctionBinding {
   String description;
   @ProtoField(7)
   String outputCls;
+  @ProtoField(value = 8, defaultValue = "false")
+  boolean forceImmutable = false;
 
 
   public FunctionBinding() {
   }
 
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls) {
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls,
+                         boolean forceImmutable) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -42,6 +45,7 @@ public class FunctionBinding {
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
+    this.forceImmutable = forceImmutable;
   }
 
   @ProtoFactory
@@ -51,7 +55,8 @@ public class FunctionBinding {
                          Set<String> forwardRecords,
                          HashMap<String, String> defaultArgs,
                          String description,
-                         String outputCls) {
+                         String outputCls,
+                         boolean forceImmutable) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -59,6 +64,7 @@ public class FunctionBinding {
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
+    this.forceImmutable = forceImmutable;
   }
 
   public void validate() {
@@ -79,5 +85,13 @@ public class FunctionBinding {
       outputCls.equalsIgnoreCase("void")) {
       outputCls = null;
     }
+  }
+
+  public FunctionBinding replaceRelative(String pkgName) {
+    if (function!=null && function.startsWith("."))
+      function = pkgName + function;
+    if (outputCls!=null && outputCls.startsWith("."))
+      outputCls = pkgName + outputCls;
+    return this;
   }
 }

@@ -49,13 +49,14 @@ public class TaskFactory {
     task.setVId(verId);
     task.setFbName(taskContext.getFbName());
     task.setMain(taskContext.getMain());
+    task.setFuncKey(taskContext.getFuncKey());
     task.setFunction(taskContext.getFunction());
     task.setInputs(taskContext.getInputs());
     var binding = mainCls.findFunction(taskContext.getFbName());
     task.setArgs(taskContext.resolveArgs(binding));
-    LOGGER.info("binding {} args {} finalArgs {}", binding, taskContext.getArgs(),
-        task.getArgs()
-      );
+//    LOGGER.info("binding {} args {} finalArgs {}", binding, taskContext.getArgs(),
+//        task.getArgs()
+//      );
 
     if (taskContext.getOutput()!=null) {
       task.setOutput(taskContext.getOutput());

@@ -19,6 +19,7 @@ public class OaasTask implements TaskDetail{
   String partKey;
   OaasObject main;
   OaasObject output;
+  String funcKey;
   @JsonIgnore
   OaasFunction function;
   List<OaasObject> inputs = List.of();
@@ -29,11 +30,4 @@ public class OaasTask implements TaskDetail{
   Map<String, String> args;
   String fbName;
   long ts = -1;
-
-
-  @Override
-  @JsonIgnore
-  public String getFuncKey() {
-    return function.getKey();
-  }
 }

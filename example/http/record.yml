@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.2.7
+        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.2.9
         targetConcurrency: 16
         minScale: 1
         maxScale: -1
@@ -22,5 +22,15 @@ classes:
       - access: PUBLIC
         function: builtin.logical.copy
       - access: PUBLIC
-        function: example.json-update
+        name: json-update-inplace
+        function: .json-update
         outputCls: none
+        defaultArgs:
+          INPLACE: "true"
+      - access: PUBLIC
+        name: json-update
+        function: .json-update
+        outputCls: .record
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true

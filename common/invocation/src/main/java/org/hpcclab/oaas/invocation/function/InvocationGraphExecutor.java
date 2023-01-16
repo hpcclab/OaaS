@@ -10,7 +10,8 @@ import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.CompletionValidator;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.model.task.TaskContext;
+import org.hpcclab.oaas.model.exception.DataAccessException;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
@@ -18,6 +19,7 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,21 +120,28 @@ public class InvocationGraphExecutor {
       output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(ctx);
     return uni
-      .flatMap(tc -> completionValidator.validateUpdate(ctx, tc))
+      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
       .invoke(tc -> {
-        if (tc.getMain() != null)
+        if (tc.getMain()!=null)
           tc.getMain().update(ctx.getMain(), tc.getId().getVId());
-        if (output != null)
+        if (output!=null)
           output.updateStatus(tc);
         ctx.setCompletion(tc);
       })
-      .call(() -> gsm.persistAllWithoutNoti(ctx, Lists.mutable.of(ctx.getMain())))
+      .call(tc -> {
+        List<OaasObject> list = tc.getMain()!=null ?
+          Lists.mutable.of(ctx.getMain()):
+          Lists.mutable.empty();
+        return gsm.persistAllWithoutNoti(ctx, list);
+      })
+      .onFailure(DataAccessException.class)
+      .transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
   }
 
   public Uni<Void> complete(TaskCompletion completion) {
     return contextLoader.getTaskContextAsync(completion.getId().oId())
-      .flatMap(ctx -> completionValidator.validateUpdate(ctx, completion)
+      .flatMap(ctx -> completionValidator.validateCompletion(ctx, completion)
         .map(cmp -> Tuples.pair(ctx, cmp))
       )
       .flatMap(pair -> gsm.handleComplete(pair.getOne(), pair.getTwo())
@@ -143,7 +152,7 @@ public class InvocationGraphExecutor {
   }
 
   public Uni<Void> complete(OaasTask task, TaskCompletion completion) {
-    return completionValidator.validateUpdate(task, completion)
+    return completionValidator.validateCompletion(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()

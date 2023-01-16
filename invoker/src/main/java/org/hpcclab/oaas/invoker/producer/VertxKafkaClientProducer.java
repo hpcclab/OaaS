@@ -35,7 +35,7 @@ public class VertxKafkaClientProducer {
     config.put("group.id", invokerConfig.kafkaGroup());
     config.put("auto.offset.reset", "earliest");
     config.put("fetch.min.bytes", "1");
-    config.put("enable.auto.commit", "true");
+    config.put("enable.auto.commit", "false");
     return new KafkaClientOptions()
       .setConfig(config);
   }

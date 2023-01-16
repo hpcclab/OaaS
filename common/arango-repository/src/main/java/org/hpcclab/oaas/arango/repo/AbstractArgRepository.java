@@ -9,7 +9,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
-import org.hpcclab.oaas.arango.DataAccessException;
+import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
@@ -135,7 +135,7 @@ public abstract class AbstractArgRepository<V>
       .insertDocuments(collection, createOptions()))
       .invoke(Unchecked.consumer(mde -> {
         if (!mde.getErrors().isEmpty()) {
-          throw new DataAccessException(mde.getErrors());
+          throw new ArgDataAccessException(mde.getErrors());
         }
       }))
       .replaceWithVoid();
@@ -152,7 +152,7 @@ public abstract class AbstractArgRepository<V>
         .ignoreRevs(false)))
       .invoke(Unchecked.consumer(entities -> {
         if (!entities.getErrors().isEmpty())
-          throw new DataAccessException(entities.getErrors());
+          throw new ArgDataAccessException(entities.getErrors());
       }))
       .replaceWithVoid();
   }
@@ -209,7 +209,7 @@ public abstract class AbstractArgRepository<V>
       var items = cursor.asListRemaining();
       return new Pagination<>(cursor.getStats().getFullCount(), offset, limit, items);
     } catch (IOException e) {
-      throw new DataAccessException(e);
+      throw new ArgDataAccessException(e);
     }
   }
 
@@ -224,7 +224,7 @@ public abstract class AbstractArgRepository<V>
           return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
             items);
         } catch (IOException e) {
-          throw new DataAccessException(e);
+          throw new ArgDataAccessException(e);
         }
       }));
   }
@@ -283,7 +283,7 @@ public abstract class AbstractArgRepository<V>
     try (cursor) {
       return cursor.asListRemaining();
     } catch (IOException e) {
-      throw new DataAccessException(e);
+      throw new ArgDataAccessException(e);
     }
   }
 
@@ -301,14 +301,15 @@ public abstract class AbstractArgRepository<V>
         try (cursor) {
           return cursor.streamRemaining().toList();
         } catch (IOException e) {
-          throw new DataAccessException(e);
+          throw new ArgDataAccessException(e);
         }
       })
     );
   }
 
   static DocumentReplaceOptions replaceOptions() {
-    return new DocumentReplaceOptions().ignoreRevs(false);
+    return new DocumentReplaceOptions()
+      .ignoreRevs(false);
   }
 
   static DocumentCreateOptions createOptions() {

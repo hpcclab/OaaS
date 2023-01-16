@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.NotImplementedException;
-import org.hpcclab.oaas.arango.DataAccessException;
+import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
 import org.hpcclab.oaas.controller.service.PackageValidator;
@@ -76,7 +76,7 @@ public class PackageResource {
             return pkg.setClasses(pkgCls);
           });
       })
-      .onFailure(DataAccessException.class)
+      .onFailure(ArgDataAccessException.class)
       .retry().atMost(3);
     if (config.kafkaEnabled()) {
       return uni.call(pkg ->
