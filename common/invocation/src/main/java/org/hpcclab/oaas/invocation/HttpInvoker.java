@@ -6,6 +6,7 @@ import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
+import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;

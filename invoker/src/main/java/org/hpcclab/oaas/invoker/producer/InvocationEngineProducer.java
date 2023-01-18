@@ -4,8 +4,10 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.*;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
-import org.hpcclab.oaas.invocation.function.TaskSubmitter;
+import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
+import org.hpcclab.oaas.invocation.config.InvocationConfig;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
+import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
@@ -20,20 +22,21 @@ public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger( InvocationEngineProducer.class );
 
   @Produces
-  InvocationGraphExecutor invocationGraphExecutor(
+  InvocationExecutor invocationGraphExecutor(
     TaskSubmitter taskSubmitter,
     GraphStateManager graphStateManager,
     RepoContextLoader contextLoader,
     SyncInvoker syncInvoker,
     CompletionValidator completionValidator) {
-    return new InvocationGraphExecutor(taskSubmitter, graphStateManager, contextLoader, syncInvoker, completionValidator);
+    return new InvocationExecutor(taskSubmitter, graphStateManager, contextLoader, syncInvoker, completionValidator);
   }
 
   @Produces
   @ApplicationScoped
   InvocationConfig invocationConfig(InvokerConfig invokerConfig) {
-    return new InvocationConfig()
-      .setStorageAdapterUrl(invokerConfig.storageAdapterUrl());
+    return InvocationConfig.builder()
+      .storageAdapterUrl(invokerConfig.storageAdapterUrl())
+      .build();
   }
 
   @Produces

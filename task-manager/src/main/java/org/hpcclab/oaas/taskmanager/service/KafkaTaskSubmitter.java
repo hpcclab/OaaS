@@ -8,7 +8,7 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.hpcclab.oaas.invocation.TaskFactory;
-import org.hpcclab.oaas.invocation.function.TaskSubmitter;
+import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
@@ -44,6 +44,5 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
 
   public String selectTopic(TaskContext context) {
     return config.functionTopicPrefix() + context.getFunction().getKey();
-//      .replaceAll("\\.","-");
   }
 }

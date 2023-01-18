@@ -7,7 +7,7 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import org.hpcclab.oaas.invocation.TaskFactory;
-import org.hpcclab.oaas.invocation.function.TaskSubmitter;
+import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.model.task.TaskContext;
 
 import javax.enterprise.context.Dependent;

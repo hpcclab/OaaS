@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invocation;
 
+import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;

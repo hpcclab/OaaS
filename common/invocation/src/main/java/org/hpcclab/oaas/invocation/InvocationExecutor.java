@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
@@ -7,9 +7,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.hpcclab.oaas.invocation.CompletionValidator;
-import org.hpcclab.oaas.invocation.ContextLoader;
-import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
@@ -36,8 +33,8 @@ import java.util.Set;
   },
   registerFullHierarchy = true
 )
-public class InvocationGraphExecutor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationGraphExecutor.class);
+public class InvocationExecutor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationExecutor.class);
   TaskSubmitter submitter;
   GraphStateManager gsm;
   ContextLoader contextLoader;
@@ -46,11 +43,11 @@ public class InvocationGraphExecutor {
 
 
   @Inject
-  public InvocationGraphExecutor(TaskSubmitter submitter,
-                                 GraphStateManager gsm,
-                                 ContextLoader contextLoader,
-                                 SyncInvoker syncInvoker,
-                                 CompletionValidator completionValidator) {
+  public InvocationExecutor(TaskSubmitter submitter,
+                            GraphStateManager gsm,
+                            ContextLoader contextLoader,
+                            SyncInvoker syncInvoker,
+                            CompletionValidator completionValidator) {
     this.submitter = submitter;
     this.gsm = gsm;
     this.contextLoader = contextLoader;

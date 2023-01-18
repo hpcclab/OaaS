@@ -37,7 +37,9 @@ public class FunctionListener {
     groupId = "oaas-invoker-%04d".formatted(rand.nextInt(10000));
     newConfig.put("group.id", groupId);
     newConfig.put("auto.offset.reset", "latest");
-    client = KafkaConsumer.create(vertx, modOption.setConfig(newConfig));
+    client = KafkaConsumer.create(
+      vertx, modOption.setConfig(newConfig), String.class, Buffer.class
+    );
     adminClient = KafkaAdminClient.create(vertx, Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, (String) config.get(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG)));
   }
 

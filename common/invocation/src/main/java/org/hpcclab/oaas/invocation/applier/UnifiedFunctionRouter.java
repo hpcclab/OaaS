@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContextLoader;
@@ -18,19 +18,19 @@ import javax.inject.Inject;
 public class UnifiedFunctionRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnifiedFunctionRouter.class);
 
-  LogicalFunctionHandler logicalFunctionHandler;
-  MacroFunctionHandler macroFunctionHandler;
-  TaskFunctionHandler taskFunctionHandler;
+  LogicalFunctionApplier logicalFunctionApplier;
+  MacroFunctionApplier macroFunctionApplier;
+  TaskFunctionApplier taskFunctionApplier;
   ContextLoader contextLoader;
 
   @Inject
-  public UnifiedFunctionRouter(LogicalFunctionHandler logicalFunctionHandler,
-                               MacroFunctionHandler macroFunctionHandler,
-                               TaskFunctionHandler taskFunctionHandler,
+  public UnifiedFunctionRouter(LogicalFunctionApplier logicalFunctionHandler,
+                               MacroFunctionApplier macroFunctionHandler,
+                               TaskFunctionApplier taskFunctionHandler,
                                ContextLoader contextLoader) {
-    this.logicalFunctionHandler = logicalFunctionHandler;
-    this.macroFunctionHandler = macroFunctionHandler;
-    this.taskFunctionHandler = taskFunctionHandler;
+    this.logicalFunctionApplier = logicalFunctionHandler;
+    this.macroFunctionApplier = macroFunctionHandler;
+    this.taskFunctionApplier = taskFunctionHandler;
     this.contextLoader = contextLoader;
   }
 
@@ -38,9 +38,9 @@ public class UnifiedFunctionRouter {
   public Uni<FunctionExecContext> apply(FunctionExecContext context) {
     var type = context.getFunction().getType();
     return switch (type) {
-      case LOGICAL -> logicalFunctionHandler.apply(context);
-      case TASK, IM_TASK -> taskFunctionHandler.apply(context);
-      case MACRO -> macroFunctionHandler.apply(context);
+      case LOGICAL -> logicalFunctionApplier.apply(context);
+      case TASK, IM_TASK -> taskFunctionApplier.apply(context);
+      case MACRO -> macroFunctionApplier.apply(context);
       default -> throw StdOaasException.notImplemented();
     };
   }
@@ -62,13 +62,13 @@ public class UnifiedFunctionRouter {
     }
 
     if (context.getFunction().getType()==FunctionType.LOGICAL) {
-      logicalFunctionHandler.validate(context);
+      logicalFunctionApplier.validate(context);
     }
     if (context.getFunction().getType()==FunctionType.MACRO) {
-      macroFunctionHandler.validate(context);
+      macroFunctionApplier.validate(context);
     }
     if (context.getFunction().getType()==FunctionType.TASK) {
-      taskFunctionHandler.validate(context);
+      taskFunctionApplier.validate(context);
     }
   }
 }

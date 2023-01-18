@@ -1,10 +1,12 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.config;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
-@Data
-@Accessors(chain = true)
+@Getter
+@Builder()
 public class InvocationConfig {
   String storageAdapterUrl;
 }

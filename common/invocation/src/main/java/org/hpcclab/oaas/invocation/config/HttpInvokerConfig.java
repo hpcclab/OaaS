@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.config;
 
 import lombok.*;
 import lombok.experimental.Accessors;

@@ -14,7 +14,7 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.task.OaasTask;
@@ -38,7 +38,7 @@ public class TaskConsumer {
 
   SyncInvoker invoker;
   FunctionRepository funcRepo;
-  InvocationGraphExecutor graphExecutor;
+  InvocationExecutor graphExecutor;
   ObjectCompletionPublisher objCompPublisher;
   KafkaConsumer<String, Buffer> kafkaConsumer;
   Set<String> topics;
@@ -49,7 +49,7 @@ public class TaskConsumer {
 
   public TaskConsumer(SyncInvoker invoker,
                       FunctionRepository funcRepo,
-                      InvocationGraphExecutor graphExecutor,
+                      InvocationExecutor graphExecutor,
                       ObjectCompletionPublisher objCompPublisher,
                       KafkaConsumer<String, Buffer> kafkaConsumer,
                       Set<String> topics,

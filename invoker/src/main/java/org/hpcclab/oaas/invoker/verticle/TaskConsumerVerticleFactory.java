@@ -41,6 +41,7 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   public KafkaConsumer<String, Buffer> kafkaConsumer(KafkaClientOptions options) {
 //    var opt = new KafkaClientOptions(options.toJson());
 //    opt.setConfig("enable.auto.commit", "false");
-    return KafkaConsumer.create(vertx, options);
+    return KafkaConsumer.create(vertx, options,
+      String.class, Buffer.class);
   }
 }

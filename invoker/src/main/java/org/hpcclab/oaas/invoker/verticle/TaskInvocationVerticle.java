@@ -9,12 +9,11 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invoker.TaskConsumer;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.util.Set;
 
@@ -27,7 +26,7 @@ public class TaskInvocationVerticle extends AbstractVerticle {
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  InvocationGraphExecutor graphExecutor;
+  InvocationExecutor graphExecutor;
   @Inject
   ObjectCompletionPublisher objCompPublisher;
   @Inject

@@ -4,7 +4,7 @@ package org.hpcclab.oaas.taskmanager.service;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.model.task.TaskContext;
-import org.hpcclab.oaas.invocation.function.TaskSubmitter;
+import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.invocation.TaskFactory;
 
 import javax.inject.Inject;

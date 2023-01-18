@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
@@ -10,13 +10,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class LogicalFunctionHandler implements FunctionHandler {
+public class LogicalFunctionApplier implements FunctionApplier {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger( LogicalFunctionHandler.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger( LogicalFunctionApplier.class );
   IdGenerator idGenerator;
 
   @Inject
-  public LogicalFunctionHandler(IdGenerator idGenerator) {
+  public LogicalFunctionApplier(IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
   }
 

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
-import org.hpcclab.oaas.invocation.function.UnifiedFunctionRouter;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
+import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -37,7 +37,7 @@ public class OalResource {
   @Inject
   ObjectRepository objectRepo;
   @Inject
-  InvocationGraphExecutor graphExecutor;
+  InvocationExecutor graphExecutor;
   @Inject
   ObjectCompletionListener completionListener;
   @Inject

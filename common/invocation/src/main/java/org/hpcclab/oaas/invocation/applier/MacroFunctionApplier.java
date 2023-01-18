@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class MacroFunctionHandler implements FunctionHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MacroFunctionHandler.class);
+public class MacroFunctionApplier implements FunctionApplier {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MacroFunctionApplier.class);
 
   @Inject
   UnifiedFunctionRouter router;

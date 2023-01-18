@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -9,12 +9,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class TaskFunctionHandler implements FunctionHandler {
+public class TaskFunctionApplier implements FunctionApplier {
 
   OaasObjectFactory objectFactory;
 
   @Inject
-  public TaskFunctionHandler(OaasObjectFactory objectFactory) {
+  public TaskFunctionApplier(OaasObjectFactory objectFactory) {
     this.objectFactory = objectFactory;
   }
 

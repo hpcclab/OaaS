@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;

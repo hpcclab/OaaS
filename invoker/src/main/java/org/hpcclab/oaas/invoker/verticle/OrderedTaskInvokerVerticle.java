@@ -16,7 +16,7 @@ import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.KafkaInvokeException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -45,7 +45,7 @@ public class OrderedTaskInvokerVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
-  final InvocationGraphExecutor graphExecutor;
+  final InvocationExecutor graphExecutor;
   final ObjectCompletionPublisher objCompPublisher;
   final AtomicInteger inflight = new AtomicInteger(0);
   final AtomicBoolean lock = new AtomicBoolean(false);
@@ -63,7 +63,7 @@ public class OrderedTaskInvokerVerticle extends AbstractVerticle {
   @Inject
   public OrderedTaskInvokerVerticle(SyncInvoker invoker,
                                     FunctionRepository funcRepo,
-                                    InvocationGraphExecutor graphExecutor,
+                                    InvocationExecutor graphExecutor,
                                     ObjectCompletionPublisher objCompPublisher,
                                     InvokerConfig invokerConfig,
                                     MeterRegistry registry) {

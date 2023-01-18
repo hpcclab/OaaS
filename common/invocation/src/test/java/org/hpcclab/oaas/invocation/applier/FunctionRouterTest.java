@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.function;
+package org.hpcclab.oaas.invocation.applier;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +38,7 @@ class FunctionRouterTest {
   MockGraphStateManager graphStateManager;
   MockTaskSubmitter taskSubmitter;
 
-  InvocationGraphExecutor invocationGraphExecutor;
+  InvocationExecutor invocationGraphExecutor;
   MutableMap<String, OaasObject> objectMap;
 
   @BeforeEach
@@ -52,9 +52,9 @@ class FunctionRouterTest {
     objectRepo = cl.getObjectRepo();
     var idGen = new UuidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);
-    var logical = new LogicalFunctionHandler(idGen);
-    var task = new TaskFunctionHandler(objectFactory);
-    var macro = new MacroFunctionHandler();
+    var logical = new LogicalFunctionApplier(idGen);
+    var task = new TaskFunctionApplier(objectFactory);
+    var macro = new MacroFunctionApplier();
     macro.contextLoader = cl;
     macro.objectFactory = objectFactory;
     router = new UnifiedFunctionRouter(logical, macro, task, cl);
@@ -64,7 +64,7 @@ class FunctionRouterTest {
     var contentUrlGenerator = new ContentUrlGenerator("http://localhost:8080");
     var taskFactory = new TaskFactory(contentUrlGenerator, cl.getClsRepo(), new TsidGenerator());
     taskSubmitter = new MockTaskSubmitter(taskFactory);
-    invocationGraphExecutor = new InvocationGraphExecutor(taskSubmitter,
+    invocationGraphExecutor = new InvocationExecutor(taskSubmitter,
       graphStateManager, cl, new MockSyncInvoker(),
       new CompletionValidator(cl.getClsRepo(), cl.getFuncRepo()));
   }

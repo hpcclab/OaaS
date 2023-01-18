@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.ErrorMessage;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
-import org.hpcclab.oaas.invocation.function.InvocationGraphExecutor;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class CloudEventHandlingResource {
   @Inject
   RoutingContext ctx;
   @Inject
-  InvocationGraphExecutor graphExecutor;
+  InvocationExecutor graphExecutor;
   @Inject
   ObjectCompletionPublisher completionPublisher;
 
