@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
-import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.hpcclab.oaas.taskmanager.service.InvocationHandlerService;
 import org.slf4j.Logger;
@@ -45,48 +41,46 @@ public class OalResource {
 
   @POST
   @JsonView(Views.Public.class)
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessLanguage oal,
-                                           @QueryParam("await") Boolean await,
-                                           @QueryParam("timeout") Integer timeout,
-                                           @QueryParam("mq") Boolean mq) {
+  public Uni<OalResponse> getObjectWithPost(ObjectAccessLanguage oal,
+                                            @QueryParam("async") Boolean async,
+                                            @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return selectAndInvoke(oal,await,timeout)
-        .map(ctx -> ctx.getOutput()!= null? ctx.getOutput() : ctx.getMain());
+      return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404));
+        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
+        .map(obj -> OalResponse.builder()
+          .target(obj)
+          .build());
     }
   }
 
   @GET
   @Path("{oal}")
   @JsonView(Views.Public.class)
-  public Uni<OaasObject> getObject(@PathParam("oal") String oal,
-                                   @QueryParam("await") Boolean await,
-                                   @QueryParam("timeout") Integer timeout,
-                                   @QueryParam("mq") Boolean mq) {
+  public Uni<OalResponse> getObject(@PathParam("oal") String oal,
+                                    @QueryParam("async") Boolean async,
+                                    @QueryParam("timeout") Integer timeout) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
-    return getObjectWithPost(oaeObj, await, timeout,mq);
+    return getObjectWithPost(oaeObj, async, timeout);
   }
 
   @POST
   @Path("-/{filePath:.*}")
   @JsonView(Views.Public.class)
   public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
-                                             @QueryParam("await") Boolean await,
+                                             @QueryParam("async") Boolean async,
                                              @QueryParam("timeout") Integer timeout,
-                                             @QueryParam("mq") Boolean mq,
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return selectAndInvoke(oal,await,timeout)
-        .map(ctx -> ctx.getOutput()!= null? ctx.getOutput() : ctx.getMain())
-        .map(object -> createResponse(object, filePath));
+      return selectAndInvoke(oal, async)
+        .map(res -> createResponse(res, filePath));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -113,23 +107,34 @@ public class OalResource {
   @Path("{oal}/{filePath:.*}")
   public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
-                                         @QueryParam("await") Boolean await,
-                                         @QueryParam("timeout") Integer timeout,
-                                         @QueryParam("mq") Boolean mq) {
-    var oaeObj = ObjectAccessLanguage.parse(oal);
-    LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
-    return execAndGetContentPost(filePath, await,  timeout, mq, oaeObj);
+                                         @QueryParam("async") Boolean async,
+                                         @QueryParam("timeout") Integer timeout) {
+    var oalObj = ObjectAccessLanguage.parse(oal);
+    LOGGER.debug("Receive OAL getContent '{}' '{}'", oalObj, filePath);
+    return execAndGetContentPost(filePath, async, timeout, oalObj);
   }
 
-  public Uni<FunctionExecContext> selectAndInvoke(ObjectAccessLanguage oal,
-                                                  Boolean await,
-                                                  Integer timeout){
-    if (await==null ? config.defaultAwaitCompletion():await) {
-      return invocationHandlerService.syncInvoke(oal);
+  public Uni<OalResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
+    if (async==null ? !config.defaultAwaitCompletion():async) {
+      return invocationHandlerService.syncInvoke(oal)
+        .map(ctx -> OalResponse.builder()
+          .target(ctx.getMain())
+          .output(ctx.getOutput())
+          .fbName(ctx.getFbName())
+          .build());
     } else {
-      return invocationHandlerService.asyncInvoke(oal, false, timeout);
+      return invocationHandlerService.asyncInvoke(oal);
     }
   }
+
+  public Response createResponse(OalResponse oalResponse,
+                                 String filePath) {
+    return createResponse(
+      oalResponse.output()!=null ? oalResponse.output():oalResponse.target(),
+      filePath, HttpResponseStatus.SEE_OTHER.code()
+    );
+  }
+
 
   public Response createResponse(OaasObject object,
                                  String filePath) {

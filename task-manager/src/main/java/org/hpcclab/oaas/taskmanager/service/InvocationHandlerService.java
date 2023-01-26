@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
@@ -18,6 +19,7 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.IdGenerator;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
+import org.hpcclab.oaas.taskmanager.rest.OalResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +83,7 @@ public class InvocationHandlerService {
       });
   }
 
-  public Uni<QueuedInvocationResponse> asyncInvoke(ObjectAccessLanguage oal) {
+  public Uni<OalResponse> asyncInvoke(ObjectAccessLanguage oal) {
     return
       invocationValidator.validate(oal)
         .map(ctx -> {
@@ -98,12 +100,15 @@ public class InvocationHandlerService {
           if (ctx.functionBinding().getOutputCls() != null) {
             builder.outId(idGenerator.generate());
           }
-          return builder.build();
+          return Tuples.pair(ctx, builder.build());
         })
-        .call(req -> reqSubmitter.submit(req))
-        .map(req -> QueuedInvocationResponse.builder()
-          .invId(req.invId())
-          .outId(req.outId())
+        .call(pair -> reqSubmitter.submit(pair.getTwo()))
+        .map(pair -> OalResponse.builder()
+          .invId(pair.getTwo().invId())
+          .output(new OaasObject().setId(pair.getTwo().outId()))
+          .target(pair.getOne().main())
+          .fbName(pair.getOne().functionBinding().getName())
+          .async(true)
           .build());
   }
 

@@ -7,6 +7,7 @@ import io.vertx.mutiny.core.Context;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
+import org.hpcclab.oaas.invoker.verticle.AbstractOrderedRecordVerticle;
 import org.hpcclab.oaas.invoker.verticle.OrderedTaskInvokerVerticle;
 import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
@@ -22,14 +23,14 @@ public class TaskVerticlePoolDispatcher {
   private final OffsetManager offsetManager;
   private final int maxInflight;
   private final Vertx vertx;
-  private final VerticleFactory<OrderedTaskInvokerVerticle> invokerVerticleFactory;
+  private final VerticleFactory<? extends AbstractOrderedRecordVerticle> invokerVerticleFactory;
   private List<? extends RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>>> verticles = List.of();
   private Runnable drainHandler;
   String name = "unknown";
   Random random = new Random();
 
   public TaskVerticlePoolDispatcher(Vertx vertx,
-                                    VerticleFactory<OrderedTaskInvokerVerticle> invokerVerticleFactory,
+                                    VerticleFactory<? extends AbstractOrderedRecordVerticle> invokerVerticleFactory,
                                     OffsetManager offsetManager,
                                     InvokerConfig config) {
     this.vertx = vertx;
@@ -66,7 +67,7 @@ public class TaskVerticlePoolDispatcher {
       .replaceWithVoid();
   }
 
-  private OrderedTaskInvokerVerticle buildVerticle(int i) {
+  private AbstractOrderedRecordVerticle buildVerticle(int i) {
     var verticle = invokerVerticleFactory.createVerticle();
     verticle.setName("invoker-verticle-" +name+ "-" + i);
     verticle.setOnRecordCompleteHandler(this::handleRecordComplete);

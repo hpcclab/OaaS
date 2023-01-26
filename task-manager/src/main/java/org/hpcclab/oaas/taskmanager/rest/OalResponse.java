@@ -1,18 +1,16 @@
-package org.hpcclab.oaas.model.invocation;
+package org.hpcclab.oaas.taskmanager.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-import java.util.List;
-import java.util.Map;
-
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record QueuedInvocationResponse(
-  String invId,
-  String outId,
+public record OalResponse(
   OaasObject target,
-  String fbName
+  OaasObject output,
+  String invId,
+  String fbName,
+  boolean async
 ) {
 }

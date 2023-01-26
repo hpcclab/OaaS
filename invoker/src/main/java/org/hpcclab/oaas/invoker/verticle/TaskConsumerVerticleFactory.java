@@ -17,7 +17,7 @@ import java.util.Set;
 @ApplicationScoped
 public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumerVerticle> {
   @Inject
-  Instance<OrderedTaskInvokerVerticle> invokerVerticleInstance;
+  Instance<OrderedInvocationHandlerVerticle> invokerVerticleInstance;
   @Inject
   InvokerConfig config;
   @Inject
@@ -28,7 +28,7 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   @Override
   public TaskConsumerVerticle createVerticle(String function) {
     var consumer = kafkaConsumer(options);
-    VerticleFactory<OrderedTaskInvokerVerticle> invokerVerticleFactory = f -> invokerVerticleInstance.get();
+    VerticleFactory<AbstractOrderedRecordVerticle> invokerVerticleFactory = f -> invokerVerticleInstance.get();
     var offsetManager = new OffsetManager(consumer);
     var dispatcher = new TaskVerticlePoolDispatcher(vertx, invokerVerticleFactory,
       offsetManager, config);
@@ -39,8 +39,6 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   }
 
   public KafkaConsumer<String, Buffer> kafkaConsumer(KafkaClientOptions options) {
-//    var opt = new KafkaClientOptions(options.toJson());
-//    opt.setConfig("enable.auto.commit", "false");
     return KafkaConsumer.create(vertx, options,
       String.class, Buffer.class);
   }
