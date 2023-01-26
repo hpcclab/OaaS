@@ -43,7 +43,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   String errorMsg;
 
-  @ProtoField(9)
+  @ProtoField(value = 10, defaultValue = "-1")
   long updatedOffset = -1;
 
   public ObjectStatus() {
