@@ -16,7 +16,7 @@ public class ContentUrlGenerator {
 
   @Inject
   public ContentUrlGenerator(InvocationConfig config) {
-    this.saUrl = config.storageAdapterUrl;
+    this.saUrl = config.storageAdapterUrl();
   }
 
   public ContentUrlGenerator(String saUrl) {

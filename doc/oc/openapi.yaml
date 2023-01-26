@@ -486,6 +486,8 @@ components:
           type: string
         outputCls:
           type: string
+        forceImmutable:
+          type: boolean
     FunctionBinding_Public:
       type: object
       properties:
@@ -508,6 +510,8 @@ components:
           type: string
         outputCls:
           type: string
+        forceImmutable:
+          type: boolean
     FunctionDeploymentStatus:
       type: object
       properties:
@@ -876,9 +880,6 @@ components:
           type: string
         origin:
           $ref: '#/components/schemas/ObjectOrigin_Public'
-        hash:
-          format: int64
-          type: integer
         cls:
           type: string
         labels:

@@ -256,10 +256,6 @@
           "origin" : {
             "$ref" : "#/components/schemas/ObjectOrigin_Public"
           },
-          "hash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
           "cls" : {
             "type" : "string"
           },

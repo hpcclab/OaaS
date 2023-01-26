@@ -33,6 +33,7 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
       .withHeaders(new RecordHeaders()
         .add("ce_id", task.getId().getBytes())
         .add("ce_function", context.getFunction().getKey().getBytes())
+        .add("ce_type", OaasTask.CE_TYPE.getBytes())
       )
       .withTopic(selectTopic(context));
     if (!context.isImmutable())

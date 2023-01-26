@@ -14,6 +14,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasTask implements TaskDetail{
+  public static final String CE_TYPE = "oaas.task";
   String id;
   String vId;
   String partKey;

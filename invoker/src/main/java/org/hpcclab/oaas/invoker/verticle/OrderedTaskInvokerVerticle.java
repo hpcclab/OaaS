@@ -2,21 +2,16 @@ package org.hpcclab.oaas.invoker.verticle;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.impl.ConcurrentHashSet;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
-import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.KafkaInvokeException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -32,33 +27,17 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-import static org.hpcclab.oaas.invoker.TaskConsumer.extractId;
 
 @Dependent
-public class OrderedTaskInvokerVerticle extends AbstractVerticle {
+public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
   final InvocationExecutor graphExecutor;
   final ObjectCompletionPublisher objCompPublisher;
-  final AtomicInteger inflight = new AtomicInteger(0);
-  final AtomicBoolean lock = new AtomicBoolean(false);
-  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> taskQueue
-    = new ConcurrentLinkedQueue<>();
-  private final MutableListMultimap<String, KafkaConsumerRecord<String, Buffer>> pausedTask
-    = Multimaps.mutable.list.empty();
-  private final ConcurrentHashSet<String> runningTaskKeys = new ConcurrentHashSet<>();
-  private final int maxConcurrent;
   private final Timer invokingTimer;
   private final Timer completionTimer;
-  Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
-  String name = "unknown";
 
   @Inject
   public OrderedTaskInvokerVerticle(SyncInvoker invoker,
@@ -67,7 +46,7 @@ public class OrderedTaskInvokerVerticle extends AbstractVerticle {
                                     ObjectCompletionPublisher objCompPublisher,
                                     InvokerConfig invokerConfig,
                                     MeterRegistry registry) {
-    this.maxConcurrent = invokerConfig.invokeConcurrency();
+    super(invokerConfig.invokeConcurrency());
     this.invoker = invoker;
     this.funcRepo = funcRepo;
     this.graphExecutor = graphExecutor;
@@ -85,94 +64,11 @@ public class OrderedTaskInvokerVerticle extends AbstractVerticle {
     }
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   @Override
-  public Uni<Void> asyncStart() {
-    LOGGER.info("starting task invoker verticle [{}]", name);
-    return super.asyncStart();
-  }
-
-  @Override
-  public Uni<Void> asyncStop() {
-    LOGGER.info("stopping task invoker verticle [{}]", name);
-    var interval = 500;
-    return Multi.createFrom()
-      .ticks()
-      .every(Duration.ofMillis(interval))
-      .filter(l -> {
-        LOGGER.info("{} ms waiting {} tasks for closing OrderedTaskInvoker[{}]",
-          l * interval, countQueueingTasks(), name);
-        return taskQueue.isEmpty() && pausedTask.isEmpty();
-      })
-      .toUni()
-      .replaceWithVoid();
-  }
-
-  public int countQueueingTasks() {
-    return taskQueue.size() + pausedTask.size();
-  }
-
-  public void setOnRecordCompleteHandler(Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler) {
-    this.onRecordCompleteHandler = onRecordCompleteHandler;
-  }
-
-  public void offer(KafkaConsumerRecord<String, Buffer> taskRecord) {
-    taskQueue.offer(taskRecord);
-    if (lock.get())
-      return;
-    context.runOnContext(__ -> consume());
-  }
-
-  public void consume() {
-    LOGGER.debug("{}: consuming[lock={}, inflight={}]", name, lock, inflight);
-    if (!lock.compareAndSet(false, true)) {
-      return;
-    }
-    while (inflight.get() < maxConcurrent) {
-      var taskRecord = taskQueue.poll();
-      if (taskRecord==null) {
-        break;
-      }
-      if (taskRecord.key()==null) {
-        inflight.incrementAndGet();
-        invokeRecord(taskRecord);
-      } else if (runningTaskKeys.contains(taskRecord.key())) {
-        pausedTask.put(taskRecord.key(), taskRecord);
-      } else {
-        inflight.incrementAndGet();
-        runningTaskKeys.add(taskRecord.key());
-        invokeRecord(taskRecord);
-      }
-    }
-
-    lock.set(false);
-  }
-
-  public void next(KafkaConsumerRecord<String, Buffer> taskRecord) {
-    var key = taskRecord.key();
-    if (key!=null)
-      runningTaskKeys.remove(key);
-    inflight.decrementAndGet();
-    if (onRecordCompleteHandler!=null)
-      onRecordCompleteHandler.accept(taskRecord);
-    if (key!=null && pausedTask.containsKey(key)) {
-      var col = pausedTask.get(key);
-      if (!col.isEmpty()) {
-        var rec = col.getFirst();
-        pausedTask.remove(key, rec);
-        taskQueue.offer(rec);
-      }
-    }
-    consume();
-  }
-
-  public void invokeRecord(KafkaConsumerRecord<String, Buffer> taskRecord) {
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord) {
     var startTime = System.currentTimeMillis();
-    var id = extractId(taskRecord);
     var task = Json.decodeValue(taskRecord.value(), OaasTask.class);
+    var id = task.getId();
     if (LOGGER.isDebugEnabled()) {
       logLatency(task);
     }
@@ -197,6 +93,7 @@ public class OrderedTaskInvokerVerticle extends AbstractVerticle {
         return invokedUni
           .map(com -> Tuples.pair(task, com));
       })
+//      .flatMap(pair -> handleComplete(pair))
       .flatMap(this::handleComplete)
       .onFailure()
       .recoverWithItem(this::handleFailInvocation)

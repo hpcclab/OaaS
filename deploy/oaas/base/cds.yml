@@ -52,7 +52,7 @@ data:
           proxy_cache_key   $uri;
           proxy_cache_valid 200 206 3000h;
           proxy_intercept_errors on;
-          error_page 301 302 303 307 = @handle_redirects;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
         }
 
         location /oal/ {

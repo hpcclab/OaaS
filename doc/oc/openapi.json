@@ -697,6 +697,9 @@
           },
           "outputCls" : {
             "type" : "string"
+          },
+          "forceImmutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -730,6 +733,9 @@
           },
           "outputCls" : {
             "type" : "string"
+          },
+          "forceImmutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1228,10 +1234,6 @@
           },
           "origin" : {
             "$ref" : "#/components/schemas/ObjectOrigin_Public"
-          },
-          "hash" : {
-            "format" : "int64",
-            "type" : "integer"
           },
           "cls" : {
             "type" : "string"

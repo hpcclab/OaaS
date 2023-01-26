@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 
 import java.util.Arrays;
@@ -12,22 +12,23 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Data
-@Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@SuperBuilder
+@Getter
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectAccessLanguage {
-  String target;
-  String targetCls;
-  String functionName;
-  Map<String, String> args;
-  List<String> inputs;
+  final String target;
+  final String targetCls;
+  final String functionName;
+  final Map<String, String> args;
+  final List<String> inputs;
 
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
-    return new ObjectAccessLanguage()
-      .setTarget(origin.getParentId())
-      .setFunctionName(origin.getFbName())
-      .setArgs(origin.getArgs())
-      .setInputs(origin.getInputs());
+    return ObjectAccessLanguage.builder()
+      .target(origin.getParentId())
+      .functionName(origin.getFbName())
+      .args(origin.getArgs())
+      .inputs(origin.getInputs())
+      .build();
   }
 
   public String toString() {
@@ -82,18 +83,18 @@ public class ObjectAccessLanguage {
     var func = matcher.group("func");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
-    var oal = new ObjectAccessLanguage();
+    var oal = ObjectAccessLanguage.builder();
     if (target.startsWith("_")) {
       oal.targetCls = target.substring(1);
     } else {
       oal.target = target;
     }
-    if (func==null) return oal;
+    if (func==null) return oal.build();
     oal.functionName = func;
     if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();
-      oal.setInputs(list);
+      oal.inputs(list);
     }
     if (args!=null && !args.isEmpty()) {
       var argMap = Arrays.stream(args.split(","))
@@ -103,8 +104,8 @@ public class ObjectAccessLanguage {
           return Map.entry(kv[0], kv[1]);
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      oal.setArgs(argMap);
+      oal.args(argMap);
     }
-    return oal;
+    return oal.build();
   }
 }

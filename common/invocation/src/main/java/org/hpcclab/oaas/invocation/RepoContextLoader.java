@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -52,6 +53,22 @@ public class RepoContextLoader implements ContextLoader {
       .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
       .invoke(ctx::setInputs)
       .replaceWith(ctx);
+  }
+
+  @Override
+  public Uni<FunctionExecContext> loadCtxAsync(InvocationRequest request) {
+    var ctx = new FunctionExecContext();
+    ctx.setArgs(request.args());
+    return objectRepo.getAsync(request.target())
+      .onItem().ifNull()
+      .failWith(() -> StdOaasException.notFoundObject400(request.target()))
+      .invoke(ctx::setMain)
+      .invoke(ctx::setEntry)
+      .map(ignore -> setClsAndFunc(ctx, request.fbName()))
+      .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
+      .invoke(ctx::setInputs)
+      .replaceWith(ctx);
+
   }
 
   private FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {

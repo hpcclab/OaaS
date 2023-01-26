@@ -9,6 +9,10 @@ public class InvocationException extends StdOaasException {
     super(message, null, true, 500);
   }
 
+  public InvocationException(String message, int code) {
+    super(message, code);
+  }
+
   public InvocationException(String message, Throwable cause, int code) {
     super(message, cause, true, code);
   }

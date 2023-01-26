@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
   targets = {OaasTask.class, TaskCompletion.class},
   registerFullHierarchy = true
 )
+@Deprecated(forRemoval = true)
 public class TaskConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskConsumer.class);
 

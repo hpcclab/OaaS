@@ -43,6 +43,9 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   String errorMsg;
 
+  @ProtoField(9)
+  long updatedOffset = -1;
+
   public ObjectStatus() {
   }
 
@@ -56,7 +59,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
                       List<String> waitFor,
                       boolean initWaitFor,
                       String originator,
-                      String errorMsg) {
+                      String errorMsg,
+                      long updatedOffset) {
     this.taskStatus = taskStatus;
     this.crtTs = crtTs;
     this.queTs = queTs;
@@ -66,6 +70,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     this.initWaitFor = initWaitFor;
     this.originator = originator;
     this.errorMsg = errorMsg;
+    this.updatedOffset = updatedOffset;
   }
 
   public ObjectStatus copy() {
@@ -78,7 +83,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       waitFor==null ? null:List.copyOf(waitFor),
       initWaitFor,
       originator,
-      errorMsg
+      errorMsg,
+      updatedOffset
     );
   }
 

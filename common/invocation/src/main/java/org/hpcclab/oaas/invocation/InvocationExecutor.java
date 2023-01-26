@@ -17,6 +17,7 @@ import org.hpcclab.oaas.model.object.OaasObjects;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
+import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class InvocationExecutor {
 
   public boolean canSyncInvoke(FunctionExecContext ctx) {
     var func = ctx.getFunction();
-    if (func.getType()!=FunctionType.TASK) {
+    if (func.getType()==FunctionType.MACRO) {
       return false;
     }
     if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
@@ -131,8 +132,27 @@ public class InvocationExecutor {
           Lists.mutable.empty();
         return gsm.persistAllWithoutNoti(ctx, list);
       })
-      .onFailure(DataAccessException.class)
-      .transform(InvocationException::detectConcurrent)
+      .onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
+      .replaceWith(ctx);
+  }
+
+
+  public Uni<FunctionExecContext> asyncExec(FunctionExecContext ctx) {
+    var output = ctx.getOutput();
+    if (output != null)
+      output.markAsSubmitted(null, false);
+    var uni = syncInvoker.invoke(ctx);
+    return uni
+      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
+      .invoke(tc -> {
+        if (tc.getMain()!=null)
+          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
+        if (output!=null)
+          output.updateStatus(tc);
+        ctx.setCompletion(tc);
+      })
+      .call(tc -> this.complete(ctx,tc))
+      .onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
   }
 
@@ -148,7 +168,7 @@ public class InvocationExecutor {
       );
   }
 
-  public Uni<Void> complete(OaasTask task, TaskCompletion completion) {
+  public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
     return completionValidator.validateCompletion(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))

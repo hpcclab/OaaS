@@ -16,6 +16,7 @@ import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
+import org.hpcclab.oaas.taskmanager.service.InvocationHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,17 +34,14 @@ import java.net.URI;
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
-  UnifiedFunctionRouter router;
-  @Inject
   ObjectRepository objectRepo;
-  @Inject
-  InvocationExecutor graphExecutor;
-  @Inject
-  ObjectCompletionListener completionListener;
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
   TaskManagerConfig config;
+
+  @Inject
+  InvocationHandlerService invocationHandlerService;
 
   @POST
   @JsonView(Views.Public.class)
@@ -54,8 +52,8 @@ public class OalResource {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return applyFunction(oal)
-        .flatMap(ctx -> invokeThenAwait(ctx, await, timeout, mq));
+      return selectAndInvoke(oal,await,timeout)
+        .map(ctx -> ctx.getOutput()!= null? ctx.getOutput() : ctx.getMain());
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -86,11 +84,9 @@ public class OalResource {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return applyFunction(oal)
-        .flatMap(ctx -> invokeThenAwait(ctx, await,  timeout, mq)
-          .map(newObj -> createResponse(newObj, filePath))
-        );
-
+      return selectAndInvoke(oal,await,timeout)
+        .map(ctx -> ctx.getOutput()!= null? ctx.getOutput() : ctx.getMain())
+        .map(object -> createResponse(object, filePath));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
@@ -103,7 +99,7 @@ public class OalResource {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
           if (!obj.getStatus().getTaskStatus().isSubmitted()) {
-            return awaitCompletion(obj, timeout)
+            return invocationHandlerService.awaitCompletion(obj, timeout)
               .map(newObj -> createResponse(newObj, filePath));
           }
           return Uni.createFrom().item(createResponse(obj, filePath));
@@ -125,13 +121,14 @@ public class OalResource {
     return execAndGetContentPost(filePath, await,  timeout, mq, oaeObj);
   }
 
-  public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {
-    var uni = router.apply(oal);
-    if (LOGGER.isDebugEnabled()) {
-      uni = uni
-        .invoke(() -> LOGGER.debug("Applying function '{}' succeed", oal));
+  public Uni<FunctionExecContext> selectAndInvoke(ObjectAccessLanguage oal,
+                                                  Boolean await,
+                                                  Integer timeout){
+    if (await==null ? config.defaultAwaitCompletion():await) {
+      return invocationHandlerService.syncInvoke(oal);
+    } else {
+      return invocationHandlerService.asyncInvoke(oal, false, timeout);
     }
-    return uni;
   }
 
   public Response createResponse(OaasObject object,
@@ -166,58 +163,5 @@ public class OalResource {
     return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();
-  }
-
-
-  public Uni<OaasObject> invokeThenAwait(FunctionExecContext ctx,
-                                         Boolean await,
-                                         Integer timeout,
-                                         Boolean mq) {
-    if (await==null ? config.defaultAwaitCompletion():await) {
-      if (mq==null ? graphExecutor.canSyncInvoke(ctx) : !mq) {
-        return graphExecutor.syncExec(ctx)
-          .map(tc -> {
-            if (tc.getOutput()==null) {
-              var main = tc.getMain();
-              var completion = tc.getCompletion();
-              main.getStatus().set(completion);
-              return main;
-            }
-            return tc.getOutput();
-          });
-      }
-
-      if (ctx.getOutput()!=null) {
-        var id = ctx.getOutput().getId();
-        if (completionListener.enabled()) {
-          var uni1 = completionListener.wait(id, timeout);
-          var uni2 = graphExecutor.exec(ctx);
-          return Uni.combine().all().unis(uni1, uni2)
-            .asTuple()
-            .flatMap(tuple -> objectRepo.getAsync(id));
-        } else {
-          return graphExecutor.exec(ctx)
-            .replaceWith(ctx.getOutput());
-        }
-      }
-    }
-    return graphExecutor.exec(ctx)
-      .replaceWith(ctx.getOutput() == null? ctx.getMain(): ctx.getOutput());
-  }
-
-  public Uni<OaasObject> awaitCompletion(OaasObject obj,
-                                         Integer timeout) {
-    var status = obj.getStatus();
-    var ts = status.getTaskStatus();
-    if (!ts.isSubmitted() && !status.isInitWaitFor()) {
-      var uni1 = completionListener.wait(obj.getId(), timeout);
-      var uni2 = graphExecutor.exec(obj);
-      return Uni.combine().all().unis(uni1, uni2)
-        .asTuple()
-        .flatMap(v -> objectRepo.getAsync(obj.getId()));
-
-    }
-    return completionListener.wait(obj.getId(), timeout)
-      .flatMap(event -> objectRepo.getAsync(obj.getId()));
   }
 }

@@ -17,7 +17,6 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import javax.inject.Inject;
 import java.util.Set;
 
-//@Dependent
 @Deprecated(forRemoval = true)
 public class TaskInvocationVerticle extends AbstractVerticle {
 

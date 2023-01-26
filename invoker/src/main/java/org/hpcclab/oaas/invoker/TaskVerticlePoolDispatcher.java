@@ -8,9 +8,8 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.verticle.OrderedTaskInvokerVerticle;
+import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
@@ -18,17 +17,15 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskVerticlePoolDispatcher {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TaskVerticlePoolDispatcher.class);
   private final AtomicInteger inflight = new AtomicInteger(0);
   private final Context context;
   private final OffsetManager offsetManager;
   private final int maxInflight;
   private final Vertx vertx;
   private final VerticleFactory<OrderedTaskInvokerVerticle> invokerVerticleFactory;
-  private List<OrderedTaskInvokerVerticle> verticles = List.of();
+  private List<? extends RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>>> verticles = List.of();
   private Runnable drainHandler;
   String name = "unknown";
-
   Random random = new Random();
 
   public TaskVerticlePoolDispatcher(Vertx vertx,
@@ -106,7 +103,7 @@ public class TaskVerticlePoolDispatcher {
   public Uni<Void> waitTillQueueEmpty() {
     return Multi.createFrom().ticks().every(Duration.ofMillis(100))
       .filter(l -> verticles.stream()
-        .mapToInt(OrderedTaskInvokerVerticle::countQueueingTasks)
+        .mapToInt(RecordHandlerVerticle::countQueueingTasks)
         .sum()==0)
       .toUni()
       .replaceWithVoid();

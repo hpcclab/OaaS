@@ -136,62 +136,70 @@ class ObjectAccessLanguageTest {
     var ids = IntStream.range(0,3)
       .mapToObj(i -> UUID.randomUUID().toString())
       .toList();
-    var fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0));
+    var fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .build();
     assertEquals(
       ids.get(0),
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0))
-      .setFunctionName("test");
+    fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .functionName("test")
+      .build();
     assertEquals(
       ids.get(0) + ":test()",
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTargetCls("testCls")
-      .setFunctionName("test");
+    fc = ObjectAccessLanguage.builder()
+      .targetCls("testCls")
+      .functionName("test")
+      .build();
     assertEquals(
       "_testCls:test()",
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0))
-      .setFunctionName("test")
-      .setInputs(List.of(ids.get(1)));
+    fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .functionName("test")
+      .inputs(List.of(ids.get(1)))
+      .build();
     assertEquals(
       "%s:test(%s)".formatted(ids.get(0),ids.get(1)),
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0))
-      .setFunctionName("more.test")
-      .setInputs(List.of(ids.get(1),ids.get(2)));
+    fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .functionName("more.test")
+      .inputs(List.of(ids.get(1),ids.get(2)))
+      .build();
     assertEquals(
       "%s:more.test(%s,%s)".formatted(ids.get(0),ids.get(1), ids.get(2)),
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0))
-      .setFunctionName("more.test")
-      .setInputs(List.of(ids.get(1),ids.get(2)))
-      .setArgs(Map.of("aaa","bbb"));
+    fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .functionName("more.test")
+      .inputs(List.of(ids.get(1),ids.get(2)))
+      .args(Map.of("aaa","bbb"))
+      .build();
     assertEquals(
       "%s:more.test(%s,%s)(aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
       fc.toString()
     );
 
-    fc = new ObjectAccessLanguage()
-      .setTarget(ids.get(0))
-      .setFunctionName("more.test")
-      .setInputs(List.of(ids.get(1),ids.get(2)))
-      .setArgs(Map.of("aaa","bbb", "231aa^()", "-*/++"));
+    fc = ObjectAccessLanguage.builder()
+      .target(ids.get(0))
+      .functionName("more.test")
+      .inputs(List.of(ids.get(1),ids.get(2)))
+      .args(Map.of("aaa","bbb", "231aa^()", "-*/++"))
+      .build();
+
     assertEquals(
       "%s:more.test(%s,%s)(231aa^()=-*/++,aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
       fc.toString()
