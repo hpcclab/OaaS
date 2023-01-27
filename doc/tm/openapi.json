@@ -39,13 +39,7 @@
       "post" : {
         "tags" : [ "Oal Resource" ],
         "parameters" : [ {
-          "name" : "await",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "mq",
+          "name" : "async",
           "in" : "query",
           "schema" : {
             "type" : "boolean"
@@ -73,7 +67,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject_Public"
+                  "$ref" : "#/components/schemas/OalResponse_Public"
                 }
               }
             }
@@ -93,13 +87,7 @@
             "type" : "string"
           }
         }, {
-          "name" : "await",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "mq",
+          "name" : "async",
           "in" : "query",
           "schema" : {
             "type" : "boolean"
@@ -142,13 +130,7 @@
             "type" : "string"
           }
         }, {
-          "name" : "await",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "mq",
+          "name" : "async",
           "in" : "query",
           "schema" : {
             "type" : "boolean"
@@ -167,7 +149,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject_Public"
+                  "$ref" : "#/components/schemas/OalResponse_Public"
                 }
               }
             }
@@ -194,13 +176,7 @@
             "type" : "string"
           }
         }, {
-          "name" : "await",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "mq",
+          "name" : "async",
           "in" : "query",
           "schema" : {
             "type" : "boolean"
@@ -290,6 +266,26 @@
           },
           "rev" : {
             "type" : "string"
+          }
+        }
+      },
+      "OalResponse_Public" : {
+        "type" : "object",
+        "properties" : {
+          "target" : {
+            "$ref" : "#/components/schemas/OaasObject_Public"
+          },
+          "output" : {
+            "$ref" : "#/components/schemas/OaasObject_Public"
+          },
+          "invId" : {
+            "type" : "string"
+          },
+          "fbName" : {
+            "type" : "string"
+          },
+          "async" : {
+            "type" : "boolean"
           }
         }
       },
@@ -389,6 +385,10 @@
           },
           "errorMsg" : {
             "type" : "string"
+          },
+          "updatedOffset" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         }
       },

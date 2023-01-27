@@ -1,5 +1,11 @@
 package org.hpcclab.oaas.model.exception;
 
+import org.hpcclab.oaas.model.object.OaasObject;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class InvocationException extends StdOaasException {
   public InvocationException(String message, Throwable cause) {
     super(message, cause, true, 500);
@@ -19,5 +25,18 @@ public class InvocationException extends StdOaasException {
 
   public static InvocationException detectConcurrent(Throwable e) {
     return new InvocationException("Detect concurrent update in the same object", e, 409);
+  }
+
+  public static InvocationException notReady(List<Map.Entry<OaasObject, OaasObject>> waiting,
+                                             List<OaasObject> failed) {
+    return new InvocationException("Dependencies are not ready. {waiting:[%s], failed:[%s]}"
+      .formatted(
+        waiting.stream()
+          .map(entry -> entry.getKey().getId() + ">>" + entry.getValue().getId())
+          .collect(Collectors.joining(", ")),
+        failed.stream()
+          .map(OaasObject::getId)
+          .collect(Collectors.joining(", "))),
+      409);
   }
 }

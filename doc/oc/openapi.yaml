@@ -1061,6 +1061,9 @@ components:
             type: string
         errorMsg:
           type: string
+        updatedOffset:
+          format: int64
+          type: integer
     ObjectType:
       enum:
       - SIMPLE

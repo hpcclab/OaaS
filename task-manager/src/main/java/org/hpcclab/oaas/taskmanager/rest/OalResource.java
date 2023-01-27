@@ -65,7 +65,7 @@ public class OalResource {
                                     @QueryParam("async") Boolean async,
                                     @QueryParam("timeout") Integer timeout) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
-    LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
+    LOGGER.debug("Receive OAL getObject '{}'", oaeObj);
     return getObjectWithPost(oaeObj, async, timeout);
   }
 
@@ -116,14 +116,15 @@ public class OalResource {
 
   public Uni<OalResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
     if (async==null ? !config.defaultAwaitCompletion():async) {
+      return invocationHandlerService.asyncInvoke(oal);
+    } else {
       return invocationHandlerService.syncInvoke(oal)
         .map(ctx -> OalResponse.builder()
           .target(ctx.getMain())
           .output(ctx.getOutput())
           .fbName(ctx.getFbName())
+          .async(false)
           .build());
-    } else {
-      return invocationHandlerService.asyncInvoke(oal);
     }
   }
 

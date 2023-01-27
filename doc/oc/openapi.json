@@ -1505,6 +1505,10 @@
           },
           "errorMsg" : {
             "type" : "string"
+          },
+          "updatedOffset" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         }
       },

@@ -58,8 +58,8 @@ public class InvocationHandlerService {
         MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
           Lists.mutable.empty();
         MutableList<OaasObject> failDeps = Lists.mutable.empty();
-        if (ctx.analyzeDeps(waitForGraph, failDeps))
-          throw new InvocationException("Dependencies are not ready", 409);
+        if (!ctx.analyzeDeps(waitForGraph, failDeps))
+          throw InvocationException.notReady(waitForGraph, failDeps);
       }))
       .flatMap(ctx -> graphExecutor.syncExec(ctx));
   }
