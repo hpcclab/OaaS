@@ -75,7 +75,7 @@ class FunctionRouterTest {
     var ctx = router.apply(oal)
       .await().indefinitely();
 
-    invocationGraphExecutor.exec(ctx)
+    invocationGraphExecutor.asyncSubmit(ctx)
       .await().indefinitely();
     printDebug(ctx);
     var taskId = new TaskIdentity(ctx);
@@ -122,7 +122,7 @@ class FunctionRouterTest {
     var ctx = router.apply(oal)
       .await().indefinitely();
 
-    invocationGraphExecutor.exec(ctx)
+    invocationGraphExecutor.asyncSubmit(ctx)
       .await().indefinitely();
     printDebug(ctx);
     var taskId = new TaskIdentity(ctx);
@@ -165,7 +165,7 @@ class FunctionRouterTest {
     var ctx = router.apply(oal)
       .await().indefinitely();
 
-    invocationGraphExecutor.exec(ctx)
+    invocationGraphExecutor.asyncSubmit(ctx)
       .await().indefinitely();
     printDebug(ctx);
     var taskId = new TaskIdentity(ctx);
@@ -210,7 +210,7 @@ class FunctionRouterTest {
     var ctx = router.apply(oal)
       .await().indefinitely();
 
-    invocationGraphExecutor.exec(ctx)
+    invocationGraphExecutor.asyncSubmit(ctx)
       .await().indefinitely();
     printDebug(ctx);
     assertEquals(1, taskSubmitter.multimap.size());
@@ -250,7 +250,7 @@ class FunctionRouterTest {
     var ctx = router.apply(oal)
       .await().indefinitely();
 
-    invocationGraphExecutor.exec(ctx)
+    invocationGraphExecutor.asyncSubmit(ctx)
       .await().indefinitely();
     printDebug(ctx);
     assertFalse(ctx.getOutput().getStatus().getTaskStatus().isSubmitted());

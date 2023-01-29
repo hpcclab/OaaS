@@ -13,7 +13,6 @@ import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.invocation.QueuedInvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.IdGenerator;
@@ -35,7 +34,7 @@ public class InvocationHandlerService {
   @Inject
   ObjectRepository objectRepo;
   @Inject
-  InvocationExecutor graphExecutor;
+  InvocationExecutor invocationExecutor;
   @Inject
   ObjectCompletionListener completionListener;
   @Inject
@@ -61,7 +60,7 @@ public class InvocationHandlerService {
         if (!ctx.analyzeDeps(waitForGraph, failDeps))
           throw InvocationException.notReady(waitForGraph, failDeps);
       }))
-      .flatMap(ctx -> graphExecutor.syncExec(ctx));
+      .flatMap(ctx -> invocationExecutor.syncExec(ctx));
   }
 
   public Uni<FunctionExecContext> asyncInvoke(ObjectAccessLanguage oal,
@@ -73,12 +72,12 @@ public class InvocationHandlerService {
         if (completionListener.enabled() && await && ctx.getOutput()!=null) {
           var id = ctx.getOutput().getId();
           var uni1 = completionListener.wait(id, timeout);
-          var uni2 = graphExecutor.exec(ctx);
+          var uni2 = invocationExecutor.asyncSubmit(ctx);
           return Uni.combine().all().unis(uni1, uni2)
             .asTuple()
             .replaceWith(ctx);
         }
-        return graphExecutor.exec(ctx)
+        return invocationExecutor.asyncSubmit(ctx)
           .replaceWith(ctx);
       });
   }
@@ -127,7 +126,7 @@ public class InvocationHandlerService {
     var ts = status.getTaskStatus();
     if (!ts.isSubmitted() && !status.isInitWaitFor()) {
       var uni1 = completionListener.wait(obj.getId(), timeout);
-      var uni2 = graphExecutor.exec(obj);
+      var uni2 = invocationExecutor.asyncSubmit(obj);
       return Uni.combine().all().unis(uni1, uni2)
         .asTuple()
         .flatMap(v -> objectRepo.getAsync(obj.getId()));

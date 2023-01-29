@@ -1,26 +1,17 @@
 package org.hpcclab.oaas.invoker.verticle;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
-import org.eclipse.collections.api.tuple.Pair;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.KafkaInvokeException;
-import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
@@ -28,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Dependent
 public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle {
@@ -65,14 +54,24 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       logLatency(kafkaRecord);
     }
     if (request.macro()) {
-      generateMacro(request);
+      generateMacro(kafkaRecord, request);
     } else {
       invokeTask(kafkaRecord, request);
     }
   }
 
-  private void generateMacro(InvocationRequest request) {
-
+  private void generateMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+    loader.loadCtxAsync(request)
+      .flatMap(router::apply)
+      .flatMap(invocationExecutor::asyncSubmit)
+      .subscribe()
+      .with(
+        ctx -> next(kafkaRecord),
+        error -> {
+          LOGGER.error("Unexpected error on invoker ", error);
+          next(kafkaRecord);
+        }
+      );
   }
 
   private void invokeTask(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
@@ -87,7 +86,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(ctx -> {
-        if (ctx != null && ctx.getOutput() != null)
+        if (ctx!=null && ctx.getOutput()!=null)
           objCompPublisher.publish(ctx.getOutput().getId());
         next(kafkaRecord);
       }, error -> {

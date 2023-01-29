@@ -71,7 +71,7 @@ public class InvocationExecutor {
     return ctx.analyzeDeps(waitForGraph, failDeps);
   }
 
-  public Uni<Void> exec(FunctionExecContext ctx) {
+  public Uni<Void> asyncSubmit(FunctionExecContext ctx) {
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
       Lists.mutable.empty();
@@ -102,7 +102,7 @@ public class InvocationExecutor {
       .replaceWithVoid();
   }
 
-  public Uni<Void> exec(OaasObject obj) {
+  public Uni<Void> asyncSubmit(OaasObject obj) {
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     waitForGraph.add(Map.entry(obj, OaasObjects.NULL));
