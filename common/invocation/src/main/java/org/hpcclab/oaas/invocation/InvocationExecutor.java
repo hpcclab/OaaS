@@ -174,7 +174,6 @@ public class InvocationExecutor {
   }
 
   public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
-    logger.debug("complete {}", completion);
     return completionValidator.validateCompletion(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))

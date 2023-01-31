@@ -11,13 +11,15 @@ import org.hpcclab.oaas.invocation.InvocationQueueSender;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class KafkaInvocationReqSubmitter implements InvocationQueueSender {
-
+private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationReqSubmitter.class );
   @Channel("tasks")
   MutinyEmitter<InvocationRequest> taskEmitter;
   @Inject
@@ -35,6 +37,8 @@ public class KafkaInvocationReqSubmitter implements InvocationQueueSender {
       metaBuilder = metaBuilder.withKey(request.partKey());
     var message = Message.of(request)
       .addMetadata(metaBuilder.build());
+    if (logger.isDebugEnabled())
+      logger.debug("send {} {} {}", request.invId(), request.partKey(), request.outId());
     return taskEmitter.sendMessage(message);
   }
 

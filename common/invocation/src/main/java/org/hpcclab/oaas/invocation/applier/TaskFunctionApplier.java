@@ -41,7 +41,6 @@ public class TaskFunctionApplier implements FunctionApplier {
 //      while (rootCtx.getParent()!=null) {
 //        rootCtx = rootCtx.getParent();
 //      }
-      logger.debug("setOutput {}", output);
       ctx.setOutput(output);
     }
     return Uni.createFrom().item(ctx);

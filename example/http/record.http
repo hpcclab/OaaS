@@ -32,7 +32,11 @@ GET {{cds}}/oal/{{obj_1_id}}
 GET {{cds}}/oal/{{obj_1_id}}:json-update()
 
 > {%
-client.global.set("obj_1_id", response.body.id)
+  client.global.set("obj_1_id", response.body.output.id)
 %}
 ###
-GET {{cds}}/oal/0B5S5Q75M1GH9:json-update()(ENTRIES=10,VALUES=40)?await=true&timeout=3
+GET {{cds}}/oal/{{obj_0_id}}:chain?async=true
+
+> {%
+  client.global.set("obj_1_id", response.body.output.id)
+%}

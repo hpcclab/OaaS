@@ -51,6 +51,7 @@ public class UnifiedFunctionRouter {
       .invoke(this::validate)
       .flatMap(this::apply);
   }
+
   public Uni<FunctionExecContext> apply(InvocationRequest request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)

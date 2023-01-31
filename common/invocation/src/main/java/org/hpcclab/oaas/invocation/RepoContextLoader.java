@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class RepoContextLoader implements ContextLoader {
+  private static final Logger logger = LoggerFactory.getLogger( RepoContextLoader.class );
 
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
@@ -115,9 +116,9 @@ public class RepoContextLoader implements ContextLoader {
         newCtx.setArgs(map);
     }
     baseCtx.addSubContext(newCtx);
+//    logger.debug("resolveObjFromCtx {}", step);
     return resolveObjFromCtx(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
-//      .flatMap(ignore -> setClsAndFuncAsync(newCtx, step.getFuncName()))
       .map(ignore -> setClsAndFunc(newCtx, step.getFunction()))
       .chain(() -> resolveInputs(newCtx, step));
   }

@@ -3,10 +3,10 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class AbstractGraphStateManager implements GraphStateManager {
   private static final Logger logger = LoggerFactory.getLogger(AbstractGraphStateManager.class);
@@ -32,24 +33,24 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
     var main = task.getMain();
-    if (completion.getMain() != null) {
+    if (completion.getMain()!=null) {
       completion.getMain().update(main, task.getVId());
     }
     var out = task.getOutput();
-    if (out != null) {
+    if (out!=null) {
       out.updateStatus(completion);
     }
     List<OaasObject> objs = new ArrayList<>();
-    if (completion.getMain() != null) {
+
+    if (completion.getMain()!=null) {
       objs.add(main);
     }
-    if (out != null){
+    if (out!=null) {
       objs.add(out);
     }
 
-    Uni<Void> uni =  objRepo
-      .persistWithPreconditionAsync(objs);
-    if (out == null)
+    Uni<Void> uni = persistWithPrecondition(objs);
+    if (out==null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
     return uni.onItem()
       .transformToMulti(__ -> {
@@ -94,12 +95,12 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   @Override
   public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
-    var originator = entryCtx.getOutput() != null?
+    var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
-      : entryCtx.getMain().getId();
+      :entryCtx.getMain().getId();
     return Multi.createFrom().iterable(contexts)
       .onItem().transformToUniAndConcatenate(ctx -> {
-        if (ctx.getOutput() == null){
+        if (ctx.getOutput()==null) {
           return Uni.createFrom().item(ctx);
         }
         if (entryCtx.contains(ctx)) {
@@ -110,26 +111,30 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
             .map(ctx::setOutput);
         }
       })
-      .filter(ctx -> ctx.getOutput() == null || ctx.getOutput().getStatus().getOriginator().equals(originator))
+      .filter(ctx -> ctx.getOutput()==null || ctx.getOutput().getStatus().getOriginator().equals(originator))
       .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
   }
 
   public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx) {
     return persistAllWithoutNoti(ctx, Lists.mutable.empty());
   }
+
   public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
-    if (ctx.getOutput() != null && (dataflow==null || dataflow.getExport()==null)) {
+    if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {
       objs.add(ctx.getOutput());
     }
-    var newObjs = objs.stream()
-      .filter(o -> o.getRev() == null)
-      .toList();
+    return persistWithPrecondition(objs);
+  }
 
-    var oldObjs = objs.stream()
-      .filter(o -> o.getRev() != null)
-      .toList();
+  public Uni<Void> persistWithPrecondition(List<OaasObject> objs) {
+    var partitionedObjs = objs.stream()
+      .collect(Collectors.partitioningBy(o -> o.getRev()==null));
+    var newObjs = partitionedObjs.get(true);
+
+    var oldObjs = partitionedObjs.get(false);
+
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {

@@ -18,15 +18,18 @@ functions:
       steps:
         - target: $
           as: record1
-          ARGS:
+          function: json-update
+          args:
             INPLACE: "false"
         - target: record1
           as: record2
-          ARGS:
+          function: json-update
+          args:
             INPLACE: "false"
         - target: record2
           as: record3
-          ARGS:
+          function: json-update
+          args:
             INPLACE: "false"
       export: record3
 classes:

@@ -99,6 +99,13 @@ public class ArgClientProducer {
     return database.collection(config.classCollection());
   }
 
+
+  @Produces
+  @Named("OdeCollection")
+  public ArangoCollection odeCol(ArangoDatabase database){
+    return database.collection(config.odeCollection());
+  }
+
   @Produces
   @Named("OdeCollectionAsync")
   public ArangoCollectionAsync odeColAsync(ArangoDatabaseAsync database){

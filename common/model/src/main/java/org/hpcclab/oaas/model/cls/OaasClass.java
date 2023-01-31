@@ -17,6 +17,7 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Accessors(chain = true)
@@ -95,6 +96,7 @@ public class OaasClass implements Copyable<OaasClass> {
   }
 
   public FunctionBinding findFunction(String funcName) {
+    Objects.requireNonNull(funcName);
     var func = resolved.getFunctions()
       .get(funcName);
     if (func!=null) return func;

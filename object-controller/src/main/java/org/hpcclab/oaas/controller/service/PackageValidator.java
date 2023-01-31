@@ -86,9 +86,13 @@ public class PackageValidator {
     for (var step : steps) {
       i++;
       var target = step.getTarget();
+      if (step.getFunction() == null)
+        throw new FunctionValidationException(
+          "Function '%s', step[%d]: Detected null function value."
+            .formatted(function.getKey(), i));
       if (target==null)
         throw new FunctionValidationException(
-          "Function '%s', step[%d]: Detected null target value in ."
+          "Function '%s', step[%d]: Detected null target value."
             .formatted(function.getKey(), i));
 
       if (step.getAs()!=null) {
