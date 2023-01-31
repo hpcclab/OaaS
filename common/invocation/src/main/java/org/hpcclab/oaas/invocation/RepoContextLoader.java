@@ -59,6 +59,7 @@ public class RepoContextLoader implements ContextLoader {
   public Uni<FunctionExecContext> loadCtxAsync(InvocationRequest request) {
     var ctx = new FunctionExecContext();
     ctx.setArgs(request.args());
+    ctx.setRequest(request);
     return objectRepo.getAsync(request.target())
       .onItem().ifNull()
       .failWith(() -> StdOaasException.notFoundObject400(request.target()))

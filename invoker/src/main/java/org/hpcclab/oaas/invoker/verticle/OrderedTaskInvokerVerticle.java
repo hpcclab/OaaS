@@ -180,7 +180,6 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
       .invoke(task::setFunction)
       .map(function -> new InvokingDetail<Buffer>(
         task.getId(),
-        task.getVId(),
         task.getFuncKey(),
         function.getDeploymentStatus().getInvocationUrl(),
         rec.value(),

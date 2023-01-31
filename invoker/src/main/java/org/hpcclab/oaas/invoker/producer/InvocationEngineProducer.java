@@ -23,12 +23,13 @@ public class InvocationEngineProducer {
 
   @Produces
   InvocationExecutor invocationGraphExecutor(
-    TaskSubmitter taskSubmitter,
+    InvocationQueueSender sender,
     GraphStateManager graphStateManager,
     RepoContextLoader contextLoader,
     SyncInvoker syncInvoker,
+    TaskFactory taskFactory,
     CompletionValidator completionValidator) {
-    return new InvocationExecutor(taskSubmitter, graphStateManager, contextLoader, syncInvoker, completionValidator);
+    return new InvocationExecutor(sender, graphStateManager, contextLoader, syncInvoker, taskFactory, completionValidator);
   }
 
   @Produces

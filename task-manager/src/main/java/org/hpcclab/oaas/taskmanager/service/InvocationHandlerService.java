@@ -6,6 +6,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
+import org.hpcclab.oaas.invocation.InvocationQueueSender;
 import org.hpcclab.oaas.invocation.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -38,7 +39,7 @@ public class InvocationHandlerService {
   @Inject
   ObjectCompletionListener completionListener;
   @Inject
-  KafkaInvocationReqSubmitter reqSubmitter;
+  InvocationQueueSender sender;
   @Inject
   InvocationValidator invocationValidator;
   @Inject
@@ -101,7 +102,7 @@ public class InvocationHandlerService {
           }
           return Tuples.pair(ctx, builder.build());
         })
-        .call(pair -> reqSubmitter.submit(pair.getTwo()))
+        .call(pair -> sender.send(pair.getTwo()))
         .map(pair -> OalResponse.builder()
           .invId(pair.getTwo().invId())
           .output(new OaasObject().setId(pair.getTwo().outId()))

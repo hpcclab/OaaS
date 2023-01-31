@@ -35,24 +35,28 @@ import java.util.Set;
   registerFullHierarchy = true
 )
 public class InvocationExecutor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationExecutor.class);
-  TaskSubmitter submitter;
+  private static final Logger logger = LoggerFactory.getLogger(InvocationExecutor.class);
+  InvocationQueueSender sender;
   GraphStateManager gsm;
   ContextLoader contextLoader;
   SyncInvoker syncInvoker;
   CompletionValidator completionValidator;
 
+  TaskFactory taskFactory;
+
 
   @Inject
-  public InvocationExecutor(TaskSubmitter submitter,
+  public InvocationExecutor(InvocationQueueSender sender,
                             GraphStateManager gsm,
                             ContextLoader contextLoader,
                             SyncInvoker syncInvoker,
+                            TaskFactory taskFactory,
                             CompletionValidator completionValidator) {
-    this.submitter = submitter;
+    this.sender = sender;
     this.gsm = gsm;
     this.contextLoader = contextLoader;
     this.syncInvoker = syncInvoker;
+    this.taskFactory = taskFactory;
     this.completionValidator = completionValidator;
   }
 
@@ -97,7 +101,8 @@ public class InvocationExecutor {
       .invoke(() -> waitForGraph.addAll(innerWaitForGraph))
       .flatMap(v -> putAllEdge(waitForGraph))
       .flatMap(v -> gsm.updateSubmittingStatus(ctx, ctxToSubmit)
-        .call(submitter::submit)
+        .map(TaskDetail::toRequest)
+        .call(sender::send)
         .collect().last())
       .replaceWithVoid();
   }
@@ -108,7 +113,7 @@ public class InvocationExecutor {
     waitForGraph.add(Map.entry(obj, OaasObjects.NULL));
     return traverseGraph(waitForGraph, ctxToSubmit)
       .flatMap(v -> putAllEdge(waitForGraph))
-      .flatMap(v -> submitter.submit(ctxToSubmit))
+      .flatMap(v -> sender.send(ctxToSubmit.stream().map(TaskDetail::toRequest).toList()))
       .replaceWithVoid();
   }
 
@@ -116,7 +121,7 @@ public class InvocationExecutor {
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
-    var uni = syncInvoker.invoke(ctx);
+    var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
       .invoke(tc -> {
@@ -141,7 +146,7 @@ public class InvocationExecutor {
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
-    var uni = syncInvoker.invoke(ctx);
+    var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
       .invoke(tc -> {
@@ -164,16 +169,17 @@ public class InvocationExecutor {
       .flatMap(pair -> gsm.handleComplete(pair.getOne(), pair.getTwo())
         .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
         .collect().asList()
-        .flatMap(list -> submitter.submit(list))
+        .flatMap(list -> sender.send(list.stream().map(TaskDetail::toRequest).toList()))
       );
   }
 
   public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
+    logger.debug("complete {}", completion);
     return completionValidator.validateCompletion(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()
-      .flatMap(list -> submitter.submit(list));
+      .flatMap(list -> sender.send(list.stream().map(TaskDetail::toRequest).toList()));
   }
 
   private Uni<Void> traverseGraph(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,

@@ -4,12 +4,15 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class TaskFunctionApplier implements FunctionApplier {
+  private static final Logger logger = LoggerFactory.getLogger( TaskFunctionApplier.class );
 
   OaasObjectFactory objectFactory;
 
@@ -29,13 +32,16 @@ public class TaskFunctionApplier implements FunctionApplier {
 
   public Uni<FunctionExecContext> apply(FunctionExecContext ctx) {
     ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isAllowUpdateMain());
+    var req = ctx.getRequest();
     if (ctx.getBinding().getOutputCls()!=null) {
       var output = objectFactory.createOutput(ctx);
-
-      var rootCtx = ctx;
-      while (rootCtx.getParent()!=null) {
-        rootCtx = rootCtx.getParent();
-      }
+      if (req != null)
+        output.setId(req.outId());
+//      var rootCtx = ctx;
+//      while (rootCtx.getParent()!=null) {
+//        rootCtx = rootCtx.getParent();
+//      }
+      logger.debug("setOutput {}", output);
       ctx.setOutput(output);
     }
     return Uni.createFrom().item(ctx);

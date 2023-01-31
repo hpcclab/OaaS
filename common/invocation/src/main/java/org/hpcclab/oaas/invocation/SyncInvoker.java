@@ -9,6 +9,5 @@ public interface SyncInvoker {
   default Uni<TaskCompletion> invoke(OaasTask task) {
     return invoke(InvokingDetail.of(task));
   }
-  Uni<TaskCompletion> invoke(TaskContext taskContext);
   Uni<TaskCompletion> invoke(InvokingDetail<?> invokingDetail);
 }

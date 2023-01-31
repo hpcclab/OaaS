@@ -18,24 +18,15 @@ import javax.inject.Inject;
 
 @Dependent
 public class HttpInvoker implements SyncInvoker {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpInvoker.class);
+  private static final Logger logger = LoggerFactory.getLogger(HttpInvoker.class);
   WebClient webClient;
-  TaskFactory taskFactory;
   HttpInvokerConfig config;
 
   @Inject
   public HttpInvoker(WebClient webClient,
-                     TaskFactory taskFactory,
                      HttpInvokerConfig config) {
     this.webClient = webClient;
-    this.taskFactory = taskFactory;
     this.config = config;
-  }
-
-  @Override
-  public Uni<TaskCompletion> invoke(TaskContext taskContext) {
-    var task = taskFactory.genTask(taskContext);
-    return invoke(task);
   }
 
   @Override
@@ -66,7 +57,7 @@ public class HttpInvoker implements SyncInvoker {
   protected MultiMap createHeader(InvokingDetail<?> detail) {
     return MultiMap.caseInsensitiveMultiMap()
       .add("ce-type", config.getCeType())
-      .add("ce-function", config.getAppName())
+      .add("ce-function", detail.getFuncName())
       .add("ce-id", detail.getId())
       .add("ce-source", config.getAppName())
       .add("ce-specversion", "1.0")

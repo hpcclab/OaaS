@@ -8,6 +8,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -33,6 +34,7 @@ public class FunctionExecContext extends TaskContext {
   List<FunctionExecContext> subContexts = Lists.mutable.empty();
 
   TaskCompletion completion;
+  InvocationRequest request;
 
   public ObjectOrigin createOrigin() {
     var finalArgs = resolveArgs(binding);
@@ -45,9 +47,9 @@ public class FunctionExecContext extends TaskContext {
     );
   }
 
-  public OaasObject resolve(String ref) {
-    return workflowMap.get(ref);
-  }
+//  public OaasObject resolve(String ref) {
+//    return workflowMap.get(ref);
+//  }
 
   public void addTaskOutput(OaasObject object) {
     if (object == null) return;
@@ -56,13 +58,13 @@ public class FunctionExecContext extends TaskContext {
       parent.addTaskOutput(object);
     }
   }
-
-  public void addTaskOutput(Collection<OaasObject> objects) {
-    subOutputs.addAll(objects);
-    if (parent != null) {
-      parent.addTaskOutput(objects);
-    }
-  }
+//
+//  public void addTaskOutput(Collection<OaasObject> objects) {
+//    subOutputs.addAll(objects);
+//    if (parent != null) {
+//      parent.addTaskOutput(objects);
+//    }
+//  }
 
   @Override
   public String getFbName() {

@@ -12,6 +12,23 @@ functions:
         requestsCpu: '0.5'
         limitsCpu: '1'
         scaleDownDelay: 30s
+  - name: chain-update
+    type: MACRO
+    macro:
+      steps:
+        - target: $
+          as: record1
+          ARGS:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          ARGS:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          ARGS:
+            INPLACE: "false"
+      export: record3
 classes:
   - name: record
     stateType: FILES
@@ -34,3 +51,7 @@ classes:
         defaultArgs:
           INPLACE: "false"
         forceImmutable: true
+      - access: PUBLIC
+        name: chain
+        function: .chain-update
+        outputCls: .record

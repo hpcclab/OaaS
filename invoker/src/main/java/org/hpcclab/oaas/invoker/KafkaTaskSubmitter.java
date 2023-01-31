@@ -35,7 +35,6 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
       )
       .addHeader("ce_id", task.getId())
       .addHeader("ce_function", context.getFunction().getKey());
-
     return producer.send(record)
       .replaceWithVoid();
   }

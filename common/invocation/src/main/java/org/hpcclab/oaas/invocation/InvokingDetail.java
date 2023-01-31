@@ -4,7 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.task.OaasTask;
+
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
@@ -12,7 +16,6 @@ import org.hpcclab.oaas.model.task.OaasTask;
 @Accessors(chain = true)
 public class InvokingDetail<V> {
   String id;
-  String vId;
   String funcName;
   String funcUrl;
   V content;
@@ -21,9 +24,11 @@ public class InvokingDetail<V> {
   public static InvokingDetail<OaasTask> of(OaasTask task) {
     return new InvokingDetail<>(
       task.getId(),
-      task.getVId(),
       task.getFuncKey(),
-      task.getFunction().getDeploymentStatus().getInvocationUrl(),
+      Optional.of(task.getFunction())
+        .map(OaasFunction::getDeploymentStatus)
+        .map(FunctionDeploymentStatus::getInvocationUrl)
+        .orElse(null),
       task,
       task.getTs()
     );

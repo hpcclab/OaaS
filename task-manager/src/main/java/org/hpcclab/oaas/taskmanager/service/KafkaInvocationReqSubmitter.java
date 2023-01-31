@@ -7,6 +7,7 @@ import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.hpcclab.oaas.invocation.InvocationQueueSender;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
@@ -15,14 +16,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class KafkaInvocationReqSubmitter {
+public class KafkaInvocationReqSubmitter implements InvocationQueueSender {
 
   @Channel("tasks")
   MutinyEmitter<InvocationRequest> taskEmitter;
   @Inject
   TaskManagerConfig config;
 
-  public Uni<Void> submit(InvocationRequest request) {
+  @Override
+  public Uni<Void> send(InvocationRequest request) {
     var metaBuilder = OutgoingKafkaRecordMetadata.builder()
       .withTopic(selectTopic(request))
       .withHeaders(new RecordHeaders()
