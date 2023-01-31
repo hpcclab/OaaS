@@ -1,12 +1,8 @@
 package org.hpcclab.oaas.arango;
 
-import com.arangodb.async.ArangoCollectionAsync;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.arango.repo.ArgEdgeRepository;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
@@ -14,11 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
 @RegisterForReflection(
@@ -39,7 +33,7 @@ public class ArgGraphStateManager extends AbstractGraphStateManager {
   }
 
   @Override
-  public Uni<Collection<String>> getAllEdge(String srcId) {
+  public Uni<? extends Collection<String>> getAllEdge(String srcId) {
     return odeRepo.getAllEdge(srcId);
   }
 

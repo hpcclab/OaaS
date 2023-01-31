@@ -27,7 +27,7 @@ public class MockGraphStateManager extends AbstractGraphStateManager {
   }
 
   @Override
-  public Uni<Collection<String>> getAllEdge(String srcId) {
+  public Uni<? extends Collection<String>> getAllEdge(String srcId) {
     return Uni.createFrom().item(multimap.get(srcId));
   }
 

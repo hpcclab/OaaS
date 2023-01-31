@@ -29,6 +29,7 @@ public class TaskDecoder {
       var completion = Json.decodeValue(buffer, TaskCompletion.class);
       if (completion!=null) {
         return completion
+          .setId(taskId)
           .setCptTs(ts);
       }
 

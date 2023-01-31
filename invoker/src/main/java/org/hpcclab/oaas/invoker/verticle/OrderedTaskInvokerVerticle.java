@@ -13,7 +13,7 @@ import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.KafkaInvokeException;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.task.OaasTask;
@@ -123,7 +123,7 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
       var ts = System.currentTimeMillis();
       var uni = graphExecutor.complete(task, completion)
         .onFailure()
-        .transform(e -> new KafkaInvokeException(e, completion))
+        .transform(e -> new InvocationException(e, completion))
 
         .replaceWith(pair);
       if (LOGGER.isDebugEnabled())
@@ -137,19 +137,19 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
           completionTimer.record(System.currentTimeMillis() - ts, TimeUnit.MILLISECONDS));
       return uni;
     } catch (DecodeException decodeException) {
-      return Uni.createFrom().failure(new KafkaInvokeException(decodeException, completion));
+      return Uni.createFrom().failure(new InvocationException(decodeException, completion));
     }
   }
 
   Pair<OaasTask, TaskCompletion> handleFailInvocation(Throwable exception) {
-    if (exception instanceof KafkaInvokeException kafkaInvokeException) {
-      var msg = kafkaInvokeException.getCause()!=null ? kafkaInvokeException
+    if (exception instanceof InvocationException invocationException) {
+      var msg = invocationException.getCause()!=null ? invocationException
         .getCause().getMessage():null;
       if (LOGGER.isWarnEnabled())
         LOGGER.warn("Catch invocation fail on '{}' with message '{}'",
-          kafkaInvokeException.getTaskCompletion().getId().encode(),
+          invocationException.getTaskCompletion().getId().encode(),
           msg,
-          kafkaInvokeException
+          invocationException
         );
       // TODO send to dead letter topic
     }

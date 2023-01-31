@@ -29,6 +29,7 @@ public interface TaskDetail {
       .immutable(isImmutable())
       .function(getFuncKey())
       .queTs(System.currentTimeMillis())
+      .loadOutput(getOutput() != null)
       .build();
   }
 }

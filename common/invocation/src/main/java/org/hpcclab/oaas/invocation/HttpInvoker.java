@@ -31,6 +31,8 @@ public class HttpInvoker implements SyncInvoker {
 
   @Override
   public Uni<TaskCompletion> invoke(InvokingDetail<?> invokingDetail) {
+    if (logger.isDebugEnabled())
+      logger.debug("invoke {}", invokingDetail.getId());
     var content = invokingDetail.getContent();
     Buffer contentBuffer;
     if (content instanceof Buffer buffer) {

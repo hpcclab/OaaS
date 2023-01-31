@@ -14,10 +14,7 @@ import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskContext;
-import org.hpcclab.oaas.model.task.TaskDetail;
+import org.hpcclab.oaas.model.task.*;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,6 +140,8 @@ public class InvocationExecutor {
 
 
   public Uni<FunctionExecContext> asyncExec(FunctionExecContext ctx) {
+    if (logger.isDebugEnabled())
+      logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
@@ -174,6 +173,7 @@ public class InvocationExecutor {
   }
 
   public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
+    logger.debug("complete {} {}", completion.getId(), completion);
     return completionValidator.validateCompletion(task, completion)
       .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))

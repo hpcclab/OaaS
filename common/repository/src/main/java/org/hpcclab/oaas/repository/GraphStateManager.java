@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface GraphStateManager {
-  Uni<Collection<String>> getAllEdge(String srcId);
+  Uni<? extends Collection<String>> getAllEdge(String srcId);
   Uni<Void> persistEdge(String srcId, String desId);
   Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap);
   Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completingObj);

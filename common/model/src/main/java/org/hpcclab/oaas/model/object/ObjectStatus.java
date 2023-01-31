@@ -46,6 +46,9 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(value = 10, defaultValue = "-1")
   long updatedOffset = -1;
 
+  @ProtoField(11)
+  String vId;
+
   public ObjectStatus() {
   }
 
@@ -60,7 +63,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
                       boolean initWaitFor,
                       String originator,
                       String errorMsg,
-                      long updatedOffset) {
+                      long updatedOffset,
+                      String vId) {
     this.taskStatus = taskStatus;
     this.crtTs = crtTs;
     this.queTs = queTs;
@@ -71,6 +75,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     this.originator = originator;
     this.errorMsg = errorMsg;
     this.updatedOffset = updatedOffset;
+    this.vId = vId;
   }
 
   public ObjectStatus copy() {
@@ -84,14 +89,16 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       initWaitFor,
       originator,
       errorMsg,
-      updatedOffset
+      updatedOffset,
+      vId
     );
   }
 
   public void set(TaskCompletion taskCompletion) {
-    if (taskCompletion.isSuccess())
+    if (taskCompletion.isSuccess()) {
       taskStatus = TaskStatus.SUCCEEDED;
-    else
+      vId = taskCompletion.getId().getVId();
+    } else
       taskStatus = TaskStatus.FAILED;
     if (taskCompletion.getCptTs() > 0 ) {
       cptTs = taskCompletion.getCptTs();

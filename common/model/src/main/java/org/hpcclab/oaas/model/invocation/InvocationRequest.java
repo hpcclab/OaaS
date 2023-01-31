@@ -21,6 +21,7 @@ public record InvocationRequest(
   String invId,
   String outId,
   @JsonIgnore String partKey,
+  boolean loadOutput,
   long queTs
 ) {
   public static final String CE_TYPE = "oaas.invReq";

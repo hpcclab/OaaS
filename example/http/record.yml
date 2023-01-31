@@ -40,8 +40,6 @@ classes:
       keySpecs: []
     functions:
       - access: PUBLIC
-        function: builtin.logical.copy
-      - access: PUBLIC
         name: json-update-inplace
         function: .json-update
         outputCls: none

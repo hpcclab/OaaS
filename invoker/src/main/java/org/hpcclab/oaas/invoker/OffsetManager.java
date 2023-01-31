@@ -73,8 +73,8 @@ public class OffsetManager {
       })
       .filter(Objects::nonNull)
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("committing {}", map);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("committing {}", map);
     }
     Uni<Map<TopicPartition, OffsetAndMetadata>> uni = UniHelper
       .toUni(kafkaConsumer.getDelegate().commit(map));
@@ -89,8 +89,8 @@ public class OffsetManager {
       .map(entry -> Map.entry(entry.getKey(),
         new OffsetAndMetadata(entry.getValue().offsetToCommit(), "")))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("committing {}", map);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("committing {}", map);
     }
     Future<Map<TopicPartition, OffsetAndMetadata>> future =
       kafkaConsumer.getDelegate().commit(map);

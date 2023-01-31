@@ -1,12 +1,15 @@
 package org.hpcclab.oaas.model.exception;
 
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InvocationException extends StdOaasException {
+
+  TaskCompletion taskCompletion;
   public InvocationException(String message, Throwable cause) {
     super(message, cause, true, 500);
   }
@@ -21,6 +24,11 @@ public class InvocationException extends StdOaasException {
 
   public InvocationException(String message, Throwable cause, int code) {
     super(message, cause, true, code);
+  }
+
+  public InvocationException(Throwable cause, TaskCompletion taskCompletion) {
+    super(null, cause);
+    this.taskCompletion = taskCompletion;
   }
 
   public static InvocationException detectConcurrent(Throwable e) {
@@ -38,5 +46,14 @@ public class InvocationException extends StdOaasException {
           .map(OaasObject::getId)
           .collect(Collectors.joining(", "))),
       409);
+  }
+
+  public TaskCompletion getTaskCompletion() {
+    return taskCompletion;
+  }
+
+  public InvocationException setTaskCompletion(TaskCompletion taskCompletion) {
+    this.taskCompletion = taskCompletion;
+    return this;
   }
 }

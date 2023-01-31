@@ -6,15 +6,16 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import org.hpcclab.oaas.invocation.InvocationQueueSender;
-import org.hpcclab.oaas.invocation.TaskFactory;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.task.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 @Dependent
-public class KafkaInvocationSender implements InvocationQueueSender {
+public class KafkaInvocationQueueSender implements InvocationQueueSender {
+  private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationQueueSender.class );
   @Inject
   KafkaProducer<String, Buffer> producer;
   @Inject
@@ -29,6 +30,8 @@ public class KafkaInvocationSender implements InvocationQueueSender {
         Json.encodeToBuffer(request)
       )
       .addHeader("ce_function", request.function());
+    if (logger.isDebugEnabled())
+      logger.debug("send {} [{} {} {}]", topic, request.invId(), request.partKey(), request.outId());
     if (request.invId() != null)
       kafkaRecord.addHeader("ce_id", request.invId());
     return producer.send(kafkaRecord)

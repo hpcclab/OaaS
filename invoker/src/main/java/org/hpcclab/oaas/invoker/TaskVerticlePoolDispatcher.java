@@ -92,6 +92,7 @@ public class TaskVerticlePoolDispatcher {
         verticles.get(0).offer(rec);
       } else if (rec.key() !=null) {
         var hashIndex = rec.key().hashCode() % verticles.size();
+        if (hashIndex < 0) hashIndex = 0;
         var verticle = verticles.get(hashIndex);
         verticle.offer(rec);
       } else {

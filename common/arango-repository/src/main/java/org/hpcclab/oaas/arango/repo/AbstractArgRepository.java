@@ -260,7 +260,7 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
-
+    // language=AQL
     var query = """
       FOR doc IN @@col
         SORT doc.@sorted @order

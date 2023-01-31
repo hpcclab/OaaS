@@ -30,7 +30,7 @@ public class MultimapGraphStateManager extends AbstractGraphStateManager {
 
 
   @Override
-  public Uni<Collection<String>> getAllEdge(String srcId) {
+  public Uni<? extends Collection<String>> getAllEdge(String srcId) {
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(edgeMap.get(srcId));
     if (ctx!=null)

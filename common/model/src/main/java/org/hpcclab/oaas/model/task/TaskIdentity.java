@@ -1,7 +1,8 @@
 package org.hpcclab.oaas.model.task;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
 import java.util.Objects;
@@ -9,12 +10,21 @@ import java.util.Objects;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskIdentity {
-  @JsonAlias("id")
   String mId;
   String oId;
   String vId;
 
   public TaskIdentity() {
+  }
+
+  @JsonCreator
+  public TaskIdentity(String id) {
+    var split = id.split(DISCRIMINATOR, -1);
+    if (split.length!=3)
+      throw new IllegalArgumentException("Wrong ID format");
+    mId = Objects.equals(split[0], "") ? null:split[0];
+    oId = Objects.equals(split[1], "") ? null:split[1];
+    vId = Objects.equals(split[2], "") ? null:split[2];
   }
 
   public TaskIdentity(String mId, String oId, String vId) {
@@ -41,6 +51,7 @@ public class TaskIdentity {
     return vId;
   }
 
+
   public static final String DISCRIMINATOR = ":";
 
   public String encode() {
@@ -57,14 +68,7 @@ public class TaskIdentity {
   }
 
   public static TaskIdentity decode(String id) {
-    var split = id.split(DISCRIMINATOR);
-    if (split.length!=3)
-      throw new IllegalArgumentException("Wrong ID format");
-    return new TaskIdentity(
-      split[0],
-      Objects.equals(split[1], "") ? null:split[1],
-      split[2]
-    );
+    return new TaskIdentity(id);
   }
 
   public static String createEncodedIdFromTask(TaskDetail task) {
@@ -81,6 +85,7 @@ public class TaskIdentity {
   }
 
   @Override
+  @JsonValue
   public String toString() {
     return encode();
   }

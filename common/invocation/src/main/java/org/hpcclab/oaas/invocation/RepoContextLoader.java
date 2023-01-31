@@ -6,7 +6,6 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.DataflowStep;
@@ -61,16 +60,21 @@ public class RepoContextLoader implements ContextLoader {
     var ctx = new FunctionExecContext();
     ctx.setArgs(request.args());
     ctx.setRequest(request);
-    return objectRepo.getAsync(request.target())
-      .onItem().ifNull()
-      .failWith(() -> StdOaasException.notFoundObject400(request.target()))
-      .invoke(ctx::setMain)
-      .invoke(ctx::setEntry)
+    Uni<?> uni;
+    if (request.loadOutput() && request.outId() != null) {
+        uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
+          .invoke(map -> ctx.setMain(map.get(request.target())).setOutput(map.get(request.outId())));
+    } else {
+      uni = objectRepo.getAsync(request.target())
+        .onItem().ifNull()
+        .failWith(() -> StdOaasException.notFoundObject400(request.target()))
+        .invoke(ctx::setMain);
+    }
+    return uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
       .map(ignore -> setClsAndFunc(ctx, request.fbName()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
       .invoke(ctx::setInputs)
       .replaceWith(ctx);
-
   }
 
   private FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {

@@ -69,7 +69,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onItem()
       .transformToUniAndConcatenate(id -> objRepo.computeAsync(id,
         (k, obj) -> triggerObject(obj, completedObject.getStatus().getOriginator(), completedObject.getId())))
-      .filter(obj -> obj.getStatus().getOriginator().equals(completedObject.getStatus().getOriginator()));
+      .filter(obj -> obj.getStatus() != null && Objects.equals(obj.getStatus().getOriginator(),completedObject.getStatus().getOriginator()));
   }
 
 

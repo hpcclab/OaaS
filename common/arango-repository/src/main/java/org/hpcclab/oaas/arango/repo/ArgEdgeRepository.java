@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -43,35 +43,41 @@ public class ArgEdgeRepository extends AbstractArgRepository<ObjectDependencyEdg
 
   @Override
   public String extractKey(ObjectDependencyEdge objectDependencyEdge) {
-    return objectDependencyEdge.id();
+    return objectDependencyEdge.getId();
   }
 
   public ObjectDependencyEdge createEdge(String from, String to) {
     return ObjectDependencyEdge.of(objCollection.name() + "/" + from, objCollection.name() + "/" + to);
   }
 
-  public Uni<Collection<String>> getAllEdge(String srcId) {
-    logger.debug("getAllEdge[{}] {}",
-      edgeCollection.name(), srcId);
+  public Uni<List<String>> getAllEdge(String srcId) {
     var docId = objCollection.name() + "/" + srcId;
+    logger.debug("getAllEdge[{}] {}", edgeCollection.name(), docId);
     // language=AQL
     var query = """
       FOR doc in @@edges
-        FILTER doc._from == CONCAT(@objCol,"/", @src)
+        FILTER doc._from == @src
         return doc
       """;
-    return createUni(() -> objCollection
+    var uni = createUni(() -> edgeCollectionAsync
       .db()
       .query(query,
         Map.of(
-          "@edges", edgeCollection.name(),
-          "src", docId,
-          "objCol", objCollection.name()
+          "@edges", edgeCollectionAsync.name(),
+          "src", docId
         ),
-        ObjectDependencyEdge.class))
-      .map(cursor -> cursor
-        .stream()
-        .map(ObjectDependencyEdge::id)
-        .toList());
+        ObjectDependencyEdge.class)
+      .thenApply(cursor -> cursor.streamRemaining()
+        .map(ode -> ode.getTo().substring(objCollection.name().length() + 1))
+        .toList()
+      )
+    );
+
+    if (logger.isDebugEnabled()) {
+      uni = uni
+        .invoke(list -> logger.debug("getAllEdge[{}] {} => {}",
+          edgeCollection.name(), docId, list));
+    }
+    return uni;
   }
 }

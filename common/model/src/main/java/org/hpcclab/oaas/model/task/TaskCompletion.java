@@ -18,12 +18,9 @@ public class TaskCompletion {
   TaskIdentity id;
   boolean success;
   String errorMsg;
-  //  ObjectNode embeddedRecord;
   Map<String, String> ext;
-
   ObjectUpdate main;
   ObjectUpdate output;
-
   @JsonIgnore
   long cptTs = -1;
   @JsonIgnore

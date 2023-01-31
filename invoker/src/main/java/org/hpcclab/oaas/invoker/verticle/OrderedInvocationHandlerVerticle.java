@@ -9,7 +9,7 @@ import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.KafkaInvokeException;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -75,10 +75,14 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   private void invokeTask(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("invokeTask {}", request);
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
-        if (detectDuplication(kafkaRecord, ctx))
+        if (detectDuplication(kafkaRecord, ctx)) {
+          LOGGER.warn("detect duplication {} {}", ctx.getRequest().target(), ctx.getRequest().outId());
           return Uni.createFrom().nullItem();
+        }
         return router.apply(ctx)
           .flatMap(invocationExecutor::asyncExec);
       })
@@ -102,16 +106,18 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   FunctionExecContext handleFailInvocation(Throwable exception) {
-    if (exception instanceof KafkaInvokeException kafkaInvokeException) {
-      var msg = kafkaInvokeException.getCause()!=null ? kafkaInvokeException
+    if (exception instanceof InvocationException invocationException) {
+      var msg = invocationException.getCause()!=null ? invocationException
         .getCause().getMessage():null;
       if (LOGGER.isWarnEnabled())
         LOGGER.warn("Catch invocation fail on '{}' with message '{}'",
-          kafkaInvokeException.getTaskCompletion().getId().encode(),
+          invocationException.getTaskCompletion().getId().encode(),
           msg,
-          kafkaInvokeException
+          invocationException
         );
       // TODO send to dead letter topic
+    } else {
+      LOGGER.error("Unexpected exception", exception);
     }
     return null;
   }
