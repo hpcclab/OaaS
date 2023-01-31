@@ -29,6 +29,7 @@ public class MockupData {
     ;
 
 
+
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")
     .setPkg("ex")
@@ -40,11 +41,13 @@ public class MockupData {
           .setFunction("f1")
           .setTarget("$")
           .setArgRefs(Map.of("key1","arg1"))
-          .setAs("tmp1"),
+          .setAs("tmp1")
+          .setArgs(Map.of("STEP", "1")),
         new DataflowStep()
-          .setFunction("f1")
+          .setFunction("f3")
           .setTarget("tmp1")
           .setAs("tmp2")
+          .setArgs(Map.of("STEP", "2"))
       ))
       .setExport("tmp2")
     );
@@ -72,6 +75,11 @@ public class MockupData {
         .setName("func2")
         .setFunction( FUNC_1.getKey())
         .setOutputCls(null),
+      new FunctionBinding()
+        .setName("f3")
+        .setFunction(FUNC_1.getKey())
+        .setForceImmutable(true)
+        .setOutputCls("ex.cls1"),
       new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
         .setFunction(MACRO_FUNC_1.getKey())

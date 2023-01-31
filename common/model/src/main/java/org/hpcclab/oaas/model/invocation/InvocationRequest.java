@@ -20,6 +20,7 @@ public record InvocationRequest(
   String function,
   String invId,
   String outId,
+  Map<String,String> macroIds,
   @JsonIgnore String partKey,
   boolean loadOutput,
   long queTs

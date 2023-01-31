@@ -74,7 +74,7 @@ public class CompletionValidator {
       .onItem()
       .ifNull().failWith(() -> new CompletionCheckException("Can not find the matched function"))
       .invoke(func -> {
-        if (!func.getType().isAllowUpdateMain())
+        if (!func.getType().isMutable())
           completion.setMain(null);
       })
       .replaceWithVoid();

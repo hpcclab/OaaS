@@ -17,7 +17,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @ApplicationScoped
@@ -69,7 +68,7 @@ public class TaskFactory {
       }
     }
 
-    if (taskContext.getFunction().getType().isAllowUpdateMain()) {
+    if (taskContext.getFunction().getType().isMutable()) {
       var b64Dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId)
         .encode();
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getMain().getId(), b64Dac));

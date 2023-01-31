@@ -78,14 +78,19 @@ public class MacroFunctionApplier implements FunctionApplier {
 
   private Uni<List<FunctionExecContext>> execWorkflow(FunctionExecContext context,
                                                       Dataflow workflow) {
+    var request = context.getRequest();
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
         LOGGER.trace("Execute step {}", step);
         return contextLoader.loadCtxAsync(context, step)
           .flatMap(newCtx -> router.apply(newCtx))
-          .invoke(newCtx ->
-            context.getWorkflowMap().put(step.getAs(), newCtx.getOutput())
-          );
+          .invoke(newCtx -> {
+            if (newCtx.getOutput() != null
+              && step.getAs() != null
+              && request.macroIds().containsKey(step.getAs()))
+              newCtx.getOutput().setId(request.macroIds().get(step.getAs()));
+            context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());
+          });
       })
       .collect().asList()
       .invoke(ctxList -> {

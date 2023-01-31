@@ -40,7 +40,7 @@ public class FunctionExecContext extends TaskContext {
     var finalArgs = resolveArgs(binding);
     return new ObjectOrigin(
       getMain().getId(),
-      binding.getFunction(),
+      getFbName(),
       finalArgs,
       getInputs().stream().map(OaasObject::getId)
         .toList()

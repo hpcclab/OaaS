@@ -5,15 +5,12 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvocationQueueSender;
 import org.hpcclab.oaas.invocation.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -27,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class InvocationHandlerService {
@@ -94,13 +92,16 @@ public class InvocationHandlerService {
             .fbName(ctx.oal().getFunctionName())
             .args(ctx.oal().getArgs())
             .inputs(ctx.oal().getInputs())
-            .immutable(ctx.functionBinding().isForceImmutable() || !ctx.function().getType().isAllowUpdateMain())
+            .immutable(ctx.functionBinding().isForceImmutable() || !ctx.function().getType().isMutable())
             .macro(ctx.function().getType() == FunctionType.MACRO)
             .function(ctx.function().getKey())
             .invId(idGenerator.generate());
-          if (ctx.functionBinding().getOutputCls() != null) {
+          if (ctx.function().getType() == FunctionType.MACRO) {
+            addMacroIds(builder, ctx.function().getMacro());
+          } else if (ctx.functionBinding().getOutputCls() != null) {
             builder.outId(idGenerator.generate());
           }
+
           return Tuples.pair(ctx, builder.build());
         })
         .call(pair -> sender.send(pair.getTwo()))
@@ -109,8 +110,19 @@ public class InvocationHandlerService {
           .output(new OaasObject().setId(pair.getTwo().outId()))
           .target(pair.getOne().main())
           .fbName(pair.getOne().functionBinding().getName())
+          .macroIds(pair.getTwo().macroIds())
           .async(true)
           .build());
+  }
+
+  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, Dataflow dataflow) {
+    var map = dataflow.getSteps().stream()
+      .filter(step -> step.getAs() != null)
+      .map(step -> Map.entry(step.getAs(), idGenerator.generate()))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    builder.macroIds(map);
+    if (dataflow.getExport() != null)
+      builder.outId(map.get(dataflow.getExport()));
   }
 
   public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {

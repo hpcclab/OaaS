@@ -31,7 +31,7 @@ public class TaskFunctionApplier implements FunctionApplier {
   }
 
   public Uni<FunctionExecContext> apply(FunctionExecContext ctx) {
-    ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isAllowUpdateMain());
+    ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isMutable());
     var req = ctx.getRequest();
     if (ctx.getBinding().getOutputCls()!=null) {
       var output = objectFactory.createOutput(ctx);

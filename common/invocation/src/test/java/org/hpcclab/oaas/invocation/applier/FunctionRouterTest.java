@@ -7,6 +7,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -274,5 +276,46 @@ class FunctionRouterTest {
     assertFalse(ctx.getOutput().getStatus().getTaskStatus().isSubmitted());
     assertTrue(ctx.getSubOutputs().get(0).getStatus().getTaskStatus().isSubmitted());
     assertTrue(ctx.getSubOutputs().get(0).getOrigin().getArgs().containsKey("key1"));
+  }
+
+  @Test
+  void testMacroGeneration() {
+    var request = InvocationRequest.builder()
+      .target("o1")
+      .fbName(MockupData.MACRO_FUNC_1.getName())
+      .fbName(MockupData.MACRO_FUNC_1.getName())
+      .outId("m2")
+      .macroIds(Map.of(
+        "tmp1", "m1",
+        "tmp2", "m2"
+      ))
+      .build();
+    var ctx = router.apply(request)
+      .await().indefinitely();
+//    printDebug(ctx);
+    assertEquals(2, ctx.getSubContexts().size());
+    assertTrue(ctx.getSubOutputs().stream()
+      .anyMatch(o -> o.getId().equals("m1"))
+    );
+    assertTrue(ctx.getSubOutputs().stream()
+      .anyMatch(o -> o.getId().equals("m2"))
+    );
+    assertEquals("m2", ctx.getOutput().getId());
+    assertEquals("1", ctx.getSubContexts().get(0).getArgs().get("STEP"));
+    assertEquals("2", ctx.getSubContexts().get(1).getArgs().get("STEP"));
+
+    invocationExecutor.asyncSubmit(ctx)
+      .await().indefinitely();
+//    printDebug(ctx);
+    var req1 = invocationQueueSender.multimap.get("o1").getAny();
+    assertEquals("1", req1.args().get("STEP"));
+    var step1Ctx = router.apply(req1)
+      .await().indefinitely();
+    invocationExecutor.asyncExec(step1Ctx)
+      .await().indefinitely();
+    var req2 = invocationQueueSender.multimap.get("m1").getAny();
+    assertEquals("2", req2.args().get("STEP"));
+    assertEquals("f3", req2.fbName());
+    printDebug(ctx);
   }
 }

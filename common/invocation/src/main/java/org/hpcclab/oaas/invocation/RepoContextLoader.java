@@ -2,17 +2,18 @@ package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.task.TaskContext;
+import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.DataflowStep;
+import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
+import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class RepoContextLoader implements ContextLoader {
-  private static final Logger logger = LoggerFactory.getLogger( RepoContextLoader.class );
+  private static final Logger logger = LoggerFactory.getLogger(RepoContextLoader.class);
 
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
@@ -61,9 +62,9 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
-    if (request.loadOutput() && request.outId() != null) {
-        uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
-          .invoke(map -> ctx.setMain(map.get(request.target())).setOutput(map.get(request.outId())));
+    if (request.loadOutput() && request.outId()!=null) {
+      uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
+        .invoke(map -> ctx.setMain(map.get(request.target())).setOutput(map.get(request.outId())));
     } else {
       uni = objectRepo.getAsync(request.target())
         .onItem().ifNull()
@@ -80,12 +81,12 @@ public class RepoContextLoader implements ContextLoader {
   private FunctionExecContext setClsAndFunc(FunctionExecContext ctx, String funcName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
-    if (mainCls == null)
+    if (mainCls==null)
       throw StdOaasException.format("Can not find class '%s'", main.getCls());
     ctx.setMainCls(mainCls);
     var binding = mainCls
       .findFunction(funcName);
-    if (binding == null)
+    if (binding==null)
       throw FunctionValidationException.noFunction(main.getId(), funcName);
     ctx.setBinding(binding);
 
@@ -107,17 +108,19 @@ public class RepoContextLoader implements ContextLoader {
     newCtx.setArgs(step.getArgs());
     if (step.getArgRefs()!=null && !step.getArgRefs().isEmpty()) {
       var map = new HashMap<String, String>();
-      Map<String,String> baseArgs = baseCtx.getArgs();
-      if (baseArgs != null) {
+      Map<String, String> baseArgs = baseCtx.getArgs();
+      if (baseArgs!=null) {
         for (var entry : step.getArgRefs().entrySet()) {
           var resolveArg = baseArgs.get(entry.getValue());
           map.put(entry.getKey(), resolveArg);
         }
       }
-      if (newCtx.getArgs()!=null)
+      if (newCtx.getArgs()!=null) {
+        newCtx.setArgs(Maps.mutable.ofMap(newCtx.getArgs()));
         newCtx.getArgs().putAll(map);
-      else
+      } else {
         newCtx.setArgs(map);
+      }
     }
     baseCtx.addSubContext(newCtx);
 //    logger.debug("resolveObjFromCtx {}", step);
@@ -159,7 +162,8 @@ public class RepoContextLoader implements ContextLoader {
           throw FunctionValidationException.cannotResolveMacro(ref,
             "index out of range: >=" + baseCtx.getInputs().size());
         return Uni.createFrom().item(baseCtx.getInputs().get(i));
-      } catch (NumberFormatException ignored){}
+      } catch (NumberFormatException ignored) {
+      }
     }
 
     if (baseCtx.getWorkflowMap().containsKey(ref))
@@ -174,7 +178,8 @@ public class RepoContextLoader implements ContextLoader {
 
   public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
     var tc = new TaskContext();
-    tc.setOutput(output);
+    tc.setOutput(output)
+      .setArgs(output.getOrigin().getArgs());
     var fbName = output.getOrigin().getFbName();
     tc.setFbName(fbName);
     var inputIds = output.getOrigin().getInputs();
@@ -184,26 +189,9 @@ public class RepoContextLoader implements ContextLoader {
       uni = Uni.createFrom().item(tc);
     } else {
       uni = objectRepo.getAsync(mainId)
-        .call(main -> {
-          if (main.getRefs()!=null && !main.getRefs().isEmpty()) {
-            var refSet = main.getRefs().stream().map(ObjectReference::getObjId)
-              .collect(Collectors.toSet());
-            return objectRepo.listAsync(refSet)
-              .map(refMap -> {
-                var mainRefs = main.getRefs().stream()
-                  .map(ref -> Map.entry(ref.getName(), refMap.get(ref.getObjId())))
-                  .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                return tc.setMainRefs(mainRefs);
-              });
-          }
-          return Uni.createFrom().nullItem();
-        })
+        .call(main -> loadRefs(main, tc))
         .map(tc::setMain)
-        .call(__ -> clsRepo.getAsync(tc.getMain().getCls())
-          .map(cls -> cls.findFunction(fbName).getFunction())
-          .call(funcKey -> funcRepo.getAsync(funcKey)
-            .invoke(tc::setFunction))
-        );
+        .call(__ -> loadFunction(tc, fbName));
     }
 
     if (!inputIds.isEmpty()) {
@@ -212,6 +200,32 @@ public class RepoContextLoader implements ContextLoader {
     }
 
     return uni;
+  }
+
+  private Uni<TaskContext> loadRefs(OaasObject main, TaskContext ctx) {
+    if (main.getRefs()!=null && !main.getRefs().isEmpty()) {
+      var refSet = main.getRefs().stream().map(ObjectReference::getObjId)
+        .collect(Collectors.toSet());
+      return objectRepo.listAsync(refSet)
+        .map(refMap -> {
+          var mainRefs = main.getRefs().stream()
+            .map(ref -> Map.entry(ref.getName(), refMap.get(ref.getObjId())))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+          return ctx.setMainRefs(mainRefs);
+        });
+    }
+    return Uni.createFrom().nullItem();
+  }
+
+  private Uni<?> loadFunction(TaskContext ctx, String fbName) {
+    return clsRepo.getAsync(ctx.getMain().getCls())
+      .call(cls -> {
+        var fb = cls.findFunction(fbName);
+        var funcKey = fb.getFunction();
+        return funcRepo.getAsync(funcKey)
+          .invoke(function -> ctx.setFunction(function)
+            .setImmutable(fb.isForceImmutable() || !function.getType().isMutable()));
+      });
   }
 
   public EntityRepository<String, OaasObject> getObjectRepo() {

@@ -16,13 +16,13 @@ public enum FunctionType {
   @ProtoEnumValue(5) STATIC(false),
   @ProtoEnumValue(6) READONLY(false),
   @ProtoEnumValue(7) STATIC_READONLY(false);
-  boolean allowUpdateMain;
+  boolean mutable;
 
   FunctionType(boolean allowUpdateMain) {
-    this.allowUpdateMain = allowUpdateMain;
+    this.mutable = allowUpdateMain;
   }
 
-  public boolean isAllowUpdateMain() {
-    return allowUpdateMain;
+  public boolean isMutable() {
+    return mutable;
   }
 }

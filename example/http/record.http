@@ -19,7 +19,7 @@ client.global.set("obj_0_id", response.body.object.id)
 ###
 GET {{cds}}/oal/{{obj_0_id}}
 ###
-GET {{cds}}/oal/{{obj_0_id}}:json-update?async=true
+GET {{cds}}/oal/{{obj_0_id}}:json-update
 
 > {%
 client.global.set("obj_1_id", response.body.output.id)
@@ -39,4 +39,13 @@ GET {{cds}}/oal/{{obj_0_id}}:chain?async=true
 
 > {%
   client.global.set("obj_1_id", response.body.output.id)
+  client.global.set("macro_1_id", response.body.macroIds.record1)
+  client.global.set("macro_2_id", response.body.macroIds.record2)
+  client.global.set("macro_3_id", response.body.macroIds.record3)
 %}
+###
+GET {{cds}}/oal/{{macro_1_id}}
+###
+GET {{cds}}/oal/{{macro_2_id}}
+###
+GET {{cds}}/oal/{{macro_3_id}}
