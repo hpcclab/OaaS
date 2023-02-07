@@ -27,6 +27,8 @@ public class FunctionListener {
   KafkaAdminClient adminClient;
 
   String groupId;
+  @Inject
+  InvokerConfig config;
 
   @PostConstruct
   void setup() {
@@ -51,7 +53,7 @@ public class FunctionListener {
   }
 
   public Uni<Void> start() {
-    return client.subscribe("oaas-provisions");
+    return client.subscribe(config.fnProvisionTopic());
   }
 
   public void setHandler(Consumer<OaasFunction> consumer) {

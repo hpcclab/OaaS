@@ -8,7 +8,7 @@ import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.controller.OcConfig;
-import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Views;
@@ -32,14 +32,14 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api/packages")
 public class PackageResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PackageResource.class);
+  private static final Logger logger = LoggerFactory.getLogger(PackageResource.class);
 
   @Inject
   ClassRepository classRepo;
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  FunctionProvisionPublisher provisionPublisher;
+  ProvisionPublisher provisionPublisher;
   @Inject
   OcConfig config;
   @Inject
@@ -80,7 +80,7 @@ public class PackageResource {
       .retry().atMost(3);
     if (config.kafkaEnabled()) {
       return uni.call(pkg ->
-        provisionPublisher.submitNewFunction(pkg.getFunctions().stream()));
+        provisionPublisher.submitNewPkg(pkg));
     }
     return uni;
   }

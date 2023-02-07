@@ -2,7 +2,6 @@ package org.hpcclab.oaas.provisioner;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
-import io.smallrye.config.WithName;
 
 @ConfigMapping(prefix = "oaas.kp", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface KpConfig {
@@ -13,6 +12,7 @@ public interface KpConfig {
 
   boolean exposeKnative();
 
-  String provisionTopic();
-  public static final String LABEL_KEY = "oaas.function";
+  String fnProvisionTopic();
+  String clsProvisionTopic();
+  String LABEL_KEY = "oaas.function";
 }

@@ -7,6 +7,7 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
@@ -48,12 +49,14 @@ public class HttpInvoker implements SyncInvoker {
       .sendBuffer(contentBuffer)
       .map(resp -> this.handleResp(invokingDetail, resp))
       .onFailure()
-      .recoverWithItem(e -> TaskCompletion.error(
-        TaskIdentity.decode(invokingDetail.getId()),
-        "Fail to perform invocation: " + e.getMessage(),
-        invokingDetail.getSmtTs(),
-        System.currentTimeMillis())
-      );
+      .transform(InvocationException::connectionErr)
+//      .recoverWithItem(e -> TaskCompletion.error(
+//        TaskIdentity.decode(invokingDetail.getId()),
+//        "Fail to perform invocation: " + e.getMessage(),
+//        invokingDetail.getSmtTs(),
+//        System.currentTimeMillis())
+//      )
+      ;
   }
 
   protected MultiMap createHeader(InvokingDetail<?> detail) {

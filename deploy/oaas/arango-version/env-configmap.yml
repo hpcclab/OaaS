@@ -4,8 +4,6 @@ data:
   OAAS_OC_PROVISIONTOPIC: oaas-provisions
   OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
   OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
-  OAAS_TM_NATSURLS: nats://my-nats:4222
-  OAAS_KP_PROVISIONTOPIC: oaas-provisions
   OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
   OAAS_KP_COMPLETIONHANDLERPATH: /ce
   OAAS_KP_EXPOSEKNATIVE: 'false'

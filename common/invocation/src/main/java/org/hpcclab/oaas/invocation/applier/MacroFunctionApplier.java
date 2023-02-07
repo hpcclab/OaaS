@@ -2,8 +2,10 @@ package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.Dataflow;
@@ -82,7 +84,7 @@ public class MacroFunctionApplier implements FunctionApplier {
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
         LOGGER.trace("Execute step {}", step);
-        return contextLoader.loadCtxAsync(context, step)
+        return loadSubContext(context, step)
           .flatMap(newCtx -> router.apply(newCtx))
           .invoke(newCtx -> {
             if (newCtx.getOutput() != null
@@ -99,4 +101,45 @@ public class MacroFunctionApplier implements FunctionApplier {
         }
       });
   }
+
+  public Uni<FunctionExecContext> loadSubContext(FunctionExecContext baseCtx,
+                                               DataflowStep step) {
+    var newCtx = new FunctionExecContext();
+    newCtx.setParent(baseCtx);
+    newCtx.setArgs(step.getArgs());
+    if (step.getArgRefs()!=null && !step.getArgRefs().isEmpty()) {
+      var map = new HashMap<String, String>();
+      Map<String, String> baseArgs = baseCtx.getArgs();
+      if (baseArgs!=null) {
+        for (var entry : step.getArgRefs().entrySet()) {
+          var resolveArg = baseArgs.get(entry.getValue());
+          map.put(entry.getKey(), resolveArg);
+        }
+      }
+      if (newCtx.getArgs()!=null) {
+        newCtx.setArgs(Maps.mutable.ofMap(newCtx.getArgs()));
+        newCtx.getArgs().putAll(map);
+      } else {
+        newCtx.setArgs(map);
+      }
+    }
+    baseCtx.addSubContext(newCtx);
+    return contextLoader.resolveObj(baseCtx, step.getTarget())
+      .invoke(newCtx::setMain)
+      .map(ignore -> contextLoader.loadClsAndFunc(newCtx, step.getFunction()))
+      .chain(() -> resolveInputs(newCtx, step));
+  }
+
+
+  private Uni<FunctionExecContext> resolveInputs(FunctionExecContext baseCtx,
+                                                 DataflowStep step) {
+    List<String> inputRefs = step.getInputRefs()==null ? List.of():step.getInputRefs();
+    return Multi.createFrom().iterable(inputRefs)
+      .onItem().transformToUniAndConcatenate(ref -> contextLoader.resolveObj(baseCtx, ref))
+      .collect().asList()
+      .invoke(baseCtx::setInputs)
+      .replaceWith(baseCtx);
+  }
+
+
 }

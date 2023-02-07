@@ -10,7 +10,6 @@ import org.hpcclab.oaas.invoker.TaskVerticlePoolDispatcher;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
       offsetManager, config);
     dispatcher.setName(function);
     var verticle = new TaskConsumerVerticle(consumer, dispatcher, config);
-    verticle.setTopics(Set.of(config.functionTopicPrefix() + function));
+    verticle.setTopics(Set.of(config.fnTopicPrefix() + function));
     return verticle;
   }
 

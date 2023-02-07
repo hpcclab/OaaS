@@ -28,8 +28,9 @@
 oaas:
   oc:
     storageAdapterUrl: http://localhost:8093
-    provisionTopic: oaas-provisions
+    clsProvisionTopic: oaas-cls
     kafkaEnabled: false
+    fnProvisionTopic: oaas-fn
   log: INFO
   name: object-controller
 
@@ -77,9 +78,15 @@ quarkus:
 mp:
   messaging:
     outgoing:
-      provisions:
+      fnProvisions:
         enabled: ${oaas.oc.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oaas.oc.provisionTopic}
+        topic: ${oaas.oc.fnProvisionTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+      clsProvisions:
+        enabled: ${oaas.oc.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oaas.oc.clsProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

@@ -10,7 +10,8 @@
 
 oaas:
   kp:
-    provisionTopic: oaas-provisions
+    fnProvisionTopic: oaas-fn
+    clsProvisionTopic: oaas-cls
     exposeKnative: false
 
 quarkus:
@@ -31,7 +32,7 @@ mp:
     incoming:
       provisions:
         connector: smallrye-kafka
-        topic: ${oaas.kp.provisionTopic}
+        topic: ${oaas.kp.fnProvisionTopic}
         auto:
           offset:
             reset: earliest

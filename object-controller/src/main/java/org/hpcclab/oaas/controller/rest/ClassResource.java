@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.mapper.CtxMapper;
+import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
@@ -37,6 +38,9 @@ public class ClassResource {
   CtxMapper oaasMapper;
   @Inject
   PackageResource packageResource;
+
+  @Inject
+  ProvisionPublisher provisionPublisher;
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @GET
@@ -117,18 +121,19 @@ public class ClassResource {
   }
 
   @GET
-  @Path("{name}")
+  @Path("{clsKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasClass> get(String name) {
-    return classRepo.getAsync(name)
+  public Uni<OaasClass> get(String clsKey) {
+    return classRepo.getAsync(clsKey)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
   @DELETE
-  @Path("{name}")
+  @Path("{clsKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasClass> delete(String name) {
-    return classRepo.removeAsync(name)
-      .onItem().ifNull().failWith(NotFoundException::new);
+  public Uni<OaasClass> delete(String clsKey) {
+    return classRepo.removeAsync(clsKey)
+      .onItem().ifNull().failWith(NotFoundException::new)
+      .call(__ -> provisionPublisher.submitDeleteCls(clsKey));
   }
 }

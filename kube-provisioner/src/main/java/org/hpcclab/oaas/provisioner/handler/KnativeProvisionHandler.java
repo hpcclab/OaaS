@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class KnativeProvisionHandler {
         .delete()
         .isEmpty();
       if (deleted) LOGGER.info("Deleted service: {}", key);
-    } else {
+    } else if (function.getProvision() != null) {
       var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
@@ -136,12 +137,20 @@ public class KnativeProvisionHandler {
     var condition = extractReadyCondition(service);
     var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
+
       functionRepo.compute(function.getKey(), (k, f) -> {
-        if (f.getDeploymentStatus()==null)
+        var kn = function.getProvision().getKnative();
+        var apiPath = kn.getApiPath();
+        if (apiPath == null)
+          apiPath ="";
+        else if (!apiPath.isEmpty() && !apiPath.startsWith("/"))
+          apiPath = "/" + apiPath;
+        if (f.getDeploymentStatus()==null) {
           f.setDeploymentStatus(new FunctionDeploymentStatus());
+        }
         f.getDeploymentStatus()
           .setCondition(DeploymentCondition.RUNNING)
-          .setInvocationUrl(service.getStatus().getAddress().getUrl())
+          .setInvocationUrl(service.getStatus().getUrl() + apiPath)
           .setErrorMsg(null);
         return f;
       });

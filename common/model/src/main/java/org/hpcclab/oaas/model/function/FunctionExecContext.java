@@ -68,7 +68,7 @@ public class FunctionExecContext extends TaskContext {
 
   @Override
   public String getFbName() {
-    return binding.getName();
+    return super.getFbName() == null ? binding.getName() : getFbName();
   }
 
   public void addSubContext(FunctionExecContext ctx) {

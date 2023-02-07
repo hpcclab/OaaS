@@ -15,6 +15,26 @@ functions:
         limitsCpu: '2'
     variableDescriptions:
       - name: append
+  - name: chain-concat
+    type: MACRO
+    macro:
+      steps:
+        - target: $
+          as: record1
+          function: concat
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: concat
+          args:
+            INPLACE: "false"
+      export: record3
 classes:
   - name: text
     stateType: FILES

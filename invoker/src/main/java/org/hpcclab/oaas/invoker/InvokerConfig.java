@@ -3,9 +3,6 @@ package org.hpcclab.oaas.invoker;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 
-import java.util.Optional;
-import java.util.Set;
-
 @ConfigMapping(
   prefix = "oaas.invoker",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
@@ -14,8 +11,12 @@ public interface InvokerConfig {
   String kafka();
   @WithDefault("oaas-invoker")
   String kafkaGroup();
+  @WithDefault("oaas-fn")
+  String fnProvisionTopic();
+  @WithDefault("oaas-cls")
+  String clsProvisionTopic();
   @WithDefault("oaas-fn-")
-  String functionTopicPrefix();
+  String fnTopicPrefix();
   String storageAdapterUrl();
   @WithDefault("100")
   int connectionPoolMaxSize();

@@ -15,6 +15,10 @@ functions:
   - name: chain-update
     type: MACRO
     macro:
+      # var record1 = $.json-update()
+      # var record2 = record1.json-update()
+      # var record3 = record2.json-update()
+      # return record3
       steps:
         - target: $
           as: record1

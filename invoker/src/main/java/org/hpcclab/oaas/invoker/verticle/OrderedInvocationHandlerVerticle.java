@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.time.Duration;
 
 @Dependent
 public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle {
@@ -64,6 +65,9 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     loader.loadCtxAsync(request)
       .flatMap(router::apply)
       .flatMap(invocationExecutor::asyncSubmit)
+      .onFailure().retry()
+      .withBackOff(Duration.ofMillis(100))
+      .atMost(3)
       .subscribe()
       .with(
         ctx -> next(kafkaRecord),
@@ -86,6 +90,8 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
         return router.apply(ctx)
           .flatMap(invocationExecutor::asyncExec);
       })
+      .onFailure(InvocationException.class)
+      .retry().atMost(3)
       .onFailure()
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
@@ -94,7 +100,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
           objCompPublisher.publish(ctx.getOutput().getId());
         next(kafkaRecord);
       }, error -> {
-        LOGGER.error("Unexpected error on invoker ", error);
+        LOGGER.error("Get unrecovery repeating error on invoker ", error);
         next(kafkaRecord);
       });
   }

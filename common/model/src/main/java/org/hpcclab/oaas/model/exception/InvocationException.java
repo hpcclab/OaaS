@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.exception;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,6 +11,8 @@ import java.util.stream.Collectors;
 public class InvocationException extends StdOaasException {
 
   TaskCompletion taskCompletion;
+  boolean retryable = true;
+  boolean connErr = false;
   public InvocationException(String message, Throwable cause) {
     super(message, cause, true, 500);
   }
@@ -32,7 +35,8 @@ public class InvocationException extends StdOaasException {
   }
 
   public static InvocationException detectConcurrent(Throwable e) {
-    return new InvocationException("Detect concurrent update in the same object", e, 409);
+    return new InvocationException("Detect concurrent update in the same object", e,
+      HttpURLConnection.HTTP_CONFLICT);
   }
 
   public static InvocationException notReady(List<Map.Entry<OaasObject, OaasObject>> waiting,
@@ -48,6 +52,12 @@ public class InvocationException extends StdOaasException {
       409);
   }
 
+  public static InvocationException connectionErr(Throwable e) {
+    var ex =  new InvocationException("Connection Error", e, HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
+    ex.connErr = true;
+    return ex;
+  }
+
   public TaskCompletion getTaskCompletion() {
     return taskCompletion;
   }
@@ -56,4 +66,17 @@ public class InvocationException extends StdOaasException {
     this.taskCompletion = taskCompletion;
     return this;
   }
+
+  public boolean isRetryable() {
+    return retryable;
+  }
+
+  public void setRetryable(boolean retryable) {
+    this.retryable = retryable;
+  }
+
+  public boolean isConnErr() {
+    return connErr;
+  }
+
 }

@@ -37,6 +37,8 @@ public class KnativeProvision {
   String limitsMemory;
   @ProtoField(value = 11, javaType = HashMap.class)
   Map<String, String> env;
+  @ProtoField(12)
+  String apiPath;
 
   public KnativeProvision() {
   }
@@ -51,7 +53,8 @@ public class KnativeProvision {
                           String requestsMemory,
                           String limitsCpu,
                           String limitsMemory,
-                          Map<String, String> env) {
+                          Map<String, String> env,
+                          String apiPath) {
     this.image = image;
     this.minScale = minScale;
     this.maxScale = maxScale;
@@ -63,6 +66,7 @@ public class KnativeProvision {
     this.limitsCpu = limitsCpu;
     this.limitsMemory = limitsMemory;
     this.env = env;
+    this.apiPath = apiPath;
   }
 
   @ProtoFactory
@@ -76,7 +80,8 @@ public class KnativeProvision {
                           String requestsMemory,
                           String limitsCpu,
                           String limitsMemory,
-                          HashMap<String, String> env) {
+                          HashMap<String, String> env,
+                          String apiPath) {
     this.image = image;
     this.minScale = minScale;
     this.maxScale = maxScale;
@@ -88,5 +93,6 @@ public class KnativeProvision {
     this.limitsCpu = limitsCpu;
     this.limitsMemory = limitsMemory;
     this.env = env;
+    this.apiPath = apiPath;
   }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.smallrye.mutiny.Uni;
+import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
@@ -28,6 +29,8 @@ public class FunctionResource {
   FunctionRepository funcRepo;
   @Inject
   PackageResource packageResource;
+  @Inject
+  ProvisionPublisher provisionPublisher;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -74,10 +77,19 @@ public class FunctionResource {
   }
 
   @GET
-  @Path("{funcName}")
+  @Path("{funcKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasFunction> get(String funcName) {
-    return funcRepo.getAsync(funcName)
+  public Uni<OaasFunction> get(String funcKey) {
+    return funcRepo.getAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new);
+  }
+
+  @DELETE
+  @Path("{funcKey}")
+  @JsonView(Views.Public.class)
+  public Uni<OaasFunction> delete(String funcKey) {
+    return funcRepo.removeAsync(funcKey)
+      .onItem().ifNull().failWith(NotFoundException::new)
+      .call(__ -> provisionPublisher.submitDeleteFn(funcKey));
   }
 }

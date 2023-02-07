@@ -134,7 +134,8 @@ public class InvocationExecutor {
           Lists.mutable.empty();
         return gsm.persistAllWithoutNoti(ctx, list);
       })
-      .onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
+      .onFailure(DataAccessException.class)
+      .transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
   }
 

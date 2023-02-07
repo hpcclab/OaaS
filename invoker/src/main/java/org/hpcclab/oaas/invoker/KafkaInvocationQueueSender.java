@@ -39,6 +39,6 @@ public class KafkaInvocationQueueSender implements InvocationQueueSender {
   }
 
   public String selectTopic(InvocationRequest request) {
-    return config.functionTopicPrefix() + request.function();
+    return config.fnTopicPrefix() + request.function();
   }
 }
