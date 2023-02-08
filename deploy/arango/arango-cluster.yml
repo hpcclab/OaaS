@@ -1,0 +1,31 @@
+apiVersion: "database.arangodb.com/v1alpha"
+kind: "ArangoDeployment"
+metadata:
+  name: arango-cluster
+spec:
+  mode: Cluster
+  tls:
+    caSecretName: None
+  externalAccess:
+    type: NodePort
+    nodePort: 31234
+  agents:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        storageClassName: local-path
+        volumeMode: Filesystem
+  dbservers:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        storageClassName: local-path
+        volumeMode: Filesystem

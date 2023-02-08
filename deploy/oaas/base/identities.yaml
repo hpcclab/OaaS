@@ -1,5 +1,0 @@
-credentials:
-  - username: oaas
-    password: oaas
-    roles:
-      - deployer

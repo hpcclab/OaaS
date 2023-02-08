@@ -1,59 +1,73 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.smallrye.common.annotation.Blocking;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.controller.OcConfig;
-import org.hpcclab.oaas.iface.service.FunctionService;
-import org.hpcclab.oaas.controller.mapper.CtxMapper;
+import org.hpcclab.oaas.controller.service.ProvisionPublisher;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.proto.OaasFunction;
-import org.hpcclab.oaas.repository.OaasFuncRepository;
-import org.hpcclab.oaas.controller.service.FunctionProvisionPublisher;
+import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.repository.FunctionRepository;
+import org.jboss.resteasy.reactive.RestQuery;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.List;
 
 @RequestScoped
-public class FunctionResource implements FunctionService {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/api/functions")
+public class FunctionResource {
   @Inject
-  OaasFuncRepository funcRepo;
+  FunctionRepository funcRepo;
   @Inject
-  OcConfig config;
+  PackageResource packageResource;
   @Inject
-  FunctionProvisionPublisher provisionPublisher;
+  ProvisionPublisher provisionPublisher;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-  @Blocking
-  public Pagination<OaasFunction> list(Long offset, Integer limit) {
-    if (offset== null) offset = 0L;
-    if (limit== null) limit = 20;
-    return funcRepo.pagination(offset, limit);
+
+  @GET
+  @JsonView(Views.Public.class)
+  public Uni<Pagination<OaasFunction>> list(@RestQuery Long offset,
+                                            @RestQuery Integer limit,
+                                            @RestQuery String sort,
+                                            @RestQuery @DefaultValue("false") boolean desc) {
+    if (offset==null) offset = 0L;
+    if (limit==null) limit = 20;
+    if (sort==null) sort = "_key";
+    return funcRepo.sortedPaginationAsync(sort, desc, offset, limit);
   }
 
-  public Uni<List<OaasFunction>> create(boolean update, List<OaasFunction> functionDtos) {
-    var uni = Multi.createFrom().iterable(functionDtos)
-      .onItem()
-      .transformToUniAndConcatenate(funcDto -> funcRepo.persist(funcDto)
-      )
-      .collect().asList();
-    if (config.kafkaEnabled()) {
-      return uni
-        .call(functions -> provisionPublisher.submitNewFunction(functions.stream()));
-    } else {
-      return uni;
+  @POST
+  @JsonView(Views.Public.class)
+  @Deprecated(forRemoval = true)
+  public Uni<List<OaasFunction>> create(@RestQuery boolean update,
+                                        List<OaasFunction> functions) {
+    var pkg = new OaasPackageContainer()
+      .setFunctions(functions);
+    if (pkg.getName() == null) {
+      pkg.setName("default");
     }
+
+    return packageResource.create(update, pkg)
+      .map(OaasPackageContainer::getFunctions);
   }
 
-  public Uni<List<OaasFunction>> createByYaml(boolean update, String body) {
+  @POST
+  @Consumes("text/x-yaml")
+  @JsonView(Views.Public.class)
+  @Deprecated(forRemoval = true)
+  public Uni<List<OaasFunction>> createByYaml(@RestQuery boolean update,
+                                              String body) {
     try {
       var funcs = yamlMapper.readValue(body, OaasFunction[].class);
       return create(update, Arrays.asList(funcs));
@@ -62,8 +76,20 @@ public class FunctionResource implements FunctionService {
     }
   }
 
-  public Uni<OaasFunction> get(String funcName) {
-    return funcRepo.getAsync(funcName)
+  @GET
+  @Path("{funcKey}")
+  @JsonView(Views.Public.class)
+  public Uni<OaasFunction> get(String funcKey) {
+    return funcRepo.getAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new);
+  }
+
+  @DELETE
+  @Path("{funcKey}")
+  @JsonView(Views.Public.class)
+  public Uni<OaasFunction> delete(String funcKey) {
+    return funcRepo.removeAsync(funcKey)
+      .onItem().ifNull().failWith(NotFoundException::new)
+      .call(__ -> provisionPublisher.submitDeleteFn(funcKey));
   }
 }

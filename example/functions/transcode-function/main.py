@@ -1,101 +1,132 @@
+import logging
+import os
+import time
 import uuid
 
-from flask import Flask, request, make_response
 import requests
-import os
-import logging
+from flask import Flask, request, make_response
 
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 
 if os.name == 'nt':
-    shell = 'pwsh'
+  SHELL = 'pwsh'
 else:
-    shell = 'sh'
+  SHELL = 'sh'
 
-bucket_url = 'http:/s3.10.131.36.27.nip.io/msc-bkt-867c5b9f-ad83-48e3-8297-bbdca3327258'
+KEY_NAME = "video"
+
+
+def run_ffmpeg(args,
+               tmp_in,
+               tmp_out):
+  resolution = args.get('RESOLUTION', '720x480')
+  acodec = args.get('ACODEC', 'copy')
+  vcodec = args.get('VCODEC', '')
+  if resolution != 'no':
+    resolution_cmd = f'-s {resolution}'
+  else:
+    resolution_cmd = ''
+  codec = ''
+  if acodec != '':
+    codec += ' -acodec ' + acodec
+  if vcodec != '':
+    codec += ' -vcodec ' + vcodec
+  cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_out}'
+  full_cmd = f'{SHELL} -c "{cmd}"'
+  app.logger.warning(f'full_cmd = {full_cmd}')
+  code = os.system(full_cmd)
+  if code != 0:
+    return f"Fail to execute {cmd}"
+
+
+def load_file(session,
+              src_url,
+              tmp_in, id):
+  start_ts = time.time()
+  with session.get(src_url, allow_redirects=True, stream=True) as r:
+    r.raise_for_status()
+    with open(tmp_in, 'wb') as f:
+      for chunk in r.iter_content(chunk_size=8192):
+        f.write(chunk)
+  app.logger.warning(f"load file of oid '{id}' in {time.time() - start_ts} s")
+
+
+def save_file(session,
+              alloc_url,
+              tmp_out,
+              output_id):
+  resp = session.get(alloc_url)
+  resp.raise_for_status()
+  resp_json = resp.json()
+  output_url = resp_json[KEY_NAME]
+
+  start_ts = time.time()
+  with open(tmp_out, 'rb') as file_data:
+    resp = session.put(output_url, data=file_data)
+    resp.raise_for_status()
+  app.logger.warning(f"Save file of oid '{output_id}' in {time.time() - start_ts} s")
+
+
+def make_completion(output_id: str,
+                    task: dict,
+                    error: str = None,
+                    record: dict = None):
+  success = error is None
+  app.logger.warning(f'Execute task {output_id} success="{success}" error="{error}"')
+  body = {
+    "id": output_id,
+    "success": success,
+    "ext": {'osts': str(task['ts'])}
+  }
+  if error is not None:
+    body['errorMsg'] = error
+  if record is not None:
+    body['embeddedRecord'] = record
+  response = make_response(body)
+  response.status_code = 200
+  response.headers["Ce-Id"] = output_id
+  response.headers["Ce-specversion"] = "1.0"
+  response.headers["Ce-Source"] = "oaas/transcode"
+  response.headers["Ce-Type"] = "oaas.task.result"
+  return response
 
 
 @app.route('/', methods=['POST'])
 def handle():
-    status_code = 200
-    resp_msg = "Successfully execute task"
-    body = request.get_json(force=True)
+  error_msg = None
+  body = request.get_json(force=True)
 
-    new_uuid = body['output']['id']
-    alloc_url = body['allocOutputUrl']
-    output_obj = body['output']
-    args = output_obj['origin']['args']
-    file_name = args.get('KEY', 'video')
+  output_id = body['output']['id']
+  main_id = body['main']['id']
+  alloc_url = body['allocOutputUrl']
+  output_obj = body['output']
+  args = output_obj.get('origin', {}).get('args', {})
+  video_format = args.get('FORMAT', 'mp4')
 
-    src_url = body['mainKeys'][file_name]
-    resolution = args.get('RESOLUTION', '720x480')
-    if resolution != 'no':
-        resolution_cmd = f'-s {resolution}'
-    else:
-        resolution_cmd = ''
-    acodec = args.get('ACODEC', 'copy')
-    vcodec = args.get('VCODEC', '')
-    codec = ''
-    if acodec != '':
-        codec += ' -acodec ' + acodec
-    if vcodec != '':
-        codec += ' -vcodec ' + vcodec
+  src_url = body['mainKeys'][KEY_NAME]
+  tmp_in = f"in-{uuid.uuid4()}.mp4"
+  tmp_out = str(uuid.uuid4()) + '.' + video_format
 
-    video_format = args.get('FORMAT', 'mp4')
+  with requests.Session() as session:
+    load_file(session, src_url, tmp_in, main_id)
+    err = run_ffmpeg(args, tmp_in, tmp_out)
+    if err is not None:
+      error_msg = err
 
-    tmp_in = f"in-{uuid.uuid4()}.mp4";
-    os.system(f"curl -L -o {tmp_in} {src_url}")
+    save_file(session, alloc_url, tmp_out, output_id)
 
-    tmp_file = str(uuid.uuid4()) + '.' + video_format
-    # cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {src_url} {resolution_cmd} {codec} {tmp_file}'
-    cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_file}'
-    full_cmd = f'{shell} -c "{cmd}"'
-    app.logger.warning(f'full_cmd = {full_cmd}')
-    code = os.system(full_cmd)
-    if code != 0:
-        resp_msg = f"Fail to execute {cmd}"
-        status_code = 500
+  if os.path.isfile(tmp_out):
+    os.remove(tmp_out)
+  if os.path.isfile(tmp_in):
+    os.remove(tmp_in)
 
-    r = requests.get(alloc_url)
-    if r.status_code != 200:
-        raise "Got error when allocate keys"
-    resp_json = r.json()
-    output_url = resp_json[file_name]
-
-    cmd = f'curl -T {tmp_file} \'{output_url}\''
-    full_cmd = f'{shell} -c "{cmd}"'
-    app.logger.warning(f'full_cmd = {full_cmd}')
-
-    code = os.system(f'{shell} -c "{cmd}"')
-    if code != 0:
-        resp_msg = f"Fail to execute {cmd}"
-        status_code = 500
-    code = os.system(f'{shell} -c "rm {tmp_file}"')
-    if code != 0:
-        resp_msg = f"Fail to execute rm {tmp_file}"
-        status_code = 500
-
-    app.logger.warning(f'Successfully execute task {output_url}')
-    return make_resonse(resp_msg, status_code, new_uuid)
-
-
-def make_resonse(msg,
-                 status_code,
-                 new_uuid):
-    response = make_response({
-        "msg": msg
-    })
-    response.status_code = status_code
-    response.headers["Ce-Id"] = str(new_uuid)
-    response.headers["Ce-specversion"] = "1.0"
-    response.headers["Ce-Source"] = "oaas/transcode"
-    response.headers["Ce-Type"] = "oaas.task.result"
-    response.headers["Ce-Tasksucceeded"] = "true"
-    return response
+  return make_completion(output_id,
+                         body,
+                         error_msg)
 
 
 if __name__ == '__main__':
-    app.run(
-        host='0.0.0.0',
-        port=8080)
+  app.run(
+    host='0.0.0.0',
+    port=8080)

@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.storage;
 
-import io.grpc.Internal;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.storage.adapter.InternalDataAllocateRequest;
 import org.hpcclab.oaas.storage.adapter.S3Adapter;
@@ -14,11 +13,7 @@ import org.hpcclab.oaas.storage.adapter.StorageAdapter;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @ApplicationScoped
 public class AdapterLoader {
@@ -37,11 +32,16 @@ public class AdapterLoader {
   }
 
   public  Uni<Map<String, String>> aggregatedAllocate(DataAllocateRequest request) {
-    var requests= Lists.fixedSize.ofAll(request.getKeys())
-      .groupBy(KeySpecification::getProvider)
+    var requests = Lists.fixedSize.ofAll(request.getKeys())
+      .groupBy(ks -> Objects.requireNonNullElse(ks.getProvider(), request.getDefaultProvider()))
       .keyMultiValuePairsView()
       .collect(entry -> new InternalDataAllocateRequest(
-        request.getOid(), entry.getTwo().collect(KeySpecification::getName).toList(), entry.getOne(), request.isPublicUrl()))
+        request.getOid(),
+        request.getVid(),
+        entry.getTwo().collect(KeySpecification::getName).toList(),
+        entry.getOne(),
+        request.isPublicUrl())
+      )
       .toList();
 
     return Multi.createFrom().iterable(requests)
@@ -54,7 +54,7 @@ public class AdapterLoader {
   }
 
   public Uni<Map<String,String>> aggregatedAllocate(InternalDataAllocateRequest request) {
-    if (request.getProvider().equals(s3Adapter.name())) {
+    if (Objects.equals(request.provider(), s3Adapter.name())) {
       return s3Adapter.allocate(request);
     } else {
       return Uni.createFrom().nullItem();

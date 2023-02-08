@@ -1,17 +1,20 @@
 ###
-POST {{oc}}/api/batch
+POST {{cds}}/api/packages
 Content-Type: text/x-yaml
 
 < video.yml
 
 ###
-POST {{oc}}/api/object-construct
+POST {{cds}}/api/object-construct
 Accept: application/json
 Content-Type: application/json
 
 {
   "cls": "example.video",
-  "embeddedRecord": {},
+  "embeddedRecord": {
+    "title": "title",
+    "desc": "description..."
+  },
   "labels": ["test"],
   "keys": ["video"],
   "overrideUrls": {}
@@ -26,10 +29,10 @@ client.global.set("upload_url", response.body.uploadUrls.video)
 PUT {{upload_url}}
 Content-Type: application/octet-stream
 
-< ../../../oaas-load-test/test-files/test-1s.mp4
+< ../../../oaas-load-test/test-files/test.mp4
 
 ###
-GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
+GET {{cds}}/oal/{{obj_0_id}}:transcode()(RESOLUTION=720x480)/video
 
 ###
-GET {{cds}}/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video
+GET {{cds}}/oal/{{obj_0_id}}:transcode()(RESOLUTION=no,VCODEC=copy,FORMAT=mkv)/video

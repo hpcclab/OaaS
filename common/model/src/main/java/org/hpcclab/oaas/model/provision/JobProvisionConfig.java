@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Deprecated
 public class JobProvisionConfig implements Serializable {
   String image;
   List<String> commands;

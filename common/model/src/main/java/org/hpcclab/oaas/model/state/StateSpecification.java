@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.state;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.Copyable;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StateSpecification {
+public class StateSpecification implements Copyable<StateSpecification> {
   List<KeySpecification> keySpecs = List.of();
   String defaultProvider;
 
@@ -41,5 +42,13 @@ public class StateSpecification {
   @ProtoField(2)
   public String getDefaultProvider() {
     return defaultProvider;
+  }
+
+  @Override
+  public StateSpecification copy() {
+    return new StateSpecification(
+      keySpecs,
+      defaultProvider
+    );
   }
 }

@@ -1,24 +1,18 @@
 package org.hpcclab.oaas;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.iface.service.BatchService;
-import org.hpcclab.oaas.model.*;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasFunction;
-import org.hpcclab.oaas.model.object.DeepOaasObject;
-import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectConstructRequest;
+import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 
 import javax.ws.rs.core.MediaType;
-
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
@@ -26,26 +20,25 @@ import static io.restassured.RestAssured.given;
 public class TestUtils {
 
   // language=yaml
-  public static final String DUMMY_BATCH = """
+  public static final String DUMMY_PACKAGE = """
+    name: test.dummy
     functions:
-      - name: test.dummy.task
+      - name: task
         type: TASK
-        outputCls: test.dummy.simple
-        validation: {}
-        provision:
-          job: {}
-      - name: test.dummy.macro
+      - name: macro
         type: MACRO
-        outputCls: test.dummy.compound
-        validation: {}
         macro:
             steps:
-              - funcName: builtin.logical.copy
-                target: obj1
+              - function: copy
+                target: $
                 as: new_obj1
+                args:
+                  k1: text_value
+                argRefs:
+                  k2: k1
                 inputRefs: []
-              - funcName: builtin.logical.copy
-                target: obj2
+              - function: copy
+                target: new_obj1
                 as: new_obj2
                 inputRefs: []
             exports:
@@ -54,7 +47,7 @@ public class TestUtils {
               - from: new_obj2
                 as: obj2
     classes:
-      - name: test.dummy.simple
+      - name: simple
         stateType: FILES
         objectType: SIMPLE
         stateSpec:
@@ -63,17 +56,15 @@ public class TestUtils {
               provider: s3
         functions:
         - access: PUBLIC
-          function: builtin.logical.copy
-        - access: PUBLIC
           function: test.dummy.task
-      - name: test.dummy.compound
+          outputCls: void
+      - name: compound
         objectType: COMPOUND
         functions:
           - access: PUBLIC
-            function: builtin.logical.copy
-          - access: PUBLIC
             function: test.dummy.macro
-      - name: test.dummy.stream
+            outputCls: test.dummy.compound
+      - name: stream
         objectType: STREAM
         genericType: test.dummy.simple
         functions: []
@@ -90,18 +81,29 @@ public class TestUtils {
       .extract().body().as( new TypeRef<Pagination<OaasObject>>() {})
       .getItems();
   }
+  public static List<OaasClass> listClasses() {
+    return given()
+      .when().get("/api/classes")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .log().ifValidationFails()
+      .extract().body().as( new TypeRef<Pagination<OaasClass>>() {})
+      .getItems();
+  }
 
-  public static OaasObject create(OaasObject o) {
+  public static OaasObject create(ObjectConstructRequest o) {
     return given()
       .contentType(MediaType.APPLICATION_JSON)
       .body(Json.encodePrettily(o))
-      .when().post("/api/objects")
+      .when().post("/api/object-construct")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("id", Matchers.notNullValue())
-      .extract().body().as(OaasObject.class);
+      .body("object.id", Matchers.notNullValue())
+      .extract().body().as(ObjectConstructResponse.class)
+      .getObject();
   }
 
   public static OaasObject getObject(String id) {
@@ -128,35 +130,16 @@ public class TestUtils {
       .extract().body().as(OaasClass.class);
   }
 
-
-  public static DeepOaasObject getObjectDeep(String id) {
-    return given()
-      .pathParam("id", id)
-      .when().get("/api/objects/{id}/deep")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.equalTo(id))
-      .extract().body().as(DeepOaasObject.class);
-  }
-
-  public static OaasObject execOal(ObjectAccessLangauge oal, FunctionRouter router) {
-    var ctx = router.functionCall(oal)
-      .await().atMost(Duration.ofSeconds(1));
-    return ctx.getOutput();
-  }
-
-  public static BatchService.Batch createBatchYaml(String clsText) {
+  public static OaasPackageContainer createBatchYaml(String clsText) {
     return given()
       .contentType("text/x-yaml")
       .body(clsText)
-      .when().post("/api/batch?update=true")
+      .when().post("/api/packages?update=true")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(BatchService.Batch.class);
+      .extract().body().as(OaasPackageContainer.class);
   }
 
   public static List<OaasFunction> createFunctionYaml(String function) {

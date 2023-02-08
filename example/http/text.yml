@@ -1,23 +1,56 @@
+name: example
 functions:
-  - name: example.text.concat
+  - name: concat
     type: TASK
     outputCls: example.text
     validation: {}
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/concat-function:latest
-#        concurrency: 256
+#        image: ghcr.io/pawissanutt/oaas/concat-function:latest
+        image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:mutable
+        targetConcurrency: 32
         minScale: 1
 #        maxScale: 6
         requestsCpu: '0.25'
         limitsCpu: '2'
+    variableDescriptions:
+      - name: append
+  - name: chain-concat
+    type: MACRO
+    macro:
+      steps:
+        - target: $
+          as: record1
+          function: concat
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: concat
+          args:
+            INPLACE: "false"
+      export: record3
 classes:
-  - name: example.text
-    stateType: FILE
+  - name: text
+    stateType: FILES
     objectType: SIMPLE
     stateSpec:
       keySpecs:
         - name: text
     functions:
       - access: PUBLIC
-        function: example.text.concat
+        function: example.concat
+      - access: PUBLIC
+        function: example.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
+
+
+

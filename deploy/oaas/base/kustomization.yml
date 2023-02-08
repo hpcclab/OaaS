@@ -3,25 +3,14 @@ resources:
 ### kube-provisioner
   - kp.yml
   - kp-rb.yml
-#  - kp-trigger.yml
 ### task-manager
   - tm.yml
 ### object-controller
   - oc.yml
-### task-completion-handler
-  - tch.yml
 ### content-delivery-service
   - cds.yml
 ### storage adapter
   - sa.yml
-### infinispan
-  - infinispan.yml
-#  - infinispan-cache.yml
-#  - monitor.yml
+### invoker
+  - invoker.yml
 
-secretGenerator:
-  - name: infinispan-connect-secret
-    files:
-      - identities.yaml
-generatorOptions:
-  disableNameSuffixHash: true

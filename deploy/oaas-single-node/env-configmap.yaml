@@ -1,0 +1,30 @@
+apiVersion: v1
+data:
+  JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
+  QUARKUS_CONSOLE_COLOR: 'false'
+  QUARKUS_HTTP_CORS: 'true'
+  KAFKA_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
+  OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_OC_PROVISIONTOPIC: oaas-provisions
+  OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
+  OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_TM_BROKERURL: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/oaas/default
+  OAAS_TM_BLOCKINGTIMEOUT: '15'
+  OAAS_KP_PROVISIONTOPIC: oaas-provisions
+  OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
+  OAAS_KP_COMPLETIONHANDLERPATH: /ce
+  OAAS_KP_EXPOSEKNATIVE: 'false'
+  OAAS_INVOKER_KAFKA: oaas-kafka-bootstrap:9092
+  OAAS_INVOKER_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_INVOKER_CONNECTIONPOOLMAXSIZE: '100'
+  OAAS_INVOKER_NUMOFVERTICLE: '1'
+  OAAS_NATS_NATSURLS: nats://oaas-nats:4222
+  OAAS_REPO_ARG_HOST: arango-cluster
+  OAAS_REPO_ARG_PORT: "8529"
+  OAAS_REPO_ARG_DB: oaas
+  OAAS_REPO_ARG_PASS: changeme
+  QUARKUS_OPENTELEMETRY_ENABLED: 'false'
+
+kind: ConfigMap
+metadata:
+  name: oaas-env

@@ -7,6 +7,15 @@ data:
     http {
       proxy_cache_path /cache keys_zone=contents:100m levels=1:2 inactive=100d max_size=10g;
       resolver 10.43.0.10 valid=30s;
+
+      upstream task-manager {
+        server task-manager.oaas.svc.cluster.local;
+      }
+
+      upstream object-controller {
+        server object-controller.oaas.svc.cluster.local;
+      }
+
       server {
 
         listen      80;
@@ -18,27 +27,45 @@ data:
         client_max_body_size 75M;
         recursive_error_pages on;
 
-
-        location ~ "^/(.*:.*)$" {
-          proxy_pass      http://task-manager.msc.svc.cluster.local/oal/$1;
-          #proxy_cache       contents;
-          proxy_http_version 1.1;
-          #proxy_cache_key   $uri;
-          #proxy_cache_valid 200 206 3000h;
-          proxy_intercept_errors on;
-          error_page 301 302 303 307 = @handle_redirects_nocache;
+        location /api/ {
+          #add_header access-control-allow-origin *;
+          #add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
+          proxy_pass      http://object-controller/api/;
         }
 
-        # main cache block - when upstream responds with a 302, it's caught by
-        # error_page and passed off to the (nearly identical) @handle_redirects
-        location ~ "^/(.*)$" {
-          proxy_pass      http://task-manager.msc.svc.cluster.local/oal/$1;
+        location /q/swagger-ui {
+          proxy_pass      http://object-controller/q/swagger-ui;
+        }
+
+        location /q/openapi {
+          proxy_pass      http://object-controller/q/openapi;
+        }
+
+        location ~ "^/oal/([^:]*/.*)$" {
+
+          add_header access-control-allow-origin *;
+          add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
+
+          proxy_pass      http://task-manager/oal/$1$is_args$args;
           proxy_cache       contents;
           proxy_http_version 1.1;
           proxy_cache_key   $uri;
           proxy_cache_valid 200 206 3000h;
           proxy_intercept_errors on;
-          error_page 301 302 303 307 = @handle_redirects;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
+        }
+
+        location /oal/ {
+
+          #add_header access-control-allow-origin *;
+          #add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
+          proxy_pass      http://task-manager/oal/;
+          #proxy_cache       contents;
+          #proxy_http_version 1.1;
+          #proxy_cache_key   $uri;
+          #proxy_cache_valid 200 206 3000h;
+          proxy_intercept_errors on;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
         }
 
         location @handle_redirects_nocache {
@@ -51,7 +78,7 @@ data:
           # nginx goes to fetch the value from the upstream Location header
           proxy_pass $orig_loc;
           proxy_intercept_errors on;
-          error_page 301 302 307 = @handle_redirects_nocache;
+          error_page 301 302 303 307 = @handle_redirects_nocache;
         }
 
         location @handle_redirects {
@@ -86,7 +113,6 @@ metadata:
   name: content-delivery-service
   labels:
     app: content-delivery-service
-  namespace: msc
 spec:
   replicas: 1
   selector:
@@ -116,7 +142,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: content-delivery-service
-  namespace: msc
 spec:
   selector:
     app: content-delivery-service

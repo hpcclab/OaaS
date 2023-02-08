@@ -19,16 +19,20 @@ concept,480]
 
 
 == Architecture
-image:doc/diagrams/oaas_architecture_v6.dio.png[ architecture,480]
+image:doc/diagrams/oaas_architecture_v8.dio.png[ architecture,480]
 
 == OaaS Installation
+
+NOTE: Go through  link:deploy/oaas-single-node/README.adoc[this guide] to try *OaaS* on single node Kubernetes (ex. Minikube, Docker Desktop).
+
 === Prerequisites
 * Kubernetes Cluster (at least 3 node if you plan to using https://rook.io/[Rook])
 * https://knative.dev/docs/[Knative] (Both Serving and Eventing)
 * S3-compatible storage (ex. https://rook.io/[Rook], https://min.io/[MinIO])
 * Operators
 ** operator to deploy Kafka (https://strimzi.io/[Strimzi Operator])
-** operator to deploy Infinispan (https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator])
+//** operator to deploy Infinispan (https://infinispan.org/docs/infinispan-operator/2.2.x/operator.html[Infinispan Operator])
+** operator to deploy ArangoDB (https://github.com/arangodb/kube-arangodb[ArangoDB Kubernetes Operator])
 
 
 === Edit configuration
@@ -53,7 +57,7 @@ We make these configuration files by assuming the cluster relies on Rook to prov
 +
 [source,bash]
 ----
-kubectl create ns msc
+kubectl create ns oaas
 ----
 
 . Deploy kafka via a following command.
@@ -84,7 +88,20 @@ kubectl apply -f deploy/knative/
 kubectl apply -f deploy/oaas/object-bucket.yml
 ----
 
-
+. Deploy ArangoDB
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/arango/arango-cluster.yml
+----
+// . NATS
+// +
+// [source,bash]
+// ----
+// kubectl apply -n oaas -f deploy/nats/nats.yml
+// ----
+// +
+// NOTE: This deployment step is not a practical way. You can look at the official guide (https://github.com/nats-io/k8s) to deploy it properly.
 . Deploy the OaaS platform.
 +
 [source,bash]
@@ -102,26 +119,6 @@ metadata:
   name: oaas-ingress
 spec:
   rules:
-    - host: "oc.oaas.10.131.36.40.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: object-controller
-                port:
-                  number: 80
-    - host: "tm.oaas.10.131.36.40.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: task-manager
-                port:
-                  number: 80
     - host: "cds.oaas.10.131.36.40.nip.io"
       http:
         paths:
@@ -135,7 +132,7 @@ spec:
 
 ----
 +
-Then, you need to save this into a file and submit it to Kubernetes using the following command.
+Then, you need to save this into a file (ex. ``oaas-ingress.yml``) and submit it to Kubernetes using the following command.
 +
 [source,bash]
 ----
@@ -145,4 +142,4 @@ kubectl apply -f oaas-ingress.yml
 == OaaS Usage
 
 * link:example/README.adoc[The example usage guide]
-* link:OAI.adoc[The detail of Object Access Interface (OAI)].
+* link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].

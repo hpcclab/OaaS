@@ -8,10 +8,10 @@
   <packaging>pom</packaging>
   <modules>
     <module>common</module>
+    <module>invoker</module>
     <module>kube-provisioner</module>
     <module>object-controller</module>
     <module>task-manager</module>
-    <module>task-completion-handler</module>
     <module>storage-adapter</module>
   </modules>
   <properties>
@@ -23,9 +23,10 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>2.7.5.Final</quarkus.platform.version>
+    <quarkus.platform.version>2.16.1.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <org.projectlombok.version>1.18.22</org.projectlombok.version>
-    <org.mapstruct.version>1.5.0.Beta2</org.mapstruct.version>
+    <org.projectlombok.version>1.18.24</org.projectlombok.version>
+    <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
+    <eclipse.collections.version>11.1.0</eclipse.collections.version>
   </properties>
 </project>

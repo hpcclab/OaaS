@@ -3,37 +3,53 @@ openapi: 3.0.3
 info:
   title: task-manager API
   version: 0.2.0-SNAPSHOT
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
 paths:
-  /api/task-completions:
+  /ce:
     post:
       tags:
-      - Task Completion Consumer
+      - Cloud Event Handling Resource
       requestBody:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/TaskCompletion'
+              format: binary
+              type: string
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
+          content:
+            application/json: {}
   /oal:
     post:
       tags:
       - Oal Resource
+      parameters:
+      - name: async
+        in: query
+        schema:
+          type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
+              $ref: '#/components/schemas/ObjectAccessLanguage'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObject'
+                $ref: '#/components/schemas/OalResponse_Public'
   /oal/-/{filePath}:
     post:
       tags:
@@ -45,15 +61,20 @@ paths:
         schema:
           pattern: .*
           type: string
-      - name: await
+      - name: async
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectAccessLangauge'
+              $ref: '#/components/schemas/ObjectAccessLanguage'
       responses:
         "200":
           description: OK
@@ -69,13 +90,22 @@ paths:
         required: true
         schema:
           type: string
+      - name: async
+        in: query
+        schema:
+          type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasObject'
+                $ref: '#/components/schemas/OalResponse_Public'
   /oal/{oal}/{filePath}:
     get:
       tags:
@@ -92,10 +122,15 @@ paths:
         required: true
         schema:
           type: string
-      - name: await
+      - name: async
         in: query
         schema:
           type: boolean
+      - name: timeout
+        in: query
+        schema:
+          format: int32
+          type: integer
       responses:
         "200":
           description: OK
@@ -103,127 +138,155 @@ paths:
             application/json: {}
 components:
   schemas:
-    OaasObject:
-      type: object
-      properties:
-        access:
-          $ref: '#/components/schemas/ObjectAccessModifier'
-        cls:
-          type: string
-        embeddedRecord:
-          type: string
-        id:
-          type: string
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        origin:
-          $ref: '#/components/schemas/OaasObjectOrigin'
-        originHash:
-          format: int64
-          type: integer
-        refs:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectReference'
-        state:
-          $ref: '#/components/schemas/OaasObjectState'
-        streamInfo:
-          $ref: '#/components/schemas/StreamInfo'
-        task:
-          $ref: '#/components/schemas/TaskCompletion'
-    OaasObjectOrigin:
-      type: object
-      properties:
-        args:
-          type: object
-          additionalProperties:
-            type: string
-        funcName:
-          type: string
-        inputs:
-          type: array
-          items:
-            type: string
-        parentId:
-          type: string
-        rootId:
-          type: string
-    OaasObjectState:
+    KeyAccessModifier_Public:
+      enum:
+      - PUBLIC
+      - DEP
+      - INTERNAL
+      - PRIVATE
+      type: string
+    OaasObjectState_Public:
       type: object
       properties:
         overrideUrls:
           type: object
           additionalProperties:
             type: string
-        stateId:
-          type: string
-        type:
-          $ref: '#/components/schemas/StateType'
-    ObjectAccessLangauge:
+        verIds:
+          type: object
+          additionalProperties:
+            type: string
+    OaasObject_Public:
       type: object
       properties:
+        id:
+          type: string
+        origin:
+          $ref: '#/components/schemas/ObjectOrigin_Public'
+        cls:
+          type: string
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        state:
+          $ref: '#/components/schemas/OaasObjectState_Public'
+        refs:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference_Public'
+        status:
+          $ref: '#/components/schemas/ObjectStatus_Public'
+        streamInfo:
+          $ref: '#/components/schemas/StreamInfo_Public'
+        data:
+          $ref: '#/components/schemas/ObjectNode_Public'
+        key:
+          type: string
+        rev:
+          type: string
+    OalResponse_Public:
+      type: object
+      properties:
+        target:
+          $ref: '#/components/schemas/OaasObject_Public'
+        output:
+          $ref: '#/components/schemas/OaasObject_Public'
+        invId:
+          type: string
+        fbName:
+          type: string
+        macroIds:
+          type: object
+          additionalProperties:
+            type: string
+        async:
+          type: boolean
+    ObjectAccessLanguage:
+      type: object
+      properties:
+        target:
+          type: string
+        targetCls:
+          type: string
+        functionName:
+          type: string
         args:
           type: object
           additionalProperties:
             type: string
-        functionName:
-          type: string
         inputs:
           type: array
           items:
             type: string
-        target:
+    ObjectNode_Public:
+      type: array
+    ObjectOrigin_Public:
+      type: object
+      properties:
+        parentId:
           type: string
-    ObjectAccessModifier:
-      enum:
-      - FINAL
-      - INTERNAL
-      - PUBLIC
-      type: string
-    ObjectReference:
+        fbName:
+          type: string
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        inputs:
+          type: array
+          items:
+            type: string
+    ObjectReference_Public:
       type: object
       properties:
         name:
           type: string
-        object:
+        objId:
           type: string
-    StateType:
-      enum:
-      - COLLECTION
-      - FILES
-      type: string
-    StreamInfo:
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier_Public'
+    ObjectStatus_Public:
+      type: object
+      properties:
+        taskStatus:
+          $ref: '#/components/schemas/TaskStatus_Public'
+        crtTs:
+          format: int64
+          type: integer
+        queTs:
+          format: int64
+          type: integer
+        smtTs:
+          format: int64
+          type: integer
+        cptTs:
+          format: int64
+          type: integer
+        waitFor:
+          type: array
+          items:
+            type: string
+        errorMsg:
+          type: string
+        updatedOffset:
+          format: int64
+          type: integer
+        vId:
+          type: string
+    StreamInfo_Public:
       type: object
       properties:
         count:
           format: int32
           type: integer
-    TaskCompletion:
-      type: object
-      properties:
-        completionTime:
-          format: int64
-          type: integer
-        debugLog:
-          type: string
-        embeddedRecord:
-          type: string
-        id:
-          type: string
-        startTime:
-          format: int64
-          type: integer
-        status:
-          $ref: '#/components/schemas/TaskStatus'
-    TaskStatus:
+    TaskStatus_Public:
       enum:
-      - DEPENDENCY_FAILED
+      - LAZY
       - DOING
-      - FAILED
       - SUCCEEDED
-      - WAITING
+      - FAILED
+      - DEPENDENCY_FAILED
+      - READY
       type: string

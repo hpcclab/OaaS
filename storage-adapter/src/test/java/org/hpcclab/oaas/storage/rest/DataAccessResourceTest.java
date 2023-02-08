@@ -1,64 +1,75 @@
 package org.hpcclab.oaas.storage.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.f4b6a3.tsid.Tsid;
+import com.github.f4b6a3.tsid.TsidCreator;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.object.OaasObjectType;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
-import org.hpcclab.oaas.repository.OaasClassRepository;
+import org.hpcclab.oaas.model.state.StateType;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.TsidGenerator;
+import org.hpcclab.oaas.storage.ArangoResource;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
+@QuarkusTestResource(ArangoResource.class)
 class DataAccessResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessResourceTest.class);
 
-  @BeforeAll
-  public static void beforeAll() {
+  @Inject
+  ClassRepository clsRepo;
+
+  @BeforeEach
+  public void setup() {
     var testCls = new OaasClass();
     testCls.setName("test");
-    testCls.setObjectType(OaasObjectType.SIMPLE);
-    testCls.setStateType(OaasObjectState.StateType.FILES);
+    testCls.setObjectType(ObjectType.SIMPLE);
+    testCls.setStateType(StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(
         new KeySpecification("test", "s3")
       ))
     );
-    var mock = Mockito.mock(OaasClassRepository.class);
-    Mockito.when(mock.getAsync("test")).thenReturn(Uni.createFrom().item(testCls));
-    Mockito.when(mock.get("test")).thenReturn(testCls);
-    QuarkusMock.installMockForType(mock, OaasClassRepository.class);
+    clsRepo.put("test", testCls);
   }
 
   @Test
-  void test() throws JsonProcessingException {
+  void test() {
     var ctx = new DataAccessContext()
-      .setMainId(UUID.randomUUID().toString())
-      .setMainCls("test");
-    var ctxString = Json.encode(ctx);
-    var ctxKey = Base64.getUrlEncoder().encode(ctxString.getBytes());
+      .setId(TsidCreator.getTsid1024().toString())
+      .setVid(TsidCreator.getTsid1024().toString())
+      .setCls("test")
+      .setLevel(AccessLevel.UNIDENTIFIED);
+    var ctxKey = ctx.encode();
     given()
-      .pathParam("oid", ctx.getMainId())
+      .pathParam("oid", ctx.getId())
+      .pathParam("vid", ctx.getVid())
       .pathParam("key", "test")
-      .queryParam("contextKey", new String(ctxKey))
+      .queryParam("contextKey", ctxKey)
       .when().redirects().follow(false)
-      .get("/contents/{oid}/{key}")
+      .get("/contents/{oid}/{vid}/{key}")
       .then()
       .log().ifValidationFails()
       .statusCode(Matchers.is(307));

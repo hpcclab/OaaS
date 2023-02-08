@@ -14,8 +14,11 @@
 
   <modules>
     <module>model</module>
-    <module>service-interface</module>
     <module>repository</module>
+    <module>arango-repository</module>
+    <module>infinispan-repository</module>
+    <module>invocation</module>
+    <module>nats-object-eventing</module>
   </modules>
 
 </project>

@@ -1,84 +1,56 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
-import org.hpcclab.oaas.repository.TaskCompletionRepository;
-import org.hpcclab.oaas.iface.service.ObjectService;
-import org.hpcclab.oaas.model.object.DeepOaasObject;
-import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.AggregateRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.repository.ObjectRepository;
+import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
-import java.util.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @ApplicationScoped
-public class ObjectResource implements ObjectService {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/api/objects")
+public class ObjectResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(ObjectResource.class);
   @Inject
-  OaasObjectRepository objectRepo;
-  @Inject
-  TaskCompletionRepository completionRepo;
-//  @Inject
-//  FunctionRouter functionRouter;
-//  @Inject
-//  TaskExecutionService resourceRequestService;
-  @Inject
-  AggregateRepository aggregateRepo;
+  ObjectRepository objectRepo;
 
-  public Uni<Pagination<OaasObject>> list(Integer offset, Integer limit) {
+  @GET
+  @JsonView(Views.Public.class)
+  public Uni<Pagination<OaasObject>> list(@RestQuery Integer offset,
+                                          @DefaultValue("false") @RestQuery boolean desc,
+                                          @RestQuery Integer limit,
+                                          @RestQuery String sort) {
     if (offset==null) offset = 0;
     if (limit==null) limit = 20;
     if (limit > 100) limit = 100;
-    var list = objectRepo.pagination(offset, limit);
-    return Uni.createFrom().item(list);
+    if (sort==null) sort = "_key";
+    if (sort.equals("_"))
+      return objectRepo.paginationAsync(offset, limit);
+    return objectRepo.sortedPaginationAsync(sort, desc, offset, limit);
   }
 
-  public Uni<OaasObject> create(OaasObject creating) {
-    return objectRepo.createRootAndPersist(creating)
-      .onFailure().invoke(e -> LOGGER.error("error", e));
-  }
-
+  @GET
+  @Path("{id}")
+  @JsonView(Views.Public.class)
   public Uni<OaasObject> get(String id) {
     return objectRepo.getAsync(id)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
-//  public Uni<List<Map<String, OaasObjectOrigin>>> getOrigin(String id, Integer deep) {
-//    return objectRepo.getOriginAsync(UUID.fromString(id), deep);
-//  }
-
-  public Uni<DeepOaasObject> getDeep(String id) {
-    return objectRepo.getDeep(id);
-  }
-
-//  public Uni<TaskContext> getTaskContext(String id) {
-//    return aggregateRepo.getTaskContextAsync(UUID.fromString(id));
-//  }
-
-//  public Uni<OaasObject> activeFuncCall(String id, ObjectAccessExpression request) {
-//    request.setTarget(UUID.fromString(id));
-//    return functionRouter.functionCall(request)
-//      .map(FunctionExecContext::getOutput)
-//      .call(out -> resourceRequestService.request(new TaskExecRequest()
-//        .setId(out.getId().toString())));
-//  }
-//
-//  @Blocking
-//  public Uni<OaasObject> reactiveFuncCall(String id, ObjectAccessExpression request) {
-//    request.setTarget(UUID.fromString(id));
-//    return functionRouter.functionCall(request)
-//      .map(FunctionExecContext::getOutput);
-//  }
-
-  @Override
-  public Uni<TaskCompletion> getCompletion(String id) {
-    return completionRepo.getAsync(id)
-      .onItem().ifNull().failWith(NotFoundException::new);
+  @DELETE
+  @Path("{id}")
+  @JsonView(Views.Public.class)
+  public Uni<OaasObject> delete(String id) {
+    return objectRepo.removeAsync(id);
   }
 }

@@ -1,0 +1,62 @@
+name: example
+functions:
+  - name: json-update
+    type: TASK
+    validation: {}
+    provision:
+      knative:
+        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-function:0.2.9
+        targetConcurrency: 16
+        minScale: 1
+        maxScale: -1
+        requestsCpu: '0.5'
+        limitsCpu: '1'
+        scaleDownDelay: 30s
+  - name: chain-update
+    type: MACRO
+    macro:
+      # var record1 = $.json-update()
+      # var record2 = record1.json-update()
+      # var record3 = record2.json-update()
+      # return record3
+      steps:
+        - target: $
+          as: record1
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: json-update
+          args:
+            INPLACE: "false"
+      export: record3
+classes:
+  - name: record
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs: []
+    functions:
+      - access: PUBLIC
+        name: json-update-inplace
+        function: .json-update
+        outputCls: none
+        defaultArgs:
+          INPLACE: "true"
+      - access: PUBLIC
+        name: json-update
+        function: .json-update
+        outputCls: .record
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: chain
+        function: .chain-update
+        outputCls: .record

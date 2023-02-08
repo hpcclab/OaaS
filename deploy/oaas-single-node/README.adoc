@@ -1,0 +1,115 @@
+= OaaS: Single Node Deployment
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+// Need some preamble to get TOC:
+{empty}
+
+== Introduction
+This guide is for deploy OaaS system on the single node Kubernetes (ex. Minikube, Docker Desktop). This guide will deploy a light-weight OaaS that focus on testing and not suitable for most of the use cases.
+
+== OaaS Installation
+=== Prerequisites
+* Kubernetes (ex. Minikube, Docker Desktop)
+* `oaas` namespace in Kubernetes
++
+[source,bash]
+----
+kubectl create ns oaas
+----
+
+=== Install dependencies
+. Clone this project.
++
+[source,bash]
+----
+git clone https://github.com/hpcclab/OaaS.git
+----
++
+The deployment files for this guide are inside `deploy/oaas-single-node` directory.
+
+. NGINX ingress controller
+.. Use this https://kubernetes.github.io/ingress-nginx/deploy/#quick-start[guide] to install ingress controller if you doesn't have one
+. Knative
+.. Follow the official https://knative.dev/docs/install/yaml-install/serving/install-serving-with-yaml/[guide] to install Knative Serving. (*Kourier* is preferable)
+.. Follow the official https://knative.dev/docs/install/yaml-install/eventing/install-eventing-with-yaml/[guide] to install Knative eventing.
+... *In-Memory Channel is required*
+... *Apache Kafka broker is required*
+
+. Operators
+.. Install https://operatorhub.io/[Operator Lifecycle Manager]. The guide will be shown if you select any operator to install.
+.. https://strimzi.io/[Strimzi Operator] (operator to deploy Kafka)
+
+. MinIO (S3-compatible storage)
+.. Install MinIO
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/oaas-single-node/minio.yml
+----
+.. Open the web console at http://minio.127.0.0.1.nip.io and login with `minio_access_key` as a user and `minio_secret_key` as a password.
+.. create bucket with name `oaas`
+
+. Kafka Broker
+.. Install Kafka and Zookeeper
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/oaas-single-node/kafka-cluster.yml
+----
+
+.. Setup Knative Broker
++
+[source,bash]
+----
+kubectl apply -f deploy/knative/broker-config.yml
+kubectl apply -n oaas -f deploy/knative/broker.yml
+----
+.. Check if broker is ready
++
+[source,bash]
+----
+kubectl get broker -n oaas
+----
+
+. ArangoDB
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/arango/arango-single.yml
+----
+
+. NATS
++
+[source,bash]
+----
+kubectl apply -n oaas -f deploy/nats/nats.yml
+----
+
+=== Install and Access OaaS
+. Install OaaS
++
+[source,bash]
+----
+kubectl apply -n oaas -k deploy/oaas-single-node
+----
+. Wait until all pod is ready
++
+[source,bash]
+----
+kubectl get pod -n oaas -w
+----
+. Access OaaS
+.. Object controller: http://oc.oaas.127.0.0.1.nip.io
+.. Content Delivery Service: http://cds.127.0.0.1.nip.io
+.. ArangoDB console: http://localhost:31235
++
+NOTE: Both of them have Swagger UI at `/q/swagger-ui`. Swagger UI provides the API schema and an easy way to try sending the request.
+
+== Troubleshooting
+* Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:cds.yml[]
+* In the case that you can not access Kubernetes via localhost, you need to change the hostname of `*.127.0.0.1.nip.io` to match your setup.
+** link:oaas-ingress.yml[]
+** link:minio.yml[]
+** link:sa.yml[]

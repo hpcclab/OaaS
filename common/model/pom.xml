@@ -12,7 +12,6 @@
   <artifactId>model</artifactId>
 
   <properties>
-    <hibernate.version>5.5.7.Final</hibernate.version>
   </properties>
 
   <dependencyManagement>
@@ -58,30 +57,22 @@
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections-api</artifactId>
-      <version>11.0.0</version>
+      <version>${eclipse.collections.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections</artifactId>
-      <version>11.0.0</version>
+      <version>${eclipse.collections.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <scope>test</scope>
-      </dependency>
-
-      <!--    <dependency>-->
-<!--      <groupId>org.eclipse.microprofile.openapi</groupId>-->
-<!--      <artifactId>microprofile-openapi-api</artifactId>-->
-<!--      <version>2.0.1-RC1</version>-->
-<!--      <scope>compile</scope>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -91,24 +82,12 @@
         <version>${compiler-plugin.version}</version>
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
-<!--          <annotationProcessorPaths>-->
-<!--            <annotationProcessorPath>-->
-<!--              <groupId>org.projectlombok</groupId>-->
-<!--              <artifactId>lombok</artifactId>-->
-<!--              <version>${org.projectlombok.version}</version>-->
-<!--            </annotationProcessorPath>-->
-<!--            <annotationProcessorPath>-->
-<!--              <groupId>org.infinispan.protostream</groupId>-->
-<!--              <artifactId>protostream-processor</artifactId>-->
-<!--              <version>4.4.1.Final</version>-->
-<!--            </annotationProcessorPath>-->
-<!--          </annotationProcessorPaths>-->
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.jboss.jandex</groupId>
+        <groupId>io.smallrye</groupId>
         <artifactId>jandex-maven-plugin</artifactId>
-        <version>1.1.0</version>
+        <version>3.0.1</version>
         <executions>
           <execution>
             <id>make-index</id>

@@ -10,14 +10,15 @@
 
 oaas:
   kp:
-    provisionTopic: oaas-provisions
-    taskCompletionTopic: oaas-task-completions
+    fnProvisionTopic: oaas-fn
+    clsProvisionTopic: oaas-cls
     exposeKnative: false
 
 quarkus:
   http:
     access-log:
       enabled: true
+      exclude-pattern: /q/.*
   vertx:
     prefer-native-transport: true
   container-image:
@@ -26,27 +27,12 @@ quarkus:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   console:
     color: true
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
-#  log:
-#    category:
-#      "org.hpcclab.oaas":
-#        level: DEBUG
 mp:
   messaging:
     incoming:
       provisions:
         connector: smallrye-kafka
-        topic: ${oaas.kp.provisionTopic}
+        topic: ${oaas.kp.fnProvisionTopic}
         auto:
           offset:
             reset: earliest
-#    outgoing:
-#      task-completions:
-#        merge: true
-#        connector: smallrye-kafka
-#        topic: ${oaas.kp.taskCompletionTopic}
-#        value:
-#          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-#        cloud-events-source: ${quarkus.application.name}
-#        cloud-events-type: oaas.task-completion

@@ -1,0 +1,42 @@
+= Local Development with Docker Compose
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+// Need some preamble to get TOC:
+{empty}
+
+== Introduction
+
+This guide is for local development using docker-compose. This deployment only provides the REST API for testing. The execution functionalities are disabled.
+
+== Deploy with docker-compose
+[source,bash]
+----
+docker-compose -f docker-compose.dev.yml up -d
+----
+
+NOTE: The provided compose file will perform building container image from the local files. If you want to pull the images from Github, you have to uncomment `image: ...` and comment `build: ...` on each services in the compose file.
+
+After executing the above command, you have to manually create the `msc` bucket for storing the state data via going to the MinIO console (http://localhost:9001/). You can login with the access key `minio_access_key` and secret key `minio_secret_key`.
+
+== Access Services
+
+|===
+|Services |URL
+
+|*Object Controller*
+|`http://localhost:8088`
+
+|*Task Manager*
+|`http://localhost:8089`
+
+|*Storage Adapter*
+|`http://localhost:8090`
+
+|*Arangodb*
+|`http://localhost:8529`
+
+|*MinIO*
+|`http://localhost:9001`
+|===

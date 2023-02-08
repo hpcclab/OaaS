@@ -2,35 +2,19 @@
   quarkus:
     http:
       port: 8090
-    log:
-      category:
-        "org.hpcclab.oaas":
-          level: DEBUG
   oaas:
-    repo:
-      createOnStart: true
-      object:
-        persist: false
-      state:
-        persist: false
-      completion:
-        persist: false
+    log: DEBUG
     tm:
       brokerUrl: http://localhost:8080
 
-"%prod":
-  quarkus:
-    infinispan-client:
-      auth-username: ${infinispan.username:}
-      auth-password: ${infinispan.password:}
-      server-list: ${infinispan.server:}
+#"%prod":
+#  quarkus:
+#    infinispan-client:
+#      auth-username: ${infinispan.username:}
+#      auth-password: ${infinispan.password:}
+#      server-list: ${infinispan.server:}
+
 oaas:
-  tm:
-    objectControllerUrl: http://localhost:8088
-    taskCompletionTopic: oaas-task-completions
-    taskCompletionPartitions: 10
-    defaultTraverse: 3
-    enableCompletionListener: true
   log: INFO
 
 quarkus:
@@ -40,6 +24,10 @@ quarkus:
       pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
       exclude-pattern: /q/.*
     record-request-start-time: true
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log}
   vertx:
     prefer-native-transport: true
     worker-pool-size: 100
@@ -47,45 +35,31 @@ quarkus:
     always-include: true
   smallrye-openapi:
     store-schema-directory: ../doc/tm
-  index-dependency:
-    service-interface:
-      artifact-id: service-interface
-      group-id: org.hpcclab.oaas
   console:
     color: true
   container-image:
     image: ${ci.registry.image:oaas}/task-manager${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
-  log:
-    category:
-      "org.hpcclab.oaas":
-        level: ${oaas.log:INFO}
   micrometer:
     export:
       json:
         enabled: true
         path: jsonmetrics
   rest-client:
-    BlockingObjectService:
-      url: ${oaas.tm.objectControllerUrl}
     TaskBrokerService:
       url: ${oaas.tm.brokerUrl}
-  native:
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
   opentelemetry:
     enabled: false
 
+
 mp:
   messaging:
-    incoming:
-      task-completions:
+    outgoing:
+      tasks:
+#        enabled: ${oaas.tm.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oaas.tm.taskCompletionTopic}
-        auto:
-          offset:
-            reset: earliest
-        partitions: ${oaas.tm.taskCompletionPartitions}
-        batch: true
-#        interceptor:
-#          classes: io.opentracing.contrib.kafka.TracingConsumerInterceptor
+        topic: ${oaas.tm.taskTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+        merge: true

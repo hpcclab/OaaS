@@ -20,5 +20,8 @@ public interface SaConfig {
     String bucket();
     @WithDefault("false")
     boolean relay();
+
+    @WithDefault("oaas/")
+    String prefix();
   }
 }

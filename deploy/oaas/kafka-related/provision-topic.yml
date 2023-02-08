@@ -2,10 +2,10 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   labels:
-    strimzi.io/cluster: msc
-  name: msc-provisions
+    strimzi.io/cluster: oaas
+  name: oaas-provisions
 spec:
   config: {}
-  partitions: 15
-  replicas: 1
-  topicName: msc-provisions
+  partitions: 1
+  replicas: 3
+  topicName: oaas-provisions

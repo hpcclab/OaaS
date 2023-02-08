@@ -26,7 +26,7 @@ This section will explain how to use OaaS via using the text object as an exampl
 
 [source,http request]
 ----
-POST http://<object_controller>/api/batch
+POST http://<object_controller>/api/modules
 Content-Type: text/x-yaml
 
 functions:
@@ -109,7 +109,7 @@ You can request the state data of any object via requesting to Content Delivery 
 //Content Delivery Service will reply with the object state data of given object ID.
 [source,http request]
 ----
-GET http://<content_delivery_service>/<object_id>/text
+GET http://<content_delivery_service>/oal/<object_id>/text
 ----
 
 === Invoking a function
@@ -118,7 +118,7 @@ With the Object Access Interface, we can also request the function invocation an
 
 [source,http request]
 ----
-GET http://<content_delivery_service>/<object_id>:concat()(APPEND=NEW_TEXT)/text
+GET http://<content_delivery_service>/oal/<object_id>:concat()(APPEND=NEW_TEXT)/text
 ----
 
 

@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: object-controller
+          env:
+            - name: MINIO_ROOT_USER
+              value: minio_access_key
+            - name: MINIO_ROOT_PASSWORD
+              value: minio_secret_key
+            - name: MINIO_API_CORS_ALLOW_ORIGIN
+              value: '*'
+          image: quay.io/minio/minio:latest
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - minio server /data --address 0.0.0.0:9000 --console-address ":9001"
+          ports:
+            - containerPort: 9000
+              name: http
+            - containerPort: 9001
+              name: console
+          volumeMounts:
+            - mountPath: /data
+              name: localvolume # Corresponds to the `spec.volumes` Persistent Volume
+      volumes:
+        - name: localvolume
+          persistentVolumeClaim:
+            claimName: minio-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 9000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-console
+  labels:
+    app: minio
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 9001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: s3-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: "s3.127.0.0.1.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 80
+    - host: "minio.127.0.0.1.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: minio-console
+                port:
+                  number: 80

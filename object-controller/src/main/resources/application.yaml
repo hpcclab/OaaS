@@ -4,7 +4,6 @@
       color: true
     log:
       min-level: TRACE
-
   oaas:
     log: TRACE
 
@@ -12,26 +11,16 @@
   quarkus:
     http:
       port: 8088
-    datasource:
-      devservices:
-        port: 5432
   oaas:
     log: DEBUG
 
+
 "%prod":
-  quarkus:
-    infinispan-client:
-      auth-username: ${infinispan.username:}
-      auth-password: ${infinispan.password:}
-      server-list: ${infinispan.server:}
-  repo:
-    createOnStart: true
-    object:
-      persist: true
-    state:
-      persist: true
-    completion:
-      persist: true
+#  quarkus:
+#    infinispan-client:
+#      auth-username: ${infinispan.username:}
+#      auth-password: ${infinispan.password:}
+#      server-list: ${infinispan.server:}
   oaas:
     oc:
       kafkaEnabled: true
@@ -39,17 +28,11 @@
 oaas:
   oc:
     storageAdapterUrl: http://localhost:8093
-    provisionTopic: oaas-provisions
+    clsProvisionTopic: oaas-cls
     kafkaEnabled: false
+    fnProvisionTopic: oaas-fn
   log: INFO
-  repo:
-    createOnStart: true
-    object:
-      persist: false
-    state:
-      persist: false
-    completion:
-      persist: false
+  name: object-controller
 
 quarkus:
   console:
@@ -67,16 +50,12 @@ quarkus:
   smallrye-openapi:
     store-schema-directory: ../doc/oc
     enable: true
-#  index-dependency:
-#    service-interface:
-#      artifact-id: service-interface
-#      group-id: org.hpcclab.oaas
   log:
     category:
       "org.hpcclab.oaas":
         level: ${oaas.log}
   container-image:
-    image: ${ci.registry.image:oaas}/object-controller${tag:}
+    image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   jib:
     base-jvm-image: eclipse-temurin:17-jre-alpine
   micrometer:
@@ -88,7 +67,6 @@ quarkus:
     resources:
       includes:
         - builtin/**
-    builder-image: quay.io/quarkus/ubi-quarkus-mandrel:22.0-java17
   opentelemetry:
     enabled: false
   rest-client:
@@ -100,9 +78,15 @@ quarkus:
 mp:
   messaging:
     outgoing:
-      provisions:
+      fnProvisions:
         enabled: ${oaas.oc.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oaas.oc.provisionTopic}
+        topic: ${oaas.oc.fnProvisionTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+      clsProvisions:
+        enabled: ${oaas.oc.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oaas.oc.clsProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

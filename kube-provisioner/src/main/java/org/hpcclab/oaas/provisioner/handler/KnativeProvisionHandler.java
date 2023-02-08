@@ -10,50 +10,61 @@ import io.fabric8.knative.internal.pkg.apis.duck.v1.Destination;
 import io.fabric8.knative.internal.pkg.apis.duck.v1.KReference;
 import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
 import io.fabric8.knative.serving.v1.*;
-import io.fabric8.knative.serving.v1.Service;
-import io.fabric8.knative.serving.v1.ServiceBuilder;
-import io.fabric8.knative.serving.v1.ServiceSpec;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.model.proto.OaasFunction;
+import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
+import org.hpcclab.oaas.model.function.DeploymentCondition;
+import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hpcclab.oaas.provisioner.FunctionWatcher.extractReadyCondition;
+import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
+
 @ApplicationScoped
-@RegisterForReflection(targets = {
-  Service.class,
-  ServiceSpec.class,
-  TrafficTarget.class,
-  RevisionTemplateSpec.class,
-  RevisionSpec.class,
-  Sequence.class,
-  SequenceSpec.class,
-  SequenceStep.class,
-  ChannelTemplateSpec.class,
-  KReference.class,
-  Trigger.class,
-  TriggerSpec.class,
-  TriggerFilter.class,
-  Destination.class
-})
+@RegisterForReflection(
+  targets = {
+    OaasFunction.class,
+    Service.class,
+    ServiceSpec.class,
+    TrafficTarget.class,
+    RevisionTemplateSpec.class,
+    RevisionSpec.class,
+    Sequence.class,
+    SequenceSpec.class,
+    SequenceStep.class,
+    ChannelTemplateSpec.class,
+    KReference.class,
+    Trigger.class,
+    TriggerSpec.class,
+    TriggerFilter.class,
+    Destination.class
+  },
+  registerFullHierarchy = true
+)
 public class KnativeProvisionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
-  final String labelKey = "oaas.function";
+
   @Inject
   KnativeClient knativeClient;
   @Inject
   KpConfig kpConfig;
+  @Inject
+  ArgFunctionRepository functionRepo;
 
   @Incoming("provisions")
   @Blocking
@@ -61,60 +72,94 @@ public class KnativeProvisionHandler {
     var key = functionRecord.key();
     LOGGER.debug("Received Knative provision: {}", key);
     var function = functionRecord.value();
-    if (function == null) {
-      boolean deleted = false;
-      deleted = knativeClient
-        .triggers()
-        .withLabel(labelKey, key)
-        .delete();
-      if (deleted) LOGGER.info("Deleted trigger: {}", key);
-      deleted =knativeClient
-        .sequences()
-        .withLabel(labelKey, key)
-        .delete();
-      if (deleted) LOGGER.info("Deleted sequence: {}", key);
-      deleted =knativeClient
+    if (function==null) {
+      boolean deleted;
+//      deleted = knativeClient
+//        .triggers()
+//        .withLabel(LABEL_KEY, key)
+//        .delete();
+//      if (deleted) LOGGER.info("Deleted trigger: {}", key);
+//      deleted =knativeClient
+//        .sequences()
+//        .withLabel(LABEL_KEY, key)
+//        .delete();
+//      if (deleted) LOGGER.info("Deleted sequence: {}", key);
+      deleted = !knativeClient
         .services()
-        .withLabel(labelKey, key)
-        .delete();
+        .withLabel(LABEL_KEY, key)
+        .delete()
+        .isEmpty();
       if (deleted) LOGGER.info("Deleted service: {}", key);
-    } else {
-      var svcName = "oaas-" + function.getName().replaceAll("[/.]", "-")
+    } else if (function.getProvision() != null) {
+      var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
       var oldSvc = knativeClient.services().withName(svcName)
-          .get();
-      if (oldSvc != null) {
-        knativeClient.services()
+        .get();
+
+      Service newSvc;
+      if (oldSvc!=null) {
+        newSvc = knativeClient.services()
           .withName(svcName)
           .edit(svc -> {
             svc.setSpec(service.getSpec());
             return svc;
           });
-        LOGGER.info("Patched service: {}",service.getMetadata().getName());
+        LOGGER.info("Patched service: {}", service.getMetadata().getName());
       } else {
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
-        knativeClient.services().create(service);
-        LOGGER.info("Created service: {}",service.getMetadata().getName());
+        newSvc = knativeClient.services().create(service);
+        LOGGER.info("Created service: {}", service.getMetadata().getName());
       }
+      updateFunctionStatus(function, newSvc);
 
-      Sequence sequence = createSequence(function, svcName);
-      var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
-        .get();
-      if (oldSq == null) {
-        knativeClient.sequences().createOrReplace(sequence);
-        LOGGER.info("Created sequence: {}",sequence.getMetadata().getName());
-      }
+//      Sequence sequence = createSequence(function, svcName);
+//      var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
+//        .get();
+//      if (oldSq == null) {
+//        knativeClient.sequences().createOrReplace(sequence);
+//        LOGGER.info("Created sequence: {}",sequence.getMetadata().getName());
+//      }
+//
+//      Trigger trigger = createTrigger(function, svcName);
+//      var oldTg = knativeClient.triggers().withName(svcName+ "-trigger")
+//        .get();
+//      if (oldTg == null) {
+//        knativeClient.triggers().create(trigger);
+//        LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
+//      }
+    }
+  }
 
-      Trigger trigger = createTrigger(function, svcName);
-      var oldTg = knativeClient.triggers().withName(svcName+ "-trigger")
-        .get();
-      if (oldTg == null) {
-        knativeClient.triggers().create(trigger);
-        LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
-      }
+  private void updateFunctionStatus(OaasFunction function,
+                                    Service service) {
+    var condition = extractReadyCondition(service);
+    var ready = condition.isPresent() && condition.get().getStatus().equals("True");
+    if (ready) {
 
+      functionRepo.compute(function.getKey(), (k, f) -> {
+        var kn = function.getProvision().getKnative();
+        var apiPath = kn.getApiPath();
+        if (apiPath == null)
+          apiPath ="";
+        else if (!apiPath.isEmpty() && !apiPath.startsWith("/"))
+          apiPath = "/" + apiPath;
+        if (f.getDeploymentStatus()==null) {
+          f.setDeploymentStatus(new FunctionDeploymentStatus());
+        }
+        f.getDeploymentStatus()
+          .setCondition(DeploymentCondition.RUNNING)
+          .setInvocationUrl(service.getStatus().getUrl() + apiPath)
+          .setErrorMsg(null);
+        return f;
+      });
+    } else {
+      functionRepo.compute(function.getKey(), (k, func) -> {
+        func.getDeploymentStatus()
+          .setCondition(DeploymentCondition.DEPLOYING);
+        return func;
+      });
     }
   }
 
@@ -123,22 +168,20 @@ public class KnativeProvisionHandler {
     return new TriggerBuilder()
       .withNewMetadata()
       .withName(svcName + "-trigger")
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .addToAnnotations("knative-eventing-injection", "enabled")
       .endMetadata()
       .withNewSpec()
       .withBroker("default")
       .withNewFilter()
-//      .addToAttributes("kafkaheadercetype", "oaas.task")
-//      .addToAttributes("kafkaheadercefunction", function.getName())
-//      .addToAttributes("kafkaheadercetasktype", "DURABLE")
       .addToAttributes("type", "oaas.task")
-      .addToAttributes("function", function.getName())
-      .addToAttributes("tasktype", "DURABLE")
+      .addToAttributes("function", function.getKey())
+//      .addToAttributes("tasktype", "DURABLE")
       .endFilter()
       .withNewSubscriber()
       .withNewRef(
-        "flows.knative.dev/v1",
+        "v1",
+        "flows.knative.dev",
         "Sequence",
         svcName + "-sequence",
         knativeClient.getNamespace()
@@ -152,7 +195,8 @@ public class KnativeProvisionHandler {
                                   String svcName) {
     var step = new SequenceStepBuilder()
       .withNewRef(
-        "serving.knative.dev/v1",
+        "v1",
+        "serving.knative.dev",
         "Service",
         svcName,
         knativeClient.getNamespace()
@@ -161,17 +205,19 @@ public class KnativeProvisionHandler {
       .withNewDeadLetterSink()
       .withNewRef(
         "v1",
+        null,
         "Service",
-        kpConfig.taskHandler(),
+        kpConfig.completionHandlerService(),
         knativeClient.getNamespace()
       )
+      .withUri(kpConfig.completionHandlerPath())
       .endDeadLetterSink()
       .endDelivery()
       .build();
     return new SequenceBuilder()
       .withNewMetadata()
       .withName(svcName + "-sequence")
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .endMetadata()
       .withNewSpec()
       .withNewChannelTemplate()
@@ -182,10 +228,12 @@ public class KnativeProvisionHandler {
       .withNewReply()
       .withNewRef(
         "v1",
+        null,
         "Service",
-        kpConfig.taskHandler(),
+        kpConfig.completionHandlerService(),
         knativeClient.getNamespace()
       )
+      .withUri(kpConfig.completionHandlerPath())
       .endReply()
       .endSpec()
       .build();
@@ -201,6 +249,12 @@ public class KnativeProvisionHandler {
     if (provision.getMaxScale() >= 0)
       annotation.put("autoscaling.knative.dev/maxScale",
         String.valueOf(provision.getMaxScale()));
+    if (provision.getScaleDownDelay()!=null)
+      annotation.put("autoscaling.knative.dev/scale-down-delay",
+        provision.getScaleDownDelay());
+    if (provision.getTargetConcurrency() > 0)
+      annotation.put("autoscaling.knative.dev/target",
+        String.valueOf(provision.getTargetConcurrency()));
     Map<String, Quantity> requests = new HashMap<>();
     if (provision.getRequestsCpu()!=null) {
       requests.put("cpu", Quantity.parse(provision.getRequestsCpu()));
@@ -223,29 +277,11 @@ public class KnativeProvisionHandler {
       .endResources()
       .build();
 
-    var labels = new HashMap<String,String>();
-    labels.put(labelKey, function.getName());
+    var labels = new HashMap<String, String>();
+    labels.put(LABEL_KEY, function.getKey());
     if (!kpConfig.exposeKnative()) {
-      labels.put("networking.knative.dev/visibility","cluster-local");
+      labels.put("networking.knative.dev/visibility", "cluster-local");
     }
-
-//    var wpat = new WeightedPodAffinityTermBuilder()
-//      .withWeight(100)
-//      .withNewPodAffinityTerm()
-//      .withNewLabelSelector()
-//      .addToMatchLabels(labelKey, function.getName())
-//      .endLabelSelector()
-//      .withTopologyKey("kubernetes.io/hostname")
-//      .endPodAffinityTerm()
-//      .build();
-//    AffinityBuilder ab = new AffinityBuilder();
-//    Affinity affinity = null;
-//    if (kpConfig.addAffinity()) {
-//      affinity = ab.withNewPodAntiAffinity()
-//        .addToPreferredDuringSchedulingIgnoredDuringExecution(wpat)
-//        .endPodAntiAffinity()
-//        .build();
-//    }
 
     return new ServiceBuilder()
       .withNewMetadata()
@@ -256,10 +292,11 @@ public class KnativeProvisionHandler {
       .withNewTemplate()
       .withNewMetadata()
       .withAnnotations(annotation)
-      .addToLabels(labelKey, function.getName())
+      .addToLabels(LABEL_KEY, function.getKey())
       .endMetadata()
       .withNewSpec()
 //      .withAffinity(affinity)
+      .withTimeoutSeconds(600L)
       .withContainerConcurrency(provision.getConcurrency() > 0 ?
         (long) provision.getConcurrency():null)
       .withContainers(container)

@@ -31,14 +31,14 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.hpcclab.oaas</groupId>-->
+<!--      <artifactId>infinispan-repository</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>repository</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>service-interface</artifactId>
+      <artifactId>arango-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -56,10 +56,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-infinispan-client</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -124,6 +120,12 @@
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.goodforgod</groupId>
+      <artifactId>arangodb-testcontainer</artifactId>
+      <scope>test</scope>
+      <version>2.0.0</version>
     </dependency>
   </dependencies>
   <build>

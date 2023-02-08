@@ -4,40 +4,25 @@
     "title" : "object-controller API",
     "version" : "0.2.0-SNAPSHOT"
   },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ],
   "paths" : {
-    "/api/batch" : {
-      "post" : {
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/Batch"
-              }
-            },
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Batch"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/classes" : {
       "get" : {
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -51,6 +36,12 @@
             "format" : "int64",
             "type" : "integer"
           }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -58,7 +49,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasClass"
+                  "$ref" : "#/components/schemas/PaginationOaasClass_Public"
                 }
               }
             }
@@ -66,24 +57,24 @@
         }
       },
       "post" : {
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
           "schema" : {
-            "default" : false,
             "type" : "boolean"
           }
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/OaasClass"
-              }
-            },
             "text/x-yaml" : {
               "schema" : {
                 "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OaasClass"
               }
             }
           }
@@ -94,7 +85,56 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass"
+                  "$ref" : "#/components/schemas/OaasClass_Public"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/api/classes/{clsKey}" : {
+      "get" : {
+        "tags" : [ "Class Resource" ],
+        "parameters" : [ {
+          "name" : "clsKey",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasClass_Public"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Class Resource" ],
+        "parameters" : [ {
+          "name" : "clsKey",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasClass_Public"
                 }
               }
             }
@@ -103,51 +143,8 @@
       }
     },
     "/api/classes/{name}" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass"
-                }
-              }
-            }
-          }
-        }
-      },
       "patch" : {
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
@@ -171,31 +168,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/classes/{name}/deep" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DeepOaasClass"
+                  "$ref" : "#/components/schemas/OaasClass_Public"
                 }
               }
             }
@@ -205,12 +178,27 @@
     },
     "/api/classes/{name}/objects" : {
       "get" : {
+        "tags" : [ "Class Resource" ],
         "parameters" : [ {
           "name" : "name",
           "in" : "path",
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "includeSub",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
           }
         }, {
           "name" : "limit",
@@ -226,6 +214,12 @@
             "format" : "int64",
             "type" : "integer"
           }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -233,7 +227,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasObject"
+                  "$ref" : "#/components/schemas/PaginationOaasObject_Public"
                 }
               }
             }
@@ -243,7 +237,15 @@
     },
     "/api/functions" : {
       "get" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -257,6 +259,12 @@
             "format" : "int64",
             "type" : "integer"
           }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -264,7 +272,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasFunction"
+                  "$ref" : "#/components/schemas/PaginationOaasFunction_Public"
                 }
               }
             }
@@ -272,27 +280,27 @@
         }
       },
       "post" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
           "name" : "update",
           "in" : "query",
           "schema" : {
-            "default" : false,
             "type" : "boolean"
           }
         } ],
         "requestBody" : {
           "content" : {
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
             "application/json" : {
               "schema" : {
                 "type" : "array",
                 "items" : {
                   "$ref" : "#/components/schemas/OaasFunction"
                 }
-              }
-            },
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
               }
             }
           }
@@ -305,19 +313,21 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/OaasFunction"
+                    "$ref" : "#/components/schemas/OaasFunction_Public"
                   }
                 }
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
-    "/api/functions/{funcName}" : {
+    "/api/functions/{funcKey}" : {
       "get" : {
+        "tags" : [ "Function Resource" ],
         "parameters" : [ {
-          "name" : "funcName",
+          "name" : "funcKey",
           "in" : "path",
           "required" : true,
           "schema" : {
@@ -330,7 +340,30 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasFunction"
+                  "$ref" : "#/components/schemas/OaasFunction_Public"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Function Resource" ],
+        "parameters" : [ {
+          "name" : "funcKey",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasFunction_Public"
                 }
               }
             }
@@ -356,7 +389,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ObjectConstructResponse"
+                  "$ref" : "#/components/schemas/ObjectConstructResponse_Public"
                 }
               }
             }
@@ -366,7 +399,15 @@
     },
     "/api/objects" : {
       "get" : {
+        "tags" : [ "Object Resource" ],
         "parameters" : [ {
+          "name" : "desc",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
           "name" : "limit",
           "in" : "query",
           "schema" : {
@@ -380,6 +421,12 @@
             "format" : "int32",
             "type" : "integer"
           }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -387,19 +434,82 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasObject"
+                  "$ref" : "#/components/schemas/PaginationOaasObject_Public"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/objects/{id}" : {
+      "get" : {
+        "tags" : [ "Object Resource" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasObject_Public"
                 }
               }
             }
           }
         }
       },
+      "delete" : {
+        "tags" : [ "Object Resource" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasObject_Public"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/packages" : {
       "post" : {
+        "tags" : [ "Package Resource" ],
+        "parameters" : [ {
+          "name" : "update",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
         "requestBody" : {
           "content" : {
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasObject"
+                "$ref" : "#/components/schemas/OaasPackageContainer_Public"
               }
             }
           }
@@ -410,182 +520,46 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
+                  "$ref" : "#/components/schemas/OaasPackageContainer_Public"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/packages/{name}" : {
+      "patch" : {
+        "tags" : [ "Package Resource" ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "text/x-yaml" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OaasPackageContainer_Public"
               }
             }
           }
         },
-        "deprecated" : true
-      }
-    },
-    "/api/objects/{id}" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
         "responses" : {
           "200" : {
             "description" : "OK",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/objects/{id}/completion" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TaskCompletion"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/objects/{id}/deep" : {
-      "get" : {
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DeepOaasObject"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/class/client" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RemoteCacheClientStatisticsMXBean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/class/server" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerStatistics"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/function/client" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RemoteCacheClientStatisticsMXBean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/function/server" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerStatistics"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/object/client" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RemoteCacheClientStatisticsMXBean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stats/object/server" : {
-      "get" : {
-        "tags" : [ "Stat Reource" ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ServerStatistics"
+                  "$ref" : "#/components/schemas/OaasPackageContainer_Public"
                 }
               }
             }
@@ -596,9 +570,751 @@
   },
   "components" : {
     "schemas" : {
-      "Batch" : {
+      "Dataflow" : {
         "type" : "object",
         "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataflowStep"
+            }
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowExport"
+            }
+          },
+          "export" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DataflowStep" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "inputRefs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "argRefs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "DataflowStep_Public" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "inputRefs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "argRefs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Dataflow_Public" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataflowStep_Public"
+            }
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowExport_Public"
+            }
+          },
+          "export" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DeploymentCondition" : {
+        "enum" : [ "PENDING", "DEPLOYING", "RUNNING", "DOWN", "DELETED" ],
+        "type" : "string"
+      },
+      "DeploymentCondition_Public" : {
+        "enum" : [ "PENDING", "DEPLOYING", "RUNNING", "DOWN", "DELETED" ],
+        "type" : "string"
+      },
+      "FunctionAccessModifier" : {
+        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
+        "type" : "string"
+      },
+      "FunctionAccessModifier_Public" : {
+        "enum" : [ "PUBLIC", "INTERNAL", "PRIVATE" ],
+        "type" : "string"
+      },
+      "FunctionBinding" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/FunctionAccessModifier"
+          },
+          "function" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "forwardRecords" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "defaultArgs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "outputCls" : {
+            "type" : "string"
+          },
+          "forceImmutable" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FunctionBinding_Public" : {
+        "type" : "object",
+        "properties" : {
+          "access" : {
+            "$ref" : "#/components/schemas/FunctionAccessModifier_Public"
+          },
+          "function" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "forwardRecords" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "defaultArgs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "outputCls" : {
+            "type" : "string"
+          },
+          "forceImmutable" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FunctionDeploymentStatus" : {
+        "type" : "object",
+        "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/DeploymentCondition"
+          },
+          "invocationUrl" : {
+            "type" : "string"
+          },
+          "errorMsg" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FunctionDeploymentStatus_Public" : {
+        "type" : "object",
+        "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/DeploymentCondition_Public"
+          },
+          "invocationUrl" : {
+            "type" : "string"
+          },
+          "errorMsg" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FunctionState" : {
+        "enum" : [ "ENABLED", "DISABLED", "REMOVING" ],
+        "type" : "string"
+      },
+      "FunctionState_Public" : {
+        "enum" : [ "ENABLED", "DISABLED", "REMOVING" ],
+        "type" : "string"
+      },
+      "FunctionType" : {
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "type" : "string"
+      },
+      "FunctionType_Public" : {
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "type" : "string"
+      },
+      "FunctionValidation" : {
+        "type" : "object",
+        "properties" : {
+          "bindingRequirement" : {
+            "$ref" : "#/components/schemas/ObjectRequirement"
+          },
+          "inputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectRequirement"
+            }
+          }
+        }
+      },
+      "FunctionValidation_Public" : {
+        "type" : "object",
+        "properties" : {
+          "bindingRequirement" : {
+            "$ref" : "#/components/schemas/ObjectRequirement_Public"
+          },
+          "inputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectRequirement_Public"
+            }
+          }
+        }
+      },
+      "JobProvisionConfig" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "argsToEnv" : {
+            "type" : "boolean"
+          }
+        },
+        "deprecated" : true
+      },
+      "JobProvisionConfig_Public" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "commands" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "containerArgs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "argsToEnv" : {
+            "type" : "boolean"
+          }
+        },
+        "deprecated" : true
+      },
+      "KeyAccessModifier" : {
+        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
+        "type" : "string"
+      },
+      "KeyAccessModifier_Public" : {
+        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
+        "type" : "string"
+      },
+      "KeySpecification" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "provider" : {
+            "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier"
+          }
+        }
+      },
+      "KeySpecification_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "provider" : {
+            "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier_Public"
+          }
+        }
+      },
+      "KnativeProvision" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "concurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "targetConcurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "scaleDownDelay" : {
+            "type" : "string"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "env" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "apiPath" : {
+            "type" : "string"
+          }
+        }
+      },
+      "KnativeProvision_Public" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "concurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "targetConcurrency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "scaleDownDelay" : {
+            "type" : "string"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "env" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "apiPath" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasClass" : {
+        "type" : "object",
+        "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
+          "_rev" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "pkg" : {
+            "type" : "string"
+          },
+          "genericType" : {
+            "type" : "string"
+          },
+          "objectType" : {
+            "$ref" : "#/components/schemas/ObjectType"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/StateType"
+          },
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FunctionBinding"
+            }
+          },
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification"
+          },
+          "refSpec" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification"
+            }
+          },
+          "parents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "resolved" : {
+            "$ref" : "#/components/schemas/ResolvedMember"
+          }
+        }
+      },
+      "OaasClass_Public" : {
+        "type" : "object",
+        "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "pkg" : {
+            "type" : "string"
+          },
+          "genericType" : {
+            "type" : "string"
+          },
+          "objectType" : {
+            "$ref" : "#/components/schemas/ObjectType_Public"
+          },
+          "stateType" : {
+            "$ref" : "#/components/schemas/StateType_Public"
+          },
+          "functions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FunctionBinding_Public"
+            }
+          },
+          "stateSpec" : {
+            "$ref" : "#/components/schemas/StateSpecification_Public"
+          },
+          "refSpec" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification_Public"
+            }
+          },
+          "parents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "resolved" : {
+            "$ref" : "#/components/schemas/ResolvedMember_Public"
+          },
+          "rev" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasFunction" : {
+        "required" : [ "name", "type", "outputCls" ],
+        "type" : "object",
+        "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "pattern" : "\\S",
+            "type" : "string"
+          },
+          "pkg" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FunctionType"
+          },
+          "outputCls" : {
+            "pattern" : "\\S",
+            "type" : "string"
+          },
+          "validation" : {
+            "$ref" : "#/components/schemas/FunctionValidation"
+          },
+          "macro" : {
+            "$ref" : "#/components/schemas/Dataflow"
+          },
+          "provision" : {
+            "$ref" : "#/components/schemas/ProvisionConfig"
+          },
+          "variableDescriptions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VariableDescription"
+            }
+          },
+          "deploymentStatus" : {
+            "$ref" : "#/components/schemas/FunctionDeploymentStatus"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/FunctionState"
+          }
+        }
+      },
+      "OaasFunction_Public" : {
+        "required" : [ "name", "type", "outputCls" ],
+        "type" : "object",
+        "properties" : {
+          "_key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "pattern" : "\\S",
+            "type" : "string"
+          },
+          "pkg" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FunctionType_Public"
+          },
+          "outputCls" : {
+            "pattern" : "\\S",
+            "type" : "string"
+          },
+          "validation" : {
+            "$ref" : "#/components/schemas/FunctionValidation_Public"
+          },
+          "macro" : {
+            "$ref" : "#/components/schemas/Dataflow_Public"
+          },
+          "provision" : {
+            "$ref" : "#/components/schemas/ProvisionConfig_Public"
+          },
+          "variableDescriptions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VariableDescription_Public"
+            }
+          },
+          "deploymentStatus" : {
+            "$ref" : "#/components/schemas/FunctionDeploymentStatus_Public"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/FunctionState_Public"
+          }
+        }
+      },
+      "OaasObjectState_Public" : {
+        "type" : "object",
+        "properties" : {
+          "overrideUrls" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "verIds" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "OaasObject_Public" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "origin" : {
+            "$ref" : "#/components/schemas/ObjectOrigin_Public"
+          },
+          "cls" : {
+            "type" : "string"
+          },
+          "labels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/OaasObjectState_Public"
+          },
+          "refs" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectReference_Public"
+            }
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/ObjectStatus_Public"
+          },
+          "streamInfo" : {
+            "$ref" : "#/components/schemas/StreamInfo_Public"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ObjectNode_Public"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "rev" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OaasPackageContainer" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "required" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "classes" : {
             "type" : "array",
             "items" : {
@@ -613,466 +1329,31 @@
           }
         }
       },
-      "DeepOaasClass" : {
+      "OaasPackageContainer_Public" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "required" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "classes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasClass_Public"
+            }
+          },
           "functions" : {
-            "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/DeepOaasFunctionBinding"
-            }
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "objectType" : {
-            "$ref" : "#/components/schemas/OaasObjectType"
-          },
-          "parents" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "refSpec" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ReferenceSpecification"
-            }
-          },
-          "stateSpec" : {
-            "$ref" : "#/components/schemas/StateSpecification"
-          },
-          "stateType" : {
-            "$ref" : "#/components/schemas/StateType"
-          }
-        }
-      },
-      "DeepOaasFunctionBinding" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/FunctionAccessModifier"
-          },
-          "alias" : {
-            "type" : "string"
-          },
-          "function" : {
-            "$ref" : "#/components/schemas/OaasFunction"
-          }
-        }
-      },
-      "DeepOaasObject" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
-          "cls" : {
-            "$ref" : "#/components/schemas/DeepOaasClass"
-          },
-          "id" : {
-            "$ref" : "#/components/schemas/UUID"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "origin" : {
-            "$ref" : "#/components/schemas/OaasObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "refs" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
-            }
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
-          }
-        }
-      },
-      "FunctionAccessModifier" : {
-        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
-        "type" : "string"
-      },
-      "JobProvisionConfig" : {
-        "type" : "object",
-        "properties" : {
-          "argsToEnv" : {
-            "type" : "boolean"
-          },
-          "commands" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "containerArgs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "image" : {
-            "type" : "string"
-          },
-          "limitsCpu" : {
-            "type" : "string"
-          },
-          "limitsMemory" : {
-            "type" : "string"
-          },
-          "requestsCpu" : {
-            "type" : "string"
-          },
-          "requestsMemory" : {
-            "type" : "string"
-          }
-        }
-      },
-      "KeyAccessModifier" : {
-        "enum" : [ "INTERNAL", "PRIVATE", "PUBLIC" ],
-        "type" : "string"
-      },
-      "KeySpecification" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/KeyAccessModifier"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "provider" : {
-            "type" : "string"
-          }
-        }
-      },
-      "KnativeProvision" : {
-        "type" : "object",
-        "properties" : {
-          "concurrency" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "env" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "image" : {
-            "type" : "string"
-          },
-          "limitsCpu" : {
-            "type" : "string"
-          },
-          "limitsMemory" : {
-            "type" : "string"
-          },
-          "maxScale" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "minScale" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "requestsCpu" : {
-            "type" : "string"
-          },
-          "requestsMemory" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasClass" : {
-        "type" : "object",
-        "properties" : {
-          "functions" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasFunctionBinding"
-            }
-          },
-          "genericType" : {
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "objectType" : {
-            "$ref" : "#/components/schemas/OaasObjectType"
-          },
-          "parents" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "refSpec" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ReferenceSpecification"
-            }
-          },
-          "stateSpec" : {
-            "$ref" : "#/components/schemas/StateSpecification"
-          },
-          "stateType" : {
-            "$ref" : "#/components/schemas/StateType"
-          }
-        }
-      },
-      "OaasFunction" : {
-        "required" : [ "name", "type" ],
-        "type" : "object",
-        "properties" : {
-          "macro" : {
-            "$ref" : "#/components/schemas/OaasWorkflow"
-          },
-          "name" : {
-            "pattern" : "\\S",
-            "type" : "string",
-            "nullable" : false
-          },
-          "outputCls" : {
-            "type" : "string"
-          },
-          "provision" : {
-            "$ref" : "#/components/schemas/ProvisionConfig"
-          },
-          "type" : {
-            "allOf" : [ {
-              "$ref" : "#/components/schemas/OaasFunctionType"
-            }, {
-              "nullable" : false
-            } ]
-          },
-          "validation" : {
-            "$ref" : "#/components/schemas/OaasFunctionValidation"
-          }
-        }
-      },
-      "OaasFunctionBinding" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/FunctionAccessModifier"
-          },
-          "function" : {
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasFunctionType" : {
-        "enum" : [ "LOGICAL", "MACRO", "TASK" ],
-        "type" : "string"
-      },
-      "OaasFunctionValidation" : {
-        "type" : "object",
-        "properties" : {
-          "bindingRequirement" : {
-            "$ref" : "#/components/schemas/OaasObjectRequirement"
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasObjectRequirement"
+              "$ref" : "#/components/schemas/OaasFunction_Public"
             }
           }
         }
-      },
-      "OaasObject" : {
-        "type" : "object",
-        "properties" : {
-          "access" : {
-            "$ref" : "#/components/schemas/ObjectAccessModifier"
-          },
-          "cls" : {
-            "type" : "string"
-          },
-          "embeddedRecord" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "origin" : {
-            "$ref" : "#/components/schemas/OaasObjectOrigin"
-          },
-          "originHash" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "refs" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
-            }
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
-          },
-          "streamInfo" : {
-            "$ref" : "#/components/schemas/StreamInfo"
-          },
-          "task" : {
-            "$ref" : "#/components/schemas/TaskCompletion"
-          }
-        }
-      },
-      "OaasObjectOrigin" : {
-        "type" : "object",
-        "properties" : {
-          "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "funcName" : {
-            "type" : "string"
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "parentId" : {
-            "type" : "string"
-          },
-          "rootId" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasObjectRequirement" : {
-        "type" : "object",
-        "properties" : {
-          "requiredClass" : {
-            "type" : "string"
-          },
-          "requiredLabels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        }
-      },
-      "OaasObjectState" : {
-        "type" : "object",
-        "properties" : {
-          "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "stateId" : {
-            "type" : "string"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/StateType"
-          }
-        }
-      },
-      "OaasObjectType" : {
-        "enum" : [ "COMPOUND", "SIMPLE", "STREAM" ],
-        "type" : "string"
-      },
-      "OaasWorkflow" : {
-        "type" : "object",
-        "properties" : {
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasWorkflowExport"
-            }
-          },
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasWorkflowStep"
-            }
-          }
-        }
-      },
-      "OaasWorkflowExport" : {
-        "type" : "object",
-        "properties" : {
-          "as" : {
-            "type" : "string"
-          },
-          "from" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasWorkflowStep" : {
-        "type" : "object",
-        "properties" : {
-          "argRefs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "as" : {
-            "type" : "string"
-          },
-          "funcName" : {
-            "type" : "string"
-          },
-          "inputRefs" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "target" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ObjectAccessModifier" : {
-        "enum" : [ "FINAL", "INTERNAL", "PUBLIC" ],
-        "type" : "string"
       },
       "ObjectConstructRequest" : {
         "type" : "object",
@@ -1081,14 +1362,7 @@
             "type" : "string"
           },
           "embeddedRecord" : {
-            "type" : "string"
-          },
-          "keys" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/ObjectNode"
           },
           "labels" : {
             "uniqueItems" : true,
@@ -1097,17 +1371,24 @@
               "type" : "string"
             }
           },
-          "members" : {
+          "keys" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/ObjectReference"
+              "type" : "string"
             }
           },
           "overrideUrls" : {
             "type" : "object",
             "additionalProperties" : {
               "type" : "string"
+            }
+          },
+          "refs" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectReference"
             }
           },
           "streamConstructs" : {
@@ -1118,21 +1399,50 @@
           }
         }
       },
-      "ObjectConstructResponse" : {
+      "ObjectConstructResponse_Public" : {
         "type" : "object",
         "properties" : {
           "object" : {
-            "$ref" : "#/components/schemas/OaasObject"
-          },
-          "streams" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectConstructResponse"
-            }
+            "$ref" : "#/components/schemas/OaasObject_Public"
           },
           "uploadUrls" : {
             "type" : "object",
             "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "streams" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObjectConstructResponse_Public"
+            }
+          }
+        }
+      },
+      "ObjectNode" : {
+        "type" : "array"
+      },
+      "ObjectNode_Public" : {
+        "type" : "array"
+      },
+      "ObjectOrigin_Public" : {
+        "type" : "object",
+        "properties" : {
+          "parentId" : {
+            "type" : "string"
+          },
+          "fbName" : {
+            "type" : "string"
+          },
+          "args" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "inputs" : {
+            "type" : "array",
+            "items" : {
               "type" : "string"
             }
           }
@@ -1144,60 +1454,117 @@
           "name" : {
             "type" : "string"
           },
-          "object" : {
+          "objId" : {
+            "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier"
+          }
+        }
+      },
+      "ObjectReference_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "objId" : {
+            "type" : "string"
+          },
+          "access" : {
+            "$ref" : "#/components/schemas/KeyAccessModifier_Public"
+          }
+        }
+      },
+      "ObjectRequirement" : {
+        "type" : "object",
+        "properties" : {
+          "labels" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "cls" : {
             "type" : "string"
           }
         }
       },
-      "PaginationOaasClass" : {
+      "ObjectRequirement_Public" : {
         "type" : "object",
         "properties" : {
-          "itemCount" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "items" : {
+          "labels" : {
+            "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasClass"
+              "type" : "string"
             }
           },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
+          "cls" : {
+            "type" : "string"
           }
         }
       },
-      "PaginationOaasFunction" : {
+      "ObjectStatus_Public" : {
         "type" : "object",
         "properties" : {
-          "itemCount" : {
+          "taskStatus" : {
+            "$ref" : "#/components/schemas/TaskStatus_Public"
+          },
+          "crtTs" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "items" : {
+          "queTs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "smtTs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cptTs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "waitFor" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunction"
+              "type" : "string"
             }
           },
-          "offset" : {
+          "errorMsg" : {
+            "type" : "string"
+          },
+          "updatedOffset" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
+          "vId" : {
+            "type" : "string"
           }
         }
       },
-      "PaginationOaasObject" : {
+      "ObjectType" : {
+        "enum" : [ "SIMPLE", "COMPOUND", "STREAM" ],
+        "type" : "string"
+      },
+      "ObjectType_Public" : {
+        "enum" : [ "SIMPLE", "COMPOUND", "STREAM" ],
+        "type" : "string"
+      },
+      "PaginationOaasClass_Public" : {
         "type" : "object",
         "properties" : {
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "offset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "itemCount" : {
             "format" : "int64",
             "type" : "integer"
@@ -1205,16 +1572,54 @@
           "items" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasObject"
+              "$ref" : "#/components/schemas/OaasClass_Public"
             }
+          }
+        }
+      },
+      "PaginationOaasFunction_Public" : {
+        "type" : "object",
+        "properties" : {
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
           },
           "offset" : {
             "format" : "int64",
             "type" : "integer"
           },
+          "itemCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasFunction_Public"
+            }
+          }
+        }
+      },
+      "PaginationOaasObject_Public" : {
+        "type" : "object",
+        "properties" : {
           "total" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "offset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "itemCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OaasObject_Public"
+            }
           }
         }
       },
@@ -1232,103 +1637,151 @@
           }
         }
       },
+      "ProvisionConfig_Public" : {
+        "type" : "object",
+        "properties" : {
+          "job" : {
+            "$ref" : "#/components/schemas/JobProvisionConfig_Public"
+          },
+          "knative" : {
+            "$ref" : "#/components/schemas/KnativeProvision_Public"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/Type_Public"
+          }
+        }
+      },
       "ReferenceSpecification" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
           "cls" : {
             "type" : "string"
           },
           "internal" : {
             "type" : "boolean"
-          },
+          }
+        }
+      },
+      "ReferenceSpecification_Public" : {
+        "type" : "object",
+        "properties" : {
           "name" : {
             "type" : "string"
+          },
+          "cls" : {
+            "type" : "string"
+          },
+          "internal" : {
+            "type" : "boolean"
           }
         }
       },
-      "RemoteCacheClientStatisticsMXBean" : {
+      "ResolvedMember" : {
         "type" : "object",
         "properties" : {
-          "remoteHits" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "remoteMisses" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "averageRemoteReadTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "remoteStores" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "averageRemoteStoreTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "remoteRemoves" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "averageRemoteRemovesTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "nearCacheHits" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "nearCacheMisses" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "nearCacheInvalidations" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "nearCacheSize" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "timeSinceReset" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
-        }
-      },
-      "ServerStatistics" : {
-        "type" : "object",
-        "properties" : {
-          "statsMap" : {
+          "functions" : {
             "type" : "object",
             "additionalProperties" : {
+              "$ref" : "#/components/schemas/FunctionBinding"
+            }
+          },
+          "keySpecs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/KeySpecification"
+            }
+          },
+          "refSpecs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification"
+            }
+          },
+          "identities" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
               "type" : "string"
             }
+          },
+          "flag" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ResolvedMember_Public" : {
+        "type" : "object",
+        "properties" : {
+          "functions" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/FunctionBinding_Public"
+            }
+          },
+          "keySpecs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/KeySpecification_Public"
+            }
+          },
+          "refSpecs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ReferenceSpecification_Public"
+            }
+          },
+          "identities" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "flag" : {
+            "type" : "boolean"
           }
         }
       },
       "StateSpecification" : {
         "type" : "object",
         "properties" : {
-          "defaultProvider" : {
-            "type" : "string"
-          },
           "keySpecs" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/KeySpecification"
             }
+          },
+          "defaultProvider" : {
+            "type" : "string"
+          }
+        }
+      },
+      "StateSpecification_Public" : {
+        "type" : "object",
+        "properties" : {
+          "keySpecs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/KeySpecification_Public"
+            }
+          },
+          "defaultProvider" : {
+            "type" : "string"
           }
         }
       },
       "StateType" : {
-        "enum" : [ "COLLECTION", "FILES" ],
+        "enum" : [ "FILES", "COLLECTION" ],
         "type" : "string"
       },
-      "StreamInfo" : {
+      "StateType_Public" : {
+        "enum" : [ "FILES", "COLLECTION" ],
+        "type" : "string"
+      },
+      "StreamInfo_Public" : {
         "type" : "object",
         "properties" : {
           "count" : {
@@ -1337,43 +1790,55 @@
           }
         }
       },
-      "TaskCompletion" : {
-        "type" : "object",
-        "properties" : {
-          "completionTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "debugLog" : {
-            "type" : "string"
-          },
-          "embeddedRecord" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "startTime" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/TaskStatus"
-          }
-        }
-      },
-      "TaskStatus" : {
-        "enum" : [ "DEPENDENCY_FAILED", "DOING", "FAILED", "SUCCEEDED", "WAITING" ],
+      "TaskStatus_Public" : {
+        "enum" : [ "LAZY", "DOING", "SUCCEEDED", "FAILED", "DEPENDENCY_FAILED", "READY" ],
         "type" : "string"
       },
       "Type" : {
-        "enum" : [ "DURABLE", "EPHEMERAL" ],
+        "enum" : [ "EPHEMERAL", "DURABLE" ],
         "type" : "string"
       },
-      "UUID" : {
-        "format" : "uuid",
-        "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+      "Type_Public" : {
+        "enum" : [ "EPHEMERAL", "DURABLE" ],
         "type" : "string"
+      },
+      "VariableDescription" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "VariableDescription_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "WorkflowExport" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          }
+        }
+      },
+      "WorkflowExport_Public" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          }
+        }
       }
     }
   }

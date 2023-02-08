@@ -1,22 +1,18 @@
 package org.hpcclab.oaas.taskmanager.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
-import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.oal.ObjectAccessLangauge;
-import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.model.proto.TaskCompletion;
+import org.hpcclab.oaas.invocation.ContentUrlGenerator;
+import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.data.AccessLevel;
+import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
-import org.hpcclab.oaas.repository.TaskCompletionRepository;
-import org.hpcclab.oaas.repository.function.handler.FunctionRouter;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
-import org.hpcclab.oaas.taskmanager.service.ContentUrlGenerator;
-import org.hpcclab.oaas.taskmanager.service.ObjectCompletionListener;
-import org.hpcclab.oaas.taskmanager.service.TaskCompletionListener;
-import org.hpcclab.oaas.taskmanager.service.TaskEventManager;
+import org.hpcclab.oaas.taskmanager.service.InvocationHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,104 +22,124 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.UUID;
 
-@Path("/oal")
+@Path("/oal/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
-  FunctionRouter router;
-  @Inject
-  OaasObjectRepository objectRepo;
-  @Inject
-  TaskEventManager taskEventManager;
-//  @Inject
-//  TaskCompletionRepository completionRepo;
-  @Inject
-//  TaskCompletionListener completionListener;
-  ObjectCompletionListener completionListener;
+  ObjectRepository objectRepo;
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
   TaskManagerConfig config;
 
+  @Inject
+  InvocationHandlerService invocationHandlerService;
+
   @POST
-  public Uni<OaasObject> getObjectWithPost(ObjectAccessLangauge oal) {
+  @JsonView(Views.Public.class)
+  public Uni<OalResponse> getObjectWithPost(ObjectAccessLanguage oal,
+                                            @QueryParam("async") Boolean async,
+                                            @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return execFunction(oal)
-        .call(obj -> taskEventManager.submitCreateEvent(obj.getId().toString()));
+      return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
-        .failWith(() -> NoStackException.notFoundObject(oal.getTarget(), 404));
+        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
+        .map(obj -> OalResponse.builder()
+          .target(obj)
+          .build());
     }
   }
 
   @GET
   @Path("{oal}")
-  public Uni<OaasObject> getObject(@PathParam("oal") String oal) {
-    var oaeObj = ObjectAccessLangauge.parse(oal);
-    LOGGER.debug("Receive OAE getObject '{}'", oaeObj);
-    return getObjectWithPost(oaeObj);
+  @JsonView(Views.Public.class)
+  public Uni<OalResponse> getObject(@PathParam("oal") String oal,
+                                    @QueryParam("async") Boolean async,
+                                    @QueryParam("timeout") Integer timeout) {
+    var oaeObj = ObjectAccessLanguage.parse(oal);
+    LOGGER.debug("Receive OAL getObject '{}'", oaeObj);
+    return getObjectWithPost(oaeObj, async, timeout);
   }
 
   @POST
   @Path("-/{filePath:.*}")
-  public Uni<Response> postContentAndExec(@PathParam("filePath") String filePath,
-                                         @QueryParam("await") Boolean await,
-                                         ObjectAccessLangauge oal) {
+  @JsonView(Views.Public.class)
+  public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
+                                             @QueryParam("async") Boolean async,
+                                             @QueryParam("timeout") Integer timeout,
+                                             ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFunctionName()!=null) {
-      return execFunction(oal)
-        .flatMap(obj -> submitAndWaitObj(obj.getId(), await)
-          .map(newObj -> createResponse(newObj, filePath))
-        );
-
+      return selectAndInvoke(oal, async)
+        .map(res -> createResponse(res, filePath));
     } else {
       return objectRepo.getAsync(oal.getTarget())
+        .onItem().ifNull()
+        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
-          if (obj.getOrigin().getParentId() == null) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          } else if (obj.getTask() == null) {
-            return submitAndWaitObj(obj.getId(), await)
-              .map(newObj -> createResponse(newObj, filePath));
-          } else {
+          if (obj.isReadyToUsed()) {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
+          if (obj.getStatus().getTaskStatus().isFailed()) {
+            return Uni.createFrom().item(createResponse(obj, filePath));
+          }
+          if (!obj.getStatus().getTaskStatus().isSubmitted()) {
+            return invocationHandlerService.awaitCompletion(obj, timeout)
+              .map(newObj -> createResponse(newObj, filePath));
+          }
+          return Uni.createFrom().item(createResponse(obj, filePath));
         });
     }
   }
 
 
   @GET
+  @JsonView(Views.Public.class)
   @Path("{oal}/{filePath:.*}")
-  public Uni<Response> getContentAndExec(@PathParam("oal") String oal,
+  public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
-                                         @QueryParam("await") Boolean await) {
-    var oaeObj = ObjectAccessLangauge.parse(oal);
-    LOGGER.debug("Receive OAL getContent '{}' '{}'", oaeObj, filePath);
-    return postContentAndExec(filePath, await, oaeObj);
+                                         @QueryParam("async") Boolean async,
+                                         @QueryParam("timeout") Integer timeout) {
+    var oalObj = ObjectAccessLanguage.parse(oal);
+    LOGGER.debug("Receive OAL getContent '{}' '{}'", oalObj, filePath);
+    return execAndGetContentPost(filePath, async, timeout, oalObj);
   }
 
-  public Uni<OaasObject> execFunction(ObjectAccessLangauge oal) {
-    var uni = router.functionCall(oal)
-      .map(FunctionExecContext::getOutput);
-    if (LOGGER.isDebugEnabled()) {
-      uni = uni
-        .invoke(() -> LOGGER.debug("Call function '{}' succeed", oal));
+  public Uni<OalResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
+    if (async==null ? !config.defaultAwaitCompletion():async) {
+      return invocationHandlerService.asyncInvoke(oal);
+    } else {
+      return invocationHandlerService.syncInvoke(oal)
+        .map(ctx -> OalResponse.builder()
+          .target(ctx.getMain())
+          .output(ctx.getOutput())
+          .fbName(ctx.getFbName())
+          .async(false)
+          .build());
     }
-    return uni;
   }
+
+  public Response createResponse(OalResponse oalResponse,
+                                 String filePath) {
+    return createResponse(
+      oalResponse.output()!=null ? oalResponse.output():oalResponse.target(),
+      filePath, HttpResponseStatus.SEE_OTHER.code()
+    );
+  }
+
 
   public Response createResponse(OaasObject object,
-                                 String filePath){
-    return createResponse(object,filePath,HttpResponseStatus.SEE_OTHER.code());
+                                 String filePath) {
+    return createResponse(object, filePath, HttpResponseStatus.SEE_OTHER.code());
   }
 
   public Response createResponse(OaasObject object,
@@ -131,54 +147,27 @@ public class OalResource {
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
     if (object.getOrigin().getParentId()!=null) {
-      var taskCompletion = object.getTask();
-      if (taskCompletion==null) {
-        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code()).build();
+      var status = object.getStatus();
+      if (status==null) {
+        return Response.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).build();
       }
-      if (taskCompletion.getStatus()==TaskStatus.DOING) {
-        return Response.status(HttpResponseStatus.NO_CONTENT.code())
+      var ts = status.getTaskStatus();
+      if (ts==TaskStatus.DOING) {
+        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
           .build();
       }
-      if (taskCompletion.getStatus()!=TaskStatus.SUCCEEDED) {
+      if (ts.isFailed()) {
         return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
       }
     }
     var oUrl = object.getState().getOverrideUrls();
-    if (oUrl!= null && oUrl.containsKey(filePath))
+    if (oUrl!=null && oUrl.containsKey(filePath))
       return Response.status(redirectCode)
         .location(URI.create(oUrl.get(filePath)))
         .build();
-    var fileUrl = contentUrlGenerator.generateUrl(object, filePath);
+    var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();
-  }
-
-//  public Uni<TaskCompletion> submitAndWait(String id,
-//                                           Boolean await) {
-//    var uni1 = taskEventManager.submitCreateEvent(id)
-//      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
-//    if (await==null ? config.defaultBlockCompletion():await) {
-//      var uni2 = completionListener.wait(id);
-//      return Uni.combine().all().unis(uni1, uni2)
-//        .asTuple()
-//        .flatMap(event -> completionRepo.getAsync(id));
-//    }
-//    return uni1
-//      .flatMap(event -> completionRepo.getAsync(id))
-//      .replaceIfNullWith(() -> new TaskCompletion().setStatus(TaskStatus.DOING));
-//  }
-
-  public Uni<OaasObject> submitAndWaitObj(String id, Boolean await) {
-    var uni1 = taskEventManager.submitCreateEvent(id)
-      .onFailure().invoke(e -> LOGGER.error("Got an error when submitting CreateEvent", e));
-    if (await==null ? config.defaultBlockCompletion():await) {
-      var uni2 = completionListener.wait(id);
-      return Uni.combine().all().unis(uni1, uni2)
-        .asTuple()
-        .flatMap(event -> objectRepo.getAsync(id));
-    }
-    return uni1
-      .flatMap(event -> objectRepo.getAsync(id));
   }
 }

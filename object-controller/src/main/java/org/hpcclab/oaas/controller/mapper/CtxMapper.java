@@ -1,15 +1,16 @@
 package org.hpcclab.oaas.controller.mapper;
 
-import org.hpcclab.oaas.model.function.FunctionExecContext;
-import org.hpcclab.oaas.model.proto.OaasClass;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(
+  componentModel = MappingConstants.ComponentModel.CDI,
+  nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface CtxMapper {
-
-  FunctionExecContext copy(FunctionExecContext ctx);
 
   void set(OaasClass cls1, @MappingTarget OaasClass cls2);
 }

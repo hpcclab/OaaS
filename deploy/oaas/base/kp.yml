@@ -4,15 +4,18 @@ metadata:
   name: kube-provisioner
   labels:
     app: kube-provisioner
+    platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: kube-provisioner
+      platform: oaas
   template:
     metadata:
       labels:
         app: kube-provisioner
+        platform: oaas
     spec:
       serviceAccountName: kp-sa
       containers:
@@ -40,17 +43,17 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 30
             successThreshold: 1
-            timeoutSeconds: 10
+            timeoutSeconds: 5
           readinessProbe:
             failureThreshold: 10
             httpGet:
               path: /q/health/ready
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: 3
+            periodSeconds: 5
             successThreshold: 1
-            timeoutSeconds: 10
+            timeoutSeconds: 1
 ---
 apiVersion: v1
 kind: Service

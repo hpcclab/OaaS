@@ -8,7 +8,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.storage.SaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 @ApplicationScoped
 public class S3Adapter implements StorageAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger( S3Adapter.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(S3Adapter.class);
   @Inject
   SaConfig config;
   @Inject
@@ -31,9 +31,9 @@ public class S3Adapter implements StorageAdapter {
 
   private MinioClient minioClient;
   private MinioClient publicMinioClient;
-
   private boolean relay;
   private WebClient webClient;
+  private String prefix;
 
   void setup(@Observes StartupEvent event) {
     var s3Config = config.s3();
@@ -49,6 +49,7 @@ public class S3Adapter implements StorageAdapter {
       .build();
     relay = config.s3().relay();
     webClient = WebClient.create(vertx);
+    prefix = s3Config.prefix()==null ? "":s3Config.prefix();
   }
 
   @Override
@@ -61,7 +62,7 @@ public class S3Adapter implements StorageAdapter {
     var uni = Uni.createFrom()
       .item(() -> generatePresigned(
         Method.GET,
-        dar.getOid() + "/" + dar.getKey(),
+        convertToPath(dar.oid(), dar.vid(), dar.key()),
         false)
       );
     if (relay) {
@@ -75,13 +76,16 @@ public class S3Adapter implements StorageAdapter {
 
   public Uni<Response> relay(String url) {
     return webClient.getAbs(url)
-//      .as(BodyCodec.buffer())
       .send()
-      .map(rspn -> {
-        if (rspn.statusCode() == 200) {
-          LOGGER.info("Relaying data from '{}' with {} bytes", url, rspn.bodyAsBuffer() == null? 0 :rspn.bodyAsBuffer().length());
-          return Response.ok(rspn.bodyAsBuffer()).build();
+      .map(resp -> {
+        if (resp.statusCode()==200) {
+          var buffer = resp.bodyAsBuffer();
+          LOGGER.debug("Relaying data from '{}' with {} bytes",
+            url, buffer==null ? 0:buffer.length());
+          return Response.ok(buffer).build();
         } else {
+          LOGGER.warn("Error relaying data from '{}' code {}",
+            url, resp.statusCode());
           return Response.status(Response.Status.BAD_GATEWAY)
             .build();
         }
@@ -100,18 +104,8 @@ public class S3Adapter implements StorageAdapter {
         .build();
       return client.getPresignedObjectUrl(args);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new StdOaasException(e.getMessage(), e);
     }
-  }
-
-  @Override
-  public Uni<Response> put(DataAccessRequest dar) {
-    return null;
-  }
-
-  @Override
-  public Uni<Response> delete(DataAccessRequest dar) {
-    return null;
   }
 
   @Override
@@ -120,26 +114,29 @@ public class S3Adapter implements StorageAdapter {
   }
 
   public Map<String, String> allocateBlocking(InternalDataAllocateRequest request) {
-    var keys = request.getKeys();
+    var keys = request.keys();
     var map = new HashMap<String, String>();
     for (String key : keys) {
-      var url = generatePresigned(Method.PUT,
-        request.getId() + "/" + key,
-        true);
+      var path = generatePath(request, key);
+      var url = generatePresigned(
+        Method.PUT,
+        path,
+        request.publicUrl());
       map.put(key, url);
     }
     return map;
   }
 
-//  public Map<String, String> allocateBlocking(DataAllocateRequest request) {
-//    var keys = request.getKeys();
-//    var map = new HashMap<String, String>();
-//    for (String key : keys) {
-//      var url = generatePresigned(Method.PUT,
-//        request.getOid() + "/" + key,
-//        true);
-//      map.put(key, url);
-//    }
-//    return map;
-//  }
+  String generatePath(InternalDataAllocateRequest request, String key) {
+    return convertToPath(request.oid(), request.vid(), key);
+  }
+
+  String convertToPath(String oid, String vid, String key) {
+    return prefix +
+      oid +
+      '/' +
+      vid +
+      '/' +
+      key;
+  }
 }

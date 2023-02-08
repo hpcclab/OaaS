@@ -1,21 +1,24 @@
 package org.hpcclab.oaas.controller.rest;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.controller.service.DataAllocationService;
+import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.object.OaasObjectOrigin;
+import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
-import org.hpcclab.oaas.model.proto.OaasClass;
-import org.hpcclab.oaas.model.proto.OaasObject;
-import org.hpcclab.oaas.repository.OaasClassRepository;
-import org.hpcclab.oaas.repository.OaasObjectRepository;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.OaasObjectFactory;
+import org.hpcclab.oaas.repository.ObjectRepository;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -25,21 +28,25 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
-@Path("/api/object-construct")
+@ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Path("/api/object-construct")
 public class ObjectConstructResource {
 
   @Inject
-  OaasClassRepository clsRepo;
+  ClassRepository clsRepo;
   @Inject
-  OaasObjectRepository objRepo;
+  ObjectRepository objRepo;
   @Inject
   @RestClient
   DataAllocationService allocationService;
+  @Inject
+  OaasObjectFactory objectFactory;
 
 
   @POST
+  @JsonView(Views.Public.class)
   public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());
     if (cls==null) throw NoStackException.notFoundCls400(construction.getCls());
@@ -49,16 +56,28 @@ public class ObjectConstructResource {
     };
   }
 
+  private void linkReference(ObjectConstructRequest request,
+                             OaasObject obj,
+                             OaasClass cls) {
+    //TODO validate the references of request
+    obj.setRefs(request.getRefs());
+  }
+
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
-    var obj = makeObject(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls);
+    linkReference(construction, obj, cls);
     var stateSpec = cls.getStateSpec();
     if (stateSpec==null) return objRepo.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .select(k -> construction.getKeys().contains(k.getName()));
-    DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, true);
+    if (ks.isEmpty()) {
+      return objRepo.persistAsync(obj)
+        .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
+    }
+    DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, cls.getStateSpec().getDefaultProvider(), true);
     return allocationService.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
       .call(() -> objRepo.persistAsync(obj));
@@ -68,9 +87,10 @@ public class ObjectConstructResource {
                                                        OaasClass cls) {
     var genericType = cls.getGenericType();
     var genericCls = clsRepo.get(genericType);
-    var obj = makeObject(construction, cls, objRepo.generateId());
+    var obj = objectFactory.createBase(construction, cls);
+    linkReference(construction, obj, cls);
     var sc = Lists.fixedSize.ofAll(construction.getStreamConstructs());
-    var objStream = sc.collectWithIndex((c,i) -> makeObject(c, genericCls, obj.getId() + '.' + i));
+    var objStream = sc.collectWithIndex((c,i) -> objectFactory.createBase(c, genericCls, obj.getId() + '.' + i));
     var requestList = sc.zip(objStream).collect(pair -> {
       var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
         .select(k -> construction.getKeys().contains(k.getName()));
@@ -93,16 +113,4 @@ public class ObjectConstructResource {
     return new ObjectConstructResponse(baseObj, Map.of(), respStream);
   }
 
-
-  private OaasObject makeObject(ObjectConstructRequest construct,
-                                OaasClass cls,
-                                String id) {
-    var obj = OaasObject.createFromClasses(cls);
-    obj.setId(id);
-    obj.setEmbeddedRecord(construct.getEmbeddedRecord());
-    obj.setLabels(construct.getLabels());
-    obj.setOrigin(new OaasObjectOrigin().setRootId(id));
-    obj.getState().setOverrideUrls(construct.getOverrideUrls());
-    return obj;
-  }
 }
