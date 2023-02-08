@@ -94,16 +94,14 @@ kubectl apply -f deploy/oaas/object-bucket.yml
 ----
 kubectl apply -n oaas -f deploy/arango/arango-cluster.yml
 ----
-
-. NATS
-+
-[source,bash]
-----
-kubectl apply -n oaas -f deploy/nats/nats.yml
-----
-+
-NOTE: This deployment step is not a practical way. You can look at the official guide (https://github.com/nats-io/k8s) to deploy it properly.
-
+// . NATS
+// +
+// [source,bash]
+// ----
+// kubectl apply -n oaas -f deploy/nats/nats.yml
+// ----
+// +
+// NOTE: This deployment step is not a practical way. You can look at the official guide (https://github.com/nats-io/k8s) to deploy it properly.
 . Deploy the OaaS platform.
 +
 [source,bash]
@@ -121,26 +119,6 @@ metadata:
   name: oaas-ingress
 spec:
   rules:
-    - host: "oc.oaas.10.131.36.40.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: object-controller
-                port:
-                  number: 80
-    - host: "tm.oaas.10.131.36.40.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: task-manager
-                port:
-                  number: 80
     - host: "cds.oaas.10.131.36.40.nip.io"
       http:
         paths:
@@ -154,7 +132,7 @@ spec:
 
 ----
 +
-Then, you need to save this into a file and submit it to Kubernetes using the following command.
+Then, you need to save this into a file (ex. ``oaas-ingress.yml``) and submit it to Kubernetes using the following command.
 +
 [source,bash]
 ----
