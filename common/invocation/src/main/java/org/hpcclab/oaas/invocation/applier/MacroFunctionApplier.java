@@ -89,6 +89,7 @@ public class MacroFunctionApplier implements FunctionApplier {
           .invoke(newCtx -> {
             if (newCtx.getOutput() != null
               && step.getAs() != null
+              && request != null
               && request.macroIds().containsKey(step.getAs()))
               newCtx.getOutput().setId(request.macroIds().get(step.getAs()));
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());

@@ -198,6 +198,10 @@ components:
           type: string
         fbName:
           type: string
+        macroIds:
+          type: object
+          additionalProperties:
+            type: string
         async:
           type: boolean
     ObjectAccessLanguage:
@@ -269,6 +273,8 @@ components:
         updatedOffset:
           format: int64
           type: integer
+        vId:
+          type: string
     StreamInfo_Public:
       type: object
       properties:

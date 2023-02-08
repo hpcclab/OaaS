@@ -94,11 +94,11 @@
         "deprecated" : true
       }
     },
-    "/api/classes/{name}" : {
+    "/api/classes/{clsKey}" : {
       "get" : {
         "tags" : [ "Class Resource" ],
         "parameters" : [ {
-          "name" : "name",
+          "name" : "clsKey",
           "in" : "path",
           "required" : true,
           "schema" : {
@@ -121,7 +121,7 @@
       "delete" : {
         "tags" : [ "Class Resource" ],
         "parameters" : [ {
-          "name" : "name",
+          "name" : "clsKey",
           "in" : "path",
           "required" : true,
           "schema" : {
@@ -140,7 +140,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/classes/{name}" : {
       "patch" : {
         "tags" : [ "Class Resource" ],
         "parameters" : [ {
@@ -321,11 +323,34 @@
         "deprecated" : true
       }
     },
-    "/api/functions/{funcName}" : {
+    "/api/functions/{funcKey}" : {
       "get" : {
         "tags" : [ "Function Resource" ],
         "parameters" : [ {
-          "name" : "funcName",
+          "name" : "funcKey",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OaasFunction_Public"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Function Resource" ],
+        "parameters" : [ {
+          "name" : "funcKey",
           "in" : "path",
           "required" : true,
           "schema" : {
@@ -961,6 +986,9 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "apiPath" : {
+            "type" : "string"
           }
         }
       },
@@ -1006,6 +1034,9 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "apiPath" : {
+            "type" : "string"
           }
         }
       },
@@ -1509,6 +1540,9 @@
           "updatedOffset" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "vId" : {
+            "type" : "string"
           }
         }
       },

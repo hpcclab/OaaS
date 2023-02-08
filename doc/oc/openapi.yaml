@@ -64,12 +64,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/OaasClass_Public'
       deprecated: true
-  /api/classes/{name}:
+  /api/classes/{clsKey}:
     get:
       tags:
       - Class Resource
       parameters:
-      - name: name
+      - name: clsKey
         in: path
         required: true
         schema:
@@ -85,7 +85,7 @@ paths:
       tags:
       - Class Resource
       parameters:
-      - name: name
+      - name: clsKey
         in: path
         required: true
         schema:
@@ -97,6 +97,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasClass_Public'
+  /api/classes/{name}:
     patch:
       tags:
       - Class Resource
@@ -218,12 +219,28 @@ paths:
                 items:
                   $ref: '#/components/schemas/OaasFunction_Public'
       deprecated: true
-  /api/functions/{funcName}:
+  /api/functions/{funcKey}:
     get:
       tags:
       - Function Resource
       parameters:
-      - name: funcName
+      - name: funcKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OaasFunction_Public'
+    delete:
+      tags:
+      - Function Resource
+      parameters:
+      - name: funcKey
         in: path
         required: true
         schema:
@@ -691,6 +708,8 @@ components:
           type: object
           additionalProperties:
             type: string
+        apiPath:
+          type: string
     KnativeProvision_Public:
       type: object
       properties:
@@ -722,6 +741,8 @@ components:
           type: object
           additionalProperties:
             type: string
+        apiPath:
+          type: string
     OaasClass:
       type: object
       properties:
@@ -1064,6 +1085,8 @@ components:
         updatedOffset:
           format: int64
           type: integer
+        vId:
+          type: string
     ObjectType:
       enum:
       - SIMPLE

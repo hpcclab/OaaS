@@ -284,6 +284,12 @@
           "fbName" : {
             "type" : "string"
           },
+          "macroIds" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
           "async" : {
             "type" : "boolean"
           }
@@ -389,6 +395,9 @@
           "updatedOffset" : {
             "format" : "int64",
             "type" : "integer"
+          },
+          "vId" : {
+            "type" : "string"
           }
         }
       },
