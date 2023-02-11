@@ -36,6 +36,8 @@ public class FunctionExecContext extends TaskContext {
   TaskCompletion completion;
   InvocationRequest request;
 
+  long mqOffset = -1;
+
   public ObjectOrigin createOrigin() {
     var finalArgs = resolveArgs(binding);
     return new ObjectOrigin(

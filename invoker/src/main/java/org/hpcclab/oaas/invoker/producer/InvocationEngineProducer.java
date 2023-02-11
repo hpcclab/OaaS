@@ -17,7 +17,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 
-@Dependent
+@ApplicationScoped
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger( InvocationEngineProducer.class );
 

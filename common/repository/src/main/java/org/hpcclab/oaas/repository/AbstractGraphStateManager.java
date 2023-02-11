@@ -33,19 +33,20 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   @Override
   public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
     var main = task.getMain();
-    if (completion.getMain()!=null) {
-      completion.getMain().update(main, task.getVId());
+    List<OaasObject> objs = new ArrayList<>();
+
+    if (main!=null) {
+      if (completion.getMain()!=null) {
+        completion.getMain().update(main, task.getVId());
+      }
+      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
+        main.getStatus().setUpdatedOffset(fec.getMqOffset());
+      objs.add(main);
     }
+
     var out = task.getOutput();
     if (out!=null) {
       out.updateStatus(completion);
-    }
-    List<OaasObject> objs = new ArrayList<>();
-
-    if (completion.getMain()!=null) {
-      objs.add(main);
-    }
-    if (out!=null) {
       objs.add(out);
     }
 

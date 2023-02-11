@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
@@ -20,15 +20,15 @@ import java.util.Map;
 
 public class MockupData {
 
-
   public static final OaasFunction FUNC_1 = new OaasFunction()
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
-//    .setOutputCls("ex.cls1")
+    .setDeploymentStatus(new FunctionDeploymentStatus()
+      .setCondition(DeploymentCondition.RUNNING)
+      .setInvocationUrl("http://localhost:8080")
+    )
     ;
-
-
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc2")

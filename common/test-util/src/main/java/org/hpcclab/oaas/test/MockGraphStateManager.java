@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;

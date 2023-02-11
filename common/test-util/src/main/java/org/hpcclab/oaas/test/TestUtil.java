@@ -1,10 +1,12 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.map.MutableMap;
+import org.hpcclab.oaas.invocation.RepoContextLoader;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.EntityRepository;
+import org.hpcclab.oaas.test.MapEntityRepository;
 
 public class TestUtil {
 
@@ -15,8 +17,7 @@ public class TestUtil {
     var objRepo = mockObjectRepo(objects);
     var clsRepo = mockClsRepo(classes);
     var funcRepo = mockFuncRepo(functions);
-    var cl = new RepoContextLoader(objRepo,funcRepo,clsRepo);
-    return cl;
+    return new RepoContextLoader(objRepo,funcRepo,clsRepo);
   }
 
   public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String,OaasObject> objects) {

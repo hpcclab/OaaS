@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.repository;
 
-import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
@@ -23,8 +22,6 @@ public class ClassResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger( ClassResolver.class );
 
   public OaasClass resolve(OaasClass base, List<OaasClass> parentClasses) {
-//    LOGGER.info("resolving {} {}", base.getName(), parentClasses.stream()
-//      .map(OaasClass::getName).toList());
     var resolved = base.copy();
     if (parentClasses.isEmpty()) {
       ResolvedMember resolvedMember = new ResolvedMember(

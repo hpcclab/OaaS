@@ -175,8 +175,7 @@ public class InvocationExecutor {
 
   public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
     logger.debug("complete {} {}", completion.getId(), completion);
-    return completionValidator.validateCompletion(task, completion)
-      .onItem().transformToMulti(cmp -> gsm.handleComplete(task, cmp))
+    return gsm.handleComplete(task, completion)
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()
       .flatMap(list -> sender.send(list.stream().map(TaskDetail::toRequest).toList()));

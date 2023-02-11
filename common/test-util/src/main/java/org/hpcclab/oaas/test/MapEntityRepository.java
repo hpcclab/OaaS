@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
@@ -30,7 +30,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
   public V get(K key) {
     var v = map.get(key);
     if (v instanceof Copyable)
-      return (V) ((Copyable<V>) v).copy();
+      return ((Copyable<V>) v).copy();
     return v;
   }
 

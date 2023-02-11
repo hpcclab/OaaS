@@ -88,6 +88,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)
+          .invoke(fec -> fec.setMqOffset(kafkaRecord.offset()))
           .flatMap(invocationExecutor::asyncExec);
       })
       .onFailure(InvocationException.class)
