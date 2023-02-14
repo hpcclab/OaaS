@@ -106,23 +106,23 @@ public class MockupData {
   public static MutableMap<String,OaasClass> testClasses() {
     var clsResolver = new ClassResolver();
     return Lists.fixedSize.of(
-        clsResolver.resolve(CLS_1, List.of())
+        clsResolver.resolve(CLS_1.copy(), List.of())
     )
       .groupByUniqueKey(OaasClass::getKey);
   }
 
   public static MutableMap<String,OaasFunction> testFunctions() {
     return Lists.fixedSize.of(
-      FUNC_1,
-      MACRO_FUNC_1
+      FUNC_1.copy(),
+      MACRO_FUNC_1.copy()
     )
       .groupByUniqueKey(OaasFunction::getKey);
   }
 
   public static List<OaasObject> testObjects() {
     var l = Lists.mutable.<OaasObject>empty();
-    l.add(OBJ_1);
-    l.add(OBJ_2);
+    l.add(OBJ_1.copy());
+    l.add(OBJ_2.copy());
     return l;
   }
 

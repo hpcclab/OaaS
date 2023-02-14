@@ -90,7 +90,7 @@ public class OaasObject implements Copyable<OaasObject> {
       labels==null ? null:Set.copyOf(labels),
       state.copy(),
       refs==null ? null:Set.copyOf(refs),
-      data,
+      data != null? data.deepCopy(): null,
       status.copy(),
       streamInfo == null? null:streamInfo.copy()
     );
