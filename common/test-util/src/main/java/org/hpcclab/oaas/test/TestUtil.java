@@ -1,37 +1,24 @@
 package org.hpcclab.oaas.test;
 
-import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.invocation.RepoContextLoader;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.test.MapEntityRepository;
+import java.util.function.BooleanSupplier;
 
 public class TestUtil {
 
-
-  public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
-                                                    MutableMap<String,OaasClass> classes,
-                                                    MutableMap<String,OaasFunction> functions) {
-    var objRepo = mockObjectRepo(objects);
-    var clsRepo = mockClsRepo(classes);
-    var funcRepo = mockFuncRepo(functions);
-    return new RepoContextLoader(objRepo,funcRepo,clsRepo);
+  public static boolean retryTillConditionMeet(BooleanSupplier condition) throws InterruptedException {
+    return retryTillConditionMeet(condition, 20, 500);
   }
 
-  public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String,OaasObject> objects) {
-    return new MapEntityRepository<>(objects, OaasObject::getId);
+  public static boolean retryTillConditionMeet(BooleanSupplier condition,
+                                               int max,
+                                               int delay)
+    throws InterruptedException {
+    boolean check;
+    do {
+      check = condition.getAsBoolean();
+      max--;
+      Thread.sleep(delay);
+    }
+    while (!check && max > 0);
+    return check;
   }
-
-
-  public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String,OaasClass> classes) {
-    return new MapEntityRepository<>(classes, OaasClass::getKey);
-  }
-
-  public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String,OaasFunction> functions) {
-    return new MapEntityRepository<>(functions, OaasFunction::getKey);
-  }
-
-
 }

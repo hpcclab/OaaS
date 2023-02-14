@@ -3,6 +3,7 @@ package org.hpcclab.oaas.test;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
+import org.hpcclab.oaas.invocation.RepoContextLoader;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -13,7 +14,7 @@ import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
-import org.hpcclab.oaas.repository.ClassResolver;
+import org.hpcclab.oaas.repository.*;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class MockupData {
     ;
 
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
-    .setName("macroFunc2")
+    .setName("macroFunc1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
 //    .setOutputCls("ex.cls1")
@@ -86,6 +87,22 @@ public class MockupData {
         .setOutputCls("ex.cls1")
     ));
 
+  public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
+    .setId("o1")
+    .setOrigin(new ObjectOrigin())
+    .setStatus(new ObjectStatus())
+    .setState(new OaasObjectState()
+      .setVerIds(Maps.mutable.of("k1", "kkkk"))
+    );
+
+  public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
+    .setId("o2")
+    .setOrigin(new ObjectOrigin()
+      .setParentId(OBJ_1.getId())
+    .setFbName("f1")
+    )
+    .setStatus(new ObjectStatus());
+
   public static MutableMap<String,OaasClass> testClasses() {
     var clsResolver = new ClassResolver();
     return Lists.fixedSize.of(
@@ -104,25 +121,42 @@ public class MockupData {
 
   public static List<OaasObject> testObjects() {
     var l = Lists.mutable.<OaasObject>empty();
-    var o1 = OaasObject.createFromClasses(CLS_1);
-    o1.setId("o1");
-    o1.setOrigin(new ObjectOrigin());
-    o1.setStatus(new ObjectStatus());
-    o1.setState(new OaasObjectState()
-      .setVerIds(Maps.mutable.of("k1", "kkkk"))
-    );
-
-    l.add(o1);
-
-    var o2 = OaasObject.createFromClasses(CLS_1);
-    o2.setId("o2");
-    o2.setOrigin(new ObjectOrigin()
-      .setParentId(o1.getId())
-      .setFbName("f1")
-    );
-    o2.setStatus(new ObjectStatus());
-    l.add(o2);
-
+    l.add(OBJ_1);
+    l.add(OBJ_2);
     return l;
+  }
+
+
+  public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
+                                                    MutableMap<String,OaasClass> classes,
+                                                    MutableMap<String,OaasFunction> functions) {
+    var objRepo = mockObjectRepo(objects);
+    var clsRepo = mockClsRepo(classes);
+    var funcRepo = mockFuncRepo(functions);
+    return new RepoContextLoader(objRepo,funcRepo,clsRepo);
+  }
+
+  public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String,OaasObject> objects) {
+    return new MapEntityRepository<>(objects, OaasObject::getId);
+  }
+
+
+  public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String,OaasClass> classes) {
+    return new MapEntityRepository<>(classes, OaasClass::getKey);
+  }
+
+  public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String,OaasFunction> functions) {
+    return new MapEntityRepository<>(functions, OaasFunction::getKey);
+  }
+
+  public static void persistMock(ObjectRepository objectRepo,
+                                 ClassRepository clsRepo,
+                                 FunctionRepository fnRepo) {
+    objectRepo.persistAsync(testObjects())
+      .await().indefinitely();
+    clsRepo.persistAsync(testClasses().values())
+      .await().indefinitely();
+    fnRepo.persistAsync(testFunctions().values())
+      .await().indefinitely();
   }
 }

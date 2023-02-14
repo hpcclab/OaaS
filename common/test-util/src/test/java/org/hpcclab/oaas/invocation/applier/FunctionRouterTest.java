@@ -52,7 +52,7 @@ class FunctionRouterTest {
     var functions = MockupData.testFunctions();
     objectMap = Lists.mutable.ofAll(objects)
       .groupByUniqueKey(OaasObject::getId);
-    var loader = TestUtil.mockContextLoader(objectMap, classes, functions);
+    var loader = MockupData.mockContextLoader(objectMap, classes, functions);
     objectRepo = loader.getObjectRepo();
     var idGen = new UuidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);

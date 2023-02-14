@@ -41,12 +41,15 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       }
       if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
         main.getStatus().setUpdatedOffset(fec.getMqOffset());
-      objs.add(main);
+      if (!task.isImmutable())
+        objs.add(main);
     }
 
     var out = task.getOutput();
     if (out!=null) {
       out.updateStatus(completion);
+      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
+        out.getStatus().setUpdatedOffset(fec.getMqOffset());
       objs.add(out);
     }
 
