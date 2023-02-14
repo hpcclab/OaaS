@@ -6,6 +6,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
+import org.hpcclab.oaas.model.function.FunctionState;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -19,17 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.hpcclab.oaas.test.MockupData.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
-class MessageConsumingTest {
-  private static final Logger logger = LoggerFactory.getLogger(MessageConsumingTest.class);
+class InvokingTest {
+  private static final Logger logger = LoggerFactory.getLogger(InvokingTest.class);
   @Inject
   FunctionRepository funcRepo;
   @Inject
@@ -46,18 +47,29 @@ class MessageConsumingTest {
   FunctionRepository fnRepo;
   @Inject
   IdGenerator idGenerator;
+  List<OaasFunction> fnList = List.of(
+    FUNC_1, MACRO_FUNC_1
+  );
 
-
+//  @BeforeAll
+//  static void workaround() {
+//  }
   @BeforeEach
   void setup() {
-    Stream.of(FUNC_1, MACRO_FUNC_1)
-      .forEach(fn -> {
-          funcRepo.persistAsync(fn).await().indefinitely();
-          deployer.deployVerticleIfNew(fn.getKey())
-            .await().indefinitely();
-        }
-      );
+    for (OaasFunction fn : fnList) {
+      funcRepo.persistAsync(fn).await().indefinitely();
+      deployer.deployVerticleIfNew(fn.getKey())
+        .await().indefinitely();
+    }
   }
+
+//  @AfterEach
+//  void clean(){
+//    for (OaasFunction fn : fnList) {
+//      deployer.deleteVerticle(fn.getKey())
+//        .await().indefinitely();
+//    }
+//  }
 
 
   @Test
@@ -122,5 +134,33 @@ class MessageConsumingTest {
     assertEquals(2, m2.getData().get("n").asInt());
   }
 
+
+  @Test
+  void testSubscribingDeploy() throws InterruptedException {
+    var function = MockupData.FUNC_2;
+    funcRepo.persistAsync(function).await().indefinitely();
+    kafkaProducer.sendAndAwait(
+      KafkaProducerRecord.create(
+        config.fnProvisionTopic(),
+        function.getKey(),
+        Json.encodeToBuffer(function)
+      )
+    );
+    assertTrue(TestUtil.retryTillConditionMeet(() ->
+      deployer.getVerticleIds().containsKey(function.getKey()))
+    );
+    var fn = function.copy();
+    fn.setState(FunctionState.REMOVING);
+    kafkaProducer.sendAndAwait(
+      KafkaProducerRecord.create(
+        config.fnProvisionTopic(),
+        function.getKey(),
+        Json.encodeToBuffer(fn)
+      )
+    );
+    assertTrue(TestUtil.retryTillConditionMeet(() ->
+      !deployer.getVerticleIds().containsKey(function.getKey()))
+    );
+  }
 
 }

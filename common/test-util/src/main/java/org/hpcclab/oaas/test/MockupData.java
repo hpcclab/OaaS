@@ -31,6 +31,16 @@ public class MockupData {
     )
     ;
 
+  public static final OaasFunction FUNC_2 = new OaasFunction()
+    .setName("im-fn")
+    .setPkg("ex")
+    .setType(FunctionType.IM_TASK)
+    .setDeploymentStatus(new FunctionDeploymentStatus()
+      .setCondition(DeploymentCondition.RUNNING)
+      .setInvocationUrl("http://localhost:8080")
+    )
+    ;
+
   public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
     .setName("macroFunc1")
     .setPkg("ex")
@@ -80,6 +90,10 @@ public class MockupData {
         .setName("f3")
         .setFunction(FUNC_1.getKey())
         .setForceImmutable(true)
+        .setOutputCls("ex.cls1"),
+      new FunctionBinding()
+        .setName(FUNC_2.getName())
+        .setFunction(FUNC_2.getKey())
         .setOutputCls("ex.cls1"),
       new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
