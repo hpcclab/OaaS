@@ -7,6 +7,8 @@ import io.vertx.kafka.client.serialization.BufferDeserializer;
 import io.vertx.kafka.client.serialization.BufferSerializer;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 
 import javax.enterprise.context.Dependent;
@@ -26,13 +28,11 @@ public class VertxKafkaClientProducer {
   @Produces
   public KafkaClientOptions options(InvokerConfig invokerConfig) {
     Map<String, Object> config = new HashMap<>();
-    config.put("bootstrap.servers", invokerConfig.kafka());
-//    config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-//    config.put("value.deserializer", "io.vertx.kafka.client.serialization.BufferDeserializer");
-    config.put("group.id", invokerConfig.kafkaGroup());
-    config.put("auto.offset.reset", "earliest");
-    config.put("fetch.min.bytes", "1");
-    config.put("enable.auto.commit", "false");
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, invokerConfig.kafka());
+    config.put(ConsumerConfig.GROUP_ID_CONFIG, invokerConfig.kafkaGroup());
+    config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
+    config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
     return new KafkaClientOptions()
       .setConfig(config);
   }
@@ -41,10 +41,7 @@ public class VertxKafkaClientProducer {
   public KafkaProducer<String, Buffer> producer(Vertx vertx,
                                                 InvokerConfig invokerConfig) {
     Map<String, Object> config = new HashMap<>();
-    config.put("bootstrap.servers", invokerConfig.kafka());
-//    config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//    config.put("value.serializer", "io.vertx.kafka.client.serialization.BufferSerializer");
-    config.put("enable.auto.commit", "true");
+    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, invokerConfig.kafka());
     var options = new KafkaClientOptions()
       .setConfig(config);
 

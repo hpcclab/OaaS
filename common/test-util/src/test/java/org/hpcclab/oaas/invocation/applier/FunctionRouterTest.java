@@ -18,6 +18,7 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.TsidGenerator;
 import org.hpcclab.oaas.repository.UuidGenerator;
+import org.hpcclab.oaas.test.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class FunctionRouterTest {
     var functions = MockupData.testFunctions();
     objectMap = Lists.mutable.ofAll(objects)
       .groupByUniqueKey(OaasObject::getId);
-    var loader = TestUtil.mockContextLoader(objectMap, classes, functions);
+    var loader = MockupData.mockContextLoader(objectMap, classes, functions);
     objectRepo = loader.getObjectRepo();
     var idGen = new UuidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);
@@ -68,9 +69,6 @@ class FunctionRouterTest {
     var taskFactory = new TaskFactory(contentUrlGenerator, loader.getClsRepo(), new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
     syncInvoker = new MockSyncInvoker();
-    syncInvoker.setMapper(invokingDetail -> new TaskCompletion()
-      .setId(TaskIdentity.decode(invokingDetail.getId()))
-      .setSuccess(true));
     invocationExecutor = new InvocationExecutor(
       invocationQueueSender,
       graphStateManager,

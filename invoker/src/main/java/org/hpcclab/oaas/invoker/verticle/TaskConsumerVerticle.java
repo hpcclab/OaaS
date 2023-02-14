@@ -68,7 +68,6 @@ public class TaskConsumerVerticle extends AbstractVerticle {
   public void poll() {
     if (closed.get() || isPolling.get())
       return;
-//    LOGGER.debug("{} polling", topics);
     if (isPolling.compareAndSet(false, true)) {
       consumer.poll(TIMEOUT)
         .subscribe()

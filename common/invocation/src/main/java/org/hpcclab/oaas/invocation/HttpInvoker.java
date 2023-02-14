@@ -14,10 +14,11 @@ import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-@Dependent
+@ApplicationScoped
 public class HttpInvoker implements SyncInvoker {
   private static final Logger logger = LoggerFactory.getLogger(HttpInvoker.class);
   WebClient webClient;

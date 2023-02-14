@@ -5,6 +5,7 @@ import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.async.ArangoDBAsync;
 import com.arangodb.async.ArangoDatabaseAsync;
 import com.arangodb.async.ArangoViewAsync;
+import com.arangodb.entity.LoadBalancingStrategy;
 import com.arangodb.mapping.ArangoJack;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,7 +25,9 @@ public class ArgClientProducer {
       .user(config.user())
       .password(config.pass().orElse(""))
       .host(config.host(), config.port())
-      .maxConnections(16)
+      .maxConnections(30)
+      .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
+      .acquireHostList(true)
       .serializer(new ArangoJack())
       .build();
   }
@@ -34,7 +37,9 @@ public class ArgClientProducer {
       .user(config.user())
       .password(config.pass().orElse(""))
       .host(config.host(), config.port())
-      .maxConnections(16)
+      .maxConnections(30)
+      .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
+      .acquireHostList(true)
       .serializer(new ArangoJack())
       .build();
   }

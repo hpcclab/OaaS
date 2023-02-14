@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Dependent
+@Deprecated(forRemoval = true)
 public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
   final SyncInvoker invoker;

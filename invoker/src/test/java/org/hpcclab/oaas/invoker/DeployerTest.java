@@ -2,53 +2,79 @@ package org.hpcclab.oaas.invoker;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
-import org.hpcclab.oaas.model.function.FunctionType;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
+import io.vertx.kafka.admin.NewTopic;
+import io.vertx.kafka.client.common.KafkaClientOptions;
+import io.vertx.kafka.client.common.TopicPartition;
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.kafka.admin.KafkaAdminClient;
+import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
+import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
+import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
-import org.junit.jupiter.api.Assertions;
+import org.hpcclab.oaas.test.MockupData;
+import org.hpcclab.oaas.test.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
-public class DeployerTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger( DeployerTest.class );
+class DeployerTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DeployerTest.class);
 
   @Inject
   FunctionRepository funcRepo;
   @Inject
   VerticleDeployer deployer;
-
+  @Inject
+  KafkaProducer<String, Buffer> kafkaProducer;
   OaasFunction function;
+  @Inject
+  InvokerConfig config;
+
 
   @BeforeEach
   void setup() {
-    function = new OaasFunction();
-    function.setPkg("test")
-      .setName("fn")
-      .setDeploymentStatus(new FunctionDeploymentStatus()
-        .setCondition(DeploymentCondition.RUNNING)
-        .setInvocationUrl("http://localhost:8080")
-      )
-      .setType(FunctionType.TASK);
+    function = MockupData.FUNC_1;
     funcRepo.persistAsync(function).await().indefinitely();
   }
 
+
   @Test
-  void test() {
+  void testManualDeploy() {
     deployer.deployVerticleIfNew(function.getKey())
       .await().indefinitely();
     LOGGER.info("verticleIds {}", deployer.getVerticleIds());
-    Assertions.assertTrue(deployer.getVerticleIds().containsKey(function.getKey()));
+    assertTrue(deployer.getVerticleIds().containsKey(function.getKey()));
     deployer.deleteVerticle(function.getKey())
       .await().indefinitely();
     LOGGER.info("verticleIds {}", deployer.getVerticleIds());
-    Assertions.assertFalse(deployer.getVerticleIds().containsKey(function.getKey()));
+    assertFalse(deployer.getVerticleIds().containsKey(function.getKey()));
+  }
+
+  @Test
+  void testSubscribingDeploy() throws InterruptedException {
+    kafkaProducer.sendAndAwait(
+      KafkaProducerRecord.create(
+        config.fnProvisionTopic(),
+        MockupData.FUNC_1.getKey(),
+        Json.encodeToBuffer(MockupData.FUNC_1)
+        )
+    );
+    assertTrue(TestUtil.retryTillConditionMeet(() ->
+      deployer.getVerticleIds().containsKey(function.getKey()))
+    );
   }
 }

@@ -19,7 +19,7 @@ import java.util.*;
 
 @Getter
 @Setter
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "parent")
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionExecContext extends TaskContext {
@@ -35,6 +35,8 @@ public class FunctionExecContext extends TaskContext {
 
   TaskCompletion completion;
   InvocationRequest request;
+
+  long mqOffset = -1;
 
   public ObjectOrigin createOrigin() {
     var finalArgs = resolveArgs(binding);
