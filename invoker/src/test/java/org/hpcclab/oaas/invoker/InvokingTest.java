@@ -50,10 +50,6 @@ class InvokingTest {
   List<OaasFunction> fnList = List.of(
     FUNC_1, MACRO_FUNC_1
   );
-
-//  @BeforeAll
-//  static void workaround() {
-//  }
   @BeforeEach
   void setup() {
     for (OaasFunction fn : fnList) {
@@ -62,16 +58,33 @@ class InvokingTest {
         .await().indefinitely();
     }
   }
-
-//  @AfterEach
-//  void clean(){
-//    for (OaasFunction fn : fnList) {
-//      deployer.deleteVerticle(fn.getKey())
-//        .await().indefinitely();
-//    }
-//  }
-
-
+  @Test
+  void testSubscribingDeploy() throws InterruptedException {
+    var function = MockupData.FUNC_2;
+    funcRepo.persistAsync(function).await().indefinitely();
+    kafkaProducer.sendAndAwait(
+      KafkaProducerRecord.create(
+        config.fnProvisionTopic(),
+        function.getKey(),
+        Json.encodeToBuffer(function)
+      )
+    );
+    assertTrue(TestUtil.retryTillConditionMeet(() ->
+      deployer.getVerticleIds().containsKey(function.getKey()))
+    );
+    var fn = function.copy();
+    fn.setState(FunctionState.REMOVING);
+    kafkaProducer.sendAndAwait(
+      KafkaProducerRecord.create(
+        config.fnProvisionTopic(),
+        function.getKey(),
+        Json.encodeToBuffer(fn)
+      )
+    );
+    assertTrue(TestUtil.retryTillConditionMeet(() ->
+      !deployer.getVerticleIds().containsKey(function.getKey()))
+    );
+  }
   @Test
   void testSingleMutable() throws InterruptedException {
     MockupData.persistMock(objectRepo, clsRepo, fnRepo);
@@ -135,32 +148,6 @@ class InvokingTest {
   }
 
 
-  @Test
-  void testSubscribingDeploy() throws InterruptedException {
-    var function = MockupData.FUNC_2;
-    funcRepo.persistAsync(function).await().indefinitely();
-    kafkaProducer.sendAndAwait(
-      KafkaProducerRecord.create(
-        config.fnProvisionTopic(),
-        function.getKey(),
-        Json.encodeToBuffer(function)
-      )
-    );
-    assertTrue(TestUtil.retryTillConditionMeet(() ->
-      deployer.getVerticleIds().containsKey(function.getKey()))
-    );
-    var fn = function.copy();
-    fn.setState(FunctionState.REMOVING);
-    kafkaProducer.sendAndAwait(
-      KafkaProducerRecord.create(
-        config.fnProvisionTopic(),
-        function.getKey(),
-        Json.encodeToBuffer(fn)
-      )
-    );
-    assertTrue(TestUtil.retryTillConditionMeet(() ->
-      !deployer.getVerticleIds().containsKey(function.getKey()))
-    );
-  }
+
 
 }
