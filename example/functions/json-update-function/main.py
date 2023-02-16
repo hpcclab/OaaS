@@ -17,7 +17,7 @@ def generate_text(num):
 
 
 class JsonHandler(oaas.Handler):
-    def handle(self, ctx: OaasInvocationCtx):
+    async def handle(self, ctx: OaasInvocationCtx):
         if ctx.task.main_obj.data is not None:
             record = ctx.task.main_obj.data.copy()
         else:
@@ -36,7 +36,6 @@ class JsonHandler(oaas.Handler):
             ctx.task.main_obj.data = record
         if ctx.task.output_obj is not None:
             ctx.task.output_obj.data = record
-        return ctx.create_completion(success=True)
 
 
 app = FastAPI()
