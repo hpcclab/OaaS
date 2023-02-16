@@ -26,6 +26,8 @@ oaas:
   name: invoker
 
 quarkus:
+  naming:
+    enable-jndi: true
   console:
     color: true
   http:

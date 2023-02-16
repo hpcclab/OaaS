@@ -6,7 +6,7 @@ metadata:
     app: invoker
     platform: oaas
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: invoker
@@ -28,6 +28,11 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
       containers:
         - name: invoker
+          env:
+            - name: INF_DNS_PING
+              value: invoker.oaas.svc.cluster.local
+            - name: KUBERNETES_NAMESPACE
+              value: oaas
           envFrom:
             - configMapRef:
                 name: oaas-env
@@ -35,6 +40,12 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+            - containerPort: 11222
+              name: infinispan
+            - containerPort: 11223
+              name: infinispan-adm
+            - containerPort: 8888
+              name: ping
           resources:
             limits:
               memory: 2G
@@ -78,3 +89,11 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
+    - name: infinispan
+      protocol: TCP
+      port: 11222
+      targetPort: 11222
+    - name: ping
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
