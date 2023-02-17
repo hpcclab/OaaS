@@ -19,6 +19,6 @@ public interface GraphStateManager {
   Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completingObj);
   Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts);
 
-  Uni<?> persistAllWithoutNoti(FunctionExecContext ctx);
-  Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objects);
+  Uni<?> persistAll(FunctionExecContext ctx);
+  Uni<?> persistAll(FunctionExecContext ctx, List<OaasObject> objects);
 }

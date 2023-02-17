@@ -25,15 +25,15 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   KafkaClientOptions options;
 
   @Override
-  public TaskConsumerVerticle createVerticle(String function) {
+  public TaskConsumerVerticle createVerticle(String suffix) {
     var consumer = kafkaConsumer(options);
     VerticleFactory<AbstractOrderedRecordVerticle> invokerVerticleFactory = f -> invokerVerticleInstance.get();
     var offsetManager = new OffsetManager(consumer);
     var dispatcher = new TaskVerticlePoolDispatcher(vertx, invokerVerticleFactory,
       offsetManager, config);
-    dispatcher.setName(function);
+    dispatcher.setName(suffix);
     var verticle = new TaskConsumerVerticle(consumer, dispatcher, config);
-    verticle.setTopics(Set.of(config.fnTopicPrefix() + function));
+    verticle.setTopics(Set.of(config.invokeTopicPrefix() + suffix));
     return verticle;
   }
 

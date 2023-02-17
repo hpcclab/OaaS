@@ -32,6 +32,8 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   @Override
   public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
+    var skipLoadNext = task.getMain().getStatus().getTaskStatus().isCompleted();
+
     var main = task.getMain();
     List<OaasObject> objs = new ArrayList<>();
 
@@ -56,14 +58,20 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     Uni<Void> uni = persistWithPrecondition(objs);
     if (out==null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
-    return uni.onItem()
-      .transformToMulti(__ -> {
-        if (completion.isSuccess()) {
-          return loadNextSubmittable(out);
-        } else {
-          return handleFailed(out);
-        }
-      });
+
+    else {
+      return uni.onItem()
+        .transformToMulti(__ -> {
+          if (skipLoadNext)
+            return Multi.createFrom().empty();
+          else if (completion.isSuccess()) {
+            return loadNextSubmittable(out);
+          } else {
+            return handleFailed(out);
+          }
+        });
+    }
+
   }
 
   private Multi<OaasObject> loadNextSubmittable(OaasObject completedObject) {
@@ -116,14 +124,14 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
         }
       })
       .filter(ctx -> ctx.getOutput()==null || ctx.getOutput().getStatus().getOriginator().equals(originator))
-      .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
+      .onCompletion().call(() -> persistAll(entryCtx));
   }
 
-  public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx) {
-    return persistAllWithoutNoti(ctx, Lists.mutable.empty());
+  public Uni<?> persistAll(FunctionExecContext ctx) {
+    return persistAll(ctx, Lists.mutable.empty());
   }
 
-  public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objs) {
+  public Uni<?> persistAll(FunctionExecContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {

@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.StateSpecification;
@@ -50,8 +49,11 @@ public class OaasClass implements Copyable<OaasClass> {
   List<String> parents = List.of();
   @ProtoField(10)
   String description;
+  @ProtoField(value = 11, defaultValue = "false")
+  boolean markForRemoval;
 
   ResolvedMember resolved;
+
 
   public OaasClass() {
   }
@@ -66,7 +68,8 @@ public class OaasClass implements Copyable<OaasClass> {
                    List<FunctionBinding> functions,
                    StateSpecification stateSpec,
                    List<ReferenceSpecification> refSpec,
-                   List<String> parents) {
+                   List<String> parents,
+                   boolean markForRemoval) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -77,6 +80,7 @@ public class OaasClass implements Copyable<OaasClass> {
     this.stateSpec = stateSpec;
     this.refSpec = refSpec;
     this.parents = parents;
+    this.markForRemoval = markForRemoval;
 
     updateKey();
   }
@@ -121,7 +125,8 @@ public class OaasClass implements Copyable<OaasClass> {
       List.copyOf(functions),
       stateSpec==null ? null:stateSpec.copy(),
       refSpec==null ? null:List.copyOf(refSpec),
-      parents==null ? null:List.copyOf(parents)
+      parents==null ? null:List.copyOf(parents),
+      markForRemoval
     )
       .setResolved(resolved==null ? null:resolved.copy());
   }

@@ -42,6 +42,6 @@ private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationQue
   }
 
   public String selectTopic(InvocationRequest request) {
-    return config.functionTopicPrefix() + request.function();
+    return config.invokeTopicPrefix() + request.function();
   }
 }

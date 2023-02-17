@@ -132,7 +132,7 @@ public class InvocationExecutor {
         List<OaasObject> list = tc.getMain()!=null ?
           Lists.mutable.of(ctx.getMain()):
           Lists.mutable.empty();
-        return gsm.persistAllWithoutNoti(ctx, list);
+        return gsm.persistAll(ctx, list);
       })
       .onFailure(DataAccessException.class)
       .transform(InvocationException::detectConcurrent)

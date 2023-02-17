@@ -101,6 +101,12 @@ public class MockupData {
         .setOutputCls("ex.cls1")
     ));
 
+  public static final OaasClass CLS_2 = new OaasClass()
+    .setName("cls2")
+    .setPkg("ex")
+    .setObjectType(ObjectType.SIMPLE)
+    .setParents(List.of(CLS_1.getKey()));
+
   public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
     .setId("o1")
     .setOrigin(new ObjectOrigin())
@@ -119,8 +125,11 @@ public class MockupData {
 
   public static MutableMap<String,OaasClass> testClasses() {
     var clsResolver = new ClassResolver();
+    var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
+    var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
     return Lists.fixedSize.of(
-        clsResolver.resolve(CLS_1.copy(), List.of())
+        cls1,
+        cls2
     )
       .groupByUniqueKey(OaasClass::getKey);
   }
@@ -173,4 +182,5 @@ public class MockupData {
     fnRepo.persistAsync(testFunctions().values())
       .await().indefinitely();
   }
+
 }
