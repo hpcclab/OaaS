@@ -32,7 +32,6 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
 
   @Override
   public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
-    var skipLoadNext = task.getMain().getStatus().getTaskStatus().isCompleted();
 
     var main = task.getMain();
     List<OaasObject> objs = new ArrayList<>();
@@ -62,9 +61,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     else {
       return uni.onItem()
         .transformToMulti(__ -> {
-          if (skipLoadNext)
-            return Multi.createFrom().empty();
-          else if (completion.isSuccess()) {
+          if (completion.isSuccess()) {
             return loadNextSubmittable(out);
           } else {
             return handleFailed(out);

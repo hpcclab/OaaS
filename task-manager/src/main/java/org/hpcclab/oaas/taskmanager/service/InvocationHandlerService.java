@@ -86,9 +86,12 @@ public class InvocationHandlerService {
     return
       invocationValidator.validate(oal)
         .map(ctx -> {
+          var targetCls = ctx.oal().getTarget() != null?
+            ctx.mainCls().getKey():
+            ctx.oal().getTargetCls();
           var builder = InvocationRequest.builder()
             .target(ctx.oal().getTarget())
-            .targetCls(ctx.oal().getTargetCls())
+            .targetCls(targetCls)
             .fbName(ctx.oal().getFunctionName())
             .args(ctx.oal().getArgs())
             .inputs(ctx.oal().getInputs())

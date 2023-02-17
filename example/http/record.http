@@ -21,6 +21,9 @@ GET {{cds}}/oal/{{obj_0_id}}
 ###
 GET {{cds}}/oal/{{obj_0_id}}:json-update-inplace
 
+###
+GET {{cds}}/oal/{{obj_0_id}}:json-update
+
 > {%
 client.global.set("obj_1_id", response.body.output.id)
 %}
