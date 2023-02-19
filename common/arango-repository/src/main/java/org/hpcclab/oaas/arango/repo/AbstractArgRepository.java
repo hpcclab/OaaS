@@ -109,8 +109,7 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  public Uni<V> persistAsync(V v,
-                             boolean notificationEnabled) {
+  public Uni<V> persistAsync(V v) {
     var k = extractKey(v);
     return putAsync(k, v);
   }
@@ -126,8 +125,7 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  public Uni<Void> persistAsync(Collection<V> collection,
-                                boolean notificationEnabled) {
+  public Uni<Void> persistAsync(Collection<V> collection) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistAsync(col)[{}] {}",
         getCollection().name(), collection.size());

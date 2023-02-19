@@ -7,7 +7,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvocationQueueSender;
-import org.hpcclab.oaas.invocation.InvocationValidator;
+import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.*;

@@ -2,13 +2,11 @@ package org.hpcclab.oaas.infinispan;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.commons.api.AsyncCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class InfClassRepository extends AbstractInfRepository<String, OaasClass>
+public class IspnClassRepository extends AbstractIspnRepository<String, OaasClass>
 implements ClassRepository {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(InfClassRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IspnClassRepository.class);
   private static final String NAME = OaasSchema.makeFullName(OaasClass.class);
 
   @Inject

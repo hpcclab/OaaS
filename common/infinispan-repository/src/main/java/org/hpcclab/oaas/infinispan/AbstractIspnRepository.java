@@ -5,6 +5,7 @@ import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.CachedEntityRepository;
+import org.hpcclab.oaas.repository.NotifyEntityRepository;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.MetadataValue;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -19,9 +20,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class AbstractInfRepository<K, V> implements CachedEntityRepository<K,V> {
+public abstract class AbstractIspnRepository<K, V> implements CachedEntityRepository<K,V>, NotifyEntityRepository<K,V> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractInfRepository.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger( AbstractIspnRepository.class );
   QueryFactory queryFactory;
 
   public abstract RemoteCache<K, V> getRemoteCache();

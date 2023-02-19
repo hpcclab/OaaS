@@ -32,7 +32,6 @@ public class FunctionExecContext extends TaskContext {
   FunctionBinding binding;
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
   List<FunctionExecContext> subContexts = Lists.mutable.empty();
-
   TaskCompletion completion;
   InvocationRequest request;
 
@@ -49,10 +48,6 @@ public class FunctionExecContext extends TaskContext {
     );
   }
 
-//  public OaasObject resolve(String ref) {
-//    return workflowMap.get(ref);
-//  }
-
   public void addTaskOutput(OaasObject object) {
     if (object == null) return;
     subOutputs.add(object);
@@ -60,13 +55,6 @@ public class FunctionExecContext extends TaskContext {
       parent.addTaskOutput(object);
     }
   }
-//
-//  public void addTaskOutput(Collection<OaasObject> objects) {
-//    subOutputs.addAll(objects);
-//    if (parent != null) {
-//      parent.addTaskOutput(objects);
-//    }
-//  }
 
   @Override
   public String getFbName() {
@@ -90,5 +78,12 @@ public class FunctionExecContext extends TaskContext {
       }
     }
     return false;
+  }
+
+  public List<FunctionExecContext> topologicalSort() {
+    if (subContexts == null || subContexts.isEmpty())
+      return List.of();
+    var readyPool = Maps.mutable.empty();
+    return List.of();
   }
 }
