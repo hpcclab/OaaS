@@ -11,6 +11,7 @@ import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.*;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -44,7 +45,7 @@ public class InvocationHandlerService {
   @Inject
   IdGenerator idGenerator;
 
-  public Uni<FunctionExecContext> syncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvApplyingContext> syncInvoke(ObjectAccessLanguage oal) {
     return applyFunction(oal)
       .invoke(Unchecked.consumer(ctx -> {
         var func = ctx.getFunction();
@@ -63,10 +64,10 @@ public class InvocationHandlerService {
       .flatMap(ctx -> invocationExecutor.syncExec(ctx));
   }
 
-  public Uni<FunctionExecContext> asyncInvoke(ObjectAccessLanguage oal,
-                                              boolean await,
-                                              int timeout) {
-    Uni<FunctionExecContext> uni = applyFunction(oal);
+  public Uni<InvApplyingContext> asyncInvoke(ObjectAccessLanguage oal,
+                                             boolean await,
+                                             int timeout) {
+    Uni<InvApplyingContext> uni = applyFunction(oal);
     return uni
       .flatMap(ctx -> {
         if (completionListener.enabled() && await && ctx.getOutput()!=null) {
@@ -128,7 +129,7 @@ public class InvocationHandlerService {
       builder.outId(map.get(dataflow.getExport()));
   }
 
-  public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {
+  public Uni<InvApplyingContext> applyFunction(ObjectAccessLanguage oal) {
     var uni = router.apply(oal);
     if (logger.isDebugEnabled()) {
       uni = uni

@@ -6,7 +6,8 @@ import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.DataflowGraph;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.Dataflow;
 import org.hpcclab.oaas.model.object.ObjectReference;
@@ -33,12 +34,12 @@ public class MacroFunctionApplier implements FunctionApplier {
   @Inject
   OaasObjectFactory objectFactory;
 
-  public void validate(FunctionExecContext context) {
+  public void validate(InvApplyingContext context) {
     if (context.getFunction().getType()!=FunctionType.MACRO)
       throw new FunctionValidationException("Function must be MACRO");
   }
 
-  private void setupMap(FunctionExecContext ctx) {
+  private void setupMap(InvApplyingContext ctx) {
     Map<String, OaasObject> map = new HashMap<>();
     ctx.setWorkflowMap(map);
     map.put("$self", ctx.getMain());
@@ -47,20 +48,21 @@ public class MacroFunctionApplier implements FunctionApplier {
     }
   }
 
-  public Uni<FunctionExecContext> apply(FunctionExecContext context) {
-    validate(context);
-    setupMap(context);
-    var func = context.getFunction();
-    return execWorkflow(context, func.getMacro())
+  public Uni<InvApplyingContext> apply(InvApplyingContext ctx) {
+    validate(ctx);
+    setupMap(ctx);
+    ctx.setDataflowGraph(new DataflowGraph(ctx));
+    var func = ctx.getFunction();
+    return execWorkflow(ctx, func.getMacro())
       .map(ignored -> {
-        var output = export(func.getMacro(), context);
-        context.setOutput(output);
-        return context;
+        var output = export(func.getMacro(), ctx);
+        ctx.setOutput(output);
+        return ctx;
       });
   }
 
   private OaasObject export(Dataflow dataflow,
-                            FunctionExecContext ctx) {
+                            InvApplyingContext ctx) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
         .get(dataflow.getExport());
@@ -78,8 +80,8 @@ public class MacroFunctionApplier implements FunctionApplier {
     }
   }
 
-  private Uni<List<FunctionExecContext>> execWorkflow(FunctionExecContext context,
-                                                      Dataflow workflow) {
+  private Uni<List<InvApplyingContext>> execWorkflow(InvApplyingContext context,
+                                                     Dataflow workflow) {
     var request = context.getRequest();
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
@@ -103,9 +105,9 @@ public class MacroFunctionApplier implements FunctionApplier {
       });
   }
 
-  public Uni<FunctionExecContext> loadSubContext(FunctionExecContext baseCtx,
-                                               DataflowStep step) {
-    var newCtx = new FunctionExecContext();
+  public Uni<InvApplyingContext> loadSubContext(InvApplyingContext baseCtx,
+                                                DataflowStep step) {
+    var newCtx = new InvApplyingContext();
     newCtx.setParent(baseCtx);
     newCtx.setArgs(step.getArgs());
     if (step.getArgRefs()!=null && !step.getArgRefs().isEmpty()) {
@@ -114,7 +116,8 @@ public class MacroFunctionApplier implements FunctionApplier {
       if (baseArgs!=null) {
         for (var entry : step.getArgRefs().entrySet()) {
           var resolveArg = baseArgs.get(entry.getValue());
-          map.put(entry.getKey(), resolveArg);
+          if (resolveArg != null)
+            map.put(entry.getKey(), resolveArg);
         }
       }
       if (newCtx.getArgs()!=null) {
@@ -125,6 +128,8 @@ public class MacroFunctionApplier implements FunctionApplier {
       }
     }
     baseCtx.addSubContext(newCtx);
+    baseCtx.getDataflowGraph()
+      .addNode(newCtx, step);
     return contextLoader.resolveObj(baseCtx, step.getTarget())
       .invoke(newCtx::setMain)
       .map(ignore -> contextLoader.loadClsAndFunc(newCtx, step.getFunction()))
@@ -132,8 +137,8 @@ public class MacroFunctionApplier implements FunctionApplier {
   }
 
 
-  private Uni<FunctionExecContext> resolveInputs(FunctionExecContext baseCtx,
-                                                 DataflowStep step) {
+  private Uni<InvApplyingContext> resolveInputs(InvApplyingContext baseCtx,
+                                                DataflowStep step) {
     List<String> inputRefs = step.getInputRefs()==null ? List.of():step.getInputRefs();
     return Multi.createFrom().iterable(inputRefs)
       .onItem().transformToUniAndConcatenate(ref -> contextLoader.resolveObj(baseCtx, ref))

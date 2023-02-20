@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.repository.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class LogicalFunctionApplier implements FunctionApplier {
     this.idGenerator = idGenerator;
   }
 
-  public Uni<FunctionExecContext> apply(FunctionExecContext context) {
+  public Uni<InvApplyingContext> apply(InvApplyingContext context) {
     if (context.getFunction().getKey().equals("builtin.logical.copy")) {
       LOGGER.debug("Call function 'copy' {}", context.getMain().getId());
       var o = context.getMain().copy();
@@ -33,7 +33,7 @@ public class LogicalFunctionApplier implements FunctionApplier {
     }
   }
 
-  public void validate(FunctionExecContext context) {
+  public void validate(InvApplyingContext context) {
 
   }
 }

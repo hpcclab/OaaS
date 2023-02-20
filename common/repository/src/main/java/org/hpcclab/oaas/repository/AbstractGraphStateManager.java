@@ -3,7 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
@@ -40,7 +40,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       if (completion.getMain()!=null) {
         completion.getMain().update(main, task.getVId());
       }
-      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
+      if (task instanceof InvApplyingContext fec && fec.getMqOffset() >= 0)
         main.getStatus().setUpdatedOffset(fec.getMqOffset());
       if (!task.isImmutable())
         objs.add(main);
@@ -49,7 +49,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     var out = task.getOutput();
     if (out!=null) {
       out.updateStatus(completion);
-      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
+      if (task instanceof InvApplyingContext fec && fec.getMqOffset() >= 0)
         out.getStatus().setUpdatedOffset(fec.getMqOffset());
       objs.add(out);
     }
@@ -103,7 +103,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
+  public Multi<TaskContext> updateSubmittingStatus(InvApplyingContext entryCtx, Collection<TaskContext> contexts) {
     var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
       :entryCtx.getMain().getId();
@@ -124,11 +124,11 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onCompletion().call(() -> persistAll(entryCtx));
   }
 
-  public Uni<?> persistAll(FunctionExecContext ctx) {
+  public Uni<?> persistAll(InvApplyingContext ctx) {
     return persistAll(ctx, Lists.mutable.empty());
   }
 
-  public Uni<?> persistAll(FunctionExecContext ctx, List<OaasObject> objs) {
+  public Uni<?> persistAll(InvApplyingContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {

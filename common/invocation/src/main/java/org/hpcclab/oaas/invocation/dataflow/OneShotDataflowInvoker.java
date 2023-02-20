@@ -1,12 +1,12 @@
 package org.hpcclab.oaas.invocation.dataflow;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 
 public class OneShotDataflowInvoker implements DataflowInvoker{
 
   @Override
-  public Uni<FunctionExecContext> invoke(FunctionExecContext ctx) {
+  public Uni<InvApplyingContext> invoke(InvApplyingContext ctx) {
     return null;
   }
 }

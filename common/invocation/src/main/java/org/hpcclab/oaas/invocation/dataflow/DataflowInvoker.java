@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.invocation.dataflow;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 
 public interface DataflowInvoker {
-  Uni<FunctionExecContext> invoke(FunctionExecContext ctx);
+  Uni<InvApplyingContext> invoke(InvApplyingContext ctx);
 }

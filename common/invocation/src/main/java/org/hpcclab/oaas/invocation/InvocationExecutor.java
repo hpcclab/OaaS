@@ -10,7 +10,7 @@ import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
@@ -58,7 +58,7 @@ public class InvocationExecutor {
   }
 
 
-  public boolean canSyncInvoke(FunctionExecContext ctx) {
+  public boolean canSyncInvoke(InvApplyingContext ctx) {
     var func = ctx.getFunction();
     if (func.getType()==FunctionType.MACRO) {
       return false;
@@ -72,7 +72,7 @@ public class InvocationExecutor {
     return ctx.analyzeDeps(waitForGraph, failDeps);
   }
 
-  public Uni<Void> asyncSubmit(FunctionExecContext ctx) {
+  public Uni<Void> asyncSubmit(InvApplyingContext ctx) {
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
       Lists.mutable.empty();
@@ -114,7 +114,7 @@ public class InvocationExecutor {
       .replaceWithVoid();
   }
 
-  public Uni<FunctionExecContext> syncExec(FunctionExecContext ctx) {
+  public Uni<InvApplyingContext> syncExec(InvApplyingContext ctx) {
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
@@ -140,7 +140,7 @@ public class InvocationExecutor {
   }
 
 
-  public Uni<FunctionExecContext> asyncExec(FunctionExecContext ctx) {
+  public Uni<InvApplyingContext> asyncExec(InvApplyingContext ctx) {
     if (logger.isDebugEnabled())
       logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
     var output = ctx.getOutput();

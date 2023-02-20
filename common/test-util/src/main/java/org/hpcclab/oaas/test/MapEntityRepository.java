@@ -80,13 +80,13 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
 
 
   @Override
-  public Uni<V> persistAsync(V v, boolean notificationEnabled) {
-    LOGGER.debug("persistAsync {}, {}", v, notificationEnabled);
+  public Uni<V> persistAsync(V v) {
+    LOGGER.debug("persistAsync {}", v);
     return putAsync(keyExtractor.apply(v), v);
   }
   @Override
-  public Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled) {
-    LOGGER.debug("persistAsync {}, {}", collection, notificationEnabled);
+  public Uni<Void> persistAsync(Collection<V> collection) {
+    LOGGER.debug("persistAsync {}", collection);
     var m = Lists.fixedSize.ofAll(collection)
       .groupByUniqueKey(keyExtractor::apply);
     return putAllAsync(m);

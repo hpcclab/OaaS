@@ -10,7 +10,7 @@ import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
@@ -107,12 +107,12 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                                    FunctionExecContext ctx) {
+                                    InvApplyingContext ctx) {
     var obj = ctx.isImmutable() ? ctx.getOutput():ctx.getMain();
     return obj.getStatus().getUpdatedOffset() >= kafkaRecord.offset();
   }
 
-  FunctionExecContext handleFailInvocation(Throwable exception) {
+  InvApplyingContext handleFailInvocation(Throwable exception) {
     if (exception instanceof InvocationException invocationException) {
       var msg = invocationException.getCause()!=null ? invocationException
         .getCause().getMessage():null;
