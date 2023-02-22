@@ -31,26 +31,34 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
+  public Multi<OaasObject> persistThenLoadNext(TaskDetail task, TaskCompletion completion) {
 
     var main = task.getMain();
     List<OaasObject> objs = new ArrayList<>();
 
-    if (main!=null) {
-      if (completion.getMain()!=null) {
-        completion.getMain().update(main, task.getVId());
-      }
-      if (task instanceof InvApplyingContext fec && fec.getMqOffset() >= 0)
-        main.getStatus().setUpdatedOffset(fec.getMqOffset());
-      if (!task.isImmutable())
-        objs.add(main);
-    }
+//    if (main!=null) {
+//      if (completion.getMain()!=null) {
+//        completion.getMain().update(main, task.getVId());
+//      }
+//      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+//        main.getStatus().setUpdatedOffset(iac.getMqOffset());
+//      if (!task.isImmutable())
+//        objs.add(main);
+//    }
+//
+//    var out = task.getOutput();
+//    if (out!=null) {
+//      out.updateStatus(completion);
+//      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+//        out.getStatus().setUpdatedOffset(iac.getMqOffset());
+//      objs.add(out);
+//    }
 
+    if (main!=null) {
+      objs.add(main);
+    }
     var out = task.getOutput();
     if (out!=null) {
-      out.updateStatus(completion);
-      if (task instanceof InvApplyingContext fec && fec.getMqOffset() >= 0)
-        out.getStatus().setUpdatedOffset(fec.getMqOffset());
       objs.add(out);
     }
 
@@ -78,7 +86,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onItem()
       .transformToUniAndConcatenate(id -> objRepo.computeAsync(id,
         (k, obj) -> triggerObject(obj, completedObject.getStatus().getOriginator(), completedObject.getId())))
-      .filter(obj -> obj.getStatus() != null && Objects.equals(obj.getStatus().getOriginator(),completedObject.getStatus().getOriginator()));
+      .filter(obj -> obj.getStatus()!=null && Objects.equals(obj.getStatus().getOriginator(), completedObject.getStatus().getOriginator()));
   }
 
 
@@ -124,11 +132,11 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onCompletion().call(() -> persistAll(entryCtx));
   }
 
-  public Uni<?> persistAll(InvApplyingContext ctx) {
+  public Uni<Void> persistAll(InvApplyingContext ctx) {
     return persistAll(ctx, Lists.mutable.empty());
   }
 
-  public Uni<?> persistAll(InvApplyingContext ctx, List<OaasObject> objs) {
+  public Uni<Void> persistAll(InvApplyingContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {

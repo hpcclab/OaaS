@@ -21,12 +21,11 @@ public class NatsProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger( NatsProducer.class );
   @Inject
   NatsConfig config;
-  @Inject Vertx vertx;
 
   public Connection createConnection(Vertx vertx) throws IOException, InterruptedException {
     var executor = ((VertxInternal) vertx).getWorkerPool().executor();
     return Nats.connect(new Options.Builder()
-      .server(config.natsUrls().get())
+      .server(config.natsUrls().orElseThrow())
       .executor(executor)
       .build());
   }

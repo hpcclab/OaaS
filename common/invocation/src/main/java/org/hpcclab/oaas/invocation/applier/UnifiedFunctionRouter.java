@@ -33,6 +33,7 @@ public class UnifiedFunctionRouter {
     this.macroFunctionApplier = macroFunctionHandler;
     this.taskFunctionApplier = taskFunctionHandler;
     this.contextLoader = contextLoader;
+    this.macroFunctionApplier.setSubFunctionApplier(this::apply);
   }
 
 

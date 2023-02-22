@@ -119,7 +119,7 @@ public class InvocationHandlerService {
           .build());
   }
 
-  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, Dataflow dataflow) {
+  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroConfig dataflow) {
     var map = dataflow.getSteps().stream()
       .filter(step -> step.getAs() != null)
       .map(step -> Map.entry(step.getAs(), idGenerator.generate()))

@@ -1,18 +1,19 @@
 package org.hpcclab.oaas.model.invocation;
 
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class DataflowGraph {
   InvApplyingContext top;
   List<InvocationNode> entries;
   List<InvocationNode> all;
   Map<String, InvocationNode> externalDeps;
+
+  boolean failed = false;
 
   public DataflowGraph(InvApplyingContext top) {
     this.top = top;
@@ -47,6 +48,7 @@ public class DataflowGraph {
       deps,
       Lists.mutable.empty(),
       as,
+      false,
       false
     );
   }
@@ -65,5 +67,41 @@ public class DataflowGraph {
 
   public Map<String, InvocationNode> getExternalDeps() {
     return externalDeps;
+  }
+
+  public Set<InvocationNode> findNextExecutable(boolean marking) {
+    Set<InvocationNode> readyNodes = Sets.mutable.empty();
+    Deque<InvocationNode> visited = new ArrayDeque<>();
+    for (InvocationNode entry : entries) {
+      visited.push(entry);
+    }
+    while (!visited.isEmpty()) {
+      var current = visited.pop();
+      if (current.isCompleted()) {
+        for (InvocationNode invocationNode : current.next) {
+          visited.push(invocationNode);
+        }
+      } else if (current.isReady()) {
+        readyNodes.add(current);
+        if (marking)
+          current.setMarked(true);
+      }
+    }
+    return readyNodes;
+  }
+  public boolean isAllCompleted() {
+    for (InvocationNode node : all) {
+      if (!node.isCompleted())
+        return false;
+    }
+    return true;
+  }
+
+  public boolean isFail() {
+    return failed;
+  }
+
+  public void setFailed(boolean failed) {
+    this.failed = failed;
   }
 }

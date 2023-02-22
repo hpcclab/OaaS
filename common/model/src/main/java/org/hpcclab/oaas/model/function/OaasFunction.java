@@ -40,7 +40,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
   FunctionValidation validation;
 
   @ProtoField(7)
-  Dataflow macro;
+  MacroConfig macro;
 
   @ProtoField(8)
   ProvisionConfig provision;
@@ -65,7 +65,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
                       FunctionType type,
                       String outputCls,
                       FunctionValidation validation,
-                      Dataflow macro,
+                      MacroConfig macro,
                       ProvisionConfig provision,
                       List<VariableDescription> variableDescriptions,
                       FunctionDeploymentStatus deploymentStatus,

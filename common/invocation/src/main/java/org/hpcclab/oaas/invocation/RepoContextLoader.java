@@ -100,6 +100,7 @@ public class RepoContextLoader implements ContextLoader {
 
   @Override
   public Uni<OaasObject> resolveObj(InvApplyingContext baseCtx, String ref) {
+//    logger.debug("resolve {}",ref);
     if (ref.startsWith("$.")) {
       var res = baseCtx.getMain().findReference(ref.substring(2));
       if (res.isPresent()) {

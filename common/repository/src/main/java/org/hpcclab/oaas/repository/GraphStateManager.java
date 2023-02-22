@@ -16,9 +16,9 @@ public interface GraphStateManager {
   Uni<? extends Collection<String>> getAllEdge(String srcId);
   Uni<Void> persistEdge(String srcId, String desId);
   Uni<Void> persistEdge(List<Map.Entry<String, String>> edgeMap);
-  Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completingObj);
+  Multi<OaasObject> persistThenLoadNext(TaskDetail task, TaskCompletion completingObj);
   Multi<TaskContext> updateSubmittingStatus(InvApplyingContext entryCtx, Collection<TaskContext> contexts);
 
-  Uni<?> persistAll(InvApplyingContext ctx);
-  Uni<?> persistAll(InvApplyingContext ctx, List<OaasObject> objects);
+  Uni<Void> persistAll(InvApplyingContext ctx);
+  Uni<Void> persistAll(InvApplyingContext ctx, List<OaasObject> objects);
 }

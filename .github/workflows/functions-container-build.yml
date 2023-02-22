@@ -6,6 +6,10 @@ on:
       - '**'
     tags:
       - 'v*'
+  pull_request:
+    branch:
+      - '*'
+      - 'releases/**'
 
 jobs:
   transcode-function-build:

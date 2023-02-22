@@ -13,24 +13,28 @@ import java.util.Set;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Dataflow implements Serializable {
+public class MacroConfig implements Serializable {
   @ProtoField(1)
   List<DataflowStep> steps;
   @ProtoField(2)
   Set<WorkflowExport> exports;
   @ProtoField(3)
   String export;
+  @ProtoField(value = 4,defaultValue = "false")
+  boolean atomic =false;
 
-  public Dataflow() {
+  public MacroConfig() {
   }
 
   @ProtoFactory
-  public Dataflow(List<DataflowStep> steps,
-                  Set<WorkflowExport> exports,
-                  String export) {
+  public MacroConfig(List<DataflowStep> steps,
+                     Set<WorkflowExport> exports,
+                     String export,
+                     boolean atomic) {
     this.steps = steps;
     this.exports = exports;
     this.export = export;
+    this.atomic = atomic;
   }
 
 }
