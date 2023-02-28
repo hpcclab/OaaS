@@ -776,6 +776,8 @@ components:
             type: string
         description:
           type: string
+        markForRemoval:
+          type: boolean
         resolved:
           $ref: '#/components/schemas/ResolvedMember'
     OaasClass_Public:
@@ -809,6 +811,8 @@ components:
             type: string
         description:
           type: string
+        markForRemoval:
+          type: boolean
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
         rev:

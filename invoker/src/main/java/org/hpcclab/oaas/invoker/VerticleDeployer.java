@@ -10,9 +10,11 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.FunctionState;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,43 +41,85 @@ public class VerticleDeployer {
   @Inject
   FunctionRepository funcRepo;
   @Inject
+  FunctionListener functionListener;
+  @Inject
+  ClassRepository clsRepo;
+  @Inject
+  ClassListener clsListener;
+  @Inject
   VerticleFactory<?> verticleFactory;
   @Inject
   Vertx vertx;
   @Inject
   InvokerConfig config;
-  @Inject
-  FunctionListener functionListener;
 
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
 
   void init(@Observes StartupEvent ev) {
     initializer.setup();
+    deployPerCls();
+  }
+
+  void deployPerFunc() {
     var funcPage = funcRepo.pagination(0, 1000);
     var funcList = funcPage.getItems();
 
     functionListener.setHandler(func -> {
       LOGGER.info("receive function[{}] update event", func.getKey());
-      if (func.getState()==FunctionState.ENABLED) {
-        deployVerticleIfNew(func.getKey())
-          .subscribe().with(__ -> {
-            },
-            e -> LOGGER.error("Cannot deploy verticle for function {}", func.getKey()));
-      } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
-        deleteVerticle(func.getKey())
-          .subscribe().with(__ -> {
-            },
-            e -> LOGGER.error("Cannot delete verticle for function {}", func.getKey()));
-      }
+      handleFunc(func);
     });
     functionListener.start().await().indefinitely();
 
-    Multi.createFrom().iterable(funcList)
-      .filter(function -> function.getState()==FunctionState.ENABLED)
-      .filter(function -> function.getType()!=FunctionType.LOGICAL)
-      .onItem().transformToUniAndConcatenate(func -> deployVerticleIfNew(func.getKey()))
-      .collect().asList()
-      .await().indefinitely();
+    for (var func : funcList) {
+      handleFunc(func);
+    }
+  }
+
+  void deployPerCls() {
+    var clsPage = clsRepo.pagination(0, 1000);
+    var clsList = clsPage.getItems();
+
+    clsListener.setHandler(cls -> {
+      LOGGER.info("receive cls[{}] update event", cls.getKey());
+      handleCls(cls);
+    });
+    clsListener.start().await().indefinitely();
+
+    for (var cls : clsList) {
+      handleCls(cls);
+    }
+  }
+
+
+  void handleFunc(OaasFunction func) {
+    if (func.getType()==FunctionType.LOGICAL)
+      return;
+    if (func.getState()==FunctionState.ENABLED) {
+      deployVerticleIfNew(func.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey()));
+    } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
+      deleteVerticle(func.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey()));
+    }
+  }
+
+  void handleCls(OaasClass cls) {
+    if (!cls.isMarkForRemoval()) {
+      deployVerticleIfNew(cls.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey()));
+    } else {
+      LOGGER.info("deleting {}", cls.getKey());
+      deleteVerticle(cls.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey()));
+    }
   }
 
   void cleanup(@Observes ShutdownEvent event) {
@@ -114,6 +158,7 @@ public class VerticleDeployer {
         if (LOGGER.isInfoEnabled()) {
           LOGGER.info("deploy verticle[id={}] for function {} successfully",
             id, function);
+//          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
         }
       })
       .collect()

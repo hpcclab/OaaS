@@ -13,7 +13,6 @@ public interface TaskManagerConfig {
   int connectionPoolMaxSize();
   @WithDefault("10")
   int h2ConnectionPoolMaxSize();
-
-  @WithDefault("oaas-fn-")
-  String functionTopicPrefix();
+  @WithDefault("oaas-invoke-")
+  String invokeTopicPrefix();
 }

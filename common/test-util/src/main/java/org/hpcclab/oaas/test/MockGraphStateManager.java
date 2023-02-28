@@ -18,12 +18,8 @@ public class MockGraphStateManager extends AbstractGraphStateManager {
 
   public MutableMultimap<String, String> multimap = Multimaps.mutable.set.empty();
 
-  public MutableMap<String, OaasObject> objectMap;
-
-  public MockGraphStateManager(EntityRepository<String, OaasObject> objectRepo,
-                               MutableMap<String, OaasObject> objectMap) {
+  public MockGraphStateManager(EntityRepository<String, OaasObject> objectRepo) {
     super(objectRepo);
-    this.objectMap = objectMap;
   }
 
   @Override

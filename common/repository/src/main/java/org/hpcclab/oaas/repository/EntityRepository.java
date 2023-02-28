@@ -40,21 +40,14 @@ public interface EntityRepository<K, V> {
   Uni<V> putAsync(K key, V value);
 //  Uni<Void> putAllAsync(Map<K, V> map);
 
-  default Uni<V> persistAsync(V v) {
-    return persistAsync(v, true);
-  }
-
+  Uni<V> persistAsync(V v) ;
   default Uni<V> persistWithPreconditionAsync(V v) {
     return persistAsync(v);
   }
 
-  Uni<V> persistAsync(V v, boolean notificationEnabled);
 
-  default Uni<Void> persistAsync(Collection<V> collection){
-    return persistAsync(collection, true);
-  }
+  Uni<Void> persistAsync(Collection<V> collection);
 
-  Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled);
 
   default Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
     return persistAsync(collection);

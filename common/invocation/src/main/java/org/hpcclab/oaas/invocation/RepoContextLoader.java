@@ -4,8 +4,8 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -38,13 +38,14 @@ public class RepoContextLoader implements ContextLoader {
     this.clsRepo = clsRepo;
   }
 
-  public Uni<FunctionExecContext> loadCtxAsync(ObjectAccessLanguage request) {
-    var ctx = new FunctionExecContext();
+  public Uni<InvApplyingContext> loadCtxAsync(ObjectAccessLanguage request) {
+    var ctx = new InvApplyingContext();
     ctx.setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull()
       .failWith(() -> StdOaasException.notFoundObject400(request.getTarget()))
       .invoke(ctx::setMain)
+      .call(() -> loadRefs(ctx.getMain(), ctx))
       .invoke(ctx::setEntry)
       .map(ignore -> loadClsAndFunc(ctx, request.getFunctionName()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
@@ -53,8 +54,8 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<FunctionExecContext> loadCtxAsync(InvocationRequest request) {
-    var ctx = new FunctionExecContext();
+  public Uni<InvApplyingContext> loadCtxAsync(InvocationRequest request) {
+    var ctx = new InvApplyingContext();
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
@@ -74,7 +75,7 @@ public class RepoContextLoader implements ContextLoader {
       .replaceWith(ctx);
   }
 
-  public FunctionExecContext loadClsAndFunc(FunctionExecContext ctx, String fbName) {
+  public InvApplyingContext loadClsAndFunc(InvApplyingContext ctx, String fbName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
     if (mainCls==null)
@@ -98,36 +99,27 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<OaasObject> resolveObj(FunctionExecContext baseCtx, String ref) {
-      if (ref.equals("$")) {
-        return Uni.createFrom().item(baseCtx.getMain());
+  public Uni<OaasObject> resolveObj(InvApplyingContext baseCtx, String ref) {
+//    logger.debug("resolve {}",ref);
+    if (ref.startsWith("$.")) {
+      var res = baseCtx.getMain().findReference(ref.substring(2));
+      if (res.isPresent()) {
+        var obj = baseCtx.getMainRefs().get(res.get().getName());
+        if (obj!=null)
+          return Uni.createFrom().item(obj);
+        var id = res.get().getObjId();
+        return objectRepo.getAsync(id)
+          .onItem().ifNull()
+          .failWith(() -> FunctionValidationException.cannotResolveMacro(ref, "object not found"))
+          .invoke(o -> baseCtx.getMainRefs().put(id, o));
       }
-      if (ref.startsWith("$.")) {
-        var res = baseCtx.getMain().findReference(ref.substring(2));
-        if (res.isPresent()) {
-          var obj = baseCtx.getMainRefs().get(res.get().getName());
-          if (obj!=null)
-            return Uni.createFrom().item(obj);
-          var id = res.get().getObjId();
-          return objectRepo.getAsync(id)
-            .invoke(o -> baseCtx.getMainRefs().put(id, o));
-        }
-      }
-      if (ref.startsWith("#")) {
-        try {
-          var i = Integer.parseInt(ref.substring(1));
-          if (i >= baseCtx.getInputs().size())
-            throw FunctionValidationException.cannotResolveMacro(ref,
-              "index out of range: >=" + baseCtx.getInputs().size());
-          return Uni.createFrom().item(baseCtx.getInputs().get(i));
-        } catch (NumberFormatException ignored) {
-        }
-      }
-
-      if (baseCtx.getWorkflowMap().containsKey(ref))
-        return Uni.createFrom().item(baseCtx.getWorkflowMap().get(ref));
-      throw FunctionValidationException.cannotResolveMacro(ref, null);
+    } else {
+      return Uni.createFrom().item(baseCtx.resolveDataflowRef(ref));
     }
+
+    throw FunctionValidationException.cannotResolveMacro(ref, null);
+  }
+
   //  public Uni<FunctionExecContext> loadCtxAsync(FunctionExecContext baseCtx,
 //                                               DataflowStep step) {
 //    var newCtx = new FunctionExecContext();

@@ -8,9 +8,10 @@ import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.SyncInvoker;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
+import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
@@ -30,6 +31,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   final ObjectCompletionPublisher objCompPublisher;
   final ContextLoader loader;
   final UnifiedFunctionRouter router;
+  final OneShotDataflowInvoker dataflowInvoker;
 
   @Inject
   public OrderedInvocationHandlerVerticle(SyncInvoker invoker,
@@ -38,7 +40,8 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
                                           ObjectCompletionPublisher objCompPublisher,
                                           InvokerConfig invokerConfig,
                                           UnifiedFunctionRouter router,
-                                          ContextLoader loader) {
+                                          ContextLoader loader,
+                                          OneShotDataflowInvoker dataflowInvoker) {
     super(invokerConfig.invokeConcurrency());
     this.invoker = invoker;
     this.funcRepo = funcRepo;
@@ -46,6 +49,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     this.objCompPublisher = objCompPublisher;
     this.router = router;
     this.loader = loader;
+    this.dataflowInvoker = dataflowInvoker;
   }
 
   @Override
@@ -55,16 +59,23 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       logLatency(kafkaRecord);
     }
     if (request.macro()) {
-      generateMacro(kafkaRecord, request);
+      handleMacro(kafkaRecord, request);
     } else {
       invokeTask(kafkaRecord, request);
     }
   }
 
-  private void generateMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+  private void handleMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     loader.loadCtxAsync(request)
       .flatMap(router::apply)
-      .flatMap(invocationExecutor::asyncSubmit)
+      .flatMap(ctx -> {
+        var macro = ctx.getFunction().getMacro();
+        if (macro != null && macro.isAtomic()) {
+          return dataflowInvoker.invoke(ctx);
+        } else {
+          return invocationExecutor.asyncSubmit(ctx);
+        }
+      })
       .onFailure().retry()
       .withBackOff(Duration.ofMillis(100))
       .atMost(3)
@@ -107,12 +118,12 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                                    FunctionExecContext ctx) {
+                                    InvApplyingContext ctx) {
     var obj = ctx.isImmutable() ? ctx.getOutput():ctx.getMain();
     return obj.getStatus().getUpdatedOffset() >= kafkaRecord.offset();
   }
 
-  FunctionExecContext handleFailInvocation(Throwable exception) {
+  InvApplyingContext handleFailInvocation(Throwable exception) {
     if (exception instanceof InvocationException invocationException) {
       var msg = invocationException.getCause()!=null ? invocationException
         .getCause().getMessage():null;

@@ -49,10 +49,10 @@ spec:
           resources:
             limits:
               memory: 2G
-              cpu: '8'
+#              cpu: '8'
             requests:
-              cpu: '0.1'
-              memory: 256M
+              cpu: '0.25'
+              memory: 512M
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3

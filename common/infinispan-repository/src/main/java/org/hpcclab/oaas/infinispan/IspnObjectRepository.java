@@ -22,14 +22,14 @@ import java.util.UUID;
 import static org.hpcclab.oaas.model.proto.OaasSchema.makeFullName;
 
 @ApplicationScoped
-public class InfObjectRepository extends AbstractInfRepository<String, OaasObject>
+public class IspnObjectRepository extends AbstractIspnRepository<String, OaasObject>
   implements ObjectRepository {
   static final String NAME = makeFullName(OaasObject.class);
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(InfObjectRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IspnObjectRepository.class);
 
   @Inject
-  InfClassRepository classRepo;
+  IspnClassRepository classRepo;
   @Inject
   @Remote("OaasObject")
   RemoteCache<String, OaasObject> cache;

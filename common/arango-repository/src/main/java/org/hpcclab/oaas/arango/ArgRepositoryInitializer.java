@@ -59,7 +59,7 @@ public class ArgRepositoryInitializer {
     if (!database.collection(odeColAsync.name()).exists()) {
       database.createCollection(odeColAsync.name(), new CollectionCreateOptions().numberOfShards(3).replicationFactor(2).type(CollectionType.EDGES).writeConcern(1));
     }
-    createObjectView();
+//    createObjectView();
     var graph = database.graph("OaasGraph");
     if (!graph.exists()) {
       graph.create(List.of(new EdgeDefinition().collection(odeColAsync.name()).from(objCol.name()).to(objCol.name())), new GraphCreateOptions().numberOfShards(3).replicationFactor(2));
@@ -69,9 +69,8 @@ public class ArgRepositoryInitializer {
   void createObjectView() {
     var as = database.arangoSearch(objView.name());
     var exist = objView.exists();
-//    LOGGER.info("ObjectView exists {}", exist);
     if (!exist) {
-      var view = as.create(
+      as.create(
         new ArangoSearchCreateOptions()
           .link(CollectionLink.on(objCol.name())
             .analyzers("identity")
@@ -81,7 +80,6 @@ public class ArgRepositoryInitializer {
             )
           )
           .primarySort(PrimarySort.on("status.crtTs").ascending(false)));
-      LOGGER.info("create ObjectView {}", view);
     }
   }
 }

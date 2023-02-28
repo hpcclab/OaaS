@@ -103,14 +103,14 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   }
 
   @Override
-  public Uni<V> persistAsync(V v, boolean notificationEnabled) {
-    return super.persistAsync(v, notificationEnabled)
+  public Uni<V> persistAsync(V v) {
+    return super.persistAsync(v)
       .invoke(val -> cache().put(extractKey(val), val));
   }
 
   @Override
-  public Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled) {
-    return super.persistAsync(collection, notificationEnabled)
+  public Uni<Void> persistAsync(Collection<V> collection) {
+    return super.persistAsync(collection)
       .invoke(() -> {
         for (var val: collection) {
           cache().put(extractKey(val), val);

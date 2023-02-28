@@ -45,8 +45,7 @@ public class MockupData {
     .setName("macroFunc1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-//    .setOutputCls("ex.cls1")
-    .setMacro(new Dataflow()
+    .setMacro(new MacroConfig()
       .setSteps(List.of(
         new DataflowStep()
           .setFunction("f1")
@@ -63,6 +62,33 @@ public class MockupData {
       .setExport("tmp2")
     );
 
+  public static final OaasFunction ATOMIC_MACRO_FUNC = new OaasFunction()
+    .setName("atomic-macro")
+    .setPkg("ex")
+    .setType(FunctionType.MACRO)
+    .setMacro(new MacroConfig()
+      .setSteps(List.of(
+        new DataflowStep()
+          .setFunction("f3")
+          .setTarget("$")
+          .setAs("tmp1")
+          .setArgs(Map.of("STEP", "1.1")),
+        new DataflowStep()
+          .setFunction("f3")
+          .setTarget("$")
+          .setAs("tmp2")
+          .setArgs(Map.of("STEP", "1.2")),
+        new DataflowStep()
+          .setFunction("f3")
+          .setTarget("tmp1")
+          .setInputRefs(List.of("tmp2"))
+          .setAs("tmp3")
+          .setArgs(Map.of("STEP", "2"))
+      ))
+      .setExport("tmp3")
+    );
+
+  public static final String CLS_1_KEY = "ex.cls1";
   public static final OaasClass CLS_1 = new OaasClass()
     .setName("cls1")
     .setPkg("ex")
@@ -80,7 +106,7 @@ public class MockupData {
       new FunctionBinding()
         .setName("f1")
         .setFunction( FUNC_1.getKey())
-        .setOutputCls("ex.cls1")
+        .setOutputCls(CLS_1_KEY)
         .setDefaultArgs(Map.of("aa", "aa", "aaa", "aaa")),
       new FunctionBinding()
         .setName("func2")
@@ -90,16 +116,26 @@ public class MockupData {
         .setName("f3")
         .setFunction(FUNC_1.getKey())
         .setForceImmutable(true)
-        .setOutputCls("ex.cls1"),
+        .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
         .setName(FUNC_2.getName())
         .setFunction(FUNC_2.getKey())
-        .setOutputCls("ex.cls1"),
+        .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
         .setName(MACRO_FUNC_1.getName())
         .setFunction(MACRO_FUNC_1.getKey())
-        .setOutputCls("ex.cls1")
+        .setOutputCls(CLS_1_KEY),
+      new FunctionBinding()
+        .setName(ATOMIC_MACRO_FUNC.getName())
+        .setFunction(ATOMIC_MACRO_FUNC.getKey())
+        .setOutputCls(CLS_1_KEY)
     ));
+
+  public static final OaasClass CLS_2 = new OaasClass()
+    .setName("cls2")
+    .setPkg("ex")
+    .setObjectType(ObjectType.SIMPLE)
+    .setParents(List.of(CLS_1.getKey()));
 
   public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
     .setId("o1")
@@ -119,8 +155,11 @@ public class MockupData {
 
   public static MutableMap<String,OaasClass> testClasses() {
     var clsResolver = new ClassResolver();
+    var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
+    var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
     return Lists.fixedSize.of(
-        clsResolver.resolve(CLS_1.copy(), List.of())
+        cls1,
+        cls2
     )
       .groupByUniqueKey(OaasClass::getKey);
   }
@@ -128,7 +167,8 @@ public class MockupData {
   public static MutableMap<String,OaasFunction> testFunctions() {
     return Lists.fixedSize.of(
       FUNC_1.copy(),
-      MACRO_FUNC_1.copy()
+      MACRO_FUNC_1.copy(),
+      ATOMIC_MACRO_FUNC.copy()
     )
       .groupByUniqueKey(OaasFunction::getKey);
   }
@@ -173,4 +213,5 @@ public class MockupData {
     fnRepo.persistAsync(testFunctions().values())
       .await().indefinitely();
   }
+
 }

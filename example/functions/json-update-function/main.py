@@ -16,17 +16,16 @@ def generate_text(num):
   return ''.join(random.choice(letters) for _ in range(num))
 
 
-class JsonHandler(oaas.Handler):
+class RandomHandler(oaas.Handler):
     async def handle(self, ctx: OaasInvocationCtx):
-        if ctx.task.main_obj.data is not None:
-            record = ctx.task.main_obj.data.copy()
-        else:
-            record = {}
+
         entries = int(ctx.args.get('ENTRIES', '10'))
         keys = int(ctx.args.get('KEYS', '10'))
         values = int(ctx.args.get('VALUES', '10'))
         inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
         print(f"inplace {inplace}")
+
+        record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
 
         for _ in range(entries):
             record[generate_text(keys)] = generate_text(values)
@@ -38,15 +37,32 @@ class JsonHandler(oaas.Handler):
             ctx.task.output_obj.data = record
 
 
+class MergeHandler(oaas.Handler):
+    async def handle(self, ctx: OaasInvocationCtx):
+        inplace = ctx.args.get('INPLACE', 'false').lower() == 'true'
+        record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
+
+        for input_obj in ctx.task.inputs:
+            other_record = input_obj.data.copy() if input_obj.data is not None else {}
+            record = record | other_record
+
+        if inplace:
+            ctx.task.main_obj.data = record
+        if ctx.task.output_obj is not None:
+            ctx.task.output_obj.data = record
+
+
 app = FastAPI()
 router = oaas.Router()
-router.register("example.json-update", JsonHandler())
+router.register("example.record.random", RandomHandler())
+router.register("example.record.merge", MergeHandler())
 
 
 @app.post('/')
 async def handle(request: Request):
     body = await request.json()
-    resp = router.handle_task(body)
+    logging.info(f"request {body}")
+    resp = await router.handle_task(body)
     logging.info(f"completion {resp}")
     return resp
 

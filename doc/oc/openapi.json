@@ -1088,6 +1088,9 @@
           "description" : {
             "type" : "string"
           },
+          "markForRemoval" : {
+            "type" : "boolean"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember"
           }
@@ -1137,6 +1140,9 @@
           },
           "description" : {
             "type" : "string"
+          },
+          "markForRemoval" : {
+            "type" : "boolean"
           },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"

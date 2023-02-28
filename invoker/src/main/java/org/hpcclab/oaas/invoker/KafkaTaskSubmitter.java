@@ -40,6 +40,7 @@ public class KafkaTaskSubmitter implements TaskSubmitter {
   }
 
   public String selectTopic(TaskContext context) {
-    return config.fnTopicPrefix() + context.getFunction().getKey();
+//    return config.fnTopicPrefix() + context.getFunction().getKey();
+    return config.invokeTopicPrefix() + context.getMain().getCls();
   }
 }

@@ -7,10 +7,11 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvocationQueueSender;
-import org.hpcclab.oaas.invocation.InvocationValidator;
+import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.*;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -44,7 +45,7 @@ public class InvocationHandlerService {
   @Inject
   IdGenerator idGenerator;
 
-  public Uni<FunctionExecContext> syncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvApplyingContext> syncInvoke(ObjectAccessLanguage oal) {
     return applyFunction(oal)
       .invoke(Unchecked.consumer(ctx -> {
         var func = ctx.getFunction();
@@ -63,10 +64,10 @@ public class InvocationHandlerService {
       .flatMap(ctx -> invocationExecutor.syncExec(ctx));
   }
 
-  public Uni<FunctionExecContext> asyncInvoke(ObjectAccessLanguage oal,
-                                              boolean await,
-                                              int timeout) {
-    Uni<FunctionExecContext> uni = applyFunction(oal);
+  public Uni<InvApplyingContext> asyncInvoke(ObjectAccessLanguage oal,
+                                             boolean await,
+                                             int timeout) {
+    Uni<InvApplyingContext> uni = applyFunction(oal);
     return uni
       .flatMap(ctx -> {
         if (completionListener.enabled() && await && ctx.getOutput()!=null) {
@@ -86,9 +87,12 @@ public class InvocationHandlerService {
     return
       invocationValidator.validate(oal)
         .map(ctx -> {
+          var targetCls = ctx.oal().getTarget() != null?
+            ctx.mainCls().getKey():
+            ctx.oal().getTargetCls();
           var builder = InvocationRequest.builder()
             .target(ctx.oal().getTarget())
-            .targetCls(ctx.oal().getTargetCls())
+            .targetCls(targetCls)
             .fbName(ctx.oal().getFunctionName())
             .args(ctx.oal().getArgs())
             .inputs(ctx.oal().getInputs())
@@ -115,7 +119,7 @@ public class InvocationHandlerService {
           .build());
   }
 
-  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, Dataflow dataflow) {
+  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroConfig dataflow) {
     var map = dataflow.getSteps().stream()
       .filter(step -> step.getAs() != null)
       .map(step -> Map.entry(step.getAs(), idGenerator.generate()))
@@ -125,7 +129,7 @@ public class InvocationHandlerService {
       builder.outId(map.get(dataflow.getExport()));
   }
 
-  public Uni<FunctionExecContext> applyFunction(ObjectAccessLanguage oal) {
+  public Uni<InvApplyingContext> applyFunction(ObjectAccessLanguage oal) {
     var uni = router.apply(oal);
     if (logger.isDebugEnabled()) {
       uni = uni

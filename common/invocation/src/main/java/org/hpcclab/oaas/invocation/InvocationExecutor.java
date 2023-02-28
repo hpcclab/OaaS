@@ -10,7 +10,7 @@ import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.OaasObjects;
@@ -37,8 +37,8 @@ public class InvocationExecutor {
   GraphStateManager gsm;
   ContextLoader contextLoader;
   SyncInvoker syncInvoker;
-  CompletionValidator completionValidator;
-
+//  CompletionValidator completionValidator;
+  CompletedStateUpdater completionHandler;
   TaskFactory taskFactory;
 
 
@@ -48,17 +48,19 @@ public class InvocationExecutor {
                             ContextLoader contextLoader,
                             SyncInvoker syncInvoker,
                             TaskFactory taskFactory,
-                            CompletionValidator completionValidator) {
+//                            CompletionValidator completionValidator,
+                            CompletedStateUpdater completionHandler) {
     this.sender = sender;
     this.gsm = gsm;
     this.contextLoader = contextLoader;
     this.syncInvoker = syncInvoker;
     this.taskFactory = taskFactory;
-    this.completionValidator = completionValidator;
+//    this.completionValidator = completionValidator;
+    this.completionHandler = completionHandler;
   }
 
 
-  public boolean canSyncInvoke(FunctionExecContext ctx) {
+  public boolean canSyncInvoke(InvApplyingContext ctx) {
     var func = ctx.getFunction();
     if (func.getType()==FunctionType.MACRO) {
       return false;
@@ -72,7 +74,7 @@ public class InvocationExecutor {
     return ctx.analyzeDeps(waitForGraph, failDeps);
   }
 
-  public Uni<Void> asyncSubmit(FunctionExecContext ctx) {
+  public Uni<Void> asyncSubmit(InvApplyingContext ctx) {
     Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
     MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
       Lists.mutable.empty();
@@ -114,25 +116,26 @@ public class InvocationExecutor {
       .replaceWithVoid();
   }
 
-  public Uni<FunctionExecContext> syncExec(FunctionExecContext ctx) {
+  public Uni<InvApplyingContext> syncExec(InvApplyingContext ctx) {
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
-      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
-      .invoke(tc -> {
-        if (tc.getMain()!=null)
-          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
-        if (output!=null)
-          output.updateStatus(tc);
-        ctx.setCompletion(tc);
-      })
+//      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
+//      .invoke(tc -> {
+//        if (tc.getMain()!=null)
+//          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
+//        if (output!=null)
+//          output.updateStatus(tc);
+//        ctx.setCompletion(tc);
+//      })
+      .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
       .call(tc -> {
         List<OaasObject> list = tc.getMain()!=null ?
           Lists.mutable.of(ctx.getMain()):
           Lists.mutable.empty();
-        return gsm.persistAllWithoutNoti(ctx, list);
+        return gsm.persistAll(ctx, list);
       })
       .onFailure(DataAccessException.class)
       .transform(InvocationException::detectConcurrent)
@@ -140,7 +143,7 @@ public class InvocationExecutor {
   }
 
 
-  public Uni<FunctionExecContext> asyncExec(FunctionExecContext ctx) {
+  public Uni<InvApplyingContext> asyncExec(InvApplyingContext ctx) {
     if (logger.isDebugEnabled())
       logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
     var output = ctx.getOutput();
@@ -148,14 +151,15 @@ public class InvocationExecutor {
       output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
-      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
-      .invoke(tc -> {
-        if (tc.getMain()!=null)
-          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
-        if (output!=null)
-          output.updateStatus(tc);
-        ctx.setCompletion(tc);
-      })
+//      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
+      .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
+//      .invoke(tc -> {
+//        if (tc.getMain()!=null)
+//          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
+//        if (output!=null)
+//          output.updateStatus(tc);
+//        ctx.setCompletion(tc);
+//      })
       .call(tc -> this.complete(ctx,tc))
       .onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
@@ -163,10 +167,12 @@ public class InvocationExecutor {
 
   public Uni<Void> complete(TaskCompletion completion) {
     return contextLoader.getTaskContextAsync(completion.getId().oId())
-      .flatMap(ctx -> completionValidator.validateCompletion(ctx, completion)
+      .flatMap(ctx ->
+//        completionValidator.validateCompletion(ctx, completion)
+        completionHandler.handleComplete(ctx, completion)
         .map(cmp -> Tuples.pair(ctx, cmp))
       )
-      .flatMap(pair -> gsm.handleComplete(pair.getOne(), pair.getTwo())
+      .flatMap(pair -> gsm.persistThenLoadNext(pair.getOne(), pair.getTwo())
         .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
         .collect().asList()
         .flatMap(list -> sender.send(list.stream().map(TaskDetail::toRequest).toList()))
@@ -174,8 +180,8 @@ public class InvocationExecutor {
   }
 
   public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
-    logger.debug("complete {} {}", completion.getId(), completion);
-    return gsm.handleComplete(task, completion)
+//    logger.debug("complete {} {}", completion.getId(), completion);
+    return gsm.persistThenLoadNext(task, completion)
       .onItem().transformToUniAndConcatenate(o -> contextLoader.getTaskContextAsync(o))
       .collect().asList()
       .flatMap(list -> sender.send(list.stream().map(TaskDetail::toRequest).toList()));
@@ -238,6 +244,5 @@ public class InvocationExecutor {
 
   static class ResolveLoop {
     int i = 0;
-
   }
 }
