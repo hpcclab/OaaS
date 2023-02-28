@@ -1,9 +1,9 @@
 package org.hpcclab.oaas.invocation;
 
-import org.assertj.core.api.Assertions;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.test.MockInvocationEngine;
-import org.hpcclab.oaas.test.MockupData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,5 +26,10 @@ public class OneShotDataflowInvokerTest {
     engine.dataflowInvoker.invoke(ctx)
       .await().indefinitely();
     engine.printDebug(ctx);
+    var graph = ctx.getDataflowGraph();
+    for (InvocationNode node : graph.getAll()) {
+      assertThat(node.getCtx().getOutput().getStatus().getTaskStatus())
+        .isEqualTo(TaskStatus.SUCCEEDED);
+    }
   }
 }

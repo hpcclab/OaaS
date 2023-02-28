@@ -9,7 +9,7 @@ functions:
 #        image: ghcr.io/pawissanutt/oaas/concat-function:latest
         image: core.harbor.10.131.36.2.nip.io/oaas/concat-function:mutable
         targetConcurrency: 32
-        minScale: 1
+        minScale: 0
 #        maxScale: 6
         requestsCpu: '0.25'
         limitsCpu: '2'

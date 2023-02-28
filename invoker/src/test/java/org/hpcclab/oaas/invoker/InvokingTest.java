@@ -34,8 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class InvokingTest {
   private static final Logger logger = LoggerFactory.getLogger(InvokingTest.class);
   @Inject
-  FunctionRepository funcRepo;
-  @Inject
   VerticleDeployer deployer;
   @Inject
   KafkaProducer<String, Buffer> kafkaProducer;
@@ -66,8 +64,7 @@ class InvokingTest {
   @Test
   void _0testSubscribingDeploy() throws InterruptedException {
     var cls = CLS_2;
-    clsRepo.persistAsync(cls).await().indefinitely();
-    logger.info("cls {}", cls.getKey());
+    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
     kafkaProducer.sendAndAwait(
       KafkaProducerRecord.create(
         config.clsProvisionTopic(),
@@ -158,12 +155,57 @@ class InvokingTest {
     assertTrue(m1.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, m1.getData().get("n").asInt());
     var m2 = objectRepo.get(mid2);
-    assertTrue(m1.getStatus().getUpdatedOffset() >= 0);
+    assertTrue(m2.getStatus().getUpdatedOffset() >= 0);
     assertTrue(m2.getStatus().getTaskStatus().isCompleted());
     assertEquals(2, m2.getData().get("n").asInt());
   }
 
 
+  @Test
+  void _3testAtomicMacro() throws InterruptedException {
+    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    var main = OBJ_1.copy();
+    main.setId(idGenerator.generate());
+    objectRepo.put(main.getKey(), main);
+    var fn = ATOMIC_MACRO_FUNC;
+    var cls = CLS_1;
+
+    var mid1 = idGenerator.generate();
+    var mid2 = idGenerator.generate();
+    var mid3 = idGenerator.generate();
+    InvocationRequest request = InvocationRequest.builder()
+      .target(main.getId())
+      .outId(mid2)
+      .fbName(fn.getName())
+      .function(fn.getKey())
+      .macroIds(Map.of(
+        "tmp1", mid1,
+        "tmp2", mid2,
+        "tmp3", mid3
+      ))
+      .macro(true)
+      .build();
+    kafkaProducer.sendAndAwait(KafkaProducerRecord
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+    );
+    TestUtil.retryTillConditionMeet(() -> {
+      var o = objectRepo.get(mid3);
+      return o!= null && o.getStatus().getTaskStatus().isCompleted();
+    });
+
+    var m1 = objectRepo.get(mid1);
+    assertTrue(m1.getStatus().getUpdatedOffset() >= 0);
+    assertTrue(m1.getStatus().getTaskStatus().isCompleted());
+    assertEquals(1, m1.getData().get("n").asInt());
+    var m2 = objectRepo.get(mid2);
+    assertTrue(m2.getStatus().getUpdatedOffset() >= 0);
+    assertTrue(m2.getStatus().getTaskStatus().isCompleted());
+    assertEquals(1, m2.getData().get("n").asInt());
+    var m3 = objectRepo.get(mid3);
+    assertTrue(m3.getStatus().getUpdatedOffset() >= 0);
+    assertTrue(m3.getStatus().getTaskStatus().isCompleted());
+    assertEquals(3, m3.getData().get("n").asInt());
+  }
 
 
 }

@@ -29,10 +29,21 @@ public class MockProducer {
       ObjectUpdate outUpdate = null;
       var n = Optional.ofNullable(task.getMain())
         .map(OaasObject::getData)
-        .map(on -> on.get("n").asInt(0))
+        .map(on -> on.get("n").asInt())
         .orElse(0);
+      if (task.getInputs() != null && !task.getInputs().isEmpty()) {
+        for (OaasObject input : task.getInputs()) {
+          var ni =Optional.ofNullable(task.getMain())
+            .map(OaasObject::getData)
+            .map(on -> on.get("n").asInt())
+            .orElse(0);
+          n += ni;
+        }
+      }
+      var add = Integer.parseInt(task.getArgs().getOrDefault("ADD", "1"));
+
       var data = objectMapper.createObjectNode()
-        .put("n", n + 1);
+        .put("n", n + add);
       if (!task.isImmutable()) {
         mainUpdate = new ObjectUpdate(data);
       }

@@ -69,12 +69,12 @@ public class MockupData {
     .setMacro(new MacroConfig()
       .setSteps(List.of(
         new DataflowStep()
-          .setFunction("f1")
+          .setFunction("f3")
           .setTarget("$")
           .setAs("tmp1")
           .setArgs(Map.of("STEP", "1.1")),
         new DataflowStep()
-          .setFunction("f1")
+          .setFunction("f3")
           .setTarget("$")
           .setAs("tmp2")
           .setArgs(Map.of("STEP", "1.2")),

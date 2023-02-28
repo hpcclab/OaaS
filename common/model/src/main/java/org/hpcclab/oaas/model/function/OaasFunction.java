@@ -87,8 +87,8 @@ public class OaasFunction implements Copyable<OaasFunction> {
   public void validate() {
     if (name == null)
       throw new FunctionValidationException("Function's name can not be null");
-    if (!name.matches("^[a-zA-Z0-9_-]*$"))
-      throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9_-]*$'");
+    if (!name.matches("^[a-zA-Z0-9._-]*$"))
+      throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
     if (type==FunctionType.TASK) {
       macro = null;
@@ -102,7 +102,11 @@ public class OaasFunction implements Copyable<OaasFunction> {
       }
     }
     deploymentStatus = new FunctionDeploymentStatus();
-    deploymentStatus.setCondition(DeploymentCondition.PENDING);
+    if (type ==FunctionType.MACRO || type == FunctionType.LOGICAL){
+      deploymentStatus.setCondition(DeploymentCondition.RUNNING);
+    } else {
+      deploymentStatus.setCondition(DeploymentCondition.PENDING);
+    }
 
     if (outputCls != null &&
       (outputCls.equalsIgnoreCase("none") ||

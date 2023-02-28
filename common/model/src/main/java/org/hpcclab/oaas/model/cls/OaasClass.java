@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.StateSpecification;
@@ -86,6 +88,10 @@ public class OaasClass implements Copyable<OaasClass> {
   }
 
   public void validate() {
+    if (name == null)
+      throw new OaasValidationException("Class's name can not be null");
+    if (!name.matches("^[a-zA-Z0-9._-]*$"))
+      throw new OaasValidationException("Class's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (objectType==null) objectType = ObjectType.SIMPLE;
     if (stateType==null) stateType = StateType.FILES;
     if (stateSpec==null) stateSpec = new StateSpecification();
@@ -164,6 +170,8 @@ public class OaasClass implements Copyable<OaasClass> {
   @JsonIgnore
   public boolean isSamePackage(String classKey) {
     var i = classKey.lastIndexOf('.');
+    if (i < 0)
+      return getPkg() == null;
     var otherPkg = classKey.substring(0, i);
     return otherPkg.equals(pkg);
   }
