@@ -10,6 +10,7 @@
   <artifactId>invoker</artifactId>
 
   <properties>
+    <infinispan.version>14.0.6.Final</infinispan.version>
   </properties>
 
   <dependencyManagement>
@@ -86,6 +87,21 @@
       <groupId>org.infinispan</groupId>
       <artifactId>infinispan-api</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.infinispan</groupId>-->
+<!--      <artifactId>infinispan-server-core</artifactId>-->
+<!--      <version>${infinispan.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.infinispan</groupId>-->
+<!--      <artifactId>infinispan-server-hotrod</artifactId>-->
+<!--      <version>${infinispan.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.infinispan</groupId>-->
+<!--      <artifactId>infinispan-server-rest</artifactId>-->
+<!--      <version>${infinispan.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.jgroups</groupId>
       <artifactId>jgroups-raft</artifactId>

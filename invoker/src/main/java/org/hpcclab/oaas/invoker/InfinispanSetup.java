@@ -17,6 +17,7 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ public class InfinispanSetup {
   @Inject
   Vertx vertx;
   EmbeddedCacheManager cacheManager;
+  Infinispan infinispan;
   private static final Logger logger = LoggerFactory.getLogger(InfinispanSetup.class);
 
   public void setup(
@@ -52,13 +54,18 @@ public class InfinispanSetup {
       InputStream configurationStream = FileLookupFactory.newInstance().lookupFileStrict("infinispan.xml",
         Thread.currentThread().getContextClassLoader());
       ConfigurationBuilderHolder configHolder = new ParserRegistry().parse(configurationStream, null, MediaType.APPLICATION_XML);
-      configHolder.getGlobalConfigurationBuilder()
-          .security();
       logger.info("starting infinispan {}", configHolder);
       cacheManager = new DefaultCacheManager(configHolder, true);
       logger.info("started infinispan");
-    } catch (IOException e) {
+      } catch (IOException e) {
       throw new RuntimeException(e);
     }
+//    infinispan = Infinispan.create("classpath:///infinispan.xml");
+  }
+
+  @PreDestroy
+  void clean() throws IOException {
+//    infinispan.close();
+    cacheManager.close();
   }
 }

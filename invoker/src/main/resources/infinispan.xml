@@ -1,7 +1,7 @@
 <infinispan
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:infinispan:config:14.0 https://infinispan.org/schemas/infinispan-config-14.0.xsd
-                        urn:infinispan:server:14.0 https://infinispan.org/schemas/infinispan-server-14.0.xsd"
+                      urn:infinispan:server:14.0 https://infinispan.org/schemas/infinispan-server-14.0.xsd"
   xmlns="urn:infinispan:config:14.0"
   xmlns:server="urn:infinispan:server:14.0">
 
@@ -24,48 +24,48 @@
                stack="image-tcp"/>
   </cache-container>
 
-<!--  <threads>-->
-<!--    <thread-factory name="infinispan-factory" group-name="infinispan" thread-name-pattern="%G %i" priority="5"/>-->
-<!--    &lt;!&ndash; listener-executor &ndash;&gt;-->
-<!--    <blocking-bounded-queue-thread-pool name="infinispan-listener" thread-factory="infinispan-factory"-->
-<!--                                        core-threads="1" max-threads="1" queue-length="0" keepalive-time="0"/>-->
+  <!--  <threads>-->
+  <!--    <thread-factory name="infinispan-factory" group-name="infinispan" thread-name-pattern="%G %i" priority="5"/>-->
+  <!--    &lt;!&ndash; listener-executor &ndash;&gt;-->
+  <!--    <blocking-bounded-queue-thread-pool name="infinispan-listener" thread-factory="infinispan-factory"-->
+  <!--                                        core-threads="1" max-threads="1" queue-length="0" keepalive-time="0"/>-->
 
-<!--    <blocking-bounded-queue-thread-pool name="infinispan-blocking" thread-factory="infinispan-factory"-->
-<!--                                        core-threads="3" max-threads="8" queue-length="121" keepalive-time="9859"/>-->
+  <!--    <blocking-bounded-queue-thread-pool name="infinispan-blocking" thread-factory="infinispan-factory"-->
+  <!--                                        core-threads="3" max-threads="8" queue-length="121" keepalive-time="9859"/>-->
 
-<!--    <non-blocking-bounded-queue-thread-pool name="infinispan-non-blocking" thread-factory="infinispan-factory"-->
-<!--                                            core-threads="12" max-threads="15" queue-length="132"-->
-<!--                                            keepalive-time="9851"/>-->
-<!--    &lt;!&ndash; expiration-executor &ndash;&gt;-->
-<!--    <scheduled-thread-pool name="infinispan-expiration" thread-factory="infinispan-factory"/>-->
-<!--  </threads>-->
-  <!--  <server xmlns="urn:infinispan:server:14.0">-->
-  <!--    <interfaces>-->
-  <!--      <interface name="public">-->
-  <!--        <inet-address value="${infinispan.bind.address:0.0.0.0}"/>-->
-  <!--      </interface>-->
-  <!--    </interfaces>-->
-  <!--    <socket-bindings default-interface="public" port-offset="${infinispan.socket.binding.port-offset:0}">-->
-  <!--      <socket-binding name="admin" port="11223"/>-->
-  <!--    </socket-bindings>-->
-  <!--&lt;!&ndash;    <security>&ndash;&gt;-->
-  <!--&lt;!&ndash;      <security-realms>&ndash;&gt;-->
-  <!--&lt;!&ndash;        <security-realm name="admin">&ndash;&gt;-->
-  <!--&lt;!&ndash;          <properties-realm groups-attribute="Roles">&ndash;&gt;-->
-  <!--&lt;!&ndash;            <user-properties path="cli-admin-users.properties" relative-to="infinispan.server.config.path"/>&ndash;&gt;-->
-  <!--&lt;!&ndash;            <group-properties path="cli-admin-groups.properties" relative-to="infinispan.server.config.path"/>&ndash;&gt;-->
-  <!--&lt;!&ndash;          </properties-realm>&ndash;&gt;-->
-  <!--&lt;!&ndash;        </security-realm>&ndash;&gt;-->
-  <!--&lt;!&ndash;      </security-realms>&ndash;&gt;-->
-  <!--&lt;!&ndash;    </security>&ndash;&gt;-->
-  <!--    <endpoints>-->
-  <!--&lt;!&ndash;      <endpoint socket-binding="admin" security-realm="admin">&ndash;&gt;-->
-  <!--      <endpoint socket-binding="admin">-->
-  <!--        <rest-connector>-->
-  <!--&lt;!&ndash;          <authentication mechanisms="BASIC DIGEST"/>&ndash;&gt;-->
-  <!--        </rest-connector>-->
-  <!--        <hotrod-connector />-->
-  <!--      </endpoint>-->
-  <!--    </endpoints>-->
-  <!--  </server>-->
+  <!--    <non-blocking-bounded-queue-thread-pool name="infinispan-non-blocking" thread-factory="infinispan-factory"-->
+  <!--                                            core-threads="12" max-threads="15" queue-length="132"-->
+  <!--                                            keepalive-time="9851"/>-->
+  <!--    &lt;!&ndash; expiration-executor &ndash;&gt;-->
+  <!--    <scheduled-thread-pool name="infinispan-expiration" thread-factory="infinispan-factory"/>-->
+  <!--  </threads>-->
+  <!--    <server xmlns="urn:infinispan:server:14.0">-->
+  <!--      <interfaces>-->
+  <!--        <interface name="public">-->
+  <!--          <inet-address value="${infinispan.bind.address:0.0.0.0}"/>-->
+  <!--        </interface>-->
+  <!--      </interfaces>-->
+  <!--      <socket-bindings default-interface="public" port-offset="${infinispan.socket.binding.port-offset:0}">-->
+  <!--        <socket-binding name="admin" port="11223"/>-->
+  <!--      </socket-bindings>-->
+  <!--  &lt;!&ndash;    <security>&ndash;&gt;-->
+  <!--  &lt;!&ndash;      <security-realms>&ndash;&gt;-->
+  <!--  &lt;!&ndash;        <security-realm name="admin">&ndash;&gt;-->
+  <!--  &lt;!&ndash;          <properties-realm groups-attribute="Roles">&ndash;&gt;-->
+  <!--  &lt;!&ndash;            <user-properties path="cli-admin-users.properties" relative-to="infinispan.server.config.path"/>&ndash;&gt;-->
+  <!--  &lt;!&ndash;            <group-properties path="cli-admin-groups.properties" relative-to="infinispan.server.config.path"/>&ndash;&gt;-->
+  <!--  &lt;!&ndash;          </properties-realm>&ndash;&gt;-->
+  <!--  &lt;!&ndash;        </security-realm>&ndash;&gt;-->
+  <!--  &lt;!&ndash;      </security-realms>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    </security>&ndash;&gt;-->
+  <!--      <endpoints>-->
+  <!--  &lt;!&ndash;      <endpoint socket-binding="admin" security-realm="admin">&ndash;&gt;-->
+  <!--        <endpoint socket-binding="admin">-->
+  <!--          <rest-connector>-->
+  <!--  &lt;!&ndash;          <authentication mechanisms="BASIC DIGEST"/>&ndash;&gt;-->
+  <!--          </rest-connector>-->
+  <!--          <hotrod-connector />-->
+  <!--        </endpoint>-->
+  <!--      </endpoints>-->
+  <!--    </server>-->
 </infinispan>
