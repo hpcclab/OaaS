@@ -110,6 +110,9 @@ metadata:
   labels:
     app: invoker
 spec:
+  clusterIP: None
+  sessionAffinity: None
+  type: ClusterIP
   selector:
     app: invoker
   ports:

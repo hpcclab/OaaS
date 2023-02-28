@@ -42,9 +42,6 @@ quarkus:
     category:
       "org.hpcclab.oaas":
         level: ${oaas.log}
-      "org.jgroup":
-        level: TRACE
-        min-level: TRACE
   container-image:
     image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   jib:
