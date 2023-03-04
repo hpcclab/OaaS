@@ -32,17 +32,17 @@ functions:
       steps:
         - target: $
           as: record1
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
         - target: record1
           as: record2
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
         - target: record2
           as: record3
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
       export: record3
@@ -57,17 +57,17 @@ functions:
       steps:
         - target: $
           as: record1
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
         - target: record1
           as: record2
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
         - target: record2
           as: record3
-          function: json-update
+          function: random
           args:
             INPLACE: "false"
       export: record3
