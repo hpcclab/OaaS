@@ -23,10 +23,9 @@ public class KafkaInvocationQueueSender implements InvocationQueueSender {
   @Override
   public Uni<Void> send(InvocationRequest request) {
     var topic = selectTopic(request);
-    var key = request.immutable()? null: request.partKey();
     var kafkaRecord = KafkaProducerRecord.create(
         topic,
-        key,
+        request.partKey(),
         Json.encodeToBuffer(request)
       )
       .addHeader("ce_function", request.function());

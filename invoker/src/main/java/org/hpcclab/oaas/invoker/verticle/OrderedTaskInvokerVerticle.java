@@ -16,6 +16,7 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 @Dependent
 @Deprecated(forRemoval = true)
-public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
+public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<OaasTask> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
@@ -66,9 +67,18 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord) {
+  protected boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord, OaasTask parsedContent) {
+    return !parsedContent.isImmutable();
+  }
+
+  @Override
+  protected OaasTask parseContent(KafkaConsumerRecord<String, Buffer> taskRecord) {
+    return Json.decodeValue(taskRecord.value(), OaasTask.class);
+  }
+
+  @Override
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, OaasTask task) {
     var startTime = System.currentTimeMillis();
-    var task = Json.decodeValue(taskRecord.value(), OaasTask.class);
     var id = task.getId();
     if (LOGGER.isDebugEnabled()) {
       logLatency(task);

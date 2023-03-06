@@ -63,16 +63,16 @@ public class MacroFunctionApplier implements FunctionApplier {
     setupMap(ctx);
     ctx.setDataflowGraph(new DataflowGraph(ctx));
     var func = ctx.getFunction();
-    return execWorkflow(ctx, func.getMacro())
+    return applyDataflow(ctx, func.getMacro())
       .map(ignored -> {
-        var output = export(func.getMacro(), ctx);
+        var output = export(ctx, func.getMacro());
         ctx.setOutput(output);
         return ctx;
       });
   }
 
-  private OaasObject export(MacroConfig dataflow,
-                            InvApplyingContext ctx) {
+  private OaasObject export(InvApplyingContext ctx,
+                            MacroConfig dataflow) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
         .get(dataflow.getExport());
@@ -90,12 +90,11 @@ public class MacroFunctionApplier implements FunctionApplier {
     }
   }
 
-  private Uni<List<InvApplyingContext>> execWorkflow(InvApplyingContext context,
-                                                     MacroConfig workflow) {
+  private Uni<List<InvApplyingContext>> applyDataflow(InvApplyingContext context,
+                                                      MacroConfig workflow) {
     var request = context.getRequest();
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
-//        logger.trace("Execute step {}", step);
         return loadSubContext(context, step)
           .flatMap(newCtx -> subFunctionApplier.apply(newCtx))
           .invoke(newCtx -> {
@@ -114,6 +113,7 @@ public class MacroFunctionApplier implements FunctionApplier {
         }
       });
   }
+
 
   public Uni<InvApplyingContext> loadSubContext(InvApplyingContext baseCtx,
                                                 DataflowStep step) {

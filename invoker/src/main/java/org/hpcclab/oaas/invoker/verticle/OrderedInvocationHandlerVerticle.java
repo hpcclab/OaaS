@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
+import org.eclipse.collections.api.tuple.Pair;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.SyncInvoker;
@@ -13,6 +14,7 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 
 @Dependent
-public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle {
+public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle<InvocationRequest> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedInvocationHandlerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
@@ -53,8 +55,17 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord) {
-    var request = Json.decodeValue(kafkaRecord.value(), InvocationRequest.class);
+  protected boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord, InvocationRequest parsedContent) {
+    return !parsedContent.immutable();
+  }
+
+  @Override
+  protected InvocationRequest parseContent(KafkaConsumerRecord<String, Buffer> taskRecord) {
+    return Json.decodeValue(taskRecord.value(), InvocationRequest.class);
+  }
+
+  @Override
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     if (LOGGER.isDebugEnabled()) {
       logLatency(kafkaRecord);
     }

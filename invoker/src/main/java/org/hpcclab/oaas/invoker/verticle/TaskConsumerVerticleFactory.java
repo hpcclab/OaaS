@@ -27,7 +27,8 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   @Override
   public TaskConsumerVerticle createVerticle(String suffix) {
     var consumer = kafkaConsumer(options);
-    VerticleFactory<AbstractOrderedRecordVerticle> invokerVerticleFactory = f -> invokerVerticleInstance.get();
+    VerticleFactory<? extends AbstractOrderedRecordVerticle<?>> invokerVerticleFactory =
+      f -> invokerVerticleInstance.get();
     var offsetManager = new OffsetManager(consumer);
     var dispatcher = new TaskVerticlePoolDispatcher(vertx, invokerVerticleFactory,
       offsetManager, config);
