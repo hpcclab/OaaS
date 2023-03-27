@@ -570,27 +570,6 @@
   },
   "components" : {
     "schemas" : {
-      "Dataflow" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport"
-            }
-          },
-          "export" : {
-            "type" : "string"
-          }
-        }
-      },
       "DataflowStep" : {
         "type" : "object",
         "properties" : {
@@ -652,27 +631,6 @@
             "additionalProperties" : {
               "type" : "string"
             }
-          }
-        }
-      },
-      "Dataflow_Public" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep_Public"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport_Public"
-            }
-          },
-          "export" : {
-            "type" : "string"
           }
         }
       },
@@ -1040,6 +998,54 @@
           }
         }
       },
+      "MacroConfig" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataflowStep"
+            }
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowExport"
+            }
+          },
+          "export" : {
+            "type" : "string"
+          },
+          "atomic" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "MacroConfig_Public" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataflowStep_Public"
+            }
+          },
+          "exports" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowExport_Public"
+            }
+          },
+          "export" : {
+            "type" : "string"
+          },
+          "atomic" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "OaasClass" : {
         "type" : "object",
         "properties" : {
@@ -1180,7 +1186,7 @@
             "$ref" : "#/components/schemas/FunctionValidation"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/Dataflow"
+            "$ref" : "#/components/schemas/MacroConfig"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig"
@@ -1227,7 +1233,7 @@
             "$ref" : "#/components/schemas/FunctionValidation_Public"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/Dataflow_Public"
+            "$ref" : "#/components/schemas/MacroConfig_Public"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig_Public"
