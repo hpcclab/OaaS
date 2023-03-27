@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
-import org.eclipse.collections.api.tuple.Pair;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.SyncInvoker;
@@ -14,14 +13,13 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import java.time.Duration;
 
 @Dependent

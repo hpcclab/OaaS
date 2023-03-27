@@ -26,9 +26,9 @@ import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.net.URI;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.HashMap;
 import java.util.Map;
 

@@ -29,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InvocationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationTest.class);
-
-  boolean debug = true;
   ObjectMapper objectMapper = new ObjectMapper();
 
   UnifiedFunctionRouter router;

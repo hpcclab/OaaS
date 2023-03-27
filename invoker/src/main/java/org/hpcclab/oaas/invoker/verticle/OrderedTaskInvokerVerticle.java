@@ -16,7 +16,6 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
@@ -25,8 +24,8 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 

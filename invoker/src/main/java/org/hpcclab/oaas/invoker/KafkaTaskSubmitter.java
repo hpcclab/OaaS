@@ -10,8 +10,8 @@ import org.hpcclab.oaas.invocation.TaskFactory;
 import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.model.task.TaskContext;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 @Dependent
 public class KafkaTaskSubmitter implements TaskSubmitter {

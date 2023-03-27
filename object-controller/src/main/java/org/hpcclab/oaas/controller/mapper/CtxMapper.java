@@ -7,7 +7,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
-  componentModel = MappingConstants.ComponentModel.CDI,
+  componentModel = MappingConstants.ComponentModel.JAKARTA,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface CtxMapper {

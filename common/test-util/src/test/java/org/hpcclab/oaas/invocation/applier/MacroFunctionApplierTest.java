@@ -1,13 +1,9 @@
 package org.hpcclab.oaas.invocation.applier;
 
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.test.MockInvocationEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hpcclab.oaas.test.MockupData.ATOMIC_MACRO_FUNC;

@@ -6,9 +6,8 @@ import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.function.OaasFunction;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class FunctionListener extends NoGroupKafkaConsumer<OaasFunction> {

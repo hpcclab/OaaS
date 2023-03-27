@@ -9,6 +9,8 @@
 
 "%dev":
   quarkus:
+    console:
+      color: true
     http:
       port: 8088
   oaas:
@@ -35,8 +37,6 @@ oaas:
   name: object-controller
 
 quarkus:
-  console:
-    color: true
   http:
     access-log:
       enabled: true

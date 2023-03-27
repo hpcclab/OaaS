@@ -42,11 +42,11 @@
       <artifactId>arangodb-java-driver</artifactId>
       <version>6.20.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.camel.quarkus</groupId>
-      <artifactId>camel-quarkus-arangodb</artifactId>
-      <version>2.16.0</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.apache.camel.quarkus</groupId>-->
+<!--      <artifactId>camel-quarkus-arangodb</artifactId>-->
+<!--      <version>2.16.0</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>jackson-dataformat-velocypack</artifactId>

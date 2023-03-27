@@ -6,8 +6,8 @@ import org.hpcclab.oaas.model.proto.OaasSchema;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.infinispan.client.hotrod.RemoteCache;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class IspnFuncRepository extends AbstractIspnRepository<String, OaasFunction>

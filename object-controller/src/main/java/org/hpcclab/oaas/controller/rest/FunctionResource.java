@@ -13,10 +13,10 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.List;
 
