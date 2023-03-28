@@ -3,10 +3,9 @@ package org.hpcclab.oaas.arango;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.time.Duration;
-import java.util.function.Supplier;
 
 @ApplicationScoped
 public class CacheFactory {

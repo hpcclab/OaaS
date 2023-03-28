@@ -383,20 +383,6 @@ paths:
                 $ref: '#/components/schemas/OaasPackageContainer_Public'
 components:
   schemas:
-    Dataflow:
-      type: object
-      properties:
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataflowStep'
-        exports:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/WorkflowExport'
-        export:
-          type: string
     DataflowStep:
       type: object
       properties:
@@ -439,20 +425,6 @@ components:
           type: object
           additionalProperties:
             type: string
-    Dataflow_Public:
-      type: object
-      properties:
-        steps:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataflowStep_Public'
-        exports:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/WorkflowExport_Public'
-        export:
-          type: string
     DeploymentCondition:
       enum:
       - PENDING
@@ -645,6 +617,124 @@ components:
         argsToEnv:
           type: boolean
       deprecated: true
+    JsonNode:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        valueNode:
+          type: boolean
+        containerNode:
+          type: boolean
+        missingNode:
+          type: boolean
+        array:
+          type: boolean
+        object:
+          type: boolean
+        nodeType:
+          $ref: '#/components/schemas/JsonNodeType'
+        pojo:
+          type: boolean
+        number:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        float:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+        boolean:
+          type: boolean
+        "null":
+          type: boolean
+        binary:
+          type: boolean
+    JsonNodeType:
+      enum:
+      - ARRAY
+      - BINARY
+      - BOOLEAN
+      - MISSING
+      - "NULL"
+      - NUMBER
+      - OBJECT
+      - POJO
+      - STRING
+      type: string
+    JsonNodeType_Public:
+      enum:
+      - ARRAY
+      - BINARY
+      - BOOLEAN
+      - MISSING
+      - "NULL"
+      - NUMBER
+      - OBJECT
+      - POJO
+      - STRING
+      type: string
+    JsonNode_Public:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        valueNode:
+          type: boolean
+        containerNode:
+          type: boolean
+        missingNode:
+          type: boolean
+        array:
+          type: boolean
+        object:
+          type: boolean
+        nodeType:
+          $ref: '#/components/schemas/JsonNodeType_Public'
+        pojo:
+          type: boolean
+        number:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        float:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+        boolean:
+          type: boolean
+        "null":
+          type: boolean
+        binary:
+          type: boolean
     KeyAccessModifier:
       enum:
       - PUBLIC
@@ -743,6 +833,38 @@ components:
             type: string
         apiPath:
           type: string
+    MacroConfig:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataflowStep'
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowExport'
+        export:
+          type: string
+        atomic:
+          type: boolean
+    MacroConfig_Public:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataflowStep_Public'
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowExport_Public'
+        export:
+          type: string
+        atomic:
+          type: boolean
     OaasClass:
       type: object
       properties:
@@ -841,7 +963,7 @@ components:
         validation:
           $ref: '#/components/schemas/FunctionValidation'
         macro:
-          $ref: '#/components/schemas/Dataflow'
+          $ref: '#/components/schemas/MacroConfig'
         provision:
           $ref: '#/components/schemas/ProvisionConfig'
         variableDescriptions:
@@ -876,7 +998,7 @@ components:
         validation:
           $ref: '#/components/schemas/FunctionValidation_Public'
         macro:
-          $ref: '#/components/schemas/Dataflow_Public'
+          $ref: '#/components/schemas/MacroConfig_Public'
         provision:
           $ref: '#/components/schemas/ProvisionConfig_Public'
         variableDescriptions:
@@ -1008,8 +1130,12 @@ components:
             $ref: '#/components/schemas/ObjectConstructResponse_Public'
     ObjectNode:
       type: array
+      items:
+        $ref: '#/components/schemas/JsonNode'
     ObjectNode_Public:
       type: array
+      items:
+        $ref: '#/components/schemas/JsonNode_Public'
     ObjectOrigin_Public:
       type: object
       properties:
@@ -1308,3 +1434,8 @@ components:
           type: string
         as:
           type: string
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      description: Authentication
+      scheme: basic

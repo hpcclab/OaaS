@@ -22,8 +22,8 @@ import org.hpcclab.oaas.taskmanager.rest.OalResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -99,6 +99,7 @@ public class InvocationHandlerService {
             .immutable(ctx.functionBinding().isForceImmutable() || !ctx.function().getType().isMutable())
             .macro(ctx.function().getType() == FunctionType.MACRO)
             .function(ctx.function().getKey())
+            .partKey(ctx.main() != null? ctx.main().getKey(): null)
             .invId(idGenerator.generate());
           if (ctx.function().getType() == FunctionType.MACRO) {
             addMacroIds(builder, ctx.function().getMacro());

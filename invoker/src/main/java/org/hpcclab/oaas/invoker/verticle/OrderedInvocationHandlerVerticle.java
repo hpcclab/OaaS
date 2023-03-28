@@ -18,12 +18,12 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import java.time.Duration;
 
 @Dependent
-public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle {
+public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle<InvocationRequest> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedInvocationHandlerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
@@ -53,8 +53,17 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord) {
-    var request = Json.decodeValue(kafkaRecord.value(), InvocationRequest.class);
+  protected boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord, InvocationRequest parsedContent) {
+    return !parsedContent.immutable();
+  }
+
+  @Override
+  protected InvocationRequest parseContent(KafkaConsumerRecord<String, Buffer> taskRecord) {
+    return Json.decodeValue(taskRecord.value(), InvocationRequest.class);
+  }
+
+  @Override
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     if (LOGGER.isDebugEnabled()) {
       logLatency(kafkaRecord);
     }

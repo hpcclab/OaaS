@@ -5,10 +5,9 @@ import io.vertx.core.json.Json;
 import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class ClassListener extends NoGroupKafkaConsumer<OaasClass> {

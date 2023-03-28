@@ -8,10 +8,10 @@ import com.arangodb.async.ArangoViewAsync;
 import com.arangodb.entity.LoadBalancingStrategy;
 import com.arangodb.mapping.ArangoJack;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @ApplicationScoped
 public class ArgClientProducer {

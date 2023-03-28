@@ -8,11 +8,13 @@ import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
 import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.repository.GraphStateManager;
+import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
+import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 
 @ApplicationScoped
 public class InvocationEngineProducer {
@@ -53,5 +55,15 @@ public class InvocationEngineProducer {
     return HttpInvokerConfig.builder()
       .appName("oaas/taskmanager")
       .build();
+  }
+
+  @Produces
+  ObjectCompletionListener completionListener() {
+    return new ObjectCompletionListener.Noop();
+  }
+
+  @Produces
+  ObjectCompletionPublisher completionPublisher() {
+    return new ObjectCompletionPublisher.Noop();
   }
 }

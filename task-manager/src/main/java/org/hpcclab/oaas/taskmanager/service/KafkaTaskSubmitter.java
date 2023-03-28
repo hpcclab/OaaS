@@ -13,8 +13,8 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class KafkaTaskSubmitter implements TaskSubmitter {

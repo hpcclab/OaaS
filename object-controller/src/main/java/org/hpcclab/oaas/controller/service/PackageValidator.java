@@ -2,12 +2,9 @@ package org.hpcclab.oaas.controller.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.unchecked.Unchecked;
 import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
@@ -15,8 +12,8 @@ import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

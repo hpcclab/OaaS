@@ -9,8 +9,8 @@ import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DefaultInvocationValidator implements InvocationValidator{

@@ -7,7 +7,7 @@ import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.invocation.TaskSubmitter;
 import org.hpcclab.oaas.invocation.TaskFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 //@ApplicationScoped
 public class CloudEventTaskSubmitter implements TaskSubmitter {

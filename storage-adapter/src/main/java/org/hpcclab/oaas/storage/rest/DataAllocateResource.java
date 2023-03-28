@@ -6,7 +6,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -14,9 +13,9 @@ import org.hpcclab.oaas.storage.AdapterLoader;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 

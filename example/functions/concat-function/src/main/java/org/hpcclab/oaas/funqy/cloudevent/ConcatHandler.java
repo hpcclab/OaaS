@@ -13,15 +13,15 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.ext.web.client.predicate.ResponsePredicate;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Set;
 
 @ApplicationScoped
@@ -57,7 +57,7 @@ public class ConcatHandler {
     else
       tc.setOutput(update);
     var allocUrl = inPlace ? task.getAllocMainUrl():task.getAllocOutputUrl();
-    if (allocUrl == null)
+    if (allocUrl==null)
       return Uni.createFrom()
         .item(CloudEventBuilder.create()
           .id(task.getId())

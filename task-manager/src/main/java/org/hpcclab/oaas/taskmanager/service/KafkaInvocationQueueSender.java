@@ -13,8 +13,8 @@ import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class KafkaInvocationQueueSender implements InvocationQueueSender {
@@ -31,9 +31,8 @@ private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationQue
       .withHeaders(new RecordHeaders()
         .add("ce_id", request.invId().getBytes())
         .add("ce_type", InvocationRequest.CE_TYPE.getBytes())
-      );
-    if (!request.immutable())
-      metaBuilder = metaBuilder.withKey(request.partKey());
+      )
+      .withKey(request.partKey());
     var message = Message.of(request)
       .addMetadata(metaBuilder.build());
     if (logger.isDebugEnabled())

@@ -24,14 +24,14 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Dependent
 @Deprecated(forRemoval = true)
-public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
+public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<OaasTask> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
   final SyncInvoker invoker;
   final FunctionRepository funcRepo;
@@ -66,9 +66,18 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle {
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord) {
+  protected boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord, OaasTask parsedContent) {
+    return !parsedContent.isImmutable();
+  }
+
+  @Override
+  protected OaasTask parseContent(KafkaConsumerRecord<String, Buffer> taskRecord) {
+    return Json.decodeValue(taskRecord.value(), OaasTask.class);
+  }
+
+  @Override
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, OaasTask task) {
     var startTime = System.currentTimeMillis();
-    var task = Json.decodeValue(taskRecord.value(), OaasTask.class);
     var id = task.getId();
     if (LOGGER.isDebugEnabled()) {
       logLatency(task);

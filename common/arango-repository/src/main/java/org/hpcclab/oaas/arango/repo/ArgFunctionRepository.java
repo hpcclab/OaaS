@@ -3,19 +3,15 @@ package org.hpcclab.oaas.arango.repo;
 import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.hpcclab.oaas.arango.CacheFactory;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.time.Duration;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @ApplicationScoped
 @RegisterForReflection(

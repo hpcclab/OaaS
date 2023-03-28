@@ -19,10 +19,10 @@ client.global.set("obj_0_id", response.body.object.id)
 ###
 GET {{cds}}/oal/{{obj_0_id}}
 ###
-GET {{cds}}/oal/{{obj_0_id}}:random-inplace
+GET {{cds}}/oal/{{obj_0_id}}:random-inplace()?async=false
 
 ###
-GET {{cds}}/oal/{{obj_0_id}}:random
+GET {{cds}}/oal/{{obj_0_id}}:random?async=false
 
 > {%
 client.global.set("obj_1_id", response.body.output.id)
@@ -32,7 +32,7 @@ client.global.set("obj_1_id", response.body.output.id)
 GET {{cds}}/oal/{{obj_1_id}}
 
 ###
-GET {{cds}}/oal/{{obj_1_id}}:json-update()
+GET {{cds}}/oal/{{obj_1_id}}:random()
 
 > {%
   client.global.set("obj_1_id", response.body.output.id)
