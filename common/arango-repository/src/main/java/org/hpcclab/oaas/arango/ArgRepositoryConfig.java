@@ -21,7 +21,6 @@ public interface ArgRepositoryConfig {
   String db();
   @WithDefault("OaasObject")
   String objectCollection();
-
   @WithDefault("ObjectView")
   String objectView();
   @WithDefault("OaasFunction")
@@ -30,7 +29,6 @@ public interface ArgRepositoryConfig {
   String classCollection();
   @WithDefault("OaasObjectDependEdge")
   String odeCollection();
-
   @WithDefault("10000")
   int cacheTimeout();
 }

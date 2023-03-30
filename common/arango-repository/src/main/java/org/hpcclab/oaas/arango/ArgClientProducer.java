@@ -28,6 +28,7 @@ public class ArgClientProducer {
       .maxConnections(30)
       .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
       .acquireHostList(true)
+      .useProtocol(Protocol.VST)
       .serializer(new ArangoJack())
       .build();
   }
