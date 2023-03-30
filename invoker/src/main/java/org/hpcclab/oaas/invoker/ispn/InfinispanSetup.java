@@ -7,6 +7,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
@@ -20,13 +21,12 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class InfinispanSetup {
+  @Inject
+  IspnConfig config;
   EmbeddedCacheManager cacheManager;
   private static final Logger logger = LoggerFactory.getLogger(InfinispanSetup.class);
 
-  public void setup(
-    @Observes StartupEvent event,
-    IspnConfig config
-  ) {
+  public void setup(@Observes StartupEvent event) {
     // Set up a clustered Cache Manager.
     var dns = System.getenv("ISPN_DNS_PING");
     if (dns!=null) {
