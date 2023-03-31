@@ -1,27 +1,27 @@
 apiVersion: v1
 data:
-  JAVA_OPTIONS: -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m
+  JAVA_OPTIONS: "-Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m"
   QUARKUS_CONSOLE_COLOR: 'false'
   QUARKUS_HTTP_CORS: 'true'
-  KAFKA_BOOTSTRAP_SERVERS: oaas-kafka-bootstrap:9092
-#  OAAS_LOG: DEBUG
-  OAAS_OC_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
-  OAAS_OC_FNPROVISIONTOPIC: oaas-fn
-  OAAS_OC_CLSPROVISIONTOPIC: oaas-cls
-  OAAS_TM_OBJECTCONTROLLERURL: http://object-controller
-  OAAS_TM_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  KAFKA_BOOTSTRAP_SERVERS: "oaas-kafka-bootstrap:9092"
+  OAAS_LOG: "INFO"
+  OAAS_OC_STORAGEADAPTERURL: "http://storage-adapter.oaas.svc.cluster.local"
+  OAAS_OC_FNPROVISIONTOPIC: "oaas-fn"
+  OAAS_OC_CLSPROVISIONTOPIC: "oaas-cls"
+  OAAS_TM_OBJECTCONTROLLERURL: "http://object-controller"
+  OAAS_TM_STORAGEADAPTERURL: "http://storage-adapter.oaas.svc.cluster.local"
   OAAS_TM_CONNECTIONPOOLMAXSIZE: '100'
-#  OAAS_TM_ENABLECOMPLETIONLISTENER: 'false'
-  OAAS_KP_FNPROVISIONTOPIC: oaas-fn
-  OAAS_KP_COMPLETIONHANDLERSERVICE: task-manager
-  OAAS_KP_COMPLETIONHANDLERPATH: /ce
+  OAAS_KP_FNPROVISIONTOPIC: "oaas-fn"
+  OAAS_KP_COMPLETIONHANDLERSERVICE: "task-manager"
+  OAAS_KP_COMPLETIONHANDLERPATH: "/ce"
   OAAS_KP_EXPOSEKNATIVE: 'false'
-  OAAS_INVOKER_KAFKA: oaas-kafka-bootstrap:9092
-  OAAS_INVOKER_STORAGEADAPTERURL: http://storage-adapter.oaas.svc.cluster.local
+  OAAS_INVOKER_KAFKA: "oaas-kafka-bootstrap:9092"
+  OAAS_INVOKER_STORAGEADAPTERURL: "http://storage-adapter.oaas.svc.cluster.local"
   OAAS_INVOKER_CONNECTIONPOOLMAXSIZE: '100'
   OAAS_INVOKER_NUMOFVERTICLE: '1'
-  QUARKUS_OPENTELEMETRY_ENABLED: 'false'
 #  OAAS_SA_S3_RELAY: "true"
+  OAAS_REPO_ARG_HOST: "arango-cluster"
+  OAAS_REPO_ARG_PORT: "8529"
 
 kind: ConfigMap
 metadata:
