@@ -15,52 +15,65 @@ import org.slf4j.LoggerFactory;
 
 @ConfigurationFor(ArgCacheStore.class)
 @BuiltBy(ArgCacheStoreConfig.Builder.class)
-public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
-    private static final Logger logger = LoggerFactory.getLogger( ArgCacheStoreConfig.class );
+public class ArgCacheStoreConfig extends AbstractStoreConfiguration {
+  private static final Logger logger = LoggerFactory.getLogger(ArgCacheStoreConfig.class);
 
-    public static final AttributeDefinition<Class> VALUE_CLASS = AttributeDefinition.builder(
+  public static final AttributeDefinition<Class> VALUE_CLASS = AttributeDefinition.builder(
       "valueCls", HasKey.class, Class.class)
-            .serializer(AttributeSerializer.CLASS_NAME)
-            .immutable().build();
+    .serializer(AttributeSerializer.CLASS_NAME)
+    .immutable().build();
+  public static final AttributeDefinition<ConnectionFactory> CONNECTION_FACTORY = AttributeDefinition.builder("connectionFactory", null, ConnectionFactory.class)
+    .copier(f -> f)
+    .build();
 
-    public ArgCacheStoreConfig(AttributeSet attributes, AsyncStoreConfiguration async ) {
-        super(attributes, async);
+
+  public ArgCacheStoreConfig(AttributeSet attributes, AsyncStoreConfiguration async) {
+    super(attributes, async);
+  }
+
+  public static AttributeSet attributeDefinitionSet() {
+    return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS);
+  }
+
+  public Class getValuaCls() {
+    return attributes.attribute(VALUE_CLASS)
+      .get();
+  }
+  public ConnectionFactory getConnectionFactory() {
+    return attributes.attribute(CONNECTION_FACTORY)
+      .get();
+  }
+
+  public static class Builder extends AbstractStoreConfigurationBuilder<ArgCacheStoreConfig, Builder> {
+    ArgConnectionFactory connectionFactory;
+
+    public Builder(
+      PersistenceConfigurationBuilder builder) {
+      super(builder, ArgCacheStoreConfig.attributeDefinitionSet());
     }
 
-    public static AttributeSet attributeDefinitionSet() {
-        return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS);
+
+    @Override
+    public ArgCacheStoreConfig create() {
+      return new ArgCacheStoreConfig(
+        super.attributes.protect(),
+        super.async.create()
+      );
     }
 
-    public Class getValuaCls() {
-        return attributes.attribute(VALUE_CLASS)
-                .get();
+    @Override
+    public Builder self() {
+      return this;
     }
 
-    public static class Builder extends AbstractStoreConfigurationBuilder<ArgCacheStoreConfig, Builder> {
-        ArgConnectionFactory connectionFactory;
-
-        public Builder(
-                PersistenceConfigurationBuilder builder) {
-            super(builder, ArgCacheStoreConfig.attributeDefinitionSet());
-        }
-
-
-        @Override
-        public ArgCacheStoreConfig create() {
-            return new ArgCacheStoreConfig(
-                    super.attributes.protect(),
-                    super.async.create()
-            );
-        }
-
-        @Override
-        public Builder self() {
-            return this;
-        }
-
-        public Builder valueCls(Class klass) {
-            attributes.attribute(VALUE_CLASS).set(klass);
-            return this;
-        }
+    public Builder valueCls(Class klass) {
+      attributes.attribute(VALUE_CLASS).set(klass);
+      return this;
     }
+
+    public Builder connectionFactory(ConnectionFactory connectionFactory){
+      attributes.attribute(CONNECTION_FACTORY).set(connectionFactory);
+      return this;
+    }
+  }
 }
