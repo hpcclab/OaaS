@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
-import org.hpcclab.oaas.repository.IdGenerator;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

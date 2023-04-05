@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.infinispan;
+package org.hpcclab.oaas.ispn.repo;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
@@ -6,6 +6,7 @@ import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.CachedEntityRepository;
 import org.hpcclab.oaas.repository.NotifyEntityRepository;
+import org.hpcclab.oaas.repository.QueryService;
 import org.infinispan.client.hotrod.Flag;
 import org.infinispan.client.hotrod.MetadataValue;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -21,53 +22,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class AbstractIspnRepository<K, V> implements CachedEntityRepository<K,V>, NotifyEntityRepository<K,V> {
-
   private static final Logger LOGGER = LoggerFactory.getLogger( AbstractIspnRepository.class );
-  QueryFactory queryFactory;
+
+  protected IspnQueryService<K,V> queryService;
 
   public abstract RemoteCache<K, V> getRemoteCache();
 
-  QueryFactory getQueryFactory(){
-    if (queryFactory == null)
-      this.queryFactory = Search.getQueryFactory(getRemoteCache());
-    return this.queryFactory;
-  }
+
 
   public abstract String getEntityName();
 
-  public Pagination<V> pagination(long offset, int limit) {
-    return queryPagination("FROM " + getEntityName(), offset, limit);
-  }
 
-  public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
-    Query<V> query = (Query<V>) getQueryFactory().create(queryString)
-      .setParameters(params)
-      .startOffset(offset)
-      .maxResults(limit);
-    var qr= query.execute();
-    var items = qr.list();
-    return new Pagination<>(qr.hitCount().orElse(0), offset, items.size(), items);
-  }
-
-
-  @Override
-  public List<V> query(String queryString, Map<String, Object> params) {
-    Query<V> query = (Query<V>) getQueryFactory().create(queryString)
-      .setParameters(params);
-    var qr= query.execute();
-    var items = qr.list();
-    return items;
-  }
-
-  @Override
-  public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
-    return Uni.createFrom().item(() -> {
-      Query<V> query = (Query<V>) getQueryFactory().create(queryString)
-        .setParameters(params);
-      var qr= query.execute();
-      return qr.list();
-    });
-  }
 
   public V get(K key) {
     Objects.requireNonNull(key);
@@ -215,32 +180,26 @@ public abstract class AbstractIspnRepository<K, V> implements CachedEntityReposi
 
   protected abstract K extractKey(V v);
 
-  @Override
-  public Uni<Pagination<V>> paginationAsync(long offset, int limit) {
-    throw StdOaasException.notImplemented();
-  }
 
-  @Override
-  public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
-    throw StdOaasException.notImplemented();
-  }
-  @Override
-  public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
-    throw StdOaasException.notImplemented();
-  }
 
   @Override
   public void invalidate(K key) {
   }
 
   @Override
-  public V getWithoutCache(K key) {
+  public V getBypassCache(K key) {
     return this.get(key);
   }
 
   @Override
-  public Uni<V> getWithoutCacheAsync(K key) {
+  public Uni<V> getBypassCacheAsync(K key) {
     return this.getAsync(key);
   }
 
+  @Override
+  public IspnQueryService<K,V> getQueryService() {
+    if (queryService == null)
+      queryService = new IspnQueryService<>(this);
+    return queryService;
+  }
 }

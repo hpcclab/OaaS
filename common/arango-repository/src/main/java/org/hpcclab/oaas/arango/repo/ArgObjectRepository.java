@@ -63,7 +63,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
         LIMIT @off, @lim
         RETURN obj
       """;
-    return queryPaginationAsync(
+    return getQueryService().queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls", clsKeys,
@@ -91,7 +91,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
         LIMIT @off, @lim
         RETURN obj
       """;
-    return queryPaginationAsync(
+    return getQueryService().queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls", clsKeys,

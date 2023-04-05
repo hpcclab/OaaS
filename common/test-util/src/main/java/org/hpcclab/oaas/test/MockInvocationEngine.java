@@ -12,6 +12,8 @@ import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.*;
+import org.hpcclab.oaas.repository.id.IdGenerator;
+import org.hpcclab.oaas.repository.id.TsidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.id;
 
 import com.github.f4b6a3.tsid.TsidFactory;
 import jakarta.enterprise.context.ApplicationScoped;

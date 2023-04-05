@@ -52,7 +52,8 @@ public class ClassResource {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort == null) sort = "_key";
-    return classRepo.sortedPaginationAsync(sort, desc, offset, limit);
+    return classRepo.getQueryService()
+      .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @GET

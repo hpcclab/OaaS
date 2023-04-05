@@ -94,7 +94,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
       "@col", getCollection().name(),
       "key", clsKey
     );
-    return this.queryAsync(query, String.class, param)
+    return this.queryService.queryAsync(query, String.class, param)
       .invoke(l -> subClsCache.put(clsKey, l));
   }
 
@@ -104,7 +104,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
         FILTER cls.resolved.identities ANY == @key
         return cls
       """;
-    return query(query,
+    return getQueryService().query(query,
       Map.of(
         "@col", getCollection().name(),
         "key", clsKey)

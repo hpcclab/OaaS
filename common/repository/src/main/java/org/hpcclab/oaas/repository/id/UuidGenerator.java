@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.repository.id;
 
 
 import java.util.UUID;

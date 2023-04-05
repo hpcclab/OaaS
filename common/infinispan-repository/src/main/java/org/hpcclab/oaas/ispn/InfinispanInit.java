@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.infinispan;
+package org.hpcclab.oaas.ispn;
 
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.NearCacheMode;

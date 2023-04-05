@@ -13,6 +13,8 @@ import jakarta.inject.Named;
 import java.util.List;
 import java.util.Map;
 
+import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+
 @ApplicationScoped
 public class ArgEdgeRepository extends AbstractArgRepository<ObjectDependencyEdge> {
   private static final Logger logger = LoggerFactory.getLogger(ArgEdgeRepository.class);

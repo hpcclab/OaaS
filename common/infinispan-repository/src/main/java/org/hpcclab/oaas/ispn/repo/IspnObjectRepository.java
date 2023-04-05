@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.infinispan;
+package org.hpcclab.oaas.ispn.repo;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
@@ -72,9 +72,10 @@ public class IspnObjectRepository extends AbstractIspnRepository<String, OaasObj
                                                int limit) {
 
     return vertx.executeBlocking(Uni.createFrom().item(() -> {
-      if (clsKeys==null || clsKeys.isEmpty()) return pagination(offset, limit);
+      if (clsKeys==null || clsKeys.isEmpty()) return getQueryService().pagination(offset, limit);
       var query = "FROM %s WHERE cls=:clsName".formatted(getEntityName());
-      return queryPagination(query, Map.of("clsName", clsKeys), offset, limit);
+      return getQueryService()
+        .queryPagination(query, Map.of("clsName", clsKeys), offset, limit);
     }));
   }
 

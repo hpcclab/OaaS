@@ -44,7 +44,8 @@ public class FunctionResource {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort==null) sort = "_key";
-    return funcRepo.sortedPaginationAsync(sort, desc, offset, limit);
+    return funcRepo.getQueryService()
+      .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @POST

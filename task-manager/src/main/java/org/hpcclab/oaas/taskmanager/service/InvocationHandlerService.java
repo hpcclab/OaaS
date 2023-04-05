@@ -15,7 +15,7 @@ import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.IdGenerator;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.taskmanager.rest.OalResponse;
