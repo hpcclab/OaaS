@@ -61,7 +61,7 @@ public class VerticleDeployer {
   }
 
   void deployPerFunc() {
-    var funcPage = funcRepo.pagination(0, 1000);
+    var funcPage = funcRepo.getQueryService().pagination(0, 1000);
     var funcList = funcPage.getItems();
 
     functionListener.setHandler(func -> {
@@ -76,7 +76,7 @@ public class VerticleDeployer {
   }
 
   void deployPerCls() {
-    var clsPage = clsRepo.pagination(0, 1000);
+    var clsPage = clsRepo.getQueryService().pagination(0, 1000);
     var clsList = clsPage.getItems();
 
     clsListener.setHandler(cls -> {

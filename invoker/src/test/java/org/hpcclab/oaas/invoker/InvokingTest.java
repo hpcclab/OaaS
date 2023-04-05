@@ -10,7 +10,7 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.IdGenerator;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.test.MockupData;
 import org.hpcclab.oaas.test.TestUtil;

@@ -179,7 +179,7 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<Oa
           return Uni.createFrom()
             .item(function);
         } else {
-          return funcRepo.getWithoutCacheAsync(task.getFuncKey())
+          return funcRepo.getBypassCacheAsync(task.getFuncKey())
             .onItem().ifNull()
             .failWith(() -> new StdOaasException("Function is not ready"))
             .onFailure(StdOaasException.class)

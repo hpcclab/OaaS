@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.repository.IdGenerator;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

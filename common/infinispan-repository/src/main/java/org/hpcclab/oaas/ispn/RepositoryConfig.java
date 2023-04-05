@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.infinispan;
+package org.hpcclab.oaas.ispn;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;

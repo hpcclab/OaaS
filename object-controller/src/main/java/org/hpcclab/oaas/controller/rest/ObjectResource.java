@@ -35,8 +35,10 @@ public class ObjectResource {
     if (limit > 100) limit = 100;
     if (sort==null) sort = "_key";
     if (sort.equals("_"))
-      return objectRepo.paginationAsync(offset, limit);
-    return objectRepo.sortedPaginationAsync(sort, desc, offset, limit);
+      return objectRepo.getQueryService()
+        .paginationAsync(offset, limit);
+    return objectRepo.getQueryService()
+      .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @GET

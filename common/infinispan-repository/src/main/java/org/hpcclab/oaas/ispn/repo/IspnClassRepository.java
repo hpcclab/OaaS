@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.infinispan;
+package org.hpcclab.oaas.ispn.repo;
 
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
