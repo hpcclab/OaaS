@@ -14,9 +14,9 @@ public class ArangoResource implements
     container.start();
     return Map.of(
       "oaas.repo.arg.port", String.valueOf(container.getPort()),
-//      "oaas.ispn.argConnection.port", String.valueOf(container.getPort())
-      "oaas.ispn.argConnection.port", "8529",
-      "oaas.ispn.argConnection.pass", "changeme"
+      "oaas.ispn.argConnection.port", String.valueOf(container.getPort())
+//      "oaas.ispn.argConnection.port", "8529",
+//      "oaas.ispn.argConnection.pass", "changeme"
     );
   }
 
