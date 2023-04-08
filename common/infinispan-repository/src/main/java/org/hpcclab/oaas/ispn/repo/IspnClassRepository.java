@@ -47,7 +47,7 @@ implements ClassRepository {
   }
 
   @Override
-  public Uni<List<String>> listSubCls(String clsKey) {
+  public Uni<List<String>> listSubClsKeys(String clsKey) {
     throw StdOaasException.notImplemented();
   }
 }

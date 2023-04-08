@@ -69,7 +69,7 @@ public class ClassResource {
     final var fLimit = limit==null ? 20:limit;
     final var fSort = sort==null ? "_key" : sort;
     var uni = includeSub ?
-      classRepo.listSubCls(name)
+      classRepo.listSubClsKeys(name)
       :Uni.createFrom().item(List.of(name));
     Uni<Pagination<OaasObject>> uni2;
     if (fSort.equals("_"))

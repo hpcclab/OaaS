@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
@@ -23,7 +24,7 @@ import java.util.Objects;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class OaasClass implements Copyable<OaasClass> {
+public class OaasClass implements Copyable<OaasClass>, HasKey {
 
   @JsonProperty("_key")
   String key;

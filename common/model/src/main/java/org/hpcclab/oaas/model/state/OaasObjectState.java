@@ -24,7 +24,8 @@ public class OaasObjectState implements Serializable {
   public OaasObjectState() {
   }
 
-  public OaasObjectState(Map<String, String> overrideUrls, Map<String, String> verIds) {
+  public OaasObjectState(Map<String, String> overrideUrls,
+                         Map<String, String> verIds) {
     this.overrideUrls = overrideUrls;
     this.verIds = verIds;
   }

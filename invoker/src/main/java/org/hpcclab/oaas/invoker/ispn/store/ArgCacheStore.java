@@ -44,14 +44,20 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   ArangoCollectionAsync collectionAsync;
   MarshallableEntryFactory<String, T> marshallableEntryFactory;
 
+  String name;
   Class<T> valueCls;
   Function<T, String> keyExtractor;
 
-  DataConversion dataConversion;
+  DataConversion valueDataConversion;
+  DataConversion keyDataConversion;
 
 
   @Override
   public CompletionStage<Void> start(InitializationContext ctx) {
+    valueDataConversion = ctx.getCache().getAdvancedCache().getValueDataConversion()
+      .withRequestMediaType(MediaType.APPLICATION_OBJECT);
+    keyDataConversion = ctx.getCache().getAdvancedCache().getKeyDataConversion();
+    name = ctx.getCache().getAdvancedCache().getName();
     var conf = ctx.getConfiguration();
     logger.info("starting {}", conf);
     if (conf instanceof ArgCacheStoreConfig argCacheStoreConfig) {
@@ -63,10 +69,6 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
       throw new IllegalStateException();
     }
     this.marshallableEntryFactory = ctx.getMarshallableEntryFactory();
-    this.dataConversion = ctx.getCache()
-      .getAdvancedCache()
-      .getValueDataConversion()
-      .withRequestMediaType(MediaType.APPLICATION_OBJECT);
     return collectionAsync.exists()
       .thenCompose(exist -> {
         if (Boolean.TRUE.equals(exist)) {
@@ -96,12 +98,12 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   @Override
   public CompletionStage<MarshallableEntry<String, T>> load(int segment, Object key) {
     var skey = objToStr(key);
-    logger.debug("load {} {}", segment, skey);
+    logger.debug("[{}]load {} {}", name, segment, skey);
     return collectionAsync.getDocument(skey, valueCls)
       .thenApply(doc -> {
         if (doc==null)
           return null;
-        return marshallableEntryFactory.create(key, dataConversion.toStorage(doc),
+        return marshallableEntryFactory.create(key, valueDataConversion.toStorage(doc),
           new EmbeddedMetadata.Builder()
             .build(),
           new PrivateMetadata.Builder()
@@ -177,10 +179,10 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   CompletionStage<?> batchWrite(List<MarshallableEntry<String, T>> list) {
-    logger.info("batchWrite {}", list.size());
+    logger.info("[{}]batchWrite {}",name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
-      .map(v -> dataConversion.fromStorage(v)
+      .map(v -> valueDataConversion.fromStorage(v)
       )
       .toList();
 
@@ -216,7 +218,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   public Publisher<MarshallableEntry<String, T>> publishEntries(IntSet segments, Predicate<? super String> filter, boolean includeValues) {
     if (!segments.contains(0))
       return AdaptersToReactiveStreams.publisher(Multi.createFrom().empty());
-    logger.debug("publishEntries {} {}", segments, includeValues);
+    logger.debug("[{}]publishEntries {} {}", name, segments, includeValues);
     var query = """
       FOR doc in @@col
       return doc
@@ -229,8 +231,10 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
 
       )
 //                .filter(val -> filter.test(keyExtractor.apply(val)))
-      .map(val -> marshallableEntryFactory.create(keyExtractor.apply(val),
-        dataConversion.toStorage(val)));
+      .map(val -> marshallableEntryFactory.create(
+        keyDataConversion.toStorage(keyExtractor.apply(val)),
+        valueDataConversion.toStorage(val))
+      );
 //                        .invoke(entry -> logger.debug("publish {} {}",segments, entry.getKey()))
     return AdaptersToReactiveStreams.publisher(multi);
   }
@@ -243,7 +247,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
       FOR doc in @@col
       return doc._key
       """;
-    logger.info("publishKeys {}", segments);
+    logger.info("[{}]publishKeys {}", name, segments);
     return AdaptersToReactiveStreams.publisher(
       Multi.createFrom()
         .completionStage(collectionAsync.db()
@@ -258,10 +262,13 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   private String objToStr(Object key) {
-    if (key instanceof WrappedByteArray wrappedByteArray) {
-      return new String(wrappedByteArray.getBytes());
-    } else {
-      return (String) key;
-    }
+//    if (key instanceof WrappedByteArray wrappedByteArray) {
+//      return new String(wrappedByteArray.getBytes());
+//    } else if (key instanceof String s) {
+//      return s;
+//    } else {
+//      return (String) keyDataConversion.fromStorage(key);
+//    }
+    return (String) keyDataConversion.fromStorage(key);
   }
 }

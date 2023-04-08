@@ -15,6 +15,7 @@ import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
@@ -44,6 +45,8 @@ public class PackageResource {
   OcConfig config;
   @Inject
   PackageValidator validator;
+  @Inject
+  ClassResolver classResolver;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -58,14 +61,14 @@ public class PackageResource {
         var functions = pkg.getFunctions();
         var clsMap = classes.stream()
           .collect(Collectors.toMap(OaasClass::getKey, Function.identity()));
-        var changedClasses = classRepo.resolveInheritance(clsMap);
+        var changedClasses = classResolver.resolveInheritance(clsMap);
         var partitioned = changedClasses.values()
           .stream()
           .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
         var newClasses = partitioned.get(true);
         var oldClasses = partitioned.get(false);
         return classRepo
-          .persistWithPreconditionAsync(oldClasses)
+          .atomic().persistWithPreconditionAsync(oldClasses)
           .flatMap(__ -> classRepo.persistAsync(newClasses))
           .flatMap(__ -> funcRepo.persistAsync(functions))
           .replaceWith(() -> {

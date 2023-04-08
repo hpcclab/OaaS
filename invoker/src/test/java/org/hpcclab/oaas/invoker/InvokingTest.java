@@ -6,6 +6,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
+import org.assertj.core.api.Assertions;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -25,6 +26,7 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hpcclab.oaas.test.MockupData.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -151,13 +153,17 @@ class InvokingTest {
     });
 
     var m1 = objectRepo.get(mid1);
-    assertTrue(m1.getStatus().getUpdatedOffset() >= 0);
+    assertThat(m1.getStatus().getUpdatedOffset() )
+      .isPositive();
     assertTrue(m1.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, m1.getData().get("n").asInt());
+
     var m2 = objectRepo.get(mid2);
-    assertTrue(m2.getStatus().getUpdatedOffset() >= 0);
+    assertThat(m2.getStatus().getUpdatedOffset())
+      .isPositive();
     assertTrue(m2.getStatus().getTaskStatus().isCompleted());
-    assertEquals(2, m2.getData().get("n").asInt());
+    assertThat(m2.getData().get("n").asInt())
+      .isEqualTo(2);
   }
 
 

@@ -155,10 +155,10 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo.persistWithPreconditionAsync(oldObjs);
+      return objRepo.atomic().persistWithPreconditionAsync(oldObjs);
     } else {
       return objRepo
-        .persistWithPreconditionAsync(oldObjs)
+        .atomic().persistWithPreconditionAsync(oldObjs)
         .flatMap(__ -> objRepo.persistAsync(newObjs));
     }
   }

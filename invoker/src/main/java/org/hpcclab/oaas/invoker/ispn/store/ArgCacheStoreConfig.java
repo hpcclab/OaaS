@@ -32,7 +32,7 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration {
   }
 
   public static AttributeSet attributeDefinitionSet() {
-    return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS);
+    return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS, CONNECTION_FACTORY);
   }
 
   public Class getValuaCls() {
@@ -45,7 +45,6 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration {
   }
 
   public static class Builder extends AbstractStoreConfigurationBuilder<ArgCacheStoreConfig, Builder> {
-    ArgConnectionFactory connectionFactory;
 
     public Builder(
       PersistenceConfigurationBuilder builder) {

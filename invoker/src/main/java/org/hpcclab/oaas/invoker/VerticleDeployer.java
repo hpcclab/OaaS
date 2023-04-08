@@ -8,7 +8,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
-import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.FunctionState;
@@ -37,8 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VerticleDeployer {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
   @Inject
-  ArgRepositoryInitializer initializer;
-  @Inject
   FunctionRepository funcRepo;
   @Inject
   FunctionListener functionListener;
@@ -55,14 +52,14 @@ public class VerticleDeployer {
 
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
 
-  void init(@Observes StartupEvent ev) {
-    initializer.setup();
+  void init(@Observes StartupEvent event) {
     deployPerCls();
   }
 
   void deployPerFunc() {
-    var funcPage = funcRepo.getQueryService().pagination(0, 1000);
-    var funcList = funcPage.getItems();
+    var funcList = funcRepo.values()
+      .select().first(1000)
+      .collect().asList().await().indefinitely();
 
     functionListener.setHandler(func -> {
       LOGGER.info("receive function[{}] update event", func.getKey());
@@ -76,8 +73,9 @@ public class VerticleDeployer {
   }
 
   void deployPerCls() {
-    var clsPage = clsRepo.getQueryService().pagination(0, 1000);
-    var clsList = clsPage.getItems();
+    var clsList = clsRepo.values()
+      .select().first(1000)
+      .collect().asList().await().indefinitely();
 
     clsListener.setHandler(cls -> {
       LOGGER.info("receive cls[{}] update event", cls.getKey());

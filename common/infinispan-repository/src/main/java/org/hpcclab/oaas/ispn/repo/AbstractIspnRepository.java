@@ -48,14 +48,14 @@ public abstract class AbstractIspnRepository<K, V> implements CachedEntityReposi
     return uni;
   }
 
-  public Uni<MetadataValue<V>> getWithMetaAsync(K key) {
-    Objects.requireNonNull(key);
-    var ctx = Vertx.currentContext();
-    var uni = Uni.createFrom().completionStage(getRemoteCache().getWithMetadataAsync(key));
-    if (ctx!=null)
-      uni = uni.emitOn(ctx::runOnContext);
-    return uni;
-  }
+//  public Uni<MetadataValue<V>> getWithMetaAsync(K key) {
+//    Objects.requireNonNull(key);
+//    var ctx = Vertx.currentContext();
+//    var uni = Uni.createFrom().completionStage(getRemoteCache().getWithMetadataAsync(key));
+//    if (ctx!=null)
+//      uni = uni.emitOn(ctx::runOnContext);
+//    return uni;
+//  }
 
   public Map<K, V> list(Collection<K> keys) {
     Set<K> keySet = keys instanceof Set<K>? (Set<K>) keys: Set.copyOf(keys);

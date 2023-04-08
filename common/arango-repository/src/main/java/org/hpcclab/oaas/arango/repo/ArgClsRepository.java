@@ -81,7 +81,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     return cache;
   }
 
-  public Uni<List<String>> listSubCls(String clsKey) {
+  public Uni<List<String>> listSubClsKeys(String clsKey) {
     var res = subClsCache.getIfPresent(clsKey);
     if (res != null)
       return Uni.createFrom().item(res);
@@ -98,7 +98,8 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
       .invoke(l -> subClsCache.put(clsKey, l));
   }
 
-  public List<OaasClass> loadChildren(String clsKey) {
+  @Override
+  public List<OaasClass> listSubCls(String clsKey) {
     var query = """
       FOR cls IN @@col
         FILTER cls.resolved.identities ANY == @key
@@ -109,50 +110,5 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
         "@col", getCollection().name(),
         "key", clsKey)
     );
-  }
-
-  public OaasClass resolveInheritance(OaasClass baseCls,
-                                      Map<String, OaasClass> clsMap,
-                                      Set<String> path) {
-    if (path.contains(baseCls.getKey())){
-      throw OaasValidationException.errorClassCyclicInheritance(path);
-    }
-    path.add(baseCls.getKey());
-    if (baseCls.getParents() ==null) baseCls.setParents(List.of());
-    LOGGER.info("resolve {} {}", baseCls, baseCls.getParents());
-    var parentClasses = baseCls.getParents()
-      .stream()
-      .map(clsKey -> {
-        OaasClass cls;
-        if (clsMap.containsKey(clsKey))
-          cls = clsMap.get(clsKey);
-        else
-          cls = get(clsKey);
-        if (!cls.getResolved().isFlag()) {
-          cls = resolveInheritance(cls, clsMap, path);
-        }
-        return cls;
-      })
-      .toList();
-    var newCls = classResolver.resolve(baseCls, parentClasses);
-    clsMap.put(baseCls.getKey(), newCls);
-    return newCls;
-  }
-  @Override
-  public Map<String, OaasClass> resolveInheritance(Map<String, OaasClass> clsMap) {
-    var startingClasses = List.copyOf(clsMap.values());
-    var ctxMap = Maps.mutable.ofMap(clsMap);
-    for (var cls : startingClasses) {
-      cls.getResolved().setFlag(false);
-      resolveInheritance(cls, ctxMap, Sets.mutable.empty());
-    }
-    for (var cls : startingClasses) {
-      var children = loadChildren(cls.getKey());
-      for (var child: children) {
-        child.getResolved().setFlag(false);
-        resolveInheritance(child, ctxMap, Sets.mutable.empty());
-      }
-    }
-    return ctxMap;
   }
 }

@@ -21,4 +21,7 @@ public class DataAccessException extends StdOaasException {
     super(message, cause, writableStack, code);
   }
 
+  public static DataAccessException concurrentMod(){
+    throw new DataAccessException("Detected concurrent modification");
+  }
 }

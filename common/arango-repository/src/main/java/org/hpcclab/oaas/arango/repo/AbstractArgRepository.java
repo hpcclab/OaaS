@@ -4,17 +4,21 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDBException;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.entity.DocumentDeleteEntity;
-import com.arangodb.model.*;
+import com.arangodb.model.DocumentCreateOptions;
+import com.arangodb.model.DocumentDeleteOptions;
+import com.arangodb.model.DocumentReplaceOptions;
+import com.arangodb.model.OverwriteMode;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.repository.QueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -22,12 +26,14 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.repo.ArgQueryService.queryOptions;
 
 public abstract class AbstractArgRepository<V>
   implements EntityRepository<String, V> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractArgRepository.class);
 
   protected ArgQueryService<V> queryService;
+  protected ArgAtomicService<V> atomicService;
 
   public abstract ArangoCollection getCollection();
 
@@ -39,9 +45,16 @@ public abstract class AbstractArgRepository<V>
 
   @Override
   public ArgQueryService<V> getQueryService() {
-    if (queryService == null)
+    if (queryService==null)
       queryService = new ArgQueryService<>(this);
     return queryService;
+  }
+
+  @Override
+  public ArgAtomicService<V> atomic() {
+    if (atomicService==null)
+      atomicService = new ArgAtomicService<>(this);
+    return atomicService;
   }
 
   @Override
@@ -50,6 +63,29 @@ public abstract class AbstractArgRepository<V>
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("get[{}] {}", getCollection().name(), key);
     return getCollection().getDocument(key, getValueCls());
+  }
+
+  @Override
+  public Multi<V> values() {
+    var queryString = """
+      FOR doc IN @@col
+        RETURN doc
+      """;
+    Map<String, Object> params = Map.of(
+      "@col",
+      getCollection().name()
+    );
+    return createUni(() -> getAsyncCollection()
+      .db()
+      .query(queryString, params, queryOptions(), getValueCls())
+    )
+      .onItem().transformToMulti(Unchecked.function(cursor -> {
+        try (cursor) {
+          return Multi.createFrom().items(cursor.stream());
+        } catch (IOException e) {
+          throw new ArgDataAccessException(e);
+        }
+      }));
   }
 
   @Override
@@ -122,16 +158,6 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V v) {
-    String key = extractKey(v);
-    if (LOGGER.isDebugEnabled())
-      LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
-    return createUni(() -> getAsyncCollection()
-      .replaceDocument(key, replaceOptions()))
-      .replaceWith(v);
-  }
-
-  @Override
   public Uni<Void> persistAsync(Collection<V> collection) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistAsync(col)[{}] {}",
@@ -142,22 +168,6 @@ public abstract class AbstractArgRepository<V>
         if (!mde.getErrors().isEmpty()) {
           throw new ArgDataAccessException(mde.getErrors());
         }
-      }))
-      .replaceWithVoid();
-  }
-
-  @Override
-  public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
-    if (LOGGER.isDebugEnabled())
-      LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
-        getCollection().name(), collection.size());
-
-    return createUni(() -> getAsyncCollection()
-      .updateDocuments(collection, new DocumentUpdateOptions()
-        .ignoreRevs(false)))
-      .invoke(Unchecked.consumer(entities -> {
-        if (!entities.getErrors().isEmpty())
-          throw new ArgDataAccessException(entities.getErrors());
       }))
       .replaceWithVoid();
   }
@@ -202,7 +212,6 @@ public abstract class AbstractArgRepository<V>
     }
     throw exception;
   }
-
 
 
   static DocumentReplaceOptions replaceOptions() {

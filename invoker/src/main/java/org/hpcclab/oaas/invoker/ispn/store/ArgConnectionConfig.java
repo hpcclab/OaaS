@@ -13,6 +13,6 @@ public interface ArgConnectionConfig {
   @WithDefault("root")
   String user();
   Optional<String> pass();
-  @WithDefault("oaas")
+  @WithDefault("_system")
   String db();
 }

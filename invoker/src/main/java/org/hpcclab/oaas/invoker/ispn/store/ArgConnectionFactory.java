@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn.store;
 
+import com.arangodb.DbName;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.async.ArangoDBAsync;
 import com.arangodb.async.ArangoDatabaseAsync;
@@ -9,7 +10,7 @@ import com.arangodb.mapping.ArangoJack;
 public class ArgConnectionFactory  implements ConnectionFactory<ArangoCollectionAsync>{
   ArgConnectionConfig connectionConfig;
 
-  ArgConnectionFactory(ArgConnectionConfig connectionConfig) {
+  public ArgConnectionFactory(ArgConnectionConfig connectionConfig) {
     this.connectionConfig = connectionConfig;
   }
 
@@ -24,6 +25,7 @@ public class ArgConnectionFactory  implements ConnectionFactory<ArangoCollection
       .acquireHostList(true)
       .serializer(new ArangoJack())
       .build()
-      .db().collection(cacheName);
+      .db(DbName.of(connectionConfig.db()))
+      .collection(cacheName);
   }
 }

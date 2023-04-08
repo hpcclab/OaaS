@@ -38,9 +38,24 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.hpcclab.oaas</groupId>-->
+<!--      <artifactId>arango-repository</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>arangodb-java-driver</artifactId>
+      <version>6.20.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>jackson-dataformat-velocypack</artifactId>
+      <version>4.0.1</version>
+    </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>arango-repository</artifactId>
+      <artifactId>repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

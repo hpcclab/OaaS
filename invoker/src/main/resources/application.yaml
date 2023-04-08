@@ -24,6 +24,17 @@
 oaas:
   log: INFO
   name: invoker
+  ispn:
+    objStore:
+      maxCount: 10000000
+      queueSize: 1000000
+      storageType: HEAP
+    clsStore:
+      maxCount: 100000
+      storageType: HEAP
+    fnStore:
+      maxCount: 100000
+      storageType: HEAP
 
 quarkus:
   naming:

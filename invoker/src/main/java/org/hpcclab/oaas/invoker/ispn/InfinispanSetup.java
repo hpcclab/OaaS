@@ -26,7 +26,7 @@ public class InfinispanSetup {
   EmbeddedCacheManager cacheManager;
   private static final Logger logger = LoggerFactory.getLogger(InfinispanSetup.class);
 
-  public void setup(@Observes StartupEvent event) {
+  public EmbeddedCacheManager setup() {
     // Set up a clustered Cache Manager.
     var dns = System.getenv("ISPN_DNS_PING");
     if (dns!=null) {
@@ -68,11 +68,12 @@ public class InfinispanSetup {
       var hotRodServer = new HotRodServer();
       hotRodServer.start(hotrod, cacheManager);
     }
+    return cacheManager;
   }
 
   @Produces
-  EmbeddedCacheManager cacheManager() {
-    return cacheManager;
+  EmbeddedCacheManager embeddedCacheManager() {
+    return setup();
   }
 
   @PreDestroy
