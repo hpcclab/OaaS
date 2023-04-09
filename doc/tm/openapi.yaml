@@ -222,6 +222,9 @@ components:
           type: string
         origin:
           $ref: '#/components/schemas/ObjectOrigin_Public'
+        revision:
+          format: int64
+          type: integer
         cls:
           type: string
         labels:

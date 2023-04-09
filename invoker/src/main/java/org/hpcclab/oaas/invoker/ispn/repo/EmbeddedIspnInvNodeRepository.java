@@ -1,20 +1,18 @@
 package org.hpcclab.oaas.invoker.ispn.repo;
 
-import org.hpcclab.oaas.invoker.ispn.edge.ObjInvNode;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.repository.ObjectRepository;
+import org.hpcclab.oaas.model.object.ObjectInvNode;
 import org.infinispan.AdvancedCache;
 
-public class EmbeddedIspnInvNodeRepository extends AbsEmbeddedIspnRepository<ObjInvNode> {
+public class EmbeddedIspnInvNodeRepository extends AbsEmbeddedIspnRepository<ObjectInvNode> {
 
-  AdvancedCache<String, ObjInvNode> cache;
+  AdvancedCache<String, ObjectInvNode> cache;
 
-  public EmbeddedIspnInvNodeRepository(AdvancedCache<String, ObjInvNode> cache) {
+  public EmbeddedIspnInvNodeRepository(AdvancedCache<String, ObjectInvNode> cache) {
     this.cache = cache;
   }
 
   @Override
-  AdvancedCache<String, ObjInvNode> getCache() {
+  AdvancedCache<String, ObjectInvNode> getCache() {
     return cache;
   }
 

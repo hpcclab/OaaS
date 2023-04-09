@@ -88,7 +88,7 @@ public class ClassResource {
     var pkg = new OaasPackageContainer();
     pkg.setClasses(List.of(cls))
       .setName(pkgName);
-    return packageResource.create(update, pkg)
+    return packageResource.create(update, false, pkg)
       .map(module -> module.getClasses().isEmpty() ? null:module.getClasses()
         .get(0)
       );

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.smallrye.config.WithDefault;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
@@ -54,8 +55,11 @@ public class PackageResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @JsonView(Views.Public.class)
   public Uni<OaasPackageContainer> create(@RestQuery Boolean update,
+                                          @RestQuery @DefaultValue("false") Boolean overrideDeploy,
                                           OaasPackageContainer packageContainer) {
-    var uni = validator.validate(packageContainer)
+    var options = PackageValidator.ValidationOptions.builder()
+      .overrideDeploymentStatus(overrideDeploy).build();
+    var uni = validator.validate(packageContainer, options)
       .flatMap(pkg -> {
         var classes = pkg.getClasses();
         var functions = pkg.getFunctions();
@@ -113,10 +117,11 @@ public class PackageResource {
   @POST
   @Consumes("text/x-yaml")
   public Uni<OaasPackageContainer> createByYaml(@RestQuery Boolean update,
+                                                @RestQuery @DefaultValue("false") Boolean overrideDeploy,
                                                 String body) {
     try {
       var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
-      return create(update, pkg);
+      return create(update, overrideDeploy, pkg);
     } catch (JsonProcessingException e) {
       throw new StdOaasException(e.getMessage(), 400);
     }

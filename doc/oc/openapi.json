@@ -494,6 +494,13 @@
       "post" : {
         "tags" : [ "Package Resource" ],
         "parameters" : [ {
+          "name" : "overrideDeploy",
+          "in" : "query",
+          "schema" : {
+            "default" : "false",
+            "type" : "boolean"
+          }
+        }, {
           "name" : "update",
           "in" : "query",
           "schema" : {
@@ -1427,6 +1434,10 @@
           },
           "origin" : {
             "$ref" : "#/components/schemas/ObjectOrigin_Public"
+          },
+          "revision" : {
+            "format" : "int64",
+            "type" : "integer"
           },
           "cls" : {
             "type" : "string"

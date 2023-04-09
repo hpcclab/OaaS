@@ -43,4 +43,13 @@ public class OaasObjectState implements Serializable {
       verIds==null? null: Map.copyOf(verIds)
     );
   }
+
+  public void replaceImmutableMap() {
+    if (overrideUrls != null && ! (overrideUrls instanceof HashMap)){
+      overrideUrls = new HashMap<>(overrideUrls);
+    }
+    if (verIds != null && ! (verIds instanceof HashMap)){
+      verIds = new HashMap<>(verIds);
+    }
+  }
 }

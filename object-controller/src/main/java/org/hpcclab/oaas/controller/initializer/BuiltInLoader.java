@@ -46,7 +46,7 @@ public class BuiltInLoader {
         .map(OaasClass::getKey)
         .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
-      pkgService.create(true, pkg)
+      pkgService.create(true, false, pkg)
         .await().indefinitely();
     }
 

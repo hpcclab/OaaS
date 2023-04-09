@@ -30,10 +30,10 @@ oaas:
       queueSize: 1000000
       storageType: HEAP
     clsStore:
-      maxCount: 100000
+      maxCount: 10000
       storageType: HEAP
     fnStore:
-      maxCount: 100000
+      maxCount: 10000
       storageType: HEAP
 
 quarkus:

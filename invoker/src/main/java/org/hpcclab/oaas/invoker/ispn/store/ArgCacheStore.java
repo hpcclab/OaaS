@@ -262,13 +262,9 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   private String objToStr(Object key) {
-//    if (key instanceof WrappedByteArray wrappedByteArray) {
-//      return new String(wrappedByteArray.getBytes());
-//    } else if (key instanceof String s) {
-//      return s;
-//    } else {
-//      return (String) keyDataConversion.fromStorage(key);
-//    }
+    if (key instanceof String s) {
+      return s;
+    }
     return (String) keyDataConversion.fromStorage(key);
   }
 }

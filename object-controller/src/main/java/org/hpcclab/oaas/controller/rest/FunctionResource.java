@@ -59,7 +59,7 @@ public class FunctionResource {
       pkg.setName("default");
     }
 
-    return packageResource.create(update, pkg)
+    return packageResource.create(update, false, pkg)
       .map(OaasPackageContainer::getFunctions);
   }
 

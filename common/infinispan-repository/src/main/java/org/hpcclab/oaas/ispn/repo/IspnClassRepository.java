@@ -40,14 +40,4 @@ implements ClassRepository {
   protected String extractKey(OaasClass oaasClass) {
     return oaasClass.getName();
   }
-
-  @Override
-  public Map<String, OaasClass> resolveInheritance(Map<String, OaasClass> clsMap) {
-    throw StdOaasException.notImplemented();
-  }
-
-  @Override
-  public Uni<List<String>> listSubClsKeys(String clsKey) {
-    throw StdOaasException.notImplemented();
-  }
 }

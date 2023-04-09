@@ -4,8 +4,8 @@ import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.model.object.ObjectInvNode;
 import org.hpcclab.oaas.repository.AbstractGraphStateManager;
-import org.hpcclab.oaas.model.object.ObjectGraph;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.client.hotrod.RemoteCache;
 
@@ -19,7 +19,7 @@ import java.util.Set;
 @ApplicationScoped
 public class MapGraphStateManager extends AbstractGraphStateManager {
 
-  RemoteCache<String, ObjectGraph> graphMap;
+  RemoteCache<String, ObjectInvNode> graphMap;
 
   public MapGraphStateManager() {
     super();
@@ -28,7 +28,7 @@ public class MapGraphStateManager extends AbstractGraphStateManager {
   @Inject
   public MapGraphStateManager(ObjectRepository objRepo,
                               @Remote(InfinispanInit.INVOCATION_GRAPH_CACHE)
-                              RemoteCache<String, ObjectGraph> graphMap) {
+                              RemoteCache<String, ObjectInvNode> graphMap) {
     super(objRepo);
     this.graphMap = graphMap;
   }
@@ -43,7 +43,7 @@ public class MapGraphStateManager extends AbstractGraphStateManager {
     return uni
       .map(og -> {
         if (og == null) return Set.of();
-        return og.getNextIds();
+        return og.getNextInv();
       });
   }
 
@@ -62,8 +62,8 @@ public class MapGraphStateManager extends AbstractGraphStateManager {
     var ctx = Vertx.currentContext();
     var uni = Uni.createFrom().completionStage(
       graphMap.computeAsync(srcId, (key, og)-> {
-        if (og == null) og = new ObjectGraph();
-        og.getNextIds().add(desId);
+        if (og == null) og = new ObjectInvNode();
+        og.getNextInv().add(desId);
         return og;
       }));
     if (ctx!=null)

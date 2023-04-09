@@ -3,7 +3,6 @@ package org.hpcclab.oaas.invoker.ispn;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invoker.ispn.edge.ObjInvNode;
 import org.hpcclab.oaas.invoker.ispn.repo.EmbeddedIspnClsRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EmbeddedIspnFnRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EmbeddedIspnInvNodeRepository;
@@ -14,6 +13,7 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectInvNode;
 import org.infinispan.Cache;
 import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.configuration.cache.CacheMode;
@@ -76,9 +76,9 @@ public class IspnProducer {
 
   @Produces
   EmbeddedIspnInvNodeRepository invNodeRepository() {
-    Cache<String, ObjInvNode> cache;
+    Cache<String, ObjectInvNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      cache = cacheManager.createCache(INV_NODE_CACHE, createDistConfig(config.argConnection(), config.objStore(), ObjInvNode.class));
+      cache = cacheManager.createCache(INV_NODE_CACHE, createDistConfig(config.argConnection(), config.objStore(), ObjectInvNode.class));
     } else {
       cache = cacheManager.getCache(INV_NODE_CACHE);
     }
@@ -96,7 +96,7 @@ public class IspnProducer {
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
-      .value().mediaType(MediaType.APPLICATION_OBJECT_TYPE)
+      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? MediaType.APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
       .transaction()
       .lockingMode(LockingMode.OPTIMISTIC)
       .transactionMode(TransactionMode.NON_TRANSACTIONAL)
@@ -127,7 +127,7 @@ public class IspnProducer {
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
-      .value().mediaType(MediaType.APPLICATION_OBJECT_TYPE)
+      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? MediaType.APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)

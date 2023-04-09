@@ -4,9 +4,9 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invoker.ispn.edge.ObjInvNode;
 import org.hpcclab.oaas.invoker.ispn.repo.EmbeddedIspnInvNodeRepository;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectInvNode;
 import org.hpcclab.oaas.repository.AbstractGraphStateManager;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.ObjectRepository;
@@ -45,11 +45,11 @@ public class IspnGraphStateManager extends AbstractGraphStateManager {
   public Uni<Void> persistEdge(String srcId, String desId) {
     logger.debug("persistEdge {}, {}", srcId, desId);
     return nodeRepo.computeAsync(srcId, (k, node) -> {
-//        logger.debug("InvNode1 {} {}", srcId, node);
+        logger.debug("InvNode1 {} {}", srcId, node);
         if (node==null)
-          node = new ObjInvNode(k);
+          node = new ObjectInvNode(k);
         node.getNextInv().add(desId);
-//        logger.debug("InvNode2 {} {}", srcId, node);
+        logger.debug("InvNode2 {} {}", srcId, node);
         return node;
       })
       .replaceWithVoid();

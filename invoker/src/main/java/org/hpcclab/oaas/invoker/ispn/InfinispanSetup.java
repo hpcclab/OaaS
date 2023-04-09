@@ -50,7 +50,7 @@ public class InfinispanSetup {
 
 
     GlobalConfigurationBuilder globalConfigurationBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder();
-    if (ConfigUtils.getProfiles().contains(LaunchMode.NORMAL.getDefaultProfile())) {
+    if (dns != null) {
       globalConfigurationBuilder
         .transport()
         .defaultTransport()

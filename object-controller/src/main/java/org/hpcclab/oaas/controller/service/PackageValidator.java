@@ -2,9 +2,11 @@ package org.hpcclab.oaas.controller.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import lombok.Builder;
 import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
@@ -27,6 +29,10 @@ public class PackageValidator {
   FunctionRepository functionRepo;
 
   public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg) {
+    return validate(pkg, new ValidationOptions(false));
+  }
+  public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg,
+                                            ValidationOptions options) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
@@ -34,7 +40,7 @@ public class PackageValidator {
       .collect(Collectors.toMap(OaasFunction::getKey, Function.identity()));
     for (OaasFunction function : functions) {
       function.setPkg(pkg.getName());
-      function.validate();
+      function.validate(options.overrideDeploymentStatus);
     }
     for (OaasClass cls : classes) {
       cls.setPkg(pkg.getName());
@@ -117,4 +123,10 @@ public class PackageValidator {
         );
     }
   }
+
+
+  @Builder(toBuilder = true)
+  public record ValidationOptions(
+    boolean overrideDeploymentStatus
+  ){}
 }

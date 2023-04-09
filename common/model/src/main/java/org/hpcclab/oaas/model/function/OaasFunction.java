@@ -85,7 +85,7 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey {
     updateKey();
   }
 
-  public void validate() {
+  public void validate(boolean ignoreDeploy) {
     if (name == null)
       throw new FunctionValidationException("Function's name can not be null");
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
@@ -102,11 +102,14 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey {
         );
       }
     }
-    deploymentStatus = new FunctionDeploymentStatus();
-    if (type ==FunctionType.MACRO || type == FunctionType.LOGICAL){
-      deploymentStatus.setCondition(DeploymentCondition.RUNNING);
-    } else {
-      deploymentStatus.setCondition(DeploymentCondition.PENDING);
+    if (!ignoreDeploy) {
+      if (deploymentStatus==null)
+        deploymentStatus = new FunctionDeploymentStatus();
+      if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
+        deploymentStatus.setCondition(DeploymentCondition.RUNNING);
+      } else {
+        deploymentStatus.setCondition(DeploymentCondition.PENDING);
+      }
     }
 
     if (outputCls != null &&

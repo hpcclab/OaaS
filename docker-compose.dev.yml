@@ -3,17 +3,8 @@ version: '3.1'
 
 services:
 
-#  infinispan:
-#    image: quay.io/infinispan/server
-#    restart: always
-#    ports:
-#      - "11222:11222"
-#    environment:
-#      USER: oaas
-#      PASS: oaas
-
   arangodb:
-    image: arangodb
+    image: arangodb:3.10
     ports:
       - "8529:8529"
     environment:
@@ -24,6 +15,7 @@ services:
   oc:
     depends_on:
       - arangodb
+      - redpanda
 #    image: ghcr.io/pawissanutt/oaas/object-controller
     build:
       context: object-controller
@@ -34,9 +26,9 @@ services:
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
-#      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
       OAAS_OC_PROVISIONTOPIC: msc-provisions
-      OAAS_OC_KAFKAENABLED: 'false'
+      OAAS_OC_KAFKAENABLED: 'true'
       OAAS_OC_STORAGEADAPTERURL: http://sa:8080
       OAAS_REPO_ARG_HOST: arangodb
       OAAS_REPO_ARG_PORT: "8529"
@@ -48,6 +40,7 @@ services:
     restart: always
     depends_on:
       - arangodb
+      - redpanda
 #    image: ghcr.io/pawissanutt/oaas/task-manager
     build:
       context: task-manager
@@ -57,11 +50,10 @@ services:
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
+      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
       OAAS_TM_OBJECTCONTROLLERURL: http://oc:8080
       OAAS_TM_STORAGEADAPTERURL: http://sa:8080
-      OAAS_TM_BROKERURL: http://no.broker
       OAAS_TM_BLOCKINGTIMEOUT: '15'
-      OAAS_TM_NATSURLS: nats://nats:4222
       OAAS_REPO_ARG_HOST: arangodb
       OAAS_REPO_ARG_PORT: "8529"
       OAAS_REPO_ARG_DB: oaas
@@ -89,27 +81,26 @@ services:
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
 
-#  redpanda:
-#    command:
-#      - redpanda
-#      - start
-#      - --smp
-#      - '1'
-#      - --reserve-memory
-#      - 0M
-#      - --overprovisioned
-#      - --node-id
-#      - '0'
-#      - --kafka-addr
-#      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-#      - --advertise-kafka-addr
-#      - PLAINTEXT://redpanda:29092,OUTSIDE://redpanda:9092
-#    # NOTE: Please use the latest version here!
-#    image: docker.vectorized.io/vectorized/redpanda:v21.10.2
-#    container_name: redpanda-1
-#    ports:
-#      - 9092:9092
-#      - 29092:29092
+  redpanda:
+    command:
+      - redpanda
+      - start
+      - --smp
+      - '1'
+      - --reserve-memory
+      - 0M
+      - --overprovisioned
+      - --node-id
+      - '0'
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:29092,OUTSIDE://redpanda:9092
+    image: docker.vectorized.io/vectorized/redpanda:v21.10.2
+    container_name: redpanda-1
+    ports:
+      - 9092:9092
+      - 29092:29092
 
   s3:
     image: minio/minio
@@ -123,6 +114,35 @@ services:
       MINIO_SECRET_KEY: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
     command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+
+  invoker:
+    restart: always
+    depends_on:
+      - arangodb
+      - redpanda
+    build:
+      context: invoker
+      dockerfile: src/main/docker/Dockerfile.jvm
+    deploy:
+      replicas: 3
+#    ports:
+#      - "8091:8080"
+    environment:
+      QUARKUS_CONSOLE_COLOR: 'true'
+      QUARKUS_HTTP_CORS: 'true'
+      OAAS_INVOKER_KAFKA: PLAINTEXT://redpanda:9092
+      OAAS_INVOKER_STORAGEADAPTERURL: http://sa:8080
+      OAAS_ISPN_ARGCONNECTION_HOST: arangodb
+      OAAS_ISPN_ARGCONNECTION_PORT: "8529"
+      OAAS_ISPN_ARGCONNECTION_DB: oaas
+      OAAS_ISPN_ARGCONNECTION_USER: root
+      OAAS_ISPN_ARGCONNECTION_PASS: changeme
+
+  fn:
+    build:
+      context: example/functions/json-update-function
+
+
 
 volumes:
   minio-data:
