@@ -57,7 +57,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-jre-alpine
+    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
   micrometer:
     export:
       json:

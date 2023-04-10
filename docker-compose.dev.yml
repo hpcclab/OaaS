@@ -124,7 +124,7 @@ services:
       context: invoker
       dockerfile: src/main/docker/Dockerfile.jvm
     deploy:
-      replicas: 3
+      replicas: 1
 #    ports:
 #      - "8091:8080"
     environment:
