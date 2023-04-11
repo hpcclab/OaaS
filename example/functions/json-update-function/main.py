@@ -23,7 +23,6 @@ class RandomHandler(oaas.Handler):
         keys = int(ctx.args.get('KEYS', '10'))
         values = int(ctx.args.get('VALUES', '10'))
         inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
-        print(f"inplace {inplace}")
 
         record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
 
@@ -61,9 +60,9 @@ router.register("example.record.merge", MergeHandler())
 @app.post('/')
 async def handle(request: Request):
     body = await request.json()
-    logging.info(f"request {body}")
+    logging.debug(f"request {body}")
     resp = await router.handle_task(body)
-    logging.info(f"completion {resp}")
+    logging.debug(f"completion {resp}")
     return resp
 
 if __name__ == "__main__":
