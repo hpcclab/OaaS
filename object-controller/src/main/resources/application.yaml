@@ -67,8 +67,6 @@ quarkus:
     resources:
       includes:
         - builtin/**
-  opentelemetry:
-    enabled: false
   rest-client:
     allocation-api:
       url: ${oaas.oc.storageAdapterUrl}
