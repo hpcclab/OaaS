@@ -204,6 +204,13 @@ components:
       - INTERNAL
       - PRIVATE
       type: string
+    KvPair_Public:
+      type: object
+      properties:
+        key:
+          type: string
+        val:
+          type: string
     OaasObjectState_Public:
       type: object
       properties:
@@ -211,12 +218,12 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/StringKvPair_Public'
+            $ref: '#/components/schemas/KvPair_Public'
         verIds:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/StringKvPair_Public'
+            $ref: '#/components/schemas/KvPair_Public'
     OaasObject_Public:
       type: object
       properties:
@@ -297,9 +304,10 @@ components:
         fbName:
           type: string
         args:
-          type: object
-          additionalProperties:
-            type: string
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/KvPair_Public'
         inputs:
           type: array
           items:
@@ -347,13 +355,6 @@ components:
         count:
           format: int32
           type: integer
-    StringKvPair_Public:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
     TaskStatus_Public:
       enum:
       - LAZY

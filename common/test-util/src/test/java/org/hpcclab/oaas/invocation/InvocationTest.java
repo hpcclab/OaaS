@@ -232,7 +232,8 @@ class InvocationTest {
     mockEngine.printDebug(ctx);
     assertFalse(ctx.getOutput().getStatus().getTaskStatus().isSubmitted());
     assertTrue(ctx.getSubOutputs().get(0).getStatus().getTaskStatus().isSubmitted());
-    assertTrue(ctx.getSubOutputs().get(0).getOrigin().getArgs().containsKey("key1"));
+    assertThat(ctx.getSubOutputs().get(0).getOrigin().getArgs())
+      .anyMatch(p -> p.getKey().equals("key1"));
   }
 
   @Test

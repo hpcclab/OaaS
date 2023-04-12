@@ -838,6 +838,20 @@ components:
             type: string
         apiPath:
           type: string
+    KvPair:
+      type: object
+      properties:
+        key:
+          type: string
+        val:
+          type: string
+    KvPair_Public:
+      type: object
+      properties:
+        key:
+          type: string
+        val:
+          type: string
     MacroConfig:
       type: object
       properties:
@@ -1021,12 +1035,12 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/StringKvPair_Public'
+            $ref: '#/components/schemas/KvPair_Public'
         verIds:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/StringKvPair_Public'
+            $ref: '#/components/schemas/KvPair_Public'
     OaasObject_Public:
       type: object
       properties:
@@ -1116,7 +1130,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/StringKvPair'
+            $ref: '#/components/schemas/KvPair'
         refs:
           uniqueItems: true
           type: array
@@ -1155,9 +1169,10 @@ components:
         fbName:
           type: string
         args:
-          type: object
-          additionalProperties:
-            type: string
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/KvPair_Public'
         inputs:
           type: array
           items:
@@ -1402,20 +1417,6 @@ components:
         count:
           format: int32
           type: integer
-    StringKvPair:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-    StringKvPair_Public:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
     TaskStatus_Public:
       enum:
       - LAZY

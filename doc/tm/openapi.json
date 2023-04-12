@@ -281,6 +281,17 @@
         "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
+      "KvPair_Public" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "val" : {
+            "type" : "string"
+          }
+        }
+      },
       "OaasObjectState_Public" : {
         "type" : "object",
         "properties" : {
@@ -288,14 +299,14 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/StringKvPair_Public"
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           },
           "verIds" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/StringKvPair_Public"
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           }
         }
@@ -418,9 +429,10 @@
             "type" : "string"
           },
           "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           },
           "inputs" : {
@@ -491,17 +503,6 @@
           "count" : {
             "format" : "int32",
             "type" : "integer"
-          }
-        }
-      },
-      "StringKvPair_Public" : {
-        "type" : "object",
-        "properties" : {
-          "key" : {
-            "type" : "string"
-          },
-          "value" : {
-            "type" : "string"
           }
         }
       },

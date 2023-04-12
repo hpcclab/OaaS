@@ -1155,6 +1155,28 @@
           }
         }
       },
+      "KvPair" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "val" : {
+            "type" : "string"
+          }
+        }
+      },
+      "KvPair_Public" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "val" : {
+            "type" : "string"
+          }
+        }
+      },
       "MacroConfig" : {
         "type" : "object",
         "properties" : {
@@ -1416,14 +1438,14 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/StringKvPair_Public"
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           },
           "verIds" : {
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/StringKvPair_Public"
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           }
         }
@@ -1557,7 +1579,7 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/StringKvPair"
+              "$ref" : "#/components/schemas/KvPair"
             }
           },
           "refs" : {
@@ -1617,9 +1639,10 @@
             "type" : "string"
           },
           "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/KvPair_Public"
             }
           },
           "inputs" : {
@@ -1969,28 +1992,6 @@
           "count" : {
             "format" : "int32",
             "type" : "integer"
-          }
-        }
-      },
-      "StringKvPair" : {
-        "type" : "object",
-        "properties" : {
-          "key" : {
-            "type" : "string"
-          },
-          "value" : {
-            "type" : "string"
-          }
-        }
-      },
-      "StringKvPair_Public" : {
-        "type" : "object",
-        "properties" : {
-          "key" : {
-            "type" : "string"
-          },
-          "value" : {
-            "type" : "string"
           }
         }
       },
