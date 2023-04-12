@@ -25,6 +25,8 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.LockingMode;
 import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.concurrent.IsolationLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,7 @@ import static org.infinispan.commons.dataconversion.MediaType.TEXT_PLAIN_TYPE;
 
 @ApplicationScoped
 public class IspnProducer {
+  private static final Logger logger = LoggerFactory.getLogger( IspnProducer.class );
   public static final String OBJECT_CACHE = "OaasObject";
   public static final String INV_NODE_CACHE = "InvNode";
   public static final String CLASS_CACHE = "OaasClass";
@@ -46,7 +49,9 @@ public class IspnProducer {
   EmbeddedIspnObjectRepository objectRepository() {
     Cache<String, OaasObject> cache;
     if (!cacheManager.cacheExists(OBJECT_CACHE)) {
-      cache = cacheManager.createCache(OBJECT_CACHE, createDistConfig(config.argConnection(), config.objStore(), OaasObject.class));
+      var conf =createDistConfig(config.argConnection(), config.objStore(), OaasObject.class);
+      logger.info("create cache for {} : {}", OBJECT_CACHE,conf);
+      cache = cacheManager.createCache(OBJECT_CACHE, conf);
     } else {
       cache = cacheManager.getCache(OBJECT_CACHE);
     }
@@ -57,7 +62,9 @@ public class IspnProducer {
   EmbeddedIspnClsRepository clsRepository() {
     Cache<String, OaasClass> cache;
     if (!cacheManager.cacheExists(CLASS_CACHE)) {
-      cache = cacheManager.createCache(CLASS_CACHE, createSimpleConfig(config.argConnection(), config.clsStore(), OaasClass.class));
+      var conf =createSimpleConfig(config.argConnection(), config.clsStore(), OaasClass.class);
+      logger.info("create cache for {} : {}", CLASS_CACHE,conf);
+      cache = cacheManager.createCache(CLASS_CACHE, conf);
     } else {
       cache = cacheManager.getCache(CLASS_CACHE);
     }
@@ -67,7 +74,9 @@ public class IspnProducer {
   EmbeddedIspnFnRepository fnRepository() {
     Cache<String, OaasFunction> cache;
     if (!cacheManager.cacheExists(FUNCTION_CACHE)) {
-      cache = cacheManager.createCache(FUNCTION_CACHE, createSimpleConfig(config.argConnection(), config.fnStore(), OaasFunction.class));
+      var conf = createSimpleConfig(config.argConnection(), config.fnStore(), OaasFunction.class);
+      logger.info("create cache for {} : {}", FUNCTION_CACHE,conf);
+      cache = cacheManager.createCache(FUNCTION_CACHE, conf);
     } else {
       cache = cacheManager.getCache(FUNCTION_CACHE);
     }
@@ -78,7 +87,9 @@ public class IspnProducer {
   EmbeddedIspnInvNodeRepository invNodeRepository() {
     Cache<String, ObjectInvNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      cache = cacheManager.createCache(INV_NODE_CACHE, createDistConfig(config.argConnection(), config.objStore(), ObjectInvNode.class));
+      var conf =  createDistConfig(config.argConnection(), config.objStore(), ObjectInvNode.class);
+      logger.info("create cache for {} : {}", INV_NODE_CACHE,conf);
+      cache = cacheManager.createCache(INV_NODE_CACHE, conf);
     } else {
       cache = cacheManager.getCache(INV_NODE_CACHE);
     }

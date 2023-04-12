@@ -28,7 +28,7 @@ oaas:
     objStore:
       maxCount: 10000000
       queueSize: 1000000
-      storageType: HEAP
+      storageType: OFF_HEAP
     clsStore:
       maxCount: 10000
       storageType: HEAP
