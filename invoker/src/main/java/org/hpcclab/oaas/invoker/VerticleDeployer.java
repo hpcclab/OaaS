@@ -63,6 +63,7 @@ public class VerticleDeployer {
 
     functionListener.setHandler(func -> {
       LOGGER.info("receive function[{}] update event", func.getKey());
+      funcRepo.delete(func.getKey());
       handleFunc(func);
     });
     functionListener.start().await().indefinitely();
@@ -79,6 +80,7 @@ public class VerticleDeployer {
 
     clsListener.setHandler(cls -> {
       LOGGER.info("receive cls[{}] update event", cls.getKey());
+      clsRepo.delete(cls.getKey());
       handleCls(cls);
     });
     clsListener.start().await().indefinitely();

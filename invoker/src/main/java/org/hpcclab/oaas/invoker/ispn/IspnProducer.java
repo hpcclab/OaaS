@@ -134,6 +134,7 @@ public class IspnProducer {
                                    IspnConfig.CacheStore cacheStore,
                                    Class<?> valueCls) {
     return new ConfigurationBuilder()
+      .simpleCache(true)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
@@ -141,7 +142,7 @@ public class IspnProducer {
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)
-      .preload(true)
+//      .preload(true)
       .connectionFactory(new ArgConnectionFactory(connectionConfig))
       .shared(false)
       .ignoreModifications(true)
