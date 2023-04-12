@@ -15,10 +15,10 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
-  @ProtoField(number = 2, javaType = HashMap.class)
+  @ProtoField(number = 2)
   Set<KvPair> overrideUrls;
 
-  @ProtoField(number = 3, javaType = HashMap.class)
+  @ProtoField(number = 3)
   Set<KvPair> verIds;
 
 
