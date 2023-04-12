@@ -6,9 +6,10 @@ import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.AdvancedCache;
 
 import java.util.Collection;
+import java.util.function.BiFunction;
 
 public class EmbeddedIspnObjectRepository extends AbsEmbeddedIspnRepository<OaasObject>
-implements ObjectRepository {
+  implements ObjectRepository {
   AdvancedCache<String, OaasObject> cache;
 
   public EmbeddedIspnObjectRepository(AdvancedCache<String, OaasObject> cache) {
@@ -22,7 +23,7 @@ implements ObjectRepository {
 
   @Override
   public OaasObject put(String key, OaasObject value) {
-    if (value.getState() != null) {
+    if (value.getState()!=null) {
       value.getState().replaceImmutableMap();
     }
     return super.put(key, value);
@@ -30,7 +31,7 @@ implements ObjectRepository {
 
   @Override
   public Uni<OaasObject> putAsync(String key, OaasObject value) {
-    if (value.getState() != null) {
+    if (value.getState()!=null) {
       value.getState().replaceImmutableMap();
     }
     return super.putAsync(key, value);
@@ -38,11 +39,22 @@ implements ObjectRepository {
 
   @Override
   public Uni<Void> persistAsync(Collection<OaasObject> collection) {
-    for (var obj: collection) {
-      if (obj.getState() != null) {
+    for (var obj : collection) {
+      if (obj.getState()!=null) {
         obj.getState().replaceImmutableMap();
       }
     }
     return super.persistAsync(collection);
+  }
+
+  @Override
+  public Uni<OaasObject> computeAsync(String key, BiFunction<String, OaasObject, OaasObject> function) {
+    return super.computeAsync(key, (k, v) -> {
+      var obj = function.apply(k, v);
+      if (obj.getState()!=null) {
+        obj.getState().replaceImmutableMap();
+      }
+      return obj;
+    });
   }
 }
