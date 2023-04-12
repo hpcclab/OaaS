@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.model.StringKvPair;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,18 +64,18 @@ public class ObjectUpdate {
     }
     if (updatedKeys!=null && !updatedKeys.isEmpty()) {
       var verIds = updatedKeys.stream()
-        .map(key -> new StringKvPair(key, newVerId))
+        .map(key -> new KvPair(key, newVerId))
         .collect(Collectors.toSet());
       var oldVerIds = obj.getState().getVerIds();
       if (oldVerIds==null || oldVerIds.isEmpty())
         obj.getState().setVerIds(verIds);
       else {
         var tmp = Lists.mutable.withAll(oldVerIds)
-          .toMap(StringKvPair::getKey, StringKvPair::getValue);
+          .toMap(KvPair::getKey, KvPair::getVal);
         for (var e: verIds){
-          tmp.put(e.getKey(), e.getValue());
+          tmp.put(e.getKey(), e.getVal());
         }
-        obj.getState().setVerIds(tmp.entrySet().stream().map(e -> new StringKvPair(e.getKey(), e.getValue())).collect(Collectors.toSet()));
+        obj.getState().setVerIds(tmp.entrySet().stream().map(e -> new KvPair(e.getKey(), e.getValue())).collect(Collectors.toSet()));
       }
     }
   }

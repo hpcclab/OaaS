@@ -1,6 +1,5 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas.model.proto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -9,38 +8,38 @@ import java.util.Map;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StringKvPair {
+public class KvPair {
   @ProtoField(number = 1)
   String key;
   @ProtoField(number = 2)
-  String value;
+  String val;
 
-  public StringKvPair() {
+  public KvPair() {
   }
 
-  public StringKvPair(Map.Entry<String, String> entry) {
+  public KvPair(Map.Entry<String, String> entry) {
     this.key = entry.getKey();
-    this.value = entry.getValue();
+    this.val = entry.getValue();
   }
 
 
   @ProtoFactory
-  public StringKvPair(String key, String value) {
+  public KvPair(String key, String val) {
     this.key = key;
-    this.value = value;
+    this.val = val;
   }
 
   public String getKey() {
     return key;
   }
 
-  public String getValue() {
-    return value;
+  public String getVal() {
+    return val;
   }
 
-  public String setValue(String value) {
-    var tmp = this.value;
-    this.value = value;
+  public String setVal(String val) {
+    var tmp = this.val;
+    this.val = val;
     return tmp;
   }
 
@@ -48,12 +47,12 @@ public class StringKvPair {
   public boolean equals(Object o) {
     if (this==o) return true;
     if (o==null || getClass()!=o.getClass()) return false;
-    StringKvPair that = (StringKvPair) o;
-    return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+    KvPair that = (KvPair) o;
+    return Objects.equals(key, that.key) && Objects.equals(val, that.val);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, value);
+    return Objects.hash(key, val);
   }
 }

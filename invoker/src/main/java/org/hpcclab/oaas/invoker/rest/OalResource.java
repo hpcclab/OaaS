@@ -156,7 +156,7 @@ public class OalResource {
     var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
     if (replaced!= null)
       return Response.status(redirectCode)
-        .location(URI.create(replaced.getValue()))
+        .location(URI.create(replaced.getVal()))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)

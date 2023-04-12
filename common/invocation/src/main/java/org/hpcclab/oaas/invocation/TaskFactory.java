@@ -108,7 +108,7 @@ public class TaskFactory {
     if (verIds!=null && !verIds.isEmpty()) {
       for (var vidEntry : verIds) {
         var url =
-          contentUrlGenerator.generateUrl(obj.getId(), vidEntry.getValue(),
+          contentUrlGenerator.generateUrl(obj.getId(), vidEntry.getVal(),
             vidEntry.getKey(), b64Dac);
         map.put(prefix + vidEntry.getKey(), url);
       }
@@ -116,7 +116,7 @@ public class TaskFactory {
 
     if (obj.getState().getOverrideUrls()!=null) {
       obj.getState().getOverrideUrls()
-        .forEach(e -> map.put(prefix + e.getKey(), e.getValue()));
+        .forEach(e -> map.put(prefix + e.getKey(), e.getVal()));
     }
     if (refs!=null) {
       for (var entry : refs.entrySet()) {

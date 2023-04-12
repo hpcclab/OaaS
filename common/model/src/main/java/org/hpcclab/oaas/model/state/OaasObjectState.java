@@ -3,14 +3,12 @@ package org.hpcclab.oaas.model.state;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.StringKvPair;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -18,17 +16,17 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
   @ProtoField(number = 2, javaType = HashMap.class)
-  Set<StringKvPair> overrideUrls;
+  Set<KvPair> overrideUrls;
 
   @ProtoField(number = 3, javaType = HashMap.class)
-  Set<StringKvPair> verIds;
+  Set<KvPair> verIds;
 
 
   public OaasObjectState() {
   }
 
   @ProtoFactory
-  public OaasObjectState(Set<StringKvPair> overrideUrls, Set<StringKvPair> verIds) {
+  public OaasObjectState(Set<KvPair> overrideUrls, Set<KvPair> verIds) {
     this.overrideUrls = overrideUrls;
     this.verIds = verIds;
   }
@@ -44,14 +42,14 @@ public class OaasObjectState implements Serializable {
     if (verIds == null) return null;
     return verIds.stream()
       .filter(p -> p.getKey().equals(key))
-      .map(StringKvPair::getValue)
+      .map(KvPair::getVal)
       .findFirst().orElse(null);
   }
   public String findOverrideUrl(String key) {
     if (overrideUrls == null) return null;
     return overrideUrls.stream()
       .filter(p -> p.getKey().equals(key))
-      .map(StringKvPair::getValue)
+      .map(KvPair::getVal)
       .findFirst().orElse(null);
   }
 }

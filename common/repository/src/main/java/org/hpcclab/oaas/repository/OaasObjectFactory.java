@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.repository;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.StringKvPair;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.Map;
+
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -52,7 +52,7 @@ public class OaasObjectFactory {
     if (cls.getStateType() != StateType.COLLECTION) {
       var verIds = cls.getStateSpec().getKeySpecs()
         .stream()
-        .map(ks -> new StringKvPair(ks.getName(), id))
+        .map(ks -> new KvPair(ks.getName(), id))
         .collect(Collectors.toSet());
       state.setVerIds(verIds);
     }

@@ -10,6 +10,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
@@ -196,8 +197,9 @@ public class RepoContextLoader implements ContextLoader {
 
   public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
     var tc = new TaskContext();
+    var args = output.getOrigin().getArgs();
     tc.setOutput(output)
-      .setArgs(output.getOrigin().getArgs());
+      .setArgs( args!= null? args.stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)):null);
     var fbName = output.getOrigin().getFbName();
     tc.setFbName(fbName);
     var inputIds = output.getOrigin().getInputs();

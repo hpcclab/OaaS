@@ -13,11 +13,13 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -49,7 +51,7 @@ public class InvApplyingContext extends TaskContext {
     return new ObjectOrigin(
       getMain().getId(),
       getFbName(),
-      finalArgs,
+      finalArgs.entrySet().stream().map(KvPair::new).collect(Collectors.toSet()),
       getInputs().stream().map(OaasObject::getId)
         .toList()
     );

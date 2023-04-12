@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
-import org.hpcclab.oaas.model.StringKvPair;
+import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -144,7 +143,7 @@ public class MockupData {
     .setOrigin(new ObjectOrigin())
     .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
-      .setVerIds(Sets.mutable.of(new StringKvPair("k1", "kkkk")))
+      .setVerIds(Sets.mutable.of(new KvPair("k1", "kkkk")))
     );
 
   public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)

@@ -125,9 +125,9 @@ services:
       context: invoker
       dockerfile: src/main/docker/Dockerfile.jvm
     deploy:
-      replicas: 1
-    ports:
-      - "8091:8080"
+      replicas: 3
+#    ports:
+#      - "8091:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'

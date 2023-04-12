@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
+import org.hpcclab.oaas.model.proto.KvPair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,7 @@ public class ObjectAccessLanguage {
     return ObjectAccessLanguage.builder()
       .target(origin.getParentId())
       .fbName(origin.getFbName())
-      .args(origin.getArgs())
+      .args(origin.getArgs().stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)))
       .inputs(origin.getInputs())
       .build();
   }
