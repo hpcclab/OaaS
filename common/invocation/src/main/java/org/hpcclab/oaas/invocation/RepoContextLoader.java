@@ -47,7 +47,7 @@ public class RepoContextLoader implements ContextLoader {
       .invoke(ctx::setMain)
       .call(() -> loadRefs(ctx.getMain(), ctx))
       .invoke(ctx::setEntry)
-      .map(ignore -> loadClsAndFunc(ctx, request.getFunctionName()))
+      .map(ignore -> loadClsAndFunc(ctx, request.getFbName()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
       .invoke(ctx::setInputs)
       .replaceWith(ctx);

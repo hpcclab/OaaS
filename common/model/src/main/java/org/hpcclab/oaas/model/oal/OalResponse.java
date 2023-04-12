@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.taskmanager.rest;
+package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

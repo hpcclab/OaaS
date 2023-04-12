@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 public class ObjectAccessLanguage {
   final String target;
   final String targetCls;
-  final String functionName;
+  final String fbName;
   final Map<String, String> args;
   final List<String> inputs;
 
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
     return ObjectAccessLanguage.builder()
       .target(origin.getParentId())
-      .functionName(origin.getFbName())
+      .fbName(origin.getFbName())
       .args(origin.getArgs())
       .inputs(origin.getInputs())
       .build();
@@ -38,9 +38,9 @@ public class ObjectAccessLanguage {
         .append(targetCls);
     else
       sb.append(target);
-    if (functionName==null)
+    if (fbName==null)
       return sb.toString();
-    sb.append(':').append(functionName);
+    sb.append(':').append(fbName);
     sb.append('(');
     var size = inputs==null ? 0:inputs.size();
     for (int i = 0; i < size; i++) {
@@ -90,7 +90,7 @@ public class ObjectAccessLanguage {
       oal.target = target;
     }
     if (func==null) return oal.build();
-    oal.functionName = func;
+    oal.fbName = func;
     if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();

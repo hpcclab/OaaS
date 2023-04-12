@@ -273,7 +273,7 @@ components:
           type: string
         targetCls:
           type: string
-        functionName:
+        fbName:
           type: string
         args:
           type: object

@@ -4,15 +4,17 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.handler.AwaitHandler;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
-import org.hpcclab.oaas.taskmanager.service.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,8 @@ public class OalResource {
 
   @Inject
   InvocationHandlerService invocationHandlerService;
+  @Inject
+  AwaitHandler awaitHandler;
 
   @POST
   @JsonView(Views.Public.class)
@@ -46,7 +50,7 @@ public class OalResource {
                                             @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFunctionName()!=null) {
+    if (oal.getFbName()!=null) {
       return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getTarget())
@@ -78,7 +82,7 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFunctionName()!=null) {
+    if (oal.getFbName()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
@@ -93,7 +97,7 @@ public class OalResource {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
           if (!obj.getStatus().getTaskStatus().isSubmitted()) {
-            return invocationHandlerService.awaitCompletion(obj, timeout)
+            return awaitHandler.awaitCompletion(obj, timeout)
               .map(newObj -> createResponse(newObj, filePath));
           }
           return Uni.createFrom().item(createResponse(obj, filePath));
