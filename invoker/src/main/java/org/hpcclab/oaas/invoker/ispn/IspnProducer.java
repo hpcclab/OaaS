@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.infinispan.commons.dataconversion.MediaType.APPLICATION_PROTOSTREAM_TYPE;
-import static org.infinispan.commons.dataconversion.MediaType.TEXT_PLAIN_TYPE;
+import static org.infinispan.commons.dataconversion.MediaType.*;
 
 @ApplicationScoped
 public class IspnProducer {
@@ -107,7 +106,7 @@ public class IspnProducer {
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
-      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? MediaType.APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
+      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
       .transaction()
       .lockingMode(LockingMode.OPTIMISTIC)
       .transactionMode(TransactionMode.NON_TRANSACTIONAL)
@@ -138,7 +137,7 @@ public class IspnProducer {
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
-      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? MediaType.APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
+      .value().mediaType(cacheStore.storageType() == StorageType.HEAP ? APPLICATION_OBJECT_TYPE : APPLICATION_PROTOSTREAM_TYPE)
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)

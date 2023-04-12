@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker.ispn.repo;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.repository.AtomicOperationService;
 import org.hpcclab.oaas.repository.EntityRepository;
@@ -109,6 +110,7 @@ public abstract class AbsEmbeddedIspnRepository<V extends HasKey> implements Ent
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    return toUni(getCache().computeAsync(key, function));
+    var ctx = Vertx.currentContext();
+    return ctx.executeBlocking(Uni.createFrom().item(() -> compute(key,function)), false);
   }
 }
