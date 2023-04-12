@@ -140,7 +140,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   @Override
   public CompletionStage<Boolean> delete(int segment, Object key) {
     var skey = objToStr(key);
-    logger.info("delete {} {}", segment, skey);
+    logger.debug("delete {} {}", segment, skey);
     return collectionAsync.deleteDocument(skey)
       .thenApply(doc -> doc.getId()!=null)
       .exceptionally(err -> {
@@ -179,7 +179,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   CompletionStage<?> batchWrite(List<MarshallableEntry<String, T>> list) {
-    logger.info("[{}]batchWrite {}",name, list.size());
+    logger.debug("[{}]batchWrite {}",name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
       .map(v -> valueDataConversion.fromStorage(v)
@@ -190,7 +190,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   CompletionStage<?> batchRemove(List<String> list) {
-    logger.info("batchRemove {}", list.size());
+    logger.debug("batchRemove {}", list.size());
     return collectionAsync.deleteDocuments(list);
   }
 
@@ -247,7 +247,7 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
       FOR doc in @@col
       return doc._key
       """;
-    logger.info("[{}]publishKeys {}", name, segments);
+    logger.debug("[{}]publishKeys {}", name, segments);
     return AdaptersToReactiveStreams.publisher(
       Multi.createFrom()
         .completionStage(collectionAsync.db()

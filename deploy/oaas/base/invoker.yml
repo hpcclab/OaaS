@@ -97,10 +97,6 @@ spec:
       protocol: TCP
       port: 11222
       targetPort: 11222
-    - name: ping
-      protocol: TCP
-      port: 8888
-      targetPort: 8888
 
 ---
 apiVersion: v1
