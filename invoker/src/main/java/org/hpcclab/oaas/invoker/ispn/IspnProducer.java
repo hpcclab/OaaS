@@ -134,7 +134,8 @@ public class IspnProducer {
                                    IspnConfig.CacheStore cacheStore,
                                    Class<?> valueCls) {
     return new ConfigurationBuilder()
-      .simpleCache(true)
+      .clustering()
+      .cacheMode(CacheMode.LOCAL)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
