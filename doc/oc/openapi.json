@@ -1413,15 +1413,17 @@
         "type" : "object",
         "properties" : {
           "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringKvPair_Public"
             }
           },
           "verIds" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringKvPair_Public"
             }
           }
         }
@@ -1552,9 +1554,10 @@
             }
           },
           "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringKvPair"
             }
           },
           "refs" : {
@@ -1966,6 +1969,28 @@
           "count" : {
             "format" : "int32",
             "type" : "integer"
+          }
+        }
+      },
+      "StringKvPair" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "StringKvPair_Public" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
           }
         }
       },

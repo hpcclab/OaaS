@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.hpcclab.oaas.model.StringKvPair;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,9 +41,9 @@ public class ObjectUpdate {
   }
 
   public void filterKeys(OaasClass cls) {
-    if (updatedKeys == null || updatedKeys.isEmpty())
+    if (updatedKeys==null || updatedKeys.isEmpty())
       return;
-    if (cls.getStateType() == StateType.COLLECTION)
+    if (cls.getStateType()==StateType.COLLECTION)
       return;
     updatedKeys = Sets.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .collect(KeySpecification::getName)
@@ -50,30 +51,33 @@ public class ObjectUpdate {
   }
 
   public void update(OaasObject obj, String newVerId) {
-    if (obj ==null)
+    if (obj==null)
       return;
-    if (data != null)
+    if (data!=null)
       obj.setData(data);
-    if (refs != null && ! refs.isEmpty()) {
+    if (refs!=null && !refs.isEmpty()) {
       var map = obj.getRefs()
         .stream()
         .collect(Collectors.toMap(ObjectReference::getName, Function.identity()));
-      for (var ref: refs) {
+      for (var ref : refs) {
         map.put(ref.getName(), ref);
       }
       obj.setRefs(Set.copyOf(map.values()));
     }
-    if (updatedKeys != null && !updatedKeys.isEmpty()) {
+    if (updatedKeys!=null && !updatedKeys.isEmpty()) {
       var verIds = updatedKeys.stream()
-        .map(key -> Map.entry(key, newVerId))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .map(key -> new StringKvPair(key, newVerId))
+        .collect(Collectors.toSet());
       var oldVerIds = obj.getState().getVerIds();
-      if (oldVerIds == null || oldVerIds.isEmpty())
+      if (oldVerIds==null || oldVerIds.isEmpty())
         obj.getState().setVerIds(verIds);
       else {
-        var tmp = Maps.mutable.ofMap(oldVerIds);
-        tmp.putAll(verIds);
-        obj.getState().setVerIds(tmp);
+        var tmp = Lists.mutable.withAll(oldVerIds)
+          .toMap(StringKvPair::getKey, StringKvPair::getValue);
+        for (var e: verIds){
+          tmp.put(e.getKey(), e.getValue());
+        }
+        obj.getState().setVerIds(tmp.entrySet().stream().map(e -> new StringKvPair(e.getKey(), e.getValue())).collect(Collectors.toSet()));
       }
     }
   }

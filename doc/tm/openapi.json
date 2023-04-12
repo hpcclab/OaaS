@@ -285,15 +285,17 @@
         "type" : "object",
         "properties" : {
           "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringKvPair_Public"
             }
           },
           "verIds" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringKvPair_Public"
             }
           }
         }
@@ -489,6 +491,17 @@
           "count" : {
             "format" : "int32",
             "type" : "integer"
+          }
+        }
+      },
+      "StringKvPair_Public" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
           }
         }
       },

@@ -21,40 +21,4 @@ public class EmbeddedIspnObjectRepository extends AbsEmbeddedIspnRepository<Oaas
     return cache;
   }
 
-  @Override
-  public OaasObject put(String key, OaasObject value) {
-    if (value.getState()!=null) {
-      value.getState().replaceImmutableMap();
-    }
-    return super.put(key, value);
-  }
-
-  @Override
-  public Uni<OaasObject> putAsync(String key, OaasObject value) {
-    if (value.getState()!=null) {
-      value.getState().replaceImmutableMap();
-    }
-    return super.putAsync(key, value);
-  }
-
-  @Override
-  public Uni<Void> persistAsync(Collection<OaasObject> collection) {
-    for (var obj : collection) {
-      if (obj.getState()!=null) {
-        obj.getState().replaceImmutableMap();
-      }
-    }
-    return super.persistAsync(collection);
-  }
-
-  @Override
-  public Uni<OaasObject> computeAsync(String key, BiFunction<String, OaasObject, OaasObject> function) {
-    return super.computeAsync(key, (k, v) -> {
-      var obj = function.apply(k, v);
-      if (obj.getState()!=null) {
-        obj.getState().replaceImmutableMap();
-      }
-      return obj;
-    });
-  }
 }

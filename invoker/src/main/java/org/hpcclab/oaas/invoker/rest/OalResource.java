@@ -153,9 +153,10 @@ public class OalResource {
       }
     }
     var oUrl = object.getState().getOverrideUrls();
-    if (oUrl!=null && oUrl.containsKey(filePath))
+    var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
+    if (replaced!= null)
       return Response.status(redirectCode)
-        .location(URI.create(oUrl.get(filePath)))
+        .location(URI.create(replaced.getValue()))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)

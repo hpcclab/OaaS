@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.StringKvPair;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class ObjectConstructRequest {
   ObjectNode embeddedRecord;
   Set<String> labels = Set.of();
   Set<String> keys = Set.of();
-  Map<String, String> overrideUrls;
+  Set<StringKvPair> overrideUrls;
   Set<ObjectReference> refs;
   List<ObjectConstructRequest> streamConstructs;
 

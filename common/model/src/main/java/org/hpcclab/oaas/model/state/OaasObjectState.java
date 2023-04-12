@@ -3,53 +3,40 @@ package org.hpcclab.oaas.model.state;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.StringKvPair;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState implements Serializable {
   @ProtoField(number = 2, javaType = HashMap.class)
-  Map<String,String> overrideUrls;
+  Set<StringKvPair> overrideUrls;
 
   @ProtoField(number = 3, javaType = HashMap.class)
-  Map<String,String> verIds;
+  Set<StringKvPair> verIds;
 
 
   public OaasObjectState() {
   }
 
-  public OaasObjectState(Map<String, String> overrideUrls,
-                         Map<String, String> verIds) {
-    this.overrideUrls = overrideUrls;
-    this.verIds = verIds;
-  }
-
   @ProtoFactory
-  public OaasObjectState(HashMap<String, String> overrideUrls,
-                         HashMap<String, String> verIds) {
+  public OaasObjectState(Set<StringKvPair> overrideUrls, Set<StringKvPair> verIds) {
     this.overrideUrls = overrideUrls;
     this.verIds = verIds;
   }
 
   public OaasObjectState copy() {
     return new OaasObjectState(
-      overrideUrls ==null? null: Map.copyOf(overrideUrls),
-      verIds==null? null: Map.copyOf(verIds)
+      overrideUrls ==null? null: Set.copyOf(overrideUrls),
+      verIds==null? null: Set.copyOf(verIds)
     );
-  }
-
-  public void replaceImmutableMap() {
-    if (overrideUrls != null && ! (overrideUrls instanceof HashMap)){
-      overrideUrls = new HashMap<>(overrideUrls);
-    }
-    if (verIds != null && ! (verIds instanceof HashMap)){
-      verIds = new HashMap<>(verIds);
-    }
   }
 }
