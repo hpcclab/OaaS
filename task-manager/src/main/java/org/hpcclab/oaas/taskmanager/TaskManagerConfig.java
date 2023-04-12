@@ -15,4 +15,5 @@ public interface TaskManagerConfig {
   int h2ConnectionPoolMaxSize();
   @WithDefault("oaas-invoke-")
   String invokeTopicPrefix();
+  String invokerUrl();
 }

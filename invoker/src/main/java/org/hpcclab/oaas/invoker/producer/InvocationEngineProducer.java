@@ -4,13 +4,17 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.*;
+import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
 import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
+import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,4 +75,11 @@ public class InvocationEngineProducer {
   ObjectCompletionPublisher completionPublisher() {
     return new ObjectCompletionPublisher.Noop();
   }
+
+
+  @Produces
+  InvocationHandlerService invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueSender sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
+    return new InvocationHandlerService(router, invocationExecutor, sender, invocationValidator, idGenerator);
+  }
+
 }

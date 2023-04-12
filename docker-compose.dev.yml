@@ -54,6 +54,7 @@ services:
       OAAS_TM_OBJECTCONTROLLERURL: http://oc:8080
       OAAS_TM_STORAGEADAPTERURL: http://sa:8080
       OAAS_TM_BLOCKINGTIMEOUT: '15'
+      OAAS_TM_INVOKERURL: http://invoker:8080
       OAAS_REPO_ARG_HOST: arangodb
       OAAS_REPO_ARG_PORT: "8529"
       OAAS_REPO_ARG_DB: oaas

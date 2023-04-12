@@ -4,18 +4,11 @@
       port: 8090
   oaas:
     log: DEBUG
-    tm:
-      brokerUrl: http://localhost:8080
 
-#"%prod":
-#  quarkus:
-#    infinispan-client:
-#      auth-username: ${infinispan.username:}
-#      auth-password: ${infinispan.password:}
-#      server-list: ${infinispan.server:}
 
 oaas:
   log: INFO
+
 
 quarkus:
   http:
@@ -47,10 +40,10 @@ quarkus:
         enabled: true
         path: jsonmetrics
   rest-client:
-    TaskBrokerService:
-      url: ${oaas.tm.brokerUrl}
-  opentelemetry:
-    enabled: false
+    RemoteInvocationHandler:
+      url: ${oaas.tm.invokerUrl}
+      connection-pool-size: ${oaas.tm.connectionPoolMaxSize}
+      http2: true
 
 
 mp:

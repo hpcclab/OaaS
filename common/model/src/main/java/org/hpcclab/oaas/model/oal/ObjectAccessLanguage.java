@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.oal;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -21,6 +22,15 @@ public class ObjectAccessLanguage {
   final String fbName;
   final Map<String, String> args;
   final List<String> inputs;
+
+  @JsonCreator
+  public ObjectAccessLanguage(String target, String targetCls, String fbName, Map<String, String> args, List<String> inputs) {
+    this.target = target;
+    this.targetCls = targetCls;
+    this.fbName = fbName;
+    this.args = args;
+    this.inputs = inputs;
+  }
 
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
     return ObjectAccessLanguage.builder()
