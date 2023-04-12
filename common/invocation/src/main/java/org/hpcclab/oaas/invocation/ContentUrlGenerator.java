@@ -28,7 +28,7 @@ public class ContentUrlGenerator {
                             AccessLevel level) {
     if (obj.getState().getVerIds() == null || obj.getState().getVerIds().isEmpty())
       throw StdOaasException.notKeyInObj(obj.getId(),404);
-    var vid = obj.getState().getVerIds().get(file);
+    var vid = obj.getState().findVerId(file);
     if (vid == null)
       throw StdOaasException.notKeyInObj(obj.getId(),404);
     var dac = DataAccessContext.generate(obj, level)

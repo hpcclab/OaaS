@@ -39,4 +39,19 @@ public class OaasObjectState implements Serializable {
       verIds==null? null: Set.copyOf(verIds)
     );
   }
+
+  public String findVerId(String key) {
+    if (verIds == null) return null;
+    return verIds.stream()
+      .filter(p -> p.getKey().equals(key))
+      .map(StringKvPair::getValue)
+      .findFirst().orElse(null);
+  }
+  public String findOverrideUrl(String key) {
+    if (overrideUrls == null) return null;
+    return overrideUrls.stream()
+      .filter(p -> p.getKey().equals(key))
+      .map(StringKvPair::getValue)
+      .findFirst().orElse(null);
+  }
 }

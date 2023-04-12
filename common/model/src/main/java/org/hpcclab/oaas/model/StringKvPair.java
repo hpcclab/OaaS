@@ -1,12 +1,15 @@
 package org.hpcclab.oaas.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Map;
 import java.util.Objects;
 
-public class StringKvPair implements Map.Entry<String, String>{
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class StringKvPair {
   @ProtoField(number = 1)
   String key;
   @ProtoField(number = 2)
@@ -22,22 +25,19 @@ public class StringKvPair implements Map.Entry<String, String>{
 
 
   @ProtoFactory
-  public StringKvPair(String key, String val) {
+  public StringKvPair(String key, String value) {
     this.key = key;
-    this.value = val;
+    this.value = value;
   }
 
-  @Override
   public String getKey() {
     return key;
   }
 
-  @Override
   public String getValue() {
     return value;
   }
 
-  @Override
   public String setValue(String value) {
     var tmp = this.value;
     this.value = value;

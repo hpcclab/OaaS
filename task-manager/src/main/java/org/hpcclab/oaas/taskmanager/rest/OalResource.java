@@ -162,10 +162,10 @@ public class OalResource {
         return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
       }
     }
-    var oUrl = object.getState().getOverrideUrls();
-    if (oUrl!=null && oUrl.containsKey(filePath))
+    var oUrl = object.getState().findOverrideUrl(filePath);
+    if (oUrl!=null)
       return Response.status(redirectCode)
-        .location(URI.create(oUrl.get(filePath)))
+        .location(URI.create(oUrl))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)
