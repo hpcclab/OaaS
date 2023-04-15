@@ -122,14 +122,6 @@ public class InvocationExecutor {
       output.markAsSubmitted(null, false);
     var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
-//      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
-//      .invoke(tc -> {
-//        if (tc.getMain()!=null)
-//          tc.getMain().update(ctx.getMain(), tc.getId().getVId());
-//        if (output!=null)
-//          output.updateStatus(tc);
-//        ctx.setCompletion(tc);
-//      })
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
       .call(tc -> {
         List<OaasObject> list = tc.getMain()!=null ?

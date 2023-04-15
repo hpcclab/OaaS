@@ -26,18 +26,23 @@ public class CompletedStateUpdater {
 
   void updateState(TaskDetail task, TaskCompletion completion) {
     var main = task.getMain();
+    var out = task.getOutput();
 
     if (main!=null) {
       if (completion.getMain()!=null) {
         completion.getMain().update(main, task.getVId());
+        if (out == null && completion.isSuccess())
+          main.getStatus().set(completion);
       }
       if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
         main.getStatus().setUpdatedOffset(iac.getMqOffset());
     }
 
-    var out = task.getOutput();
     if (out!=null) {
-      out.updateStatus(completion);
+      out.getStatus().set(completion);
+      if (completion.getOutput() != null)
+        completion.getOutput().update(out, completion
+          .getId().getVId());
       if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
         out.getStatus().setUpdatedOffset(iac.getMqOffset());
     }

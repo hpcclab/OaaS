@@ -99,12 +99,12 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
     );
   }
 
-  public void updateStatus(TaskCompletion taskCompletion) {
-    status.set(taskCompletion);
-    if (taskCompletion.getOutput() != null)
-      taskCompletion.getOutput().update(this, taskCompletion
-        .getId().getVId());
-  }
+//  public void updateStatus(TaskCompletion taskCompletion) {
+//    status.set(taskCompletion);
+//    if (taskCompletion.getOutput() != null)
+//      taskCompletion.getOutput().update(this, taskCompletion
+//        .getId().getVId());
+//  }
 
 
 
