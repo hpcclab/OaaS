@@ -84,6 +84,7 @@ public class InvocationHandlerService {
             .macro(ctx.function().getType()==FunctionType.MACRO)
             .function(ctx.function().getKey())
             .partKey(ctx.main()!=null ? ctx.main().getKey():null)
+            .queTs(System.currentTimeMillis())
             .invId(idGenerator.generate());
           if (ctx.function().getType()==FunctionType.MACRO) {
             addMacroIds(builder, ctx.function().getMacro());

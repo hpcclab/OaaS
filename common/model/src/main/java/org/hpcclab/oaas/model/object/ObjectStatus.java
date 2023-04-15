@@ -15,6 +15,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
@@ -40,7 +41,6 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @JsonIgnore
   String originator;
   @ProtoField(9)
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   String errorMsg;
 
   @ProtoField(value = 10, defaultValue = "-1")
