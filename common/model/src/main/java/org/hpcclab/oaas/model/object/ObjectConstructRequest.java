@@ -12,7 +12,7 @@ import java.util.Set;
 @Accessors(chain = true)
 public class ObjectConstructRequest {
   String cls;
-  ObjectNode embeddedRecord;
+  ObjectNode data;
   Set<String> labels = Set.of();
   Set<String> keys = Set.of();
   Set<KvPair> overrideUrls;

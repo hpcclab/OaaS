@@ -1558,7 +1558,7 @@
           "cls" : {
             "type" : "string"
           },
-          "embeddedRecord" : {
+          "data" : {
             "$ref" : "#/components/schemas/ObjectNode"
           },
           "labels" : {

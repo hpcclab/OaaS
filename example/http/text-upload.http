@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "cls": "example.text",
-  "embeddedRecord": {},
+  "data": {},
   "labels": ["test-empty"],
   "keys": ["text"],
   "overrideUrls": {}

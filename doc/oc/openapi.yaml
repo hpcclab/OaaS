@@ -1114,7 +1114,7 @@ components:
       properties:
         cls:
           type: string
-        embeddedRecord:
+        data:
           $ref: '#/components/schemas/ObjectNode'
         labels:
           uniqueItems: true

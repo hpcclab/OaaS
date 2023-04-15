@@ -60,6 +60,8 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
     for (InvocationNode node : readyNodes) {
       var ctx = node.getCtx();
       var task = taskFactory.genTask(ctx);
+      if (ctx.getRequest() != null && task.getOutput() != null)
+        task.getOutput().getStatus().setQueTs(ctx.getRequest().queTs());
       syncInvoker.invoke(task)
         .flatMap(cmp -> completedStateUpdater.handleComplete(ctx, cmp))
         .invoke(() -> node.setCompleted(true))

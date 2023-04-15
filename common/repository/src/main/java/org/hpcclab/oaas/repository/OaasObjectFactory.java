@@ -40,7 +40,7 @@ public class OaasObjectFactory {
                                String id) {
     var obj = OaasObject.createFromClasses(cls);
     obj.setId(id);
-    obj.setData(construct.getEmbeddedRecord());
+    obj.setData(construct.getData());
     obj.setLabels(construct.getLabels());
     obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());

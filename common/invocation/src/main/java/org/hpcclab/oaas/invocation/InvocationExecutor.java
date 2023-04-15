@@ -147,8 +147,11 @@ public class InvocationExecutor {
     if (logger.isDebugEnabled())
       logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
     var output = ctx.getOutput();
-    if (output != null)
+    if (output != null) {
       output.markAsSubmitted(null, false);
+      if (ctx.getRequest() != null)
+        output.getStatus().setQueTs(ctx.getRequest().queTs());
+    }
     var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
     return uni
 //      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
