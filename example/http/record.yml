@@ -5,8 +5,8 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19
-#        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+#        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
 #        targetConcurrency: 16
 #        minScale: -1
 #        maxScale: -1
@@ -19,8 +19,8 @@ functions:
     validation: {}
     provision:
       knative:
-        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19
-#        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+#        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
 
   - name: record.chain-update
     type: MACRO
