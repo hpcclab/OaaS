@@ -1,4 +1,4 @@
-= Video Transcoding Function
+= String Concatenation Function
 :toc:
 :toc-placement: preamble
 :toclevels: 2
@@ -13,5 +13,6 @@ The OaaS platform still does not have SDK for function implementation. The examp
 == Build
 [source,bash]
 ----
-docker build -t ghcr.io/hpcclab/oaas/transcode-function .
+./mvnw package
+docker build -f src/main/docker/Dockerfile.jvm -t ghcr.io/hpcclab/oaas/concat-fn-java .
 ----

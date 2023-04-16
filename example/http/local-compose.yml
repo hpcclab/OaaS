@@ -5,9 +5,9 @@ functions:
     validation: { }
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/json-update-function:dev
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
     deploymentStatus:
-      invocationUrl: "http://fn:8080/"
+      invocationUrl: "http://json-update-fn:8080/"
       condition: RUNNING
 
   - name: record.merge
@@ -15,9 +15,9 @@ functions:
     validation: { }
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/json-update-function:dev
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
     deploymentStatus:
-      invocationUrl: "http://fn:8080/"
+      invocationUrl: "http://json-update-fn:8080/"
       condition: RUNNING
 
   - name: record.chain-update
@@ -44,6 +44,18 @@ functions:
           args:
             INPLACE: "false"
       export: record3
+  - name: concat
+    type: TASK
+    outputCls: example.text
+    validation: {}
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
+    variableDescriptions:
+      - name: append
+    deploymentStatus:
+      invocationUrl: "http://concat-fn:8080/"
+      condition: RUNNING
   - name: record.chain-update-atomic
     type: MACRO
     macro:
@@ -97,3 +109,18 @@ classes:
         name: chain-atomic
         function: .record.chain-update-atomic
         outputCls: .record
+  - name: text
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: example.concat
+      - access: PUBLIC
+        function: example.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"

@@ -71,8 +71,8 @@ services:
       - "8090:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
-      OAAS_SA_S3_URL: http://s3
-      OAAS_SA_S3_BUCKET: msc
+      OAAS_SA_S3_URL: http://s3:9000
+      OAAS_SA_S3_BUCKET: oaas
       OAAS_SA_S3_ACCESSKEY: minio_access_key
       OAAS_SA_S3_SECRETKEY: minio_secret_key
       OAAS_SA_S3_PUBLICURL: http://localhost:9000
@@ -139,9 +139,13 @@ services:
       OAAS_ISPN_ARGCONNECTION_USER: root
       OAAS_ISPN_ARGCONNECTION_PASS: changeme
 
-  fn:
+  json-update-fn:
     build:
-      context: example/functions/json-update-function
+      context: example/functions/json-update-fn-py
+
+  concat-fn:
+    build:
+      context: example/functions/concat-fn-py
 
 
 

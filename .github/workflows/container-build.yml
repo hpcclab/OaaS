@@ -37,9 +37,9 @@ jobs:
 
     - name: Build example concat function
       run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.image="${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}"
-      working-directory: example/functions/concat-function
+      working-directory: example/functions/concat-fn-java
       env:
-        CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-function
+        CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-fn-java
 
 #    - name: Build container image with Jib (native image)
 #      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":native-${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests

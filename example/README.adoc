@@ -10,11 +10,11 @@
 In the example usages, we provide the example scripts to show how to deploy the application and invoke the function in OaaS. The example scripts begin with creating the class and its function, then constructing objects based on the given class. Then, we show how to use the Object Access Interface to request the state data or invoke a function. The full scripts are provided inside an HTTP directory.
 
 * link:http/text.yml[Text class specification example]
-** link:http/text-upload.http[Example HTTP script to execute this tutorial]
-** link:functions/concat-function[Concat function source code]
+** link:http/text.http[Example HTTP script to execute this tutorial]
+** link:functions/concat-fn-java[Concat function source code]
 * link:http/video.yml[Video class specification example]
-** link:http/transcode-upload.http[Example HTTP script to execute this tutorial]
-** link:functions/transcode-function/[Transcode function source code]
+** link:http/transcode.http[Example HTTP script to execute this tutorial]
+** link:functions/transcode-fn-py/[Transcode function source code]
 
 NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/oc/openapi.json[link].
 
