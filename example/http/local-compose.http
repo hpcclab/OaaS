@@ -22,7 +22,7 @@ GET http://localhost:8089/oal/{{obj_0_id}}
 ###
 GET http://localhost:8089/oal/{{obj_0_id}}:random-inplace()?async=false
 ###
-GET http://localhost:8091/oal/{{obj_0_id}}:random-inplace()?async=true
+GET http://localhost:8089/oal/{{obj_0_id}}:random-inplace()?async=true
 ###
 GET http://localhost:8089/oal/{{obj_0_id}}:random?async=true
 
@@ -58,4 +58,4 @@ Content-Type: text/plain
 TEST_TEXT
 
 ###
-GET http://localhost:8091/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)/text
+GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)/text

@@ -121,13 +121,14 @@ services:
     depends_on:
       - arangodb
       - redpanda
+#    image: ghcr.io/pawissanutt/oaas/invoker
     build:
       context: invoker
       dockerfile: src/main/docker/Dockerfile.jvm
     deploy:
       replicas: 1
     ports:
-      - "8091:8080"
+      - "8089:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
@@ -142,10 +143,12 @@ services:
   json-update-fn:
     build:
       context: example/functions/json-update-fn-py
+#    image: ghcr.io/pawissanutt/oaas/json-update-fn-py
 
   concat-fn:
     build:
       context: example/functions/concat-fn-py
+#    image: ghcr.io/pawissanutt/oaas/concat-fn-py
 
 
 
