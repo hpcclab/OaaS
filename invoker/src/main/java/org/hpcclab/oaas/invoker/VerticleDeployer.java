@@ -8,18 +8,19 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
-import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.FunctionState;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,47 +36,90 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VerticleDeployer {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
   @Inject
-  ArgRepositoryInitializer initializer;
-  @Inject
   FunctionRepository funcRepo;
+  @Inject
+  FunctionListener functionListener;
+  @Inject
+  ClassRepository clsRepo;
+  @Inject
+  ClassListener clsListener;
   @Inject
   VerticleFactory<?> verticleFactory;
   @Inject
   Vertx vertx;
   @Inject
   InvokerConfig config;
-  @Inject
-  FunctionListener functionListener;
 
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
 
-  void init(@Observes StartupEvent ev) {
-    initializer.setup();
-    var funcPage = funcRepo.pagination(0, 1000);
-    var funcList = funcPage.getItems();
+  void init(@Observes StartupEvent event) {
+    deployPerCls();
+  }
+
+  void deployPerFunc() {
+    var funcList = funcRepo.values()
+      .select().first(1000)
+      .collect().asList().await().indefinitely();
 
     functionListener.setHandler(func -> {
       LOGGER.info("receive function[{}] update event", func.getKey());
-      if (func.getState()==FunctionState.ENABLED) {
-        deployVerticleIfNew(func.getKey())
-          .subscribe().with(__ -> {
-            },
-            e -> LOGGER.error("Cannot deploy verticle for function {}", func.getKey()));
-      } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
-        deleteVerticle(func.getKey())
-          .subscribe().with(__ -> {
-            },
-            e -> LOGGER.error("Cannot delete verticle for function {}", func.getKey()));
-      }
+      funcRepo.delete(func.getKey());
+      handleFunc(func);
     });
     functionListener.start().await().indefinitely();
 
-    Multi.createFrom().iterable(funcList)
-      .filter(function -> function.getState()==FunctionState.ENABLED)
-      .filter(function -> function.getType()!=FunctionType.LOGICAL)
-      .onItem().transformToUniAndConcatenate(func -> deployVerticleIfNew(func.getKey()))
-      .collect().asList()
-      .await().indefinitely();
+    for (var func : funcList) {
+      handleFunc(func);
+    }
+  }
+
+  void deployPerCls() {
+    var clsList = clsRepo.values()
+      .select().first(1000)
+      .collect().asList().await().indefinitely();
+
+    clsListener.setHandler(cls -> {
+      LOGGER.info("receive cls[{}] update event", cls.getKey());
+      clsRepo.delete(cls.getKey());
+      handleCls(cls);
+    });
+    clsListener.start().await().indefinitely();
+
+    for (var cls : clsList) {
+      handleCls(cls);
+    }
+  }
+
+
+  void handleFunc(OaasFunction func) {
+    if (func.getType()==FunctionType.LOGICAL)
+      return;
+    if (func.getState()==FunctionState.ENABLED) {
+      deployVerticleIfNew(func.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey()));
+    } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
+      deleteVerticle(func.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey()));
+    }
+  }
+
+  void handleCls(OaasClass cls) {
+    if (!cls.isMarkForRemoval()) {
+      deployVerticleIfNew(cls.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey()));
+    } else {
+      LOGGER.info("deleting {}", cls.getKey());
+      deleteVerticle(cls.getKey())
+        .subscribe().with(__ -> {
+          },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey()));
+    }
   }
 
   void cleanup(@Observes ShutdownEvent event) {
@@ -114,6 +158,7 @@ public class VerticleDeployer {
         if (LOGGER.isInfoEnabled()) {
           LOGGER.info("deploy verticle[id={}] for function {} successfully",
             id, function);
+//          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
         }
       })
       .collect()

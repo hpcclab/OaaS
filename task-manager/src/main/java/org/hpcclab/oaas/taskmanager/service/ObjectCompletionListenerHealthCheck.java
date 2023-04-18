@@ -6,8 +6,8 @@ import org.eclipse.microprofile.health.Liveness;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 @Liveness

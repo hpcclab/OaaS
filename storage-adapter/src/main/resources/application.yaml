@@ -40,9 +40,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/storage-adapter${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-jre-alpine
-  opentelemetry:
-    enabled: false
+    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
   log:
     category:
       "org.hpcclab.oaas":

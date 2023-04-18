@@ -1,0 +1,61 @@
+POST http://localhost:8088/api/packages?overrideDeploy=true
+Content-Type: text/x-yaml
+
+< local-compose.yml
+
+###
+GET http://localhost:8088/api/functions
+###
+POST http://localhost:8088/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.record"
+}
+
+> {%
+  client.global.set("obj_0_id", response.body.object.id)
+%}
+###
+GET http://localhost:8089/oal/{{obj_0_id}}
+###
+GET http://localhost:8089/oal/{{obj_0_id}}:random-inplace()?async=false
+###
+GET http://localhost:8089/oal/{{obj_0_id}}:random-inplace()?async=true
+###
+GET http://localhost:8089/oal/{{obj_0_id}}:random?async=true
+
+> {%
+  client.global.set("obj_1_id", response.body.output.id)
+%}
+###
+GET http://localhost:8089/oal/{{obj_1_id}}
+###
+GET http://localhost:8089/oal/{{obj_1_id}}:random?async=true
+
+> {%
+  client.global.set("obj_1_id", response.body.output.id)
+%}
+###
+POST http://localhost:8088/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.text",
+  "keys": ["text"]
+}
+
+> {%
+  client.global.set("obj_0_id", response.body.object.id)
+  client.global.set("upload_text", response.body.uploadUrls.text)
+%}
+###
+PUT {{upload_text}}
+Content-Type: text/plain
+
+TEST_TEXT
+
+###
+GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)/text

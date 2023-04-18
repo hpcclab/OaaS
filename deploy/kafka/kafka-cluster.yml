@@ -30,15 +30,12 @@ spec:
         type: internal
         tls: true
     resources:
-      limits:
-        cpu: 16
-        memory: 12G
       requests:
-        cpu: 0.5
-        memory: 0.5G
+        cpu: 1
+        memory: 1G
     storage:
       type: persistent-claim
-      size: 50Gi
+      size: 20Gi
       deleteClaim: true
     config:
       offsets.topic.replication.factor: 3

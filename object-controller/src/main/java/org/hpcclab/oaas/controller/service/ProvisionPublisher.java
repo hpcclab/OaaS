@@ -10,7 +10,7 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.stream.Stream;
 
 @ApplicationScoped

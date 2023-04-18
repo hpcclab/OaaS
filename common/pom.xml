@@ -19,6 +19,9 @@
     <module>infinispan-repository</module>
     <module>invocation</module>
     <module>nats-object-eventing</module>
+    <module>test-util</module>
   </modules>
+
+
 
 </project>

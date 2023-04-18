@@ -3,16 +3,15 @@ package org.hpcclab.oaas.controller;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonObject;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 @ApplicationScoped

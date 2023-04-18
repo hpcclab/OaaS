@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.storage.AdapterLoader;
@@ -12,11 +11,11 @@ import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 
 @Path("/contents")
 @ApplicationScoped

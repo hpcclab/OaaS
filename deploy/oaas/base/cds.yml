@@ -8,8 +8,8 @@ data:
       proxy_cache_path /cache keys_zone=contents:100m levels=1:2 inactive=100d max_size=10g;
       resolver 10.43.0.10 valid=30s;
 
-      upstream task-manager {
-        server task-manager.oaas.svc.cluster.local;
+      upstream invoker {
+        server invoker.oaas.svc.cluster.local;
       }
 
       upstream object-controller {
@@ -46,7 +46,7 @@ data:
           add_header access-control-allow-origin *;
           add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
 
-          proxy_pass      http://task-manager/oal/$1$is_args$args;
+          proxy_pass      http://invoker/oal/$1$is_args$args;
           proxy_cache       contents;
           proxy_http_version 1.1;
           proxy_cache_key   $uri;
@@ -59,7 +59,7 @@ data:
 
           #add_header access-control-allow-origin *;
           #add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
-          proxy_pass      http://task-manager/oal/;
+          proxy_pass      http://invoker/oal/;
           #proxy_cache       contents;
           #proxy_http_version 1.1;
           #proxy_cache_key   $uri;

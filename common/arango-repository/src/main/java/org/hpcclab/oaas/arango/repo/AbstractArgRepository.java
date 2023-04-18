@@ -4,30 +4,36 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDBException;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.entity.DocumentDeleteEntity;
-import com.arangodb.model.*;
+import com.arangodb.model.DocumentCreateOptions;
+import com.arangodb.model.DocumentDeleteOptions;
+import com.arangodb.model.DocumentReplaceOptions;
+import com.arangodb.model.OverwriteMode;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
-import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.repo.ArgQueryService.queryOptions;
 
 public abstract class AbstractArgRepository<V>
   implements EntityRepository<String, V> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractArgRepository.class);
+
+  protected ArgQueryService<V> queryService;
+  protected ArgAtomicService<V> atomicService;
 
   public abstract ArangoCollection getCollection();
 
@@ -38,11 +44,48 @@ public abstract class AbstractArgRepository<V>
   public abstract String extractKey(V v);
 
   @Override
+  public ArgQueryService<V> getQueryService() {
+    if (queryService==null)
+      queryService = new ArgQueryService<>(this);
+    return queryService;
+  }
+
+  @Override
+  public ArgAtomicService<V> atomic() {
+    if (atomicService==null)
+      atomicService = new ArgAtomicService<>(this);
+    return atomicService;
+  }
+
+  @Override
   public V get(String key) {
     Objects.requireNonNull(key);
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("get[{}] {}", getCollection().name(), key);
     return getCollection().getDocument(key, getValueCls());
+  }
+
+  @Override
+  public Multi<V> values() {
+    var queryString = """
+      FOR doc IN @@col
+        RETURN doc
+      """;
+    Map<String, Object> params = Map.of(
+      "@col",
+      getCollection().name()
+    );
+    return createUni(() -> getAsyncCollection()
+      .db()
+      .query(queryString, params, queryOptions(), getValueCls())
+    )
+      .onItem().transformToMulti(Unchecked.function(cursor -> {
+        try (cursor) {
+          return Multi.createFrom().items(cursor.stream());
+        } catch (IOException e) {
+          throw new ArgDataAccessException(e);
+        }
+      }));
   }
 
   @Override
@@ -109,25 +152,13 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  public Uni<V> persistAsync(V v,
-                             boolean notificationEnabled) {
+  public Uni<V> persistAsync(V v) {
     var k = extractKey(v);
     return putAsync(k, v);
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V v) {
-    String key = extractKey(v);
-    if (LOGGER.isDebugEnabled())
-      LOGGER.debug("persistWithPreconditionAsync[{}] {}", getCollection().name(), key);
-    return createUni(() -> getAsyncCollection()
-      .replaceDocument(key, replaceOptions()))
-      .replaceWith(v);
-  }
-
-  @Override
-  public Uni<Void> persistAsync(Collection<V> collection,
-                                boolean notificationEnabled) {
+  public Uni<Void> persistAsync(Collection<V> collection) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("persistAsync(col)[{}] {}",
         getCollection().name(), collection.size());
@@ -137,22 +168,6 @@ public abstract class AbstractArgRepository<V>
         if (!mde.getErrors().isEmpty()) {
           throw new ArgDataAccessException(mde.getErrors());
         }
-      }))
-      .replaceWithVoid();
-  }
-
-  @Override
-  public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
-    if (LOGGER.isDebugEnabled())
-      LOGGER.debug("persistWithPreconditionAsync(col)[{}] {}",
-        getCollection().name(), collection.size());
-
-    return createUni(() -> getAsyncCollection()
-      .updateDocuments(collection, new DocumentUpdateOptions()
-        .ignoreRevs(false)))
-      .invoke(Unchecked.consumer(entities -> {
-        if (!entities.getErrors().isEmpty())
-          throw new ArgDataAccessException(entities.getErrors());
       }))
       .replaceWithVoid();
   }
@@ -198,114 +213,6 @@ public abstract class AbstractArgRepository<V>
     throw exception;
   }
 
-  static AqlQueryOptions queryOptions() {
-    return new AqlQueryOptions();
-  }
-
-  @Override
-  public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
-    var cursor = getCollection().db().query(queryString, params, queryOptions().fullCount(true), getValueCls());
-    try (cursor) {
-      var items = cursor.asListRemaining();
-      return new Pagination<>(cursor.getStats().getFullCount(), offset, limit, items);
-    } catch (IOException e) {
-      throw new ArgDataAccessException(e);
-    }
-  }
-
-  @Override
-  public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
-    return createUni(() -> getAsyncCollection()
-      .db()
-      .query(queryString, params, queryOptions().fullCount(true), getValueCls())
-      .thenApply(cursor -> {
-        try (cursor) {
-          var items = cursor.streamRemaining().toList();
-          return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
-            items);
-        } catch (IOException e) {
-          throw new ArgDataAccessException(e);
-        }
-      }));
-  }
-
-  protected <T> Uni<T> createUni(Supplier<CompletionStage<T>> stage) {
-    var uni = Uni.createFrom().completionStage(stage);
-    var ctx = Vertx.currentContext();
-    if (ctx!=null)
-      return uni.emitOn(ctx::runOnContext);
-    return uni;
-  }
-
-  @Override
-  public Pagination<V> pagination(long offset, int limit) {
-    // langauge=AQL
-    var query = """
-      FOR doc IN @@col
-        LIMIT @off, @lim
-        RETURN doc
-      """;
-    return queryPagination(query, Map.of("@col", getCollection().name(), "off", offset, "lim", limit), offset, limit);
-  }
-
-  @Override
-  public Uni<Pagination<V>> paginationAsync(long offset, int limit) {
-    var query = """
-      FOR doc IN @@col
-        LIMIT @off, @lim
-        RETURN doc
-      """;
-    return queryPaginationAsync(query, Map.of("@col", getCollection().name(), "off", offset, "lim", limit), offset, limit);
-  }
-
-  @Override
-  public Uni<Pagination<V>> sortedPaginationAsync(String name, boolean desc, long offset, int limit) {
-    // language=AQL
-    var query = """
-      FOR doc IN @@col
-        SORT doc.@sorted @order
-        LIMIT @off, @lim
-        RETURN doc
-      """;
-    return queryPaginationAsync(query, Map.of(
-        "@col", getCollection().name(),
-        "sorted", name.split("\\."),
-        "off", offset,
-        "lim", limit,
-        "order", desc ? "DESC": "ASC"
-      ),
-      offset, limit);
-  }
-
-  @Override
-  public List<V> query(String queryString, Map<String, Object> params) {
-    var cursor = getCollection().db().query(queryString, params, queryOptions(), getValueCls());
-    try (cursor) {
-      return cursor.asListRemaining();
-    } catch (IOException e) {
-      throw new ArgDataAccessException(e);
-    }
-  }
-
-
-  @Override
-  public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
-    return queryAsync(queryString, getValueCls(), params);
-  }
-
-
-  public <T> Uni<List<T>> queryAsync(String queryString, Class<T> resultCls, Map<String, Object> params) {
-    return createUni(() -> getAsyncCollection()
-      .db()
-      .query(queryString, params, queryOptions(), resultCls).thenApply(cursor -> {
-        try (cursor) {
-          return cursor.streamRemaining().toList();
-        } catch (IOException e) {
-          throw new ArgDataAccessException(e);
-        }
-      })
-    );
-  }
 
   static DocumentReplaceOptions replaceOptions() {
     return new DocumentReplaceOptions()
@@ -320,5 +227,6 @@ public abstract class AbstractArgRepository<V>
   static DocumentDeleteOptions deleteOptions() {
     return new DocumentDeleteOptions().returnOld(true);
   }
+
 
 }

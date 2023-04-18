@@ -5,9 +5,6 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 public class NatsObjCompPublisher implements ObjectCompletionPublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(NatsObjCompPublisher.class);
 

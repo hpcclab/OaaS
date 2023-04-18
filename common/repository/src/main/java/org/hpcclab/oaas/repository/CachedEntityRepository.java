@@ -3,7 +3,12 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Uni;
 
 public interface CachedEntityRepository<K,V> extends EntityRepository<K,V> {
-  void invalidate(K key);
-  V getWithoutCache(K key);
-  Uni<V> getWithoutCacheAsync(K key);
+  default void invalidate(K key) {
+  }
+  default V getBypassCache(K key){
+    return get(key);
+  }
+  default Uni<V> getBypassCacheAsync(K key){
+    return getAsync(key);
+  }
 }

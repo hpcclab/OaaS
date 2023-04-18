@@ -30,27 +30,6 @@ public class TaskCompletion {
   public TaskCompletion() {
   }
 
-
-  public TaskCompletion(String mid,
-                        String oid,
-                        String vId,
-                        boolean success,
-                        String errorMsg,
-                        Map<String, String> ext,
-                        ObjectUpdate main,
-                        ObjectUpdate out,
-                        long cptTs,
-                        long smtTs) {
-    this.id = new TaskIdentity(mid, oid, vId);
-    this.success = success;
-    this.errorMsg = errorMsg;
-    this.ext = ext;
-    this.main = main;
-    this.output = out;
-    this.cptTs = cptTs;
-    this.smtTs = smtTs;
-  }
-
   public TaskCompletion(TaskIdentity id,
                         boolean success,
                         String errorMsg,

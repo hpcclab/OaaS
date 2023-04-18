@@ -3,9 +3,9 @@ package org.hpcclab.oaas.storage;
 import io.quarkus.runtime.StartupEvent;
 import org.hpcclab.oaas.arango.ArgRepositoryInitializer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class ServerInitializer {

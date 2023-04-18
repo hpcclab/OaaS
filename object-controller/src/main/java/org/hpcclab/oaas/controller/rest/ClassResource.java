@@ -18,10 +18,10 @@ import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 
 @ApplicationScoped
@@ -52,7 +52,8 @@ public class ClassResource {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort == null) sort = "_key";
-    return classRepo.sortedPaginationAsync(sort, desc, offset, limit);
+    return classRepo.getQueryService()
+      .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @GET
@@ -68,7 +69,7 @@ public class ClassResource {
     final var fLimit = limit==null ? 20:limit;
     final var fSort = sort==null ? "_key" : sort;
     var uni = includeSub ?
-      classRepo.listSubCls(name)
+      classRepo.listSubClsKeys(name)
       :Uni.createFrom().item(List.of(name));
     Uni<Pagination<OaasObject>> uni2;
     if (fSort.equals("_"))
@@ -87,7 +88,7 @@ public class ClassResource {
     var pkg = new OaasPackageContainer();
     pkg.setClasses(List.of(cls))
       .setName(pkgName);
-    return packageResource.create(update, pkg)
+    return packageResource.create(update, false, pkg)
       .map(module -> module.getClasses().isEmpty() ? null:module.getClasses()
         .get(0)
       );

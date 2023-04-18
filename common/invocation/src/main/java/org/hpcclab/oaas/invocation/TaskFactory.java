@@ -9,12 +9,12 @@ import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.EntityRepository;
-import org.hpcclab.oaas.repository.IdGenerator;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,9 +106,9 @@ public class TaskFactory {
 
     var verIds = obj.getState().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
-      for (var vidEntry : verIds.entrySet()) {
+      for (var vidEntry : verIds) {
         var url =
-          contentUrlGenerator.generateUrl(obj.getId(), vidEntry.getValue(),
+          contentUrlGenerator.generateUrl(obj.getId(), vidEntry.getVal(),
             vidEntry.getKey(), b64Dac);
         map.put(prefix + vidEntry.getKey(), url);
       }
@@ -116,7 +116,7 @@ public class TaskFactory {
 
     if (obj.getState().getOverrideUrls()!=null) {
       obj.getState().getOverrideUrls()
-        .forEach((k, v) -> map.put(prefix + k, v));
+        .forEach(e -> map.put(prefix + e.getKey(), e.getVal()));
     }
     if (refs!=null) {
       for (var entry : refs.entrySet()) {

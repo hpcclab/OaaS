@@ -13,7 +13,10 @@ public class ArangoResource implements
   public Map<String, String> start() {
     container.start();
     return Map.of(
-      "oaas.repo.arg.port", String.valueOf(container.getPort())
+      "oaas.repo.arg.port", String.valueOf(container.getPort()),
+      "oaas.ispn.argConnection.port", String.valueOf(container.getPort())
+//      "oaas.ispn.argConnection.port", "8529",
+//      "oaas.ispn.argConnection.pass", "changeme"
     );
   }
 

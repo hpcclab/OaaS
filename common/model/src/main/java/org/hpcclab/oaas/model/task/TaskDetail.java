@@ -22,7 +22,7 @@ public interface TaskDetail {
       .macro(false)
       .args(getArgs())
       .inputs(getInputs().stream().map(OaasObject::getId).toList())
-      .targetCls(null)
+      .targetCls(getMain().getCls())
       .target(getMain().getId())
       .fbName(getFbName())
       .outId(getOutput() != null? getOutput().getId() : null)

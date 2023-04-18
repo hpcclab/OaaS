@@ -9,8 +9,8 @@ import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.repository.EntityRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class CompletionValidator {

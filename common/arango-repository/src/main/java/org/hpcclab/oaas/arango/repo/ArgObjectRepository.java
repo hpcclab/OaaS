@@ -6,15 +6,13 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +63,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
         LIMIT @off, @lim
         RETURN obj
       """;
-    return queryPaginationAsync(
+    return getQueryService().queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls", clsKeys,
@@ -93,7 +91,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
         LIMIT @off, @lim
         RETURN obj
       """;
-    return queryPaginationAsync(
+    return getQueryService().queryPaginationAsync(
       query,
       Map.of("@col", getCollection().name(),
         "cls", clsKeys,

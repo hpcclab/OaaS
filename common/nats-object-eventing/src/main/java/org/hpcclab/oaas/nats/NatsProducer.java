@@ -10,10 +10,10 @@ import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import java.io.IOException;
 
 @ApplicationScoped
@@ -21,12 +21,11 @@ public class NatsProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger( NatsProducer.class );
   @Inject
   NatsConfig config;
-  @Inject Vertx vertx;
 
   public Connection createConnection(Vertx vertx) throws IOException, InterruptedException {
     var executor = ((VertxInternal) vertx).getWorkerPool().executor();
     return Nats.connect(new Options.Builder()
-      .server(config.natsUrls().get())
+      .server(config.natsUrls().orElseThrow())
       .executor(executor)
       .build());
   }

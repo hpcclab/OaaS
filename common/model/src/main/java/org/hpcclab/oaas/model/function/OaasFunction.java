@@ -5,19 +5,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunction implements Copyable<OaasFunction> {
+public class OaasFunction implements Copyable<OaasFunction>, HasKey {
   @JsonProperty("_key")
 //  @JsonView(Views.Internal.class)
   String key;
@@ -40,7 +41,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
   FunctionValidation validation;
 
   @ProtoField(7)
-  Dataflow macro;
+  MacroConfig macro;
 
   @ProtoField(8)
   ProvisionConfig provision;
@@ -65,7 +66,7 @@ public class OaasFunction implements Copyable<OaasFunction> {
                       FunctionType type,
                       String outputCls,
                       FunctionValidation validation,
-                      Dataflow macro,
+                      MacroConfig macro,
                       ProvisionConfig provision,
                       List<VariableDescription> variableDescriptions,
                       FunctionDeploymentStatus deploymentStatus,
@@ -84,11 +85,11 @@ public class OaasFunction implements Copyable<OaasFunction> {
     updateKey();
   }
 
-  public void validate() {
+  public void validate(boolean ignoreDeploy) {
     if (name == null)
       throw new FunctionValidationException("Function's name can not be null");
-    if (!name.matches("^[a-zA-Z0-9_-]*$"))
-      throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9_-]*$'");
+    if (!name.matches("^[a-zA-Z0-9._-]*$"))
+      throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
     if (type==FunctionType.TASK) {
       macro = null;
@@ -101,8 +102,15 @@ public class OaasFunction implements Copyable<OaasFunction> {
         );
       }
     }
-    deploymentStatus = new FunctionDeploymentStatus();
-    deploymentStatus.setCondition(DeploymentCondition.PENDING);
+    if (!ignoreDeploy) {
+      if (deploymentStatus==null)
+        deploymentStatus = new FunctionDeploymentStatus();
+      if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
+        deploymentStatus.setCondition(DeploymentCondition.RUNNING);
+      } else {
+        deploymentStatus.setCondition(DeploymentCondition.PENDING);
+      }
+    }
 
     if (outputCls != null &&
       (outputCls.equalsIgnoreCase("none") ||
