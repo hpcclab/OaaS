@@ -24,7 +24,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.0.0.CR2</quarkus.platform.version>
-    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+    <surefire-plugin.version>3.0.0</surefire-plugin.version>
     <org.projectlombok.version>1.18.26</org.projectlombok.version>
     <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
     <eclipse.collections.version>11.1.0</eclipse.collections.version>
