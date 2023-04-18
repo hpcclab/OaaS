@@ -9,8 +9,8 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class BuiltInLoader {
         .map(OaasClass::getKey)
         .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
-      pkgService.create(true, pkg)
+      pkgService.create(true, false, pkg)
         .await().indefinitely();
     }
 

@@ -1,0 +1,18 @@
+= String Concatenation Function
+:toc:
+:toc-placement: preamble
+:toclevels: 2
+
+
+// Need some preamble to get TOC:
+{empty}
+
+== Notes
+The OaaS platform still does not have SDK for function implementation. The example functions provided in this directory are implemented from scratch. That means the code can be more simplified in the future.
+
+== Build
+[source,bash]
+----
+./mvnw package
+docker build -f src/main/docker/Dockerfile.jvm -t ghcr.io/hpcclab/oaas/concat-fn-java .
+----

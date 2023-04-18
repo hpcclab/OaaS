@@ -29,6 +29,8 @@ public class OffsetTracker {
 
   void recordDone(long offset) {
     int relative = (int) (offset - initOffset);
+    if (relative < 0)
+      return;
     statusBits.set(relative);
     resetIfNeeded();
   }

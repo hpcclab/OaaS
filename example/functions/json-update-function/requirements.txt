@@ -1,6 +1,0 @@
-# requests
-fastapi
-aiohttp
-uvicorn
-gunicorn
-oaas-sdk-py==0.0.2

@@ -31,19 +31,19 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
     var val = cache().getIfPresent(key);
     if (val != null)
       return Uni.createFrom().item(get(key));
-    return getWithoutCacheAsync(key);
+    return getBypassCacheAsync(key);
   }
 
 
   @Override
-  public V getWithoutCache(String key) {
+  public V getBypassCache(String key) {
     var v =  super.get(key);
     cache().put(key, v);
     return v;
   }
 
   @Override
-  public Uni<V> getWithoutCacheAsync(String key) {
+  public Uni<V> getBypassCacheAsync(String key) {
     return super.getAsync(key)
       .onItem().ifNotNull()
       .invoke(v -> cache().put(key, v));
@@ -103,14 +103,14 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   }
 
   @Override
-  public Uni<V> persistAsync(V v, boolean notificationEnabled) {
-    return super.persistAsync(v, notificationEnabled)
+  public Uni<V> persistAsync(V v) {
+    return super.persistAsync(v)
       .invoke(val -> cache().put(extractKey(val), val));
   }
 
   @Override
-  public Uni<Void> persistAsync(Collection<V> collection, boolean notificationEnabled) {
-    return super.persistAsync(collection, notificationEnabled)
+  public Uni<Void> persistAsync(Collection<V> collection) {
+    return super.persistAsync(collection)
       .invoke(() -> {
         for (var val: collection) {
           cache().put(extractKey(val), val);

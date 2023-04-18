@@ -2,12 +2,11 @@ package org.hpcclab.oaas.controller.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.unchecked.Unchecked;
+import lombok.Builder;
 import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
@@ -15,8 +14,8 @@ import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +29,10 @@ public class PackageValidator {
   FunctionRepository functionRepo;
 
   public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg) {
+    return validate(pkg, new ValidationOptions(false));
+  }
+  public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg,
+                                            ValidationOptions options) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
@@ -37,7 +40,7 @@ public class PackageValidator {
       .collect(Collectors.toMap(OaasFunction::getKey, Function.identity()));
     for (OaasFunction function : functions) {
       function.setPkg(pkg.getName());
-      function.validate();
+      function.validate(options.overrideDeploymentStatus);
     }
     for (OaasClass cls : classes) {
       cls.setPkg(pkg.getName());
@@ -71,7 +74,7 @@ public class PackageValidator {
       .call(binding -> Uni.createFrom()
         .item(functionMap.get(binding.getFunction()))
         .onItem().ifNull()
-        .switchTo(() -> functionRepo.getWithoutCacheAsync(binding.getFunction()))
+        .switchTo(() -> functionRepo.getBypassCacheAsync(binding.getFunction()))
         .onItem().ifNull().failWith(() -> new FunctionValidationException("Can not find function [%s]".formatted(binding.getFunction())))
         .invoke(func -> binding.validate(func)))
       .collect().last()
@@ -120,4 +123,10 @@ public class PackageValidator {
         );
     }
   }
+
+
+  @Builder(toBuilder = true)
+  public record ValidationOptions(
+    boolean overrideDeploymentStatus
+  ){}
 }

@@ -3,24 +3,28 @@ package org.hpcclab.oaas.taskmanager.rest;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hpcclab.oaas.invocation.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.handler.AwaitHandler;
+import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.taskmanager.TaskManagerConfig;
-import org.hpcclab.oaas.taskmanager.service.InvocationHandlerService;
+import org.hpcclab.oaas.taskmanager.service.RemoteInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 
 @Path("/oal/")
@@ -38,6 +42,10 @@ public class OalResource {
 
   @Inject
   InvocationHandlerService invocationHandlerService;
+  @RestClient
+  RemoteInvocationHandler remoteInvocationHandler;
+  @Inject
+  AwaitHandler awaitHandler;
 
   @POST
   @JsonView(Views.Public.class)
@@ -46,7 +54,7 @@ public class OalResource {
                                             @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFunctionName()!=null) {
+    if (oal.getFbName()!=null) {
       return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getTarget())
@@ -78,7 +86,7 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFunctionName()!=null) {
+    if (oal.getFbName()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
@@ -93,7 +101,7 @@ public class OalResource {
             return Uni.createFrom().item(createResponse(obj, filePath));
           }
           if (!obj.getStatus().getTaskStatus().isSubmitted()) {
-            return invocationHandlerService.awaitCompletion(obj, timeout)
+            return awaitHandler.awaitCompletion(obj, timeout)
               .map(newObj -> createResponse(newObj, filePath));
           }
           return Uni.createFrom().item(createResponse(obj, filePath));
@@ -118,13 +126,7 @@ public class OalResource {
     if (async==null ? !config.defaultAwaitCompletion():async) {
       return invocationHandlerService.asyncInvoke(oal);
     } else {
-      return invocationHandlerService.syncInvoke(oal)
-        .map(ctx -> OalResponse.builder()
-          .target(ctx.getMain())
-          .output(ctx.getOutput())
-          .fbName(ctx.getFbName())
-          .async(false)
-          .build());
+      return remoteInvocationHandler.invoke(oal);
     }
   }
 
@@ -160,10 +162,10 @@ public class OalResource {
         return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
       }
     }
-    var oUrl = object.getState().getOverrideUrls();
-    if (oUrl!=null && oUrl.containsKey(filePath))
+    var oUrl = object.getState().findOverrideUrl(filePath);
+    if (oUrl!=null)
       return Response.status(redirectCode)
-        .location(URI.create(oUrl.get(filePath)))
+        .location(URI.create(oUrl))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
     return Response.status(redirectCode)

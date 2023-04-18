@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.repository;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
@@ -12,12 +12,13 @@ import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Map;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -39,7 +40,7 @@ public class OaasObjectFactory {
                                String id) {
     var obj = OaasObject.createFromClasses(cls);
     obj.setId(id);
-    obj.setData(construct.getEmbeddedRecord());
+    obj.setData(construct.getData());
     obj.setLabels(construct.getLabels());
     obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
@@ -49,17 +50,17 @@ public class OaasObjectFactory {
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
-      Map<String, String> verIds = cls.getStateSpec().getKeySpecs()
+      var verIds = cls.getStateSpec().getKeySpecs()
         .stream()
-        .map(ks -> Map.entry(ks.getName(), id))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .map(ks -> new KvPair(ks.getName(), id))
+        .collect(Collectors.toSet());
       state.setVerIds(verIds);
     }
     obj.setState(state);
     return obj;
   }
 
-  public OaasObject createOutput(FunctionExecContext ctx) {
+  public OaasObject createOutput(InvApplyingContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
     FunctionBinding binding = ctx.getBinding();

@@ -24,8 +24,21 @@
 oaas:
   log: INFO
   name: invoker
+  ispn:
+    objStore:
+      maxCount: 10000000
+      queueSize: 1000000
+      storageType: OFF_HEAP
+    clsStore:
+      maxCount: 10000
+      storageType: HEAP
+    fnStore:
+      maxCount: 10000
+      storageType: HEAP
 
 quarkus:
+  naming:
+    enable-jndi: true
   console:
     color: true
   http:
@@ -43,7 +56,7 @@ quarkus:
   container-image:
     image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   jib:
-    base-jvm-image: eclipse-temurin:17-jre-alpine
+    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
     jvm-arguments: -Djava.util.logging.manager=org.jboss.logmanager.LogManager
   micrometer:
     export:

@@ -5,15 +5,15 @@ import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class UnifiedFunctionRouter {
@@ -33,10 +33,11 @@ public class UnifiedFunctionRouter {
     this.macroFunctionApplier = macroFunctionHandler;
     this.taskFunctionApplier = taskFunctionHandler;
     this.contextLoader = contextLoader;
+    this.macroFunctionApplier.setSubFunctionApplier(this::apply);
   }
 
 
-  public Uni<FunctionExecContext> apply(FunctionExecContext context) {
+  public Uni<InvApplyingContext> apply(InvApplyingContext context) {
     var type = context.getFunction().getType();
     return switch (type) {
       case LOGICAL -> logicalFunctionApplier.apply(context);
@@ -46,20 +47,20 @@ public class UnifiedFunctionRouter {
     };
   }
 
-  public Uni<FunctionExecContext> apply(ObjectAccessLanguage request) {
+  public Uni<InvApplyingContext> apply(ObjectAccessLanguage request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::apply);
   }
 
-  public Uni<FunctionExecContext> apply(InvocationRequest request) {
+  public Uni<InvApplyingContext> apply(InvocationRequest request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::apply);
   }
 
 
-  public void validate(FunctionExecContext context) {
+  public void validate(InvApplyingContext context) {
     var main = context.getMain();
     var func = context.getFunction();
     var access = context.getBinding().getAccess();

@@ -8,9 +8,9 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
 import org.hpcclab.oaas.invoker.TaskVerticlePoolDispatcher;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import java.util.Set;
 
 @ApplicationScoped
@@ -25,15 +25,16 @@ public class TaskConsumerVerticleFactory implements VerticleFactory<TaskConsumer
   KafkaClientOptions options;
 
   @Override
-  public TaskConsumerVerticle createVerticle(String function) {
+  public TaskConsumerVerticle createVerticle(String suffix) {
     var consumer = kafkaConsumer(options);
-    VerticleFactory<AbstractOrderedRecordVerticle> invokerVerticleFactory = f -> invokerVerticleInstance.get();
+    VerticleFactory<? extends AbstractOrderedRecordVerticle<?>> invokerVerticleFactory =
+      f -> invokerVerticleInstance.get();
     var offsetManager = new OffsetManager(consumer);
     var dispatcher = new TaskVerticlePoolDispatcher(vertx, invokerVerticleFactory,
       offsetManager, config);
-    dispatcher.setName(function);
+    dispatcher.setName(suffix);
     var verticle = new TaskConsumerVerticle(consumer, dispatcher, config);
-    verticle.setTopics(Set.of(config.fnTopicPrefix() + function));
+    verticle.setTopics(Set.of(config.invokeTopicPrefix() + suffix));
     return verticle;
   }
 

@@ -4,18 +4,22 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.*;
+import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
 import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.TaskSubmitter;
+import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.repository.GraphStateManager;
+import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
+import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 
 @ApplicationScoped
 public class InvocationEngineProducer {
@@ -28,8 +32,8 @@ public class InvocationEngineProducer {
     RepoContextLoader contextLoader,
     SyncInvoker syncInvoker,
     TaskFactory taskFactory,
-    CompletionValidator completionValidator) {
-    return new InvocationExecutor(sender, graphStateManager, contextLoader, syncInvoker, taskFactory, completionValidator);
+    CompletedStateUpdater completionHandler) {
+    return new InvocationExecutor(sender, graphStateManager, contextLoader, syncInvoker, taskFactory, completionHandler);
   }
 
   @Produces
@@ -61,4 +65,21 @@ public class InvocationEngineProducer {
       .timout(config.invokeTimeout())
       .build();
   }
+
+  @Produces
+  ObjectCompletionListener completionListener() {
+    return new ObjectCompletionListener.Noop();
+  }
+
+  @Produces
+  ObjectCompletionPublisher completionPublisher() {
+    return new ObjectCompletionPublisher.Noop();
+  }
+
+
+  @Produces
+  InvocationHandlerService invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueSender sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
+    return new InvocationHandlerService(router, invocationExecutor, sender, invocationValidator, idGenerator);
+  }
+
 }

@@ -3,7 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.function.FunctionExecContext;
+import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
@@ -31,39 +31,52 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<OaasObject> handleComplete(TaskDetail task, TaskCompletion completion) {
+  public Multi<OaasObject> persistThenLoadNext(TaskDetail task, TaskCompletion completion) {
+
     var main = task.getMain();
     List<OaasObject> objs = new ArrayList<>();
 
-    if (main!=null) {
-      if (completion.getMain()!=null) {
-        completion.getMain().update(main, task.getVId());
-      }
-      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
-        main.getStatus().setUpdatedOffset(fec.getMqOffset());
-      if (!task.isImmutable())
-        objs.add(main);
-    }
+//    if (main!=null) {
+//      if (completion.getMain()!=null) {
+//        completion.getMain().update(main, task.getVId());
+//      }
+//      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+//        main.getStatus().setUpdatedOffset(iac.getMqOffset());
+//      if (!task.isImmutable())
+//        objs.add(main);
+//    }
+//
+//    var out = task.getOutput();
+//    if (out!=null) {
+//      out.updateStatus(completion);
+//      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+//        out.getStatus().setUpdatedOffset(iac.getMqOffset());
+//      objs.add(out);
+//    }
 
+    if (main!=null) {
+      objs.add(main);
+    }
     var out = task.getOutput();
     if (out!=null) {
-      out.updateStatus(completion);
-      if (task instanceof FunctionExecContext fec && fec.getMqOffset() >= 0)
-        out.getStatus().setUpdatedOffset(fec.getMqOffset());
       objs.add(out);
     }
 
     Uni<Void> uni = persistWithPrecondition(objs);
     if (out==null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
-    return uni.onItem()
-      .transformToMulti(__ -> {
-        if (completion.isSuccess()) {
-          return loadNextSubmittable(out);
-        } else {
-          return handleFailed(out);
-        }
-      });
+
+    else {
+      return uni.onItem()
+        .transformToMulti(__ -> {
+          if (completion.isSuccess()) {
+            return loadNextSubmittable(out);
+          } else {
+            return handleFailed(out);
+          }
+        });
+    }
+
   }
 
   private Multi<OaasObject> loadNextSubmittable(OaasObject completedObject) {
@@ -73,7 +86,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onItem()
       .transformToUniAndConcatenate(id -> objRepo.computeAsync(id,
         (k, obj) -> triggerObject(obj, completedObject.getStatus().getOriginator(), completedObject.getId())))
-      .filter(obj -> obj.getStatus() != null && Objects.equals(obj.getStatus().getOriginator(),completedObject.getStatus().getOriginator()));
+      .filter(obj -> obj.getStatus()!=null && Objects.equals(obj.getStatus().getOriginator(), completedObject.getStatus().getOriginator()));
   }
 
 
@@ -98,7 +111,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<TaskContext> updateSubmittingStatus(FunctionExecContext entryCtx, Collection<TaskContext> contexts) {
+  public Multi<TaskContext> updateSubmittingStatus(InvApplyingContext entryCtx, Collection<TaskContext> contexts) {
     var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
       :entryCtx.getMain().getId();
@@ -116,14 +129,14 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
         }
       })
       .filter(ctx -> ctx.getOutput()==null || ctx.getOutput().getStatus().getOriginator().equals(originator))
-      .onCompletion().call(() -> persistAllWithoutNoti(entryCtx));
+      .onCompletion().call(() -> persistAll(entryCtx));
   }
 
-  public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx) {
-    return persistAllWithoutNoti(ctx, Lists.mutable.empty());
+  public Uni<Void> persistAll(InvApplyingContext ctx) {
+    return persistAll(ctx, Lists.mutable.empty());
   }
 
-  public Uni<?> persistAllWithoutNoti(FunctionExecContext ctx, List<OaasObject> objs) {
+  public Uni<Void> persistAll(InvApplyingContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {
@@ -142,10 +155,10 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo.persistWithPreconditionAsync(oldObjs);
+      return objRepo.atomic().persistWithPreconditionAsync(oldObjs);
     } else {
       return objRepo
-        .persistWithPreconditionAsync(oldObjs)
+        .atomic().persistWithPreconditionAsync(oldObjs)
         .flatMap(__ -> objRepo.persistAsync(newObjs));
     }
   }

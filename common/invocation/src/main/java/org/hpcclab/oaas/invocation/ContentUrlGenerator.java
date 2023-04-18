@@ -6,8 +6,8 @@ import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class ContentUrlGenerator {
@@ -28,7 +28,7 @@ public class ContentUrlGenerator {
                             AccessLevel level) {
     if (obj.getState().getVerIds() == null || obj.getState().getVerIds().isEmpty())
       throw StdOaasException.notKeyInObj(obj.getId(),404);
-    var vid = obj.getState().getVerIds().get(file);
+    var vid = obj.getState().findVerId(file);
     if (vid == null)
       throw StdOaasException.notKeyInObj(obj.getId(),404);
     var dac = DataAccessContext.generate(obj, level)

@@ -7,11 +7,13 @@ import org.hpcclab.oaas.arango.ObjectDependencyEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.List;
 import java.util.Map;
+
+import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
 
 @ApplicationScoped
 public class ArgEdgeRepository extends AbstractArgRepository<ObjectDependencyEdge> {

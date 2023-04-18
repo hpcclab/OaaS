@@ -3,7 +3,7 @@ package org.hpcclab.oaas.storage.adapter;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.Map;
 
 public interface StorageAdapter {

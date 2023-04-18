@@ -1,0 +1,48 @@
+###
+POST {{cds}}/api/packages
+Content-Type: text/x-yaml
+
+< text.yml
+###
+POST {{cds}}/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.text",
+  "data": {},
+  "labels": ["test-empty"],
+  "keys": ["text"],
+  "overrideUrls": {}
+}
+
+> {%
+client.global.set("obj_0_id", response.body.object.id)
+client.global.set("upload_text", response.body.uploadUrls.text)
+%}
+###
+PUT {{upload_text}}
+Content-Type: text/plain
+
+< ../../../oaas-load-test/test-files/test-10k.txt
+
+###
+GET {{cds}}/oal/{{obj_0_id}}/text
+###
+GET {{cds}}/oal/{{obj_0_id}}:concat()(APPEND=NEW_TEXT)/text
+###
+GET {{cds}}/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW_TEXT)/text
+###
+POST {{cds}}/oal/-/text
+Content-Type: application/json
+
+{
+  "target": "{{obj_0_id}}",
+  "functionName": "concat",
+  "inputs": [],
+  "args": {
+    "APPEND": "NEW_TEXT"
+  }
+}
+###
+GET {{cds}}/api/classes/example.text/objects

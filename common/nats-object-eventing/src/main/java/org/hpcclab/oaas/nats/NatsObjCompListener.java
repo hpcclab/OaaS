@@ -3,18 +3,18 @@ package org.hpcclab.oaas.nats;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.PreDestroy;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import java.time.Duration;
 
 public class NatsObjCompListener implements ObjectCompletionListener {
-  private static final Logger LOGGER = LoggerFactory.getLogger( NatsObjCompListener.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(NatsObjCompListener.class);
 
-  private static final long DEFAULT_TIMEOUT = 10*60*1000;
+  private static final long DEFAULT_TIMEOUT = 10 * 60 * 1000;
   Connection nc;
   private final ThreadLocal<Dispatcher> localDispatcher;
 
@@ -51,13 +51,13 @@ public class NatsObjCompListener implements ObjectCompletionListener {
         emitter.onTermination(() -> dispatcher.unsubscribe(subject));
       })
       .ifNoItem()
-      .after(Duration.ofMillis(timeout == null? DEFAULT_TIMEOUT: timeout))
+      .after(Duration.ofMillis(timeout==null ? DEFAULT_TIMEOUT:timeout))
       .failWith(() -> new InvocationException("listener timeout", 504));
   }
 
   @Override
   public boolean healthcheck() {
-    if (nc.getStatus() == Connection.Status.CONNECTED)
+    if (nc.getStatus()==Connection.Status.CONNECTED)
       return true;
     LOGGER.error("NATS client status is {}", nc.getStatus());
     return false;

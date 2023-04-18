@@ -1,9 +1,11 @@
 package org.hpcclab.oaas.model.oal;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
+import org.hpcclab.oaas.model.proto.KvPair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,15 +20,24 @@ import java.util.stream.Collectors;
 public class ObjectAccessLanguage {
   final String target;
   final String targetCls;
-  final String functionName;
+  final String fbName;
   final Map<String, String> args;
   final List<String> inputs;
+
+  @JsonCreator
+  public ObjectAccessLanguage(String target, String targetCls, String fbName, Map<String, String> args, List<String> inputs) {
+    this.target = target;
+    this.targetCls = targetCls;
+    this.fbName = fbName;
+    this.args = args;
+    this.inputs = inputs;
+  }
 
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
     return ObjectAccessLanguage.builder()
       .target(origin.getParentId())
-      .functionName(origin.getFbName())
-      .args(origin.getArgs())
+      .fbName(origin.getFbName())
+      .args(origin.getArgs().stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)))
       .inputs(origin.getInputs())
       .build();
   }
@@ -38,9 +49,9 @@ public class ObjectAccessLanguage {
         .append(targetCls);
     else
       sb.append(target);
-    if (functionName==null)
+    if (fbName==null)
       return sb.toString();
-    sb.append(':').append(functionName);
+    sb.append(':').append(fbName);
     sb.append('(');
     var size = inputs==null ? 0:inputs.size();
     for (int i = 0; i < size; i++) {
@@ -90,7 +101,7 @@ public class ObjectAccessLanguage {
       oal.target = target;
     }
     if (func==null) return oal.build();
-    oal.functionName = func;
+    oal.fbName = func;
     if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();

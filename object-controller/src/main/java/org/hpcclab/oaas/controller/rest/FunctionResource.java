@@ -13,10 +13,10 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +44,8 @@ public class FunctionResource {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort==null) sort = "_key";
-    return funcRepo.sortedPaginationAsync(sort, desc, offset, limit);
+    return funcRepo.getQueryService()
+      .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
   @POST
@@ -58,7 +59,7 @@ public class FunctionResource {
       pkg.setName("default");
     }
 
-    return packageResource.create(update, pkg)
+    return packageResource.create(update, false, pkg)
       .map(OaasPackageContainer::getFunctions);
   }
 

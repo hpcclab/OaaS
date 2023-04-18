@@ -23,7 +23,8 @@ public record InvocationRequest(
   Map<String,String> macroIds,
   @JsonIgnore String partKey,
   boolean loadOutput,
-  long queTs
+  long queTs,
+  List<InvocationRequest> nextReq
 ) {
   public static final String CE_TYPE = "oaas.invReq";
 }

@@ -7,6 +7,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.impl.ConcurrentHashSet;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public abstract class AbstractOrderedRecordVerticle extends AbstractVerticle
+public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(AbstractOrderedRecordVerticle.class);
 
@@ -27,7 +28,7 @@ public abstract class AbstractOrderedRecordVerticle extends AbstractVerticle
   final AtomicBoolean lock = new AtomicBoolean(false);
   private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> taskQueue;
   private final MutableListMultimap<String, KafkaConsumerRecord<String, Buffer>> pausedTask;
-  private final ConcurrentHashSet<String> runningTaskKeys = new ConcurrentHashSet<>();
+  private final ConcurrentHashSet<String> lockingTaskKeys = new ConcurrentHashSet<>();
   private final int maxConcurrent;
 
   public AbstractOrderedRecordVerticle(int maxConcurrent) {
@@ -49,6 +50,9 @@ public abstract class AbstractOrderedRecordVerticle extends AbstractVerticle
     context.runOnContext(__ -> consume());
   }
 
+  protected abstract boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord,
+                                                  T parsedContent);
+
   private void consume() {
     logger.debug("{}: consuming[lock={}, inflight={}]", name, lock, inflight);
     if (!lock.compareAndSet(false, true)) {
@@ -61,20 +65,26 @@ public abstract class AbstractOrderedRecordVerticle extends AbstractVerticle
       }
       if (taskRecord.key()==null) {
         inflight.incrementAndGet();
-        handleRecord(taskRecord);
-      } else if (runningTaskKeys.contains(taskRecord.key())) {
+        var content = parseContent(taskRecord);
+        handleRecord(taskRecord, content);
+      } else if (lockingTaskKeys.contains(taskRecord.key())) {
         pausedTask.put(taskRecord.key(), taskRecord);
       } else {
         inflight.incrementAndGet();
-        runningTaskKeys.add(taskRecord.key());
-        handleRecord(taskRecord);
+        var content = parseContent(taskRecord);
+        if (shouldLock(taskRecord, content)) {
+          lockingTaskKeys.add(taskRecord.key());
+        }
+        handleRecord(taskRecord, content);
       }
     }
 
     lock.set(false);
   }
 
-  protected abstract void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord);
+  protected abstract T parseContent(KafkaConsumerRecord<String, Buffer> taskRecord);
+
+  protected abstract void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, T parsedContent);
 
   @Override
   public int countQueueingTasks() {
@@ -93,7 +103,7 @@ public abstract class AbstractOrderedRecordVerticle extends AbstractVerticle
   protected void next(KafkaConsumerRecord<String, Buffer> taskRecord) {
     var key = taskRecord.key();
     if (key!=null)
-      runningTaskKeys.remove(key);
+      lockingTaskKeys.remove(key);
     inflight.decrementAndGet();
     if (onRecordCompleteHandler!=null)
       onRecordCompleteHandler.accept(taskRecord);

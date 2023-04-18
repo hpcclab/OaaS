@@ -8,12 +8,20 @@
 
 == Introduction
 
-This guide is for local development using docker-compose. This deployment only provides the REST API for testing. The execution functionalities are disabled.
+This guide is for local development using docker-compose. This deployment is not included Kube Provisioner. Therefore, it can not automatically deploy a new container when you submit a new function. However, you can include your own function container in the compose files to locally test it.
+
+== Prerequisite
+* Docker Runtime
+* Docker Compose plugin
+* JDK 17
 
 == Deploy with docker-compose
 [source,bash]
 ----
-docker-compose -f docker-compose.dev.yml up -d
+# build project with mavan
+./mvnw package -DskipTests
+# start docker compose
+docker-compose -f docker-compose.dev.yml up -d --build
 ----
 
 NOTE: The provided compose file will perform building container image from the local files. If you want to pull the images from Github, you have to uncomment `image: ...` and comment `build: ...` on each services in the compose file.
@@ -28,7 +36,7 @@ After executing the above command, you have to manually create the `msc` bucket 
 |*Object Controller*
 |`http://localhost:8088`
 
-|*Task Manager*
+|*Invoker*
 |`http://localhost:8089`
 
 |*Storage Adapter*

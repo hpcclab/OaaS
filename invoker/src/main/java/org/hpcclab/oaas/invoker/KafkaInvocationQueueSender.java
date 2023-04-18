@@ -10,8 +10,8 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 @Dependent
 public class KafkaInvocationQueueSender implements InvocationQueueSender {
@@ -23,10 +23,9 @@ public class KafkaInvocationQueueSender implements InvocationQueueSender {
   @Override
   public Uni<Void> send(InvocationRequest request) {
     var topic = selectTopic(request);
-    var key = request.immutable()? null: request.partKey();
     var kafkaRecord = KafkaProducerRecord.create(
         topic,
-        key,
+        request.partKey(),
         Json.encodeToBuffer(request)
       )
       .addHeader("ce_function", request.function());
@@ -39,6 +38,6 @@ public class KafkaInvocationQueueSender implements InvocationQueueSender {
   }
 
   public String selectTopic(InvocationRequest request) {
-    return config.fnTopicPrefix() + request.function();
+    return config.invokeTopicPrefix() + request.targetCls();
   }
 }

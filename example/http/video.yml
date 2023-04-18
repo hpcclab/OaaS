@@ -5,7 +5,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: ghcr.io/hpcclab/oaas/transcode-function:latest
+        image: ghcr.io/hpcclab/oaas/transcode-fn-py:dev
         minScale: 1
 #        maxScale: 12
 #        concurrency: 1

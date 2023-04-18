@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.HasKey;
+import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -14,17 +16,14 @@ import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 @ProtoDoc("@Indexed")
-public class OaasObject implements Copyable<OaasObject> {
+public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
 
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
@@ -37,6 +36,8 @@ public class OaasObject implements Copyable<OaasObject> {
   String id;
   @ProtoField(2)
   ObjectOrigin origin;
+  @ProtoField(value = 3,defaultValue = "-1")
+  long revision;
   @ProtoField(4)
   @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.NO, store = Store.YES)")
   String cls;
@@ -56,7 +57,7 @@ public class OaasObject implements Copyable<OaasObject> {
   public OaasObject() {}
 
   @ProtoFactory
-  public OaasObject(String id, ObjectOrigin origin, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status, StreamInfo streamInfo) {
+  public OaasObject(String id, ObjectOrigin origin, String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status, StreamInfo streamInfo, long revision) {
     this.id = id;
     this.key = id;
     this.origin = origin;
@@ -67,6 +68,7 @@ public class OaasObject implements Copyable<OaasObject> {
     this.data = data;
     this.status = status;
     this.streamInfo = streamInfo;
+    this.revision = revision;
   }
 
   public static OaasObject createFromClasses(OaasClass cls) {
@@ -92,16 +94,17 @@ public class OaasObject implements Copyable<OaasObject> {
       refs==null ? null:Set.copyOf(refs),
       data != null? data.deepCopy(): null,
       status.copy(),
-      streamInfo == null? null:streamInfo.copy()
+      streamInfo == null? null:streamInfo.copy(),
+      revision
     );
   }
 
-  public void updateStatus(TaskCompletion taskCompletion) {
-    status.set(taskCompletion);
-    if (taskCompletion.getOutput() != null)
-      taskCompletion.getOutput().update(this, taskCompletion
-        .getId().getVId());
-  }
+//  public void updateStatus(TaskCompletion taskCompletion) {
+//    status.set(taskCompletion);
+//    if (taskCompletion.getOutput() != null)
+//      taskCompletion.getOutput().update(this, taskCompletion
+//        .getId().getVId());
+//  }
 
 
 
@@ -140,5 +143,9 @@ public class OaasObject implements Copyable<OaasObject> {
     status
       .setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
     return this;
+  }
+
+  public void setRevision(long revision) {
+    this.revision = revision;
   }
 }
