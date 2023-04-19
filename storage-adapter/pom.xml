@@ -69,7 +69,7 @@
     <dependency>
       <groupId>io.quarkiverse.minio</groupId>
       <artifactId>quarkus-minio</artifactId>
-      <version>2.9.1</version>
+      <version>2.10.3</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
