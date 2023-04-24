@@ -55,7 +55,7 @@ Content-Type: application/json
 PUT {{upload_text}}
 Content-Type: text/plain
 
-TEST_TEXT
+< ../../../oaas-load-test/test-files/test-100k.txt
 
 ###
-GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)
+GET http://localhost:8089/oal/{{obj_0_id}}:concat()(APPEND=NEW)
