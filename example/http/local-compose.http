@@ -59,3 +59,5 @@ Content-Type: text/plain
 
 ###
 GET http://localhost:8089/oal/{{obj_0_id}}:concat()(APPEND=NEW)
+###
+GET http://localhost:8089/oal/{{obj_0_id}}
