@@ -8,7 +8,7 @@ fastapi = "*"
 aiohttp = "*"
 uvicorn = "*"
 gunicorn = "*"
-oaas-sdk-py = "==0.1.4"
+oaas-sdk-py = "==0.1.6"
 
 [dev-packages]
 
