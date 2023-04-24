@@ -83,12 +83,12 @@ public class OalResource {
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
-          if (obj.isReadyToUsed()) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          }
-          if (obj.getStatus().getTaskStatus().isFailed()) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          }
+//          if (obj.isReadyToUsed()) {
+//            return Uni.createFrom().item(createResponse(obj, filePath));
+//          }
+//          if (obj.getStatus().getTaskStatus().isFailed()) {
+//            return Uni.createFrom().item(createResponse(obj, filePath));
+//          }
           return Uni.createFrom().item(createResponse(obj, filePath));
         });
     }

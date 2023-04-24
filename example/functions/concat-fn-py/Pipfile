@@ -14,4 +14,3 @@ oaas-sdk-py = "==0.1.4"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.2"

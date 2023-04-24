@@ -20,7 +20,7 @@ services:
     build:
       context: object-controller
       dockerfile: src/main/docker/Dockerfile.jvm
-    restart: always
+#    restart: always
     ports:
       - "8088:8080"
     environment:
@@ -66,7 +66,7 @@ services:
       context: storage-adapter
       dockerfile: src/main/docker/Dockerfile.jvm
 #    image: ghcr.io/pawissanutt/oaas/storage-adapter
-    restart: always
+#    restart: always
     ports:
       - "8090:8080"
     environment:
@@ -117,7 +117,7 @@ services:
     command: server --address 0.0.0.0:9000 --console-address ":9001" /data
 
   invoker:
-    restart: always
+#    restart: always
     depends_on:
       - arangodb
       - redpanda

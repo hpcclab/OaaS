@@ -58,4 +58,4 @@ Content-Type: text/plain
 TEST_TEXT
 
 ###
-GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)/text
+GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)
