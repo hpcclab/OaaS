@@ -21,7 +21,8 @@ class ConcatHandler(oaas.Handler):
 
         record['ts'] = round(time.time() * 1000)
         resp = await ctx.load_main_file("text")
-        text = (await resp.text()) + append
+        old_text = await resp.read()
+        text = old_text.decode("utf-8") + append
         b_text = bytes(text, 'utf-8')
 
         async with aiohttp.ClientSession() as session:
