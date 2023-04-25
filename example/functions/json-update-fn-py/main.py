@@ -5,7 +5,7 @@ import time
 
 import oaas_sdk_py as oaas
 import uvicorn
-from fastapi import Request, FastAPI
+from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 logging.basicConfig(level=logging.INFO)
@@ -63,6 +63,8 @@ async def handle(request: Request):
     logging.debug(f"request {body}")
     resp = await router.handle_task(body)
     logging.debug(f"completion {resp}")
+    if resp is None:
+        raise HTTPException(status_code=404, detail="No handler matched")
     return resp
 
 if __name__ == "__main__":

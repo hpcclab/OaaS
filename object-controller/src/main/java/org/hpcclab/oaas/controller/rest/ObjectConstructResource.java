@@ -28,6 +28,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

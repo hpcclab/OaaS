@@ -1,3 +1,4 @@
+name: example
 functions:
   - name: example.video.transcode
     type: TASK
@@ -17,7 +18,7 @@ functions:
       - name: FORMAT
 
 classes:
-  - name: example.video
+  - name: video
     stateType: FILES
     objectType: SIMPLE
     stateSpec:

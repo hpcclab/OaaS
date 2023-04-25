@@ -268,6 +268,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectConstructResponse_Public'
+      deprecated: true
   /api/objects:
     get:
       tags:

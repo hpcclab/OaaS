@@ -27,9 +27,11 @@ data:
         client_max_body_size 75M;
         recursive_error_pages on;
 
+        location /api/object-construct {
+          proxy_pass      http://invoker/api/object-construct;
+        }
+
         location /api/ {
-          #add_header access-control-allow-origin *;
-          #add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
           proxy_pass      http://object-controller/api/;
         }
 

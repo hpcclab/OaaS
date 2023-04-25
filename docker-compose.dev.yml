@@ -150,6 +150,11 @@ services:
       context: example/functions/concat-fn-py
 #    image: ghcr.io/pawissanutt/oaas/concat-fn-py
 
+  transcode-fn:
+    build:
+      context: example/functions/transcode-fn-py
+#    image: ghcr.io/pawissanutt/oaas/transcode-fn-py
+
 
 
 volumes:

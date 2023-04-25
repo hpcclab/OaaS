@@ -14,8 +14,6 @@ import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.test.MockupData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
@@ -23,8 +21,6 @@ import static org.hamcrest.Matchers.notNullValue;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 public class ObjectConstructResourceTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectConstructResourceTest.class);
-
   @Inject
   ObjectRepository objectRepo;
   @Inject

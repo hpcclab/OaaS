@@ -46,7 +46,7 @@ functions:
       export: record3
   - name: concat
     type: TASK
-    outputCls: example.text
+    outputCls: .text
     validation: {}
     provision:
       knative:
@@ -81,6 +81,22 @@ functions:
           args:
             INPLACE: "false"
       export: record3
+
+  - name: video.transcode
+    type: TASK
+    outputCls: .video
+    validation: { }
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:dev
+    variableDescriptions:
+      - name: RESOLUTION
+      - name: VCODEC
+      - name: FORMAT
+    deploymentStatus:
+      invocationUrl: "http://transcode-fn:8080/"
+      condition: RUNNING
+
 classes:
   - name: record
     stateType: FILES
@@ -117,10 +133,19 @@ classes:
         - name: text
     functions:
       - access: PUBLIC
-        function: example.concat
+        function: .concat
       - access: PUBLIC
-        function: example.concat
+        function: .concat
         name: concat-inplace
         outputCls: void
         defaultArgs:
           INPLACE: "true"
+  - name: video
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: video
+    functions:
+      - access: PUBLIC
+        function: .video.transcode
