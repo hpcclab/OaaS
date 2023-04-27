@@ -1,4 +1,0 @@
-resources:
-  - ../base
-patches:
-  - env-configmap.yml

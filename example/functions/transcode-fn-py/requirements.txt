@@ -1,4 +1,7 @@
 # requests
-flask
+fastapi
+aiohttp
+uvicorn
 gunicorn
-requests
+oaas-sdk-py==0.1.7
+aiofiles

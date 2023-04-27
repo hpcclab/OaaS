@@ -1,3 +1,4 @@
+name: example
 functions:
   - name: example.video.transcode
     type: TASK
@@ -5,7 +6,7 @@ functions:
     validation: {}
     provision:
       knative:
-        image: ghcr.io/hpcclab/oaas/transcode-fn-py:dev
+        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:dev
         minScale: 1
 #        maxScale: 12
 #        concurrency: 1
@@ -17,7 +18,7 @@ functions:
       - name: FORMAT
 
 classes:
-  - name: example.video
+  - name: video
     stateType: FILES
     objectType: SIMPLE
     stateSpec:

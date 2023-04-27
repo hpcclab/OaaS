@@ -1,11 +1,18 @@
-package org.hpcclab.oaas.controller.rest;
+package org.hpcclab.oaas.invoker.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hpcclab.oaas.controller.service.DataAllocationService;
+import org.hpcclab.oaas.invoker.service.DataAllocationService;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
@@ -18,17 +25,9 @@ import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
-@Deprecated
 @ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,7 +39,6 @@ public class ObjectConstructResource {
   @Inject
   ObjectRepository objRepo;
   @Inject
-  @RestClient
   DataAllocationService allocationService;
   @Inject
   OaasObjectFactory objectFactory;

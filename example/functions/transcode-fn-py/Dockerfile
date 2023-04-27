@@ -1,5 +1,6 @@
-FROM jrottenberg/ffmpeg:4.4-alpine
-RUN apk add --update --no-cache python3 curl && \
+FROM alpine
+#FROM jrottenberg/ffmpeg:4.4-alpine
+RUN apk add --update --no-cache python3 curl ffmpeg && \
     ln -sf python3 /usr/bin/python &&\
     python3 -m ensurepip && \
     mkdir -p "/opt/app"
@@ -13,4 +14,4 @@ EXPOSE 8080
 
 ENTRYPOINT ["/bin/sh", "-c"]
 #CMD ["python3 main.py"]
-CMD ["gunicorn -c config.py main:app"]
+CMD ["gunicorn -c config.py -k uvicorn.workers.UvicornWorker main:app"]

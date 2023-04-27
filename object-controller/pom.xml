@@ -31,11 +31,6 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.hpcclab.oaas</groupId>-->
-<!--      <artifactId>infinispan-repository</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
       <artifactId>arango-repository</artifactId>
@@ -86,6 +81,10 @@
       <artifactId>netty-transport-native-epoll</artifactId>
       <classifier>linux-x86_64</classifier>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.vertx</groupId>-->
+<!--      <artifactId>vertx-io_uring-incubator</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
