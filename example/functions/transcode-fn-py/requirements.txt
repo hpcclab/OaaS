@@ -3,5 +3,5 @@ fastapi
 aiohttp
 uvicorn
 gunicorn
-oaas-sdk-py==0.1.7
+oaas-sdk-py==0.1.8
 aiofiles
