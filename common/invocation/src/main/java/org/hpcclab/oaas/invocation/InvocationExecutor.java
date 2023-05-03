@@ -7,6 +7,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
@@ -36,7 +37,7 @@ public class InvocationExecutor {
   InvocationQueueSender sender;
   GraphStateManager gsm;
   ContextLoader contextLoader;
-  SyncInvoker syncInvoker;
+  OffLoader offLoader;
 //  CompletionValidator completionValidator;
   CompletedStateUpdater completionHandler;
   TaskFactory taskFactory;
@@ -46,14 +47,14 @@ public class InvocationExecutor {
   public InvocationExecutor(InvocationQueueSender sender,
                             GraphStateManager gsm,
                             ContextLoader contextLoader,
-                            SyncInvoker syncInvoker,
+                            OffLoader offLoader,
                             TaskFactory taskFactory,
 //                            CompletionValidator completionValidator,
                             CompletedStateUpdater completionHandler) {
     this.sender = sender;
     this.gsm = gsm;
     this.contextLoader = contextLoader;
-    this.syncInvoker = syncInvoker;
+    this.offLoader = offLoader;
     this.taskFactory = taskFactory;
 //    this.completionValidator = completionValidator;
     this.completionHandler = completionHandler;
@@ -120,7 +121,7 @@ public class InvocationExecutor {
     var output = ctx.getOutput();
     if (output != null)
       output.markAsSubmitted(null, false);
-    var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
+    var uni = offLoader.offload(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
       .call(tc -> {
@@ -144,7 +145,7 @@ public class InvocationExecutor {
       if (ctx.getRequest() != null)
         output.getStatus().setQueTs(ctx.getRequest().queTs());
     }
-    var uni = syncInvoker.invoke(taskFactory.genTask(ctx));
+    var uni = offLoader.offload(taskFactory.genTask(ctx));
     return uni
 //      .flatMap(tc -> completionValidator.validateCompletion(ctx, tc))
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))

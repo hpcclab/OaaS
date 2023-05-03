@@ -6,7 +6,8 @@ import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
-import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
+import org.hpcclab.oaas.invocation.config.HttpOffloaderConfig;
+import org.hpcclab.oaas.invocation.task.TaskDecoder;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
@@ -16,21 +17,19 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
-public class HttpInvoker implements SyncInvoker {
-  private static final Logger logger = LoggerFactory.getLogger(HttpInvoker.class);
+public class HttpOffLoader implements OffLoader {
+  private static final Logger logger = LoggerFactory.getLogger(HttpOffLoader.class);
   WebClient webClient;
-  HttpInvokerConfig config;
+  HttpOffloaderConfig config;
 
-  @Inject
-  public HttpInvoker(WebClient webClient,
-                     HttpInvokerConfig config) {
+  public HttpOffLoader(WebClient webClient,
+                       HttpOffloaderConfig config) {
     this.webClient = webClient;
     this.config = config;
   }
 
   @Override
-  public Uni<TaskCompletion> invoke(InvokingDetail<?> invokingDetail) {
+  public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (logger.isDebugEnabled())
       logger.debug("invoke {}", invokingDetail.getId());
     var content = invokingDetail.getContent();

@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.invocation.config;
 
 import lombok.*;
-import lombok.experimental.Accessors;
 
 @Getter
 @Builder()
-public class HttpInvokerConfig {
+public class HttpOffloaderConfig {
   String appName;
   @Builder.Default
   String ceType = "oaas.task";

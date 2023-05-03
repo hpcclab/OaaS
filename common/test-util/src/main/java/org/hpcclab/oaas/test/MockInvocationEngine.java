@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invocation.applier.MacroFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.TaskFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
+import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.*;
@@ -25,7 +26,7 @@ public class MockInvocationEngine {
   public final EntityRepository<String, OaasObject> objectRepo;
   public final MockGraphStateManager graphStateManager;
   public final MockInvocationQueueSender invocationQueueSender;
-  public final MockSyncInvoker syncInvoker;
+  public final MockOffLoader syncInvoker;
   public final InvocationExecutor invocationExecutor;
   public final MutableMap<String, OaasObject> objectMap;
   public final OneShotDataflowInvoker dataflowInvoker;
@@ -53,7 +54,7 @@ public class MockInvocationEngine {
     var contentUrlGenerator = new ContentUrlGenerator("http://localhost:8080");
     taskFactory = new TaskFactory(contentUrlGenerator, loader.getClsRepo(), new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
-    syncInvoker = new MockSyncInvoker();
+    syncInvoker = new MockOffLoader();
     completedStateUpdater = new CompletedStateUpdater(new CompletionValidator(loader.getClsRepo(), loader.getFuncRepo()));
     invocationExecutor = new InvocationExecutor(
       invocationQueueSender,

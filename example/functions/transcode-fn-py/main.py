@@ -1,5 +1,7 @@
+import asyncio
 import logging
 import os
+import time
 import uuid
 
 import aiofiles
@@ -19,10 +21,10 @@ else:
 KEY_NAME = "video"
 
 
-def run_ffmpeg(args,
-               tmp_in,
-               tmp_out):
-  resolution = args.get('RESOLUTION', '720x480')
+async def run_ffmpeg(args,
+                     tmp_in,
+                     tmp_out):
+  resolution = args.get('RESOLUTION', '1280x720')
   acodec = args.get('ACODEC', 'copy')
   vcodec = args.get('VCODEC', '')
   if resolution != 'no':
@@ -36,9 +38,12 @@ def run_ffmpeg(args,
     codec += ' -vcodec ' + vcodec
   cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_out}'
   full_cmd = f'{SHELL} -c "{cmd}"'
-  logging.warning(f'full_cmd = {full_cmd}')
-  code = os.system(full_cmd)
-  if code != 0:
+  ts = time.time()
+  logging.info(f'full_cmd = {full_cmd}')
+  process = await asyncio.create_subprocess_exec(SHELL, "-c", cmd)
+  await process.wait()
+  logging.debug(f"done ffmpeg in {time.time() - ts} s")
+  if process.returncode != 0:
     return f"Fail to execute {cmd}"
 
 
@@ -49,13 +54,17 @@ class TranscodeHandler(oaas_sdk_py.Handler):
     tmp_out = str(uuid.uuid4()) + '.' + video_format
 
     async with aiohttp.ClientSession() as session:
+      ts = time.time()
       resp = await ctx.load_main_file(session, "video")
       resp.raise_for_status()
-      async with aiofiles.open(tmp_in, "wb") as f:
+      with open(tmp_in, "wb") as f:
         async for chunk in resp.content.iter_chunked(1024):
-          await f.write(chunk)
-      run_ffmpeg(ctx.args, tmp_in, tmp_out)
+          f.write(chunk)
+      logging.debug(f"done loading in {time.time() - ts} s")
+      await run_ffmpeg(ctx.args, tmp_in, tmp_out)
+      ts = time.time()
       await ctx.upload_file(session, "video", tmp_out)
+      logging.debug(f"done uploading in {time.time() - ts} s")
     if os.path.isfile(tmp_out):
       os.remove(tmp_out)
     if os.path.isfile(tmp_in):

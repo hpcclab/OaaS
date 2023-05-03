@@ -35,7 +35,7 @@ class InvocationTest {
   EntityRepository<String, OaasObject> objectRepo;
   MockGraphStateManager graphStateManager;
   MockInvocationQueueSender invocationQueueSender;
-  MockSyncInvoker syncInvoker;
+  MockOffLoader syncInvoker;
 
   InvocationExecutor invocationExecutor;
   MutableMap<String, OaasObject> objectMap;

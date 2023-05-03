@@ -10,7 +10,7 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-    <infinispan.version>14.0.8.Final</infinispan.version>
+    <infinispan.version>14.0.9.Final</infinispan.version>
   </properties>
 
   <dependencyManagement>
@@ -63,11 +63,6 @@
       <artifactId>invocation</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.hpcclab.oaas</groupId>-->
-<!--      <artifactId>nats-object-eventing</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>

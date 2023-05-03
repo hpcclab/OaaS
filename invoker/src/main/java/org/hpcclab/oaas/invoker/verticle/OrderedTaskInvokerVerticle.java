@@ -11,7 +11,7 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvokingDetail;
-import org.hpcclab.oaas.invocation.SyncInvoker;
+import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Deprecated(forRemoval = true)
 public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<OaasTask> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedTaskInvokerVerticle.class);
-  final SyncInvoker invoker;
+  final OffLoader invoker;
   final FunctionRepository funcRepo;
   final InvocationExecutor graphExecutor;
   final ObjectCompletionPublisher objCompPublisher;
@@ -41,7 +41,7 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<Oa
   private final Timer completionTimer;
 
   @Inject
-  public OrderedTaskInvokerVerticle(SyncInvoker invoker,
+  public OrderedTaskInvokerVerticle(OffLoader invoker,
                                     FunctionRepository funcRepo,
                                     InvocationExecutor graphExecutor,
                                     ObjectCompletionPublisher objCompPublisher,
@@ -84,7 +84,7 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<Oa
     }
     generateInvokingDetail(taskRecord, task)
       .flatMap(invokingDetail -> {
-        var invokedUni = invoker.invoke(invokingDetail)
+        var invokedUni = invoker.offload(invokingDetail)
           .onFailure()
           .recoverWithItem(err -> TaskCompletion.error(
               TaskIdentity.decode(invokingDetail.getId()),

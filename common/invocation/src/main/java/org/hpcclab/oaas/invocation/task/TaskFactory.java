@@ -1,5 +1,6 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.task;
 
+import org.hpcclab.oaas.invocation.ContentUrlGenerator;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 @ApplicationScoped
 public class TaskFactory {
-  private static final Logger LOGGER = LoggerFactory.getLogger( TaskFactory.class );
+  private static final Logger logger = LoggerFactory.getLogger( TaskFactory.class );
   private final ContentUrlGenerator contentUrlGenerator;
 
   private final EntityRepository<String, OaasClass> clsRepo;
