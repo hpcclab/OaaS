@@ -39,16 +39,6 @@ public class InfinispanSetup {
     }
     System.setProperty("infinispan.node.name", podName);
 
-
-    //      InputStream configurationStream = FileLookupFactory.newInstance().lookupFileStrict("infinispan.xml",
-//        Thread.currentThread().getContextClassLoader());
-//      ConfigurationBuilderHolder configHolder = new ParserRegistry()
-//              .parse(configurationStream, ConfigurationResourceResolver.DEFAULT, MediaType.APPLICATION_XML);
-//      logger.info("starting infinispan {}", configHolder);
-//      cacheManager = new DefaultCacheManager(configHolder, true);
-//      logger.info("started infinispan");
-
-
     GlobalConfigurationBuilder globalConfigurationBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder();
     if (dns != null) {
       globalConfigurationBuilder
@@ -58,7 +48,7 @@ public class InfinispanSetup {
     }
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
-    cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
+    var cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
     logger.info("started infinispan");
 
     if (config.hotRodPort() >= 0) {
@@ -73,7 +63,9 @@ public class InfinispanSetup {
 
   @Produces
   EmbeddedCacheManager embeddedCacheManager() {
-    return setup();
+    if (cacheManager == null)
+      cacheManager = setup();
+    return cacheManager;
   }
 
   @PreDestroy
