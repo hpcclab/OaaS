@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.task;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.DecodeException;

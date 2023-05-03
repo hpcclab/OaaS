@@ -16,7 +16,7 @@ import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.task.OaasTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
-import org.hpcclab.oaas.test.MockSyncInvoker;
+import org.hpcclab.oaas.test.MockOffLoader;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +29,8 @@ public class MockProducer {
 
   @Produces
   @Mock
-  MockSyncInvoker invoker() {
-    var mockSyncInvoker = new MockSyncInvoker();
+  MockOffLoader invoker() {
+    var mockSyncInvoker = new MockOffLoader();
     mockSyncInvoker.setMapper(detail -> {
       OaasTask task = (OaasTask) detail.getContent();
       ObjectUpdate mainUpdate = null;

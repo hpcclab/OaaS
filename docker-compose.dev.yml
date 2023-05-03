@@ -36,31 +36,6 @@ services:
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
 
-#  tm:
-#    restart: always
-#    depends_on:
-#      - arangodb
-#      - redpanda
-##    image: ghcr.io/pawissanutt/oaas/task-manager
-#    build:
-#      context: task-manager
-#      dockerfile: src/main/docker/Dockerfile.jvm
-#    ports:
-#      - "8089:8080"
-#    environment:
-#      QUARKUS_CONSOLE_COLOR: 'true'
-#      QUARKUS_HTTP_CORS: 'true'
-#      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
-#      OAAS_TM_OBJECTCONTROLLERURL: http://oc:8080
-#      OAAS_TM_STORAGEADAPTERURL: http://sa:8080
-#      OAAS_TM_BLOCKINGTIMEOUT: '15'
-#      OAAS_TM_INVOKERURL: http://invoker:8080
-#      OAAS_REPO_ARG_HOST: arangodb
-#      OAAS_REPO_ARG_PORT: "8529"
-#      OAAS_REPO_ARG_DB: oaas
-#      OAAS_REPO_ARG_USER: root
-#      OAAS_REPO_ARG_PASS: changeme
-
   sa:
     build:
       context: storage-adapter

@@ -5,10 +5,11 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
-import org.hpcclab.oaas.invocation.config.HttpInvokerConfig;
+import org.hpcclab.oaas.invocation.config.HttpOffloaderConfig;
 import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.repository.GraphStateManager;
@@ -30,10 +31,10 @@ public class InvocationEngineProducer {
     InvocationQueueSender sender,
     GraphStateManager graphStateManager,
     RepoContextLoader contextLoader,
-    SyncInvoker syncInvoker,
+    OffLoader offLoader,
     TaskFactory taskFactory,
     CompletedStateUpdater completionHandler) {
-    return new InvocationExecutor(sender, graphStateManager, contextLoader, syncInvoker, taskFactory, completionHandler);
+    return new InvocationExecutor(sender, graphStateManager, contextLoader, offLoader, taskFactory, completionHandler);
   }
 
   @Produces
@@ -59,11 +60,17 @@ public class InvocationEngineProducer {
 
   @Produces
   @ApplicationScoped
-  HttpInvokerConfig invokerConfig(InvokerConfig config){
-    return HttpInvokerConfig.builder()
+  HttpOffloaderConfig invokerConfig(InvokerConfig config){
+    return HttpOffloaderConfig.builder()
       .appName("oaas/invoker")
       .timout(config.invokeTimeout())
       .build();
+  }
+
+  @Produces
+  @ApplicationScoped
+  OffLoader offLoader(HttpOffloaderConfig config, WebClient webClient) {
+    return new HttpOffLoader(webClient, config);
   }
 
   @Produces
