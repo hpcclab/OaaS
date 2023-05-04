@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class OneShotDataflowInvoker implements DataflowInvoker {
   private static final Logger logger = LoggerFactory.getLogger( OneShotDataflowInvoker.class );
-  OffLoader syncInvoker;
+  OffLoader offLoader;
   TaskFactory taskFactory;
   CompletedStateUpdater completedStateUpdater;
   GraphStateManager graphStateManager;
@@ -29,7 +29,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
                                 TaskFactory taskFactory,
                                 CompletedStateUpdater completedStateUpdater,
                                 GraphStateManager graphStateManager) {
-    this.syncInvoker = offLoader;
+    this.offLoader = offLoader;
     this.taskFactory = taskFactory;
     this.completedStateUpdater = completedStateUpdater;
     this.graphStateManager = graphStateManager;
@@ -62,7 +62,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
       var task = taskFactory.genTask(ctx);
       if (ctx.getRequest() != null && task.getOutput() != null)
         task.getOutput().getStatus().setQueTs(ctx.getRequest().queTs());
-      syncInvoker.offload(task)
+      offLoader.offload(task)
         .flatMap(cmp -> completedStateUpdater.handleComplete(ctx, cmp))
         .invoke(() -> node.setCompleted(true))
         .subscribe()

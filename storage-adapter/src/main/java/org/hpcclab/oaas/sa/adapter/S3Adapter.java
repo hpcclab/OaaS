@@ -1,22 +1,18 @@
-package org.hpcclab.oaas.storage.adapter;
+package org.hpcclab.oaas.sa.adapter;
 
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.http.Method;
-import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.storage.SaConfig;
+import org.hpcclab.oaas.sa.SaConfig;
+import org.hpcclab.oaas.storage.PresignGeneratorPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,28 +24,31 @@ public class S3Adapter implements StorageAdapter {
   SaConfig config;
   @Inject
   Vertx vertx;
-
-  private MinioClient minioClient;
-  private MinioClient publicMinioClient;
+  @Inject
+  PresignGeneratorPool generatorPool;
   private boolean relay;
   private WebClient webClient;
   private String prefix;
+  private String bkt;
 
-  void setup(@Observes StartupEvent event) {
+
+  @PostConstruct
+  void setup() {
     var s3Config = config.s3();
-    minioClient = MinioClient.builder()
-      .endpoint(s3Config.url())
-      .region(s3Config.region())
-      .credentials(s3Config.accessKey(), s3Config.secretKey())
-      .build();
-    publicMinioClient = MinioClient.builder()
-      .endpoint(s3Config.publicUrl())
-      .region(s3Config.region())
-      .credentials(s3Config.accessKey(), s3Config.secretKey())
-      .build();
-    relay = config.s3().relay();
+//    minioClient = MinioClient.builder()
+//      .endpoint(s3Config.url().toString())
+//      .region(s3Config.region())
+//      .credentials(s3Config.accessKey(), s3Config.secretKey())
+//      .build();
+//    publicMinioClient = MinioClient.builder()
+//      .endpoint(s3Config.publicUrl().toString())
+//      .region(s3Config.region())
+//      .credentials(s3Config.accessKey(), s3Config.secretKey())
+//      .build();
+    relay = config.relay();
     webClient = WebClient.create(vertx);
-    prefix = s3Config.prefix()==null ? "":s3Config.prefix();
+    prefix = s3Config.prefix().orElse("");
+    bkt = s3Config.bucket();
   }
 
   @Override
@@ -59,11 +58,12 @@ public class S3Adapter implements StorageAdapter {
 
   @Override
   public Uni<Response> get(DataAccessRequest dar) {
+    var generator = generatorPool.getGenerator();
     var uni = Uni.createFrom()
-      .item(() -> generatePresigned(
-        Method.GET,
-        convertToPath(dar.oid(), dar.vid(), dar.key()),
-        false)
+      .item(() -> generator.generatePresignGet(
+          bkt,
+          convertToPath(dar.oid(), dar.vid(), dar.key())
+        )
       );
     if (relay) {
       return uni
@@ -92,22 +92,6 @@ public class S3Adapter implements StorageAdapter {
       });
   }
 
-  private String generatePresigned(Method method,
-                                   String path,
-                                   boolean isPublicUrl) {
-    try {
-      var client = isPublicUrl ? publicMinioClient:minioClient;
-      var args = GetPresignedObjectUrlArgs.builder()
-        .method(method)
-        .bucket(config.s3().bucket())
-        .object(path)
-        .build();
-      return client.getPresignedObjectUrl(args);
-    } catch (Exception e) {
-      throw new StdOaasException(e.getMessage(), e);
-    }
-  }
-
   @Override
   public Uni<Map<String, String>> allocate(InternalDataAllocateRequest request) {
     return Uni.createFrom().item(allocateBlocking(request));
@@ -118,10 +102,10 @@ public class S3Adapter implements StorageAdapter {
     var map = new HashMap<String, String>();
     for (String key : keys) {
       var path = generatePath(request, key);
-      var url = generatePresigned(
-        Method.PUT,
-        path,
-        request.publicUrl());
+      var gen = request.publicUrl() ?
+        generatorPool.getPublicGenerator():
+        generatorPool.getGenerator();
+      var url = gen.generatePresignPut(bkt, path);
       map.put(key, url);
     }
     return map;

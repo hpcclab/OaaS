@@ -6,7 +6,7 @@ import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
-import org.hpcclab.oaas.invocation.config.HttpOffloaderConfig;
+import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.invocation.task.TaskDecoder;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -14,16 +14,13 @@ import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 public class HttpOffLoader implements OffLoader {
   private static final Logger logger = LoggerFactory.getLogger(HttpOffLoader.class);
   WebClient webClient;
-  HttpOffloaderConfig config;
+  HttpOffLoaderConfig config;
 
   public HttpOffLoader(WebClient webClient,
-                       HttpOffloaderConfig config) {
+                       HttpOffLoaderConfig config) {
     this.webClient = webClient;
     this.config = config;
   }

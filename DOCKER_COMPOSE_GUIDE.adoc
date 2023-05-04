@@ -21,7 +21,7 @@ This guide is for local development using docker-compose. This deployment is not
 # build project with mavan
 ./mvnw package -DskipTests
 # start docker compose
-docker-compose -f docker-compose.dev.yml up -d --build
+docker-compose up -d --build
 ----
 
 NOTE: The provided compose file will perform building container image from the local files. If you want to pull the images from Github, you have to uncomment `image: ...` and comment `build: ...` on each services in the compose file.

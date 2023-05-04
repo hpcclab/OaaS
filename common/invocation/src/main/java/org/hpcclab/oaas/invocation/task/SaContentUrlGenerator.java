@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.task;
 
 import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.model.data.AccessLevel;
@@ -9,17 +9,15 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
-public class ContentUrlGenerator {
+public class SaContentUrlGenerator implements ContentUrlGenerator{
 
   private final String saUrl;
 
-  @Inject
-  public ContentUrlGenerator(InvocationConfig config) {
-    this.saUrl = config.storageAdapterUrl();
+  public SaContentUrlGenerator() {
+    saUrl="";
   }
 
-  public ContentUrlGenerator(String saUrl) {
+  public SaContentUrlGenerator(String saUrl) {
     this.saUrl = saUrl;
   }
 
@@ -31,13 +29,18 @@ public class ContentUrlGenerator {
     var vid = obj.getState().findVerId(file);
     if (vid == null)
       throw StdOaasException.notKeyInObj(obj.getId(),404);
-    var dac = DataAccessContext.generate(obj, level)
-      .setVid(vid);
+    var dac = DataAccessContext.generate(obj, level, vid);
     var b64 = dac.encode();
     return generateUrl(obj.getId(), vid, file, b64);
   }
 
-  public String generateUrl(String oid,
+  public String generateUrl(OaasObject obj,
+                            DataAccessContext dac,
+                            String file) {
+    return generateUrl(obj.getId(), dac.getVid(), file, dac.encode());
+  }
+
+  private String generateUrl(String oid,
                             String vid,
                             String file,
                             String contextKey) {
@@ -45,8 +48,8 @@ public class ContentUrlGenerator {
       .formatted(oid, vid, file, contextKey);
   }
 
-  public String generateAllocateUrl(String oid, String contextKey) {
+  public String generateAllocateUrl(OaasObject obj, DataAccessContext dac) {
     return saUrl + "/allocate/%s?contextKey=%s"
-      .formatted(oid, contextKey);
+      .formatted(obj.getId(), dac.encode());
   }
 }

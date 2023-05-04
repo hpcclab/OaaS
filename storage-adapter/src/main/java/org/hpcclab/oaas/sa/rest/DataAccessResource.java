@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.storage.rest;
+package org.hpcclab.oaas.sa.rest;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.data.DataAccessContext;
@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.data.DataAccessRequest;
 import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.storage.AdapterLoader;
+import org.hpcclab.oaas.sa.AdapterLoader;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invocation.applier.MacroFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.TaskFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
+import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -51,7 +52,7 @@ public class MockInvocationEngine {
     router = new UnifiedFunctionRouter(logicalApplier, macroApplier, taskApplier, loader);
 
     graphStateManager = new MockGraphStateManager(objectRepo);
-    var contentUrlGenerator = new ContentUrlGenerator("http://localhost:8080");
+    var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
     taskFactory = new TaskFactory(contentUrlGenerator, loader.getClsRepo(), new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
     syncInvoker = new MockOffLoader();

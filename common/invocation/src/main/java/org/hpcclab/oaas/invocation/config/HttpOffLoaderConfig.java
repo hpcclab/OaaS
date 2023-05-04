@@ -4,9 +4,10 @@ import lombok.*;
 
 @Getter
 @Builder()
-public class HttpOffloaderConfig {
+public class HttpOffLoaderConfig {
   String appName;
   @Builder.Default
   String ceType = "oaas.task";
+  @Builder.Default
   int timout = 10*60*1000;
 }

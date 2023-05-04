@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.storage;
+package org.hpcclab.oaas.sa;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.testcontainers.arangodb.containers.ArangoContainer;

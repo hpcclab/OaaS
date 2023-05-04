@@ -10,9 +10,17 @@
   </parent>
   <artifactId>storage-adapter</artifactId>
   <properties>
+    <okhttp.version>4.11.0</okhttp.version>
   </properties>
   <dependencyManagement>
     <dependencies>
+<!--      <dependency>-->
+<!--        <groupId>com.squareup.okhttp3</groupId>-->
+<!--        <artifactId>okhttp-bom</artifactId>-->
+<!--        <version>${okhttp.version}</version>-->
+<!--        <type>pom</type>-->
+<!--        <scope>import</scope>-->
+<!--      </dependency>-->
       <dependency>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -31,6 +39,11 @@
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
       <artifactId>arango-repository</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>common-storage</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -57,20 +70,20 @@
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>smallrye-mutiny-vertx-web-client</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.minio</groupId>
-      <artifactId>quarkus-minio</artifactId>
-      <version>2.9.1</version>
-    </dependency>
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-epoll</artifactId>
-          <classifier>linux-x86_64</classifier>
-        </dependency>
 <!--    <dependency>-->
-<!--      <groupId>io.vertx</groupId>-->
-<!--      <artifactId>vertx-io_uring-incubator</artifactId>-->
+<!--      <groupId>io.quarkiverse.minio</groupId>-->
+<!--      <artifactId>quarkus-minio</artifactId>-->
+<!--      <version>2.9.1</version>-->
 <!--    </dependency>-->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-epoll</artifactId>
+      <classifier>linux-x86_64</classifier>
+    </dependency>
+    <!--    <dependency>-->
+    <!--      <groupId>io.vertx</groupId>-->
+    <!--      <artifactId>vertx-io_uring-incubator</artifactId>-->
+    <!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>

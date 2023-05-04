@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.storage.rest;
+package org.hpcclab.oaas.sa.rest;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.storage.AdapterLoader;
+import org.hpcclab.oaas.sa.AdapterLoader;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 

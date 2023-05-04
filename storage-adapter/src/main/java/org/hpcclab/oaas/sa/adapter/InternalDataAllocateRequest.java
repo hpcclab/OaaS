@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.storage.adapter;
+package org.hpcclab.oaas.sa.adapter;
 
 
 import java.util.List;

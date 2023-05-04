@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.storage;
+package org.hpcclab.oaas.sa;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -6,9 +6,9 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.storage.adapter.InternalDataAllocateRequest;
-import org.hpcclab.oaas.storage.adapter.S3Adapter;
-import org.hpcclab.oaas.storage.adapter.StorageAdapter;
+import org.hpcclab.oaas.sa.adapter.InternalDataAllocateRequest;
+import org.hpcclab.oaas.sa.adapter.S3Adapter;
+import org.hpcclab.oaas.sa.adapter.StorageAdapter;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
