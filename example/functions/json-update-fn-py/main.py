@@ -10,7 +10,7 @@ from oaas_sdk_py import OaasInvocationCtx
 import os
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelNamesMapping()[LOG_LEVEL]
+level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
 
