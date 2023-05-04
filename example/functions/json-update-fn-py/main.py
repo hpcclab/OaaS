@@ -7,8 +7,11 @@ import oaas_sdk_py as oaas
 import uvicorn
 from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
+import os
 
-logging.basicConfig(level=logging.INFO)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+level = logging.getLevelNamesMapping()[LOG_LEVEL]
+logging.basicConfig(level=level)
 
 
 def generate_text(num):

@@ -162,7 +162,7 @@ public class InvocationExecutor {
   }
 
   public Uni<Void> complete(TaskCompletion completion) {
-    return contextLoader.getTaskContextAsync(completion.getId().oId())
+    return contextLoader.getTaskContextAsync(completion.getId().oid())
       .flatMap(ctx ->
 //        completionValidator.validateCompletion(ctx, completion)
         completionHandler.handleComplete(ctx, completion)

@@ -42,12 +42,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   String originator;
   @ProtoField(9)
   String errorMsg;
-
   @ProtoField(value = 10, defaultValue = "-1")
   long updatedOffset = -1;
-
   @ProtoField(11)
-  String vId;
+  String vid;
 
   public ObjectStatus() {
   }
@@ -64,7 +62,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
                       String originator,
                       String errorMsg,
                       long updatedOffset,
-                      String vId) {
+                      String vid) {
     this.taskStatus = taskStatus;
     this.crtTs = crtTs;
     this.queTs = queTs;
@@ -75,7 +73,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     this.originator = originator;
     this.errorMsg = errorMsg;
     this.updatedOffset = updatedOffset;
-    this.vId = vId;
+    this.vid = vid;
   }
 
   public ObjectStatus copy() {
@@ -90,14 +88,14 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       originator,
       errorMsg,
       updatedOffset,
-      vId
+      vid
     );
   }
 
   public void set(TaskCompletion taskCompletion) {
     if (taskCompletion.isSuccess()) {
       taskStatus = TaskStatus.SUCCEEDED;
-      vId = taskCompletion.getId().getVId();
+      vid = taskCompletion.getId().getVid();
     } else
       taskStatus = TaskStatus.FAILED;
     if (taskCompletion.getCptTs() > 0 ) {
@@ -109,13 +107,13 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       smtTs = taskCompletion.getSmtTs();
     }
     errorMsg = taskCompletion.getErrorMsg();
-    var ext = taskCompletion.getExt();
-    if (ext!=null && ext.containsKey("osts")) {
-      try {
-        smtTs = Long.parseLong(ext.get("osts"));
-      } catch (NumberFormatException ignore) {
-      }
-    }
+//    var ext = taskCompletion.getExt();
+//    if (ext!=null && ext.containsKey("osts")) {
+//      try {
+//        smtTs = Long.parseLong(ext.get("osts"));
+//      } catch (NumberFormatException ignore) {
+//      }
+//    }
   }
 
   public void initWaitFor() {

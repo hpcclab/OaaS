@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 import aiohttp
@@ -7,7 +8,9 @@ import uvicorn
 from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
-logging.basicConfig(level=logging.DEBUG)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+level = logging.getLevelNamesMapping()[LOG_LEVEL]
+logging.basicConfig(level=level)
 
 
 class ConcatHandler(oaas.Handler):

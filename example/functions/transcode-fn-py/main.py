@@ -10,8 +10,11 @@ import oaas_sdk_py
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
+import os
 
-logging.basicConfig(level=logging.DEBUG)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+level = logging.getLevelNamesMapping()[LOG_LEVEL]
+logging.basicConfig(level=level)
 
 if os.name == 'nt':
   SHELL = 'pwsh'

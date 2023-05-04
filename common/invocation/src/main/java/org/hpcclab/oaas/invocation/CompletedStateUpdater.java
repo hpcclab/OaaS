@@ -42,7 +42,7 @@ public class CompletedStateUpdater {
       out.getStatus().set(completion);
       if (completion.getOutput() != null)
         completion.getOutput().update(out, completion
-          .getId().getVId());
+          .getId().getVid());
       if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
         out.getStatus().setUpdatedOffset(iac.getMqOffset());
     }

@@ -119,6 +119,7 @@ services:
       OAAS_INVOKER_S3_ACCESSKEY: minio_access_key
       OAAS_INVOKER_S3_SECRETKEY: minio_secret_key
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
+      OAAS_INVOKER_USESA: "false"
 
   json-update-fn:
     build:

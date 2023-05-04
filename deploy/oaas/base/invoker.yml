@@ -37,6 +37,22 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: OAAS_INVOKER_S3_URL
+              value: 'http://${BUCKET_HOST}.cluster.local'
+            - name: OAAS_INVOKER_S3_PUBLICURL
+              value: 'http://${BUCKET_HOST}.cluster.local' # change here.
+            - name: OAAS_INVOKER_S3_BUCKET
+              value: '${BUCKET_NAME}'
+            - name: OAAS_INVOKER_S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_ACCESS_KEY_ID
+                  name: oaas-bucket
+            - name: OAAS_INVOKER_S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_SECRET_ACCESS_KEY
+                  name: oaas-bucket
           envFrom:
             - configMapRef:
                 name: oaas-env
