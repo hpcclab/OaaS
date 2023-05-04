@@ -6,7 +6,7 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.SyncInvoker;
+import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -25,7 +25,7 @@ import java.time.Duration;
 @Dependent
 public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle<InvocationRequest> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderedInvocationHandlerVerticle.class);
-  final SyncInvoker invoker;
+  final OffLoader invoker;
   final FunctionRepository funcRepo;
   final InvocationExecutor invocationExecutor;
   final ObjectCompletionPublisher objCompPublisher;
@@ -34,7 +34,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   final OneShotDataflowInvoker dataflowInvoker;
 
   @Inject
-  public OrderedInvocationHandlerVerticle(SyncInvoker invoker,
+  public OrderedInvocationHandlerVerticle(OffLoader invoker,
                                           FunctionRepository funcRepo,
                                           InvocationExecutor graphExecutor,
                                           ObjectCompletionPublisher objCompPublisher,

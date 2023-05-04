@@ -4,7 +4,7 @@ resources:
   - kp.yml
   - kp-rb.yml
 ### task-manager
-  - tm.yml
+#  - tm.yml
 ### object-controller
   - oc.yml
 ### content-delivery-service

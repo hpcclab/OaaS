@@ -19,9 +19,12 @@ data:
   OAAS_INVOKER_STORAGEADAPTERURL: "http://storage-adapter.oaas.svc.cluster.local"
   OAAS_INVOKER_CONNECTIONPOOLMAXSIZE: '100'
   OAAS_INVOKER_NUMOFVERTICLE: '1'
-#  OAAS_SA_S3_RELAY: "true"
+  OAAS_ISPN_ARGCONNECTION_HOST: "arango-cluster"
+  OAAS_ISPN_ARGCONNECTION_PORT: "8529"
+  OAAS_ISPN_ARGCONNECTION_DB: "oaas"
   OAAS_REPO_ARG_HOST: "arango-cluster"
   OAAS_REPO_ARG_PORT: "8529"
+#  OAAS_SA_S3_RELAY: "true"
 
 kind: ConfigMap
 metadata:

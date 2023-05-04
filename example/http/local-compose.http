@@ -55,7 +55,31 @@ Content-Type: application/json
 PUT {{upload_text}}
 Content-Type: text/plain
 
-TEST_TEXT
+< ../../../oaas-load-test/test-files/test-100k.txt
 
 ###
-GET http://localhost:8089/oal/{{obj_0_id}}:concat-inplace()(APPEND=NEW)/text
+GET http://localhost:8089/oal/{{obj_0_id}}:concat()(APPEND=NEW)
+###
+GET http://localhost:8089/oal/{{obj_0_id}}
+###
+POST http://localhost:8088/api/object-construct
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cls": "example.video",
+  "keys": ["video"]
+}
+
+> {%
+  client.global.set("obj_0_id", response.body.object.id)
+  client.global.set("upload_video", response.body.uploadUrls.video)
+%}
+###
+PUT {{upload_video}}
+Content-Type: application/octet-stream
+
+< ../../../oaas-load-test/test-files/test-5s.mp4
+
+###
+GET http://localhost:8089/oal/{{obj_0_id}}:transcode()(RESOLUTION=720x480)

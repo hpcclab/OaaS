@@ -8,7 +8,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.hpcclab.oaas.invocation.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
@@ -83,12 +84,12 @@ public class OalResource {
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
         .flatMap(obj -> {
-          if (obj.isReadyToUsed()) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          }
-          if (obj.getStatus().getTaskStatus().isFailed()) {
-            return Uni.createFrom().item(createResponse(obj, filePath));
-          }
+//          if (obj.isReadyToUsed()) {
+//            return Uni.createFrom().item(createResponse(obj, filePath));
+//          }
+//          if (obj.getStatus().getTaskStatus().isFailed()) {
+//            return Uni.createFrom().item(createResponse(obj, filePath));
+//          }
           return Uni.createFrom().item(createResponse(obj, filePath));
         });
     }

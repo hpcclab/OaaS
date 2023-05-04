@@ -2,16 +2,23 @@ package org.hpcclab.oaas.invoker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.Mock;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectUpdate;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskIdentity;
-import org.hpcclab.oaas.test.MockSyncInvoker;
-
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.invoker.service.DataAllocationService;
+import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.model.data.DataAllocateResponse;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.ObjectUpdate;
+import org.hpcclab.oaas.model.state.KeySpecification;
+import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.TaskIdentity;
+import org.hpcclab.oaas.test.MockOffLoader;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -19,10 +26,11 @@ import java.util.Optional;
 public class MockProducer {
   @Inject
   ObjectMapper objectMapper;
+
   @Produces
   @Mock
-  MockSyncInvoker invoker() {
-    var mockSyncInvoker = new MockSyncInvoker();
+  MockOffLoader invoker() {
+    var mockSyncInvoker = new MockOffLoader();
     mockSyncInvoker.setMapper(detail -> {
       OaasTask task = (OaasTask) detail.getContent();
       ObjectUpdate mainUpdate = null;
@@ -31,9 +39,9 @@ public class MockProducer {
         .map(OaasObject::getData)
         .map(on -> on.get("n").asInt())
         .orElse(0);
-      if (task.getInputs() != null && !task.getInputs().isEmpty()) {
+      if (task.getInputs()!=null && !task.getInputs().isEmpty()) {
         for (OaasObject input : task.getInputs()) {
-          var ni =Optional.ofNullable(task.getMain())
+          var ni = Optional.ofNullable(task.getMain())
             .map(OaasObject::getData)
             .map(on -> on.get("n").asInt())
             .orElse(0);
@@ -47,7 +55,7 @@ public class MockProducer {
       if (!task.isImmutable()) {
         mainUpdate = new ObjectUpdate(data);
       }
-      if (task.getOutput() != null) {
+      if (task.getOutput()!=null) {
         outUpdate = new ObjectUpdate(data);
       }
 
@@ -58,5 +66,22 @@ public class MockProducer {
         .setSuccess(true);
     });
     return mockSyncInvoker;
+  }
+
+  @Mock
+  @Produces
+  DataAllocationService mockDataAllocation() {
+    return new DataAllocationService() {
+      @Override
+      public Uni<List<DataAllocateResponse>> allocate(List<DataAllocateRequest> requests) {
+        var resList = Lists.fixedSize.ofAll(requests)
+          .collect(req -> {
+            var m = Lists.fixedSize.ofAll(req.getKeys())
+              .toMap(KeySpecification::getName, KeySpecification::getName);
+            return new DataAllocateResponse(req.getOid(), m);
+          });
+        return Uni.createFrom().item(resList);
+      }
+    };
   }
 }

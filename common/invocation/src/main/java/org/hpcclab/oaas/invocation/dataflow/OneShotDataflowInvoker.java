@@ -4,8 +4,8 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.subscription.UniEmitter;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.CompletedStateUpdater;
-import org.hpcclab.oaas.invocation.SyncInvoker;
-import org.hpcclab.oaas.invocation.TaskFactory;
+import org.hpcclab.oaas.invocation.OffLoader;
+import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvApplyingContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
@@ -19,17 +19,17 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class OneShotDataflowInvoker implements DataflowInvoker {
   private static final Logger logger = LoggerFactory.getLogger( OneShotDataflowInvoker.class );
-  SyncInvoker syncInvoker;
+  OffLoader offLoader;
   TaskFactory taskFactory;
   CompletedStateUpdater completedStateUpdater;
   GraphStateManager graphStateManager;
 
   @Inject
-  public OneShotDataflowInvoker(SyncInvoker syncInvoker,
+  public OneShotDataflowInvoker(OffLoader offLoader,
                                 TaskFactory taskFactory,
                                 CompletedStateUpdater completedStateUpdater,
                                 GraphStateManager graphStateManager) {
-    this.syncInvoker = syncInvoker;
+    this.offLoader = offLoader;
     this.taskFactory = taskFactory;
     this.completedStateUpdater = completedStateUpdater;
     this.graphStateManager = graphStateManager;
@@ -62,7 +62,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
       var task = taskFactory.genTask(ctx);
       if (ctx.getRequest() != null && task.getOutput() != null)
         task.getOutput().getStatus().setQueTs(ctx.getRequest().queTs());
-      syncInvoker.invoke(task)
+      offLoader.offload(task)
         .flatMap(cmp -> completedStateUpdater.handleComplete(ctx, cmp))
         .invoke(() -> node.setCompleted(true))
         .subscribe()
