@@ -12,6 +12,7 @@ import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
 import io.fabric8.knative.serving.v1.*;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.reactive.messaging.annotations.Blocking;
@@ -269,12 +270,19 @@ public class KnativeProvisionHandler {
     if (provision.getLimitsMemory()!=null) {
       limits.put("memory", Quantity.parse(provision.getLimitsMemory()));
     }
+    var env = provision.getEnv();
+    if (env == null) env = Map.of();
+    var envList = env.entrySet()
+      .stream()
+      .map(entry -> new EnvVar(entry.getKey(),entry.getValue(), null))
+      .toList();
     Container container = new ContainerBuilder()
       .withImage(provision.getImage())
       .withNewResources()
       .withLimits(limits)
       .withRequests(requests)
       .endResources()
+      .withEnv(envList)
       .build();
 
     var labels = new HashMap<String, String>();
