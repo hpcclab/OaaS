@@ -1242,7 +1242,7 @@ components:
         updatedOffset:
           format: int64
           type: integer
-        vId:
+        vid:
           type: string
     ObjectType:
       enum:

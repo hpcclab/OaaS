@@ -112,7 +112,7 @@ public class OrderedTaskInvokerVerticle extends AbstractOrderedRecordVerticle<Oa
         item -> {
           if (item!=null) {
             var taskId = item.getTwo().getId();
-            objCompPublisher.publish(taskId.oId()==null ? taskId.mId():taskId.oId());
+            objCompPublisher.publish(taskId.oid()==null ? taskId.mid():taskId.oid());
           }
           next(taskRecord);
         },
