@@ -82,9 +82,9 @@ router.register("example.video.transcode", TranscodeHandler())
 @app.post('/')
 async def handle(request: Request):
   body = await request.json()
-  logging.debug(f"request {body}")
+  logging.debug("request %s", body)
   resp = await router.handle_task(body)
-  logging.debug(f"completion {resp}")
+  logging.debug("completion %s", resp)
   if resp is None:
     raise HTTPException(status_code=404, detail="No handler matched")
   return resp

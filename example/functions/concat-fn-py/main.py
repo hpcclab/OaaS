@@ -34,6 +34,9 @@ class ConcatHandler(oaas.Handler):
                 if inplace:
                     await ctx.upload_main_byte_data(session, "text", b_text)
                 else:
+                    await ctx.allocate_file(session)
+                    logging.debug(f"allocate url in {time.time() - start_ts} s")
+                    start_ts = time.time()
                     await ctx.upload_byte_data(session, "text", b_text)
                 logging.debug(f"upload data in {time.time() - start_ts} s")
 
@@ -46,9 +49,9 @@ router.register("example.concat", ConcatHandler())
 @app.post('/')
 async def handle(request: Request):
     body = await request.json()
-    logging.debug(f"request {body}")
+    logging.debug("request %s", body)
     resp = await router.handle_task(body)
-    logging.debug(f"completion {resp}")
+    logging.debug("completion %s", resp)
     if resp is None:
         raise HTTPException(status_code=404, detail="No handler matched")
     return resp

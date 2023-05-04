@@ -125,16 +125,22 @@ services:
     build:
       context: example/functions/json-update-fn-py
 #    image: ghcr.io/pawissanutt/oaas/json-update-fn-py
+    environment:
+      LOG_LEVEL: DEBUG
 
   concat-fn:
     build:
       context: example/functions/concat-fn-py
 #    image: ghcr.io/pawissanutt/oaas/concat-fn-py
+    environment:
+      LOG_LEVEL: DEBUG
 
   transcode-fn:
     build:
       context: example/functions/transcode-fn-py
 #    image: ghcr.io/pawissanutt/oaas/transcode-fn-py
+    environment:
+      LOG_LEVEL: DEBUG
 
 
 

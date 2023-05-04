@@ -47,6 +47,11 @@ class PresignGeneratorTest {
       public Optional<String> prefix() {
         return Optional.of("");
       }
+
+      @Override
+      public String region() {
+        return "us-east-1";
+      }
     });
     PresignGenerator presignGenerator = new PresignGenerator(presigner);
     var url = presignGenerator.generatePresignGet("bkt", "obj");

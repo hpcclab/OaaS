@@ -21,7 +21,5 @@ public interface S3ConnConf {
 
   Optional<String> prefix();
   @WithDefault("us-east-1")
-  default String region(){
-    return "us-east-1";
-  }
+  String region();
 }
