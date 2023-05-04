@@ -22,15 +22,20 @@ class ConcatHandler(oaas.Handler):
 
         record['ts'] = round(time.time() * 1000)
 
+        start_ts = time.time()
         async with aiohttp.ClientSession() as session:
             async with await ctx.load_main_file(session, "text") as resp:
                 old_text = await resp.read()
+                logging.debug(f"load data in {time.time() - start_ts} s")
+
                 text = old_text.decode("utf-8") + append
                 b_text = bytes(text, 'utf-8')
+                start_ts = time.time()
                 if inplace:
                     await ctx.upload_main_byte_data(session, "text", b_text)
                 else:
                     await ctx.upload_byte_data(session, "text", b_text)
+                logging.debug(f"upload data in {time.time() - start_ts} s")
 
 
 app = FastAPI()
