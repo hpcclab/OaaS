@@ -27,3 +27,4 @@ classes:
     functions:
       - access: PUBLIC
         function: example.video.transcode
+        forceImmutable: true

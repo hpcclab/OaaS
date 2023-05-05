@@ -103,6 +103,7 @@ public class IspnProducer {
     return new ConfigurationBuilder()
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
+      .stateTransfer().awaitInitialTransfer(false)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
