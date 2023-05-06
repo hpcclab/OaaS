@@ -68,7 +68,7 @@ spec:
               name: ping
           resources:
             limits:
-              memory: 2G
+              memory: 4G
 #              cpu: '8'
             requests:
               cpu: '0.25'
@@ -85,7 +85,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           readinessProbe:
-            failureThreshold: 10
+            failureThreshold: 30
             httpGet:
               path: /q/health/ready
               port: 8080

@@ -1,11 +1,7 @@
 package org.hpcclab.oaas.invoker.ispn;
 
-import io.quarkus.runtime.LaunchMode;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.configuration.ConfigUtils;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
@@ -20,11 +16,11 @@ import java.io.IOException;
 import java.util.UUID;
 
 @ApplicationScoped
-public class InfinispanSetup {
+public class IspnSetup {
   @Inject
   IspnConfig config;
   EmbeddedCacheManager cacheManager;
-  private static final Logger logger = LoggerFactory.getLogger(InfinispanSetup.class);
+  private static final Logger logger = LoggerFactory.getLogger(IspnSetup.class);
 
   public EmbeddedCacheManager setup() {
     // Set up a clustered Cache Manager.

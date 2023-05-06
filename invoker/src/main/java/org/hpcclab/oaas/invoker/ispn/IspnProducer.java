@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn;
 
+import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
 @ApplicationScoped
+@Startup
 public class IspnProducer {
   private static final Logger logger = LoggerFactory.getLogger( IspnProducer.class );
   public static final String OBJECT_CACHE = "OaasObject";
@@ -144,7 +146,6 @@ public class IspnProducer {
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)
-//      .preload(true)
       .connectionFactory(new ArgConnectionFactory(connectionConfig))
       .shared(false)
       .ignoreModifications(true)
@@ -158,6 +159,4 @@ public class IspnProducer {
       .statistics().enabled(true)
       .build();
   }
-
-
 }

@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,6 +29,7 @@ import java.net.URI;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
+@Startup
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
@@ -83,15 +85,7 @@ public class OalResource {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
-        .flatMap(obj -> {
-//          if (obj.isReadyToUsed()) {
-//            return Uni.createFrom().item(createResponse(obj, filePath));
-//          }
-//          if (obj.getStatus().getTaskStatus().isFailed()) {
-//            return Uni.createFrom().item(createResponse(obj, filePath));
-//          }
-          return Uni.createFrom().item(createResponse(obj, filePath));
-        });
+        .map(obj -> createResponse(obj, filePath));
     }
   }
 
