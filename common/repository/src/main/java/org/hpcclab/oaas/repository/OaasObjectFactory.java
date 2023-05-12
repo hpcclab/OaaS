@@ -2,7 +2,7 @@ package org.hpcclab.oaas.repository;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.proto.KvPair;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
@@ -60,7 +60,7 @@ public class OaasObjectFactory {
     return obj;
   }
 
-  public OaasObject createOutput(InvApplyingContext ctx) {
+  public OaasObject createOutput(InvocationContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
     FunctionBinding binding = ctx.getBinding();

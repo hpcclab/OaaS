@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class TaskFunctionApplier implements FunctionApplier {
     this.objectFactory = objectFactory;
   }
 
-  public void validate(InvApplyingContext context) {
+  public void validate(InvocationContext context) {
     if (context.getBinding().getOutputCls() != null && context.getOutputCls()==null)
       throw FunctionValidationException.format(
         "Cannot call function('%s') because outputCls('%s') is not exist",
@@ -30,7 +30,7 @@ public class TaskFunctionApplier implements FunctionApplier {
       );
   }
 
-  public Uni<InvApplyingContext> apply(InvApplyingContext ctx) {
+  public Uni<InvocationContext> apply(InvocationContext ctx) {
     ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isMutable());
     var req = ctx.getRequest();
     if (ctx.getBinding().getOutputCls()!=null) {

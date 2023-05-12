@@ -8,20 +8,20 @@ import org.hpcclab.oaas.model.function.DataflowStep;
 import java.util.*;
 
 public class DataflowGraph {
-  InvApplyingContext top;
+  InvocationContext top;
   List<InvocationNode> entries;
   List<InvocationNode> all;
   Map<String, InvocationNode> externalDeps;
 
   boolean failed = false;
 
-  public DataflowGraph(InvApplyingContext top) {
+  public DataflowGraph(InvocationContext top) {
     this.top = top;
     this.entries = Lists.mutable.empty();
     this.all = Lists.mutable.empty();
 
   }
-  public void addNode(InvApplyingContext ctx, DataflowStep step){
+  public void addNode(InvocationContext ctx, DataflowStep step){
     var deps = step.getInputRefs() == null?
       Lists.mutable.<String>empty():
       Lists.mutable.ofAll(step.getInputRefs());
@@ -42,7 +42,7 @@ public class DataflowGraph {
     all.add(node);
   }
 
-  protected InvocationNode createNode(InvApplyingContext ctx, List<InvocationNode> deps, String as) {
+  protected InvocationNode createNode(InvocationContext ctx, List<InvocationNode> deps, String as) {
     return new InvocationNode(
       ctx,
       deps,
@@ -53,7 +53,7 @@ public class DataflowGraph {
     );
   }
 
-  public InvApplyingContext getTop() {
+  public InvocationContext getTop() {
     return top;
   }
 

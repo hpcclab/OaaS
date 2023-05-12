@@ -5,7 +5,7 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -39,8 +39,8 @@ public class RepoContextLoader implements ContextLoader {
     this.clsRepo = clsRepo;
   }
 
-  public Uni<InvApplyingContext> loadCtxAsync(ObjectAccessLanguage request) {
-    var ctx = new InvApplyingContext();
+  public Uni<InvocationContext> loadCtxAsync(ObjectAccessLanguage request) {
+    var ctx = new InvocationContext();
     ctx.setArgs(request.getArgs());
     return objectRepo.getAsync(request.getTarget())
       .onItem().ifNull()
@@ -55,8 +55,8 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<InvApplyingContext> loadCtxAsync(InvocationRequest request) {
-    var ctx = new InvApplyingContext();
+  public Uni<InvocationContext> loadCtxAsync(InvocationRequest request) {
+    var ctx = new InvocationContext();
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
@@ -76,7 +76,7 @@ public class RepoContextLoader implements ContextLoader {
       .replaceWith(ctx);
   }
 
-  public InvApplyingContext loadClsAndFunc(InvApplyingContext ctx, String fbName) {
+  public InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
     if (mainCls==null)
@@ -100,7 +100,7 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<OaasObject> resolveObj(InvApplyingContext baseCtx, String ref) {
+  public Uni<OaasObject> resolveObj(InvocationContext baseCtx, String ref) {
 //    logger.debug("resolve {}",ref);
     if (ref.startsWith("$.")) {
       var res = baseCtx.getMain().findReference(ref.substring(2));

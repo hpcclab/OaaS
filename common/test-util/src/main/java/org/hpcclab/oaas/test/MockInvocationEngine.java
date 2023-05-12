@@ -11,7 +11,7 @@ import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.*;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -73,7 +73,7 @@ public class MockInvocationEngine {
     );
   }
 
-  public void printDebug(InvApplyingContext ctx) {
+  public void printDebug(InvocationContext ctx) {
     if (debug && logger.isDebugEnabled()) {
       logger.debug("TASK MAP: {}", Json.encodePrettily(invocationQueueSender.multimap.toMap()));
       logger.debug("EDGE: {}", Json.encodePrettily(graphStateManager.multimap.toMap()));

@@ -29,16 +29,16 @@ import java.util.stream.Collectors;
 )
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class InvApplyingContext extends TaskContext {
+public class InvocationContext extends TaskContext {
   @JsonIgnore
-  InvApplyingContext parent;
+  InvocationContext parent;
   OaasClass mainCls;
   OaasObject entry;
   OaasClass outputCls;
   List<OaasObject> subOutputs = Lists.mutable.empty();
   FunctionBinding binding;
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
-  List<InvApplyingContext> subContexts = Lists.mutable.empty();
+  List<InvocationContext> subContexts = Lists.mutable.empty();
   TaskCompletion completion;
   InvocationRequest request;
   @JsonIgnore
@@ -70,7 +70,7 @@ public class InvApplyingContext extends TaskContext {
     return super.getFbName()==null ? binding.getName():getFbName();
   }
 
-  public void addSubContext(InvApplyingContext ctx) {
+  public void addSubContext(InvocationContext ctx) {
     subContexts.add(ctx);
     if (parent!=null) {
       parent.addSubContext(ctx);
@@ -81,7 +81,7 @@ public class InvApplyingContext extends TaskContext {
     var outId = getOutput().getId();
     if (taskContext.getOutput().getId().equals(outId))
       return true;
-    for (InvApplyingContext subContext : subContexts) {
+    for (InvocationContext subContext : subContexts) {
       if (subContext.contains(taskContext)) {
         return true;
       }

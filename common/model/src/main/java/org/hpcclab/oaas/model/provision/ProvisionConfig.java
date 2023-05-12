@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProvisionConfig {
-  JobProvisionConfig job;
   KnativeProvision knative;
   Type type;
 
@@ -29,24 +28,13 @@ public class ProvisionConfig {
   }
 
   @ProtoFactory
-  public ProvisionConfig(JobProvisionConfig job, KnativeProvision knative, Type type) {
-    this.job = job;
+  public ProvisionConfig(KnativeProvision knative, Type type) {
     this.knative = knative;
     this.type = type;
   }
 
   public void validate() {
-    if (job == null && knative == null)
-      throw new OaasValidationException("Provision config must be defined only one type. (No definition found)");
-    if (job != null && knative != null)
-      throw new OaasValidationException("Provision config must be defined only one type.");
-    if (job != null) type = Type.EPHEMERAL;
     if (knative != null) type = Type.DURABLE;
-  }
-
-  @ProtoField(1)
-  public JobProvisionConfig getJob() {
-    return job;
   }
 
   @ProtoField(2)

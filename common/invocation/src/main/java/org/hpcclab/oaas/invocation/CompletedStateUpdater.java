@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskDetail;
 
@@ -34,7 +34,7 @@ public class CompletedStateUpdater {
         if (out == null && completion.isSuccess())
           main.getStatus().set(completion);
       }
-      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+      if (task instanceof InvocationContext iac && iac.getMqOffset() >= 0)
         main.getStatus().setUpdatedOffset(iac.getMqOffset());
     }
 
@@ -43,7 +43,7 @@ public class CompletedStateUpdater {
       if (completion.getOutput() != null)
         completion.getOutput().update(out, completion
           .getId().getVid());
-      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
+      if (task instanceof InvocationContext iac && iac.getMqOffset() >= 0)
         out.getStatus().setUpdatedOffset(iac.getMqOffset());
     }
   }

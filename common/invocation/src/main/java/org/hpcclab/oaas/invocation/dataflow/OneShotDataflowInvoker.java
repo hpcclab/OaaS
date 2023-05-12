@@ -7,7 +7,7 @@ import org.hpcclab.oaas.invocation.CompletedStateUpdater;
 import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
   }
 
   @Override
-  public Uni<InvApplyingContext> invoke(InvApplyingContext ctx) {
+  public Uni<InvocationContext> invoke(InvocationContext ctx) {
     var graph = ctx.getDataflowGraph();
     if (graph==null)
       throw new IllegalStateException();

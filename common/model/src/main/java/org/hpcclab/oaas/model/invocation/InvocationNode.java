@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.model.invocation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class InvocationNode{
-  InvApplyingContext ctx;
+  InvocationContext ctx;
   List<InvocationNode> internalDeps;
   List<InvocationNode> next;
   String as;

@@ -14,7 +14,7 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.MacroConfig;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
@@ -47,7 +47,7 @@ public class InvocationHandlerService {
     this.idGenerator = idGenerator;
   }
 
-  public Uni<InvApplyingContext> syncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationContext> syncInvoke(ObjectAccessLanguage oal) {
     return applyFunction(oal)
       .invoke(Unchecked.consumer(ctx -> {
         var func = ctx.getFunction();
@@ -115,7 +115,7 @@ public class InvocationHandlerService {
       builder.outId(map.get(dataflow.getExport()));
   }
 
-  public Uni<InvApplyingContext> applyFunction(ObjectAccessLanguage oal) {
+  public Uni<InvocationContext> applyFunction(ObjectAccessLanguage oal) {
     var uni = router.apply(oal);
     if (logger.isDebugEnabled()) {
       uni = uni

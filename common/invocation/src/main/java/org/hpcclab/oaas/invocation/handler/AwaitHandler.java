@@ -3,7 +3,7 @@ package org.hpcclab.oaas.invocation.handler;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
@@ -39,10 +39,10 @@ public class AwaitHandler {
       .flatMap(event -> objectRepo.getAsync(obj.getId()));
   }
 
-  public Uni<InvApplyingContext> asyncInvoke(ObjectAccessLanguage oal,
-                                             boolean await,
-                                             int timeout) {
-    Uni<InvApplyingContext> uni = invocationHandlerService.applyFunction(oal);
+  public Uni<InvocationContext> asyncInvoke(ObjectAccessLanguage oal,
+                                            boolean await,
+                                            int timeout) {
+    Uni<InvocationContext> uni = invocationHandlerService.applyFunction(oal);
     return uni
       .flatMap(ctx -> {
         if (completionListener.enabled() && await && ctx.getOutput()!=null) {

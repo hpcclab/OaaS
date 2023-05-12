@@ -3,7 +3,7 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
@@ -111,7 +111,7 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
   }
 
   @Override
-  public Multi<TaskContext> updateSubmittingStatus(InvApplyingContext entryCtx, Collection<TaskContext> contexts) {
+  public Multi<TaskContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<TaskContext> contexts) {
     var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
       :entryCtx.getMain().getId();
@@ -132,11 +132,11 @@ public abstract class AbstractGraphStateManager implements GraphStateManager {
       .onCompletion().call(() -> persistAll(entryCtx));
   }
 
-  public Uni<Void> persistAll(InvApplyingContext ctx) {
+  public Uni<Void> persistAll(InvocationContext ctx) {
     return persistAll(ctx, Lists.mutable.empty());
   }
 
-  public Uni<Void> persistAll(InvApplyingContext ctx, List<OaasObject> objs) {
+  public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {
