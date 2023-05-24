@@ -31,17 +31,17 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(value = 5, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long cptTs;
-  @ProtoField(6)
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  List<String> waitFor = List.of();
-  @ProtoField(value = 7, defaultValue = "false")
-  @JsonIgnore
-  boolean initWaitFor = false;
-  @ProtoField(8)
-  @JsonIgnore
-  String originator;
-  @ProtoField(9)
-  String errorMsg;
+//  @ProtoField(6)
+//  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//  List<String> waitFor = List.of();
+//  @ProtoField(value = 7, defaultValue = "false")
+//  @JsonIgnore
+//  boolean initWaitFor = false;
+//  @ProtoField(8)
+//  @JsonIgnore
+//  String originator;
+//  @ProtoField(9)
+//  String errorMsg;
   @ProtoField(value = 10, defaultValue = "-1")
   long updatedOffset = -1;
   @ProtoField(11)
@@ -57,10 +57,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
                       long queTs,
                       long smtTs,
                       long cptTs,
-                      List<String> waitFor,
-                      boolean initWaitFor,
-                      String originator,
-                      String errorMsg,
+//                      List<String> waitFor,
+//                      boolean initWaitFor,
+//                      String originator,
+//                      String errorMsg,
                       long updatedOffset,
                       String vid) {
     this.taskStatus = taskStatus;
@@ -68,10 +68,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     this.queTs = queTs;
     this.smtTs = smtTs;
     this.cptTs = cptTs;
-    this.waitFor = waitFor;
-    this.initWaitFor = initWaitFor;
-    this.originator = originator;
-    this.errorMsg = errorMsg;
+//    this.waitFor = waitFor;
+//    this.initWaitFor = initWaitFor;
+//    this.originator = originator;
+//    this.errorMsg = errorMsg;
     this.updatedOffset = updatedOffset;
     this.vid = vid;
   }
@@ -83,10 +83,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       queTs,
       smtTs,
       cptTs,
-      waitFor==null ? null:List.copyOf(waitFor),
-      initWaitFor,
-      originator,
-      errorMsg,
+//      waitFor==null ? null:List.copyOf(waitFor),
+//      initWaitFor,
+//      originator,
+//      errorMsg,
       updatedOffset,
       vid
     );
@@ -106,7 +106,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
     if (taskCompletion.getSmtTs() > 0) {
       smtTs = taskCompletion.getSmtTs();
     }
-    errorMsg = taskCompletion.getErrorMsg();
+//    errorMsg = taskCompletion.getErrorMsg();
 //    var ext = taskCompletion.getExt();
 //    if (ext!=null && ext.containsKey("osts")) {
 //      try {
@@ -116,8 +116,8 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 //    }
   }
 
-  public void initWaitFor() {
-    initWaitFor = true;
-    if (waitFor==null) waitFor = Lists.mutable.empty();
-  }
+//  public void initWaitFor() {
+//    initWaitFor = true;
+//    if (waitFor==null) waitFor = Lists.mutable.empty();
+//  }
 }

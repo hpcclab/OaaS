@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.repository.InvNodeRepository;
 
 @Path("/api/invocations")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -18,6 +19,8 @@ public class InvocationResource {
 
   @Inject
   InvocationHandlerService invocationHandlerService;
+  @Inject
+  InvNodeRepository invNodeRepo;
 
   @POST
   public Uni<OalResponse> invoke(ObjectAccessLanguage event) {

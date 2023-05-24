@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class UnifiedFunctionRouter {
+public class UnifiedFunctionRouter implements FunctionApplier{
   private static final Logger LOGGER = LoggerFactory.getLogger(UnifiedFunctionRouter.class);
 
   LogicalFunctionApplier logicalFunctionApplier;

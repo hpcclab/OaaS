@@ -8,7 +8,7 @@ import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
+import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
     }
     if (graph.isFail())
       return;
-    for (InvocationNode node : readyNodes) {
+    for (InternalInvocationNode node : readyNodes) {
       var ctx = node.getCtx();
       var task = taskFactory.genTask(ctx);
       if (ctx.getRequest() != null && task.getOutput() != null)

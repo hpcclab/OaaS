@@ -7,7 +7,7 @@ import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.MacroConfig;
+import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -72,7 +72,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   }
 
   private OaasObject export(InvocationContext ctx,
-                            MacroConfig dataflow) {
+                            MacroSpec dataflow) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
         .get(dataflow.getExport());
@@ -91,7 +91,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   }
 
   private Uni<List<InvocationContext>> applyDataflow(InvocationContext context,
-                                                     MacroConfig workflow) {
+                                                     MacroSpec workflow) {
     var request = context.getRequest();
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {

@@ -1,8 +1,12 @@
 package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Builder;
+import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskStatus;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Map;
 
@@ -14,6 +18,9 @@ public record OalResponse(
   String invId,
   String fbName,
   Map<String, String> macroIds,
+  TaskStatus status,
+  @JsonUnwrapped
+  InvocationStats stats,
   boolean async
 ) {
 }

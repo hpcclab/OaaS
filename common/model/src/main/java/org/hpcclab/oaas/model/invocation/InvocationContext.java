@@ -119,4 +119,27 @@ public class InvocationContext extends TaskContext {
       return getWorkflowMap().get(ref);
     throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
+
+  public InvocationNode initNode() {
+    var node = getNode();
+    if (node != null)
+      return node;
+    node = new InvocationNode();
+    if (request != null) {
+      node.setKey(request.invId());
+      node.setOutId(request.outId());
+      node.setInputs(request.inputs());
+    } else {
+      node.setKey(getOutput().getId());
+      node.setOutId(getOutput().getId());
+      node.setInputs(getInputs().stream().map(OaasObject::getId).toList());
+    }
+    node.setFb(getFbName());
+    node.setArgs(KvPair.fromMap(getArgs()));
+    node.setTarget(getMain().getId());
+    node.setTargetCls(getMainCls().getKey());
+    setNode(node);
+    return node;
+  }
+
 }

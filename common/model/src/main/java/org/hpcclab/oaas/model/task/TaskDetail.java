@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.task;
 
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.OaasObject;
 
@@ -15,6 +16,9 @@ public interface TaskDetail {
   boolean isImmutable();
   List<OaasObject> getInputs();
   Map<String, String> getArgs();
+  default InvocationNode getNode() {
+    throw new UnsupportedOperationException();
+  }
 
   default InvocationRequest toRequest() {
     return InvocationRequest.builder()
@@ -24,10 +28,10 @@ public interface TaskDetail {
       .inputs(getInputs().stream().map(OaasObject::getId).toList())
       .targetCls(getMain().getCls())
       .target(getMain().getId())
-      .fbName(getFbName())
+      .fb(getFbName())
       .outId(getOutput() != null? getOutput().getId() : null)
       .immutable(isImmutable())
-      .function(getFuncKey())
+//      .function(getFuncKey())
       .queTs(System.currentTimeMillis())
       .loadOutput(getOutput() != null)
       .build();

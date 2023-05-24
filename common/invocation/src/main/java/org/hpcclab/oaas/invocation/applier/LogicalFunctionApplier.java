@@ -24,7 +24,7 @@ public class LogicalFunctionApplier implements FunctionApplier {
     if (context.getFunction().getKey().equals("builtin.logical.copy")) {
       LOGGER.debug("Call function 'copy' {}", context.getMain().getId());
       var o = context.getMain().copy();
-      o.setOrigin(context.createOrigin());
+//      o.setOrigin(context.createOrigin());
       o.setId(idGenerator.generate(context));
       context.setOutput(o);
       return Uni.createFrom().item(context);

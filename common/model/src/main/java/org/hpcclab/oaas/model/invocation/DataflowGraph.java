@@ -9,9 +9,9 @@ import java.util.*;
 
 public class DataflowGraph {
   InvocationContext top;
-  List<InvocationNode> entries;
-  List<InvocationNode> all;
-  Map<String, InvocationNode> externalDeps;
+  List<InternalInvocationNode> entries;
+  List<InternalInvocationNode> all;
+  Map<String, InternalInvocationNode> externalDeps;
 
   boolean failed = false;
 
@@ -35,15 +35,15 @@ public class DataflowGraph {
     if (depNodes.isEmpty()) {
       entries.add(node);
     } else {
-      for (InvocationNode depNode : depNodes) {
+      for (InternalInvocationNode depNode : depNodes) {
         depNode.addNext(node);
       }
     }
     all.add(node);
   }
 
-  protected InvocationNode createNode(InvocationContext ctx, List<InvocationNode> deps, String as) {
-    return new InvocationNode(
+  protected InternalInvocationNode createNode(InvocationContext ctx, List<InternalInvocationNode> deps, String as) {
+    return new InternalInvocationNode(
       ctx,
       deps,
       Lists.mutable.empty(),
@@ -57,28 +57,28 @@ public class DataflowGraph {
     return top;
   }
 
-  public List<InvocationNode> getEntries() {
+  public List<InternalInvocationNode> getEntries() {
     return entries;
   }
 
-  public List<InvocationNode> getAll() {
+  public List<InternalInvocationNode> getAll() {
     return all;
   }
 
-  public Map<String, InvocationNode> getExternalDeps() {
+  public Map<String, InternalInvocationNode> getExternalDeps() {
     return externalDeps;
   }
 
-  public Set<InvocationNode> findNextExecutable(boolean marking) {
-    Set<InvocationNode> readyNodes = Sets.mutable.empty();
-    Deque<InvocationNode> visited = new ArrayDeque<>();
-    for (InvocationNode entry : entries) {
+  public Set<InternalInvocationNode> findNextExecutable(boolean marking) {
+    Set<InternalInvocationNode> readyNodes = Sets.mutable.empty();
+    Deque<InternalInvocationNode> visited = new ArrayDeque<>();
+    for (InternalInvocationNode entry : entries) {
       visited.push(entry);
     }
     while (!visited.isEmpty()) {
       var current = visited.pop();
       if (current.isCompleted()) {
-        for (InvocationNode invocationNode : current.next) {
+        for (InternalInvocationNode invocationNode : current.next) {
           visited.push(invocationNode);
         }
       } else if (current.isReady()) {
@@ -90,7 +90,7 @@ public class DataflowGraph {
     return readyNodes;
   }
   public boolean isAllCompleted() {
-    for (InvocationNode node : all) {
+    for (InternalInvocationNode node : all) {
       if (!node.isCompleted())
         return false;
     }
@@ -103,5 +103,11 @@ public class DataflowGraph {
 
   public void setFailed(boolean failed) {
     this.failed = failed;
+  }
+
+  public List<InvocationNode> exportGraph() {
+    return all.stream()
+      .map(InternalInvocationNode::export)
+      .toList();
   }
 }

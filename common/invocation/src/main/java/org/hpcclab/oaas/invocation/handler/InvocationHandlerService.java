@@ -13,7 +13,7 @@ import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.MacroConfig;
+import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.OalResponse;
@@ -57,11 +57,11 @@ public class InvocationHandlerService {
         if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
           throw new InvocationException("Function is not ready", 409);
         }
-        MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
-          Lists.mutable.empty();
-        MutableList<OaasObject> failDeps = Lists.mutable.empty();
-        if (!ctx.analyzeDeps(waitForGraph, failDeps))
-          throw InvocationException.notReady(waitForGraph, failDeps);
+//        MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
+//          Lists.mutable.empty();
+//        MutableList<OaasObject> failDeps = Lists.mutable.empty();
+//        if (!ctx.analyzeDeps(waitForGraph, failDeps))
+//          throw InvocationException.notReady(waitForGraph, failDeps);
       }))
       .flatMap(ctx -> invocationExecutor.syncExec(ctx));
   }
@@ -77,12 +77,12 @@ public class InvocationHandlerService {
           var builder = InvocationRequest.builder()
             .target(ctx.oal().getTarget())
             .targetCls(targetCls)
-            .fbName(ctx.oal().getFbName())
+            .fb(ctx.oal().getFbName())
             .args(ctx.oal().getArgs())
             .inputs(ctx.oal().getInputs())
             .immutable(ctx.functionBinding().isForceImmutable() || !ctx.function().getType().isMutable())
             .macro(ctx.function().getType()==FunctionType.MACRO)
-            .function(ctx.function().getKey())
+//            .function(ctx.function().getKey())
             .partKey(ctx.main()!=null ? ctx.main().getKey():null)
             .queTs(System.currentTimeMillis())
             .invId(idGenerator.generate());
@@ -105,7 +105,7 @@ public class InvocationHandlerService {
           .build());
   }
 
-  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroConfig dataflow) {
+  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroSpec dataflow) {
     var map = dataflow.getSteps().stream()
       .filter(step -> step.getAs()!=null)
       .map(step -> Map.entry(step.getAs(), idGenerator.generate()))

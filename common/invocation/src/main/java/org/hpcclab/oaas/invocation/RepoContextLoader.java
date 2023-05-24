@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -16,8 +18,6 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,7 +62,9 @@ public class RepoContextLoader implements ContextLoader {
     Uni<?> uni;
     if (request.loadOutput() && request.outId()!=null) {
       uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
-        .invoke(map -> ctx.setMain(map.get(request.target())).setOutput(map.get(request.outId())));
+        .invoke(map -> ctx.setMain(map.get(request.target()))
+          .setOutput(map.get(request.outId()))
+        );
     } else {
       uni = objectRepo.getAsync(request.target())
         .onItem().ifNull()
@@ -70,7 +72,7 @@ public class RepoContextLoader implements ContextLoader {
         .invoke(ctx::setMain);
     }
     return uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
-      .map(ignore -> loadClsAndFunc(ctx, request.fbName()))
+      .map(ignore -> loadClsAndFunc(ctx, request.fb()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
       .invoke(ctx::setInputs)
       .replaceWith(ctx);
@@ -190,37 +192,33 @@ public class RepoContextLoader implements ContextLoader {
 //    throw FunctionValidationException.cannotResolveMacro(ref, null);
 //  }
 
-  public Uni<TaskContext> getTaskContextAsync(String outputId) {
-    return objectRepo.getAsync(outputId)
-      .flatMap(this::getTaskContextAsync);
-  }
 
-  public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
-    var tc = new TaskContext();
-    var args = output.getOrigin().getArgs();
-    tc.setOutput(output)
-      .setArgs( args!= null? args.stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)):null);
-    var fbName = output.getOrigin().getFbName();
-    tc.setFbName(fbName);
-    var inputIds = output.getOrigin().getInputs();
-    var mainId = output.getOrigin().getParentId();
-    Uni<TaskContext> uni;
-    if (mainId==null) {
-      uni = Uni.createFrom().item(tc);
-    } else {
-      uni = objectRepo.getAsync(mainId)
-        .call(main -> loadRefs(main, tc))
-        .map(tc::setMain)
-        .call(__ -> loadFunction(tc, fbName));
-    }
-
-    if (!inputIds.isEmpty()) {
-      uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)
-        .map(tc::setInputs));
-    }
-
-    return uni;
-  }
+//  public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
+//    var tc = new TaskContext();
+//    var args = output.getOrigin().getArgs();
+//    tc.setOutput(output)
+//      .setArgs(KvPair.toMap(args));
+//    var fbName = output.getOrigin().getFbName();
+//    tc.setFbName(fbName);
+//    var inputIds = output.getOrigin().getInputs();
+//    var mainId = output.getOrigin().getParentId();
+//    Uni<TaskContext> uni;
+//    if (mainId==null) {
+//      uni = Uni.createFrom().item(tc);
+//    } else {
+//      uni = objectRepo.getAsync(mainId)
+//        .call(main -> loadRefs(main, tc))
+//        .map(tc::setMain)
+//        .call(__ -> loadFunction(tc, fbName));
+//    }
+//
+//    if (!inputIds.isEmpty()) {
+//      uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)
+//        .map(tc::setInputs));
+//    }
+//
+//    return uni;
+//  }
 
   private Uni<TaskContext> loadRefs(OaasObject main, TaskContext ctx) {
     if (main.getRefs()!=null && !main.getRefs().isEmpty()) {

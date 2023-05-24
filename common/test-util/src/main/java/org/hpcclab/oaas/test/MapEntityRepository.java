@@ -109,4 +109,8 @@ private static final Logger LOGGER = LoggerFactory.getLogger( MapEntityRepositor
     return Uni.createFrom().item(compute(key,function));
   }
 
+  public MutableMap<K, V> getMap() {
+    return map;
+  }
+
 }

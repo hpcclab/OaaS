@@ -42,7 +42,7 @@ public class OaasObjectFactory {
     obj.setId(id);
     obj.setData(construct.getData());
     obj.setLabels(construct.getLabels());
-    obj.setOrigin(new ObjectOrigin());
+//    obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setTaskStatus(TaskStatus.READY);
@@ -77,7 +77,7 @@ public class OaasObjectFactory {
       }
       obj.setData(node);
     }
-    obj.setOrigin(ctx.createOrigin());
+//    obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
     status.setCrtTs(System.currentTimeMillis());

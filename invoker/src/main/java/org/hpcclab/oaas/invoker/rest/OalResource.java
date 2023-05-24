@@ -133,20 +133,20 @@ public class OalResource {
                                  String filePath,
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
-    if (object.getOrigin().getParentId()!=null) {
-      var status = object.getStatus();
-      if (status==null) {
-        return Response.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).build();
-      }
-      var ts = status.getTaskStatus();
-      if (ts==TaskStatus.DOING) {
-        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
-          .build();
-      }
-      if (ts.isFailed()) {
-        return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
-      }
+//    if (object.getOrigin().getParentId()!=null) {
+    var status = object.getStatus();
+    if (status==null) {
+      return Response.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).build();
     }
+    var ts = status.getTaskStatus();
+    if (ts==TaskStatus.DOING) {
+      return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
+        .build();
+    }
+    if (ts.isFailed()) {
+      return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
+    }
+//    }
     var oUrl = object.getState().getOverrideUrls();
     var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
     if (replaced!= null)

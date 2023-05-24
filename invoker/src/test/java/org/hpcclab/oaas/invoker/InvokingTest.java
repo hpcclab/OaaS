@@ -103,8 +103,7 @@ class InvokingTest {
     InvocationRequest request = InvocationRequest.builder()
       .target(main.getId())
       .outId(oId)
-      .fbName("f1")
-      .function(fn.getKey())
+      .fb("f1")
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
@@ -136,8 +135,7 @@ class InvokingTest {
     InvocationRequest request = InvocationRequest.builder()
       .target(main.getId())
       .outId(mid2)
-      .fbName(fn.getName())
-      .function(fn.getKey())
+      .fb(fn.getName())
       .macroIds(Map.of(
         "tmp1", mid1,
         "tmp2", mid2
@@ -182,8 +180,7 @@ class InvokingTest {
     InvocationRequest request = InvocationRequest.builder()
       .target(main.getId())
       .outId(mid2)
-      .fbName(fn.getName())
-      .function(fn.getKey())
+      .fb(fn.getName())
       .macroIds(Map.of(
         "tmp1", mid1,
         "tmp2", mid2,

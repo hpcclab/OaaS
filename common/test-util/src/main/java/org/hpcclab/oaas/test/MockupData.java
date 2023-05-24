@@ -4,6 +4,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
@@ -46,7 +47,7 @@ public class MockupData {
     .setName("macroFunc1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setMacro(new MacroConfig()
+    .setMacro(new MacroSpec()
       .setSteps(List.of(
         new DataflowStep()
           .setFunction("f1")
@@ -67,7 +68,7 @@ public class MockupData {
     .setName("atomic-macro")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setMacro(new MacroConfig()
+    .setMacro(new MacroSpec()
       .setSteps(List.of(
         new DataflowStep()
           .setFunction("f3")
@@ -140,7 +141,7 @@ public class MockupData {
 
   public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
     .setId("o1")
-    .setOrigin(new ObjectOrigin())
+//    .setOrigin(new ObjectOrigin())
     .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
       .setVerIds(Sets.mutable.of(new KvPair("k1", "kkkk")))
@@ -148,10 +149,10 @@ public class MockupData {
 
   public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
     .setId("o2")
-    .setOrigin(new ObjectOrigin()
-      .setParentId(OBJ_1.getId())
-    .setFbName("f1")
-    )
+//    .setOrigin(new ObjectOrigin()
+//      .setParentId(OBJ_1.getId())
+//    .setFbName("f1")
+//    )
     .setStatus(new ObjectStatus());
 
   public static MutableMap<String,OaasClass> testClasses() {
@@ -181,6 +182,10 @@ public class MockupData {
     return l;
   }
 
+  public static List<InvocationNode> testNodes() {
+    return List.of();
+  }
+
 
   public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
                                                     MutableMap<String,OaasClass> classes,
@@ -202,6 +207,10 @@ public class MockupData {
 
   public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String,OaasFunction> functions) {
     return new MapEntityRepository<>(functions, OaasFunction::getKey);
+  }
+
+  public static EntityRepository<String, InvocationNode> mockInvRepo(MutableMap<String, InvocationNode> functions) {
+    return new MapEntityRepository<>(functions, InvocationNode::getKey);
   }
 
   public static void persistMock(ObjectRepository objectRepo,

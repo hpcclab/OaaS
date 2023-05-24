@@ -12,7 +12,7 @@
   <artifactId>repository</artifactId>
 
   <properties>
-    <tsid-creator.version>5.2.3</tsid-creator.version>
+    <tsid-creator.version>5.2.4</tsid-creator.version>
   </properties>
 
   <dependencyManagement>

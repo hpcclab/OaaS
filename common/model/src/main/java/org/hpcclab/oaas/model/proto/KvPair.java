@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KvPair {
@@ -54,5 +57,17 @@ public class KvPair {
   @Override
   public int hashCode() {
     return Objects.hash(key, val);
+  }
+
+  public static Map<String, String> toMap(Collection<KvPair> pairs){
+    if (pairs ==null || pairs.isEmpty())
+      return Map.of();
+    return pairs.stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal));
+  }
+  public static Set<KvPair> fromMap(Map<String, String> map){
+    return map.entrySet()
+      .stream()
+      .map(KvPair::new)
+      .collect(Collectors.toSet());
   }
 }

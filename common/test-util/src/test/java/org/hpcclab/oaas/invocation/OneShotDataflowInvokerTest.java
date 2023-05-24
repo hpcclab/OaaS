@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.invocation;
 
-import org.hpcclab.oaas.model.invocation.InvocationNode;
+import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.test.MockInvocationEngine;
@@ -27,7 +27,7 @@ public class OneShotDataflowInvokerTest {
       .await().indefinitely();
     engine.printDebug(ctx);
     var graph = ctx.getDataflowGraph();
-    for (InvocationNode node : graph.getAll()) {
+    for (InternalInvocationNode node : graph.getAll()) {
       assertThat(node.getCtx().getOutput().getStatus().getTaskStatus())
         .isEqualTo(TaskStatus.SUCCEEDED);
     }

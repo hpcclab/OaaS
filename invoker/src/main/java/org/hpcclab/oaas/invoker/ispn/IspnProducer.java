@@ -14,9 +14,8 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectInvNode;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.infinispan.Cache;
-import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -86,9 +85,9 @@ public class IspnProducer {
 
   @Produces
   EmbeddedIspnInvNodeRepository invNodeRepository() {
-    Cache<String, ObjectInvNode> cache;
+    Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf =  createDistConfig(config.argConnection(), config.objStore(), ObjectInvNode.class);
+      var conf =  createDistConfig(config.argConnection(), config.objStore(), InvocationNode.class);
       logger.info("create cache for {} : {}", INV_NODE_CACHE,conf);
       cache = cacheManager.createCache(INV_NODE_CACHE, conf);
     } else {
