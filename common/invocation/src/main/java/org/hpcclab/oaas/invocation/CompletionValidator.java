@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.CompletionCheckException;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskDetail;
@@ -24,12 +25,12 @@ public class CompletionValidator {
     this.funcRepo = funcRepo;
   }
 
-  public Uni<TaskCompletion> validateCompletion(TaskDetail taskDetail, TaskCompletion completion) {
+  public Uni<TaskCompletion> validateCompletion(InvocationContext context, TaskCompletion completion) {
     Uni<Void> uni;
     if (completion.getMain()!=null) {
       uni = validateUpdate(
-        taskDetail.getMain().getCls(),
-        taskDetail.getFbName(),
+        context.getMain().getCls(),
+        context.getFbName(),
         true,
         completion.getMain())
         .invoke(completion::setMain)
@@ -37,18 +38,18 @@ public class CompletionValidator {
     } else {
       uni = Uni.createFrom().voidItem();
     }
-    if (taskDetail.getOutput()==null)
+    if (context.getOutput()==null)
       completion.setOutput(null);
     else if (completion.getOutput()!=null) {
       uni = uni.flatMap(__ -> validateUpdate(
-          taskDetail.getOutput().getCls(),
-          taskDetail.getFbName(),
+          context.getOutput().getCls(),
+          context.getFbName(),
           false,
           completion.getOutput()))
         .invoke(completion::setOutput)
         .replaceWithVoid();
     }
-    uni = uni.flatMap(__ -> validateFunction(taskDetail, completion));
+    uni = uni.flatMap(__ -> validateFunction(context, completion));
 
     return uni.replaceWith(completion);
   }
