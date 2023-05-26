@@ -24,12 +24,6 @@ public class InvocationResource {
 
   @POST
   public Uni<OalResponse> invoke(ObjectAccessLanguage event) {
-    return invocationHandlerService.syncInvoke(event)
-      .map(ctx -> OalResponse.builder()
-        .target(ctx.getMain())
-        .output(ctx.getOutput())
-        .fbName(ctx.getFbName())
-        .async(false)
-        .build());
+    return invocationHandlerService.syncInvoke(event);
   }
 }

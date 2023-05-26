@@ -1,30 +1,35 @@
 package org.hpcclab.oaas.invocation.validate;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.ValidatedInvocationContext;
+import org.hpcclab.oaas.invocation.ValidationContext;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.ObjectRepository;
+import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.repository.EntityRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DefaultInvocationValidator implements InvocationValidator{
-  @Inject
-  ObjectRepository objectRepo;
-  @Inject
-  FunctionRepository funcRepo;
-  @Inject
-  ClassRepository clsRepo;
+  EntityRepository<String, OaasObject> objectRepo;
+  EntityRepository<String, OaasFunction> funcRepo;
+  EntityRepository<String, OaasClass> clsRepo;
 
+  @Inject
+  public DefaultInvocationValidator(EntityRepository<String, OaasObject> objectRepo,
+                                    EntityRepository<String, OaasFunction> funcRepo,
+                                    EntityRepository<String, OaasClass> clsRepo) {
+    this.objectRepo = objectRepo;
+    this.funcRepo = funcRepo;
+    this.clsRepo = clsRepo;
+  }
 
   @Override
-  public Uni<ValidatedInvocationContext> validate(ObjectAccessLanguage oal) {
-    var builder = ValidatedInvocationContext.builder();
+  public Uni<ValidationContext> validate(ObjectAccessLanguage oal) {
+    var builder = ValidationContext.builder();
     builder.oal(oal);
     Uni<OaasClass> uni;
     if (oal.getTarget() != null) {
@@ -44,7 +49,7 @@ public class DefaultInvocationValidator implements InvocationValidator{
 
     return uni
       .flatMap(cls -> {
-        var fb = cls.findFunction(oal.getFbName());
+        var fb = cls.findFunction(oal.getFb());
         builder.functionBinding(fb);
         return funcRepo.getAsync(fb.getFunction());
       })

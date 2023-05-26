@@ -9,6 +9,7 @@ import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -43,7 +44,7 @@ public class InvocationNode implements HasKey {
   @ProtoField(10)
   Set<String> waitFor;
   @ProtoField(11)
-  TaskStatus status;
+  TaskStatus status = TaskStatus.LAZY;
   @ProtoField(value = 12, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long queTs;
@@ -53,6 +54,8 @@ public class InvocationNode implements HasKey {
   @ProtoField(value = 14, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long cptTs;
+  @ProtoField(15)
+  String vId;
 
   public InvocationNode() {
   }
@@ -64,7 +67,7 @@ public class InvocationNode implements HasKey {
 
 
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String target, String targetCls, Set<KvPair> args, List<String> inputs, String outId, String originator) {
+  public InvocationNode(String key, Set<String> nextInv, String fb, String target, String targetCls, Set<KvPair> args, List<String> inputs, String outId, String originator, String vId) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -74,6 +77,7 @@ public class InvocationNode implements HasKey {
     this.inputs = inputs;
     this.outId = outId;
     this.originator = originator;
+    this.vId = vId;
   }
 
 
@@ -85,6 +89,7 @@ public class InvocationNode implements HasKey {
   public InvocationRequest toReq() {
     return InvocationRequest.builder()
       .invId(key)
+      .partKey(target)
       .target(target)
       .targetCls(targetCls)
       .args(KvPair.toMap(args))
@@ -130,5 +135,21 @@ public class InvocationNode implements HasKey {
 
   public InvocationStats extractStats() {
     return new InvocationStats(queTs, smtTs, cptTs);
+  }
+
+  public void updateStatus(TaskCompletion completion) {
+    if (completion.isSuccess()) {
+      status = TaskStatus.SUCCEEDED;
+      vId = completion.getId().getVid();
+    } else
+      status = TaskStatus.FAILED;
+    if (completion.getCptTs() > 0 ) {
+      cptTs = completion.getCptTs();
+    } else {
+      cptTs = System.currentTimeMillis();
+    }
+    if (completion.getSmtTs() > 0) {
+      smtTs = completion.getSmtTs();
+    }
   }
 }

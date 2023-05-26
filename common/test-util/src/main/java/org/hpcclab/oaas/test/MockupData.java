@@ -189,11 +189,13 @@ public class MockupData {
 
   public static RepoContextLoader mockContextLoader(MutableMap<String,OaasObject> objects,
                                                     MutableMap<String,OaasClass> classes,
-                                                    MutableMap<String,OaasFunction> functions) {
+                                                    MutableMap<String,OaasFunction> functions,
+                                                    MutableMap<String, InvocationNode> nodes) {
     var objRepo = mockObjectRepo(objects);
     var clsRepo = mockClsRepo(classes);
     var funcRepo = mockFuncRepo(functions);
-    return new RepoContextLoader(objRepo,funcRepo,clsRepo);
+    var nodeRepo = mockInvRepo(nodes);
+    return new RepoContextLoader(objRepo,funcRepo,clsRepo, nodeRepo);
   }
 
   public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String,OaasObject> objects) {

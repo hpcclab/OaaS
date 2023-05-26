@@ -20,20 +20,5 @@ public interface TaskDetail {
     throw new UnsupportedOperationException();
   }
 
-  default InvocationRequest toRequest() {
-    return InvocationRequest.builder()
-      .partKey(getMain() != null? getMain().getId() : null)
-      .macro(false)
-      .args(getArgs())
-      .inputs(getInputs().stream().map(OaasObject::getId).toList())
-      .targetCls(getMain().getCls())
-      .target(getMain().getId())
-      .fb(getFbName())
-      .outId(getOutput() != null? getOutput().getId() : null)
-      .immutable(isImmutable())
-//      .function(getFuncKey())
-      .queTs(System.currentTimeMillis())
-      .loadOutput(getOutput() != null)
-      .build();
-  }
+
 }

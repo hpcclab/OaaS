@@ -2,6 +2,8 @@ package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -16,8 +18,6 @@ import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +93,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   private Uni<List<InvocationContext>> applyDataflow(InvocationContext context,
                                                      MacroSpec workflow) {
     var request = context.getRequest();
+    var macroIds = request==null || request.macroIds()==null ? Map.of():request.macroIds();
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step -> {
         return loadSubContext(context, step)
@@ -100,9 +101,10 @@ public class MacroFunctionApplier implements FunctionApplier {
           .invoke(newCtx -> {
             if (newCtx.getOutput()!=null
               && step.getAs()!=null
-              && request!=null
-              && request.macroIds().containsKey(step.getAs()))
+              && macroIds.containsKey(step.getAs())) {
               newCtx.getOutput().setId(request.macroIds().get(step.getAs()));
+            }
+
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());
           });
       })

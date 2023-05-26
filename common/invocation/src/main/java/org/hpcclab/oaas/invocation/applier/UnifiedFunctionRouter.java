@@ -10,6 +10,7 @@ import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ public class UnifiedFunctionRouter implements FunctionApplier{
   MacroFunctionApplier macroFunctionApplier;
   TaskFunctionApplier taskFunctionApplier;
   ContextLoader contextLoader;
-
   @Inject
   public UnifiedFunctionRouter(LogicalFunctionApplier logicalFunctionHandler,
                                MacroFunctionApplier macroFunctionHandler,
@@ -48,11 +48,11 @@ public class UnifiedFunctionRouter implements FunctionApplier{
     };
   }
 
-  public Uni<InvocationContext> apply(ObjectAccessLanguage request) {
-    return contextLoader.loadCtxAsync(request)
-      .invoke(this::validate)
-      .flatMap(this::apply);
-  }
+//  public Uni<InvocationContext> apply(ObjectAccessLanguage oal) {
+//    return contextLoader.loadCtxAsync(oal)
+//      .invoke(this::validate)
+//      .flatMap(this::apply);
+//  }
 
   public Uni<InvocationContext> apply(InvocationRequest request) {
     return contextLoader.loadCtxAsync(request)

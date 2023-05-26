@@ -65,6 +65,8 @@ public class KvPair {
     return pairs.stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal));
   }
   public static Set<KvPair> fromMap(Map<String, String> map){
+    if (map == null)
+      return Set.of();
     return map.entrySet()
       .stream()
       .map(KvPair::new)

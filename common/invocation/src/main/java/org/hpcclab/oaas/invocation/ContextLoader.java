@@ -9,7 +9,6 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 
 public interface ContextLoader {
-  Uni<InvocationContext> loadCtxAsync(ObjectAccessLanguage request);
   Uni<InvocationContext> loadCtxAsync(InvocationRequest request);
 
   InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName);

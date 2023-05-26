@@ -114,7 +114,7 @@ public class InvocationExecutor {
     return gsm.persistNodes(nodes)
       .onItem()
       .transformToMulti(__ -> gsm.updateSubmittingStatus(ctx, ctxToSubmit))
-      .map(TaskDetail::toRequest)
+      .map(InvocationContext::toRequest)
       .collect().asList()
       .flatMap(sender::send);
   }
@@ -159,8 +159,11 @@ public class InvocationExecutor {
 //      if (ctx.getRequest()!=null)
 //        output.getStatus().setQueTs(ctx.getRequest().queTs());
 //    }
+
     ctx.initNode().markAsSubmitted(null, false);
-    ctx.getNode().setQueTs(ctx.getRequest().queTs());
+    if (ctx.getRequest() != null) {
+      ctx.getNode().setQueTs(ctx.getRequest().queTs());
+    }
     var uni = offLoader.offload(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))

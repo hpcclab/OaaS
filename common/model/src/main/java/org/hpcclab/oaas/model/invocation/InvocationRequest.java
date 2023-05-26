@@ -22,8 +22,8 @@ public record InvocationRequest(
   String outId,
   Map<String,String> macroIds,
   @JsonIgnore String partKey,
-  boolean loadOutput,
 //  List<InvocationRequest> nextReq,
+  boolean nodeExist,
   long queTs
 ) {
   public static final String CE_TYPE = "oaas.invReq";

@@ -27,6 +27,8 @@ public class CompletedStateUpdater {
   void updateState(TaskDetail task, TaskCompletion completion) {
     var main = task.getMain();
     var out = task.getOutput();
+    var node = task.getNode();
+    node.updateStatus(completion);
 
     if (main!=null) {
       if (completion.getMain()!=null) {

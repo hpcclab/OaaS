@@ -24,7 +24,7 @@ public class GraphStateManager {
     this.objRepo = objRepo;
   }
 
-  public Multi<TaskContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<InvocationContext> contexts){
+  public Multi<InvocationContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<InvocationContext> contexts){
     var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
       :entryCtx.getMain().getId();
@@ -37,8 +37,10 @@ public class GraphStateManager {
           ctx.initNode().markAsSubmitted(originator, true);
           return Uni.createFrom().item(ctx);
         } else {
-          return invNodeRepo.computeAsync(ctx.getOutput().getId(), (id, node) -> node.markAsSubmitted(originator, true))
-            .map(ctx::setNode);
+          return invNodeRepo.computeAsync(ctx.getOutput().getId(), (id, node) ->
+              node.markAsSubmitted(originator, true))
+            .invoke(ctx::setNode)
+            .replaceWith(ctx);
         }
       })
       .filter(ctx -> ctx.getOutput()==null || ctx.getNode().getOriginator().equals(originator))

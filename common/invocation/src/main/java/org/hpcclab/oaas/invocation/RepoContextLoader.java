@@ -8,17 +8,15 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,29 +27,17 @@ public class RepoContextLoader implements ContextLoader {
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
   EntityRepository<String, OaasClass> clsRepo;
+  EntityRepository<String, InvocationNode> invNodeRepo;
 
   @Inject
   public RepoContextLoader(EntityRepository<String, OaasObject> objectRepo,
                            EntityRepository<String, OaasFunction> funcRepo,
-                           EntityRepository<String, OaasClass> clsRepo) {
+                           EntityRepository<String, OaasClass> clsRepo,
+                           EntityRepository<String, InvocationNode> invNodeRepo) {
     this.objectRepo = objectRepo;
     this.funcRepo = funcRepo;
     this.clsRepo = clsRepo;
-  }
-
-  public Uni<InvocationContext> loadCtxAsync(ObjectAccessLanguage request) {
-    var ctx = new InvocationContext();
-    ctx.setArgs(request.getArgs());
-    return objectRepo.getAsync(request.getTarget())
-      .onItem().ifNull()
-      .failWith(() -> StdOaasException.notFoundObject400(request.getTarget()))
-      .invoke(ctx::setMain)
-      .call(() -> loadRefs(ctx.getMain(), ctx))
-      .invoke(ctx::setEntry)
-      .map(ignore -> loadClsAndFunc(ctx, request.getFbName()))
-      .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
-      .invoke(ctx::setInputs)
-      .replaceWith(ctx);
+    this.invNodeRepo = invNodeRepo;
   }
 
   @Override
@@ -60,22 +46,24 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
-    if (request.loadOutput() && request.outId()!=null) {
-      uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
-        .invoke(map -> ctx.setMain(map.get(request.target()))
-          .setOutput(map.get(request.outId()))
-        );
-    } else {
-      uni = objectRepo.getAsync(request.target())
-        .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject400(request.target()))
-        .invoke(ctx::setMain);
-    }
-    return uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
+    uni = objectRepo.getAsync(request.target())
+      .onItem().ifNull()
+      .failWith(() -> StdOaasException.notFoundObject400(request.target()))
+      .invoke(ctx::setMain);
+    uni = uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
       .map(ignore -> loadClsAndFunc(ctx, request.fb()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
-      .invoke(ctx::setInputs)
-      .replaceWith(ctx);
+      .invoke(ctx::setInputs);
+
+    if (request.nodeExist()) {
+      uni = uni.flatMap(__ -> invNodeRepo.getAsync(request.invId()))
+        .invoke(invNode -> {
+          if (invNode!=null)
+            ctx.setNode(invNode);
+        });
+    }
+
+    return uni.replaceWith(ctx);
   }
 
   public InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName) {
@@ -256,5 +244,9 @@ public class RepoContextLoader implements ContextLoader {
 
   public EntityRepository<String, OaasClass> getClsRepo() {
     return clsRepo;
+  }
+
+  public EntityRepository<String, InvocationNode> getInvNodeRepo() {
+    return invNodeRepo;
   }
 }

@@ -19,6 +19,7 @@ import org.hpcclab.oaas.model.task.TaskContext;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -79,7 +80,8 @@ public class InvocationContext extends TaskContext {
 
   public boolean contains(TaskContext taskContext) {
     var outId = getOutput().getId();
-    if (taskContext.getOutput().getId().equals(outId))
+    if (taskContext.getOutput() != null &&
+      Objects.equals(taskContext.getOutput().getId(), outId))
       return true;
     for (InvocationContext subContext : subContexts) {
       if (subContext.contains(taskContext)) {
@@ -142,4 +144,21 @@ public class InvocationContext extends TaskContext {
     return node;
   }
 
+  public InvocationRequest toRequest() {
+    var partKey = getMain() != null? getMain().getId() : null;
+    return InvocationRequest.builder()
+      .invId(request != null? request.invId():getOutput().getId())
+      .partKey(partKey)
+      .macro(false)
+      .args(getArgs())
+      .inputs(getInputs().stream().map(OaasObject::getId).toList())
+      .targetCls(getMain().getCls())
+      .target(getMain().getId())
+      .fb(getFbName())
+      .outId(getOutput() != null? getOutput().getId() : null)
+      .immutable(getBinding().isForceImmutable())
+      .nodeExist(true)
+      .queTs(System.currentTimeMillis())
+      .build();
+  }
 }
