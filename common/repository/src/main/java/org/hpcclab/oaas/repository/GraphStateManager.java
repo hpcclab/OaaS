@@ -10,16 +10,20 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class GraphStateManager {
+  private static final Logger logger = LoggerFactory.getLogger( GraphStateManager.class );
 
   EntityRepository<String, InvocationNode> invNodeRepo;
   EntityRepository<String, OaasObject> objRepo;
 
-  public GraphStateManager(EntityRepository<String, InvocationNode> invNodeRepo, EntityRepository<String, OaasObject> objRepo) {
+  public GraphStateManager(EntityRepository<String, InvocationNode> invNodeRepo,
+                           EntityRepository<String, OaasObject> objRepo) {
     this.invNodeRepo = invNodeRepo;
     this.objRepo = objRepo;
   }
@@ -44,11 +48,22 @@ public class GraphStateManager {
         }
       })
       .filter(ctx -> ctx.getOutput()==null || ctx.getNode().getOriginator().equals(originator))
-      .onCompletion().call(() -> persistAll(entryCtx));
+      .onCompletion().call(() -> persistAllInvNodes(entryCtx))
+      ;
   }
 
   public Uni<Void> persistAll(InvocationContext ctx) {
     return persistAll(ctx, Lists.mutable.empty());
+  }
+
+  public Uni<Void> persistAllInvNodes(InvocationContext ctx) {
+    var nodes = Lists.mutable.<InvocationNode>empty();
+    var n = ctx.getNode();
+    if (n != null)
+      nodes.add(ctx.getNode());
+    nodes.addAll(ctx.getSubContexts().stream().map(TaskContext::getNode)
+      .filter(Objects::nonNull).toList());
+    return invNodeRepo.persistAsync(nodes);
   }
 
   public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {

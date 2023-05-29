@@ -16,6 +16,8 @@ import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.repository.GraphStateManager;
+import org.hpcclab.oaas.repository.InvNodeRepository;
+import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
 import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -38,6 +40,12 @@ public class InvocationEngineProducer {
     TaskFactory taskFactory,
     CompletedStateUpdater completionHandler) {
     return new InvocationExecutor(sender, graphStateManager, contextLoader, offLoader, taskFactory, completionHandler);
+  }
+
+  @Produces
+  GraphStateManager graphStateManager(InvNodeRepository invNodeRepo,
+                                      ObjectRepository objRepo) {
+    return new GraphStateManager(invNodeRepo, objRepo);
   }
 
   @Produces

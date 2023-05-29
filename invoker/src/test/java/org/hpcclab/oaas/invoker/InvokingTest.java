@@ -116,7 +116,6 @@ class InvokingTest {
     var out = objectRepo.get(oId);
     assertTrue(main.getStatus().getUpdatedOffset() >= 0);
     assertTrue(out.getStatus().getUpdatedOffset() >= 0);
-    assertTrue(out.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, main.getData().get("n").asInt());
   }
 
@@ -146,20 +145,25 @@ class InvokingTest {
       .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
-      var o = objectRepo.get(mid2);
-      return o!= null && o.getStatus().getTaskStatus().isCompleted();
+      var o = objectRepo.get(mid1);
+      return o!= null;
     });
 
     var m1 = objectRepo.get(mid1);
+    assertNotNull(m1);
     assertThat(m1.getStatus().getUpdatedOffset() )
       .isPositive();
-    assertTrue(m1.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, m1.getData().get("n").asInt());
 
+    TestUtil.retryTillConditionMeet(() -> {
+      var o = objectRepo.get(mid2);
+      return o!= null;
+    });
+
     var m2 = objectRepo.get(mid2);
+    assertNotNull(m2);
     assertThat(m2.getStatus().getUpdatedOffset())
       .isPositive();
-    assertTrue(m2.getStatus().getTaskStatus().isCompleted());
     assertThat(m2.getData().get("n").asInt())
       .isEqualTo(2);
   }
@@ -193,20 +197,20 @@ class InvokingTest {
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid3);
-      return o!= null && o.getStatus().getTaskStatus().isCompleted();
+      return o!= null;
     });
 
     var m1 = objectRepo.get(mid1);
+    assertNotNull(m1);
     assertTrue(m1.getStatus().getUpdatedOffset() >= 0);
-    assertTrue(m1.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, m1.getData().get("n").asInt());
     var m2 = objectRepo.get(mid2);
+    assertNotNull(m2);
     assertTrue(m2.getStatus().getUpdatedOffset() >= 0);
-    assertTrue(m2.getStatus().getTaskStatus().isCompleted());
     assertEquals(1, m2.getData().get("n").asInt());
     var m3 = objectRepo.get(mid3);
+    assertNotNull(m3);
     assertTrue(m3.getStatus().getUpdatedOffset() >= 0);
-    assertTrue(m3.getStatus().getTaskStatus().isCompleted());
     assertEquals(3, m3.getData().get("n").asInt());
   }
 

@@ -1,13 +1,11 @@
 package org.hpcclab.oaas.model.invocation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -65,9 +63,9 @@ public class InvocationNode implements HasKey {
     this.nextInv = new HashSet<>();
   }
 
-
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String target, String targetCls, Set<KvPair> args, List<String> inputs, String outId, String originator, String vId) {
+
+  public InvocationNode(String key, Set<String> nextInv, String fb, String target, String targetCls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vId) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -77,6 +75,11 @@ public class InvocationNode implements HasKey {
     this.inputs = inputs;
     this.outId = outId;
     this.originator = originator;
+    this.waitFor = waitFor;
+    this.status = status;
+    this.queTs = queTs;
+    this.smtTs = smtTs;
+    this.cptTs = cptTs;
     this.vId = vId;
   }
 
@@ -109,10 +112,10 @@ public class InvocationNode implements HasKey {
   }
 
   public InvocationNode markAsSubmitted(String originator,
-                                    boolean queue) {
+                                        boolean queue) {
     if (status.isSubmitted() || status.isFailed())
       return this;
-    if (originator == null)
+    if (originator==null)
       this.originator = key;
     else
       this.originator = originator;
@@ -143,7 +146,7 @@ public class InvocationNode implements HasKey {
       vId = completion.getId().getVid();
     } else
       status = TaskStatus.FAILED;
-    if (completion.getCptTs() > 0 ) {
+    if (completion.getCptTs() > 0) {
       cptTs = completion.getCptTs();
     } else {
       cptTs = System.currentTimeMillis();
