@@ -19,18 +19,18 @@ import java.util.List;
 public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
-  @ProtoField(value = 2, defaultValue = "-1")
-  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long crtTs;
-  @ProtoField(value = 3, defaultValue = "-1")
-  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long queTs;
-  @ProtoField(value = 4, defaultValue = "-1")
-  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long smtTs;
-  @ProtoField(value = 5, defaultValue = "-1")
-  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-  long cptTs;
+//  @ProtoField(value = 2, defaultValue = "-1")
+//  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//  long crtTs;
+//  @ProtoField(value = 3, defaultValue = "-1")
+//  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//  long queTs;
+//  @ProtoField(value = 4, defaultValue = "-1")
+//  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//  long smtTs;
+//  @ProtoField(value = 5, defaultValue = "-1")
+//  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//  long cptTs;
 //  @ProtoField(6)
 //  @JsonInclude(JsonInclude.Include.NON_EMPTY)
 //  List<String> waitFor = List.of();
@@ -53,10 +53,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 
   @ProtoFactory
   public ObjectStatus(TaskStatus taskStatus,
-                      long crtTs,
-                      long queTs,
-                      long smtTs,
-                      long cptTs,
+//                      long crtTs,
+//                      long queTs,
+//                      long smtTs,
+//                      long cptTs,
 //                      List<String> waitFor,
 //                      boolean initWaitFor,
 //                      String originator,
@@ -64,10 +64,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
                       long updatedOffset,
                       String vid) {
     this.taskStatus = taskStatus;
-    this.crtTs = crtTs;
-    this.queTs = queTs;
-    this.smtTs = smtTs;
-    this.cptTs = cptTs;
+//    this.crtTs = crtTs;
+//    this.queTs = queTs;
+//    this.smtTs = smtTs;
+//    this.cptTs = cptTs;
 //    this.waitFor = waitFor;
 //    this.initWaitFor = initWaitFor;
 //    this.originator = originator;
@@ -79,10 +79,10 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   public ObjectStatus copy() {
     return new ObjectStatus(
       taskStatus,
-      crtTs,
-      queTs,
-      smtTs,
-      cptTs,
+//      crtTs,
+//      queTs,
+//      smtTs,
+//      cptTs,
 //      waitFor==null ? null:List.copyOf(waitFor),
 //      initWaitFor,
 //      originator,
@@ -98,14 +98,14 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
       vid = taskCompletion.getId().getVid();
     } else
       taskStatus = TaskStatus.FAILED;
-    if (taskCompletion.getCptTs() > 0 ) {
-      cptTs = taskCompletion.getCptTs();
-    } else {
-      cptTs = System.currentTimeMillis();
-    }
-    if (taskCompletion.getSmtTs() > 0) {
-      smtTs = taskCompletion.getSmtTs();
-    }
+//    if (taskCompletion.getCptTs() > 0 ) {
+//      cptTs = taskCompletion.getCptTs();
+//    } else {
+//      cptTs = System.currentTimeMillis();
+//    }
+//    if (taskCompletion.getSmtTs() > 0) {
+//      smtTs = taskCompletion.getSmtTs();
+//    }
 //    errorMsg = taskCompletion.getErrorMsg();
 //    var ext = taskCompletion.getExt();
 //    if (ext!=null && ext.containsKey("osts")) {

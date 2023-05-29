@@ -65,11 +65,13 @@ public class InvocationHandlerService {
       }))
       .flatMap(ctx -> invocationExecutor.syncExec(ctx))
       .map(ctx -> OalResponse.builder()
+        .invId(ctx.initNode().getKey())
         .target(ctx.getMain())
         .output(ctx.getOutput())
         .fbName(ctx.getFbName())
         .status(ctx.getNode().getStatus())
         .async(false)
+        .stats(ctx.initNode().extractStats())
         .build());
   }
 

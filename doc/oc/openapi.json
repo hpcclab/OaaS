@@ -1616,22 +1616,6 @@
           "taskStatus" : {
             "$ref" : "#/components/schemas/TaskStatus_Public"
           },
-          "crtTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "queTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "smtTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "cptTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
           "updatedOffset" : {
             "format" : "int64",
             "type" : "integer"

@@ -46,7 +46,7 @@ public class OaasObjectFactory {
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setTaskStatus(TaskStatus.READY);
-    status.setCrtTs(System.currentTimeMillis());
+//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
@@ -80,7 +80,7 @@ public class OaasObjectFactory {
 //    obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
-    status.setCrtTs(System.currentTimeMillis());
+//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
     return obj;
   }
