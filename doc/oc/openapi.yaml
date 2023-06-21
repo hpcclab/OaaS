@@ -1004,11 +1004,6 @@ components:
           type: integer
         cls:
           type: string
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         state:
           $ref: '#/components/schemas/OaasObjectState_Public'
         refs:
@@ -1065,11 +1060,6 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/ObjectNode'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         keys:
           uniqueItems: true
           type: array

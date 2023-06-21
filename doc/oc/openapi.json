@@ -1392,13 +1392,6 @@
           "cls" : {
             "type" : "string"
           },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "state" : {
             "$ref" : "#/components/schemas/OaasObjectState_Public"
           },
@@ -1483,13 +1476,6 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/ObjectNode"
-          },
-          "labels" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           },
           "keys" : {
             "uniqueItems" : true,

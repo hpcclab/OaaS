@@ -172,7 +172,7 @@ public class InvocationExecutor {
       .replaceWith(ctx);
   }
 
-  public Uni<Void> complete(TaskDetail task, TaskCompletion completion) {
+  public Uni<Void> complete(InvocationContext task, TaskCompletion completion) {
     return gsm.persistThenLoadNext(task, completion)
       .collect().asList()
       .flatMap(list -> sender.send(list));

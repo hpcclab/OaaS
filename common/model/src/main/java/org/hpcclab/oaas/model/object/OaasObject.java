@@ -40,8 +40,6 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
   long revision;
   @ProtoField(4)
   String cls;
-  @ProtoField(5)
-  Set<String> labels;
   @ProtoField(6)
   OaasObjectState state;
   @ProtoField(7)
@@ -58,14 +56,16 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
   @ProtoFactory
   public OaasObject(String id,
 //                    ObjectOrigin origin,
-                    String cls, Set<String> labels, OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status,
+                    String cls,
+//                    Set<String> labels,
+                    OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status,
 //                    StreamInfo streamInfo,
                     long revision) {
     this.id = id;
     this.key = id;
 //    this.origin = origin;
     this.cls = cls;
-    this.labels = labels;
+//    this.labels = labels;
     this.state = state;
     this.refs = refs;
     this.data = data;
@@ -92,7 +92,7 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
       id,
 //      origin==null ? null:origin.copy(),
       cls,
-      labels==null ? null:Set.copyOf(labels),
+//      labels==null ? null:Set.copyOf(labels),
       state.copy(),
       refs==null ? null:Set.copyOf(refs),
       data != null? data.deepCopy(): null,

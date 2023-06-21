@@ -93,7 +93,7 @@ public class GraphStateManager {
     }
   }
 
-  public Multi<InvocationRequest> persistThenLoadNext(TaskDetail task, TaskCompletion completion) {
+  public Multi<InvocationRequest> persistThenLoadNext(InvocationContext task, TaskCompletion completion) {
 
     var main = task.getMain();
     List<OaasObject> objs = new ArrayList<>();

@@ -79,17 +79,18 @@ services:
       - 29092:29092
 
   s3:
-    image: minio/minio
+    image: bitnami/minio
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio-data:/data
     environment:
-      MINIO_ACCESS_KEY: minio_access_key
-      MINIO_SECRET_KEY: minio_secret_key
+      MINIO_ROOT_USER: minio_access_key
+      MINIO_ROOT_PASSWORD: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
-    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+      MINIO_DEFAULT_BUCKETS: oaas
+#    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
 
   invoker:
 #    restart: always

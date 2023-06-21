@@ -36,6 +36,7 @@ public class HttpOffLoader implements OffLoader {
     } else if (content instanceof io.vertx.core.buffer.Buffer buffer) {
       contentBuffer = Buffer.newInstance(buffer);
     } else {
+      logger.info("content {}", Json.encodePrettily(content));
       contentBuffer = Buffer.newInstance(Json.encodeToBuffer(content));
     }
     return webClient.postAbs(invokingDetail.getFuncUrl())
