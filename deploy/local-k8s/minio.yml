@@ -34,12 +34,9 @@ spec:
               value: minio_secret_key
             - name: MINIO_API_CORS_ALLOW_ORIGIN
               value: '*'
-          image: quay.io/minio/minio:latest
-          command:
-            - /bin/bash
-            - -c
-          args:
-            - minio server /data --address 0.0.0.0:9000 --console-address ":9001"
+            - name: MINIO_DEFAULT_BUCKETS
+              value: oaas
+          image: bitnami/minio
           ports:
             - containerPort: 9000
               name: http
@@ -47,9 +44,9 @@ spec:
               name: console
           volumeMounts:
             - mountPath: /data
-              name: localvolume # Corresponds to the `spec.volumes` Persistent Volume
+              name: data # Corresponds to the `spec.volumes` Persistent Volume
       volumes:
-        - name: localvolume
+        - name: data
           persistentVolumeClaim:
             claimName: minio-pvc
 ---
@@ -92,7 +89,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
     - host: "s3.127.0.0.1.nip.io"

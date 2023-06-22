@@ -6,7 +6,7 @@ metadata:
     app: invoker
     platform: oaas
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: invoker
@@ -30,7 +30,7 @@ spec:
         - name: invoker
           env:
             - name: ISPN_DNS_PING
-              value: invoker-ping.oaas.svc.cluster.local
+              value: invoker-ping.oaas.svc.cluster.local-k8s
             - name: KUBERNETES_NAMESPACE
               value: oaas
             - name: ISPN_POD_NAME
@@ -71,7 +71,7 @@ spec:
               memory: 4G
 #              cpu: '8'
             requests:
-              cpu: '0.25'
+              cpu: '0.5'
               memory: 512M
           imagePullPolicy: Always
           livenessProbe:

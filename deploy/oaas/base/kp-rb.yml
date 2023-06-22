@@ -9,12 +9,12 @@ kind: Role
 metadata:
   name: kp-role
 rules:
-  - apiGroups: ["batch", "extensions"]
-    resources: ["jobs"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: [""]
-    resources: ["pods", "pods/log"]
-    verbs: ["list", "get"]
+#  - apiGroups: ["batch", "extensions"]
+#    resources: ["jobs"]
+#    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+#  - apiGroups: [""]
+#    resources: ["pods", "pods/log"]
+#    verbs: ["list", "get"]
   - apiGroups: ["serving.knative.dev"]
     resources: ["services"]
     verbs: ["*"]

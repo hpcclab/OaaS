@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-adapter
+spec:
+  template:
+    spec:
+      containers:
+        - name: storage-adapter
+          envFrom:
+            - configMapRef:
+                name: oaas-env
+          env:
+            - name: OAAS_SA_S3_PUBLICURL
+              value: http://s3.127.0.0.1.nip.io:9090
+            - name: OAAS_SA_S3_URL
+              value: http://minio
+            - name: OAAS_SA_S3_BUCKET
+              value: 'oaas-bkt'

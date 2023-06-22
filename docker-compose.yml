@@ -143,7 +143,12 @@ services:
     environment:
       LOG_LEVEL: DEBUG
 
-
+  kp:
+    build:
+      context: kube-provisioner
+      dockerfile: src/main/docker/Dockerfile.jvm
+    deploy:
+      replicas: 0
 
 volumes:
   minio-data:
