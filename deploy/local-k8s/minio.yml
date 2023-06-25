@@ -35,7 +35,7 @@ spec:
             - name: MINIO_API_CORS_ALLOW_ORIGIN
               value: '*'
             - name: MINIO_DEFAULT_BUCKETS
-              value: oaas
+              value: oaas-bkt
           image: bitnami/minio
           ports:
             - containerPort: 9000

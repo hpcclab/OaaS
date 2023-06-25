@@ -11,6 +11,6 @@ spec:
             - name: OAAS_INVOKER_S3_PUBLICURL
               value: http://s3.127.0.0.1.nip.io:9090
             - name: OAAS_INVOKER_S3_URL
-              value: http://minio
+              value: http://minio.oaas.svc.cluster.local
             - name: OAAS_INVOKER_S3_BUCKET
               value: 'oaas-bkt'

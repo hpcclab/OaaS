@@ -1,0 +1,31 @@
+name: example
+functions:
+  - name: concat
+    type: TASK
+    outputCls: example.text
+    validation: {}
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/concat-fn-py:invocation-node-logging
+    variableDescriptions:
+      - name: append
+classes:
+  - name: text
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: example.concat
+        forceImmutable: true
+      - access: PUBLIC
+        function: example.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
+
+
+

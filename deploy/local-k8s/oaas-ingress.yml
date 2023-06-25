@@ -16,14 +16,14 @@ spec:
                 name: object-controller
                 port:
                   number: 80
-    - host: "tm.oaas.127.0.0.1.nip.io"
+    - host: "inv.oaas.127.0.0.1.nip.io"
       http:
         paths:
           - pathType: Prefix
             path: /
             backend:
               service:
-                name: task-manager
+                name: invoker
                 port:
                   number: 80
     - host: "cds.127.0.0.1.nip.io"
