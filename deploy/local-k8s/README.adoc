@@ -16,7 +16,7 @@ This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d
 +
 [source,bash]
 ----
-local-k8s cluster create -p "9090:80@loadbalancer"
+k3d cluster create -p "9090:80@loadbalancer"
 ----
 
 * Kubernetes-related commandline tools

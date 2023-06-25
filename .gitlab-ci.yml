@@ -6,7 +6,7 @@ services:
   - docker:dind
 
 variables:
-  MAVEN_OPTS: -Dmaven.repo.local-k8s=.m2/repository -DskipTests
+  MAVEN_OPTS: -Dmaven.repo.local=.m2/repository -DskipTests
   DOCKERFILE: src/main/docker/Dockerfile.jvm
   NATIVE_DOCKERFILE: src/main/docker/Dockerfile.multistage
   # Instruct Testcontainers to use the daemon of DinD.
