@@ -31,12 +31,12 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
         cache: 'maven'
     - name: Build container image with Jib
-      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
+      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":${GITHUB_REF_NAME}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
     - name: Build example concat function
-      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.image="${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}"
+      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.image="${CI_REGISTRY_IMAGE,,}:${GITHUB_REF_NAME}"
       working-directory: example/functions/concat-fn-java
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-fn-java
