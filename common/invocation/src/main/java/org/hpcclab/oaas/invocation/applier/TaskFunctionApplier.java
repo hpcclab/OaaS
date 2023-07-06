@@ -1,18 +1,17 @@
 package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.repository.OaasObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 @ApplicationScoped
 public class TaskFunctionApplier implements FunctionApplier {
-  private static final Logger logger = LoggerFactory.getLogger( TaskFunctionApplier.class );
+  private static final Logger logger = LoggerFactory.getLogger(TaskFunctionApplier.class);
 
   OaasObjectFactory objectFactory;
 
@@ -21,8 +20,8 @@ public class TaskFunctionApplier implements FunctionApplier {
     this.objectFactory = objectFactory;
   }
 
-  public void validate(InvApplyingContext context) {
-    if (context.getBinding().getOutputCls() != null && context.getOutputCls()==null)
+  public void validate(InvocationContext context) {
+    if (context.getBinding().getOutputCls()!=null && context.getOutputCls()==null)
       throw FunctionValidationException.format(
         "Cannot call function('%s') because outputCls('%s') is not exist",
         context.getFunction().getKey(),
@@ -30,17 +29,14 @@ public class TaskFunctionApplier implements FunctionApplier {
       );
   }
 
-  public Uni<InvApplyingContext> apply(InvApplyingContext ctx) {
+  public Uni<InvocationContext> apply(InvocationContext ctx) {
     ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isMutable());
     var req = ctx.getRequest();
     if (ctx.getBinding().getOutputCls()!=null) {
       var output = objectFactory.createOutput(ctx);
-      if (req != null)
+      if (req!=null && (req.outId()!=null)) {
         output.setId(req.outId());
-//      var rootCtx = ctx;
-//      while (rootCtx.getParent()!=null) {
-//        rootCtx = rootCtx.getParent();
-//      }
+      }
       ctx.setOutput(output);
     }
     return Uni.createFrom().item(ctx);

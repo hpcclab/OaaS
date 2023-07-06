@@ -44,6 +44,7 @@ classes:
     functions:
       - access: PUBLIC
         function: example.concat
+        forceImmutable: true
       - access: PUBLIC
         function: example.concat
         name: concat-inplace

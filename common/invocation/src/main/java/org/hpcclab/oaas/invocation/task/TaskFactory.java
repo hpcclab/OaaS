@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invocation.task;
 
-import org.hpcclab.oaas.invocation.ContentUrlGenerator;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
@@ -63,18 +62,17 @@ public class TaskFactory {
 
       if (outCls.getStateType()==StateType.COLLECTION ||
         !outCls.getStateSpec().getKeySpecs().isEmpty()) {
-        var b64Dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId)
-          .encode();
-        task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getOutput().getId(), b64Dac));
+        var dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId);
+        task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getOutput(), dac));
       }
     }
 
     if (taskContext.getFunction().getType().isMutable()) {
-      var b64Dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId)
-        .encode();
-      task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getMain().getId(), b64Dac));
+      var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
+      task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getMain(), dac));
     }
-    task.setMainKeys(genUrls(taskContext.getMain(), taskContext.getMainRefs()));
+    task.setMainKeys(genUrls(taskContext.getMain(), taskContext.getMainRefs(),
+      AccessLevel.ALL));
 
     var inputContextKeys = new ArrayList<String>();
     for (int i = 0; i < taskContext.getInputs().size(); i++) {
@@ -92,25 +90,26 @@ public class TaskFactory {
 
 
   public Map<String, String> genUrls(OaasObject obj,
-                                     Map<String, OaasObject> refs) {
+                                     Map<String, OaasObject> refs,
+                                     AccessLevel level) {
     Map<String, String> m = new HashMap<>();
-    generateUrls(m, obj, refs, "");
+    generateUrls(m, obj, refs, "", level);
     return m;
   }
 
   private void generateUrls(Map<String, String> map,
                             OaasObject obj,
                             Map<String, OaasObject> refs,
-                            String prefix) {
-    var dac = DataAccessContext.generate(obj);
-    var b64Dac = dac.encode();
+                            String prefix,
+                            AccessLevel level) {
 
     var verIds = obj.getState().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
       for (var vidEntry : verIds) {
+        var dac = DataAccessContext.generate(obj, level,
+          vidEntry.getVal());
         var url =
-          contentUrlGenerator.generateUrl(obj.getId(), vidEntry.getVal(),
-            vidEntry.getKey(), b64Dac);
+          contentUrlGenerator.generateUrl(obj, dac, vidEntry.getKey());
         map.put(prefix + vidEntry.getKey(), url);
       }
     }
@@ -125,7 +124,8 @@ public class TaskFactory {
           map,
           entry.getValue(),
           null,
-          prefix + entry.getKey() + ".");
+          prefix + entry.getKey() + ".",
+          AccessLevel.UNIDENTIFIED);
       }
     }
   }

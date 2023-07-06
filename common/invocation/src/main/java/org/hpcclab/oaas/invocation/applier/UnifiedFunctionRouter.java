@@ -5,10 +5,12 @@ import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionAccessModifier;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionType;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +18,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class UnifiedFunctionRouter {
+public class UnifiedFunctionRouter implements FunctionApplier{
   private static final Logger LOGGER = LoggerFactory.getLogger(UnifiedFunctionRouter.class);
 
   LogicalFunctionApplier logicalFunctionApplier;
   MacroFunctionApplier macroFunctionApplier;
   TaskFunctionApplier taskFunctionApplier;
   ContextLoader contextLoader;
-
   @Inject
   public UnifiedFunctionRouter(LogicalFunctionApplier logicalFunctionHandler,
                                MacroFunctionApplier macroFunctionHandler,
@@ -37,7 +38,7 @@ public class UnifiedFunctionRouter {
   }
 
 
-  public Uni<InvApplyingContext> apply(InvApplyingContext context) {
+  public Uni<InvocationContext> apply(InvocationContext context) {
     var type = context.getFunction().getType();
     return switch (type) {
       case LOGICAL -> logicalFunctionApplier.apply(context);
@@ -47,20 +48,20 @@ public class UnifiedFunctionRouter {
     };
   }
 
-  public Uni<InvApplyingContext> apply(ObjectAccessLanguage request) {
+//  public Uni<InvocationContext> apply(ObjectAccessLanguage oal) {
+//    return contextLoader.loadCtxAsync(oal)
+//      .invoke(this::validate)
+//      .flatMap(this::apply);
+//  }
+
+  public Uni<InvocationContext> apply(InvocationRequest request) {
     return contextLoader.loadCtxAsync(request)
       .invoke(this::validate)
       .flatMap(this::apply);
   }
 
-  public Uni<InvApplyingContext> apply(InvocationRequest request) {
-    return contextLoader.loadCtxAsync(request)
-      .invoke(this::validate)
-      .flatMap(this::apply);
-  }
 
-
-  public void validate(InvApplyingContext context) {
+  public void validate(InvocationContext context) {
     var main = context.getMain();
     var func = context.getFunction();
     var access = context.getBinding().getAccess();

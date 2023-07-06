@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
+import org.hpcclab.oaas.storage.S3ConnConf;
 
 @ConfigMapping(
   prefix = "oaas.invoker",
@@ -32,4 +33,7 @@ public interface InvokerConfig {
   int invokeConcurrency();
   @WithDefault("500")
   int maxInflight();
+  S3ConnConf s3();
+  @WithDefault("false")
+  boolean useSa();
 }

@@ -19,7 +19,10 @@ public class MacroFunctionApplierTest {
   @Test
   void test() {
     var oal = ObjectAccessLanguage.parse("o1:" + ATOMIC_MACRO_FUNC.getName());
-    var ctx = engine.router.apply(oal)
+    var req = oal.toRequest()
+      .invId(engine.idGen.generate())
+      .build();
+    var ctx = engine.router.apply(req)
       .await().indefinitely();
     var graph = ctx.getDataflowGraph();
     assertThat(graph.getEntries())

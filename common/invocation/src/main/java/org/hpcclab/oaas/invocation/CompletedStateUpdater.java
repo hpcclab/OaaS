@@ -1,12 +1,10 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
-import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskDetail;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
+import org.hpcclab.oaas.model.task.TaskCompletion;
 
 @ApplicationScoped
 public class CompletedStateUpdater {
@@ -18,33 +16,33 @@ public class CompletedStateUpdater {
     this.validator = validator;
   }
 
-  public Uni<TaskCompletion> handleComplete(TaskDetail task, TaskCompletion completion) {
-    return validator.validateCompletion(task, completion)
-      .invoke(tc -> updateState(task, completion))
+  public Uni<TaskCompletion> handleComplete(InvocationContext context, TaskCompletion completion) {
+    return validator.validateCompletion(context, completion)
+      .invoke(tc -> updateState(context, completion))
       .replaceWith(completion);
   }
 
-  void updateState(TaskDetail task, TaskCompletion completion) {
-    var main = task.getMain();
-    var out = task.getOutput();
+  void updateState(InvocationContext context, TaskCompletion completion) {
+    var main = context.getMain();
+    var out = context.getOutput();
+    var node = context.initNode();
+    node.updateStatus(completion);
 
     if (main!=null) {
       if (completion.getMain()!=null) {
-        completion.getMain().update(main, task.getVId());
-        if (out == null && completion.isSuccess())
+        completion.getMain().update(main, context.getVId());
+        if (out==null && completion.isSuccess())
           main.getStatus().set(completion);
       }
-      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
-        main.getStatus().setUpdatedOffset(iac.getMqOffset());
+      main.getStatus().setUpdatedOffset(context.getMqOffset());
     }
 
     if (out!=null) {
       out.getStatus().set(completion);
-      if (completion.getOutput() != null)
+      if (completion.getOutput()!=null)
         completion.getOutput().update(out, completion
-          .getId().getVId());
-      if (task instanceof InvApplyingContext iac && iac.getMqOffset() >= 0)
-        out.getStatus().setUpdatedOffset(iac.getMqOffset());
+          .getId().getVid());
+      out.getStatus().setUpdatedOffset(context.getMqOffset());
     }
   }
 }

@@ -50,24 +50,7 @@ public class IspnObjectRepository extends AbstractIspnRepository<String, OaasObj
     return UUID.randomUUID().toString();
   }
 
-  public Uni<OaasObject> createRootAndPersist(OaasObject object) {
-    var cls = classRepo.get(object.getCls());
-    if (cls==null) {
-      throw NoStackException.notFoundCls400(object.getCls());
-    }
-
-    object.setId(generateId());
-    object.setOrigin(new ObjectOrigin());
-
-    if (cls.getObjectType()==ObjectType.COMPOUND) {
-      object.setState(null);
-      // TODO check members
-    } else {
-      object.setRefs(null);
-    }
-    return this.putAsync(object.getId(), object);
-  }
-
+  @Override
   public Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys, long offset,
                                                int limit) {
 

@@ -27,6 +27,9 @@ oaas:
   log: INFO
 
 quarkus:
+  s3:
+    devservices:
+      enabled: false
   minio:
     allow-empty: true
   http:

@@ -19,14 +19,25 @@ public class DataAccessContext {
   String cls;
   AccessLevel level;
   String vid;
-
   String sig;
 
+  String b64;
 
   public DataAccessContext() {
   }
 
   public String encode() {
+    if (b64 == null)
+      b64 = genB64();
+    return b64;
+  }
+
+  public String forceEncode() {
+    b64 = genB64();
+    return b64;
+  }
+
+  private String genB64() {
     StringBuilder sb = new StringBuilder();
     if (id != null)
       sb.append(id);

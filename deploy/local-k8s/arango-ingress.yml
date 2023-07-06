@@ -1,0 +1,17 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: arango-cluster-ingress
+spec:
+  rules:
+    - host: "arg.127.0.0.1.nip.io"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: arango-cluster
+                port:
+                  number: 8529

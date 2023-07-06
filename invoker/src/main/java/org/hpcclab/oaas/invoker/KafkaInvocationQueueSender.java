@@ -27,8 +27,7 @@ public class KafkaInvocationQueueSender implements InvocationQueueSender {
         topic,
         request.partKey(),
         Json.encodeToBuffer(request)
-      )
-      .addHeader("ce_function", request.function());
+      );
     if (logger.isDebugEnabled())
       logger.debug("send {} [{} {} {}]", topic, request.invId(), request.partKey(), request.outId());
     if (request.invId() != null)

@@ -36,7 +36,11 @@ oaas:
       maxCount: 10000
       storageType: HEAP
 
+
 quarkus:
+  s3:
+    devservices:
+      enabled: false
   naming:
     enable-jndi: true
   console:

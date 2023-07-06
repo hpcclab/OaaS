@@ -354,7 +354,7 @@ paths:
               type: string
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasPackageContainer_Public'
+              $ref: '#/components/schemas/OaasPackageContainer'
       responses:
         "200":
           description: OK
@@ -379,14 +379,14 @@ paths:
               type: string
           application/json:
             schema:
-              $ref: '#/components/schemas/OaasPackageContainer_Public'
+              $ref: '#/components/schemas/OaasPackageContainer'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OaasPackageContainer_Public'
+                $ref: '#/components/schemas/OaasPackageContainer'
 components:
   schemas:
     DataflowStep:
@@ -575,54 +575,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ObjectRequirement_Public'
-    JobProvisionConfig:
-      type: object
-      properties:
-        image:
-          type: string
-        commands:
-          type: array
-          items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
-        limitsCpu:
-          type: string
-        limitsMemory:
-          type: string
-        argsToEnv:
-          type: boolean
-      deprecated: true
-    JobProvisionConfig_Public:
-      type: object
-      properties:
-        image:
-          type: string
-        commands:
-          type: array
-          items:
-            type: string
-        containerArgs:
-          type: array
-          items:
-            type: string
-        requestsCpu:
-          type: string
-        requestsMemory:
-          type: string
-        limitsCpu:
-          type: string
-        limitsMemory:
-          type: string
-        argsToEnv:
-          type: boolean
-      deprecated: true
     JsonNode:
       type: object
       properties:
@@ -853,7 +805,7 @@ components:
           type: string
         val:
           type: string
-    MacroConfig:
+    MacroSpec:
       type: object
       properties:
         steps:
@@ -869,7 +821,7 @@ components:
           type: string
         atomic:
           type: boolean
-    MacroConfig_Public:
+    MacroSpec_Public:
       type: object
       properties:
         steps:
@@ -983,7 +935,7 @@ components:
         validation:
           $ref: '#/components/schemas/FunctionValidation'
         macro:
-          $ref: '#/components/schemas/MacroConfig'
+          $ref: '#/components/schemas/MacroSpec'
         provision:
           $ref: '#/components/schemas/ProvisionConfig'
         variableDescriptions:
@@ -1018,7 +970,7 @@ components:
         validation:
           $ref: '#/components/schemas/FunctionValidation_Public'
         macro:
-          $ref: '#/components/schemas/MacroConfig_Public'
+          $ref: '#/components/schemas/MacroSpec_Public'
         provision:
           $ref: '#/components/schemas/ProvisionConfig_Public'
         variableDescriptions:
@@ -1047,18 +999,11 @@ components:
       properties:
         id:
           type: string
-        origin:
-          $ref: '#/components/schemas/ObjectOrigin_Public'
         revision:
           format: int64
           type: integer
         cls:
           type: string
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         state:
           $ref: '#/components/schemas/OaasObjectState_Public'
         refs:
@@ -1068,8 +1013,6 @@ components:
             $ref: '#/components/schemas/ObjectReference_Public'
         status:
           $ref: '#/components/schemas/ObjectStatus_Public'
-        streamInfo:
-          $ref: '#/components/schemas/StreamInfo_Public'
         data:
           $ref: '#/components/schemas/ObjectNode_Public'
         key:
@@ -1117,11 +1060,6 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/ObjectNode'
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         keys:
           uniqueItems: true
           type: array
@@ -1162,22 +1100,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/JsonNode_Public'
-    ObjectOrigin_Public:
-      type: object
-      properties:
-        parentId:
-          type: string
-        fbName:
-          type: string
-        args:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/KvPair_Public'
-        inputs:
-          type: array
-          items:
-            type: string
     ObjectReference:
       type: object
       properties:
@@ -1221,28 +1143,10 @@ components:
       properties:
         taskStatus:
           $ref: '#/components/schemas/TaskStatus_Public'
-        crtTs:
-          format: int64
-          type: integer
-        queTs:
-          format: int64
-          type: integer
-        smtTs:
-          format: int64
-          type: integer
-        cptTs:
-          format: int64
-          type: integer
-        waitFor:
-          type: array
-          items:
-            type: string
-        errorMsg:
-          type: string
         updatedOffset:
           format: int64
           type: integer
-        vId:
+        vid:
           type: string
     ObjectType:
       enum:
@@ -1307,8 +1211,6 @@ components:
     ProvisionConfig:
       type: object
       properties:
-        job:
-          $ref: '#/components/schemas/JobProvisionConfig'
         knative:
           $ref: '#/components/schemas/KnativeProvision'
         type:
@@ -1316,8 +1218,6 @@ components:
     ProvisionConfig_Public:
       type: object
       properties:
-        job:
-          $ref: '#/components/schemas/JobProvisionConfig_Public'
         knative:
           $ref: '#/components/schemas/KnativeProvision_Public'
         type:
@@ -1412,12 +1312,6 @@ components:
       - FILES
       - COLLECTION
       type: string
-    StreamInfo_Public:
-      type: object
-      properties:
-        count:
-          format: int32
-          type: integer
     TaskStatus_Public:
       enum:
       - LAZY

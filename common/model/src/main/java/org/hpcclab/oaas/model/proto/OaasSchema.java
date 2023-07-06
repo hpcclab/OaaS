@@ -15,6 +15,7 @@ import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
     "org.hpcclab.oaas.model.state",
     "org.hpcclab.oaas.model.task",
     "org.hpcclab.oaas.model.proto",
+    "org.hpcclab.oaas.model.invocation",
   }
 )
 public interface OaasSchema extends GeneratedSchema {

@@ -1,0 +1,29 @@
+resources:
+  - ../base
+
+#images:
+#  - name: ghcr.io/hpcclab/oaas/object-controller
+#    newName: ghcr.io/pawissanutt/oaas/object-controller
+#    newTag: dev
+#  - name: ghcr.io/hpcclab/oaas/kube-provisioner
+#    newName: ghcr.io/pawissanutt/oaas/kube-provisioner
+#    newTag: dev
+#  - name: ghcr.io/hpcclab/oaas/storage-adapter
+#    newName: ghcr.io/pawissanutt/oaas/storage-adapter
+#    newTag: dev
+#  - name: ghcr.io/hpcclab/oaas/invoker
+#    newName: ghcr.io/pawissanutt/oaas/invoker
+#    newTag: dev
+
+secretGenerator:
+  - name: oaas-bucket
+    literals:
+      - AWS_ACCESS_KEY_ID=minio_access_key
+      - AWS_SECRET_ACCESS_KEY=minio_secret_key
+    options:
+      disableNameSuffixHash: true
+
+patches:
+  - path: sa-patch.yml
+  - path: env-configmap.yml
+  - path: invoker-patch.yml

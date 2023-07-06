@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.model.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.OaasObject;
 
@@ -15,21 +17,8 @@ public interface TaskDetail {
   boolean isImmutable();
   List<OaasObject> getInputs();
   Map<String, String> getArgs();
-
-  default InvocationRequest toRequest() {
-    return InvocationRequest.builder()
-      .partKey(getMain() != null? getMain().getId() : null)
-      .macro(false)
-      .args(getArgs())
-      .inputs(getInputs().stream().map(OaasObject::getId).toList())
-      .targetCls(getMain().getCls())
-      .target(getMain().getId())
-      .fbName(getFbName())
-      .outId(getOutput() != null? getOutput().getId() : null)
-      .immutable(isImmutable())
-      .function(getFuncKey())
-      .queTs(System.currentTimeMillis())
-      .loadOutput(getOutput() != null)
-      .build();
-  }
+//  @JsonIgnore
+//  default InvocationNode getNode() {
+//    throw new UnsupportedOperationException();
+//  }
 }

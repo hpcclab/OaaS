@@ -8,7 +8,6 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.verticle.AbstractOrderedRecordVerticle;
-import org.hpcclab.oaas.invoker.verticle.OrderedTaskInvokerVerticle;
 import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 

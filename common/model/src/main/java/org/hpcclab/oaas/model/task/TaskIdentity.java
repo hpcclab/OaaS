@@ -10,9 +10,9 @@ import java.util.Objects;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskIdentity {
-  String mId;
-  String oId;
-  String vId;
+  String mid;
+  String oid;
+  String vid;
 
   public TaskIdentity() {
   }
@@ -22,33 +22,33 @@ public class TaskIdentity {
     var split = id.split(DISCRIMINATOR, -1);
     if (split.length!=3)
       throw new IllegalArgumentException("Wrong ID format");
-    mId = Objects.equals(split[0], "") ? null:split[0];
-    oId = Objects.equals(split[1], "") ? null:split[1];
-    vId = Objects.equals(split[2], "") ? null:split[2];
+    mid = Objects.equals(split[0], "") ? null:split[0];
+    oid = Objects.equals(split[1], "") ? null:split[1];
+    vid = Objects.equals(split[2], "") ? null:split[2];
   }
 
   public TaskIdentity(String mId, String oId, String vId) {
-    this.mId = mId;
-    this.oId = oId;
-    this.vId = vId;
+    this.mid = mId;
+    this.oid = oId;
+    this.vid = vId;
   }
 
   public TaskIdentity(TaskDetail task) {
-    mId = task.getMain()!=null ? task.getMain().getId():null;
-    oId = task.getOutput()!=null ? task.getOutput().getId():null;
-    vId = task.getVId();
+    mid = task.getMain()!=null ? task.getMain().getId():null;
+    oid = task.getOutput()!=null ? task.getOutput().getId():null;
+    vid = task.getVId();
   }
 
-  public String mId() {
-    return mId;
+  public String mid() {
+    return mid;
   }
 
-  public String oId() {
-    return oId;
+  public String oid() {
+    return oid;
   }
 
-  public String vId() {
-    return vId;
+  public String vid() {
+    return vid;
   }
 
 
@@ -56,14 +56,14 @@ public class TaskIdentity {
 
   public String encode() {
     var sb = new StringBuilder();
-    if (mId!=null)
-      sb.append(mId);
+    if (mid!=null)
+      sb.append(mid);
     sb.append(DISCRIMINATOR);
-    if (oId!=null)
-      sb.append(oId);
+    if (oid!=null)
+      sb.append(oid);
     sb.append(DISCRIMINATOR);
-    if (vId!=null)
-      sb.append(vId);
+    if (vid!=null)
+      sb.append(vid);
     return sb.toString();
   }
 

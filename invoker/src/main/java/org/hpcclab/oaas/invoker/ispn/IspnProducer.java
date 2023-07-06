@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn;
 
+import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -13,9 +14,8 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectInvNode;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.infinispan.Cache;
-import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
 @ApplicationScoped
+@Startup
 public class IspnProducer {
   private static final Logger logger = LoggerFactory.getLogger( IspnProducer.class );
   public static final String OBJECT_CACHE = "OaasObject";
@@ -84,9 +85,9 @@ public class IspnProducer {
 
   @Produces
   EmbeddedIspnInvNodeRepository invNodeRepository() {
-    Cache<String, ObjectInvNode> cache;
+    Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf =  createDistConfig(config.argConnection(), config.objStore(), ObjectInvNode.class);
+      var conf =  createDistConfig(config.argConnection(), config.objStore(), InvocationNode.class);
       logger.info("create cache for {} : {}", INV_NODE_CACHE,conf);
       cache = cacheManager.createCache(INV_NODE_CACHE, conf);
     } else {
@@ -103,6 +104,7 @@ public class IspnProducer {
     return new ConfigurationBuilder()
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
+      .stateTransfer().awaitInitialTransfer(false)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
@@ -143,7 +145,6 @@ public class IspnProducer {
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)
-//      .preload(true)
       .connectionFactory(new ArgConnectionFactory(connectionConfig))
       .shared(false)
       .ignoreModifications(true)
@@ -157,6 +158,4 @@ public class IspnProducer {
       .statistics().enabled(true)
       .build();
   }
-
-
 }

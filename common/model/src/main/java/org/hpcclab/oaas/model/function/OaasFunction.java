@@ -41,7 +41,7 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey {
   FunctionValidation validation;
 
   @ProtoField(7)
-  MacroConfig macro;
+  MacroSpec macro;
 
   @ProtoField(8)
   ProvisionConfig provision;
@@ -66,7 +66,7 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey {
                       FunctionType type,
                       String outputCls,
                       FunctionValidation validation,
-                      MacroConfig macro,
+                      MacroSpec macro,
                       ProvisionConfig provision,
                       List<VariableDescription> variableDescriptions,
                       FunctionDeploymentStatus deploymentStatus,

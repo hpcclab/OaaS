@@ -6,7 +6,7 @@ metadata:
     app: invoker
     platform: oaas
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: invoker
@@ -37,6 +37,22 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: OAAS_INVOKER_S3_URL
+              value: 'http://${BUCKET_HOST}.cluster.local'
+            - name: OAAS_INVOKER_S3_PUBLICURL
+              value: 'http://${BUCKET_HOST}.cluster.local' # change here.
+            - name: OAAS_INVOKER_S3_BUCKET
+              value: '${BUCKET_NAME}'
+            - name: OAAS_INVOKER_S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_ACCESS_KEY_ID
+                  name: oaas-bucket
+            - name: OAAS_INVOKER_S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_SECRET_ACCESS_KEY
+                  name: oaas-bucket
           envFrom:
             - configMapRef:
                 name: oaas-env
@@ -52,10 +68,10 @@ spec:
               name: ping
           resources:
             limits:
-              memory: 2G
+              memory: 4G
 #              cpu: '8'
             requests:
-              cpu: '0.25'
+              cpu: '0.5'
               memory: 512M
           imagePullPolicy: Always
           livenessProbe:
@@ -69,7 +85,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           readinessProbe:
-            failureThreshold: 10
+            failureThreshold: 30
             httpGet:
               path: /q/health/ready
               port: 8080

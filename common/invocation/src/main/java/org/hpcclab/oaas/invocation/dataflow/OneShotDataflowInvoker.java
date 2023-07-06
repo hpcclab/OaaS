@@ -7,8 +7,8 @@ import org.hpcclab.oaas.invocation.CompletedStateUpdater;
 import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
+import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class OneShotDataflowInvoker implements DataflowInvoker {
   private static final Logger logger = LoggerFactory.getLogger( OneShotDataflowInvoker.class );
-  OffLoader syncInvoker;
+  OffLoader offLoader;
   TaskFactory taskFactory;
   CompletedStateUpdater completedStateUpdater;
   GraphStateManager graphStateManager;
@@ -29,14 +29,14 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
                                 TaskFactory taskFactory,
                                 CompletedStateUpdater completedStateUpdater,
                                 GraphStateManager graphStateManager) {
-    this.syncInvoker = offLoader;
+    this.offLoader = offLoader;
     this.taskFactory = taskFactory;
     this.completedStateUpdater = completedStateUpdater;
     this.graphStateManager = graphStateManager;
   }
 
   @Override
-  public Uni<InvApplyingContext> invoke(InvApplyingContext ctx) {
+  public Uni<InvocationContext> invoke(InvocationContext ctx) {
     var graph = ctx.getDataflowGraph();
     if (graph==null)
       throw new IllegalStateException();
@@ -57,12 +57,12 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
     }
     if (graph.isFail())
       return;
-    for (InvocationNode node : readyNodes) {
+    for (InternalInvocationNode node : readyNodes) {
       var ctx = node.getCtx();
       var task = taskFactory.genTask(ctx);
-      if (ctx.getRequest() != null && task.getOutput() != null)
-        task.getOutput().getStatus().setQueTs(ctx.getRequest().queTs());
-      syncInvoker.offload(task)
+//      if (ctx.getRequest() != null && task.getOutput() != null)
+//        task.getOutput().getStatus().setQueTs(ctx.getRequest().queTs());
+      offLoader.offload(task)
         .flatMap(cmp -> completedStateUpdater.handleComplete(ctx, cmp))
         .invoke(() -> node.setCompleted(true))
         .subscribe()

@@ -1,9 +1,9 @@
 package org.hpcclab.oaas.invocation.applier;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 
 public interface FunctionApplier {
-  void validate(InvApplyingContext context);
-  Uni<InvApplyingContext> apply(InvApplyingContext context);
+  void validate(InvocationContext context);
+  Uni<InvocationContext> apply(InvocationContext context);
 }

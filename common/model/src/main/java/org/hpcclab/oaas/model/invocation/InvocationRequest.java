@@ -12,19 +12,19 @@ import java.util.Map;
 public record InvocationRequest(
   String target,
   String targetCls,
-  String fbName,
+  String fb,
   Map<String, String> args,
   List<String> inputs,
   boolean immutable,
   boolean macro,
-  String function,
+//  String function,
   String invId,
   String outId,
   Map<String,String> macroIds,
   @JsonIgnore String partKey,
-  boolean loadOutput,
-  long queTs,
-  List<InvocationRequest> nextReq
+//  List<InvocationRequest> nextReq,
+  boolean nodeExist,
+  long queTs
 ) {
   public static final String CE_TYPE = "oaas.invReq";
 }

@@ -3,8 +3,6 @@ package org.hpcclab.oaas.invocation.handler;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.inject.Inject;
-import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.InvocationQueueSender;
@@ -13,12 +11,12 @@ import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.MacroConfig;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +45,10 @@ public class InvocationHandlerService {
     this.idGenerator = idGenerator;
   }
 
-  public Uni<InvApplyingContext> syncInvoke(ObjectAccessLanguage oal) {
-    return applyFunction(oal)
+  public Uni<OalResponse> syncInvoke(ObjectAccessLanguage oal) {
+    var req = toRequest(oal)
+      .build();
+    return router.apply(req)
       .invoke(Unchecked.consumer(ctx -> {
         var func = ctx.getFunction();
         if (func.getType()==FunctionType.MACRO) {
@@ -57,13 +57,22 @@ public class InvocationHandlerService {
         if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
           throw new InvocationException("Function is not ready", 409);
         }
-        MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
-          Lists.mutable.empty();
-        MutableList<OaasObject> failDeps = Lists.mutable.empty();
-        if (!ctx.analyzeDeps(waitForGraph, failDeps))
-          throw InvocationException.notReady(waitForGraph, failDeps);
+//        MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
+//          Lists.mutable.empty();
+//        MutableList<OaasObject> failDeps = Lists.mutable.empty();
+//        if (!ctx.analyzeDeps(waitForGraph, failDeps))
+//          throw InvocationException.notReady(waitForGraph, failDeps);
       }))
-      .flatMap(ctx -> invocationExecutor.syncExec(ctx));
+      .flatMap(ctx -> invocationExecutor.syncExec(ctx))
+      .map(ctx -> OalResponse.builder()
+        .invId(ctx.initNode().getKey())
+        .target(ctx.getMain())
+        .output(ctx.getOutput())
+        .fbName(ctx.getFbName())
+        .status(ctx.getNode().getStatus())
+        .async(false)
+        .stats(ctx.initNode().extractStats())
+        .build());
   }
 
 
@@ -71,18 +80,9 @@ public class InvocationHandlerService {
     return
       invocationValidator.validate(oal)
         .map(ctx -> {
-          var targetCls = ctx.oal().getTarget()!=null ?
-            ctx.mainCls().getKey():
-            ctx.oal().getTargetCls();
-          var builder = InvocationRequest.builder()
-            .target(ctx.oal().getTarget())
-            .targetCls(targetCls)
-            .fbName(ctx.oal().getFbName())
-            .args(ctx.oal().getArgs())
-            .inputs(ctx.oal().getInputs())
-            .immutable(ctx.functionBinding().isForceImmutable() || !ctx.function().getType().isMutable())
+          var builder = toRequest(oal)
+            .immutable(ctx.functionBinding().isForceImmutable())
             .macro(ctx.function().getType()==FunctionType.MACRO)
-            .function(ctx.function().getKey())
             .partKey(ctx.main()!=null ? ctx.main().getKey():null)
             .queTs(System.currentTimeMillis())
             .invId(idGenerator.generate());
@@ -101,11 +101,14 @@ public class InvocationHandlerService {
           .target(pair.getOne().main())
           .fbName(pair.getOne().functionBinding().getName())
           .macroIds(pair.getTwo().macroIds())
+          .status(TaskStatus.DOING)
           .async(true)
           .build());
   }
 
-  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroConfig dataflow) {
+
+
+  private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroSpec dataflow) {
     var map = dataflow.getSteps().stream()
       .filter(step -> step.getAs()!=null)
       .map(step -> Map.entry(step.getAs(), idGenerator.generate()))
@@ -115,13 +118,9 @@ public class InvocationHandlerService {
       builder.outId(map.get(dataflow.getExport()));
   }
 
-  public Uni<InvApplyingContext> applyFunction(ObjectAccessLanguage oal) {
-    var uni = router.apply(oal);
-    if (logger.isDebugEnabled()) {
-      uni = uni
-        .invoke(() -> logger.debug("Applying function '{}' succeed", oal));
-    }
-    return uni;
+  public InvocationRequest.InvocationRequestBuilder toRequest(ObjectAccessLanguage oal){
+    return oal.toRequest()
+      .invId(idGenerator.generate());
   }
 //
 //  public Uni<OaasObject> awaitCompletion(OaasObject obj,

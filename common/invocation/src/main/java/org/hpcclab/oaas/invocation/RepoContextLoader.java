@@ -1,24 +1,22 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.invocation.InvApplyingContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,54 +27,46 @@ public class RepoContextLoader implements ContextLoader {
   EntityRepository<String, OaasObject> objectRepo;
   EntityRepository<String, OaasFunction> funcRepo;
   EntityRepository<String, OaasClass> clsRepo;
+  EntityRepository<String, InvocationNode> invNodeRepo;
 
   @Inject
   public RepoContextLoader(EntityRepository<String, OaasObject> objectRepo,
                            EntityRepository<String, OaasFunction> funcRepo,
-                           EntityRepository<String, OaasClass> clsRepo) {
+                           EntityRepository<String, OaasClass> clsRepo,
+                           EntityRepository<String, InvocationNode> invNodeRepo) {
     this.objectRepo = objectRepo;
     this.funcRepo = funcRepo;
     this.clsRepo = clsRepo;
-  }
-
-  public Uni<InvApplyingContext> loadCtxAsync(ObjectAccessLanguage request) {
-    var ctx = new InvApplyingContext();
-    ctx.setArgs(request.getArgs());
-    return objectRepo.getAsync(request.getTarget())
-      .onItem().ifNull()
-      .failWith(() -> StdOaasException.notFoundObject400(request.getTarget()))
-      .invoke(ctx::setMain)
-      .call(() -> loadRefs(ctx.getMain(), ctx))
-      .invoke(ctx::setEntry)
-      .map(ignore -> loadClsAndFunc(ctx, request.getFbName()))
-      .flatMap(ignore -> objectRepo.orderedListAsync(request.getInputs()))
-      .invoke(ctx::setInputs)
-      .replaceWith(ctx);
+    this.invNodeRepo = invNodeRepo;
   }
 
   @Override
-  public Uni<InvApplyingContext> loadCtxAsync(InvocationRequest request) {
-    var ctx = new InvApplyingContext();
+  public Uni<InvocationContext> loadCtxAsync(InvocationRequest request) {
+    var ctx = new InvocationContext();
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
-    if (request.loadOutput() && request.outId()!=null) {
-      uni = objectRepo.listAsync(List.of(request.target(), request.outId()))
-        .invoke(map -> ctx.setMain(map.get(request.target())).setOutput(map.get(request.outId())));
-    } else {
-      uni = objectRepo.getAsync(request.target())
-        .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject400(request.target()))
-        .invoke(ctx::setMain);
-    }
-    return uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
-      .map(ignore -> loadClsAndFunc(ctx, request.fbName()))
+    uni = objectRepo.getAsync(request.target())
+      .onItem().ifNull()
+      .failWith(() -> StdOaasException.notFoundObject400(request.target()))
+      .invoke(ctx::setMain);
+    uni = uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
+      .map(ignore -> loadClsAndFunc(ctx, request.fb()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
-      .invoke(ctx::setInputs)
-      .replaceWith(ctx);
+      .invoke(ctx::setInputs);
+
+    if (request.nodeExist()) {
+      uni = uni.flatMap(__ -> invNodeRepo.getAsync(request.invId()))
+        .invoke(invNode -> {
+          if (invNode!=null)
+            ctx.setNode(invNode);
+        });
+    }
+
+    return uni.replaceWith(ctx);
   }
 
-  public InvApplyingContext loadClsAndFunc(InvApplyingContext ctx, String fbName) {
+  public InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
     if (mainCls==null)
@@ -100,7 +90,7 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<OaasObject> resolveObj(InvApplyingContext baseCtx, String ref) {
+  public Uni<OaasObject> resolveObj(InvocationContext baseCtx, String ref) {
 //    logger.debug("resolve {}",ref);
     if (ref.startsWith("$.")) {
       var res = baseCtx.getMain().findReference(ref.substring(2));
@@ -190,37 +180,33 @@ public class RepoContextLoader implements ContextLoader {
 //    throw FunctionValidationException.cannotResolveMacro(ref, null);
 //  }
 
-  public Uni<TaskContext> getTaskContextAsync(String outputId) {
-    return objectRepo.getAsync(outputId)
-      .flatMap(this::getTaskContextAsync);
-  }
 
-  public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
-    var tc = new TaskContext();
-    var args = output.getOrigin().getArgs();
-    tc.setOutput(output)
-      .setArgs( args!= null? args.stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)):null);
-    var fbName = output.getOrigin().getFbName();
-    tc.setFbName(fbName);
-    var inputIds = output.getOrigin().getInputs();
-    var mainId = output.getOrigin().getParentId();
-    Uni<TaskContext> uni;
-    if (mainId==null) {
-      uni = Uni.createFrom().item(tc);
-    } else {
-      uni = objectRepo.getAsync(mainId)
-        .call(main -> loadRefs(main, tc))
-        .map(tc::setMain)
-        .call(__ -> loadFunction(tc, fbName));
-    }
-
-    if (!inputIds.isEmpty()) {
-      uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)
-        .map(tc::setInputs));
-    }
-
-    return uni;
-  }
+//  public Uni<TaskContext> getTaskContextAsync(OaasObject output) {
+//    var tc = new TaskContext();
+//    var args = output.getOrigin().getArgs();
+//    tc.setOutput(output)
+//      .setArgs(KvPair.toMap(args));
+//    var fbName = output.getOrigin().getFbName();
+//    tc.setFbName(fbName);
+//    var inputIds = output.getOrigin().getInputs();
+//    var mainId = output.getOrigin().getParentId();
+//    Uni<TaskContext> uni;
+//    if (mainId==null) {
+//      uni = Uni.createFrom().item(tc);
+//    } else {
+//      uni = objectRepo.getAsync(mainId)
+//        .call(main -> loadRefs(main, tc))
+//        .map(tc::setMain)
+//        .call(__ -> loadFunction(tc, fbName));
+//    }
+//
+//    if (!inputIds.isEmpty()) {
+//      uni = uni.flatMap(ign -> objectRepo.orderedListAsync(inputIds)
+//        .map(tc::setInputs));
+//    }
+//
+//    return uni;
+//  }
 
   private Uni<TaskContext> loadRefs(OaasObject main, TaskContext ctx) {
     if (main.getRefs()!=null && !main.getRefs().isEmpty()) {
@@ -258,5 +244,9 @@ public class RepoContextLoader implements ContextLoader {
 
   public EntityRepository<String, OaasClass> getClsRepo() {
     return clsRepo;
+  }
+
+  public EntityRepository<String, InvocationNode> getInvNodeRepo() {
+    return invNodeRepo;
   }
 }

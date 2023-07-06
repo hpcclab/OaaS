@@ -1,6 +1,6 @@
 name: example
 functions:
-  - name: example.video.transcode
+  - name: video.transcode
     type: TASK
     outputCls: example.video
     validation: {}
@@ -26,4 +26,5 @@ classes:
         - name: video
     functions:
       - access: PUBLIC
-        function: example.video.transcode
+        function: video.transcode
+        forceImmutable: true

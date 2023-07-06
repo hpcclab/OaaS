@@ -2,13 +2,14 @@ package org.hpcclab.oaas.invoker.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.hpcclab.oaas.invocation.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
@@ -27,6 +28,7 @@ import java.net.URI;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
+@Startup
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
@@ -43,7 +45,7 @@ public class OalResource {
                                             @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFbName()!=null) {
+    if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getTarget())
@@ -75,22 +77,14 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFbName()!=null) {
+    if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
       return objectRepo.getAsync(oal.getTarget())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
-        .flatMap(obj -> {
-//          if (obj.isReadyToUsed()) {
-//            return Uni.createFrom().item(createResponse(obj, filePath));
-//          }
-//          if (obj.getStatus().getTaskStatus().isFailed()) {
-//            return Uni.createFrom().item(createResponse(obj, filePath));
-//          }
-          return Uni.createFrom().item(createResponse(obj, filePath));
-        });
+        .map(obj -> createResponse(obj, filePath));
     }
   }
 
@@ -111,21 +105,13 @@ public class OalResource {
     if (async!=null && async) {
       return invocationHandlerService.asyncInvoke(oal);
     } else {
-      return invocationHandlerService.syncInvoke(oal).map(ctx -> OalResponse.builder()
-        .target(ctx.getMain())
-        .output(ctx.getOutput())
-        .fbName(ctx.getFbName())
-        .async(false)
-        .build());
+      return invocationHandlerService.syncInvoke(oal);
     }
   }
 
   public Response createResponse(OalResponse oalResponse,
                                  String filePath) {
-    return createResponse(
-      oalResponse.output()!=null ? oalResponse.output():oalResponse.target(),
-      filePath, HttpResponseStatus.SEE_OTHER.code()
-    );
+    return createResponse(oalResponse, filePath, HttpResponseStatus.SEE_OTHER.code());
   }
 
 
@@ -134,24 +120,34 @@ public class OalResource {
     return createResponse(object, filePath, HttpResponseStatus.SEE_OTHER.code());
   }
 
+  public Response createResponse(OalResponse response,
+                                 String filePath,
+                                 int redirectCode) {
+    var obj = response.output()!=null ? response.output():response.target();
+    var ts = response.status();
+    if (ts==TaskStatus.DOING) {
+      return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
+        .build();
+    }
+    if (ts.isFailed()) {
+      return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
+    }
+    var oUrl = obj.getState().getOverrideUrls();
+    var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
+    if (replaced!= null)
+      return Response.status(redirectCode)
+        .location(URI.create(replaced.getVal()))
+        .build();
+    var fileUrl = contentUrlGenerator.generateUrl(obj, filePath, AccessLevel.UNIDENTIFIED);
+    return Response.status(redirectCode)
+      .location(URI.create(fileUrl))
+      .build();
+  }
+
   public Response createResponse(OaasObject object,
                                  String filePath,
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
-    if (object.getOrigin().getParentId()!=null) {
-      var status = object.getStatus();
-      if (status==null) {
-        return Response.status(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).build();
-      }
-      var ts = status.getTaskStatus();
-      if (ts==TaskStatus.DOING) {
-        return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
-          .build();
-      }
-      if (ts.isFailed()) {
-        return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
-      }
-    }
     var oUrl = object.getState().getOverrideUrls();
     var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
     if (replaced!= null)

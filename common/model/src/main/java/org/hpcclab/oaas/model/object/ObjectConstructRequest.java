@@ -13,7 +13,6 @@ import java.util.Set;
 public class ObjectConstructRequest {
   String cls;
   ObjectNode data;
-  Set<String> labels = Set.of();
   Set<String> keys = Set.of();
   Set<KvPair> overrideUrls;
   Set<ObjectReference> refs;
