@@ -20,7 +20,7 @@
       <dependency>
         <groupId>io.quarkus.platform</groupId>
         <artifactId>quarkus-amazon-services-bom</artifactId>
-        <version>3.0.1.Final</version>
+        <version>3.2.0.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
