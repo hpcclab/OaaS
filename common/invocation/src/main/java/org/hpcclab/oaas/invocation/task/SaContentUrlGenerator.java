@@ -1,20 +1,16 @@
 package org.hpcclab.oaas.invocation.task;
 
-import org.hpcclab.oaas.invocation.config.InvocationConfig;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-public class SaContentUrlGenerator implements ContentUrlGenerator{
+public class SaContentUrlGenerator implements ContentUrlGenerator {
 
   private final String saUrl;
 
   public SaContentUrlGenerator() {
-    saUrl="";
+    saUrl = "";
   }
 
   public SaContentUrlGenerator(String saUrl) {
@@ -24,11 +20,11 @@ public class SaContentUrlGenerator implements ContentUrlGenerator{
   public String generateUrl(OaasObject obj,
                             String file,
                             AccessLevel level) {
-    if (obj.getState().getVerIds() == null || obj.getState().getVerIds().isEmpty())
-      throw StdOaasException.notKeyInObj(obj.getId(),404);
+    if (obj.getState().getVerIds()==null || obj.getState().getVerIds().isEmpty())
+      throw StdOaasException.notKeyInObj(obj.getId(), 404);
     var vid = obj.getState().findVerId(file);
-    if (vid == null)
-      throw StdOaasException.notKeyInObj(obj.getId(),404);
+    if (vid==null)
+      throw StdOaasException.notKeyInObj(obj.getId(), 404);
     var dac = DataAccessContext.generate(obj, level, vid);
     var b64 = dac.encode();
     return generateUrl(obj.getId(), vid, file, b64);
@@ -41,9 +37,9 @@ public class SaContentUrlGenerator implements ContentUrlGenerator{
   }
 
   private String generateUrl(String oid,
-                            String vid,
-                            String file,
-                            String contextKey) {
+                             String vid,
+                             String file,
+                             String contextKey) {
     return saUrl + "/contents/%s/%s/%s?contextKey=%s"
       .formatted(oid, vid, file, contextKey);
   }
