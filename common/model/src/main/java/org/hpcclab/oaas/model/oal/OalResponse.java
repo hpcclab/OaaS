@@ -6,14 +6,13 @@ import lombok.Builder;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Map;
 
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record OalResponse(
-  OaasObject target,
+  OaasObject main,
   OaasObject output,
   String invId,
   String fbName,

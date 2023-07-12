@@ -73,7 +73,7 @@ public class CompletionValidator {
   private Uni<Void> validateFunction(TaskDetail taskDetail, TaskCompletion completion) {
     return funcRepo.getAsync(taskDetail.getFuncKey())
       .onItem()
-      .ifNull().failWith(() -> new CompletionCheckException("Can not find the matched function"))
+      .ifNull().failWith(() -> new CompletionCheckException("Can not find the matched func"))
       .invoke(func -> {
         if (!func.getType().isMutable())
           completion.setMain(null);

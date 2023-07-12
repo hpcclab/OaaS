@@ -95,7 +95,7 @@ public class PackageValidator {
             .formatted(function.getKey(), i));
       if (target==null)
         throw new FunctionValidationException(
-          "Function '%s', step[%d]: Detected null target value."
+          "Function '%s', step[%d]: Detected null main value."
             .formatted(function.getKey(), i));
 
       if (step.getAs()!=null) {
@@ -107,7 +107,7 @@ public class PackageValidator {
         }
         if (step.getAs().equals(step.getTarget())) {
           throw new FunctionValidationException(
-            "Function '%s', step[%d]: target and as values '%s' can not be the same"
+            "Function '%s', step[%d]: main and as values '%s' can not be the same"
               .formatted(function.getKey(), i, step.getAs())
           );
         }
@@ -118,7 +118,7 @@ public class PackageValidator {
       var paths = target.split("\\.");
       if (!outSet.contains(paths[0]))
         throw new FunctionValidationException(
-          "Function '%s', step[%d]: Detect unresolvable target name('%s')"
+          "Function '%s', step[%d]: Detect unresolvable main name('%s')"
             .formatted(function.getKey(), i, target)
         );
     }

@@ -137,7 +137,7 @@ class MockingInvocationTest {
     invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
 
-    var mainObj = objectRepo.get(request.target());
+    var mainObj = objectRepo.get(request.main());
     System.out.printf("OBJECT MAIN: %s%n", Json.encodePrettily(mainObj));
     Assertions.assertEquals("bbb", mainObj.getData().get("aaa").asText());
   }
@@ -158,7 +158,7 @@ class MockingInvocationTest {
 //    assertEquals(1, invocationQueueSender.multimap.size());
 //    var request = invocationQueueSender.multimap
 //      .valuesView()
-//      .select(r -> r.target().equals("o1"))
+//      .select(r -> r.main().equals("o1"))
 //      .getAny();
 //    assertNotNull(request);
 //
@@ -178,7 +178,7 @@ class MockingInvocationTest {
 //    assertFalse(o2.getStatus().getTaskStatus().isFailed());
 //    request = invocationQueueSender.multimap
 //      .valuesView()
-//      .select(r -> r.target().equals("o2"))
+//      .select(r -> r.main().equals("o2"))
 //      .getAny();
 //    assertNotNull(request);
 //
@@ -204,7 +204,7 @@ class MockingInvocationTest {
 //    assertEquals(1, invocationQueueSender.multimap.size());
 //    var request = invocationQueueSender.multimap
 //      .valuesView()
-//      .select(t -> t.target().equals("o1"))
+//      .select(t -> t.main().equals("o1"))
 //      .getAny();
 //    assertNotNull(request);
 //
@@ -259,7 +259,7 @@ class MockingInvocationTest {
   void testMacroGeneration() {
     var request = InvocationRequest.builder()
       .invId(idGenerator.generate())
-      .target("o1")
+      .main("o1")
       .fb(MockupData.MACRO_FUNC_1.getName())
       .outId("m2")
       .macroIds(Map.of(

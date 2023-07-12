@@ -37,7 +37,7 @@ public class InvocationContext extends TaskContext {
   OaasObject entry;
   OaasClass outputCls;
   List<OaasObject> subOutputs = Lists.mutable.empty();
-  FunctionBinding binding;
+  FunctionBinding fb;
   Map<String, OaasObject> workflowMap = Maps.mutable.empty();
   List<InvocationContext> subContexts = Lists.mutable.empty();
   TaskCompletion completion;
@@ -48,16 +48,6 @@ public class InvocationContext extends TaskContext {
 
   long mqOffset = -1;
 
-  public ObjectOrigin createOrigin() {
-    var finalArgs = resolveArgs(binding);
-    return new ObjectOrigin(
-      getMain().getId(),
-      getFbName(),
-      finalArgs.entrySet().stream().map(KvPair::new).collect(Collectors.toSet()),
-      getInputs().stream().map(OaasObject::getId)
-        .toList()
-    );
-  }
 
   public void addTaskOutput(OaasObject object) {
     if (object==null) return;
@@ -69,7 +59,7 @@ public class InvocationContext extends TaskContext {
 
   @Override
   public String getFbName() {
-    return super.getFbName()==null ? binding.getName():getFbName();
+    return super.getFbName()==null ? fb.getName():getFbName();
   }
 
   public void addSubContext(InvocationContext ctx) {
@@ -139,8 +129,8 @@ public class InvocationContext extends TaskContext {
     }
     node.setFb(getFbName());
     node.setArgs(KvPair.fromMap(getArgs()));
-    node.setTarget(getMain().getId());
-    node.setTargetCls(getMainCls().getKey());
+    node.setMain(getMain().getId());
+    node.setCls(getMainCls().getKey());
     setNode(node);
     return node;
   }
@@ -153,11 +143,11 @@ public class InvocationContext extends TaskContext {
       .macro(false)
       .args(getArgs())
       .inputs(getInputs().stream().map(OaasObject::getId).toList())
-      .targetCls(getMain().getCls())
-      .target(getMain().getId())
+      .cls(getMain().getCls())
+      .main(getMain().getId())
       .fb(getFbName())
       .outId(getOutput() != null? getOutput().getId() : null)
-      .immutable(getBinding().isForceImmutable())
+      .immutable(getFb().isForceImmutable())
       .nodeExist(true)
       .queTs(System.currentTimeMillis())
       .build();

@@ -4,7 +4,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -61,7 +60,7 @@ public class OaasObjectFactory {
   public OaasObject createOutput(InvocationContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
-    FunctionBinding binding = ctx.getBinding();
+    FunctionBinding binding = ctx.getFb();
     var obj = OaasObject.createFromClasses(cls);
 
     if (source.getData() != null) {

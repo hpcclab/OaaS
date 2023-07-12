@@ -10,7 +10,7 @@ kind-upload-image:
 k3d-upload-image:
   docker images --format json | jq -r .Repository | grep oaas- | xargs k3d image import
 
-k3d-build-image: && k3d-upload-image
+k3d-build-image: build-no-test && k3d-upload-image
   docker compose build
 
 k3d-deploy: k8s-deploy-deps
@@ -46,3 +46,6 @@ k8s-clean:
   kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml
 
   kubectl delete -n oaas -f deploy/local-k8s/minio.yml
+
+k3d-create:
+  K3D_FIX_DNS=1 k3d cluster create -p "9090:80@loadbalancer"

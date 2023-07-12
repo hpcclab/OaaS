@@ -22,7 +22,7 @@ public class LogicalFunctionApplier implements FunctionApplier {
 
   public Uni<InvocationContext> apply(InvocationContext context) {
     if (context.getFunction().getKey().equals("builtin.logical.copy")) {
-      LOGGER.debug("Call function 'copy' {}", context.getMain().getId());
+      LOGGER.debug("Call func 'copy' {}", context.getMain().getId());
       var o = context.getMain().copy();
 //      o.setOrigin(context.createOrigin());
       o.setId(idGenerator.generate(context));

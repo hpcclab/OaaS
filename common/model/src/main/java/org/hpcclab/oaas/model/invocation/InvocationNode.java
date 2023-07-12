@@ -28,9 +28,9 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(3)
   String fb;
   @ProtoField(4)
-  String target;
+  String main;
   @ProtoField(5)
-  String targetCls;
+  String cls;
   @ProtoField(6)
   Set<KvPair> args;
   @ProtoField(7)
@@ -65,12 +65,12 @@ public class InvocationNode implements HasKey<String> {
 
   @ProtoFactory
 
-  public InvocationNode(String key, Set<String> nextInv, String fb, String target, String targetCls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vId) {
+  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vId) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
-    this.target = target;
-    this.targetCls = targetCls;
+    this.main = main;
+    this.cls = cls;
     this.args = args;
     this.inputs = inputs;
     this.outId = outId;
@@ -92,9 +92,9 @@ public class InvocationNode implements HasKey<String> {
   public InvocationRequest toReq() {
     return InvocationRequest.builder()
       .invId(key)
-      .partKey(target)
-      .target(target)
-      .targetCls(targetCls)
+      .partKey(main)
+      .main(main)
+      .cls(cls)
       .args(KvPair.toMap(args))
       .fb(fb)
       .inputs(inputs)

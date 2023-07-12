@@ -32,17 +32,17 @@ public class DefaultInvocationValidator implements InvocationValidator{
     var builder = ValidationContext.builder();
     builder.oal(oal);
     Uni<OaasClass> uni;
-    if (oal.getTarget() != null) {
-      uni = objectRepo.getAsync(oal.getTarget())
+    if (oal.getMain() != null) {
+      uni = objectRepo.getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> new InvocationException("Target object does not exist"))
         .invoke(builder::main)
         .flatMap(obj -> clsRepo.getAsync(obj.getCls())
-          .invoke(builder::mainCls)
+          .invoke(builder::cls)
         );
-    } else if (oal.getTargetCls() != null){
-      uni = clsRepo.getAsync(oal.getTargetCls())
-        .invoke(builder::targetCls);
+    } else if (oal.getCls() != null){
+      uni = clsRepo.getAsync(oal.getCls())
+        .invoke(builder::cls);
     } else {
       throw new InvocationException("Target and TargetCls can not be null at the same time", 400);
     }
@@ -50,10 +50,10 @@ public class DefaultInvocationValidator implements InvocationValidator{
     return uni
       .flatMap(cls -> {
         var fb = cls.findFunction(oal.getFn());
-        builder.functionBinding(fb);
+        builder.funcBind(fb);
         return funcRepo.getAsync(fb.getFunction());
       })
-      .map(builder::function)
+      .map(builder::func)
       .map(__ -> builder.build());
   }
 }

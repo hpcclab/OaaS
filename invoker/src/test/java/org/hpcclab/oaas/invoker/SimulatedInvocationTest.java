@@ -100,12 +100,12 @@ class SimulatedInvocationTest {
     var fn = FUNC_1;
     var cls = CLS_1;
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(oId)
       .fb("f1")
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(oId);
@@ -134,7 +134,7 @@ class SimulatedInvocationTest {
     var mid1 = idGenerator.generate();
     var mid2 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
       .macroIds(Map.of(
@@ -144,7 +144,7 @@ class SimulatedInvocationTest {
       .macro(true)
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid1);
@@ -184,7 +184,7 @@ class SimulatedInvocationTest {
     var mid2 = idGenerator.generate();
     var mid3 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
       .macroIds(Map.of(
@@ -195,7 +195,7 @@ class SimulatedInvocationTest {
       .macro(true)
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid3);

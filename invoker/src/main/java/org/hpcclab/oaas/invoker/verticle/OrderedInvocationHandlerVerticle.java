@@ -104,7 +104,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
         if (detectDuplication(kafkaRecord, ctx)) {
-          LOGGER.warn("detect duplication {} {}", ctx.getRequest().target(), ctx.getRequest().outId());
+          LOGGER.warn("detect duplication {} {}", ctx.getRequest().main(), ctx.getRequest().outId());
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)

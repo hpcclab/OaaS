@@ -10,8 +10,8 @@ import java.util.Map;
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record InvocationRequest(
-  String target,
-  String targetCls,
+  String main,
+  String cls,
   String fb,
   Map<String, String> args,
   List<String> inputs,

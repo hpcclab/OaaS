@@ -3,7 +3,6 @@ package org.hpcclab.oaas.invocation;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -19,7 +18,6 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,9 +48,9 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
-    uni = objectRepo.getAsync(request.target())
+    uni = objectRepo.getAsync(request.main())
       .onItem().ifNull()
-      .failWith(() -> StdOaasException.notFoundObject400(request.target()))
+      .failWith(() -> StdOaasException.notFoundObject400(request.main()))
       .invoke(ctx::setMain);
     uni = uni.invoke(__ -> ctx.setEntry(ctx.getMain()))
       .map(ignore -> loadClsAndFunc(ctx, request.fb()))
@@ -87,7 +85,7 @@ public class RepoContextLoader implements ContextLoader {
     if (binding==null)
       throw FunctionValidationException.noFunction(main.getId(), fbName);
     clsKeys.add(binding.getOutputCls());
-    ctx.setBinding(binding);
+    ctx.setFb(binding);
 
     var func = funcRepo.get(binding.getFunction());
     if (func==null)
