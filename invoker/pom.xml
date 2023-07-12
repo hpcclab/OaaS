@@ -10,7 +10,8 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-    <infinispan.version>14.0.12.Final</infinispan.version>
+<!--    <infinispan.version>14.0.12.Final</infinispan.version>-->
+    <infinispan.version>15.0.0.Dev02</infinispan.version>
   </properties>
 
   <dependencyManagement>
@@ -38,11 +39,6 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.hpcclab.oaas</groupId>-->
-<!--      <artifactId>arango-repository</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
@@ -115,15 +111,15 @@
 <!--    </dependency>-->
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-core-jakarta</artifactId>
+      <artifactId>infinispan-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-query-jakarta</artifactId>
+      <artifactId>infinispan-query</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-server-hotrod-jakarta</artifactId>
+      <artifactId>infinispan-server-hotrod</artifactId>
       <version>${infinispan.version}</version>
     </dependency>
 <!--    <dependency>-->

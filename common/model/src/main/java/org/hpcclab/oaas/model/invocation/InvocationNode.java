@@ -19,7 +19,7 @@ import java.util.Set;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
-public class InvocationNode implements HasKey {
+public class InvocationNode implements HasKey<String> {
   @JsonProperty("_key")
   @ProtoField(1)
   String key;

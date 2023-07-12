@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunction implements Copyable<OaasFunction>, HasKey {
+public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
   @JsonProperty("_key")
 //  @JsonView(Views.Internal.class)
   String key;

@@ -109,7 +109,6 @@ public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implem
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    var ctx = Vertx.currentContext();
-    return ctx.executeBlocking(Uni.createFrom().item(() -> compute(key,function)), false);
+    return toUni(getCache().computeAsync(key, function));
   }
 }

@@ -24,7 +24,7 @@ import java.util.Objects;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class OaasClass implements Copyable<OaasClass>, HasKey {
+public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
 
   @JsonProperty("_key")
   String key;

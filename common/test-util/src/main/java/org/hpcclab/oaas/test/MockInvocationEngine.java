@@ -99,7 +99,6 @@ public class MockInvocationEngine {
       logger.debug("TASK MAP: {}", Json.encodePrettily(invocationQueueSender.multimap.toMap()));
       logger.debug("NODES: {}", Json.encodePrettily(
         ((MapEntityRepository<String, InvocationNode>)invRepo).getMap()));
-//      logger.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       int i = 0;
       for (var o : objectMap) {
         logger.debug("REPO OBJ {}: {}", i, Json.encode(o));

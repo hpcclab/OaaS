@@ -12,7 +12,6 @@ import mutiny.zero.flow.adapters.AdaptersToReactiveStreams;
 import org.hpcclab.oaas.model.HasKey;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.dataconversion.MediaType;
-import org.infinispan.commons.marshall.WrappedByteArray;
 import org.infinispan.commons.util.IntSet;
 import org.infinispan.container.versioning.SimpleClusteredVersion;
 import org.infinispan.encoding.DataConversion;
@@ -61,8 +60,8 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
     var conf = ctx.getConfiguration();
     logger.info("starting {}", conf);
     if (conf instanceof ArgCacheStoreConfig argCacheStoreConfig) {
-      this.valueCls = argCacheStoreConfig.getValuaCls();
-      this.keyExtractor = obj -> ((HasKey) obj).getKey();
+      this.valueCls = argCacheStoreConfig.getValueCls();
+      this.keyExtractor = obj -> ((HasKey<String>) obj).getKey();
       collectionAsync = (ArangoCollectionAsync) argCacheStoreConfig.getConnectionFactory()
         .getConnection(ctx.getCache().getName());
     } else {
