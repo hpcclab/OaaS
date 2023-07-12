@@ -41,11 +41,9 @@ public class OaasObjectFactory {
     var obj = OaasObject.createFromClasses(cls);
     obj.setId(id);
     obj.setData(construct.getData());
-//    obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setTaskStatus(TaskStatus.READY);
-//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
@@ -56,6 +54,7 @@ public class OaasObjectFactory {
       state.setVerIds(verIds);
     }
     obj.setState(state);
+    obj.setRevision(1);
     return obj;
   }
 
@@ -76,11 +75,10 @@ public class OaasObjectFactory {
       }
       obj.setData(node);
     }
-//    obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
-//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
+    obj.setRevision(0);
     return obj;
   }
 }

@@ -1017,8 +1017,6 @@ components:
           $ref: '#/components/schemas/ObjectNode_Public'
         key:
           type: string
-        rev:
-          type: string
     OaasPackageContainer:
       type: object
       properties:
@@ -1121,21 +1119,11 @@ components:
     ObjectRequirement:
       type: object
       properties:
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         cls:
           type: string
     ObjectRequirement_Public:
       type: object
       properties:
-        labels:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         cls:
           type: string
     ObjectStatus_Public:
@@ -1229,8 +1217,8 @@ components:
           type: string
         cls:
           type: string
-        internal:
-          type: boolean
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier'
     ReferenceSpecification_Public:
       type: object
       properties:
@@ -1238,8 +1226,8 @@ components:
           type: string
         cls:
           type: string
-        internal:
-          type: boolean
+        access:
+          $ref: '#/components/schemas/KeyAccessModifier_Public'
     ResolvedMember:
       type: object
       properties:

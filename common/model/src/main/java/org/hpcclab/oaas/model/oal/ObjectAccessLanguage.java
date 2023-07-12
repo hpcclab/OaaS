@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class ObjectAccessLanguage {
   final String target;
   final String targetCls;
-  final String fb;
+  final String fn;
   final Map<String, String> args;
   final List<String> inputs;
 
@@ -29,7 +29,7 @@ public class ObjectAccessLanguage {
   public ObjectAccessLanguage(String target, String targetCls, String fbName, Map<String, String> args, List<String> inputs) {
     this.target = target;
     this.targetCls = targetCls;
-    this.fb = fbName;
+    this.fn = fbName;
     this.args = args;
     this.inputs = inputs;
   }
@@ -38,14 +38,14 @@ public class ObjectAccessLanguage {
     return InvocationRequest.builder()
       .target(target)
       .targetCls(targetCls)
-      .fb(fb)
+      .fb(fn)
       .args(args)
       .inputs(inputs);
   }
   public static ObjectAccessLanguage from(ObjectOrigin origin) {
     return ObjectAccessLanguage.builder()
       .target(origin.getParentId())
-      .fb(origin.getFbName())
+      .fn(origin.getFbName())
       .args(origin.getArgs().stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)))
       .inputs(origin.getInputs())
       .build();
@@ -58,9 +58,9 @@ public class ObjectAccessLanguage {
         .append(targetCls);
     else
       sb.append(target);
-    if (fb==null)
+    if (fn==null)
       return sb.toString();
-    sb.append(':').append(fb);
+    sb.append(':').append(fn);
     sb.append('(');
     var size = inputs==null ? 0:inputs.size();
     for (int i = 0; i < size; i++) {
@@ -88,7 +88,7 @@ public class ObjectAccessLanguage {
 
   // language=RegExp
   private static final String EXPR_REGEX =
-    "^(?<target>_?[a-zA-Z0-9-]+)(?::(?<func>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^\\)]*)\\))?)?)?$";
+    "^(?<target>_?[a-zA-Z0-9-]+)(?::(?<fn>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^)]*)\\))?)?)?$";
   private static final Pattern EXPR_PATTERN = Pattern.compile(EXPR_REGEX);
 
   public static boolean validate(String expr) {
@@ -100,7 +100,7 @@ public class ObjectAccessLanguage {
     if (!matcher.find())
       throw new OalParsingException("The given expression('" + expr + "') doesn't match the pattern.");
     var target = matcher.group("target");
-    var fb = matcher.group("func");
+    var fn = matcher.group("fn");
     var inputs = matcher.group("inputs");
     var args = matcher.group("args");
     var oal = ObjectAccessLanguage.builder();
@@ -109,8 +109,8 @@ public class ObjectAccessLanguage {
     } else {
       oal.target = target;
     }
-    if (fb==null) return oal.build();
-    oal.fb = fb;
+    if (fn==null) return oal.build();
+    oal.fn = fn;
     if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();

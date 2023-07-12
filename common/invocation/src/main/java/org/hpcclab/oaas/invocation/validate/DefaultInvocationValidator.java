@@ -49,7 +49,7 @@ public class DefaultInvocationValidator implements InvocationValidator{
 
     return uni
       .flatMap(cls -> {
-        var fb = cls.findFunction(oal.getFb());
+        var fb = cls.findFunction(oal.getFn());
         builder.functionBinding(fb);
         return funcRepo.getAsync(fb.getFunction());
       })

@@ -3,6 +3,8 @@ package org.hpcclab.oaas.invocation;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -17,7 +19,9 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -69,13 +73,20 @@ public class RepoContextLoader implements ContextLoader {
   public InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName) {
     var main = ctx.getMain();
     var mainCls = clsRepo.get(main.getCls());
+    Set<String> clsKeys = Sets.mutable.of(main.getCls());
+
     if (mainCls==null)
       throw StdOaasException.format("Can not find class '%s'", main.getCls());
     ctx.setMainCls(mainCls);
+    ctx.getInputs().stream().map(OaasObject::getCls).forEach(clsKeys::add);
+    var clsMap = clsRepo.list(clsKeys);
+    ctx.setClsMap(clsMap);
+
     var binding = mainCls
       .findFunction(fbName);
     if (binding==null)
       throw FunctionValidationException.noFunction(main.getId(), fbName);
+    clsKeys.add(binding.getOutputCls());
     ctx.setBinding(binding);
 
     var func = funcRepo.get(binding.getFunction());

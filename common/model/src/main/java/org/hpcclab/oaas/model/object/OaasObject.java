@@ -28,16 +28,10 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
-
-  @JsonProperty("_rev")
-  @JsonView(Views.Internal.class)
-  String rev;
   @ProtoField(1)
   String id;
-//  @ProtoField(2)
-//  ObjectOrigin origin;
-  @ProtoField(value = 3,defaultValue = "-1")
-  long revision;
+  @ProtoField(value = 3, defaultValue = "-1")
+  long revision = -1;
   @ProtoField(4)
   String cls;
   @ProtoField(6)
@@ -46,8 +40,6 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
   Set<ObjectReference> refs;
   @ProtoField(value = 8)
   ObjectStatus status;
-//  @ProtoField(9)
-//  StreamInfo streamInfo;
   @ProtoField(value = 10, javaType = ObjectNode.class)
   ObjectNode data;
 
@@ -55,22 +47,16 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
 
   @ProtoFactory
   public OaasObject(String id,
-//                    ObjectOrigin origin,
                     String cls,
-//                    Set<String> labels,
                     OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status,
-//                    StreamInfo streamInfo,
                     long revision) {
     this.id = id;
     this.key = id;
-//    this.origin = origin;
     this.cls = cls;
-//    this.labels = labels;
     this.state = state;
     this.refs = refs;
     this.data = data;
     this.status = status;
-//    this.streamInfo = streamInfo;
     this.revision = revision;
   }
 
@@ -90,24 +76,15 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
   public OaasObject copy() {
     return new OaasObject(
       id,
-//      origin==null ? null:origin.copy(),
       cls,
-//      labels==null ? null:Set.copyOf(labels),
       state.copy(),
       refs==null ? null:Set.copyOf(refs),
       data != null? data.deepCopy(): null,
       status.copy(),
-//      streamInfo == null? null:streamInfo.copy(),
       revision
     );
   }
 
-//  public void updateStatus(TaskCompletion taskCompletion) {
-//    status.set(taskCompletion);
-//    if (taskCompletion.getOutput() != null)
-//      taskCompletion.getOutput().update(this, taskCompletion
-//        .getId().getVId());
-//  }
 
 
 
@@ -121,33 +98,6 @@ public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
     setKey(id);
     return this;
   }
-
-//  public OaasObject markAsSubmitted(String originator,
-//                                    boolean queue) {
-//    var ts = status.getTaskStatus();
-//    if (ts.isSubmitted() || ts.isFailed())
-//      return this;
-//    if (originator == null) originator = id;
-//    status
-//      .setTaskStatus(TaskStatus.DOING)
-//      .setOriginator(originator);
-//    if (queue)
-//      status.setQueTs(System.currentTimeMillis());
-//    else
-//      status.setSmtTs(System.currentTimeMillis());
-//
-//    return this;
-//  }
-
-  public OaasObject markAsFailed() {
-    var ts = status.getTaskStatus();
-    if (ts.isSubmitted() || ts.isFailed())
-      return this;
-    status
-      .setTaskStatus(TaskStatus.DEPENDENCY_FAILED);
-    return this;
-  }
-
   public void setRevision(long revision) {
     this.revision = revision;
   }

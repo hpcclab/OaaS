@@ -29,8 +29,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class InvocationTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationTest.class);
+class MockingInvocationTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MockingInvocationTest.class);
   ObjectMapper objectMapper = new ObjectMapper();
 
   UnifiedFunctionRouter router;

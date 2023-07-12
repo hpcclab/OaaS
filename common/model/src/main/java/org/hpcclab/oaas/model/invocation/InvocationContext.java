@@ -44,6 +44,7 @@ public class InvocationContext extends TaskContext {
   InvocationRequest request;
   @JsonIgnore
   DataflowGraph dataflowGraph;
+  Map<String, OaasClass> clsMap = Map.of();
 
   long mqOffset = -1;
 

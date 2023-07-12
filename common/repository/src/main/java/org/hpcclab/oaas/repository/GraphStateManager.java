@@ -77,7 +77,7 @@ public class GraphStateManager {
 
   private Uni<Void> persistWithPrecondition(List<OaasObject> objs) {
     var partitionedObjs = objs.stream()
-      .collect(Collectors.partitioningBy(o -> o.getRev()==null));
+      .collect(Collectors.partitioningBy(o -> o.getRevision()<=0));
     var newObjs = partitionedObjs.get(true);
 
     var oldObjs = partitionedObjs.get(false);
@@ -88,7 +88,8 @@ public class GraphStateManager {
       return objRepo.atomic().persistWithPreconditionAsync(oldObjs);
     } else {
       return objRepo
-        .atomic().persistWithPreconditionAsync(oldObjs)
+        .atomic()
+        .persistWithPreconditionAsync(oldObjs)
         .flatMap(__ -> objRepo.persistAsync(newObjs));
     }
   }
@@ -109,7 +110,6 @@ public class GraphStateManager {
     Uni<Void> uni = persistWithPrecondition(objs);
     if (out==null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
-
     else {
       return uni.onItem()
         .transformToMulti(__ -> {
@@ -146,6 +146,7 @@ public class GraphStateManager {
       .transformToMulti(map -> Multi.createFrom().iterable(map.values()));
   }
   private Multi<InvocationNode> loadNextSubmittableNodes(InvocationNode srcNode) {
+    logger.debug("loadNextSubmittableNodes {}", srcNode);
     if (srcNode.getNextInv() == null || srcNode.getNextInv().isEmpty()) {
       return Multi.createFrom().empty();
     }

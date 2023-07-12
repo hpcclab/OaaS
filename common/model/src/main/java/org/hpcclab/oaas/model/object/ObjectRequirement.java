@@ -13,9 +13,6 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectRequirement implements Serializable{
-
-  @ProtoField(1)
-  Set<String> labels = Set.of();
   @ProtoField(2)
   String cls;
 
@@ -23,8 +20,7 @@ public class ObjectRequirement implements Serializable{
   }
 
   @ProtoFactory
-  public ObjectRequirement(Set<String> labels, String cls) {
-    this.labels = labels;
+  public ObjectRequirement(String cls) {
     this.cls = cls;
   }
 }
