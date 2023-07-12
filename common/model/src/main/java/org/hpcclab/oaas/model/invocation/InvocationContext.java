@@ -11,16 +11,15 @@ import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskContext;
+import org.hpcclab.oaas.model.task.TaskDetail;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -30,11 +29,19 @@ import java.util.stream.Collectors;
 )
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class InvocationContext extends TaskContext {
+public class InvocationContext implements TaskDetail {
   @JsonIgnore
   InvocationContext parent;
+  String vId;
+  OaasObject output;
+  OaasObject main;
+  Map<String, OaasObject> mainRefs;
+  OaasFunction function;
+  List<OaasObject> inputs = List.of();
+  Map<String, String> args = Map.of();
+  boolean immutable;
+  InvocationNode node;
   OaasClass mainCls;
-  OaasObject entry;
   OaasClass outputCls;
   List<OaasObject> subOutputs = Lists.mutable.empty();
   FunctionBinding fb;
@@ -59,7 +66,7 @@ public class InvocationContext extends TaskContext {
 
   @Override
   public String getFbName() {
-    return super.getFbName()==null ? fb.getName():getFbName();
+    return fb.getName();
   }
 
   public void addSubContext(InvocationContext ctx) {
@@ -69,9 +76,9 @@ public class InvocationContext extends TaskContext {
     }
   }
 
-  public boolean contains(TaskContext taskContext) {
+  public boolean contains(InvocationContext taskContext) {
     var outId = getOutput().getId();
-    if (taskContext.getOutput() != null &&
+    if (taskContext.getOutput()!=null &&
       Objects.equals(taskContext.getOutput().getId(), outId))
       return true;
     for (InvocationContext subContext : subContexts) {
@@ -115,10 +122,10 @@ public class InvocationContext extends TaskContext {
 
   public InvocationNode initNode() {
     var node = getNode();
-    if (node != null)
+    if (node!=null)
       return node;
     node = new InvocationNode();
-    if (request != null) {
+    if (request!=null) {
       node.setKey(request.invId());
       node.setOutId(request.outId());
       node.setInputs(request.inputs());
@@ -136,9 +143,9 @@ public class InvocationContext extends TaskContext {
   }
 
   public InvocationRequest toRequest() {
-    var partKey = getMain() != null? getMain().getId() : null;
+    var partKey = getMain()!=null ? getMain().getId():null;
     return InvocationRequest.builder()
-      .invId(request != null? request.invId():getOutput().getId())
+      .invId(request!=null ? request.invId():getOutput().getId())
       .partKey(partKey)
       .macro(false)
       .args(getArgs())
@@ -146,10 +153,29 @@ public class InvocationContext extends TaskContext {
       .cls(getMain().getCls())
       .main(getMain().getId())
       .fb(getFbName())
-      .outId(getOutput() != null? getOutput().getId() : null)
+      .outId(getOutput()!=null ? getOutput().getId():null)
       .immutable(getFb().isForceImmutable())
       .nodeExist(true)
       .queTs(System.currentTimeMillis())
       .build();
+  }
+
+  public Map<String, String> resolveArgs(FunctionBinding binding) {
+    var defaultArgs = binding.getDefaultArgs();
+    if (args!=null && defaultArgs!=null) {
+      var finalArgs = Maps.mutable.ofMap(defaultArgs);
+      finalArgs.putAll(args);
+      return finalArgs;
+    } else if (args==null && defaultArgs!=null) {
+      return defaultArgs;
+    } else if (args!=null) {
+      return args;
+    }
+    return Map.of();
+  }
+
+  @Override
+  public String getFuncKey() {
+    return function.getKey();
   }
 }

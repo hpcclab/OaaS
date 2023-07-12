@@ -8,8 +8,6 @@ import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskContext;
-import org.hpcclab.oaas.model.task.TaskDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +59,7 @@ public class GraphStateManager {
     var n = ctx.getNode();
     if (n != null)
       nodes.add(ctx.getNode());
-    nodes.addAll(ctx.getSubContexts().stream().map(TaskContext::getNode)
+    nodes.addAll(ctx.getSubContexts().stream().map(InvocationContext::getNode)
       .filter(Objects::nonNull).toList());
     return invNodeRepo.persistAsync(nodes);
   }

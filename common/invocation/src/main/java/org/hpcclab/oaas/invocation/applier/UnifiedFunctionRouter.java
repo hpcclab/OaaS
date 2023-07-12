@@ -59,14 +59,6 @@ public class UnifiedFunctionRouter implements FunctionApplier{
 
 
   public void validate(InvocationContext context) {
-    var main = context.getMain();
-    var func = context.getFunction();
-    var access = context.getFb().getAccess();
-
-    if (context.getEntry()==main && access!=FunctionAccessModifier.PUBLIC) {
-      throw FunctionValidationException.accessError(main.getId(), func.getKey());
-    }
-
     if (context.getFunction().getType()==FunctionType.LOGICAL) {
       logicalFunctionApplier.validate(context);
     }
