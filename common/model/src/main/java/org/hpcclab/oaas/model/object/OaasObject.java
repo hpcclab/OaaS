@@ -23,7 +23,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 @ProtoDoc("@Indexed")
-public class OaasObject implements Copyable<OaasObject>, HasKey, HasRev {
+public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev {
 
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)

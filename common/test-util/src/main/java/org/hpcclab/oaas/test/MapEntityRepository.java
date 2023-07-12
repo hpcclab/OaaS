@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.Copyable;
+import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.repository.AtomicOperationService;
 import org.hpcclab.oaas.repository.DefaultAtomicOperationService;
 import org.hpcclab.oaas.repository.EntityRepository;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class MapEntityRepository<K, V> implements EntityRepository<K, V> {
+public class MapEntityRepository<K, V extends HasKey<K>> implements EntityRepository<K, V > {
   private static final Logger LOGGER = LoggerFactory.getLogger(MapEntityRepository.class);
   MutableMap<K, V> map;
   Function<V, K> keyExtractor;

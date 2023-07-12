@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public abstract class AbsEmbeddedIspnRepository<V extends HasKey> implements EntityRepository<String, V> {
+public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V> {
 
   protected AtomicOperationService<String, V> atomicService;
 

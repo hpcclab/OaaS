@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.exception.DataAccessException;
 
 import java.util.Random;
 
-public class DefaultAtomicOperationService<K,V> implements AtomicOperationService<K,V>{
+public class DefaultAtomicOperationService<K,V extends HasKey<K>> implements AtomicOperationService<K,V>{
   Random random = new Random();
   EntityRepository<K,V> repository;
 
@@ -22,7 +22,7 @@ public class DefaultAtomicOperationService<K,V> implements AtomicOperationServic
       throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);
     var expectRev = Math.abs(((HasRev) value).getRevision() + addRev);
-    K key = (K)((HasKey)value).getKey();
+    K key = value.getKey();
     return repository.computeAsync(key, (k, oldValue) -> {
         if (oldValue == null) {
           ((HasRev)value).setRevision(expectRev);
