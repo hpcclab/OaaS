@@ -9,7 +9,6 @@ functions:
         image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
         targetConcurrency: 32
         minScale: 0
-#        maxScale: 6
         requestsCpu: '0.25'
         limitsCpu: '2'
     variableDescriptions:

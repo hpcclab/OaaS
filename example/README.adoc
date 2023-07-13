@@ -29,29 +29,54 @@ This section will explain how to use OaaS via using the text object as an exampl
 POST http://<object_controller>/api/modules
 Content-Type: text/x-yaml
 
+name: example
 functions:
-  - name: example.text.concat
+  - name: concat
     type: TASK
     outputCls: example.text
     validation: {}
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/concat-function:latest
-#        concurrency: 256
-        minScale: 1
-#        maxScale: 10
-        requestsCpu: '0.25'
-        limitsCpu: '2'
+        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
+    variableDescriptions:
+      - name: append
+  - name: chain-concat
+    type: MACRO
+    macro:
+      steps:
+        - target: $
+          as: record1
+          function: concat
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: concat
+          args:
+            INPLACE: "false"
+      export: record3
 classes:
-  - name: example.text
-    stateType: FILE
+  - name: text
+    stateType: FILES
     objectType: SIMPLE
     stateSpec:
       keySpecs:
         - name: text
     functions:
       - access: PUBLIC
-        function: example.text.concat
+        function: example.concat
+        forceImmutable: true
+      - access: PUBLIC
+        function: example.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
 ----
 
 === Creating an object
@@ -78,14 +103,7 @@ Object Controller will reply with the detail of a new object and the URL to uplo
 {
   "object": {
     "id": "fc110a1f-0d9c-407a-8c64-36bf6d0870c9",
-    "origin": {
-      "rootId": "fc110a1f-0d9c-407a-8c64-36bf6d0870c9"
-    },
-    "access": "PUBLIC",
-    "cls": "example.text",
-    "state": {
-      "type": "FILES"
-    }
+    "cls": "example.text"
   },
   "uploadUrls": {
     "text": "http://s3.10.131.36.40.nip.io/msc-bkt/fc110a1f-0d9c-407a-8c64-36bf6d0870c9/text?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XYV0GB00VOPBNFKOIHSP%2F20220412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220412T002046Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7c05dfdd8279cfd9cf5a2a941c408a24db0f13d310849de7997ed8a8b2f4d195"
