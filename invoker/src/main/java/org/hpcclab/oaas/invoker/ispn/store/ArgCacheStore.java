@@ -25,7 +25,6 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -157,28 +156,28 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
 
     var writtenUni = Multi.createFrom().publisher(AdaptersToFlow.publisher(writePublisher))
       .flatMap(AdaptersToFlow::publisher)
-      .group().intoLists().of(65536, Duration.ofMillis(100))
-//                .collect().asList()
+//      .group().intoLists().of(65536, Duration.ofMillis(100))
+      .collect().asList()
       .call(list -> Uni.createFrom().completionStage(batchWrite(list)))
-      .collect().last()
+//      .collect().last()
       .replaceWithVoid();
     var removedUni = Multi.createFrom().publisher(AdaptersToFlow.publisher(removePublisher))
       .flatMap(AdaptersToFlow::publisher)
       .map(this::objToStr)
-      .group().intoLists().of(65536, Duration.ofMillis(100))
-//                .collect().asList()
+//      .group().intoLists().of(65536, Duration.ofMillis(100))
+      .collect().asList()
       .call(list -> Uni.createFrom().completionStage(batchRemove(list)))
-      .collect().last()
+//      .collect().last()
       .replaceWithVoid();
 
     return Uni.join().all(writtenUni, removedUni)
-      .andFailFast()
+      .andCollectFailures()
       .replaceWithVoid()
       .subscribeAsCompletionStage();
   }
 
   CompletionStage<?> batchWrite(List<MarshallableEntry<String, T>> list) {
-    logger.debug("[{}]batchWrite {}",name, list.size());
+    logger.debug("[{}]batchWrite {}", name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
       .map(v -> valueDataConversion.fromStorage(v)

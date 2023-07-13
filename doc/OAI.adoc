@@ -83,8 +83,8 @@ POST <content_delivery_service>/oal/-/text
 Content-Type: application/json
 
 {
-  "target": "<object_id>",
-  "functionName": "concat",
+  "main": "<object_id>",
+  "fn": "concat",
   "inputs": [],
   "args": {
     "APPEND": "NEW_TEXT"
