@@ -50,15 +50,15 @@ class ObjectAccessLanguageTest {
       ids.get(0)
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertNull(fc.getFb());
+    assertEquals(ids.get(0), fc.getMain());
+    assertNull(fc.getFn());
 
     fc = ObjectAccessLanguage.parse(
       "%s:test".formatted(ids.get(0))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertEquals("test", fc.fb);
+    assertEquals(ids.get(0), fc.getMain());
+    assertEquals("test", fc.fn);
     assertNull(fc.getInputs());
     assertNull(fc.getArgs());
 
@@ -66,8 +66,8 @@ class ObjectAccessLanguageTest {
       "%s:test()".formatted(ids.get(0))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertEquals("test", fc.fb);
+    assertEquals(ids.get(0), fc.getMain());
+    assertEquals("test", fc.fn);
     assertNull(fc.getInputs());
     assertNull(fc.getArgs());
 
@@ -76,8 +76,8 @@ class ObjectAccessLanguageTest {
       "%s:test(%s)".formatted(ids.get(0), ids.get(1))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertEquals("test", fc.fb);
+    assertEquals(ids.get(0), fc.getMain());
+    assertEquals("test", fc.fn);
     assertNotNull(fc.getInputs());
     assertEquals(1, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
@@ -87,8 +87,8 @@ class ObjectAccessLanguageTest {
       "%s:test(%s,%s)()".formatted(ids.get(0), ids.get(1), ids.get(2))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertEquals("test", fc.fb);
+    assertEquals(ids.get(0), fc.getMain());
+    assertEquals("test", fc.fn);
     assertNotNull(fc.getInputs());
     assertEquals(2, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
@@ -101,8 +101,8 @@ class ObjectAccessLanguageTest {
         ids.get(3))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0), fc.getTarget());
-    assertEquals("test", fc.fb);
+    assertEquals(ids.get(0), fc.getMain());
+    assertEquals("test", fc.fn);
     assertNotNull(fc.getInputs());
     assertEquals(3, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
@@ -118,8 +118,8 @@ class ObjectAccessLanguageTest {
         ids.get(3))
     );
     assertNotNull(fc);
-    assertEquals(ids.get(0),fc.getTarget());
-    assertEquals("test",fc.fb);
+    assertEquals(ids.get(0),fc.getMain());
+    assertEquals("test",fc.fn);
     assertNotNull(fc.getInputs());
     assertEquals(3, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
@@ -137,7 +137,7 @@ class ObjectAccessLanguageTest {
       .mapToObj(i -> UUID.randomUUID().toString())
       .toList();
     var fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
+      .main(ids.get(0))
       .build();
     assertEquals(
       ids.get(0),
@@ -145,8 +145,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
-      .fb("test")
+      .main(ids.get(0))
+      .fn("test")
       .build();
     assertEquals(
       ids.get(0) + ":test()",
@@ -154,8 +154,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .targetCls("testCls")
-      .fb("test")
+      .cls("testCls")
+      .fn("test")
       .build();
     assertEquals(
       "_testCls:test()",
@@ -163,8 +163,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
-      .fb("test")
+      .main(ids.get(0))
+      .fn("test")
       .inputs(List.of(ids.get(1)))
       .build();
     assertEquals(
@@ -173,8 +173,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
-      .fb("more.test")
+      .main(ids.get(0))
+      .fn("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
       .build();
     assertEquals(
@@ -183,8 +183,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
-      .fb("more.test")
+      .main(ids.get(0))
+      .fn("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
       .args(Map.of("aaa","bbb"))
       .build();
@@ -194,8 +194,8 @@ class ObjectAccessLanguageTest {
     );
 
     fc = ObjectAccessLanguage.builder()
-      .target(ids.get(0))
-      .fb("more.test")
+      .main(ids.get(0))
+      .fn("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
       .args(Map.of("aaa","bbb", "231aa^()", "-*/++"))
       .build();

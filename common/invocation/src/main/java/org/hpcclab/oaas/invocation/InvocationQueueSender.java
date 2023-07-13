@@ -16,10 +16,4 @@ public interface InvocationQueueSender {
       .replaceWithVoid();
   }
 
-//  default Uni<Void> txSend(Collection<InvocationRequest> requests) {
-//    return Multi.createFrom().iterable(requests)
-//      .onItem().call(this::send)
-//      .collect().asList()
-//      .replaceWithVoid();
-//  }
 }

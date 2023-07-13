@@ -1,9 +1,7 @@
 package org.hpcclab.oaas.invocation;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -13,15 +11,12 @@ import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskContext;
-import org.hpcclab.oaas.model.task.TaskDetail;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,26 +148,23 @@ public class InvocationExecutor {
   public Uni<InvocationContext> asyncExec(InvocationContext ctx) {
     if (logger.isDebugEnabled())
       logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
-//    var output = ctx.getOutput();
-//    if (output!=null) {
-//      output.markAsSubmitted(null, false);
-//      if (ctx.getRequest()!=null)
-//        output.getStatus().setQueTs(ctx.getRequest().queTs());
-//    }
 
     ctx.initNode().markAsSubmitted(null, false);
-    if (ctx.getRequest() != null) {
+    if (ctx.getRequest()!=null) {
       ctx.getNode().setQueTs(ctx.getRequest().queTs());
     }
     var uni = offLoader.offload(taskFactory.genTask(ctx));
-    return uni
+    var uni2 = uni
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
-      .call(tc -> this.complete(ctx, tc))
-      .onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
+      .flatMap(tc -> this.finalizeCompletion(ctx, tc));
+    if (logger.isDebugEnabled()) {
+      uni2 = uni2.onFailure().invoke(e -> logger.debug("catch exception in invocation", e));
+    }
+    return uni2.onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
   }
 
-  public Uni<Void> complete(InvocationContext task, TaskCompletion completion) {
+  public Uni<Void> finalizeCompletion(InvocationContext task, TaskCompletion completion) {
     return gsm.persistThenLoadNext(task, completion)
       .collect().asList()
       .flatMap(list -> sender.send(list));

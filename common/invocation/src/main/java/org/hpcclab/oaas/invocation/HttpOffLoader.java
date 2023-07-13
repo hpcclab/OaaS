@@ -36,7 +36,7 @@ public class HttpOffLoader implements OffLoader {
     } else if (content instanceof io.vertx.core.buffer.Buffer buffer) {
       contentBuffer = Buffer.newInstance(buffer);
     } else {
-      logger.info("content {}", Json.encodePrettily(content));
+//      logger.info("content {}", Json.encodePrettily(content));
       contentBuffer = Buffer.newInstance(Json.encodeToBuffer(content));
     }
     return webClient.postAbs(invokingDetail.getFuncUrl())
@@ -58,7 +58,7 @@ public class HttpOffLoader implements OffLoader {
   protected MultiMap createHeader(InvokingDetail<?> detail) {
     return MultiMap.caseInsensitiveMultiMap()
       .add("ce-type", config.getCeType())
-      .add("ce-function", detail.getFuncName())
+      .add("ce-func", detail.getFuncName())
       .add("ce-id", detail.getId())
       .add("ce-source", config.getAppName())
       .add("ce-specversion", "1.0")
@@ -72,7 +72,7 @@ public class HttpOffLoader implements OffLoader {
     else
       return TaskCompletion.error(
         TaskIdentity.decode(detail.getId()),
-        "Fail to perform invocation: function return not 200 code (%s)"
+        "Fail to perform invocation: func return not 200 code (%s)"
           .formatted(resp.statusCode()),
         System.currentTimeMillis(),
         detail.smtTs

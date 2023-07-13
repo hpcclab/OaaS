@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.repository.AtomicOperationService;
+import org.hpcclab.oaas.repository.DefaultAtomicOperationService;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
@@ -18,20 +19,18 @@ import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public abstract class AbsEmbeddedIspnRepository<V extends HasKey> implements EntityRepository<String, V> {
+public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V> {
 
-  protected IspnAtomicService<V> atomicService;
+  protected AtomicOperationService<String, V> atomicService;
 
   abstract AdvancedCache<String, V> getCache();
 
   @Override
   public AtomicOperationService<String, V> atomic() {
     if (atomicService == null)
-      atomicService = new IspnAtomicService<>(this);
+      atomicService = new DefaultAtomicOperationService<>(this);
     return atomicService;
   }
-
-  //  abstract K extractKey(V value);
 
   @Override
   public V get(String key) {
@@ -110,7 +109,6 @@ public abstract class AbsEmbeddedIspnRepository<V extends HasKey> implements Ent
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    var ctx = Vertx.currentContext();
-    return ctx.executeBlocking(Uni.createFrom().item(() -> compute(key,function)), false);
+    return toUni(getCache().computeAsync(key, function));
   }
 }

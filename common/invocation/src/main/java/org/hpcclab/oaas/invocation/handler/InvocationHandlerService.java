@@ -52,7 +52,7 @@ public class InvocationHandlerService {
       .invoke(Unchecked.consumer(ctx -> {
         var func = ctx.getFunction();
         if (func.getType()==FunctionType.MACRO) {
-          throw new InvocationException("Can not synchronous invoke to macro function", 400);
+          throw new InvocationException("Can not synchronous invoke to macro func", 400);
         }
         if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
           throw new InvocationException("Function is not ready", 409);
@@ -66,7 +66,7 @@ public class InvocationHandlerService {
       .flatMap(ctx -> invocationExecutor.syncExec(ctx))
       .map(ctx -> OalResponse.builder()
         .invId(ctx.initNode().getKey())
-        .target(ctx.getMain())
+        .main(ctx.getMain())
         .output(ctx.getOutput())
         .fbName(ctx.getFbName())
         .status(ctx.getNode().getStatus())
@@ -81,14 +81,15 @@ public class InvocationHandlerService {
       invocationValidator.validate(oal)
         .map(ctx -> {
           var builder = toRequest(oal)
-            .immutable(ctx.functionBinding().isForceImmutable())
-            .macro(ctx.function().getType()==FunctionType.MACRO)
+            .immutable(ctx.funcBind().isForceImmutable())
+            .macro(ctx.func().getType()==FunctionType.MACRO)
             .partKey(ctx.main()!=null ? ctx.main().getKey():null)
             .queTs(System.currentTimeMillis())
+            .cls(ctx.cls().getKey())
             .invId(idGenerator.generate());
-          if (ctx.function().getType()==FunctionType.MACRO) {
-            addMacroIds(builder, ctx.function().getMacro());
-          } else if (ctx.functionBinding().getOutputCls()!=null) {
+          if (ctx.func().getType()==FunctionType.MACRO) {
+            addMacroIds(builder, ctx.func().getMacro());
+          } else if (ctx.funcBind().getOutputCls()!=null) {
             builder.outId(idGenerator.generate());
           }
 
@@ -98,8 +99,8 @@ public class InvocationHandlerService {
         .map(pair -> OalResponse.builder()
           .invId(pair.getTwo().invId())
           .output(new OaasObject().setId(pair.getTwo().outId()))
-          .target(pair.getOne().main())
-          .fbName(pair.getOne().functionBinding().getName())
+          .main(pair.getOne().main())
+          .fbName(pair.getOne().funcBind().getName())
           .macroIds(pair.getTwo().macroIds())
           .status(TaskStatus.DOING)
           .async(true)

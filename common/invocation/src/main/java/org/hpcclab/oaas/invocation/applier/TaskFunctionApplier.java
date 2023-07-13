@@ -21,18 +21,18 @@ public class TaskFunctionApplier implements FunctionApplier {
   }
 
   public void validate(InvocationContext context) {
-    if (context.getBinding().getOutputCls()!=null && context.getOutputCls()==null)
+    if (context.getFb().getOutputCls()!=null && context.getOutputCls()==null)
       throw FunctionValidationException.format(
-        "Cannot call function('%s') because outputCls('%s') is not exist",
+        "Cannot call func('%s') because outputCls('%s') is not exist",
         context.getFunction().getKey(),
-        context.getBinding().getOutputCls()
+        context.getFb().getOutputCls()
       );
   }
 
   public Uni<InvocationContext> apply(InvocationContext ctx) {
-    ctx.setImmutable(ctx.getBinding().isForceImmutable() || !ctx.getFunction().getType().isMutable());
+    ctx.setImmutable(ctx.getFb().isForceImmutable() || !ctx.getFunction().getType().isMutable());
     var req = ctx.getRequest();
-    if (ctx.getBinding().getOutputCls()!=null) {
+    if (ctx.getFb().getOutputCls()!=null) {
       var output = objectFactory.createOutput(ctx);
       if (req!=null && (req.outId()!=null)) {
         output.setId(req.outId());

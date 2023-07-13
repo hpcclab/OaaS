@@ -45,14 +45,14 @@ public class OalResource {
                                             @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFb()!=null) {
+    if (oal.getFn()!=null) {
       return selectAndInvoke(oal, async);
     } else {
-      return objectRepo.getAsync(oal.getTarget())
+      return objectRepo.getAsync(oal.getMain())
         .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
+        .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> OalResponse.builder()
-          .target(obj)
+          .main(obj)
           .build());
     }
   }
@@ -77,13 +77,13 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFb()!=null) {
+    if (oal.getFn()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
-      return objectRepo.getAsync(oal.getTarget())
+      return objectRepo.getAsync(oal.getMain())
         .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject(oal.getTarget(), 404))
+        .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> createResponse(obj, filePath));
     }
   }
@@ -123,7 +123,7 @@ public class OalResource {
   public Response createResponse(OalResponse response,
                                  String filePath,
                                  int redirectCode) {
-    var obj = response.output()!=null ? response.output():response.target();
+    var obj = response.output()!=null ? response.output():response.main();
     var ts = response.status();
     if (ts==TaskStatus.DOING) {
       return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())

@@ -1,82 +1,77 @@
 package org.hpcclab.oaas.invocation.task;
 
-import org.hpcclab.oaas.model.cls.OaasClass;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskContext;
 import org.hpcclab.oaas.model.task.TaskIdentity;
-import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
 public class TaskFactory {
-  private static final Logger logger = LoggerFactory.getLogger( TaskFactory.class );
+  private static final Logger logger = LoggerFactory.getLogger(TaskFactory.class);
   private final ContentUrlGenerator contentUrlGenerator;
 
-  private final EntityRepository<String, OaasClass> clsRepo;
 
   private final IdGenerator idGenerator;
 
   @Inject
   public TaskFactory(ContentUrlGenerator contentUrlGenerator,
-                     EntityRepository<String, OaasClass> clsRepo,
                      IdGenerator idGenerator) {
     this.contentUrlGenerator = contentUrlGenerator;
-    this.clsRepo = clsRepo;
     this.idGenerator = idGenerator;
   }
 
-  public OaasTask genTask(TaskContext taskContext) {
+  public OaasTask genTask(InvocationContext ctx) {
     var verId = idGenerator.generate();
-    taskContext.setVId(verId);
-    var mainCls = clsRepo.get(taskContext.getMain().getCls());
+    ctx.setVId(verId);
+    var mainCls = ctx.getMainCls();
 
     var task = new OaasTask();
-    task.setId(new TaskIdentity(taskContext).encode());
-    task.setPartKey(taskContext.getMain().getId());
+    task.setId(new TaskIdentity(ctx).encode());
+    task.setPartKey(ctx.getMain().getId());
     task.setVId(verId);
-    task.setFbName(taskContext.getFbName());
-    task.setMain(taskContext.getMain());
-    task.setFuncKey(taskContext.getFuncKey());
-    task.setFunction(taskContext.getFunction());
-    task.setInputs(taskContext.getInputs());
-    task.setImmutable(taskContext.isImmutable());
-    var binding = mainCls.findFunction(taskContext.getFbName());
-    task.setArgs(taskContext.resolveArgs(binding));
+    task.setFbName(ctx.getFbName());
+    task.setMain(ctx.getMain());
+    task.setFuncKey(ctx.getFuncKey());
+    task.setFunction(ctx.getFunction());
+    task.setInputs(ctx.getInputs());
+    task.setImmutable(ctx.isImmutable());
+    var binding = mainCls.findFunction(ctx.getFbName());
+    task.setArgs(ctx.resolveArgs(binding));
 
-    if (taskContext.getOutput()!=null) {
-      task.setOutput(taskContext.getOutput());
+    if (ctx.getOutput()!=null) {
+      task.setOutput(ctx.getOutput());
 
-      var outCls = clsRepo.get(taskContext.getOutput().getCls());
+      var outCls = ctx.getClsMap().get(ctx.getOutput().getCls());
 
       if (outCls.getStateType()==StateType.COLLECTION ||
         !outCls.getStateSpec().getKeySpecs().isEmpty()) {
         var dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId);
-        task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getOutput(), dac));
+        task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(ctx.getOutput(), dac));
       }
     }
 
-    if (taskContext.getFunction().getType().isMutable()) {
+    if (ctx.getFunction().getType().isMutable()) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
-      task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(taskContext.getMain(), dac));
+      task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }
-    task.setMainKeys(genUrls(taskContext.getMain(), taskContext.getMainRefs(),
+    task.setMainKeys(genUrls(ctx.getMain(), ctx.getMainRefs(),
       AccessLevel.ALL));
 
     var inputContextKeys = new ArrayList<String>();
-    for (int i = 0; i < taskContext.getInputs().size(); i++) {
-      var inputObj = taskContext.getInputs().get(i);
+    for (int i = 0; i < ctx.getInputs().size(); i++) {
+      var inputObj = ctx.getInputs().get(i);
       AccessLevel level = mainCls.isSamePackage(inputObj.getCls()) ?
         AccessLevel.INTERNAL:AccessLevel.INVOKE_DEP;
       var b64Dac = DataAccessContext.generate(inputObj, level).encode();

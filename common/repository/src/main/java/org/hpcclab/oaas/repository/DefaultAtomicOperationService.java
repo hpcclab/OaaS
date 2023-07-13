@@ -1,19 +1,18 @@
-package org.hpcclab.oaas.invoker.ispn.repo;
+package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.exception.DataAccessException;
-import org.hpcclab.oaas.repository.AtomicOperationService;
 
 import java.util.Random;
 
-public class IspnAtomicService<V extends HasKey> implements AtomicOperationService<String, V> {
-  AbsEmbeddedIspnRepository<V> repository;
+public class DefaultAtomicOperationService<K,V extends HasKey<K>> implements AtomicOperationService<K,V>{
   Random random = new Random();
+  EntityRepository<K,V> repository;
 
-  public IspnAtomicService(AbsEmbeddedIspnRepository<V> repository) {
+  public DefaultAtomicOperationService(EntityRepository<K, V> repository) {
     this.repository = repository;
   }
 
@@ -23,7 +22,12 @@ public class IspnAtomicService<V extends HasKey> implements AtomicOperationServi
       throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);
     var expectRev = Math.abs(((HasRev) value).getRevision() + addRev);
-    return repository.computeAsync(value.getKey(), (k, oldValue) -> {
+    K key = value.getKey();
+    return repository.computeAsync(key, (k, oldValue) -> {
+        if (oldValue == null) {
+          ((HasRev)value).setRevision(expectRev);
+          return value;
+        }
         var newRev = ((HasRev) value).getRevision();
         var oldRev = ((HasRev) oldValue).getRevision();
         if (newRev==oldRev) {
@@ -38,5 +42,4 @@ public class IspnAtomicService<V extends HasKey> implements AtomicOperationServi
           throw DataAccessException.concurrentMod();
       }));
   }
-
 }

@@ -1,5 +1,5 @@
 package org.hpcclab.oaas.model;
 
-public interface HasKey {
-    String getKey();
+public interface HasKey<K> {
+    K getKey();
 }

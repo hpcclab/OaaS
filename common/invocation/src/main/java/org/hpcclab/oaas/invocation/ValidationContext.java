@@ -11,9 +11,8 @@ import org.hpcclab.oaas.model.object.OaasObject;
 public record ValidationContext(
     ObjectAccessLanguage oal,
     OaasObject main,
-    OaasClass mainCls,
-    OaasClass targetCls,
-    OaasFunction function,
-    FunctionBinding functionBinding
+    OaasClass cls,
+    OaasFunction func,
+    FunctionBinding funcBind
   ) {
 }

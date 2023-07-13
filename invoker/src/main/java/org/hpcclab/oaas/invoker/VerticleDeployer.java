@@ -62,7 +62,7 @@ public class VerticleDeployer {
       .collect().asList().await().indefinitely();
 
     functionListener.setHandler(func -> {
-      LOGGER.info("receive function[{}] update event", func.getKey());
+      LOGGER.info("receive func[{}] update event", func.getKey());
       funcRepo.delete(func.getKey());
       handleFunc(func);
     });
@@ -156,7 +156,7 @@ public class VerticleDeployer {
       .repeat().atMost(size)
       .invoke(id -> {
         if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("deploy verticle[id={}] for function {} successfully",
+          LOGGER.info("deploy verticle[id={}] for func {} successfully",
             id, function);
 //          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
         }
@@ -171,7 +171,7 @@ public class VerticleDeployer {
     if (verticleSet!=null) {
       return Multi.createFrom().iterable(verticleSet)
         .call(vert -> vertx.undeploy(vert.deploymentID()))
-        .invoke(id -> LOGGER.info("Undeploy verticle[id={}] for function {} successfully", id, function))
+        .invoke(id -> LOGGER.info("Undeploy verticle[id={}] for func {} successfully", id, function))
         .collect().last()
         .replaceWithVoid()
         .invoke(() -> verticleMap.remove(function));

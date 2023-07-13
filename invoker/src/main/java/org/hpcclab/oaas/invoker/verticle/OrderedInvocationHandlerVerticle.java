@@ -65,7 +65,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   @Override
   public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     if (LOGGER.isDebugEnabled()) {
-      logLatency(kafkaRecord);
+      logLatency(kafkaRecord, request);
     }
     if (request.macro()) {
       handleMacro(kafkaRecord, request);
@@ -104,7 +104,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
         if (detectDuplication(kafkaRecord, ctx)) {
-          LOGGER.warn("detect duplication {} {}", ctx.getRequest().target(), ctx.getRequest().outId());
+          LOGGER.warn("detect duplication {} {}", ctx.getRequest().main(), ctx.getRequest().outId());
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)
@@ -129,6 +129,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                                     InvocationContext ctx) {
     var obj = ctx.isImmutable() ? ctx.getOutput():ctx.getMain();
+    LOGGER.debug("checking duplication [{},{},{}]", kafkaRecord.offset(), ctx.getRequest(), obj);
     return obj.getStatus().getUpdatedOffset() >= kafkaRecord.offset();
   }
 
@@ -149,11 +150,13 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     return null;
   }
 
-  void logLatency(KafkaConsumerRecord<?, ?> kafkaRecord) {
+  void logLatency(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
     var submittedTs = kafkaRecord.timestamp();
-    LOGGER.debug("{}: record[{}]: Kafka latency {} ms",
+    LOGGER.debug("{}: record[{},{},{}]: Kafka latency {} ms",
       name,
       kafkaRecord.key(),
+      request.invId(),
+      request.macro(),
       System.currentTimeMillis() - submittedTs
     );
   }

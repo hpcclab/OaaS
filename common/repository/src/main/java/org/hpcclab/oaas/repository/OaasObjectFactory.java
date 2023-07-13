@@ -4,7 +4,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -41,11 +40,9 @@ public class OaasObjectFactory {
     var obj = OaasObject.createFromClasses(cls);
     obj.setId(id);
     obj.setData(construct.getData());
-//    obj.setOrigin(new ObjectOrigin());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
     status.setTaskStatus(TaskStatus.READY);
-//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
@@ -56,13 +53,14 @@ public class OaasObjectFactory {
       state.setVerIds(verIds);
     }
     obj.setState(state);
+    obj.setRevision(1);
     return obj;
   }
 
   public OaasObject createOutput(InvocationContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
-    FunctionBinding binding = ctx.getBinding();
+    FunctionBinding binding = ctx.getFb();
     var obj = OaasObject.createFromClasses(cls);
 
     if (source.getData() != null) {
@@ -76,11 +74,10 @@ public class OaasObjectFactory {
       }
       obj.setData(node);
     }
-//    obj.setOrigin(ctx.createOrigin());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
-//    status.setCrtTs(System.currentTimeMillis());
     obj.setStatus(status);
+    obj.setRevision(0);
     return obj;
   }
 }

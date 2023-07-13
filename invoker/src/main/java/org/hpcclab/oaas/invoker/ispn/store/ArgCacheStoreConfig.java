@@ -10,12 +10,13 @@ import org.infinispan.configuration.cache.AbstractStoreConfiguration;
 import org.infinispan.configuration.cache.AbstractStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.AsyncStoreConfiguration;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
+import org.infinispan.configuration.parsing.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ConfigurationFor(ArgCacheStore.class)
 @BuiltBy(ArgCacheStoreConfig.Builder.class)
-public class ArgCacheStoreConfig extends AbstractStoreConfiguration {
+public class ArgCacheStoreConfig extends AbstractStoreConfiguration<ArgCacheStoreConfig> {
   private static final Logger logger = LoggerFactory.getLogger(ArgCacheStoreConfig.class);
 
   public static final AttributeDefinition<Class> VALUE_CLASS = AttributeDefinition.builder(
@@ -28,14 +29,14 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration {
 
 
   public ArgCacheStoreConfig(AttributeSet attributes, AsyncStoreConfiguration async) {
-    super(attributes, async);
+    super(Element.STORE, attributes, async);
   }
 
   public static AttributeSet attributeDefinitionSet() {
     return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS, CONNECTION_FACTORY);
   }
 
-  public Class getValuaCls() {
+  public Class getValueCls() {
     return attributes.attribute(VALUE_CLASS)
       .get();
   }

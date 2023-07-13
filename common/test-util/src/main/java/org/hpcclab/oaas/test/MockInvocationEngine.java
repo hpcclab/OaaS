@@ -62,7 +62,7 @@ public class MockInvocationEngine {
 
     graphStateManager = new GraphStateManager(invRepo, objectRepo);
     var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
-    taskFactory = new TaskFactory(contentUrlGenerator, loader.getClsRepo(), new TsidGenerator());
+    taskFactory = new TaskFactory(contentUrlGenerator, new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
     syncInvoker = new MockOffLoader();
     completedStateUpdater = new CompletedStateUpdater(new CompletionValidator(loader.getClsRepo(), loader.getFuncRepo()));
@@ -99,7 +99,6 @@ public class MockInvocationEngine {
       logger.debug("TASK MAP: {}", Json.encodePrettily(invocationQueueSender.multimap.toMap()));
       logger.debug("NODES: {}", Json.encodePrettily(
         ((MapEntityRepository<String, InvocationNode>)invRepo).getMap()));
-//      logger.debug("FUNCTION EXEC CONTEXT: {}", Json.encodePrettily(ctx));
       int i = 0;
       for (var o : objectMap) {
         logger.debug("REPO OBJ {}: {}", i, Json.encode(o));

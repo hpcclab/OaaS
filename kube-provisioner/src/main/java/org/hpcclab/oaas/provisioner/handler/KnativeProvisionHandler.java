@@ -254,7 +254,7 @@ public class KnativeProvisionHandler {
       annotation.put("autoscaling.knative.dev/scale-down-delay",
         provision.getScaleDownDelay());
     if (provision.getTargetConcurrency() > 0)
-      annotation.put("autoscaling.knative.dev/target",
+      annotation.put("autoscaling.knative.dev/main",
         String.valueOf(provision.getTargetConcurrency()));
     Map<String, Quantity> requests = new HashMap<>();
     if (provision.getRequestsCpu()!=null) {

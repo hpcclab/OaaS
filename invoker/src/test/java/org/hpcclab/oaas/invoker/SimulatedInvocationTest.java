@@ -6,7 +6,6 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
-import org.assertj.core.api.Assertions;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -33,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class InvokingTest {
-  private static final Logger logger = LoggerFactory.getLogger(InvokingTest.class);
+class SimulatedInvocationTest {
+  private static final Logger logger = LoggerFactory.getLogger(SimulatedInvocationTest.class);
   @Inject
   VerticleDeployer deployer;
   @Inject
@@ -101,12 +100,12 @@ class InvokingTest {
     var fn = FUNC_1;
     var cls = CLS_1;
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(oId)
       .fb("f1")
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(oId);
@@ -114,9 +113,12 @@ class InvokingTest {
     });
     main = objectRepo.get(main.getId());
     var out = objectRepo.get(oId);
-    assertTrue(main.getStatus().getUpdatedOffset() >= 0);
-    assertTrue(out.getStatus().getUpdatedOffset() >= 0);
-    assertEquals(1, main.getData().get("n").asInt());
+    assertThat(main.getStatus().getUpdatedOffset())
+      .isPositive();
+    assertThat(out.getStatus().getUpdatedOffset())
+      .isPositive();
+    assertThat(main.getData().get("n").asInt())
+      .isEqualTo(1);
   }
 
 
@@ -132,7 +134,7 @@ class InvokingTest {
     var mid1 = idGenerator.generate();
     var mid2 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
       .macroIds(Map.of(
@@ -142,7 +144,7 @@ class InvokingTest {
       .macro(true)
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid1);
@@ -182,7 +184,7 @@ class InvokingTest {
     var mid2 = idGenerator.generate();
     var mid3 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
-      .target(main.getId())
+      .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
       .macroIds(Map.of(
@@ -193,7 +195,7 @@ class InvokingTest {
       .macro(true)
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
-      .create(config.invokeTopicPrefix() + cls.getKey(), request.target(), Json.encodeToBuffer(request))
+      .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid3);

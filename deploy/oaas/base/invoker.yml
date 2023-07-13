@@ -17,6 +17,7 @@ spec:
         app: invoker
         platform: oaas
     spec:
+      terminationGracePeriodSeconds: 60
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
