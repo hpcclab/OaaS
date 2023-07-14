@@ -46,7 +46,6 @@ functions:
       export: record3
   - name: concat
     type: TASK
-    outputCls: .text
     validation: {}
     provision:
       knative:
@@ -125,6 +124,10 @@ classes:
         name: chain-atomic
         function: .record.chain-update-atomic
         outputCls: .record
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .record
   - name: text
     stateType: FILES
     objectType: SIMPLE
@@ -134,12 +137,17 @@ classes:
     functions:
       - access: PUBLIC
         function: .concat
+        outputCls: .text
       - access: PUBLIC
         function: .concat
         name: concat-inplace
         outputCls: void
         defaultArgs:
           INPLACE: "true"
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .text
   - name: video
     stateType: FILES
     objectType: SIMPLE

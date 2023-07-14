@@ -13,7 +13,7 @@ import java.util.Set;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectRequirement implements Serializable{
-  @ProtoField(2)
+  @ProtoField(1)
   String cls;
 
   public ObjectRequirement() {

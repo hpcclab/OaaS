@@ -49,30 +49,20 @@ public class InvocationHandlerService {
     var req = toRequest(oal)
       .build();
     return router.apply(req)
-      .invoke(Unchecked.consumer(ctx -> {
+      .flatMap(Unchecked.function(ctx -> {
         var func = ctx.getFunction();
         if (func.getType()==FunctionType.MACRO) {
           throw new InvocationException("Can not synchronous invoke to macro func", 400);
         }
+        if (func.getType()==FunctionType.LOGICAL) {
+          return Uni.createFrom().item(ctx);
+        }
         if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
           throw new InvocationException("Function is not ready", 409);
         }
-//        MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
-//          Lists.mutable.empty();
-//        MutableList<OaasObject> failDeps = Lists.mutable.empty();
-//        if (!ctx.analyzeDeps(waitForGraph, failDeps))
-//          throw InvocationException.notReady(waitForGraph, failDeps);
+        return invocationExecutor.syncExec(ctx);
       }))
-      .flatMap(ctx -> invocationExecutor.syncExec(ctx))
-      .map(ctx -> OalResponse.builder()
-        .invId(ctx.initNode().getKey())
-        .main(ctx.getMain())
-        .output(ctx.getOutput())
-        .fbName(ctx.getFbName())
-        .status(ctx.getNode().getStatus())
-        .async(false)
-        .stats(ctx.initNode().extractStats())
-        .build());
+      .map(ctx -> ctx.createResponse().async(false).build());
   }
 
 
@@ -123,20 +113,4 @@ public class InvocationHandlerService {
     return oal.toRequest()
       .invId(idGenerator.generate());
   }
-//
-//  public Uni<OaasObject> awaitCompletion(OaasObject obj,
-//                                         Integer timeout) {
-//    var status = obj.getStatus();
-//    var ts = status.getTaskStatus();
-//    if (!ts.isSubmitted() && !status.isInitWaitFor()) {
-//      var uni1 = completionListener.wait(obj.getId(), timeout);
-//      var uni2 = invocationExecutor.asyncSubmit(obj);
-//      return Uni.combine().all().unis(uni1, uni2)
-//        .asTuple()
-//        .flatMap(v -> objectRepo.getAsync(obj.getId()));
-//
-//    }
-//    return completionListener.wait(obj.getId(), timeout)
-//      .flatMap(event -> objectRepo.getAsync(obj.getId()));
-//  }
 }

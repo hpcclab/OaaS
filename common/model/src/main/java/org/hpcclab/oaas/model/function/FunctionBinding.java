@@ -31,13 +31,15 @@ public class FunctionBinding {
   String outputCls;
   @ProtoField(value = 8, defaultValue = "false")
   boolean forceImmutable = false;
+  @ProtoField(value = 9, defaultValue = "false")
+  boolean allowNoMain;
 
 
   public FunctionBinding() {
   }
 
   public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls,
-                         boolean forceImmutable) {
+                         boolean forceImmutable, boolean allowNoMain) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -46,6 +48,7 @@ public class FunctionBinding {
     this.description = description;
     this.outputCls = outputCls;
     this.forceImmutable = forceImmutable;
+    this.allowNoMain = allowNoMain;
   }
 
   @ProtoFactory
@@ -56,7 +59,8 @@ public class FunctionBinding {
                          HashMap<String, String> defaultArgs,
                          String description,
                          String outputCls,
-                         boolean forceImmutable) {
+                         boolean forceImmutable,
+                         boolean allowNoMain) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -65,6 +69,7 @@ public class FunctionBinding {
     this.description = description;
     this.outputCls = outputCls;
     this.forceImmutable = forceImmutable;
+    this.allowNoMain = allowNoMain;
   }
 
   public void validate() {

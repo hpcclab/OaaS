@@ -6,17 +6,19 @@ Content-Type: text/x-yaml
 ###
 GET http://localhost:8088/api/functions
 ###
-POST http://localhost:8088/api/object-construct
+POST http://localhost:8089/oal
 Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "example.record"
+  "cls": "example.record",
+  "fn": "new"
 }
 
 > {%
-  client.global.set("obj_0_id", response.body.object.id)
+  client.global.set("obj_0_id", response.body.output.id)
 %}
+
 ###
 GET http://localhost:8089/oal/{{obj_0_id}}
 ###
@@ -38,18 +40,23 @@ GET http://localhost:8089/oal/{{obj_1_id}}:random?async=true
   client.global.set("obj_1_id", response.body.output.id)
 %}
 ###
-POST http://localhost:8088/api/object-construct
+POST http://localhost:8089/oal
 Accept: application/json
 Content-Type: application/json
 
 {
   "cls": "example.text",
-  "keys": ["text"]
+  "fn": "new",
+  "body": {
+    "keys": [
+      "text"
+    ]
+  }
 }
 
 > {%
-  client.global.set("obj_0_id", response.body.object.id)
-  client.global.set("upload_text", response.body.uploadUrls.text)
+  client.global.set("obj_0_id", response.body.output.id)
+  client.global.set("upload_text", response.body.body.uploadUrls.text)
 %}
 ###
 PUT {{upload_text}}

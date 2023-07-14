@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.invocation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,10 +13,12 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskDetail;
+import org.hpcclab.oaas.model.task.TaskStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -52,6 +55,7 @@ public class InvocationContext implements TaskDetail {
   @JsonIgnore
   DataflowGraph dataflowGraph;
   Map<String, OaasClass> clsMap = Map.of();
+  ObjectNode body;
 
   long mqOffset = -1;
 
@@ -177,5 +181,16 @@ public class InvocationContext implements TaskDetail {
   @Override
   public String getFuncKey() {
     return function.getKey();
+  }
+
+  public OalResponse.OalResponseBuilder createResponse() {
+    return OalResponse.builder()
+      .invId(request.invId())
+      .main(getMain())
+      .output(getOutput())
+      .fbName(getFbName())
+      .status(node == null? null : TaskStatus.READY)
+      .body(body)
+      .stats(node == null? null : node.extractStats());
   }
 }

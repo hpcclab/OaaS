@@ -37,10 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class SyncInvocationTest {
   private static final Logger logger = LoggerFactory.getLogger(SyncInvocationTest.class);
-  @Inject
-  KafkaProducer<String, Buffer> kafkaProducer;
-  @Inject
-  InvokerConfig config;
+
   @Inject
   ObjectRepository objectRepo;
   @Inject

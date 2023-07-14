@@ -3,21 +3,17 @@ package org.hpcclab.oaas.ispn.repo;
 import io.quarkus.infinispan.client.Remote;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
-import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.hpcclab.oaas.model.proto.OaasSchema.makeFullName;
 
@@ -28,8 +24,6 @@ public class IspnObjectRepository extends AbstractIspnRepository<String, OaasObj
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IspnObjectRepository.class);
 
-  @Inject
-  IspnClassRepository classRepo;
   @Inject
   @Remote("OaasObject")
   RemoteCache<String, OaasObject> cache;
@@ -44,10 +38,6 @@ public class IspnObjectRepository extends AbstractIspnRepository<String, OaasObj
   @Override
   public String getEntityName() {
     return NAME;
-  }
-
-  private String generateId() {
-    return UUID.randomUUID().toString();
   }
 
   @Override

@@ -44,10 +44,14 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     Uni<?> uni;
-    uni = objectRepo.getAsync(request.main())
-      .onItem().ifNull()
-      .failWith(() -> StdOaasException.notFoundObject400(request.main()))
-      .invoke(ctx::setMain);
+    if (request.main() != null) {
+      uni = objectRepo.getAsync(request.main())
+        .onItem().ifNull()
+        .failWith(() -> StdOaasException.notFoundObject400(request.main()))
+        .invoke(ctx::setMain);
+    } else {
+      uni = Uni.createFrom().item(ctx);
+    }
     uni = uni.map(ignore -> loadClsAndFunc(ctx, request.fb()))
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
       .invoke(ctx::setInputs);
@@ -65,8 +69,9 @@ public class RepoContextLoader implements ContextLoader {
 
   public InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName) {
     var main = ctx.getMain();
-    var mainCls = clsRepo.get(main.getCls());
-    Set<String> clsKeys = Sets.mutable.of(main.getCls());
+    var mainClsKey = main != null? main.getCls() : ctx.getRequest().cls();
+    var mainCls = clsRepo.get(mainClsKey);
+    Set<String> clsKeys = Sets.mutable.of(mainClsKey);
 
     if (mainCls==null)
       throw StdOaasException.format("Can not find class '%s'", main.getCls());
@@ -78,7 +83,7 @@ public class RepoContextLoader implements ContextLoader {
     var binding = mainCls
       .findFunction(fbName);
     if (binding==null)
-      throw FunctionValidationException.noFunction(main.getId(), fbName);
+      throw FunctionValidationException.noFunction(mainClsKey, fbName);
     clsKeys.add(binding.getOutputCls());
     ctx.setFb(binding);
 

@@ -2,11 +2,10 @@ package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.object.ObjectOrigin;
-import org.hpcclab.oaas.model.proto.KvPair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,25 +25,18 @@ public class ObjectAccessLanguage {
   final String main;
   final String cls;
   final String fn;
+  final ObjectNode body;
   final Map<String, String> args;
   final List<String> inputs;
 
   @JsonCreator
-  public ObjectAccessLanguage(String main, String mainCls, String fbName, Map<String, String> args, List<String> inputs) {
+  public ObjectAccessLanguage(String main, String mainCls, String fbName, Map<String, String> args, List<String> inputs, ObjectNode body) {
     this.main = main;
     this.cls = mainCls;
     this.fn = fbName;
     this.args = args;
     this.inputs = inputs;
-  }
-
-  public static ObjectAccessLanguage from(ObjectOrigin origin) {
-    return ObjectAccessLanguage.builder()
-      .main(origin.getParentId())
-      .fn(origin.getFbName())
-      .args(origin.getArgs().stream().collect(Collectors.toMap(KvPair::getKey, KvPair::getVal)))
-      .inputs(origin.getInputs())
-      .build();
+    this.body = body;
   }
 
   public static boolean validate(String expr) {
@@ -93,7 +85,9 @@ public class ObjectAccessLanguage {
       .cls(cls)
       .fb(fn)
       .args(args)
-      .inputs(inputs);
+      .inputs(inputs)
+      .body(body)
+      ;
   }
 
   public String toString() {

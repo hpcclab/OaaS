@@ -14,7 +14,6 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   final OffLoader invoker;
   final FunctionRepository funcRepo;
   final InvocationExecutor invocationExecutor;
-  final ObjectCompletionPublisher objCompPublisher;
   final ContextLoader loader;
   final UnifiedFunctionRouter router;
   final OneShotDataflowInvoker dataflowInvoker;
@@ -37,7 +35,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   public OrderedInvocationHandlerVerticle(OffLoader invoker,
                                           FunctionRepository funcRepo,
                                           InvocationExecutor graphExecutor,
-                                          ObjectCompletionPublisher objCompPublisher,
                                           InvokerConfig invokerConfig,
                                           UnifiedFunctionRouter router,
                                           ContextLoader loader,
@@ -46,7 +43,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     this.invoker = invoker;
     this.funcRepo = funcRepo;
     this.invocationExecutor = graphExecutor;
-    this.objCompPublisher = objCompPublisher;
     this.router = router;
     this.loader = loader;
     this.dataflowInvoker = dataflowInvoker;
@@ -117,8 +113,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(ctx -> {
-        if (ctx!=null && ctx.getOutput()!=null)
-          objCompPublisher.publish(ctx.getOutput().getId());
         next(kafkaRecord);
       }, error -> {
         LOGGER.error("Get unrecovery repeating error on invoker ", error);

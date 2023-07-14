@@ -64,10 +64,6 @@ public class TestUtils {
           - access: PUBLIC
             function: test.dummy.macro
             outputCls: test.dummy.compound
-      - name: stream
-        objectType: STREAM
-        genericType: test.dummy.simple
-        functions: []
     """;
 
 

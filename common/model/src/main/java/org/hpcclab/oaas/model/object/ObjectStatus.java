@@ -15,9 +15,9 @@ import org.infinispan.protostream.annotations.ProtoField;
 public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(1)
   TaskStatus taskStatus = TaskStatus.LAZY;
-  @ProtoField(value = 10, defaultValue = "-1")
+  @ProtoField(value = 2, defaultValue = "-1")
   long updatedOffset = -1;
-  @ProtoField(11)
+  @ProtoField(3)
   String vid;
 
   public ObjectStatus() {

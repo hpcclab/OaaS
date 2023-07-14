@@ -1,23 +1,18 @@
-package org.hpcclab.oaas.invoker.rest;
+package org.hpcclab.oaas.invocation.applier.logical;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hpcclab.oaas.invoker.service.DataAllocationService;
-import org.hpcclab.oaas.model.Views;
+import org.hpcclab.oaas.invocation.DataUrlAllocator;
+import org.hpcclab.oaas.invocation.applier.LogicalSubApplier;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
-import org.hpcclab.oaas.model.data.DataAllocateResponse;
-import org.hpcclab.oaas.model.exception.NoStackException;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
@@ -29,26 +24,54 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-@Path("/api/object-construct")
-public class ObjectConstructResource {
-
+public class NewSubApplier implements LogicalSubApplier {
+  @Inject
+  DataUrlAllocator allocator;
+  @Inject
+  OaasObjectFactory objectFactory;
   @Inject
   ClassRepository clsRepo;
   @Inject
   ObjectRepository objRepo;
   @Inject
-  DataAllocationService allocationService;
-  @Inject
-  OaasObjectFactory objectFactory;
+  ObjectMapper mapper;
 
+  @Override
+  public void validate(InvocationContext context) {
+  }
 
-  @POST
-  @JsonView(Views.Public.class)
+  @Override
+  public Uni<InvocationContext> apply(InvocationContext context) {
+    var body = context.getRequest().body();
+    ObjectConstructRequest req;
+    if (body==null) {
+      req = new ObjectConstructRequest();
+    } else {
+      try {
+        req = mapper.treeToValue(body, ObjectConstructRequest.class);
+      } catch (JsonProcessingException e) {
+        throw new FunctionValidationException("Cannot decode body to 'ObjectConstructRequest'", e);
+      }
+    }
+    if (context.getRequest().cls()!=null)
+      req.setCls(context.getRequest().cls());
+    return construct(req)
+      .map(resp -> {
+        context.setOutput(resp.getObject());
+        resp.setObject(null);
+        context.setBody(mapper.valueToTree(resp));
+        return context;
+      });
+  }
+
+  @Override
+  public String functionKey() {
+    return "builtin.logical.new";
+  }
+
   public Uni<ObjectConstructResponse> construct(ObjectConstructRequest construction) {
     var cls = clsRepo.get(construction.getCls());
-    if (cls==null) throw NoStackException.notFoundCls400(construction.getCls());
+    if (cls==null) throw StdOaasException.notFoundCls400(construction.getCls());
     return switch (cls.getObjectType()) {
       case SIMPLE, COMPOUND -> constructSimple(construction, cls);
     };
@@ -76,7 +99,7 @@ public class ObjectConstructResource {
         .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
     }
     DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, cls.getStateSpec().getDefaultProvider(), true);
-    return allocationService.allocate(List.of(request))
+    return allocator.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
       .call(() -> objRepo.persistAsync(obj));
   }

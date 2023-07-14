@@ -49,3 +49,9 @@ k8s-clean:
 
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "9090:80@loadbalancer"
+
+compose-build-up: build-no-test
+  docker compose up -d --build
+
+compose-clean:
+  docker compose down -v

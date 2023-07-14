@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.oal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -20,6 +21,7 @@ public record OalResponse(
   TaskStatus status,
   @JsonUnwrapped
   InvocationStats stats,
-  boolean async
+  boolean async,
+  ObjectNode body
 ) {
 }

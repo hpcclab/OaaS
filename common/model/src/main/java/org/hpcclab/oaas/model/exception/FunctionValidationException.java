@@ -9,9 +9,9 @@ public class FunctionValidationException extends OaasValidationException {
     super(message, cause);
   }
 
-  public static FunctionValidationException noFunction(String objId, String funcName) {
-    return new FunctionValidationException("An object(id='%s') do not have a function(name='%s')."
-      .formatted(objId, funcName)
+  public static FunctionValidationException noFunction(String cls, String funcName) {
+    return new FunctionValidationException("An object(cls='%s') do not have a function(name='%s')."
+      .formatted(cls, funcName)
     );
   }
 

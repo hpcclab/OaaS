@@ -18,8 +18,6 @@ import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.InvNodeRepository;
 import org.hpcclab.oaas.repository.ObjectRepository;
-import org.hpcclab.oaas.repository.event.ObjectCompletionListener;
-import org.hpcclab.oaas.repository.event.ObjectCompletionPublisher;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,15 +71,6 @@ public class InvocationEngineProducer {
     return new HttpOffLoader(webClient, config);
   }
 
-  @Produces
-  ObjectCompletionListener completionListener() {
-    return new ObjectCompletionListener.Noop();
-  }
-
-  @Produces
-  ObjectCompletionPublisher completionPublisher() {
-    return new ObjectCompletionPublisher.Noop();
-  }
 
 
   @Produces

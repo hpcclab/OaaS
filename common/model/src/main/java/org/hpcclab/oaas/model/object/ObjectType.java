@@ -7,6 +7,6 @@ public enum ObjectType {
   SIMPLE,
   @ProtoEnumValue(2)
   COMPOUND,
-  @ProtoEnumValue(3)
-  STREAM
+//  @ProtoEnumValue(3)
+//  STREAM
 }

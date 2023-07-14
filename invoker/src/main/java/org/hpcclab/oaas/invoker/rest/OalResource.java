@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
-@Path("/oal/")
+@Path("/oal")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
