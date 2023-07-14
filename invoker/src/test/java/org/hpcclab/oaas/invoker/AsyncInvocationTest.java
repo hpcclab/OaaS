@@ -32,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class SimulatedInvocationTest {
-  private static final Logger logger = LoggerFactory.getLogger(SimulatedInvocationTest.class);
+class AsyncInvocationTest {
+  private static final Logger logger = LoggerFactory.getLogger(AsyncInvocationTest.class);
   @Inject
   VerticleDeployer deployer;
   @Inject

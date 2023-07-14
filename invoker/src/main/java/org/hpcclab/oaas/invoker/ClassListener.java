@@ -17,9 +17,8 @@ public class ClassListener extends NoGroupKafkaConsumer<OaasClass> {
 
   @Inject
   public ClassListener(Vertx vertx,
-                       KafkaClientOptions options,
                        InvokerConfig config) {
-    super(vertx, options, config.clsProvisionTopic());
+    super(vertx, config, config.clsProvisionTopic());
   }
 
   @Override

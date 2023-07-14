@@ -8,6 +8,7 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -19,20 +20,20 @@ public abstract class NoGroupKafkaConsumer<T> {
   }
 
   protected NoGroupKafkaConsumer(Vertx vertx,
-                                 KafkaClientOptions options,
+                                 InvokerConfig config,
                                  String topic) {
     this.topic = topic;
-
-    var kafkaConfig = options.getConfig();
-    var modOption = new KafkaClientOptions();
-    var newConfig = new HashMap<String, Object>();
-    newConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig
-      .get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-    newConfig.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
-
     client = KafkaConsumer.create(
-      vertx, modOption.setConfig(newConfig), String.class, Buffer.class
+      vertx, options(config), String.class, Buffer.class
     );
+  }
+
+  public KafkaClientOptions options(InvokerConfig invokerConfig) {
+    Map<String, Object> config = new HashMap<>();
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, invokerConfig.kafka());
+    config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
+    return new KafkaClientOptions()
+      .setConfig(config);
   }
 
   void clean() {

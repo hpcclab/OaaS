@@ -78,6 +78,5 @@ public class ObjectUpdate {
         obj.getState().setVerIds(tmp.entrySet().stream().map(e -> new KvPair(e.getKey(), e.getValue())).collect(Collectors.toSet()));
       }
     }
-    obj.setRevision(obj.getRevision() + 1);
   }
 }

@@ -15,10 +15,10 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TaskConsumerVerticle extends AbstractVerticle {
+public class RecordConsumerVerticle extends AbstractVerticle {
   public static final long RETRY_DELAY = 200;
-  private static final Logger LOGGER = LoggerFactory.getLogger(TaskConsumerVerticle.class);
-  public final Duration TIMEOUT = Duration.ofMillis(500);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RecordConsumerVerticle.class);
+  public final Duration timeout = Duration.ofMillis(500);
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final AtomicBoolean isPolling = new AtomicBoolean(false);
   private final int numberOfVerticle;
@@ -27,9 +27,9 @@ public class TaskConsumerVerticle extends AbstractVerticle {
   OffsetManager offsetManager;
   Set<String> topics = Set.of();
 
-  public TaskConsumerVerticle(KafkaConsumer<String, Buffer> consumer,
-                              TaskVerticlePoolDispatcher taskDispatcher,
-                              InvokerConfig config) {
+  public RecordConsumerVerticle(KafkaConsumer<String, Buffer> consumer,
+                                TaskVerticlePoolDispatcher taskDispatcher,
+                                InvokerConfig config) {
     this.consumer = consumer;
     this.taskDispatcher = taskDispatcher;
     this.offsetManager = taskDispatcher.getOffsetManager();
@@ -69,7 +69,7 @@ public class TaskConsumerVerticle extends AbstractVerticle {
     if (closed.get() || isPolling.get())
       return;
     if (isPolling.compareAndSet(false, true)) {
-      consumer.poll(TIMEOUT)
+      consumer.poll(timeout)
         .subscribe()
         .with(this::handleRecords, this::handlePollException);
     }

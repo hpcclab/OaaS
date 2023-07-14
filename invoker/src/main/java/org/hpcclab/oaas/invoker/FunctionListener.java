@@ -17,9 +17,8 @@ public class FunctionListener extends NoGroupKafkaConsumer<OaasFunction> {
 
   @Inject
   public FunctionListener(Vertx vertx,
-                          KafkaClientOptions options,
                           InvokerConfig config) {
-    super(vertx, options, config.fnProvisionTopic());
+    super(vertx, config, config.fnProvisionTopic());
   }
 
   @Override

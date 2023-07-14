@@ -142,13 +142,13 @@ public class VerticleDeployer {
     return deployVerticle(function, options, size);
   }
 
-  protected Uni<Void> deployVerticle(String function,
+  protected Uni<Void> deployVerticle(String suffix,
                                      DeploymentOptions options,
                                      int size) {
     return vertx
       .deployVerticle(() -> {
-          AbstractVerticle vert = (AbstractVerticle) verticleFactory.createVerticle(function);
-          verticleMap.computeIfAbsent(function, key -> new HashSet<>())
+          AbstractVerticle vert = (AbstractVerticle) verticleFactory.createVerticle(suffix);
+          verticleMap.computeIfAbsent(suffix, key -> new HashSet<>())
             .add(vert);
           return vert;
         },
@@ -156,8 +156,8 @@ public class VerticleDeployer {
       .repeat().atMost(size)
       .invoke(id -> {
         if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("deploy verticle[id={}] for func {} successfully",
-            id, function);
+          LOGGER.info("deploy verticle[id={}] for {} successfully",
+            id, suffix);
 //          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
         }
       })

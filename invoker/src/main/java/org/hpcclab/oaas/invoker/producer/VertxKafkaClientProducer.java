@@ -25,17 +25,6 @@ import java.util.Map;
 )
 public class VertxKafkaClientProducer {
 
-  @Produces
-  public KafkaClientOptions options(InvokerConfig invokerConfig) {
-    Map<String, Object> config = new HashMap<>();
-    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, invokerConfig.kafka());
-    config.put(ConsumerConfig.GROUP_ID_CONFIG, invokerConfig.kafkaGroup());
-    config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
-    config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-    return new KafkaClientOptions()
-      .setConfig(config);
-  }
 
   @Produces
   public KafkaProducer<String, Buffer> producer(Vertx vertx,

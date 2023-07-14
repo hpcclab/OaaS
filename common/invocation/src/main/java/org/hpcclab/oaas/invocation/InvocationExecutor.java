@@ -45,53 +45,6 @@ public class InvocationExecutor {
     this.completionHandler = completionHandler;
   }
 
-//  public boolean canSyncInvoke(InvocationContext ctx) {
-//    var func = ctx.getFunction();
-//    if (func.getType()==FunctionType.MACRO) {
-//      return false;
-//    }
-//    if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
-//      return false;
-//    }
-//    MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
-//      Lists.mutable.empty();
-//    MutableList<OaasObject> failDeps = Lists.mutable.empty();
-//    return ctx.analyzeDeps(waitForGraph, failDeps);
-//  }
-
-//  public Uni<Void> asyncSubmit(InvocationContext ctx) {
-//    Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
-//    MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph =
-//      Lists.mutable.empty();
-//    MutableList<Map.Entry<OaasObject, OaasObject>> innerWaitForGraph =
-//      Lists.mutable.empty();
-//    MutableList<OaasObject> failDeps = Lists.mutable.empty();
-//    if (ctx.analyzeDeps(waitForGraph, failDeps)) {
-//      switch (ctx.getFunction().getType()) {
-//        case MACRO -> {
-//          for (var subCtx : ctx.getSubContexts()) {
-//            if (subCtx.getFunction().getType()==FunctionType.TASK
-//              && subCtx.analyzeDeps(innerWaitForGraph, failDeps))
-//              ctxToSubmit.add(subCtx);
-//          }
-//        }
-//        case TASK, IM_TASK -> ctxToSubmit.add(ctx);
-//        default -> {
-//          // DO NOTHING
-//        }
-//      }
-//    }
-//
-//    return traverseGraph(waitForGraph, ctxToSubmit)
-//      .invoke(() -> waitForGraph.addAll(innerWaitForGraph))
-//      .flatMap(v -> putAllEdge(waitForGraph))
-//      .flatMap(v -> gsm.updateSubmittingStatus(ctx, ctxToSubmit)
-//        .map(TaskDetail::toRequest)
-//        .call(sender::send)
-//        .collect().last())
-//      .replaceWithVoid();
-//  }
-
   public Uni<Void> asyncSubmit(InvocationContext ctx) {
     Set<InvocationContext> ctxToSubmit;
     List<InvocationNode> nodes;
@@ -114,20 +67,7 @@ public class InvocationExecutor {
       .flatMap(sender::send);
   }
 
-//  public Uni<Void> asyncSubmit(OaasObject obj) {
-//    MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph = Lists.mutable.empty();
-//    Set<TaskContext> ctxToSubmit = Sets.mutable.empty();
-//    waitForGraph.add(Map.entry(obj, OaasObjects.NULL));
-//    return traverseGraph(waitForGraph, ctxToSubmit)
-//      .flatMap(v -> putAllEdge(waitForGraph))
-//      .flatMap(v -> sender.send(ctxToSubmit.stream().map(TaskDetail::toRequest).toList()))
-//      .replaceWithVoid();
-//  }
-
   public Uni<InvocationContext> syncExec(InvocationContext ctx) {
-//    var output = ctx.getOutput();
-//    if (output!=null)
-//      output.markAsSubmitted(null, false);
     ctx.initNode()
       .markAsSubmitted(null, false);
     var uni = offLoader.offload(taskFactory.genTask(ctx));
@@ -168,64 +108,5 @@ public class InvocationExecutor {
     return gsm.persistThenLoadNext(task, completion)
       .collect().asList()
       .flatMap(list -> sender.send(list));
-  }
-
-//  private Uni<Void> traverseGraph(List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-//                                  Set<TaskContext> ctxToSubmit) {
-//    if (waitForGraph.isEmpty())
-//      return Uni.createFrom().voidItem();
-//    return Multi.createBy().repeating()
-//      .uni(ResolveLoop::new, rl -> markOrExecRecursive(rl, waitForGraph, ctxToSubmit))
-//      .until(rl -> rl.i >= waitForGraph.size())
-//      .collect().last()
-//      .replaceWithVoid();
-//  }
-//
-//  private Uni<ResolveLoop> markOrExecRecursive(ResolveLoop rl,
-//                                               List<Map.Entry<OaasObject, OaasObject>> waitForGraph,
-//                                               Set<TaskContext> ctxToSubmit) {
-//    if (rl.i >= waitForGraph.size()) {
-//      return Uni.createFrom().item(rl);
-//    }
-//    var entry = waitForGraph.get(rl.i++);
-//    OaasObject obj = entry.getKey();
-//    var ts = obj.getStatus().getTaskStatus();
-//    if (obj.isReadyToUsed() || ts.isFailed()) {
-//      return Uni.createFrom().item(rl);
-//    }
-//    if (!obj.getStatus().isInitWaitFor()) {
-//      return contextLoader.getTaskContextAsync(obj)
-//        .map(tc -> {
-//          List<Map.Entry<OaasObject, OaasObject>> subWfg = Lists.mutable.empty();
-//          var failDeps = Lists.mutable.<OaasObject>empty();
-//          if (tc.analyzeDeps(subWfg, failDeps)) {
-//            ctxToSubmit.add(tc);
-//          } else {
-//            waitForGraph.addAll(subWfg);
-//          }
-//          return subWfg;
-//        })
-//        .replaceWith(rl);
-//    }
-//
-//    if (obj.getStatus().getWaitFor().isEmpty()) {
-//      return contextLoader.getTaskContextAsync(obj)
-//        .invoke(ctxToSubmit::add)
-//        .replaceWith(rl);
-//    }
-//
-//    return Uni.createFrom().nullItem();
-//  }
-
-//  private Uni<Void> putAllEdge(MutableList<Map.Entry<OaasObject, OaasObject>> waitForGraph) {
-//    var edges = waitForGraph
-//      .select(e -> !OaasObjects.isNullObj(e.getValue()))
-//      .collect(entry ->
-//        Map.entry(entry.getKey().getId(), entry.getValue().getId()));
-//    return gsm.persistNodes(edges);
-//  }
-
-  static class ResolveLoop {
-    int i = 0;
   }
 }
