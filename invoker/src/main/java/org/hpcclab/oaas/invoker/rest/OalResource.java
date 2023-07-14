@@ -45,7 +45,7 @@ public class OalResource {
                                             @QueryParam("timeout") Integer timeout) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFn()!=null) {
+    if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async);
     } else {
       return objectRepo.getAsync(oal.getMain())
@@ -77,7 +77,7 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getFn()!=null) {
+    if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {

@@ -12,7 +12,7 @@ Content-Type: application/json
 
 {
   "cls": "example.record",
-  "fn": "new"
+  "fb": "new"
 }
 
 > {%

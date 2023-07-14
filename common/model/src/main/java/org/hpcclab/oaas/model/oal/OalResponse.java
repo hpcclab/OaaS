@@ -16,7 +16,7 @@ public record OalResponse(
   OaasObject main,
   OaasObject output,
   String invId,
-  String fbName,
+  String fb,
   Map<String, String> macroIds,
   TaskStatus status,
   @JsonUnwrapped

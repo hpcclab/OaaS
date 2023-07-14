@@ -62,14 +62,14 @@ class SyncInvocationTest {
       .when()
       .get("/oal/{oal}", oal.toString())
       .then()
-      .log().all()
+      .log().ifValidationFails()
       .statusCode(200)
       .body("main.data.n", Matchers.equalTo(1));
     given()
       .when()
       .get("/oal/{oal}", oal.toString())
       .then()
-      .log().all()
+      .log().ifValidationFails()
       .statusCode(200)
       .body("main.data.n", Matchers.equalTo(2));
   }

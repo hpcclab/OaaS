@@ -188,7 +188,7 @@ public class InvocationContext implements TaskDetail {
       .invId(request.invId())
       .main(getMain())
       .output(getOutput())
-      .fbName(getFbName())
+      .fb(getFbName())
       .status(node == null? null : TaskStatus.READY)
       .body(body)
       .stats(node == null? null : node.extractStats());

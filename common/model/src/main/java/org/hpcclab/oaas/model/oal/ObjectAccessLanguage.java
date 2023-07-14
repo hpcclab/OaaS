@@ -24,16 +24,16 @@ public class ObjectAccessLanguage {
   private static final Pattern EXPR_PATTERN = Pattern.compile(EXPR_REGEX);
   final String main;
   final String cls;
-  final String fn;
+  final String fb;
   final ObjectNode body;
   final Map<String, String> args;
   final List<String> inputs;
 
   @JsonCreator
-  public ObjectAccessLanguage(String main, String mainCls, String fbName, Map<String, String> args, List<String> inputs, ObjectNode body) {
+  public ObjectAccessLanguage(String main, String mainCls, String fb, Map<String, String> args, List<String> inputs, ObjectNode body) {
     this.main = main;
     this.cls = mainCls;
-    this.fn = fbName;
+    this.fb = fb;
     this.args = args;
     this.inputs = inputs;
     this.body = body;
@@ -60,7 +60,7 @@ public class ObjectAccessLanguage {
       oal.cls = cls;
     }
     if (fn==null) return oal.build();
-    oal.fn = fn;
+    oal.fb = fn;
     if (inputs!=null && !inputs.isEmpty()) {
       var list = Arrays.stream(inputs.split(","))
         .toList();
@@ -83,7 +83,7 @@ public class ObjectAccessLanguage {
     return InvocationRequest.builder()
       .main(main)
       .cls(cls)
-      .fb(fn)
+      .fb(fb)
       .args(args)
       .inputs(inputs)
       .body(body)
@@ -103,9 +103,9 @@ public class ObjectAccessLanguage {
           .append(main);
     }
 
-    if (fn==null)
+    if (fb==null)
       return sb.toString();
-    sb.append(':').append(fn).append('(');
+    sb.append(':').append(fb).append('(');
     var size = inputs==null ? 0:inputs.size();
     for (int i = 0; i < size; i++) {
       if (i!=0) sb.append(',');

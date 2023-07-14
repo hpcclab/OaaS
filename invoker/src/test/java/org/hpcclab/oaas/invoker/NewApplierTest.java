@@ -63,7 +63,7 @@ public class NewApplierTest {
       .contentType(ContentType.JSON)
       .post("/oal")
       .then()
-      .log().all()
+      .log().ifValidationFails()
       .statusCode(200)
       .body("output.data.n", Matchers.equalTo(1))
       ;

@@ -90,7 +90,7 @@ public class InvocationHandlerService {
           .invId(pair.getTwo().invId())
           .output(new OaasObject().setId(pair.getTwo().outId()))
           .main(pair.getOne().main())
-          .fbName(pair.getOne().funcBind().getName())
+          .fb(pair.getOne().funcBind().getName())
           .macroIds(pair.getTwo().macroIds())
           .status(TaskStatus.DOING)
           .async(true)
