@@ -4,7 +4,6 @@ import com.arangodb.*;
 import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.async.ArangoDBAsync;
 import com.arangodb.async.ArangoDatabaseAsync;
-import com.arangodb.async.ArangoViewAsync;
 import com.arangodb.entity.LoadBalancingStrategy;
 import com.arangodb.mapping.ArangoJack;
 
@@ -47,12 +46,12 @@ public class ArgClientProducer {
 
   @Produces
   public ArangoDatabase arangoDatabase(ArangoDB arangoDB) {
-    return arangoDB.db(DbName.of(config.db()));
+    return arangoDB.db(config.db());
   }
 
   @Produces
   public ArangoDatabaseAsync arangoDatabase(ArangoDBAsync arangoDB) {
-    return arangoDB.db(DbName.of(config.db()));
+    return arangoDB.db(config.db());
   }
 
   @Produces
@@ -61,23 +60,11 @@ public class ArgClientProducer {
     return database.collection(config.objectCollection());
   }
 
-  @Produces
-  @Named("ObjectView")
-  public ArangoView objView(ArangoDatabase database){
-    return database.view(config.objectView());
-  }
 
   @Produces
   @Named("ObjectCollectionAsync")
   public ArangoCollectionAsync objColAsync(ArangoDatabaseAsync database){
     return database.collection(config.objectCollection());
-  }
-
-
-  @Produces
-  @Named("ObjectViewAsync")
-  public ArangoViewAsync objView(ArangoDatabaseAsync database){
-    return database.view(config.objectView());
   }
 
 
@@ -103,18 +90,5 @@ public class ArgClientProducer {
   @Named("ClassCollectionAsync")
   public ArangoCollectionAsync clsColAsync(ArangoDatabaseAsync database){
     return database.collection(config.classCollection());
-  }
-
-
-  @Produces
-  @Named("OdeCollection")
-  public ArangoCollection odeCol(ArangoDatabase database){
-    return database.collection(config.odeCollection());
-  }
-
-  @Produces
-  @Named("OdeCollectionAsync")
-  public ArangoCollectionAsync odeColAsync(ArangoDatabaseAsync database){
-    return database.collection(config.odeCollection());
   }
 }

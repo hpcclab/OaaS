@@ -177,6 +177,8 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   CompletionStage<?> batchWrite(List<MarshallableEntry<String, T>> list) {
+    if (list.isEmpty())
+      return CompletableFuture.completedStage(null);
     logger.debug("[{}]batchWrite {}", name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
@@ -188,26 +190,28 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   }
 
   CompletionStage<?> batchRemove(List<String> list) {
-    logger.debug("batchRemove {}", list.size());
+    if (list.isEmpty())
+      return CompletableFuture.completedStage(null);
+    logger.debug("[{}]batchRemove {}", name, list.size());
     return collectionAsync.deleteDocuments(list);
   }
 
   @Override
   public CompletionStage<Void> clear() {
-    logger.debug("clear");
+    logger.debug("[{}]clear", name);
     return CompletableFuture.completedStage(null);
   }
 
   @Override
   public CompletionStage<Long> size(IntSet segments) {
-    logger.debug("size");
+    logger.debug("[{}]size", name);
     return collectionAsync.count()
       .thenApply(CollectionPropertiesEntity::getCount);
   }
 
   @Override
   public CompletionStage<Long> approximateSize(IntSet segments) {
-    logger.debug("approximateSize");
+    logger.debug("[{}]approximateSize", name);
     return collectionAsync.count()
       .thenApply(CollectionPropertiesEntity::getCount);
   }

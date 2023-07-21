@@ -83,7 +83,8 @@ public class GraphStateManager {
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo.atomic().persistWithPreconditionAsync(oldObjs);
+      return objRepo
+        .atomic().persistWithPreconditionAsync(oldObjs);
     } else {
       return objRepo
         .atomic()
@@ -105,7 +106,8 @@ public class GraphStateManager {
       objs.add(out);
     }
 
-    Uni<Void> uni = persistWithPrecondition(objs);
+    Uni<Void> uni = persistWithPrecondition(objs)
+      .call(__ -> invNodeRepo.persistAsync(task.getNode()));
     if (out==null)
       return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
     else {

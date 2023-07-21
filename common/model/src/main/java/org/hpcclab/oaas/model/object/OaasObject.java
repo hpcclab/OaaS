@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Accessors(chain = true)
 @ProtoDoc("@Indexed")
 public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev {

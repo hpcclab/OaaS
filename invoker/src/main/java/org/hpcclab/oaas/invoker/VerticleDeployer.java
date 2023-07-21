@@ -96,29 +96,33 @@ public class VerticleDeployer {
       return;
     if (func.getState()==FunctionState.ENABLED) {
       deployVerticleIfNew(func.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey(), e)
+        );
     } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
       deleteVerticle(func.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey()));
+        .subscribe().with(
+          __ -> { },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey(), e)
+        );
     }
   }
 
   void handleCls(OaasClass cls) {
     if (!cls.isMarkForRemoval()) {
       deployVerticleIfNew(cls.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
+        );
     } else {
       LOGGER.info("deleting {}", cls.getKey());
       deleteVerticle(cls.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey(), e)
+        );
     }
   }
 

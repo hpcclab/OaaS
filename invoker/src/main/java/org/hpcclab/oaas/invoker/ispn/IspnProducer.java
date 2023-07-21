@@ -87,7 +87,7 @@ public class IspnProducer {
   EmbeddedIspnInvNodeRepository invNodeRepository() {
     Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf =  createDistConfig(config.argConnection(), config.objStore(), InvocationNode.class);
+      var conf =  createDistConfig(config.argConnection(), config.invNode(), InvocationNode.class);
       logger.info("create cache for {} : {}", INV_NODE_CACHE,conf);
       cache = cacheManager.createCache(INV_NODE_CACHE, conf);
     } else {
@@ -120,6 +120,7 @@ public class IspnProducer {
       .connectionFactory(new ArgConnectionFactory(connectionConfig))
       .shared(true)
       .segmented(false)
+      .ignoreModifications(cacheStore.readOnly())
       .async()
       .enabled(cacheStore.queueSize() > 0)
       .modificationQueueSize(cacheStore.queueSize())
