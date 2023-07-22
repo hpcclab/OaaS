@@ -44,5 +44,7 @@ public class CompletedStateUpdater {
           .getId().getVid());
       out.getStatus().setUpdatedOffset(context.getMqOffset());
     }
+
+    context.setRespBody(completion.getBody());
   }
 }

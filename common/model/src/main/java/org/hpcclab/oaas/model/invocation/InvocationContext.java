@@ -55,7 +55,7 @@ public class InvocationContext implements TaskDetail {
   @JsonIgnore
   DataflowGraph dataflowGraph;
   Map<String, OaasClass> clsMap = Map.of();
-  ObjectNode body;
+  ObjectNode respBody;
 
   long mqOffset = -1;
 
@@ -190,7 +190,7 @@ public class InvocationContext implements TaskDetail {
       .output(getOutput())
       .fb(getFbName())
       .status(node == null? null : TaskStatus.READY)
-      .body(body)
+      .body(respBody)
       .stats(node == null? null : node.extractStats());
   }
 }

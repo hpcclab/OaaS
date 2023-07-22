@@ -59,7 +59,7 @@ public class NewSubApplier implements LogicalSubApplier {
       .map(resp -> {
         context.setOutput(resp.getObject());
         resp.setObject(null);
-        context.setBody(mapper.valueToTree(resp));
+        context.setRespBody(mapper.valueToTree(resp));
         return context;
       });
   }
