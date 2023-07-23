@@ -66,6 +66,15 @@ public class TaskCompletion {
     );
   }
 
+  public TaskCompletion setIdFromTask(TaskDetail task) {
+    id = new TaskIdentity(
+      task.getMain()!=null ? task.getMain().getId():null,
+      task.getOutput()!=null ? task.getOutput().getId():null,
+      task.getVId()
+    );
+    return this;
+  }
+
   public TaskIdentity getId() {
     if (id==null) id = new TaskIdentity();
     return id;
