@@ -15,8 +15,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OaasTask implements TaskDetail {
   public static final String CE_TYPE = "oaas.task";
-  String id;
-  String vId;
+  TaskIdentity id;
   String partKey;
   OaasObject main;
   OaasObject output;
@@ -32,4 +31,9 @@ public class OaasTask implements TaskDetail {
   String fbName;
   boolean immutable;
   long ts = -1;
+
+  @Override
+  public String getVid() {
+    return id.getVid();
+  }
 }

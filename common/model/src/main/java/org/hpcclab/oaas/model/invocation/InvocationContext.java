@@ -35,7 +35,7 @@ import java.util.Objects;
 public class InvocationContext implements TaskDetail {
   @JsonIgnore
   InvocationContext parent;
-  String vId;
+  String vid;
   OaasObject output;
   OaasObject main;
   Map<String, OaasObject> mainRefs;

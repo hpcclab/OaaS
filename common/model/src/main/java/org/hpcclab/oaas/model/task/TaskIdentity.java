@@ -1,14 +1,12 @@
 package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
 import java.util.Objects;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskIdentity {
   String mid;
   String oid;
@@ -36,7 +34,7 @@ public class TaskIdentity {
   public TaskIdentity(TaskDetail task) {
     mid = task.getMain()!=null ? task.getMain().getId():null;
     oid = task.getOutput()!=null ? task.getOutput().getId():null;
-    vid = task.getVId();
+    vid = task.getVid();
   }
 
   public String mid() {
@@ -54,6 +52,7 @@ public class TaskIdentity {
 
   public static final String DISCRIMINATOR = ":";
 
+  @JsonValue
   public String encode() {
     var sb = new StringBuilder();
     if (mid!=null)
@@ -79,8 +78,8 @@ public class TaskIdentity {
     if (task.getOutput()!=null)
       sb.append(task.getOutput().getId());
     sb.append(DISCRIMINATOR);
-    if (task.getVId()!=null)
-      sb.append(task.getVId());
+    if (task.getVid()!=null)
+      sb.append(task.getVid());
     return sb.toString();
   }
 
