@@ -84,7 +84,6 @@ public class TaskIdentity {
   }
 
   @Override
-  @JsonValue
   public String toString() {
     return encode();
   }

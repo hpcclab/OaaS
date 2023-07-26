@@ -99,3 +99,7 @@ classes:
         name: chain-atomic
         function: .record.chain-update-atomic
         outputCls: .record
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .record

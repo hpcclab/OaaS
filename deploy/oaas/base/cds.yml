@@ -57,7 +57,7 @@ data:
           error_page 301 302 303 307 = @handle_redirects_nocache;
         }
 
-        location /oal/ {
+        location /oal {
 
           #add_header access-control-allow-origin *;
           #add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
