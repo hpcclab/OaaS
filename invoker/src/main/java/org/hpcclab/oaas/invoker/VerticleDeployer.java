@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -157,13 +159,11 @@ public class VerticleDeployer {
           return vert;
         },
         options)
+      .onFailure().retry().withBackOff(Duration.ofMillis(100)).atMost(3)
       .repeat().atMost(size)
       .invoke(id -> {
-        if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("deploy verticle[id={}] for {} successfully",
-            id, suffix);
-//          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
-        }
+        LOGGER.info("deploy verticle[id={}] for {} successfully",
+          id, suffix);
       })
       .collect()
       .last()

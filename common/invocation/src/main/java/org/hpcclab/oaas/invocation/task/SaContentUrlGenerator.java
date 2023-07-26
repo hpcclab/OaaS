@@ -9,25 +9,12 @@ public class SaContentUrlGenerator implements ContentUrlGenerator {
 
   private final String saUrl;
 
-  public SaContentUrlGenerator() {
-    saUrl = "";
-  }
+//  public SaContentUrlGenerator() {
+//    saUrl = "";
+//  }
 
   public SaContentUrlGenerator(String saUrl) {
     this.saUrl = saUrl;
-  }
-
-  public String generateUrl(OaasObject obj,
-                            String file,
-                            AccessLevel level) {
-    if (obj.getState().getVerIds()==null || obj.getState().getVerIds().isEmpty())
-      throw StdOaasException.notKeyInObj(obj.getId(), 404);
-    var vid = obj.getState().findVerId(file);
-    if (vid==null)
-      throw StdOaasException.notKeyInObj(obj.getId(), 404);
-    var dac = DataAccessContext.generate(obj, level, vid);
-    var b64 = dac.encode();
-    return generateUrl(obj.getId(), vid, file, b64);
   }
 
   public String generateUrl(OaasObject obj,

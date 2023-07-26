@@ -102,7 +102,6 @@ services:
       MINIO_ROOT_PASSWORD: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
       MINIO_DEFAULT_BUCKETS: oaas
-#    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
 
   invoker:
 #    restart: always

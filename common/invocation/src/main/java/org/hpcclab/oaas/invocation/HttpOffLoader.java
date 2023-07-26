@@ -9,6 +9,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.invocation.task.TaskDecoder;
 import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class HttpOffLoader implements OffLoader {
   public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (logger.isDebugEnabled())
       logger.debug("invoke {}", invokingDetail.getId());
+    if (invokingDetail.getFuncUrl() == null) {
+      throw StdOaasException.format("Function is not ready");
+    }
     var content = invokingDetail.getContent();
     Buffer contentBuffer;
     if (content instanceof Buffer buffer) {
@@ -36,7 +40,6 @@ public class HttpOffLoader implements OffLoader {
     } else if (content instanceof io.vertx.core.buffer.Buffer buffer) {
       contentBuffer = Buffer.newInstance(buffer);
     } else {
-//      logger.info("content {}", Json.encodePrettily(content));
       contentBuffer = Buffer.newInstance(Json.encodeToBuffer(content));
     }
     return webClient.postAbs(invokingDetail.getFuncUrl())
@@ -46,12 +49,6 @@ public class HttpOffLoader implements OffLoader {
       .map(resp -> this.handleResp(invokingDetail, resp))
       .onFailure()
       .transform(InvocationException::connectionErr)
-//      .recoverWithItem(e -> TaskCompletion.error(
-//        TaskIdentity.decode(invokingDetail.getId()),
-//        "Fail to perform invocation: " + e.getMessage(),
-//        invokingDetail.getSmtTs(),
-//        System.currentTimeMillis())
-//      )
       ;
   }
 

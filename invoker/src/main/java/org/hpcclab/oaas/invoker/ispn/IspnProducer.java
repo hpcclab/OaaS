@@ -49,7 +49,7 @@ public class IspnProducer {
   EmbeddedIspnObjectRepository objectRepository() {
     Cache<String, OaasObject> cache;
     if (!cacheManager.cacheExists(OBJECT_CACHE)) {
-      var conf =createDistConfig(config.argConnection(), config.objStore(), OaasObject.class);
+      var conf = createDistConfig(config.argConnection(), config.objStore(), OaasObject.class);
       logger.info("create cache for {} : {}", OBJECT_CACHE, conf);
       cache = cacheManager.createCache(OBJECT_CACHE, conf);
     } else {

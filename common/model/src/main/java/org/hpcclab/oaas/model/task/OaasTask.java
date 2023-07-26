@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class OaasTask implements TaskDetail {
   public static final String CE_TYPE = "oaas.task";
   TaskIdentity id;
@@ -33,6 +33,7 @@ public class OaasTask implements TaskDetail {
   long ts = -1;
 
   @Override
+  @JsonIgnore
   public String getVid() {
     return id.getVid();
   }
