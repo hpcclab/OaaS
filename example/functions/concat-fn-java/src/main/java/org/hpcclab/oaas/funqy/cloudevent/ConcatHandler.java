@@ -60,7 +60,7 @@ public class ConcatHandler {
     if (allocUrl==null)
       return Uni.createFrom()
         .item(CloudEventBuilder.create()
-          .id(task.getId())
+          .id(task.getId().toString())
           .type("oaas.task.result")
           .source("oaas/concat")
           .build(tc.setSuccess(false).setErrorMsg("Can not find proper alloc URL")));
@@ -74,7 +74,7 @@ public class ConcatHandler {
           text);
       })
       .map(text -> CloudEventBuilder.create()
-        .id(task.getId())
+        .id(task.getId().toString())
         .type("oaas.task.result")
         .source("oaas/concat")
         .build(tc)
