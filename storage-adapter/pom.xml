@@ -103,7 +103,7 @@
       <groupId>com.github.goodforgod</groupId>
       <artifactId>arangodb-testcontainer</artifactId>
       <scope>test</scope>
-      <version>2.0.0</version>
+      <version>3.0.0</version>
     </dependency>
   </dependencies>
   <build>
