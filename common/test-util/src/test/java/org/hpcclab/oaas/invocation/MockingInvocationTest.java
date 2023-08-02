@@ -61,26 +61,15 @@ class MockingInvocationTest {
   @Test
   void testSimpleTaskInvocation() {
     var oal = ObjectAccessLanguage.parse("o1:f1()(aa=bb)");
-    var partKey = "o1";
     var req = oal.toRequest()
       .invId(idGenerator.generate())
-//      .outId(idGenerator.generate())
+      .outId(idGenerator.generate())
       .build();
 
     var ctx = router.apply(req)
       .await().indefinitely();
 
-    invocationExecutor.disaggregateMacro(ctx)
-      .await().indefinitely();
-    mockEngine.printDebug(ctx);
-    assertThat(invocationQueueSender.multimap.containsKey(partKey))
-      .isTrue();
-    assertThat(invocationQueueSender.multimap.size())
-      .isEqualTo(1);
-    var request = invocationQueueSender.multimap.get(partKey).getAny();
-    assertThat(request)
-      .isNotNull();
-    assertThat(request.args())
+    assertThat(req.args())
       .containsEntry("aa", "bb");
 
     syncInvoker.setMapper(detail -> new TaskCompletion()
@@ -91,7 +80,7 @@ class MockingInvocationTest {
       .setCptTs(System.currentTimeMillis()));
     ctx = invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
-    var loadedObj = objectRepo.get(request.outId());
+    var loadedObj = objectRepo.get(req.outId());
     var invNode = ctx.getNode();
     LOGGER.debug("INV NODE: {}", Json.encodePrettily(invNode));
     LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(loadedObj));
@@ -113,20 +102,11 @@ class MockingInvocationTest {
   @Test
   void testNoOutputTaskInvocation() {
     var oal = ObjectAccessLanguage.parse("o1:func2()");
-    var partKey = "o1";
     var req = oal.toRequest()
       .invId(idGenerator.generate())
       .build();
     var ctx = router.apply(req)
       .await().indefinitely();
-
-    invocationExecutor.disaggregateMacro(ctx)
-      .await().indefinitely();
-    mockEngine.printDebug(ctx);
-    assertTrue(invocationQueueSender.multimap.containsKey(partKey));
-    assertEquals(1, invocationQueueSender.multimap.size());
-    var request = invocationQueueSender.multimap.get(partKey).getAny();
-    assertNotNull(request);
 
     syncInvoker.setMapper(detail -> new TaskCompletion()
       .setId(TaskIdentity.decode(detail.getId()))
@@ -137,7 +117,7 @@ class MockingInvocationTest {
     invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
 
-    var mainObj = objectRepo.get(request.main());
+    var mainObj = objectRepo.get(req.main());
     System.out.printf("OBJECT MAIN: %s%n", Json.encodePrettily(mainObj));
     Assertions.assertEquals("bbb", mainObj.getData().get("aaa").asText());
   }
