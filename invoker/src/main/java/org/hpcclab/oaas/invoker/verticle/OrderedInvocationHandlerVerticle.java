@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
 import java.time.Duration;
 
 @Dependent
@@ -75,7 +76,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       .flatMap(router::apply)
       .flatMap(ctx -> {
         var macro = ctx.getFunction().getMacro();
-        if (macro != null && macro.isAtomic()) {
+        if (macro!=null && macro.isAtomic()) {
           return dataflowInvoker.invoke(ctx);
         } else {
           return invocationExecutor.asyncSubmit(ctx);
@@ -113,12 +114,12 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
       .onFailure()
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
-      .with(ctx -> {
-        next(kafkaRecord);
-      }, error -> {
-        LOGGER.error("Get unrecovery repeating error on invoker ", error);
-        next(kafkaRecord);
-      });
+      .with(
+        ctx -> next(kafkaRecord),
+        error -> {
+          LOGGER.error("Get an unrecoverable repeating error on invoker ", error);
+          next(kafkaRecord);
+        });
   }
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
@@ -134,12 +135,9 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
 
   InvocationContext handleFailInvocation(Throwable exception) {
     if (exception instanceof InvocationException invocationException) {
-      var msg = invocationException.getCause()!=null ? invocationException
-        .getCause().getMessage():null;
       if (LOGGER.isWarnEnabled())
-        LOGGER.warn("Catch invocation fail on '{}' with message '{}'",
+        LOGGER.warn("Catch invocation fail on id='{}'",
           invocationException.getTaskCompletion().getId().encode(),
-          msg,
           invocationException
         );
       // TODO send to dead letter topic

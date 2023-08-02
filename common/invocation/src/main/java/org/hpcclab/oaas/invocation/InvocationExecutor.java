@@ -100,7 +100,8 @@ public class InvocationExecutor {
     if (logger.isDebugEnabled()) {
       uni2 = uni2.onFailure().invoke(e -> logger.debug("catch exception in invocation", e));
     }
-    return uni2.onFailure(DataAccessException.class).transform(InvocationException::detectConcurrent)
+    return uni2.onFailure(DataAccessException.class)
+      .transform(InvocationException::detectConcurrent)
       .replaceWith(ctx);
   }
 
