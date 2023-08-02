@@ -41,7 +41,7 @@ public class ArgQueryService<V> implements QueryService<String,V> {
       .thenApply(cursor -> {
         try (cursor) {
           var items = cursor.streamRemaining().toList();
-          return new Pagination<>(cursor.getStats().getFullCount(), offset, limit,
+          return new Pagination<>(cursor.getStats().getFullCount(), offset, items.size(),
             items);
         } catch (IOException e) {
           throw new ArgDataAccessException(e);

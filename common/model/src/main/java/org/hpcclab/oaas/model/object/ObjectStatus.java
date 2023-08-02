@@ -11,7 +11,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(value = 2, defaultValue = "-1")
   long updatedOffset = -1;
