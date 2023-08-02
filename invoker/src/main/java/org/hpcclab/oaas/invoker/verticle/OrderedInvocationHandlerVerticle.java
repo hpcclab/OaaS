@@ -100,7 +100,8 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
         if (detectDuplication(kafkaRecord, ctx)) {
-          LOGGER.warn("detect duplication {} {}", ctx.getRequest().main(), ctx.getRequest().outId());
+          LOGGER.warn("detect duplication [main={}, out={}]",
+            ctx.getRequest().main(), ctx.getRequest().outId());
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)
@@ -122,8 +123,12 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                                     InvocationContext ctx) {
-    var obj = ctx.isImmutable() ? ctx.getOutput():ctx.getMain();
-    LOGGER.debug("checking duplication [{},{},{}]", kafkaRecord.offset(), ctx.getRequest(), obj);
+    if (ctx.isImmutable()) {
+      return false;
+    }
+    var obj = ctx.getMain();
+    LOGGER.debug("checking duplication [{},{},{}]",
+      kafkaRecord.offset(), ctx.getRequest(), obj);
     return obj.getStatus().getUpdatedOffset() >= kafkaRecord.offset();
   }
 
