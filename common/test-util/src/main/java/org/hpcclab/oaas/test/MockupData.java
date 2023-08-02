@@ -60,9 +60,14 @@ public class MockupData {
           .setFunction("f3")
           .setTarget("tmp1")
           .setAs("tmp2")
-          .setArgs(Map.of("STEP", "2"))
+          .setArgs(Map.of("STEP", "2")),
+        new DataflowStep()
+          .setFunction("f3")
+          .setTarget("tmp2")
+          .setAs("tmp3")
+          .setArgs(Map.of("STEP", "3"))
       ))
-      .setExport("tmp2")
+      .setExport("tmp3")
     );
 
   public static final OaasFunction ATOMIC_MACRO_FUNC = new OaasFunction()

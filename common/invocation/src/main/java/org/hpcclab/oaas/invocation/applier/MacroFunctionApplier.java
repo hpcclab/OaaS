@@ -95,8 +95,8 @@ public class MacroFunctionApplier implements FunctionApplier {
     var request = context.getRequest();
     var macroIds = request==null || request.macroIds()==null ? Map.of():request.macroIds();
     return Multi.createFrom().iterable(workflow.getSteps())
-      .onItem().transformToUniAndConcatenate(step -> {
-        return loadSubContext(context, step)
+      .onItem().transformToUniAndConcatenate(step ->
+        loadSubContext(context, step)
           .flatMap(newCtx -> subFunctionApplier.apply(newCtx))
           .invoke(newCtx -> {
             if (newCtx.getOutput()!=null
@@ -106,8 +106,8 @@ public class MacroFunctionApplier implements FunctionApplier {
             }
 
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());
-          });
-      })
+          })
+      )
       .collect().asList()
       .invoke(ctxList -> {
         for (var ctx : ctxList) {
@@ -119,7 +119,6 @@ public class MacroFunctionApplier implements FunctionApplier {
 
   public Uni<InvocationContext> loadSubContext(InvocationContext baseCtx,
                                                DataflowStep step) {
-//    logger.debug("loadSubContext {}", step.getAs());
     var newCtx = new InvocationContext();
     newCtx.setParent(baseCtx);
     newCtx.setArgs(step.getArgs());

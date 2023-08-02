@@ -31,10 +31,4 @@ public class OaasTask implements TaskDetail {
   String fbName;
   boolean immutable;
   long ts = -1;
-
-  @Override
-  @JsonIgnore
-  public String getVid() {
-    return id.getVid();
-  }
 }

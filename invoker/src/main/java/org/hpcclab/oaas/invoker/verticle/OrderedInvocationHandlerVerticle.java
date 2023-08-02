@@ -79,7 +79,7 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
         if (macro!=null && macro.isAtomic()) {
           return dataflowInvoker.invoke(ctx);
         } else {
-          return invocationExecutor.asyncSubmit(ctx);
+          return invocationExecutor.disaggregateMacro(ctx);
         }
       })
       .onFailure().retry()

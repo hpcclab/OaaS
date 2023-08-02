@@ -1001,7 +1001,7 @@ components:
         updatedOffset:
           format: int64
           type: integer
-        vid:
+        lastInv:
           type: string
     ObjectType:
       enum:

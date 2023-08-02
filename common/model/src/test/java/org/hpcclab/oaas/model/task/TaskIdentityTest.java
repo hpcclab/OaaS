@@ -12,17 +12,17 @@ class TaskIdentityTest {
     var i = TaskIdentity.decode("aa::");
     assertEquals("aa", i.mid);
     assertNull(i.oid);
-    assertNull(i.vid);
+    assertNull(i.iid);
     assertEquals("aa::", i.toString());
     i = TaskIdentity.decode("aa:bb:");
     assertEquals("aa", i.mid);
     assertEquals("bb", i.oid);
-    assertNull(i.vid);
+    assertNull(i.iid);
     assertEquals("aa:bb:", i.toString());
     i = TaskIdentity.decode("aa:bb:cc");
     assertEquals("aa", i.mid);
     assertEquals("bb", i.oid);
-    assertEquals("cc", i.vid);
+    assertEquals("cc", i.iid);
     assertEquals("aa:bb:cc", i.toString());
   }
 }

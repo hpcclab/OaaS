@@ -12,6 +12,7 @@ import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.object.OaasObject;
@@ -35,7 +36,6 @@ import java.util.Objects;
 public class InvocationContext implements TaskDetail {
   @JsonIgnore
   InvocationContext parent;
-  String vid;
   OaasObject output;
   OaasObject main;
   Map<String, OaasObject> mainRefs;
@@ -129,6 +129,7 @@ public class InvocationContext implements TaskDetail {
     if (node!=null)
       return node;
     node = new InvocationNode();
+    var partKey = getMain()!=null ? getMain().getId():null;
     if (request!=null) {
       node.setKey(request.invId());
       node.setOutId(request.outId());
@@ -146,22 +147,11 @@ public class InvocationContext implements TaskDetail {
     return node;
   }
 
-  public InvocationRequest toRequest() {
-    var partKey = getMain()!=null ? getMain().getId():null;
-    return InvocationRequest.builder()
-      .invId(request!=null ? request.invId():getOutput().getId())
-      .partKey(partKey)
-      .macro(false)
-      .args(getArgs())
-      .inputs(getInputs().stream().map(OaasObject::getId).toList())
-      .cls(getMain().getCls())
-      .main(getMain().getId())
-      .fb(getFbName())
-      .outId(getOutput()!=null ? getOutput().getId():null)
-      .immutable(getFb().isForceImmutable())
-      .nodeExist(true)
-      .queTs(System.currentTimeMillis())
-      .build();
+  public InvocationRequest.InvocationRequestBuilder toRequest() {
+    return initNode()
+      .toReq()
+      .macro(function.getType() == FunctionType.MACRO)
+      .immutable(getFb().isForceImmutable());
   }
 
   public Map<String, String> resolveArgs(FunctionBinding binding) {
@@ -177,6 +167,11 @@ public class InvocationContext implements TaskDetail {
     }
     return Map.of();
   }
+
+//  @Override
+//  public String getIid() {
+//    return initNode().getKey();
+//  }
 
   @Override
   public String getFuncKey() {

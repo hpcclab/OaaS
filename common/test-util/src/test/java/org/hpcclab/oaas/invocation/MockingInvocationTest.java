@@ -70,7 +70,7 @@ class MockingInvocationTest {
     var ctx = router.apply(req)
       .await().indefinitely();
 
-    invocationExecutor.asyncSubmit(ctx)
+    invocationExecutor.disaggregateMacro(ctx)
       .await().indefinitely();
     mockEngine.printDebug(ctx);
     assertThat(invocationQueueSender.multimap.containsKey(partKey))
@@ -120,7 +120,7 @@ class MockingInvocationTest {
     var ctx = router.apply(req)
       .await().indefinitely();
 
-    invocationExecutor.asyncSubmit(ctx)
+    invocationExecutor.disaggregateMacro(ctx)
       .await().indefinitely();
     mockEngine.printDebug(ctx);
     assertTrue(invocationQueueSender.multimap.containsKey(partKey));
@@ -142,97 +142,6 @@ class MockingInvocationTest {
     Assertions.assertEquals("bbb", mainObj.getData().get("aaa").asText());
   }
 
-//
-//  @Test
-//  void testChainTaskInvocation() {
-//    var oal = ObjectAccessLanguage.parse("o2:f1()()");
-//    var req = oal.toRequest()
-//      .invId(idGenerator.generate())
-//      .build();
-//    var ctx = router.apply(req)
-//      .await().indefinitely();
-//
-//    invocationExecutor.asyncSubmit(ctx)
-//      .await().indefinitely();
-//    mockEngine.printDebug(ctx);
-//    assertEquals(1, invocationQueueSender.multimap.size());
-//    var request = invocationQueueSender.multimap
-//      .valuesView()
-//      .select(r -> r.main().equals("o1"))
-//      .getAny();
-//    assertNotNull(request);
-//
-//    syncInvoker.setMapper(detail -> new TaskCompletion()
-//      .setId(TaskIdentity.decode(detail.getId()))
-//      .setSuccess(true)
-//      .setOutput(new ObjectUpdate(objectMapper.createObjectNode()))
-//      .setCptTs(System.currentTimeMillis()));
-//    ctx = router.apply(request)
-//      .await().indefinitely();
-//    invocationExecutor.asyncExec(ctx)
-//      .await().indefinitely();
-//
-//    var o2 = objectRepo.get("o2");
-//    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
-//    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
-//    assertFalse(o2.getStatus().getTaskStatus().isFailed());
-//    request = invocationQueueSender.multimap
-//      .valuesView()
-//      .select(r -> r.main().equals("o2"))
-//      .getAny();
-//    assertNotNull(request);
-//
-//    var o3 = objectRepo.get(request.outId());
-//    assertNotNull(o3);
-//    assertTrue(o3.getStatus().getTaskStatus().isSubmitted());
-//    assertFalse(o3.getStatus().getTaskStatus().isCompleted());
-//    assertFalse(o3.getStatus().getTaskStatus().isFailed());
-//  }
-
-//  @Test
-//  void testFailChainTaskInvocation() {
-//    var oal = ObjectAccessLanguage.parse("o2:f1()");
-//    var req = oal.toRequest()
-//      .invId(idGenerator.generate())
-//      .build();
-//    var ctx = router.apply(req)
-//      .await().indefinitely();
-//
-//    invocationExecutor.asyncSubmit(ctx)
-//      .await().indefinitely();
-//    mockEngine.printDebug(ctx);
-//    assertEquals(1, invocationQueueSender.multimap.size());
-//    var request = invocationQueueSender.multimap
-//      .valuesView()
-//      .select(t -> t.main().equals("o1"))
-//      .getAny();
-//    assertNotNull(request);
-//
-//
-//    syncInvoker.setMapper(detail -> new TaskCompletion()
-//      .setId(TaskIdentity.decode(detail.getId()))
-//      .setSuccess(false)
-//      .setOutput(new ObjectUpdate(objectMapper.createObjectNode())));
-//    var tmpCtx = router.apply(request)
-//      .await().indefinitely();
-//    invocationExecutor.asyncExec(tmpCtx)
-//      .await().indefinitely();
-//
-//
-//    var o2 = objectRepo.get("o2");
-//    LOGGER.debug("OBJECT o2: {}", Json.encodePrettily(o2));
-//    assertTrue(o2.getStatus().getTaskStatus().isCompleted());
-//    assertTrue(o2.getStatus().getTaskStatus().isFailed());
-//    Assertions.assertFalse(invocationQueueSender.multimap.containsKey("o2"));
-//    var outObj = objectRepo.get(ctx.getOutput().getId());
-//
-//    LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(outObj));
-//
-//    Assertions.assertFalse(outObj.getStatus().getTaskStatus().isSubmitted());
-//    Assertions.assertFalse(outObj.getStatus().getTaskStatus().isCompleted());
-//    assertTrue(outObj.getStatus().getTaskStatus().isFailed());
-//  }
-
   @Test
   void testMacroInvocation() {
     var oal = ObjectAccessLanguage.parse("o1:%s()(arg1=ttt)"
@@ -244,7 +153,7 @@ class MockingInvocationTest {
     var ctx = router.apply(req)
       .await().indefinitely();
 
-    invocationExecutor.asyncSubmit(ctx)
+    invocationExecutor.disaggregateMacro(ctx)
       .await().indefinitely();
     mockEngine.printDebug(ctx);
     var node1 = mockEngine.invRepo.get(ctx.getWorkflowMap().get("tmp1").getKey());
@@ -264,26 +173,30 @@ class MockingInvocationTest {
       .outId("m2")
       .macroIds(Map.of(
         "tmp1", "m1",
-        "tmp2", "m2"
+        "tmp2", "m2",
+        "tmp3", "m3"
       ))
       .build();
     var ctx = router.apply(request)
       .await().indefinitely();
 //    mockEngine.printDebug(ctx);
-    assertEquals(2, ctx.getSubContexts().size());
+    assertEquals(3, ctx.getSubContexts().size());
     assertTrue(ctx.getSubOutputs().stream()
       .anyMatch(o -> o.getId().equals("m1"))
     );
     assertTrue(ctx.getSubOutputs().stream()
       .anyMatch(o -> o.getId().equals("m2"))
     );
-    assertEquals("m2", ctx.getOutput().getId());
+    assertTrue(ctx.getSubOutputs().stream()
+      .anyMatch(o -> o.getId().equals("m3"))
+    );
+    assertEquals("m3", ctx.getOutput().getId());
     assertEquals("1", ctx.getSubContexts().get(0).getArgs().get("STEP"));
     assertEquals("2", ctx.getSubContexts().get(1).getArgs().get("STEP"));
+    assertEquals("3", ctx.getSubContexts().get(2).getArgs().get("STEP"));
 
-    invocationExecutor.asyncSubmit(ctx)
+    invocationExecutor.disaggregateMacro(ctx)
       .await().indefinitely();
-//    mockEngine.printDebug(ctx);
     var req1 = invocationQueueSender.multimap.get("o1").getAny();
     assertEquals("1", req1.args().get("STEP"));
     var step1Ctx = router.apply(req1)

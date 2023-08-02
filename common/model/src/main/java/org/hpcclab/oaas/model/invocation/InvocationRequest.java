@@ -22,7 +22,7 @@ public record InvocationRequest(
   String outId,
   Map<String,String> macroIds,
   @JsonIgnore String partKey,
-  boolean nodeExist,
+  boolean preloadingNode,
   long queTs,
   ObjectNode body
 ) {

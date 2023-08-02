@@ -52,8 +52,6 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(value = 14, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long cptTs;
-  @ProtoField(15)
-  String vid;
 
   public InvocationNode() {
   }
@@ -64,7 +62,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vid) {
+  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -79,7 +77,6 @@ public class InvocationNode implements HasKey<String> {
     this.queTs = queTs;
     this.smtTs = smtTs;
     this.cptTs = cptTs;
-    this.vid = vid;
   }
 
 
@@ -88,17 +85,20 @@ public class InvocationNode implements HasKey<String> {
     return nextInv;
   }
 
-  public InvocationRequest toReq() {
+  public InvocationRequest.InvocationRequestBuilder toReq() {
+
+    var partKey = main !=null ? main:null;
     return InvocationRequest.builder()
       .invId(key)
-      .partKey(main)
+      .partKey(partKey)
       .main(main)
       .cls(cls)
       .args(KvPair.toMap(args))
       .fb(fb)
       .inputs(inputs)
       .outId(outId)
-      .build();
+      .queTs(System.currentTimeMillis())
+      .preloadingNode(true);
   }
 
   public InvocationNode trigger(String originator, String srcId) {
@@ -141,7 +141,6 @@ public class InvocationNode implements HasKey<String> {
   public void updateStatus(TaskCompletion completion) {
     if (completion.isSuccess()) {
       status = TaskStatus.SUCCEEDED;
-      vid = completion.getId().getVid();
     } else
       status = TaskStatus.FAILED;
     if (completion.getCptTs() > 0) {

@@ -29,44 +29,6 @@ public class GraphStateManager {
     this.objRepo = objRepo;
   }
 
-  public Multi<InvocationContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<InvocationContext> contexts) {
-    var originator = entryCtx.getOutput()!=null ?
-      entryCtx.getOutput().getId()
-      :entryCtx.getMain().getId();
-    return Multi.createFrom().iterable(contexts)
-      .onItem().transformToUniAndConcatenate(ctx -> {
-        if (ctx.getOutput()==null) {
-          return Uni.createFrom().item(ctx);
-        }
-        if (entryCtx.contains(ctx)) {
-          ctx.initNode().markAsSubmitted(originator, true);
-          return Uni.createFrom().item(ctx);
-        } else {
-          return invNodeRepo.computeAsync(ctx.getOutput().getId(), (id, node) ->
-              node.markAsSubmitted(originator, true))
-            .invoke(ctx::setNode)
-            .replaceWith(ctx);
-        }
-      })
-      .filter(ctx -> ctx.getOutput()==null || ctx.getNode().getOriginator().equals(originator))
-      .onCompletion().call(() -> persistAllInvNodes(entryCtx))
-      ;
-  }
-
-  public Uni<Void> persistAll(InvocationContext ctx) {
-    return persistAll(ctx, Lists.mutable.empty());
-  }
-
-  public Uni<Void> persistAllInvNodes(InvocationContext ctx) {
-    var nodes = Lists.mutable.<InvocationNode>empty();
-    var n = ctx.getNode();
-    if (n!=null)
-      nodes.add(ctx.getNode());
-    nodes.addAll(ctx.getSubContexts().stream().map(InvocationContext::getNode)
-      .filter(Objects::nonNull).toList());
-    return invNodeRepo.persistAsync(nodes);
-  }
-
   public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
@@ -119,7 +81,7 @@ public class GraphStateManager {
           return handleFailed(context.getNode());
         }
       })
-      .map(InvocationNode::toReq);
+      .map(node -> node.toReq().build());
 
   }
 

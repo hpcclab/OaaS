@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.invocation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.hpcclab.oaas.model.function.FunctionType;
 
 import java.util.List;
@@ -60,10 +61,11 @@ public class InternalInvocationNode {
 
   @Override
   public String toString() {
-    return "InvocationNode{" +
+    return "InternalInvocationNode{" +
       "as='" + as + '\'' +
       ", completed=" + completed +
       ", marked=" + marked +
+      ", next=["+next.size()+"]"+
       '}';
   }
 }

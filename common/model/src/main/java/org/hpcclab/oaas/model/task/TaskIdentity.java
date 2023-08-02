@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.task;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ import java.util.Objects;
 public class TaskIdentity {
   String mid;
   String oid;
-  String vid;
+  String iid;
 
   public TaskIdentity() {
   }
@@ -22,19 +23,20 @@ public class TaskIdentity {
       throw new IllegalArgumentException("Wrong ID format");
     mid = Objects.equals(split[0], "") ? null:split[0];
     oid = Objects.equals(split[1], "") ? null:split[1];
-    vid = Objects.equals(split[2], "") ? null:split[2];
+    iid = Objects.equals(split[2], "") ? null:split[2];
   }
 
   public TaskIdentity(String mId, String oId, String vId) {
     this.mid = mId;
     this.oid = oId;
-    this.vid = vId;
+    this.iid = vId;
   }
 
-  public TaskIdentity(TaskDetail task) {
-    mid = task.getMain()!=null ? task.getMain().getId():null;
-    oid = task.getOutput()!=null ? task.getOutput().getId():null;
-    vid = task.getVid();
+  public TaskIdentity(InvocationContext context) {
+    var node = context.initNode();
+    mid = node.getMain();
+    oid = node.getOutId();
+    iid = node.getKey();
   }
 
   public String mid() {
@@ -45,8 +47,8 @@ public class TaskIdentity {
     return oid;
   }
 
-  public String vid() {
-    return vid;
+  public String iid() {
+    return iid;
   }
 
 
@@ -61,26 +63,13 @@ public class TaskIdentity {
     if (oid!=null)
       sb.append(oid);
     sb.append(DISCRIMINATOR);
-    if (vid!=null)
-      sb.append(vid);
+    if (iid!=null)
+      sb.append(iid);
     return sb.toString();
   }
 
   public static TaskIdentity decode(String id) {
     return new TaskIdentity(id);
-  }
-
-  public static String createEncodedIdFromTask(TaskDetail task) {
-    var sb = new StringBuilder();
-    if (task.getMain()!=null)
-      sb.append(task.getMain().getId());
-    sb.append(DISCRIMINATOR);
-    if (task.getOutput()!=null)
-      sb.append(task.getOutput().getId());
-    sb.append(DISCRIMINATOR);
-    if (task.getVid()!=null)
-      sb.append(task.getVid());
-    return sb.toString();
   }
 
   @Override

@@ -3,6 +3,7 @@ package org.hpcclab.oaas.invocation;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.Getter;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
+@Getter
 @ApplicationScoped
 public class RepoContextLoader implements ContextLoader {
   private static final Logger logger = LoggerFactory.getLogger(RepoContextLoader.class);
@@ -56,7 +58,7 @@ public class RepoContextLoader implements ContextLoader {
       .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
       .invoke(ctx::setInputs);
 
-    if (request.nodeExist()) {
+    if (request.preloadingNode()) {
       uni = uni.flatMap(__ -> invNodeRepo.getAsync(request.invId()))
         .invoke(invNode -> {
           if (invNode!=null)
@@ -119,19 +121,4 @@ public class RepoContextLoader implements ContextLoader {
     throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
 
-  public EntityRepository<String, OaasObject> getObjectRepo() {
-    return objectRepo;
-  }
-
-  public EntityRepository<String, OaasFunction> getFuncRepo() {
-    return funcRepo;
-  }
-
-  public EntityRepository<String, OaasClass> getClsRepo() {
-    return clsRepo;
-  }
-
-  public EntityRepository<String, InvocationNode> getInvNodeRepo() {
-    return invNodeRepo;
-  }
 }

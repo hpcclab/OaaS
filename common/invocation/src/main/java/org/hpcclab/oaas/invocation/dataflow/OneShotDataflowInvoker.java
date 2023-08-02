@@ -77,7 +77,7 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
   }
 
   void handleCompletedDataflow(DataflowGraph graph, UniEmitter<?> emitter) {
-    var ctx = graph.getTop();
+    var ctx = graph.getCtx();
     var main = ctx.getMain();
     graphStateManager.persistAll(ctx, Lists.mutable.of(main))
       .subscribe()

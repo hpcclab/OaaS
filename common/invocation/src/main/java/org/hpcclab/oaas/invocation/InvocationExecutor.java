@@ -5,7 +5,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
@@ -45,25 +44,28 @@ public class InvocationExecutor {
     this.completionHandler = completionHandler;
   }
 
-  public Uni<Void> asyncSubmit(InvocationContext ctx) {
+  public Uni<Void> disaggregateMacro(InvocationContext ctx) {
     Set<InvocationContext> ctxToSubmit;
     List<InvocationNode> nodes;
-    if (ctx.getFunction().getType()==FunctionType.MACRO) {
-      nodes = ctx.getDataflowGraph().exportGraph();
-      ctxToSubmit = ctx.getDataflowGraph().findNextExecutable(false)
-        .stream()
-        .map(InternalInvocationNode::getCtx)
-        .collect(Collectors.toSet());
-    } else {
-      nodes = List.of(ctx.initNode());
-      ctxToSubmit = Set.of(ctx);
-    }
+    nodes = Lists.mutable.ofAll(ctx.getDataflowGraph().exportGraph());
+    ctxToSubmit = ctx.getDataflowGraph().findNextExecutable(false)
+      .stream()
+      .map(InternalInvocationNode::getCtx)
+      .collect(Collectors.toSet());
+
+    var originator = ctx.getRequest().invId();
+    var requests = ctxToSubmit.stream()
+      .map(submittingCtx -> {
+          submittingCtx.initNode()
+            .markAsSubmitted(originator, true);
+          return submittingCtx.toRequest()
+            .build();
+        }
+      )
+      .toList();
 
     return gsm.persistNodes(nodes)
-      .onItem()
-      .transformToMulti(__ -> gsm.updateSubmittingStatus(ctx, ctxToSubmit))
-      .map(InvocationContext::toRequest)
-      .collect().asList()
+      .replaceWith(requests)
       .flatMap(sender::send);
   }
 

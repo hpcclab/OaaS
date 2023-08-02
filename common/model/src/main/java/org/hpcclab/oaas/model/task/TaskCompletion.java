@@ -64,12 +64,8 @@ public class TaskCompletion {
     );
   }
 
-  public TaskCompletion setIdFromTask(TaskDetail task) {
-    id = new TaskIdentity(
-      task.getMain()!=null ? task.getMain().getId():null,
-      task.getOutput()!=null ? task.getOutput().getId():null,
-      task.getVid()
-    );
+  public TaskCompletion setIdFromTask(OaasTask task) {
+    id = task.getId();
     return this;
   }
 

@@ -133,15 +133,18 @@ class AsyncInvocationTest {
 
     var mid1 = idGenerator.generate();
     var mid2 = idGenerator.generate();
+    var mid3 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
       .main(main.getId())
-      .outId(mid2)
+      .outId(mid3)
       .fb(fn.getName())
       .macroIds(Map.of(
         "tmp1", mid1,
-        "tmp2", mid2
+        "tmp2", mid2,
+        "tmp3", mid3
       ))
       .macro(true)
+      .invId(idGenerator.generate())
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
@@ -193,6 +196,7 @@ class AsyncInvocationTest {
         "tmp3", mid3
       ))
       .macro(true)
+      .invId(idGenerator.generate())
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))

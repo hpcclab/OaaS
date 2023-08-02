@@ -16,7 +16,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
   @ProtoField(value = 2, defaultValue = "-1")
   long updatedOffset = -1;
   @ProtoField(3)
-  String vid;
+  String lastInv;
 
   public ObjectStatus() {
   }
@@ -24,21 +24,21 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 
   @ProtoFactory
   public ObjectStatus(long updatedOffset,
-                      String vid) {
+                      String lastInv) {
     this.updatedOffset = updatedOffset;
-    this.vid = vid;
+    this.lastInv = lastInv;
   }
 
   public ObjectStatus copy() {
     return new ObjectStatus(
       updatedOffset,
-      vid
+      lastInv
     );
   }
 
   public void set(TaskCompletion taskCompletion) {
     if (taskCompletion.isSuccess()) {
-      vid = taskCompletion.getId().getVid();
+      lastInv = taskCompletion.getId().iid();
     }
   }
 }

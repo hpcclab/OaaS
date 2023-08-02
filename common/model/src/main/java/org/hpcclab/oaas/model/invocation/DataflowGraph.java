@@ -1,22 +1,25 @@
 package org.hpcclab.oaas.model.invocation;
 
+import lombok.Getter;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Getter
 public class DataflowGraph {
-  InvocationContext top;
+  InvocationContext ctx;
   List<InternalInvocationNode> entries;
   List<InternalInvocationNode> all;
   Map<String, InternalInvocationNode> externalDeps;
 
   boolean failed = false;
 
-  public DataflowGraph(InvocationContext top) {
-    this.top = top;
+  public DataflowGraph(InvocationContext ctx) {
+    this.ctx = ctx;
     this.entries = Lists.mutable.empty();
     this.all = Lists.mutable.empty();
 
@@ -51,22 +54,6 @@ public class DataflowGraph {
       false,
       false
     );
-  }
-
-  public InvocationContext getTop() {
-    return top;
-  }
-
-  public List<InternalInvocationNode> getEntries() {
-    return entries;
-  }
-
-  public List<InternalInvocationNode> getAll() {
-    return all;
-  }
-
-  public Map<String, InternalInvocationNode> getExternalDeps() {
-    return externalDeps;
   }
 
   public Set<InternalInvocationNode> findNextExecutable(boolean marking) {
@@ -106,8 +93,15 @@ public class DataflowGraph {
   }
 
   public List<InvocationNode> exportGraph() {
-    return all.stream()
+    var l = all.stream()
       .map(InternalInvocationNode::export)
-      .toList();
+      .collect(Collectors.toList());
+    l.add(makeMainNode(l));
+    return l;
+  }
+
+  public InvocationNode makeMainNode(List<InvocationNode> subNode) {
+    return ctx.initNode()
+      .setWaitFor(subNode.stream().map(InvocationNode::getKey).collect(Collectors.toSet()));
   }
 }
