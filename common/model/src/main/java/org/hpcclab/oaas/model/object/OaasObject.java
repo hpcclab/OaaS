@@ -85,14 +85,6 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
     );
   }
 
-
-
-
-  @JsonIgnore
-  public boolean isReadyToUsed() {
-    return status.getTaskStatus().isCompleted() && !status.getTaskStatus().isFailed();
-  }
-
   public OaasObject setId(String id) {
     this.id = id;
     setKey(id);
