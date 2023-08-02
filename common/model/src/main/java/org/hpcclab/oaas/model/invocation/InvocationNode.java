@@ -53,7 +53,7 @@ public class InvocationNode implements HasKey<String> {
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long cptTs;
   @ProtoField(15)
-  String vId;
+  String vid;
 
   public InvocationNode() {
   }
@@ -64,7 +64,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vId) {
+  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs, String vid) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -79,7 +79,7 @@ public class InvocationNode implements HasKey<String> {
     this.queTs = queTs;
     this.smtTs = smtTs;
     this.cptTs = cptTs;
-    this.vId = vId;
+    this.vid = vid;
   }
 
 
@@ -141,7 +141,7 @@ public class InvocationNode implements HasKey<String> {
   public void updateStatus(TaskCompletion completion) {
     if (completion.isSuccess()) {
       status = TaskStatus.SUCCEEDED;
-      vId = completion.getId().getVid();
+      vid = completion.getId().getVid();
     } else
       status = TaskStatus.FAILED;
     if (completion.getCptTs() > 0) {

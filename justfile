@@ -1,8 +1,10 @@
+mvn := "mvnd"
+
 build:
   ./mvnw package
 
 build-no-test:
-  mvnd package -DskipTests
+  {{mvn}} package -DskipTests
 
 kind-upload-image:
   docker images --format json | jq -r .Repository | grep oaas- | xargs kind load docker-image -n 1node-cluster

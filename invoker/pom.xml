@@ -10,7 +10,6 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-<!--    <infinispan.version>14.0.12.Final</infinispan.version>-->
     <infinispan.version>15.0.0.Dev02</infinispan.version>
   </properties>
 
@@ -152,7 +151,7 @@
       <groupId>com.github.goodforgod</groupId>
       <artifactId>arangodb-testcontainer</artifactId>
       <scope>test</scope>
-      <version>2.0.0</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>

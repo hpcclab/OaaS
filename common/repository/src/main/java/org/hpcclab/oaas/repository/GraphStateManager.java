@@ -11,11 +11,14 @@ import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GraphStateManager {
-  private static final Logger logger = LoggerFactory.getLogger( GraphStateManager.class );
+  private static final Logger logger = LoggerFactory.getLogger(GraphStateManager.class);
 
   EntityRepository<String, InvocationNode> invNodeRepo;
   EntityRepository<String, OaasObject> objRepo;
@@ -26,7 +29,7 @@ public class GraphStateManager {
     this.objRepo = objRepo;
   }
 
-  public Multi<InvocationContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<InvocationContext> contexts){
+  public Multi<InvocationContext> updateSubmittingStatus(InvocationContext entryCtx, Collection<InvocationContext> contexts) {
     var originator = entryCtx.getOutput()!=null ?
       entryCtx.getOutput().getId()
       :entryCtx.getMain().getId();
@@ -57,7 +60,7 @@ public class GraphStateManager {
   public Uni<Void> persistAllInvNodes(InvocationContext ctx) {
     var nodes = Lists.mutable.<InvocationNode>empty();
     var n = ctx.getNode();
-    if (n != null)
+    if (n!=null)
       nodes.add(ctx.getNode());
     nodes.addAll(ctx.getSubContexts().stream().map(InvocationContext::getNode)
       .filter(Objects::nonNull).toList());
@@ -75,7 +78,7 @@ public class GraphStateManager {
 
   private Uni<Void> persistWithPrecondition(List<OaasObject> objs) {
     var partitionedObjs = objs.stream()
-      .collect(Collectors.partitioningBy(o -> o.getRevision()<=0));
+      .collect(Collectors.partitioningBy(o -> o.getRevision() <= 0));
     var newObjs = partitionedObjs.get(true);
 
     var oldObjs = partitionedObjs.get(false);
@@ -83,7 +86,8 @@ public class GraphStateManager {
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo.atomic().persistWithPreconditionAsync(oldObjs);
+      return objRepo
+        .atomic().persistWithPreconditionAsync(oldObjs);
     } else {
       return objRepo
         .atomic()
@@ -92,33 +96,31 @@ public class GraphStateManager {
     }
   }
 
-  public Multi<InvocationRequest> persistThenLoadNext(InvocationContext task, TaskCompletion completion) {
+  public Multi<InvocationRequest> persistThenLoadNext(InvocationContext context, TaskCompletion completion) {
 
-    var main = task.getMain();
+    var main = context.getMain();
     List<OaasObject> objs = new ArrayList<>();
 
-    if (main!=null) {
+    if (main!=null && !context.isImmutable()) {
       objs.add(main);
     }
-    var out = task.getOutput();
+    var out = context.getOutput();
     if (out!=null) {
       objs.add(out);
     }
 
-    Uni<Void> uni = persistWithPrecondition(objs);
-    if (out==null)
-      return uni.onItem().transformToMulti(__ -> Multi.createFrom().empty());
-    else {
-      return uni.onItem()
-        .transformToMulti(__ -> {
-          if (completion.isSuccess()) {
-            return loadNextSubmittableNodes(task.getNode());
-          } else {
-            return handleFailed(task.getNode());
-          }
-        })
-        .map(InvocationNode::toReq);
-    }
+    Uni<Void> uni = persistWithPrecondition(objs)
+      .call(__ -> invNodeRepo.persistAsync(context.getNode()));
+    return uni.onItem()
+      .transformToMulti(__ -> {
+        if (completion.isSuccess()) {
+          return loadNextSubmittableNodes(context.getNode());
+        } else {
+          return handleFailed(context.getNode());
+        }
+      })
+      .map(InvocationNode::toReq);
+
   }
 
   private Multi<InvocationNode> handleFailed(InvocationNode failedNode) {
@@ -136,16 +138,17 @@ public class GraphStateManager {
   }
 
   private Multi<InvocationNode> loadNextNodes(InvocationNode srcNode) {
-    if (srcNode.getNextInv() == null || srcNode.getNextInv().isEmpty()) {
+    if (srcNode.getNextInv().isEmpty()) {
       return Multi.createFrom().empty();
     }
     return invNodeRepo.listAsync(srcNode.getNextInv())
       .onItem()
       .transformToMulti(map -> Multi.createFrom().iterable(map.values()));
   }
+
   private Multi<InvocationNode> loadNextSubmittableNodes(InvocationNode srcNode) {
     logger.debug("loadNextSubmittableNodes {}", srcNode);
-    if (srcNode.getNextInv() == null || srcNode.getNextInv().isEmpty()) {
+    if (srcNode.getNextInv().isEmpty()) {
       return Multi.createFrom().empty();
     }
     return Multi.createFrom().iterable(srcNode.getNextInv())
@@ -155,7 +158,7 @@ public class GraphStateManager {
   }
 
 
-  public Uni<Void> persistNodes(List<InvocationNode> nodes){
+  public Uni<Void> persistNodes(List<InvocationNode> nodes) {
     return invNodeRepo.persistAsync(nodes);
   }
 }

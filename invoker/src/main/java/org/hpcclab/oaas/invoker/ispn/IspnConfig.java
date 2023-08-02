@@ -11,6 +11,7 @@ import org.infinispan.configuration.cache.StorageType;
 )
 public interface IspnConfig {
   CacheStore objStore();
+  CacheStore invNode();
   CacheStore clsStore();
   CacheStore fnStore();
   @WithDefault("-1")
@@ -25,5 +26,8 @@ public interface IspnConfig {
     int maxCount();
     @WithDefault("30")
     int ttl();
+
+    @WithDefault("false")
+    boolean readOnly();
   }
 }

@@ -30,7 +30,7 @@ public class CompletedStateUpdater {
 
     if (main!=null) {
       if (completion.getMain()!=null) {
-        completion.getMain().update(main, context.getVId());
+        completion.getMain().update(main, context.getVid());
         if (out==null && completion.isSuccess())
           main.getStatus().set(completion);
       }
@@ -44,5 +44,7 @@ public class CompletedStateUpdater {
           .getId().getVid());
       out.getStatus().setUpdatedOffset(context.getMqOffset());
     }
+
+    context.setRespBody(completion.getBody());
   }
 }

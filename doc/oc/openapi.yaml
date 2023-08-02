@@ -998,8 +998,6 @@ components:
     ObjectStatus_Public:
       type: object
       properties:
-        taskStatus:
-          $ref: '#/components/schemas/TaskStatus_Public'
         updatedOffset:
           format: int64
           type: integer
@@ -1166,15 +1164,6 @@ components:
       enum:
       - FILES
       - COLLECTION
-      type: string
-    TaskStatus_Public:
-      enum:
-      - LAZY
-      - DOING
-      - SUCCEEDED
-      - FAILED
-      - DEPENDENCY_FAILED
-      - READY
       type: string
     Type:
       enum:

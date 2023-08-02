@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -96,29 +98,33 @@ public class VerticleDeployer {
       return;
     if (func.getState()==FunctionState.ENABLED) {
       deployVerticleIfNew(func.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey(), e)
+        );
     } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
       deleteVerticle(func.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey()));
+        .subscribe().with(
+          __ -> { },
+          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey(), e)
+        );
     }
   }
 
   void handleCls(OaasClass cls) {
     if (!cls.isMarkForRemoval()) {
       deployVerticleIfNew(cls.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
+        );
     } else {
       LOGGER.info("deleting {}", cls.getKey());
       deleteVerticle(cls.getKey())
-        .subscribe().with(__ -> {
-          },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey()));
+        .subscribe().with(
+          __ -> {},
+          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey(), e)
+        );
     }
   }
 
@@ -153,13 +159,11 @@ public class VerticleDeployer {
           return vert;
         },
         options)
+      .onFailure().retry().withBackOff(Duration.ofMillis(100)).atMost(3)
       .repeat().atMost(size)
       .invoke(id -> {
-        if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("deploy verticle[id={}] for {} successfully",
-            id, suffix);
-//          LOGGER.info("verticles {}", verticleMap.keySet().stream().toList());
-        }
+        LOGGER.info("deploy verticle[id={}] for {} successfully",
+          id, suffix);
       })
       .collect()
       .last()

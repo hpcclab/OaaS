@@ -1,15 +1,12 @@
 package org.hpcclab.oaas.model.task;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.OaasObject;
 
 import java.util.List;
 import java.util.Map;
 
 public interface TaskDetail {
-  String getVId();
+  String getVid();
   OaasObject getMain();
   OaasObject getOutput();
   String getFuncKey();
@@ -17,8 +14,4 @@ public interface TaskDetail {
   boolean isImmutable();
   List<OaasObject> getInputs();
   Map<String, String> getArgs();
-//  @JsonIgnore
-//  default InvocationNode getNode() {
-//    throw new UnsupportedOperationException();
-//  }
 }

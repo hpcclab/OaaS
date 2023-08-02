@@ -13,8 +13,6 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectStatus implements Copyable<ObjectStatus> {
-  @ProtoField(1)
-  TaskStatus taskStatus = TaskStatus.LAZY;
   @ProtoField(value = 2, defaultValue = "-1")
   long updatedOffset = -1;
   @ProtoField(3)
@@ -25,17 +23,14 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 
 
   @ProtoFactory
-  public ObjectStatus(TaskStatus taskStatus,
-                      long updatedOffset,
+  public ObjectStatus(long updatedOffset,
                       String vid) {
-    this.taskStatus = taskStatus;
     this.updatedOffset = updatedOffset;
     this.vid = vid;
   }
 
   public ObjectStatus copy() {
     return new ObjectStatus(
-      taskStatus,
       updatedOffset,
       vid
     );
@@ -43,9 +38,7 @@ public class ObjectStatus implements Copyable<ObjectStatus> {
 
   public void set(TaskCompletion taskCompletion) {
     if (taskCompletion.isSuccess()) {
-      taskStatus = TaskStatus.SUCCEEDED;
       vid = taskCompletion.getId().getVid();
-    } else
-      taskStatus = TaskStatus.FAILED;
+    }
   }
 }

@@ -2,10 +2,9 @@ package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskCompletion {
-  @JsonUnwrapped
   TaskIdentity id;
   boolean success;
   String errorMsg;
@@ -25,6 +23,7 @@ public class TaskCompletion {
   long cptTs = -1;
   @JsonIgnore
   long smtTs = -1;
+  ObjectNode body;
 
 
   public TaskCompletion() {
@@ -65,21 +64,17 @@ public class TaskCompletion {
     );
   }
 
-
   public TaskCompletion setIdFromTask(TaskDetail task) {
     id = new TaskIdentity(
       task.getMain()!=null ? task.getMain().getId():null,
       task.getOutput()!=null ? task.getOutput().getId():null,
-      task.getVId()
+      task.getVid()
     );
     return this;
   }
 
-
-  public TaskIdentity getId(){
-    if (id == null) id = new TaskIdentity();
+  public TaskIdentity getId() {
+    if (id==null) id = new TaskIdentity();
     return id;
   }
-
-
 }

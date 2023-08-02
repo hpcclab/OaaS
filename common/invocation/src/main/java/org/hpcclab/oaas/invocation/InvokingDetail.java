@@ -23,7 +23,7 @@ public class InvokingDetail<V> {
 
   public static InvokingDetail<OaasTask> of(OaasTask task) {
     return new InvokingDetail<>(
-      task.getId(),
+      task.getId().encode(),
       task.getFuncKey(),
       Optional.of(task.getFunction())
         .map(OaasFunction::getDeploymentStatus)

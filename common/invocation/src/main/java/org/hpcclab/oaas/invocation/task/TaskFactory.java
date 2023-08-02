@@ -34,13 +34,11 @@ public class TaskFactory {
 
   public OaasTask genTask(InvocationContext ctx) {
     var verId = idGenerator.generate();
-    ctx.setVId(verId);
     var mainCls = ctx.getMainCls();
 
     var task = new OaasTask();
-    task.setId(new TaskIdentity(ctx).encode());
+    task.setId(new TaskIdentity(ctx));
     task.setPartKey(ctx.getMain().getId());
-    task.setVId(verId);
     task.setFbName(ctx.getFbName());
     task.setMain(ctx.getMain());
     task.setFuncKey(ctx.getFuncKey());

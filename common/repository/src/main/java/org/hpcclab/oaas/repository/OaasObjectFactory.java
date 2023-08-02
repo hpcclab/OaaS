@@ -42,7 +42,6 @@ public class OaasObjectFactory {
     obj.setData(construct.getData());
     obj.getState().setOverrideUrls(construct.getOverrideUrls());
     var status = new ObjectStatus();
-    status.setTaskStatus(TaskStatus.READY);
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
