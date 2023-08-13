@@ -2,8 +2,9 @@ name: Container Build
 
 on:
   push:
-    branches-ignore:
-      - 'main'
+    branches:
+      - 'dev'
+      - "features/**"
     tags:
       - 'v*'
 

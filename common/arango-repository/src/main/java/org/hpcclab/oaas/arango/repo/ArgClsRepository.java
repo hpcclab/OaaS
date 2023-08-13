@@ -25,12 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 @ApplicationScoped
-@RegisterForReflection(
-  targets = {
-    OaasClass.class
-  },
-  registerFullHierarchy = true
-)
 public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger( ArgClsRepository.class );
 
@@ -42,12 +36,8 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   ArangoCollectionAsync collectionAsync;
 
   @Inject
-  ClassResolver classResolver;
-
-  @Inject
   CacheFactory cacheFactory;
   private Cache<String, OaasClass> cache;
-
   private Cache<String, List<String>> subClsCache;
 
   @PostConstruct
@@ -81,6 +71,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
     return cache;
   }
 
+  @Override
   public Uni<List<String>> listSubClsKeys(String clsKey) {
     var res = subClsCache.getIfPresent(clsKey);
     if (res != null)

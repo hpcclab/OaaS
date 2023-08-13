@@ -3,7 +3,9 @@ name: Functions Container Build
 on:
   push:
     branches:
-      - '**'
+      - 'main'
+      - 'dev'
+      - "features/**"
     tags:
       - 'v*'
 

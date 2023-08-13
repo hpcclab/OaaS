@@ -14,12 +14,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 @ApplicationScoped
-@RegisterForReflection(
-  targets = {
-    OaasFunction.class
-  },
-  registerFullHierarchy = true
-)
 public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunction> implements FunctionRepository {
 
   @Inject
