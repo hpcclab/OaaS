@@ -5,5 +5,3 @@ quarkus:
       pattern: '%h %t "%r" %s %b %{RESPONSE_TIME} ms'
       exclude-pattern: /q/.*
     record-request-start-time: true
-  jib:
-    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
