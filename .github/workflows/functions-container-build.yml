@@ -3,14 +3,21 @@ name: Functions Container Build
 on:
   push:
     branches:
-      - 'main'
-      - 'dev'
-      - "features/**"
+      - "**"
     tags:
       - 'v*'
 
 jobs:
-  transcode-function-build:
+  function-build:
+    strategy:
+      matrix:
+        include:
+          - func_name: transcode-fn-py
+            dir_path: example/functions/transcode-fn-py
+          - func_name: json-update-fn-py
+            dir_path: example/functions/json-update-fn-py
+          - func_name: concat-fn-py
+            dir_path: example/functions/concat-fn-py
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,7 +26,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/${{ github.repository }}/transcode-fn-py
+          images: ghcr.io/${{ github.repository }}/${{ matrix.func_name }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},priority=1000
             type=ref,event=branch,enable=true,priority=600
@@ -35,66 +42,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: example/functions/transcode-fn-py
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-  json-update-function-build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/${{ github.repository }}/json-update-fn-py
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},priority=1000
-            type=ref,event=branch,enable=true,priority=600
-            type=ref,event=tag,enable=true,priority=600
-            type=ref,event=pr,prefix=pr-,enable=true,priority=600
-      - name: Login to ghcr.io
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: example/functions/json-update-fn-py
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  concat-function-build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/${{ github.repository }}/concat-fn-py
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},priority=1000
-            type=ref,event=branch,enable=true,priority=600
-            type=ref,event=tag,enable=true,priority=600
-            type=ref,event=pr,prefix=pr-,enable=true,priority=600
-      - name: Login to ghcr.io
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: example/functions/concat-fn-py
-          push: ${{ github.event_name != 'pull_request' }}
+          context: ${{ matrix.dir_path }}
+          push: ${{ github.event_name != 'pull_request' && ! startsWith(github.ref_name, 'dependabot')}}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

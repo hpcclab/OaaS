@@ -2,9 +2,11 @@ name: Container Build
 
 on:
   push:
-    branches:
-      - 'dev'
-      - "features/**"
+    branches-ignore:
+      - "main"
+#    branches:
+#      - 'dev'
+#      - "features/**"
     tags:
       - 'v*'
 
@@ -14,6 +16,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      CONTAINER_PUSH: ${{ github.event_name != 'pull_request' && !startsWith(github.ref_name, 'dependabot')}}
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -25,12 +29,12 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
         cache: 'maven'
     - name: Build container image with Jib
-      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
+      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
     - name: Build example concat function
-      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.image="${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}"
+      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="${CI_REGISTRY_IMAGE,,}:${GITHUB_REF##*/}"
       working-directory: example/functions/concat-fn-java
       env:
         CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/concat-fn-java
