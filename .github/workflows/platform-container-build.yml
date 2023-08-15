@@ -38,15 +38,20 @@ jobs:
         CI_REGISTRY_IMAGE=ghcr.io/$GITHUB_REPOSITORY
         echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE,,}" >> "$GITHUB_ENV"
 
-    - name: build and test
+    - name: Build and test project (platforms)
       run: mvn -B install
 
-    - name: Build container image with Jib
-      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH
+    - name: Build and push container image with Jib (platforms)
+      if: env.CONTAINER_PUSH
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
 
-    - name: Build example concat function
-      run: mvn -B package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG"
+    - name: Build and test project (concat)
       working-directory: example/functions/concat-fn-java
+      run: mvn -B package --file pom.xml
+
+    - name: Build and push container image with Jib (concat)
+      working-directory: example/functions/concat-fn-java
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG"
 
 #    - name: Build container image with Jib (native image)
 #      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":native-${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests
