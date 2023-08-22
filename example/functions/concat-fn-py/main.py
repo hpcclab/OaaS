@@ -17,10 +17,12 @@ class ConcatHandler(oaas.Handler):
     async def handle(self, ctx: OaasInvocationCtx):
         append = ctx.args.get('APPEND', '')
         inplace = ctx.args.get('INPLACE', 'false').lower() == 'true'
+        req_ts = int(ctx.args.get('reqts', '0'))
 
         record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
 
-        record['ts'] = round(time.time() * 1000)
+        if req_ts is not 0:
+            record['reqts'] = req_ts
 
         start_ts = time.time()
         async with aiohttp.ClientSession() as session:
@@ -39,6 +41,8 @@ class ConcatHandler(oaas.Handler):
                     start_ts = time.time()
                     await ctx.upload_byte_data(session, "text", b_text)
                 logging.debug(f"upload data in {time.time() - start_ts} s")
+                record['ts'] = round(time.time() * 1000)
+                ctx.task.output_obj.data = record
 
 
 app = FastAPI()

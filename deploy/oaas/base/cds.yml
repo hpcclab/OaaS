@@ -42,7 +42,7 @@ data:
         location /oal {
           add_header access-control-allow-origin *;
           add_header 'access-control-allow-methods' 'GET, POST, OPTIONS';
-          proxy_pass      http://invoker/oal/;
+          proxy_pass      http://invoker/oal;
           proxy_intercept_errors on;
           error_page 301 302 303 307 = @handle_redirects;
         }

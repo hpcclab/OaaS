@@ -55,6 +55,11 @@ class TranscodeHandler(oaas_sdk_py.Handler):
     video_format = ctx.args.get('FORMAT', 'mp4')
     tmp_in = f"in-{uuid.uuid4()}.mp4"
     tmp_out = str(uuid.uuid4()) + '.' + video_format
+    req_ts = int(ctx.args.get('reqts', '0'))
+
+    record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
+    if req_ts is not 0:
+      record['reqts'] = req_ts
 
     async with aiohttp.ClientSession() as session:
       ts = time.time()
@@ -71,6 +76,9 @@ class TranscodeHandler(oaas_sdk_py.Handler):
       os.remove(tmp_out)
     if os.path.isfile(tmp_in):
       os.remove(tmp_in)
+    record['ts'] = round(time.time() * 1000)
+    ctx.task.output_obj.data = record
+
 
 
 app = FastAPI()
