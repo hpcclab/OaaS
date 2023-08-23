@@ -56,11 +56,6 @@ public class InvocationNode implements HasKey<String> {
   public InvocationNode() {
   }
 
-  public InvocationNode(String key) {
-    this.key = key;
-    this.nextInv = new HashSet<>();
-  }
-
   @ProtoFactory
   public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
     this.key = key;

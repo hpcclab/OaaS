@@ -103,6 +103,7 @@ class AsyncInvocationTest {
       .main(main.getId())
       .outId(oId)
       .fb("f1")
+      .invId(idGenerator.generate())
       .build();
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))

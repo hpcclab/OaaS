@@ -129,7 +129,6 @@ public class InvocationContext implements TaskDetail {
     if (node!=null)
       return node;
     node = new InvocationNode();
-    var partKey = getMain()!=null ? getMain().getId():null;
     if (request!=null) {
       node.setKey(request.invId());
       node.setOutId(request.outId());

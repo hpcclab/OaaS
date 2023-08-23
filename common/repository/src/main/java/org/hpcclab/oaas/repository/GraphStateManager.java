@@ -72,13 +72,13 @@ public class GraphStateManager {
     }
 
     Uni<Void> uni = persistWithPrecondition(objs)
-      .call(__ -> invNodeRepo.persistAsync(context.getNode()));
+      .call(__ -> invNodeRepo.persistAsync(context.initNode()));
     return uni.onItem()
       .transformToMulti(__ -> {
         if (completion.isSuccess()) {
-          return loadNextSubmittableNodes(context.getNode());
+          return loadNextSubmittableNodes(context.initNode());
         } else {
-          return handleFailed(context.getNode());
+          return handleFailed(context.initNode());
         }
       })
       .map(node -> node.toReq().build());
