@@ -6,7 +6,7 @@
 // Need some preamble to get TOC:
 {empty}
 
-image:https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml/badge.svg?branch=main[link="https://github.com/hpcclab/OaaS/actions/workflows/container-build-main.yml"]
+image:https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml/badge.svg?branch=main[link="https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml"]
 image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/OaaS"]
 
 == Introduction
