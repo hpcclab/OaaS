@@ -2,7 +2,7 @@ name: example
 functions:
   - name: video.transcode
     type: TASK
-    outputCls: example.video
+    outputCls: .video
     validation: {}
     provision:
       knative:
@@ -26,7 +26,7 @@ classes:
         - name: video
     functions:
       - access: PUBLIC
-        function: video.transcode
+        function: .transcode
         forceImmutable: true
       - access: PUBLIC
         name: new

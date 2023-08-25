@@ -167,11 +167,6 @@ public class InvocationContext implements TaskDetail {
     return Map.of();
   }
 
-//  @Override
-//  public String getIid() {
-//    return initNode().getKey();
-//  }
-
   @Override
   public String getFuncKey() {
     return function.getKey();
