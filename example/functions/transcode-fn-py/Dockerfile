@@ -1,7 +1,7 @@
-FROM alpine
-#FROM jrottenberg/ffmpeg:4.4-alpine
-RUN apk add --update --no-cache python3 curl ffmpeg && \
-    ln -sf python3 /usr/bin/python &&\
+FROM python:3.11-buster
+
+RUN apt update -y && \
+    apt install -y ffmpeg && \
     python3 -m ensurepip && \
     mkdir -p "/opt/app"
 
