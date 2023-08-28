@@ -1,9 +1,6 @@
-FROM alpine
-RUN apk add --update --no-cache python3 git && \
-    ln -sf python3 /usr/bin/python &&\
-    python3 -m ensurepip && \
-    mkdir -p "/opt/app"
+FROM python:3.11-slim
 
+RUN mkdir -p "/opt/app"
 WORKDIR /opt/app
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir --upgrade -r requirements.txt
