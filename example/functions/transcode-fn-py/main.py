@@ -61,21 +61,26 @@ class TranscodeHandler(oaas_sdk_py.Handler):
     if req_ts is not 0:
       record['reqts'] = req_ts
 
-    async with aiohttp.ClientSession() as session:
-      ts = time.time()
-      resp = await ctx.load_main_file(session, "video")
-      with open(tmp_in, "wb") as f:
-        async for chunk in resp.content.iter_chunked(1024):
-          f.write(chunk)
-      logging.debug(f"done loading in {time.time() - ts} s")
-      await run_ffmpeg(ctx.args, tmp_in, tmp_out)
-      ts = time.time()
-      await ctx.upload_file(session, "video", tmp_out)
-      logging.debug(f"done uploading in {time.time() - ts} s")
-    if os.path.isfile(tmp_out):
-      os.remove(tmp_out)
-    if os.path.isfile(tmp_in):
-      os.remove(tmp_in)
+    try:
+      async with aiohttp.ClientSession() as session:
+        ts = time.time()
+        resp = await ctx.load_main_file(session, "video")
+        with open(tmp_in, "wb") as f:
+          async for chunk in resp.content.iter_chunked(1024):
+            f.write(chunk)
+        logging.debug(f"done loading in {time.time() - ts} s")
+        await run_ffmpeg(ctx.args, tmp_in, tmp_out)
+        ts = time.time()
+        await ctx.upload_file(session, "video", tmp_out)
+        logging.debug(f"done uploading in {time.time() - ts} s")
+    except Exception as e:
+      ctx.success = False
+      ctx.error = str(e)
+    finally:
+      if os.path.isfile(tmp_out):
+        os.remove(tmp_out)
+      if os.path.isfile(tmp_in):
+        os.remove(tmp_in)
     record['ts'] = round(time.time() * 1000)
     ctx.task.output_obj.data = record
 
