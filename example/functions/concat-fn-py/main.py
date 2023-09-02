@@ -28,7 +28,8 @@ class ConcatHandler(oaas.Handler):
         async with aiohttp.ClientSession() as session:
             async with await ctx.load_main_file(session, "text") as resp:
                 old_text = await resp.read()
-                logging.debug(f"load data in {time.time() - start_ts} s")
+                loading_time = time.time() - start_ts
+                logging.debug(f"load data in {loading_time} s")
 
                 text = old_text.decode("utf-8") + append
                 b_text = bytes(text, 'utf-8')
@@ -40,8 +41,11 @@ class ConcatHandler(oaas.Handler):
                     logging.debug(f"allocate url in {time.time() - start_ts} s")
                     start_ts = time.time()
                     await ctx.upload_byte_data(session, "text", b_text)
-                logging.debug(f"upload data in {time.time() - start_ts} s")
+                uploading_time = time.time() - start_ts
+                logging.debug(f"upload data in {uploading_time} s")
                 record['ts'] = round(time.time() * 1000)
+                record['load'] = round(loading_time * 1000)
+                record['upload'] = round(uploading_time * 1000)
                 ctx.task.output_obj.data = record
 
 

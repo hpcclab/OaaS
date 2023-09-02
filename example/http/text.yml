@@ -1,8 +1,8 @@
 name: example
 functions:
-  - name: concat
+  - name: text.concat
     type: TASK
-    outputCls: example.text
+    outputCls: .text
     validation: {}
     provision:
       knative:
@@ -42,10 +42,11 @@ classes:
         - name: text
     functions:
       - access: PUBLIC
-        function: example.concat
+        function: .text.concat
+        outputCls: .text
         forceImmutable: true
       - access: PUBLIC
-        function: example.concat
+        function: .text.concat
         name: concat-inplace
         outputCls: void
         defaultArgs:
