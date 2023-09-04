@@ -1,7 +1,9 @@
 package org.hpcclab.oaas.invoker.ispn;
 
+import io.quarkus.runtime.ShutdownEvent;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
@@ -64,8 +66,7 @@ public class IspnSetup {
     return cacheManager;
   }
 
-  @PreDestroy
-  void clean() throws IOException {
-    cacheManager.close();
+  void clean(@Observes ShutdownEvent event) {
+    cacheManager.stop();
   }
 }
