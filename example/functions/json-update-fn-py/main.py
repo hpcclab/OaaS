@@ -34,7 +34,8 @@ class RandomHandler(oaas.Handler):
             record[generate_text(keys)] = generate_text(values)
 
         record['ts'] = round(time.time() * 1000)
-        record['reqts'] = req_ts
+        if req_ts > 0:
+            record['reqts'] = req_ts
         if inplace:
             ctx.task.main_obj.data = record
         if ctx.task.output_obj is not None:

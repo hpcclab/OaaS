@@ -5,7 +5,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
-import org.hpcclab.oaas.invocation.InvocationQueueSender;
+import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +14,14 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 @Dependent
-public class KafkaInvocationQueueSender implements InvocationQueueSender {
-  private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationQueueSender.class );
+public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
+  private static final Logger logger = LoggerFactory.getLogger( KafkaInvocationQueueProducer.class );
   @Inject
   KafkaProducer<String, Buffer> producer;
   @Inject
   InvokerConfig config;
   @Override
-  public Uni<Void> send(InvocationRequest request) {
+  public Uni<Void> offer(InvocationRequest request) {
     var topic = selectTopic(request);
     var kafkaRecord = KafkaProducerRecord.create(
         topic,

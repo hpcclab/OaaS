@@ -76,7 +76,7 @@ public class RecordConsumerVerticle extends AbstractVerticle {
   }
 
   private void handleRecords(KafkaConsumerRecords<String, Buffer> records) {
-    if (LOGGER.isDebugEnabled() && records.size() > 0)
+    if (LOGGER.isDebugEnabled() && !records.isEmpty())
       LOGGER.debug("{} receiving {} records", topics, records.size());
     taskDispatcher.offer(records);
     isPolling.set(false);

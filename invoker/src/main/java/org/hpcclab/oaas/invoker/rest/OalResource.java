@@ -10,7 +10,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -36,7 +37,9 @@ public class OalResource {
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
-  InvocationHandlerService invocationHandlerService;
+  InvocationReqHandler invocationHandlerService;
+  @Inject
+  InvokerConfig conf;
 
   @POST
   @JsonView(Views.Public.class)
@@ -138,7 +141,7 @@ public class OalResource {
       return Response.status(redirectCode)
         .location(URI.create(replaced.getVal()))
         .build();
-    var fileUrl = contentUrlGenerator.generateUrl(obj, filePath, AccessLevel.UNIDENTIFIED);
+    var fileUrl = contentUrlGenerator.generateUrl(obj, filePath, AccessLevel.UNIDENTIFIED, conf.respPubS3());
     return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();
@@ -154,7 +157,7 @@ public class OalResource {
       return Response.status(redirectCode)
         .location(URI.create(replaced.getVal()))
         .build();
-    var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED);
+    var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED, conf.respPubS3());
     return Response.status(redirectCode)
       .location(URI.create(fileUrl))
       .build();

@@ -6,12 +6,12 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 
 import java.util.Collection;
 
-public interface InvocationQueueSender {
-  Uni<Void> send(InvocationRequest request);
+public interface InvocationQueueProducer {
+  Uni<Void> offer(InvocationRequest request);
 
-  default Uni<Void> send(Collection<InvocationRequest> requests) {
+  default Uni<Void> offer(Collection<InvocationRequest> requests) {
     return Multi.createFrom().iterable(requests)
-      .onItem().call(this::send)
+      .onItem().call(this::offer)
       .collect().asList()
       .replaceWithVoid();
   }

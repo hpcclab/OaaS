@@ -4,6 +4,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
+import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
@@ -31,10 +32,11 @@ public class RecordConsumerVerticleFactory implements VerticleFactory<RecordCons
     var consumer = KafkaConsumer.create(vertx, options(config, suffix),
       String.class, Buffer.class);
 
-    VerticleFactory<? extends AbstractOrderedRecordVerticle<?>> invokerVerticleFactory =
+    VerticleFactory<?> invokerVerticleFactory =
       f -> invokerVerticleInstance.get();
     var offsetManager = new OffsetManager(consumer);
-    var dispatcher = new TaskVerticlePoolDispatcher(vertx, invokerVerticleFactory,
+    var dispatcher = new TaskVerticlePoolDispatcher(vertx,
+            (VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>>) invokerVerticleFactory,
       offsetManager, config);
     dispatcher.setName(suffix);
     var verticle = new RecordConsumerVerticle(consumer, dispatcher, config);

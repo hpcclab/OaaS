@@ -33,7 +33,7 @@ public class TaskFactory {
   }
 
   public OaasTask genTask(InvocationContext ctx) {
-    var verId = idGenerator.generate();
+    var verId = ctx.initNode().getKey();
     var mainCls = ctx.getMainCls();
 
     var task = new OaasTask();

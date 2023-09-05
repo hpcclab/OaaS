@@ -8,4 +8,6 @@ public interface RecordHandlerVerticle<T> extends Verticle {
   void setOnRecordCompleteHandler(Consumer<T> onRecordCompleteHandler);
   void offer(T taskRecord);
   int countQueueingTasks();
+
+  void setName(String name);
 }

@@ -62,7 +62,9 @@ services:
     command:
       - redpanda start
       - --smp 1
-      - --overprovisioned
+      # The amount of memory to make available to Redpanda.
+      - --memory 1G
+#      - --overprovisioned
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers
@@ -133,6 +135,7 @@ services:
       OAAS_INVOKER_S3_SECRETKEY: minio_secret_key
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
       OAAS_INVOKER_USESA: "false"
+      OAAS_INVOKER_RESPPUBS3: "true"
 
   json-update-fn:
     build:

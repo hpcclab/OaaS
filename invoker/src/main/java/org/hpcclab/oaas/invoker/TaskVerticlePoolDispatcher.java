@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker;
 
+import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
@@ -22,14 +23,14 @@ public class TaskVerticlePoolDispatcher {
   private final OffsetManager offsetManager;
   private final int maxInflight;
   private final Vertx vertx;
-  private final VerticleFactory<? extends AbstractOrderedRecordVerticle<?>> invokerVerticleFactory;
-  private List<? extends AbstractOrderedRecordVerticle<?>> verticles = List.of();
+  private final VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>> invokerVerticleFactory;
+  private List<? extends RecordHandlerVerticle<KafkaConsumerRecord>> verticles = List.of();
   private Runnable drainHandler;
   String name = "unknown";
-  Random random = new Random();
+  Random random = ThreadLocalRandom.current();
 
   public TaskVerticlePoolDispatcher(Vertx vertx,
-                                    VerticleFactory<? extends AbstractOrderedRecordVerticle<?>> invokerVerticleFactory,
+                                    VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>> invokerVerticleFactory,
                                     OffsetManager offsetManager,
                                     InvokerConfig config) {
     this.vertx = vertx;
@@ -66,14 +67,14 @@ public class TaskVerticlePoolDispatcher {
       .replaceWithVoid();
   }
 
-  private AbstractOrderedRecordVerticle<?> buildVerticle(int i) {
+  private RecordHandlerVerticle<KafkaConsumerRecord> buildVerticle(int i) {
     var verticle = invokerVerticleFactory.createVerticle();
     verticle.setName("invoker-verticle-" +name+ "-" + i);
     verticle.setOnRecordCompleteHandler(this::handleRecordComplete);
     return verticle;
   }
 
-  private void handleRecordComplete(KafkaConsumerRecord<String, Buffer> rec) {
+  private void handleRecordComplete(KafkaConsumerRecord<?, ?> rec) {
     context.runOnContext(() -> {
       offsetManager.recordDone(rec);
       if (drainHandler!=null && inflight.decrementAndGet() < maxInflight)

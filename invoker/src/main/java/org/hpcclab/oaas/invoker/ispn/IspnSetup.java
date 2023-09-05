@@ -37,6 +37,7 @@ public class IspnSetup {
     }
     System.setProperty("infinispan.node.name", podName);
 
+
     GlobalConfigurationBuilder globalConfigurationBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder();
     if (dns != null) {
       globalConfigurationBuilder
@@ -44,9 +45,11 @@ public class IspnSetup {
         .defaultTransport()
         .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml");
     }
+    globalConfigurationBuilder.transport().nodeName(podName)
+      .raftMembers();
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
-    var cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
+    cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
     logger.info("started infinispan");
 
     if (config.hotRodPort() >= 0) {
@@ -67,6 +70,7 @@ public class IspnSetup {
   }
 
   void clean(@Observes ShutdownEvent event) {
+    logger.info("Stopping infinispan...");
     cacheManager.stop();
   }
 }

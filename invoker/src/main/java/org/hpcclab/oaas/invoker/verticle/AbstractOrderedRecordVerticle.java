@@ -7,7 +7,6 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.impl.ConcurrentHashSet;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
-import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +90,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
     return taskQueue.size() + pausedTask.size() + inflight.get();
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }

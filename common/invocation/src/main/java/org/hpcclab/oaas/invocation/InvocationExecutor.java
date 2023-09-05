@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class InvocationExecutor {
   private static final Logger logger = LoggerFactory.getLogger(InvocationExecutor.class);
-  InvocationQueueSender sender;
+  InvocationQueueProducer sender;
   GraphStateManager gsm;
   ContextLoader contextLoader;
   OffLoader offLoader;
@@ -30,7 +30,7 @@ public class InvocationExecutor {
   TaskFactory taskFactory;
 
 
-  public InvocationExecutor(InvocationQueueSender sender,
+  public InvocationExecutor(InvocationQueueProducer sender,
                             GraphStateManager gsm,
                             ContextLoader contextLoader,
                             OffLoader offLoader,
@@ -66,7 +66,7 @@ public class InvocationExecutor {
 
     return gsm.persistNodes(nodes)
       .replaceWith(requests)
-      .flatMap(sender::send);
+      .flatMap(sender::offer);
   }
 
   public Uni<InvocationContext> syncExec(InvocationContext ctx) {
@@ -110,6 +110,6 @@ public class InvocationExecutor {
   public Uni<Void> finalizeCompletion(InvocationContext task, TaskCompletion completion) {
     return gsm.persistThenLoadNext(task, completion)
       .collect().asList()
-      .flatMap(list -> sender.send(list));
+      .flatMap(list -> sender.offer(list));
   }
 }
