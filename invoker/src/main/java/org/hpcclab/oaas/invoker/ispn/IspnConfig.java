@@ -26,8 +26,10 @@ public interface IspnConfig {
     int maxCount();
     @WithDefault("30")
     int ttl();
-
     @WithDefault("false")
     boolean readOnly();
+    @WithDefault("true")
+    boolean awaitInitialTransfer();
+
   }
 }
