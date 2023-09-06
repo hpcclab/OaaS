@@ -91,7 +91,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           readinessProbe:
-            failureThreshold: 30
+            failureThreshold: 100
             httpGet:
               path: /q/health/ready
               port: 8080

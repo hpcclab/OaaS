@@ -17,7 +17,7 @@ public class EmbeddedIspnObjectRepository extends AbsEmbeddedIspnRepository<Oaas
   }
 
   @Override
-  AdvancedCache<String, OaasObject> getCache() {
+  public AdvancedCache<String, OaasObject> getCache() {
     return cache;
   }
 

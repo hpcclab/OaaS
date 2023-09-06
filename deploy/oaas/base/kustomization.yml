@@ -11,4 +11,5 @@ resources:
   - sa.yml
 ### invoker
   - invoker.yml
+#  - invoker-hpa.yml
 
