@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invoker.ispn;
 
 import io.quarkus.runtime.ShutdownEvent;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -63,12 +64,14 @@ public class IspnSetup {
   }
 
   @Produces
+  @Blocking
   EmbeddedCacheManager embeddedCacheManager() {
     if (cacheManager == null)
       cacheManager = setup();
     return cacheManager;
   }
 
+  @Blocking
   void clean(@Observes ShutdownEvent event) {
     logger.info("Stopping infinispan...");
     cacheManager.stop();

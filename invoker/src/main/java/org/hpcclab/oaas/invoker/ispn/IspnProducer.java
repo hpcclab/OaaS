@@ -50,7 +50,7 @@ public class IspnProducer {
     Cache<String, OaasObject> cache;
     if (!cacheManager.cacheExists(OBJECT_CACHE)) {
       var conf = createDistConfig(config.argConnection(), config.objStore(), OaasObject.class);
-      logger.info("create cache for {} : {}", OBJECT_CACHE, conf);
+      log(OBJECT_CACHE,conf);
       cache = cacheManager.createCache(OBJECT_CACHE, conf);
     } else {
       cache = cacheManager.getCache(OBJECT_CACHE);
@@ -63,7 +63,7 @@ public class IspnProducer {
     Cache<String, OaasClass> cache;
     if (!cacheManager.cacheExists(CLASS_CACHE)) {
       var conf =createSimpleConfig(config.argConnection(), config.clsStore(), OaasClass.class);
-      logger.info("create cache for {} : {}", CLASS_CACHE,conf);
+      log(CLASS_CACHE,conf);
       cache = cacheManager.createCache(CLASS_CACHE, conf);
     } else {
       cache = cacheManager.getCache(CLASS_CACHE);
@@ -75,7 +75,7 @@ public class IspnProducer {
     Cache<String, OaasFunction> cache;
     if (!cacheManager.cacheExists(FUNCTION_CACHE)) {
       var conf = createSimpleConfig(config.argConnection(), config.fnStore(), OaasFunction.class);
-      logger.info("create cache for {} : {}", FUNCTION_CACHE,conf);
+      log(FUNCTION_CACHE,conf);
       cache = cacheManager.createCache(FUNCTION_CACHE, conf);
     } else {
       cache = cacheManager.getCache(FUNCTION_CACHE);
@@ -88,7 +88,7 @@ public class IspnProducer {
     Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
       var conf =  createDistConfig(config.argConnection(), config.invNode(), InvocationNode.class);
-      logger.info("create cache for {} : {}", INV_NODE_CACHE,conf);
+      log(INV_NODE_CACHE,conf);
       cache = cacheManager.createCache(INV_NODE_CACHE, conf);
     } else {
       cache = cacheManager.getCache(INV_NODE_CACHE);
@@ -96,6 +96,13 @@ public class IspnProducer {
     return new EmbeddedIspnInvNodeRepository(cache.getAdvancedCache());
   }
 
+  private void log(String name, Configuration configuration) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("create cache for {} : {}", name, configuration);
+    } else {
+      logger.info("create cache for {}", name);
+    }
+  }
 
 
   Configuration createDistConfig(ArgConnectionConfig connectionConfig,

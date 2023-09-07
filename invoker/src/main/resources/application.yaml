@@ -26,7 +26,7 @@ oaas:
   name: invoker
   ispn:
     objStore:
-      maxCount: 10000000
+      maxCount: 1000000
       queueSize: 1000000
       storageType: OFF_HEAP
     clsStore:
