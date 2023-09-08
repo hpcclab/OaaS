@@ -22,12 +22,12 @@ import java.util.function.Consumer;
 @Dependent
 public class InvocationRecordHandler {
 
+  private static final Logger logger = LoggerFactory.getLogger(InvocationRecordHandler.class);
   final OffLoader invoker;
   final InvocationExecutor invocationExecutor;
   final ContextLoader loader;
   final UnifiedFunctionRouter router;
   final OneShotDataflowInvoker dataflowInvoker;
-
   Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler;
 
   @Inject
@@ -39,7 +39,6 @@ public class InvocationRecordHandler {
     this.dataflowInvoker = dataflowInvoker;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger( InvocationRecordHandler.class );
   public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     if (logger.isDebugEnabled()) {
       logLatency(kafkaRecord, request);
@@ -50,6 +49,7 @@ public class InvocationRecordHandler {
       invokeTask(kafkaRecord, request);
     }
   }
+
   private void handleMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
     loader.loadCtxAsync(request)
       .flatMap(router::apply)
@@ -103,13 +103,12 @@ public class InvocationRecordHandler {
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                                     InvocationContext ctx) {
-    if (ctx.isImmutable()) {
-      return false;
-    }
     var obj = ctx.getMain();
     logger.debug("checking duplication [{},{},{}]",
       kafkaRecord.offset(), ctx.getRequest(), obj);
-    return obj.getStatus().getUpdatedOffset() >= kafkaRecord.offset();
+    if (obj.getStatus().getUpdatedOffset() < kafkaRecord.offset())
+      return false;
+    return !ctx.isImmutable();
   }
 
   InvocationContext handleFailInvocation(Throwable exception) {

@@ -52,7 +52,9 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setShared(true);
-    LOGGER.info("Creating WebClient with options {}", options.toJson());
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Creating WebClient with options {}", options.toJson());
+    }
     return WebClient.create(vertx, options);
   }
 

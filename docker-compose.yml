@@ -16,7 +16,7 @@ services:
     depends_on:
       - arangodb
       - redpanda
-#    image: ghcr.io/pawissanutt/oaas/object-controller
+    image: ghcr.io/hpcclab/oaas/object-controller
     build:
       context: object-controller
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -35,12 +35,17 @@ services:
       OAAS_REPO_ARG_DB: oaas
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
+    healthcheck: &oaas-healthcheck
+      test: curl --fail http://localhost:8080/q/health || exit 1
+      interval: 10s
+      retries: 5
+      timeout: 10s
 
   sa:
     build:
       context: storage-adapter
       dockerfile: src/main/docker/Dockerfile.jvm
-#    image: ghcr.io/pawissanutt/oaas/storage-adapter
+    image: ghcr.io/hpcclab/oaas/storage-adapter
 #    restart: always
     ports:
       - "8090:8080"
@@ -56,6 +61,7 @@ services:
       OAAS_REPO_ARG_DB: oaas
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
+    healthcheck: *oaas-healthcheck
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.1.13
@@ -104,13 +110,13 @@ services:
       MINIO_ROOT_PASSWORD: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
       MINIO_DEFAULT_BUCKETS: oaas
+    healthcheck: *oaas-healthcheck
 
   invoker:
-#    restart: always
     depends_on:
       - arangodb
       - redpanda
-#    image: ghcr.io/pawissanutt/oaas/invoker
+    image: ghcr.io/hpcclab/oaas/invoker
     build:
       context: invoker
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -118,7 +124,7 @@ services:
       replicas: 1
     ports:
       - "8089:8080"
-    environment:
+    environment: &invoker-env
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
       OAAS_LOG: DEBUG
@@ -136,25 +142,38 @@ services:
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
       OAAS_INVOKER_USESA: "false"
       OAAS_INVOKER_RESPPUBS3: "true"
+    healthcheck: *oaas-healthcheck
+
+  invoker-n:
+    image: ghcr.io/hpcclab/oaas/invoker
+    depends_on:
+      - arangodb
+      - redpanda
+    deploy:
+      replicas: 1
+    environment:
+      *invoker-env
+    healthcheck: *oaas-healthcheck
+
 
   json-update-fn:
     build:
       context: example/functions/json-update-fn-py
-#    image: ghcr.io/pawissanutt/oaas/json-update-fn-py
+    image: ghcr.io/hpcclab/oaas/json-update-fn-py
     environment:
       LOG_LEVEL: DEBUG
 
   concat-fn:
     build:
       context: example/functions/concat-fn-py
-#    image: ghcr.io/pawissanutt/oaas/concat-fn-py
+    image: ghcr.io/hpcclab/oaas/concat-fn-py
     environment:
       LOG_LEVEL: DEBUG
 
   transcode-fn:
     build:
       context: example/functions/transcode-fn-py
-#    image: ghcr.io/pawissanutt/oaas/transcode-fn-py
+    image: ghcr.io/hpcclab/oaas/transcode-fn-py
     environment:
       LOG_LEVEL: DEBUG
 
@@ -162,8 +181,10 @@ services:
     build:
       context: kube-provisioner
       dockerfile: src/main/docker/Dockerfile.jvm
+    image: ghcr.io/hpcclab/oaas/kube-provisioner
     deploy:
       replicas: 0
+    healthcheck: *oaas-healthcheck
 
 volumes:
   minio-data:
