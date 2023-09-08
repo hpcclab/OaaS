@@ -35,7 +35,7 @@ public class TaskIdentity {
   public TaskIdentity(InvocationContext context) {
     mid = context.getMain().getId();
     oid = context.getOutput() != null? context.getOutput().getId(): null;
-    iid = context.getRequest().invId();
+    iid = context.initNode().getKey();
   }
 
   public String mid() {

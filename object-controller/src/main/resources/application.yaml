@@ -18,11 +18,6 @@
 
 
 "%prod":
-#  quarkus:
-#    infinispan-client:
-#      auth-username: ${infinispan.username:}
-#      auth-password: ${infinispan.password:}
-#      server-list: ${infinispan.server:}
   oaas:
     oc:
       kafkaEnabled: true
