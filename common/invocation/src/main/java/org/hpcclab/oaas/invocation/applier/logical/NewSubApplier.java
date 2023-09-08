@@ -17,7 +17,7 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.OaasObjectFactory;
+import org.hpcclab.oaas.invocation.OaasObjectFactory;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
 import java.util.List;

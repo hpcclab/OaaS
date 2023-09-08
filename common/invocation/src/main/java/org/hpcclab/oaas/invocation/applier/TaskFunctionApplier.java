@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.repository.OaasObjectFactory;
+import org.hpcclab.oaas.invocation.OaasObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
