@@ -98,6 +98,29 @@ services:
       timeout: 3s
       retries: 5
 
+  console:
+    deploy:
+      replicas: 0
+    image: docker.redpanda.com/redpandadata/console:v2.3.1
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+    ports:
+      - "8001:8080"
+    depends_on:
+      - redpanda
+
   s3:
     image: bitnami/minio
     ports:
@@ -110,7 +133,6 @@ services:
       MINIO_ROOT_PASSWORD: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
       MINIO_DEFAULT_BUCKETS: oaas
-    healthcheck: *oaas-healthcheck
 
   invoker:
     depends_on:
@@ -142,6 +164,7 @@ services:
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
       OAAS_INVOKER_USESA: "false"
       OAAS_INVOKER_RESPPUBS3: "true"
+      OAAS_INVOKER_CLUSTERLOCK: "true"
     healthcheck: *oaas-healthcheck
 
   invoker-n:
@@ -150,32 +173,10 @@ services:
       - arangodb
       - redpanda
     deploy:
-      replicas: 1
+      replicas: 0
     environment:
       *invoker-env
     healthcheck: *oaas-healthcheck
-
-
-  json-update-fn:
-    build:
-      context: example/functions/json-update-fn-py
-    image: ghcr.io/hpcclab/oaas/json-update-fn-py
-    environment:
-      LOG_LEVEL: DEBUG
-
-  concat-fn:
-    build:
-      context: example/functions/concat-fn-py
-    image: ghcr.io/hpcclab/oaas/concat-fn-py
-    environment:
-      LOG_LEVEL: DEBUG
-
-  transcode-fn:
-    build:
-      context: example/functions/transcode-fn-py
-    image: ghcr.io/hpcclab/oaas/transcode-fn-py
-    environment:
-      LOG_LEVEL: DEBUG
 
   kp:
     build:
@@ -185,6 +186,36 @@ services:
     deploy:
       replicas: 0
     healthcheck: *oaas-healthcheck
+
+  json-update-fn:
+    build:
+      context: example/functions/json-update-fn-py
+    image: ghcr.io/hpcclab/oaas/json-update-fn-py
+    ports:
+      - 10001:8080
+    environment:
+      LOG_LEVEL: DEBUG
+
+  concat-fn:
+    build:
+      context: example/functions/concat-fn-py
+    image: ghcr.io/hpcclab/oaas/concat-fn-py
+    ports:
+      - 10002:8080
+    environment:
+      LOG_LEVEL: DEBUG
+
+  transcode-fn:
+    build:
+      context: example/functions/transcode-fn-py
+    image: ghcr.io/hpcclab/oaas/transcode-fn-py
+    ports:
+      - 10003:8080
+    environment:
+      LOG_LEVEL: DEBUG
+
+
+
 
 volumes:
   minio-data:

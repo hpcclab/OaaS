@@ -5,16 +5,17 @@ Content-Type: text/x-yaml
 < record.yml
 
 ###
-POST {{cds}}/api/object-construct
+POST {{cds}}/oal
 Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "example.record"
+  "cls": "example.record",
+  "fb": "new"
 }
 
 > {%
-client.global.set("obj_0_id", response.body.object.id)
+  client.global.set("obj_0_id", response.body.output.id)
 %}
 ###
 GET {{cds}}/oal/{{obj_0_id}}

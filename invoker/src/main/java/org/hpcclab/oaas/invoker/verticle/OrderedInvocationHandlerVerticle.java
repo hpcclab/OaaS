@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 @Dependent
 public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle<InvocationRequest> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OrderedInvocationHandlerVerticle.class);
   final InvocationRecordHandler invocationRecordHandler;
 
   @Inject
@@ -27,7 +26,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
     InvocationRecordHandler invocationRecordHandler) {
     super(invokerConfig.invokeConcurrency());
     this.invocationRecordHandler = invocationRecordHandler;
-    invocationRecordHandler.setCompletionHandler(this::next);
   }
 
   @Override
@@ -43,6 +41,6 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
 
   @Override
   public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
-    invocationRecordHandler.handleRecord(kafkaRecord, request);
+    invocationRecordHandler.handleRecord(kafkaRecord, request, (rec, req) -> next(rec));
   }
 }

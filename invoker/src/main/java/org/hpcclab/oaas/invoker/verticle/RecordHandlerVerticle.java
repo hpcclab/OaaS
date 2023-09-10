@@ -10,4 +10,6 @@ public interface RecordHandlerVerticle<T> extends Verticle {
   int countQueueingTasks();
 
   void setName(String name);
+
+  String getName();
 }

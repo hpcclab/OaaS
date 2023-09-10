@@ -9,7 +9,22 @@ spec:
     name: invoker
   minReplicas: 1
   maxReplicas: 12
-
+  behavior:
+    scaleDown:
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 30
+    scaleUp:
+      stabilizationWindowSeconds: 10
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 15
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+      selectPolicy: Max
   metrics:
     - type: Resource
       resource:
@@ -17,4 +32,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 100
-

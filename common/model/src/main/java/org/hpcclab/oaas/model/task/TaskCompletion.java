@@ -3,15 +3,20 @@ package org.hpcclab.oaas.model.task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
 public class TaskCompletion {
   TaskIdentity id;
   boolean success;
@@ -24,6 +29,7 @@ public class TaskCompletion {
   @JsonIgnore
   long smtTs = -1;
   ObjectNode body;
+  List<ObjectAccessLanguage> invokes = List.of();
 
 
   public TaskCompletion() {
@@ -36,7 +42,9 @@ public class TaskCompletion {
                         ObjectUpdate main,
                         ObjectUpdate out,
                         long cptTs,
-                        long smtTs) {
+                        long smtTs,
+                        ObjectNode body,
+                        List<ObjectAccessLanguage> invokes) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
@@ -45,6 +53,8 @@ public class TaskCompletion {
     this.output = out;
     this.cptTs = cptTs;
     this.smtTs = smtTs;
+    this.body = body;
+    this.invokes = invokes;
   }
 
 
@@ -60,17 +70,19 @@ public class TaskCompletion {
       null,
       null,
       cptTs,
-      smtTs
+      smtTs,
+      null,
+      null
     );
-  }
-
-  public TaskCompletion setIdFromTask(OaasTask task) {
-    id = task.getId();
-    return this;
   }
 
   public TaskIdentity getId() {
     if (id==null) id = new TaskIdentity();
     return id;
+  }
+
+  public List<ObjectAccessLanguage> getInvokes() {
+    if (invokes == null) invokes = List.of();
+    return invokes;
   }
 }

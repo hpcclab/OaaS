@@ -49,13 +49,13 @@ public class ConcatHandler {
     var inputUrl = task.getMainKeys().get("text");
     var inPlace = Boolean.parseBoolean(args.getOrDefault("INPLACE", "false"));
     var update = new ObjectUpdate().setUpdatedKeys(Set.of("text"));
-    var tc = new TaskCompletion()
-      .setIdFromTask(task)
-      .setSuccess(true);
+    var completionBuilder = TaskCompletion.builder()
+      .id(task.getId())
+      .success(true);
     if (inPlace)
-      tc.setMain(update);
+      completionBuilder.main(update);
     else
-      tc.setOutput(update);
+      completionBuilder.output(update);
     var allocUrl = inPlace ? task.getAllocMainUrl():task.getAllocOutputUrl();
     if (allocUrl==null)
       return Uni.createFrom()
@@ -63,7 +63,7 @@ public class ConcatHandler {
           .id(task.getId().toString())
           .type("oaas.task.result")
           .source("oaas/concat")
-          .build(tc.setSuccess(false).setErrorMsg("Can not find proper alloc URL")));
+          .build(completionBuilder.success(false).errorMsg("Can not find proper alloc URL").build()));
 
     return getText(inputUrl)
       .flatMap(text -> {
@@ -77,7 +77,7 @@ public class ConcatHandler {
         .id(task.getId().toString())
         .type("oaas.task.result")
         .source("oaas/concat")
-        .build(tc)
+        .build(completionBuilder.build())
       );
   }
 

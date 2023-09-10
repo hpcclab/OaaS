@@ -1,0 +1,159 @@
+name: example
+functions:
+  - name: record.random
+    type: TASK
+    validation: { }
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+    deploymentStatus:
+      invocationUrl: "http://localhost:10001/"
+      condition: RUNNING
+
+  - name: record.merge
+    type: TASK
+    validation: { }
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+    deploymentStatus:
+      invocationUrl: "http://localhost:10001/"
+      condition: RUNNING
+
+  - name: record.chain-update
+    type: MACRO
+    macro:
+      # var record1 = $.json-update()
+      # var record2 = record1.json-update()
+      # var record3 = record2.json-update()
+      # return record3
+      steps:
+        - target: $
+          as: record1
+          function: random
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: random
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: random
+          args:
+            INPLACE: "false"
+      export: record3
+  - name: concat
+    type: TASK
+    validation: {}
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
+    variableDescriptions:
+      - name: append
+    deploymentStatus:
+      invocationUrl: "http://localhost:10002/"
+      condition: RUNNING
+  - name: record.chain-update-atomic
+    type: MACRO
+    macro:
+      # var record1 = $.json-update()
+      # var record2 = record1.json-update()
+      # var record3 = record2.json-update()
+      # return record3
+      atomic: true
+      steps:
+        - target: $
+          as: record1
+          function: random
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: random
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: random
+          args:
+            INPLACE: "false"
+      export: record3
+
+  - name: video.transcode
+    type: TASK
+    outputCls: .video
+    validation: { }
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:dev
+    variableDescriptions:
+      - name: RESOLUTION
+      - name: VCODEC
+      - name: FORMAT
+    deploymentStatus:
+      invocationUrl: "http://localhost:10003/"
+      condition: RUNNING
+
+classes:
+  - name: record
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs: [ ]
+    functions:
+      - access: PUBLIC
+        name: random-inplace
+        function: .record.random
+        outputCls: none
+        defaultArgs:
+          INPLACE: "true"
+      - access: PUBLIC
+        name: random
+        function: .record.random
+        outputCls: .record
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: chain
+        function: .record.chain-update
+        outputCls: .record
+      - access: PUBLIC
+        name: chain-atomic
+        function: .record.chain-update-atomic
+        outputCls: .record
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .record
+  - name: text
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: text
+    functions:
+      - access: PUBLIC
+        function: .concat
+        outputCls: .text
+      - access: PUBLIC
+        function: .concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .text
+  - name: video
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: video
+    functions:
+      - access: PUBLIC
+        function: .video.transcode

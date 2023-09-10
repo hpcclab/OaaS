@@ -39,4 +39,7 @@ public interface InvokerConfig {
 
   @WithDefault("false")
   boolean respPubS3();
+
+  @WithDefault("false")
+  boolean clusterLock();
 }

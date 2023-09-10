@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 @Dependent
 public class InvocationRecordHandler {
@@ -28,7 +30,6 @@ public class InvocationRecordHandler {
   final ContextLoader loader;
   final UnifiedFunctionRouter router;
   final OneShotDataflowInvoker dataflowInvoker;
-  Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler;
 
   @Inject
   public InvocationRecordHandler(OffLoader invoker, InvocationExecutor invocationExecutor, ContextLoader loader, UnifiedFunctionRouter router, OneShotDataflowInvoker dataflowInvoker) {
@@ -39,18 +40,29 @@ public class InvocationRecordHandler {
     this.dataflowInvoker = dataflowInvoker;
   }
 
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                           InvocationRequest request,
+                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler) {
+    handleRecord(kafkaRecord, request, completionHandler, null);
+  }
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                           InvocationRequest request,
+                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler,
+                           BiPredicate<KafkaConsumerRecord<String, Buffer>, InvocationContext> skipCondition) {
     if (logger.isDebugEnabled()) {
       logLatency(kafkaRecord, request);
     }
     if (request.macro()) {
-      handleMacro(kafkaRecord, request);
+      handleMacro(kafkaRecord, request, completionHandler);
     } else {
-      invokeTask(kafkaRecord, request);
+      if (skipCondition == null) skipCondition = this::detectDuplication;
+      invokeTask(kafkaRecord, request, completionHandler, skipCondition);
     }
   }
 
-  private void handleMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+  private void handleMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                           InvocationRequest request,
+                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler) {
     loader.loadCtxAsync(request)
       .flatMap(router::apply)
       .flatMap(ctx -> {
@@ -66,22 +78,23 @@ public class InvocationRecordHandler {
       .atMost(3)
       .subscribe()
       .with(
-        ctx -> completionHandler.accept(kafkaRecord),
+        ctx -> completionHandler.accept(kafkaRecord, request),
         error -> {
           logger.error("Unexpected error on invoker ", error);
-          completionHandler.accept(kafkaRecord);
+          completionHandler.accept(kafkaRecord, request);
         }
       );
   }
 
-  private void invokeTask(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
+  private void invokeTask(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                          InvocationRequest request,
+                          BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler,
+                          BiPredicate<KafkaConsumerRecord<String, Buffer>, InvocationContext> skipCondition) {
     if (logger.isDebugEnabled())
-      logger.debug("invokeTask {}", request);
+      logger.debug("invokeTask [{},{}] {}", request.main(), kafkaRecord.offset(), request);
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
-        if (detectDuplication(kafkaRecord, ctx)) {
-          logger.warn("detect duplication [main={}, out={}]",
-            ctx.getRequest().main(), ctx.getRequest().outId());
+        if (skipCondition.test(kafkaRecord, ctx)) {
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)
@@ -94,21 +107,25 @@ public class InvocationRecordHandler {
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(
-        ctx -> completionHandler.accept(kafkaRecord),
+        ctx -> completionHandler.accept(kafkaRecord, request),
         error -> {
           logger.error("Get an unrecoverable repeating error on invoker ", error);
-          completionHandler.accept(kafkaRecord);
+          completionHandler.accept(kafkaRecord, request);
         });
   }
 
   private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                                     InvocationContext ctx) {
     var obj = ctx.getMain();
-    logger.debug("checking duplication [{},{},{}]",
-      kafkaRecord.offset(), ctx.getRequest(), obj);
+    if (ctx.isImmutable())
+      return false;
     if (obj.getStatus().getUpdatedOffset() < kafkaRecord.offset())
       return false;
-    return !ctx.isImmutable();
+    logger.warn("detect duplication [main={}, objOfs={}, reqOfs={}]",
+      ctx.getRequest().main(),
+      ctx.getMain().getStatus().getUpdatedOffset(),
+      kafkaRecord.offset());
+    return true;
   }
 
   InvocationContext handleFailInvocation(Throwable exception) {
@@ -133,9 +150,5 @@ public class InvocationRecordHandler {
       request.macro(),
       System.currentTimeMillis() - submittedTs
     );
-  }
-
-  public void setCompletionHandler(Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler) {
-    this.completionHandler = completionHandler;
   }
 }

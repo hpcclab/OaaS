@@ -88,8 +88,8 @@ public class InvocationExecutor {
 
 
   public Uni<InvocationContext> asyncExec(InvocationContext ctx) {
-    if (logger.isDebugEnabled())
-      logger.debug("asyncExec {} {}", new TaskIdentity(ctx), ctx);
+    if (logger.isTraceEnabled())
+      logger.trace("asyncExec {} {}", new TaskIdentity(ctx), ctx);
 
     ctx.initNode().markAsSubmitted(null, false);
     if (ctx.getRequest()!=null) {

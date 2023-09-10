@@ -16,23 +16,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(AbstractOrderedRecordVerticle.class);
-
-  protected Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
-  protected String name = "unknown";
   final AtomicInteger inflight = new AtomicInteger(0);
   final AtomicBoolean lock = new AtomicBoolean(false);
-  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> taskQueue;
+  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> incomingQueue;
+  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> waitingQueue;
   private final MutableListMultimap<String, KafkaConsumerRecord<String, Buffer>> pausedTask;
   private final ConcurrentHashSet<String> lockingTaskKeys = new ConcurrentHashSet<>();
   private final int maxConcurrent;
+  protected Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
+  protected String name = "unknown";
 
   public AbstractOrderedRecordVerticle(int maxConcurrent) {
     this.maxConcurrent = maxConcurrent;
-    this.taskQueue = new ConcurrentLinkedQueue<>();
+    this.incomingQueue = new ConcurrentLinkedQueue<>();
+    this.waitingQueue = new ConcurrentLinkedQueue<>();
     this.pausedTask = Multimaps.mutable.list.empty();
   }
 
@@ -43,14 +45,15 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
 
   @Override
   public void offer(KafkaConsumerRecord<String, Buffer> taskRecord) {
-    taskQueue.offer(taskRecord);
+//    logger.debug("offer {} {}", taskRecord.key(), taskRecord.offset());
+    incomingQueue.offer(taskRecord);
     if (lock.get())
       return;
     context.runOnContext(__ -> consume());
   }
 
   protected abstract boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord,
-                                                  T parsedContent);
+                                        T parsedContent);
 
   private void consume() {
     logger.debug("{}: consuming[lock={}, inflight={}]", name, lock, inflight);
@@ -58,7 +61,10 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       return;
     }
     while (inflight.get() < maxConcurrent) {
-      var taskRecord = taskQueue.poll();
+      var taskRecord = waitingQueue.poll();
+      if (taskRecord==null) {
+        taskRecord = incomingQueue.poll();
+      }
       if (taskRecord==null) {
         break;
       }
@@ -87,18 +93,18 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
 
   @Override
   public int countQueueingTasks() {
-    return taskQueue.size() + pausedTask.size() + inflight.get();
+    return incomingQueue.size() + pausedTask.size() + inflight.get();
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
   public void setName(String name) {
     this.name = name;
   }
-
-  public String getName() {
-    return name;
-  }
-
 
   protected void next(KafkaConsumerRecord<String, Buffer> taskRecord) {
     var key = taskRecord.key();
@@ -112,7 +118,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       if (!col.isEmpty()) {
         var rec = col.getFirst();
         pausedTask.remove(key, rec);
-        taskQueue.offer(rec);
+        waitingQueue.add(rec);
       }
     }
     consume();
@@ -134,7 +140,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       .filter(l -> {
         logger.info("{} ms waiting {} tasks for closing OrderedTaskInvoker[{}]",
           l * interval, countQueueingTasks(), name);
-        return taskQueue.isEmpty() && pausedTask.isEmpty();
+        return incomingQueue.isEmpty() && pausedTask.isEmpty();
       })
       .toUni()
       .replaceWithVoid();
