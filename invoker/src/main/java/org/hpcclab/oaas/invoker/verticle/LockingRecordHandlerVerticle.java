@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 @Dependent
 public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(LockingRecordHandlerVerticle.class);
+  final AtomicInteger acquireCounter = new AtomicInteger(0);
   final AtomicInteger inflightCounter = new AtomicInteger(0);
   final InvocationRecordHandler invocationRecordHandler;
   final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> taskQueue;
@@ -60,7 +61,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
     }
     if (taskQueue.isEmpty())
       return;
-    inflightCounter.incrementAndGet();
+    acquireCounter.incrementAndGet();
     var taskRecord = taskQueue.poll();
     var req = Json.decodeValue(taskRecord.value(), InvocationRequest.class);
     if (req.immutable()) {
@@ -79,6 +80,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
       lock.tryLock(3, TimeUnit.MINUTES)
         .thenAccept(locked -> {
           if (Boolean.TRUE.equals(locked)) {
+            inflightCounter.incrementAndGet();
             invocationRecordHandler.handleRecord(
               taskRecord, req,
               (rec, req2) -> {
@@ -89,7 +91,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
             );
           } else {
             taskQueue.offer(taskRecord);
-            inflightCounter.decrementAndGet();
+            acquireCounter.decrementAndGet();
           }
         });
     }
@@ -104,13 +106,14 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
                           InvocationRequest request) {
     if (onRecordCompleteHandler!=null)
       onRecordCompleteHandler.accept(taskRecord);
+    acquireCounter.decrementAndGet();
     inflightCounter.decrementAndGet();
     consume();
   }
 
   @Override
   public int countQueueingTasks() {
-    return inflightCounter.get();
+    return acquireCounter.get() + taskQueue.size();
   }
 
   @Override
