@@ -30,8 +30,6 @@ quarkus:
   s3:
     devservices:
       enabled: false
-  minio:
-    allow-empty: true
   http:
     access-log:
       enabled: true

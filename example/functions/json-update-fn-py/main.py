@@ -25,6 +25,7 @@ class RandomHandler(oaas.Handler):
         entries = int(ctx.args.get('ENTRIES', '10'))
         keys = int(ctx.args.get('KEYS', '10'))
         values = int(ctx.args.get('VALUES', '10'))
+        max = int(ctx.args.get('MAX', '10000'))
         inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
         req_ts = int(ctx.args.get('reqts', '0'))
 
@@ -32,9 +33,15 @@ class RandomHandler(oaas.Handler):
 
         for _ in range(entries):
             record[generate_text(keys)] = generate_text(values)
+        count = len(record)
+        if count > max:
+            for i in range(count - max):
+                k = next(iter(record.keys()))
+                record.pop(k)
 
         record['ts'] = round(time.time() * 1000)
-        record['reqts'] = req_ts
+        if req_ts > 0:
+            record['reqts'] = req_ts
         if inplace:
             ctx.task.main_obj.data = record
         if ctx.task.output_obj is not None:

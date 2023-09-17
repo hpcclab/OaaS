@@ -16,9 +16,29 @@
 "%dev":
   quarkus:
     http:
-      port: 8088
+      port: 8089
+    devservices:
+      enabled: false
   oaas:
     log: DEBUG
+    invoker:
+      kafka: PLAINTEXT://localhost:19092
+      storageAdapterUrl: http://localhost:8090
+      s3:
+        url: http://localhost:9000
+        publicUrl: http://localhost:9000
+        bucket: oaas
+        accessKey: minio_access_key
+        secretKey: minio_access_key
+      useSa: false
+      clusterLock: true
+    ispn:
+      argConnection:
+        host: localhost
+        port: 8529
+        user: root
+        pass: changeme
+        db: oaas
 
 
 oaas:
@@ -26,7 +46,7 @@ oaas:
   name: invoker
   ispn:
     objStore:
-      maxCount: 10000000
+      maxCount: 1000000
       queueSize: 1000000
       storageType: OFF_HEAP
     clsStore:

@@ -21,14 +21,14 @@ import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
 public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V> {
 
-  protected AtomicOperationService<String, V> atomicService;
+  protected EmbededIspnAtomicOperationService<V> atomicService;
 
   abstract AdvancedCache<String, V> getCache();
 
   @Override
-  public AtomicOperationService<String, V> atomic() {
+  public EmbededIspnAtomicOperationService<V> atomic() {
     if (atomicService == null)
-      atomicService = new DefaultAtomicOperationService<>(this);
+      atomicService = new EmbededIspnAtomicOperationService<>(this);
     return atomicService;
   }
 

@@ -52,7 +52,7 @@ class PresignGeneratorTest {
       public String region() {
         return "us-east-1";
       }
-    });
+    }, false);
     PresignGenerator presignGenerator = new PresignGenerator(presigner);
     var url = presignGenerator.generatePresignGet("bkt", "obj");
     assertDoesNotThrow(() -> URI.create(url));

@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.model.exception;
 
-import java.util.UUID;
 
 public class NoStackException extends StdOaasException{
 

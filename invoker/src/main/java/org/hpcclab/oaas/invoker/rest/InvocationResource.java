@@ -7,7 +7,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.InvNodeRepository;
@@ -18,7 +18,7 @@ import org.hpcclab.oaas.repository.InvNodeRepository;
 public class InvocationResource {
 
   @Inject
-  InvocationHandlerService invocationHandlerService;
+  InvocationReqHandler invocationHandlerService;
   @Inject
   InvNodeRepository invNodeRepo;
 

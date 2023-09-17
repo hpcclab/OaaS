@@ -11,13 +11,14 @@ import java.util.stream.Collectors;
 public interface ContentUrlGenerator {
   default String generateUrl(OaasObject obj,
                              String file,
-                             AccessLevel level) {
+                             AccessLevel level,
+                             boolean usePublic) {
     if (obj.getState().getVerIds()==null || obj.getState().getVerIds().isEmpty())
       throw StdOaasException.notKeyInObj(obj.getId(), 404);
     var vid = obj.getState().findVerId(file);
     if (vid==null)
       throw StdOaasException.notKeyInObj(obj.getId(), 404);
-    var dac = DataAccessContext.generate(obj, level, vid);
+    var dac = DataAccessContext.generate(obj, level, vid, usePublic);
     return generateUrl(obj, dac, file);
   }
   default Map<String, String> generateUrl(OaasObject obj,
@@ -25,7 +26,7 @@ public interface ContentUrlGenerator {
     return obj.getState().getVerIds()
       .stream()
       .map(kv -> {
-        var url = generateUrl(obj, kv.getKey(), level);
+        var url = generateUrl(obj, kv.getKey(), level, false);
         return Map.entry(kv.getKey(), url);
       })
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

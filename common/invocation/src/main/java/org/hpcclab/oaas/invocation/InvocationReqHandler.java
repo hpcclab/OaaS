@@ -1,11 +1,9 @@
-package org.hpcclab.oaas.invocation.handler;
+package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.inject.Inject;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.InvocationQueueSender;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -24,23 +22,23 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InvocationHandlerService {
-  private static final Logger logger = LoggerFactory.getLogger(InvocationHandlerService.class);
+public class InvocationReqHandler {
+  private static final Logger logger = LoggerFactory.getLogger(InvocationReqHandler.class);
   UnifiedFunctionRouter router;
   InvocationExecutor invocationExecutor;
-  InvocationQueueSender sender;
+  InvocationQueueProducer producer;
   InvocationValidator invocationValidator;
   IdGenerator idGenerator;
 
   @Inject
-  public InvocationHandlerService(UnifiedFunctionRouter router,
-                                  InvocationExecutor invocationExecutor,
-                                  InvocationQueueSender sender,
-                                  InvocationValidator invocationValidator,
-                                  IdGenerator idGenerator) {
+  public InvocationReqHandler(UnifiedFunctionRouter router,
+                              InvocationExecutor invocationExecutor,
+                              InvocationQueueProducer producer,
+                              InvocationValidator invocationValidator,
+                              IdGenerator idGenerator) {
     this.router = router;
     this.invocationExecutor = invocationExecutor;
-    this.sender = sender;
+    this.producer = producer;
     this.invocationValidator = invocationValidator;
     this.idGenerator = idGenerator;
   }
@@ -85,7 +83,7 @@ public class InvocationHandlerService {
 
           return Tuples.pair(ctx, builder.build());
         })
-        .call(pair -> sender.send(pair.getTwo()))
+        .call(pair -> producer.offer(pair.getTwo()))
         .map(pair -> OalResponse.builder()
           .invId(pair.getTwo().invId())
           .output(new OaasObject().setId(pair.getTwo().outId()))

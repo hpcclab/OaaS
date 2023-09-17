@@ -18,8 +18,7 @@ public class ServerInitializer {
   ArgRepositoryInitializer initializer;
 
 
-  void onStart(@Observes StartupEvent startupEvent) throws IOException, ExecutionException, InterruptedException {
-//    infinispanInit.setup();
+  void onStart(@Observes StartupEvent startupEvent) throws IOException{
     initializer.setup();
     builtInLoader.setup();
   }

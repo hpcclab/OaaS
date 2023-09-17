@@ -7,6 +7,11 @@ metadata:
     platform: oaas
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: invoker
@@ -70,7 +75,7 @@ spec:
           resources:
             limits:
               memory: 4G
-#              cpu: '8'
+              cpu: '2'
             requests:
               cpu: '0.5'
               memory: 512M
@@ -86,7 +91,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           readinessProbe:
-            failureThreshold: 30
+            failureThreshold: 100
             httpGet:
               path: /q/health/ready
               port: 8080
@@ -123,7 +128,10 @@ metadata:
   labels:
     app: invoker
 spec:
+  # Has to be None
   clusterIP: None
+  # Set to true so that members can be discovered without interfering with your readiness probe logic
+  publishNotReadyAddresses: true
   sessionAffinity: None
   type: ClusterIP
   selector:

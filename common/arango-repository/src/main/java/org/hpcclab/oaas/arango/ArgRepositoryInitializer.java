@@ -32,15 +32,15 @@ public class ArgRepositoryInitializer {
   public void setup() {
     if (!database.exists()) database.create();
     if (!objCol.exists()) {
-      objCol.create(new CollectionCreateOptions().numberOfShards(3).replicationFactor(2).writeConcern(1));
-      objCol.ensurePersistentIndex(List.of("cls"), new PersistentIndexOptions());
+      objCol.create(new CollectionCreateOptions());
+//      objCol.ensurePersistentIndex(List.of("cls"), new PersistentIndexOptions());
     }
 
     if (!funcCol.exists()) {
-      funcCol.create(new CollectionCreateOptions().numberOfShards(3).replicationFactor(2).writeConcern(1));
+      funcCol.create();
     }
     if (!clsCol.exists()) {
-      clsCol.create(new CollectionCreateOptions().numberOfShards(3).replicationFactor(2).writeConcern(1));
+      clsCol.create();
     }
   }
 }

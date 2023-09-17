@@ -46,7 +46,11 @@ class ConcatHandler(oaas.Handler):
                 record['ts'] = round(time.time() * 1000)
                 record['load'] = round(loading_time * 1000)
                 record['upload'] = round(uploading_time * 1000)
-                ctx.task.output_obj.data = record
+                if inplace:
+                    ctx.task.main_obj.data = record
+                else:
+                    ctx.task.output_obj.data = record
+
 
 
 app = FastAPI()

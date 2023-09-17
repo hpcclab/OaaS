@@ -36,4 +36,10 @@ public interface InvokerConfig {
   S3ConnConf s3();
   @WithDefault("false")
   boolean useSa();
+
+  @WithDefault("false")
+  boolean respPubS3();
+
+  @WithDefault("false")
+  boolean clusterLock();
 }

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 @ConfigurationFor(ArgCacheStore.class)
 @BuiltBy(ArgCacheStoreConfig.Builder.class)
-public class ArgCacheStoreConfig extends AbstractStoreConfiguration<ArgCacheStoreConfig> {
+public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
   private static final Logger logger = LoggerFactory.getLogger(ArgCacheStoreConfig.class);
 
   public static final AttributeDefinition<Class> VALUE_CLASS = AttributeDefinition.builder(
@@ -29,7 +29,8 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration<ArgCacheStor
 
 
   public ArgCacheStoreConfig(AttributeSet attributes, AsyncStoreConfiguration async) {
-    super(Element.STORE, attributes, async);
+//    super(Element.STORE, attributes, async);
+    super(attributes, async);
   }
 
   public static AttributeSet attributeDefinitionSet() {

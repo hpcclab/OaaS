@@ -10,7 +10,8 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-    <infinispan.version>15.0.0.Dev02</infinispan.version>
+<!--    <infinispan.version>15.0.0.Dev02</infinispan.version>-->
+    <infinispan.version>14.0.16.Final</infinispan.version>
   </properties>
 
   <dependencyManagement>
@@ -99,26 +100,32 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-kafka-client</artifactId>
     </dependency>
+    <!--    <dependency>-->
+    <!--      <groupId>io.netty</groupId>-->
+    <!--      <artifactId>netty-transport-native-epoll</artifactId>-->
+    <!--      <classifier>linux-x86_64</classifier>-->
+    <!--    </dependency>-->
     <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-epoll</artifactId>
+      <groupId>io.netty.incubator</groupId>
+      <artifactId>netty-incubator-transport-native-io_uring</artifactId>
+      <version>0.0.22.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
       <classifier>linux-x86_64</classifier>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.vertx</groupId>-->
-<!--      <artifactId>vertx-io_uring-incubator</artifactId>-->
-<!--    </dependency>-->
     <dependency>
-      <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-core</artifactId>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-io_uring-incubator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-query</artifactId>
+      <artifactId>infinispan-core-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-server-hotrod</artifactId>
+      <artifactId>infinispan-query-jakarta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-server-hotrod-jakarta</artifactId>
       <version>${infinispan.version}</version>
     </dependency>
 <!--    <dependency>-->

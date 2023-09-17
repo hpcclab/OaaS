@@ -8,7 +8,7 @@ import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
-import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
@@ -28,7 +28,7 @@ public class InvocationEngineProducer {
 
   @Produces
   InvocationExecutor invocationGraphExecutor(
-    InvocationQueueSender sender,
+    InvocationQueueProducer sender,
     GraphStateManager graphStateManager,
     RepoContextLoader contextLoader,
     OffLoader offLoader,
@@ -52,7 +52,9 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setShared(true);
-    LOGGER.info("Creating WebClient with options {}", options.toJson());
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Creating WebClient with options {}", options.toJson());
+    }
     return WebClient.create(vertx, options);
   }
 
@@ -74,8 +76,8 @@ public class InvocationEngineProducer {
 
 
   @Produces
-  InvocationHandlerService invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueSender sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
-    return new InvocationHandlerService(router, invocationExecutor, sender, invocationValidator, idGenerator);
+  InvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
+    return new InvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
   }
 
   @Produces

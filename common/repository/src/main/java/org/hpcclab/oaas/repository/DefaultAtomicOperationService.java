@@ -8,7 +8,8 @@ import org.hpcclab.oaas.model.exception.DataAccessException;
 
 import java.util.Random;
 
-public class DefaultAtomicOperationService<K,V extends HasKey<K>> implements AtomicOperationService<K,V>{
+public class DefaultAtomicOperationService<K,V extends HasKey<K>>
+  implements AtomicOperationService<K,V> {
   Random random = new Random();
   EntityRepository<K,V> repository;
 

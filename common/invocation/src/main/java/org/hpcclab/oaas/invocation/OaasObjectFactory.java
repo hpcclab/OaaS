@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.repository;
+package org.hpcclab.oaas.invocation;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.proto.KvPair;
@@ -10,7 +10,6 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
-import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

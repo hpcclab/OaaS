@@ -18,7 +18,6 @@ public interface S3ConnConf {
   boolean pathStyle();
   @WithDefault("oprc")
   String bucket();
-
   Optional<String> prefix();
   @WithDefault("us-east-1")
   String region();

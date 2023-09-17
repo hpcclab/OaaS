@@ -12,7 +12,6 @@ public class ConversionUtils {
     var uni = Uni.createFrom().completionStage(stage);
     if (ctx!=null)
       uni = uni
-//        .runSubscriptionOn(ctx::runOnContext)
         .emitOn(ctx::runOnContext);
     return uni;
   }

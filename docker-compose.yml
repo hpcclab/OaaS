@@ -16,7 +16,7 @@ services:
     depends_on:
       - arangodb
       - redpanda
-#    image: ghcr.io/pawissanutt/oaas/object-controller
+    image: ghcr.io/hpcclab/oaas/object-controller
     build:
       context: object-controller
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -35,12 +35,17 @@ services:
       OAAS_REPO_ARG_DB: oaas
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
+    healthcheck: &oaas-healthcheck
+      test: curl --fail http://localhost:8080/q/health || exit 1
+      interval: 10s
+      retries: 5
+      timeout: 10s
 
   sa:
     build:
       context: storage-adapter
       dockerfile: src/main/docker/Dockerfile.jvm
-#    image: ghcr.io/pawissanutt/oaas/storage-adapter
+    image: ghcr.io/hpcclab/oaas/storage-adapter
 #    restart: always
     ports:
       - "8090:8080"
@@ -56,13 +61,16 @@ services:
       OAAS_REPO_ARG_DB: oaas
       OAAS_REPO_ARG_USER: root
       OAAS_REPO_ARG_PASS: changeme
+    healthcheck: *oaas-healthcheck
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.1.13
     command:
       - redpanda start
       - --smp 1
-      - --overprovisioned
+      # The amount of memory to make available to Redpanda.
+      - --memory 1G
+#      - --overprovisioned
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers
@@ -90,6 +98,29 @@ services:
       timeout: 3s
       retries: 5
 
+  console:
+    deploy:
+      replicas: 0
+    image: docker.redpanda.com/redpandadata/console:v2.3.1
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+    ports:
+      - "8001:8080"
+    depends_on:
+      - redpanda
+
   s3:
     image: bitnami/minio
     ports:
@@ -104,11 +135,10 @@ services:
       MINIO_DEFAULT_BUCKETS: oaas
 
   invoker:
-#    restart: always
     depends_on:
       - arangodb
       - redpanda
-#    image: ghcr.io/pawissanutt/oaas/invoker
+    image: ghcr.io/hpcclab/oaas/invoker
     build:
       context: invoker
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -116,7 +146,7 @@ services:
       replicas: 1
     ports:
       - "8089:8080"
-    environment:
+    environment: &invoker-env
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
       OAAS_LOG: DEBUG
@@ -133,34 +163,59 @@ services:
       OAAS_INVOKER_S3_SECRETKEY: minio_secret_key
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
       OAAS_INVOKER_USESA: "false"
+      OAAS_INVOKER_RESPPUBS3: "true"
+      OAAS_INVOKER_CLUSTERLOCK: "true"
+    healthcheck: *oaas-healthcheck
+
+  invoker-n:
+    image: ghcr.io/hpcclab/oaas/invoker
+    depends_on:
+      - arangodb
+      - redpanda
+    deploy:
+      replicas: 0
+    environment:
+      *invoker-env
+    healthcheck: *oaas-healthcheck
+
+  kp:
+    build:
+      context: kube-provisioner
+      dockerfile: src/main/docker/Dockerfile.jvm
+    image: ghcr.io/hpcclab/oaas/kube-provisioner
+    deploy:
+      replicas: 0
+    healthcheck: *oaas-healthcheck
 
   json-update-fn:
     build:
       context: example/functions/json-update-fn-py
-#    image: ghcr.io/pawissanutt/oaas/json-update-fn-py
+    image: ghcr.io/hpcclab/oaas/json-update-fn-py
+    ports:
+      - 10001:8080
     environment:
       LOG_LEVEL: DEBUG
 
   concat-fn:
     build:
       context: example/functions/concat-fn-py
-#    image: ghcr.io/pawissanutt/oaas/concat-fn-py
+    image: ghcr.io/hpcclab/oaas/concat-fn-py
+    ports:
+      - 10002:8080
     environment:
       LOG_LEVEL: DEBUG
 
   transcode-fn:
     build:
       context: example/functions/transcode-fn-py
-#    image: ghcr.io/pawissanutt/oaas/transcode-fn-py
+    image: ghcr.io/hpcclab/oaas/transcode-fn-py
+    ports:
+      - 10003:8080
     environment:
       LOG_LEVEL: DEBUG
 
-  kp:
-    build:
-      context: kube-provisioner
-      dockerfile: src/main/docker/Dockerfile.jvm
-    deploy:
-      replicas: 0
+
+
 
 volumes:
   minio-data:

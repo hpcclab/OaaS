@@ -9,7 +9,7 @@ import org.hpcclab.oaas.invocation.applier.MacroFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.TaskFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
-import org.hpcclab.oaas.invocation.handler.InvocationHandlerService;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.DefaultInvocationValidator;
@@ -39,7 +39,7 @@ public class MockInvocationEngine {
   public final TaskFactory taskFactory;
   public final RepoContextLoader loader;
   public final IdGenerator idGen;
-  public final InvocationHandlerService invocationHandlerService;
+  public final InvocationReqHandler invocationHandlerService;
 
   public MockInvocationEngine() {
     var objects = MockupData.testObjects();
@@ -85,7 +85,7 @@ public class MockInvocationEngine {
       loader.getFuncRepo(),
       loader.getClsRepo()
     );
-    invocationHandlerService = new InvocationHandlerService(
+    invocationHandlerService = new InvocationReqHandler(
       router,
       invocationExecutor,
       invocationQueueSender,

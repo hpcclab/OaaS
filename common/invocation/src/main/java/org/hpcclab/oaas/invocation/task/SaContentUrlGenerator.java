@@ -1,17 +1,11 @@
 package org.hpcclab.oaas.invocation.task;
 
-import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OaasObject;
 
 public class SaContentUrlGenerator implements ContentUrlGenerator {
 
   private final String saUrl;
-
-//  public SaContentUrlGenerator() {
-//    saUrl = "";
-//  }
 
   public SaContentUrlGenerator(String saUrl) {
     this.saUrl = saUrl;

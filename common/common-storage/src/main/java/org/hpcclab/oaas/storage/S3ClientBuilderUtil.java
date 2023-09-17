@@ -21,14 +21,15 @@ public class S3ClientBuilderUtil {
       .credentialsProvider(StaticCredentialsProvider.create(credentials))
       .build();
   }
-  public static S3Presigner createPresigner(S3ConnConf connConf) {
+  public static S3Presigner createPresigner(S3ConnConf connConf,
+                                            boolean usePub) {
     AwsCredentials credentials = AwsBasicCredentials.create(
       connConf.accessKey(),
       connConf.secretKey()
     );
     return S3Presigner.builder()
-      .endpointOverride(connConf.url())
-      .region(Region.US_EAST_1)
+      .endpointOverride(usePub? connConf.publicUrl(): connConf.url())
+      .region(Region.of(connConf.region()))
       .credentialsProvider(StaticCredentialsProvider.create(credentials))
       .serviceConfiguration(S3Configuration.builder()
         .pathStyleAccessEnabled(connConf.pathStyle())

@@ -19,6 +19,7 @@ public class DataAccessContext {
   String cls;
   AccessLevel level;
   String vid;
+  boolean pub;
   String sig;
 
   String b64;
@@ -51,6 +52,8 @@ public class DataAccessContext {
     if (vid != null)
       sb.append(vid);
     sb.append(':');
+    sb.append(pub?1:0);
+    sb.append(':');
     if (sig != null)
       sb.append(sig);
     return ENCODER.encodeToString(sb.toString().getBytes());
@@ -82,6 +85,18 @@ public class DataAccessContext {
     dac.level = level;
     return dac;
   }
+  public static DataAccessContext generate(OaasObject obj,
+                                           AccessLevel level,
+                                           String vid,
+                                           boolean pub) {
+    var dac = new DataAccessContext();
+    dac.id = obj.getId();
+    dac.vid = vid;
+    dac.cls = obj.getCls();
+    dac.level = level;
+    dac.pub = pub;
+    return dac;
+  }
 
   public static DataAccessContext parse(String b64) {
     var bytes = DECODER.decode(b64);
@@ -95,7 +110,9 @@ public class DataAccessContext {
     if (splitText.length > 3)
       dac.vid = splitText[3];
     if (splitText.length > 4)
-      dac.sig = splitText[4];
+      dac.pub = splitText[4].equals("1");
+    if (splitText.length > 5)
+      dac.sig = splitText[5];
     return dac;
   }
 }

@@ -1,7 +1,10 @@
 package org.hpcclab.oaas.invoker.ispn;
 
+import io.quarkus.runtime.ShutdownEvent;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
@@ -35,6 +38,7 @@ public class IspnSetup {
     }
     System.setProperty("infinispan.node.name", podName);
 
+
     GlobalConfigurationBuilder globalConfigurationBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder();
     if (dns != null) {
       globalConfigurationBuilder
@@ -42,9 +46,11 @@ public class IspnSetup {
         .defaultTransport()
         .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml");
     }
+    globalConfigurationBuilder.transport().nodeName(podName)
+      .raftMembers();
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
-    var cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
+    cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
     logger.info("started infinispan");
 
     if (config.hotRodPort() >= 0) {
@@ -58,14 +64,16 @@ public class IspnSetup {
   }
 
   @Produces
+  @Blocking
   EmbeddedCacheManager embeddedCacheManager() {
     if (cacheManager == null)
       cacheManager = setup();
     return cacheManager;
   }
 
-  @PreDestroy
-  void clean() throws IOException {
-    cacheManager.close();
+  @Blocking
+  void clean(@Observes ShutdownEvent event) {
+    logger.info("Stopping infinispan...");
+    cacheManager.stop();
   }
 }

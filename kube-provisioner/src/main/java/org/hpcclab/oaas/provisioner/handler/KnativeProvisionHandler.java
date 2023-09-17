@@ -18,6 +18,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
@@ -26,9 +28,6 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,23 +74,13 @@ public class KnativeProvisionHandler {
     var function = functionRecord.value();
     if (function==null) {
       boolean deleted;
-//      deleted = knativeClient
-//        .triggers()
-//        .withLabel(LABEL_KEY, key)
-//        .delete();
-//      if (deleted) LOGGER.info("Deleted trigger: {}", key);
-//      deleted =knativeClient
-//        .sequences()
-//        .withLabel(LABEL_KEY, key)
-//        .delete();
-//      if (deleted) LOGGER.info("Deleted sequence: {}", key);
       deleted = !knativeClient
         .services()
         .withLabel(LABEL_KEY, key)
         .delete()
         .isEmpty();
       if (deleted) LOGGER.info("Deleted service: {}", key);
-    } else if (function.getProvision() != null) {
+    } else if (function.getProvision()!=null && function.getProvision().getKnative()!=null) {
       var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
@@ -110,26 +99,10 @@ public class KnativeProvisionHandler {
       } else {
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
-        newSvc = knativeClient.services().create(service);
+        newSvc = knativeClient.services().resource(service).create();
         LOGGER.info("Created service: {}", service.getMetadata().getName());
       }
       updateFunctionStatus(function, newSvc);
-
-//      Sequence sequence = createSequence(function, svcName);
-//      var oldSq = knativeClient.sequences().withName(svcName+ "-sequence")
-//        .get();
-//      if (oldSq == null) {
-//        knativeClient.sequences().createOrReplace(sequence);
-//        LOGGER.info("Created sequence: {}",sequence.getMetadata().getName());
-//      }
-//
-//      Trigger trigger = createTrigger(function, svcName);
-//      var oldTg = knativeClient.triggers().withName(svcName+ "-trigger")
-//        .get();
-//      if (oldTg == null) {
-//        knativeClient.triggers().create(trigger);
-//        LOGGER.info("Created trigger: {}",trigger.getMetadata().getName());
-//      }
     }
   }
 
@@ -142,8 +115,8 @@ public class KnativeProvisionHandler {
       functionRepo.compute(function.getKey(), (k, f) -> {
         var kn = function.getProvision().getKnative();
         var apiPath = kn.getApiPath();
-        if (apiPath == null)
-          apiPath ="";
+        if (apiPath==null)
+          apiPath = "";
         else if (!apiPath.isEmpty() && !apiPath.startsWith("/"))
           apiPath = "/" + apiPath;
         if (f.getDeploymentStatus()==null) {
@@ -162,82 +135,6 @@ public class KnativeProvisionHandler {
         return func;
       });
     }
-  }
-
-  private Trigger createTrigger(OaasFunction function,
-                                String svcName) {
-    return new TriggerBuilder()
-      .withNewMetadata()
-      .withName(svcName + "-trigger")
-      .addToLabels(LABEL_KEY, function.getKey())
-      .addToAnnotations("knative-eventing-injection", "enabled")
-      .endMetadata()
-      .withNewSpec()
-      .withBroker("default")
-      .withNewFilter()
-      .addToAttributes("type", "oaas.task")
-      .addToAttributes("function", function.getKey())
-//      .addToAttributes("tasktype", "DURABLE")
-      .endFilter()
-      .withNewSubscriber()
-      .withNewRef(
-        "v1",
-        "flows.knative.dev",
-        "Sequence",
-        svcName + "-sequence",
-        knativeClient.getNamespace()
-      )
-      .endSubscriber()
-      .endSpec()
-      .build();
-  }
-
-  private Sequence createSequence(OaasFunction function,
-                                  String svcName) {
-    var step = new SequenceStepBuilder()
-      .withNewRef(
-        "v1",
-        "serving.knative.dev",
-        "Service",
-        svcName,
-        knativeClient.getNamespace()
-      )
-      .withNewDelivery()
-      .withNewDeadLetterSink()
-      .withNewRef(
-        "v1",
-        null,
-        "Service",
-        kpConfig.completionHandlerService(),
-        knativeClient.getNamespace()
-      )
-      .withUri(kpConfig.completionHandlerPath())
-      .endDeadLetterSink()
-      .endDelivery()
-      .build();
-    return new SequenceBuilder()
-      .withNewMetadata()
-      .withName(svcName + "-sequence")
-      .addToLabels(LABEL_KEY, function.getKey())
-      .endMetadata()
-      .withNewSpec()
-      .withNewChannelTemplate()
-      .withApiVersion("messaging.knative.dev/v1")
-      .withKind("InMemoryChannel")
-      .endChannelTemplate()
-      .addToSteps(step)
-      .withNewReply()
-      .withNewRef(
-        "v1",
-        null,
-        "Service",
-        kpConfig.completionHandlerService(),
-        knativeClient.getNamespace()
-      )
-      .withUri(kpConfig.completionHandlerPath())
-      .endReply()
-      .endSpec()
-      .build();
   }
 
   private Service createService(OaasFunction function,
@@ -271,10 +168,10 @@ public class KnativeProvisionHandler {
       limits.put("memory", Quantity.parse(provision.getLimitsMemory()));
     }
     var env = provision.getEnv();
-    if (env == null) env = Map.of();
+    if (env==null) env = Map.of();
     var envList = env.entrySet()
       .stream()
-      .map(entry -> new EnvVar(entry.getKey(),entry.getValue(), null))
+      .map(entry -> new EnvVar(entry.getKey(), entry.getValue(), null))
       .toList();
     Container container = new ContainerBuilder()
       .withImage(provision.getImage())
@@ -303,7 +200,6 @@ public class KnativeProvisionHandler {
       .addToLabels(LABEL_KEY, function.getKey())
       .endMetadata()
       .withNewSpec()
-//      .withAffinity(affinity)
       .withTimeoutSeconds(600L)
       .withContainerConcurrency(provision.getConcurrency() > 0 ?
         (long) provision.getConcurrency():null)
