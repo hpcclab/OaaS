@@ -11,7 +11,7 @@
 
   <properties>
 <!--    <infinispan.version>15.0.0.Dev02</infinispan.version>-->
-    <infinispan.version>14.0.16.Final</infinispan.version>
+    <infinispan.version>14.0.17.Final</infinispan.version>
   </properties>
 
   <dependencyManagement>
