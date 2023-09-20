@@ -19,7 +19,7 @@ services:
     image: ghcr.io/hpcclab/oaas/object-controller
     build:
       context: object-controller
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.jvm21
 #    restart: always
     ports:
       - "8088:8080"
@@ -44,7 +44,7 @@ services:
   sa:
     build:
       context: storage-adapter
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.jvm21
     image: ghcr.io/hpcclab/oaas/storage-adapter
 #    restart: always
     ports:
@@ -141,7 +141,7 @@ services:
     image: ghcr.io/hpcclab/oaas/invoker
     build:
       context: invoker
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.jvm21
     deploy:
       replicas: 1
     ports:
@@ -181,7 +181,7 @@ services:
   kp:
     build:
       context: kube-provisioner
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.jvm21
     image: ghcr.io/hpcclab/oaas/kube-provisioner
     deploy:
       replicas: 0

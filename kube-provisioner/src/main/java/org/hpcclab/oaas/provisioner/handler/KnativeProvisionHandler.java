@@ -15,6 +15,7 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
@@ -67,7 +68,7 @@ public class KnativeProvisionHandler {
   ArgFunctionRepository functionRepo;
 
   @Incoming("provisions")
-  @Blocking
+  @RunOnVirtualThread
   public void provision(Record<String, OaasFunction> functionRecord) {
     var key = functionRecord.key();
     LOGGER.debug("Received Knative provision: {}", key);
