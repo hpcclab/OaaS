@@ -214,9 +214,6 @@ services:
     environment:
       LOG_LEVEL: DEBUG
 
-
-
-
 volumes:
   minio-data:
   arango-data:
