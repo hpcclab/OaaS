@@ -35,16 +35,6 @@ public class S3Adapter implements StorageAdapter {
   @PostConstruct
   void setup() {
     var s3Config = config.s3();
-//    minioClient = MinioClient.builder()
-//      .endpoint(s3Config.url().toString())
-//      .region(s3Config.region())
-//      .credentials(s3Config.accessKey(), s3Config.secretKey())
-//      .build();
-//    publicMinioClient = MinioClient.builder()
-//      .endpoint(s3Config.publicUrl().toString())
-//      .region(s3Config.region())
-//      .credentials(s3Config.accessKey(), s3Config.secretKey())
-//      .build();
     relay = config.relay();
     webClient = WebClient.create(vertx);
     prefix = s3Config.prefix().orElse("");

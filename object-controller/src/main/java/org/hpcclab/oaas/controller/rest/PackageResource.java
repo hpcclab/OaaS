@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.config.WithDefault;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.NotImplementedException;
