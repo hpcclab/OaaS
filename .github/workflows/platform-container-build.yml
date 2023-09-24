@@ -9,7 +9,6 @@ on:
 #      - "features/**"
     tags:
       - 'v*'
-      -
 
 jobs:
   build:
@@ -46,7 +45,7 @@ jobs:
 
     - name: Build and push container image with Jib (platforms)
       if: env.CONTAINER_PUSH
-      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true "-Dquarkus.jib.base-jvm-image=${BASE_IMAGE}"
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.jib.base-jvm-image="${BASE_IMAGE}"
 
     - name: Build and test project (concat)
       working-directory: example/functions/concat-fn-java
@@ -54,7 +53,7 @@ jobs:
 
     - name: Build and push container image with Jib (concat)
       working-directory: example/functions/concat-fn-java
-      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG" "-Dquarkus.jib.base-jvm-image=${BASE_IMAGE}"
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG" -Dquarkus.jib.base-jvm-image="$BASE_IMAGE"
 
 #    - name: Build container image with Jib (native image)
 #      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":native-${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests
