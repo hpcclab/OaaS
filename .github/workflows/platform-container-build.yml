@@ -18,8 +18,8 @@ jobs:
       packages: write
     env:
       CONTAINER_PUSH: ${{ github.event_name != 'pull_request' && !startsWith(github.ref_name, 'dependabot')}}
-#      BASE_IMAGES: eclipse-temurin:17-jre-ubi9-minimal
-      BASE_IMAGES: azul/zulu-openjdk:21-jre
+#      BASE_IMAGE: eclipse-temurin:17-jre-ubi9-minimal
+      BASE_IMAGE: azul/zulu-openjdk:21-jre
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 21
