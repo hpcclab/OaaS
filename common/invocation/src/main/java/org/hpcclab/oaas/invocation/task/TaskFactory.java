@@ -98,9 +98,9 @@ public class TaskFactory {
 
     var verIds = obj.getState().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
-      for (var vidEntry : verIds) {
+      for (var vidEntry : verIds.entrySet()) {
         var dac = DataAccessContext.generate(obj, level,
-          vidEntry.getVal());
+          vidEntry.getValue());
         var url =
           contentUrlGenerator.generateUrl(obj, dac, vidEntry.getKey());
         map.put(prefix + vidEntry.getKey(), url);
@@ -109,7 +109,7 @@ public class TaskFactory {
 
     if (obj.getState().getOverrideUrls()!=null) {
       obj.getState().getOverrideUrls()
-        .forEach(e -> map.put(prefix + e.getKey(), e.getVal()));
+        .forEachKeyValue((k, v) -> map.put(prefix + k, v));
     }
     if (refs!=null) {
       for (var entry : refs.entrySet()) {

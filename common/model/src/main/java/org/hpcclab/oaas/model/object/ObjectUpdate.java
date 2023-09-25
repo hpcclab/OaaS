@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,19 +64,16 @@ public class ObjectUpdate {
       obj.setRefs(Set.copyOf(map.values()));
     }
     if (updatedKeys!=null && !updatedKeys.isEmpty()) {
-      var verIds = updatedKeys.stream()
-        .map(key -> new KvPair(key, newVerId))
-        .collect(Collectors.toSet());
+      var verIds = DSMap.wrap(Sets.fixedSize.ofAll(updatedKeys)
+        .toMap(k -> k, __ -> newVerId)
+      );
       var oldVerIds = obj.getState().getVerIds();
       if (oldVerIds==null || oldVerIds.isEmpty())
         obj.getState().setVerIds(verIds);
       else {
-        var tmp = Lists.mutable.withAll(oldVerIds)
-          .toMap(KvPair::getKey, KvPair::getVal);
-        for (var e: verIds){
-          tmp.put(e.getKey(), e.getVal());
-        }
-        obj.getState().setVerIds(tmp.entrySet().stream().map(e -> new KvPair(e.getKey(), e.getValue())).collect(Collectors.toSet()));
+        var tmp = Maps.mutable.ofMap(oldVerIds);
+        tmp.putAll(verIds);
+        obj.getState().setVerIds(DSMap.wrap(tmp));
       }
     }
   }

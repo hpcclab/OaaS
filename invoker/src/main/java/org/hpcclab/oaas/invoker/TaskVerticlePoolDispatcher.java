@@ -3,38 +3,36 @@ package org.hpcclab.oaas.invoker;
 import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.core.Context;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
-public class TaskVerticlePoolDispatcher {
-  private static final Logger logger = LoggerFactory.getLogger( TaskVerticlePoolDispatcher.class );
+public class TaskVerticlePoolDispatcher<R extends KafkaConsumerRecord<?, ?>> {
+  private static final Logger logger = LoggerFactory.getLogger(TaskVerticlePoolDispatcher.class);
   private final AtomicInteger inflight = new AtomicInteger(0);
   private final Context context;
   private final OffsetManager offsetManager;
   private final int maxInflight;
   private final Vertx vertx;
-  private final VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>> invokerVerticleFactory;
-  private RecordHandlerVerticle<KafkaConsumerRecord>[] verticles = new RecordHandlerVerticle[0];
-  private Runnable drainHandler;
+  private final VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory;
   String name = "unknown";
   Random random = ThreadLocalRandom.current();
+  private ImmutableList<RecordHandlerVerticle<R>> verticles = Lists.immutable.empty();
+  private Runnable drainHandler;
 
   public TaskVerticlePoolDispatcher(Vertx vertx,
-                                    VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>> invokerVerticleFactory,
+                                    VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory,
                                     OffsetManager offsetManager,
                                     InvokerConfig config) {
     this.vertx = vertx;
@@ -67,20 +65,18 @@ public class TaskVerticlePoolDispatcher {
       .call(vertx::deployVerticle)
       .collect()
       .asList()
-      .invoke(list -> {
-        verticles = list.toArray(new RecordHandlerVerticle[list.size()]);
-      })
+      .invoke(list -> verticles = Lists.immutable.ofAll(list))
       .replaceWithVoid();
   }
 
-  private RecordHandlerVerticle<KafkaConsumerRecord> buildVerticle(int i) {
+  private RecordHandlerVerticle<R> buildVerticle(int i) {
     var verticle = invokerVerticleFactory.createVerticle();
-    verticle.setName("invoker-verticle-" +name+ "-" + i);
+    verticle.setName("invoker-verticle-" + name + "-" + i);
     verticle.setOnRecordCompleteHandler(this::handleRecordComplete);
     return verticle;
   }
 
-  private void handleRecordComplete(KafkaConsumerRecord<?, ?> rec) {
+  private void handleRecordComplete(R rec) {
     context.runOnContext(() -> {
       offsetManager.recordDone(rec);
       if (drainHandler!=null && inflight.decrementAndGet() < maxInflight)
@@ -88,31 +84,32 @@ public class TaskVerticlePoolDispatcher {
     });
   }
 
-  public void dispatch(KafkaConsumerRecords<String, Buffer> records) {
-    if (verticles.length == 0)
+  public void dispatch(KafkaConsumerRecords<?, ?> records) {
+    if (verticles.isEmpty())
       throw new IllegalStateException("Must deploy first");
     for (int i = 0; i < records.size(); i++) {
       var rec = records.recordAt(i);
       offsetManager.recordReceived(rec);
-      var verticle = verticles[0];
-        if (verticles.length!=1) {
-            if (rec.key() !=null) {
-              var hashIndex = rec.key().hashCode() % verticles.length;
-              if (hashIndex < 0) hashIndex = -hashIndex;
-              verticle = verticles[hashIndex];
-            } else {
-              verticle =verticles[random.nextInt(verticles.length)];
-            }
+      var verticle = verticles.getFirst();
+      var size = verticles.size();
+      if (size!=1) {
+        if (rec.key()!=null) {
+          var hashIndex = rec.key().hashCode() % size;
+          if (hashIndex < 0) hashIndex = -hashIndex;
+          verticle = verticles.get(hashIndex);
+        } else {
+          verticle = verticles.get(random.nextInt(size));
         }
+      }
       if (logger.isDebugEnabled())
         logger.debug("dispatch {} {} {}", rec.key(), rec.offset(), verticle.getName());
-      verticle.offer(rec);
+      verticle.offer((R) rec);
     }
   }
 
   public Uni<Void> waitTillQueueEmpty() {
     return Multi.createFrom().ticks().every(Duration.ofMillis(100))
-      .filter(l -> Stream.of(verticles)
+      .filter(l -> verticles.stream()
         .mapToInt(RecordHandlerVerticle::countQueueingTasks)
         .sum()==0)
       .toUni()

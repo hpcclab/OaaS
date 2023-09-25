@@ -7,6 +7,8 @@ import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
 
 @AutoProtoSchemaBuilder(
   schemaPackageName = PACKAGE_NAME,
+  schemaFileName = "oaas.proto",
+  schemaFilePath = "/protostream",
   basePackages = {
     "org.hpcclab.oaas.model.function",
     "org.hpcclab.oaas.model.object",

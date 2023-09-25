@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
+import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
@@ -15,20 +16,20 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RecordConsumerVerticle extends AbstractVerticle {
+public class RecordConsumerVerticle<K, V> extends AbstractVerticle {
   public static final long RETRY_DELAY = 200;
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordConsumerVerticle.class);
   public final Duration timeout = Duration.ofMillis(500);
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final AtomicBoolean isPolling = new AtomicBoolean(false);
   private final int numberOfVerticle;
-  KafkaConsumer<String, Buffer> consumer;
-  TaskVerticlePoolDispatcher taskDispatcher;
+  KafkaConsumer<K, V> consumer;
+  TaskVerticlePoolDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher;
   OffsetManager offsetManager;
   Set<String> topics = Set.of();
 
-  public RecordConsumerVerticle(KafkaConsumer<String, Buffer> consumer,
-                                TaskVerticlePoolDispatcher taskDispatcher,
+  public RecordConsumerVerticle(KafkaConsumer<K, V> consumer,
+                                TaskVerticlePoolDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher,
                                 InvokerConfig config) {
     this.consumer = consumer;
     this.taskDispatcher = taskDispatcher;
@@ -75,7 +76,7 @@ public class RecordConsumerVerticle extends AbstractVerticle {
     }
   }
 
-  private void handleRecords(KafkaConsumerRecords<String, Buffer> records) {
+  private void handleRecords(KafkaConsumerRecords<K, V> records) {
     if (LOGGER.isDebugEnabled() && !records.isEmpty())
       LOGGER.debug("{} receiving {} records", topics, records.size());
     taskDispatcher.dispatch(records);

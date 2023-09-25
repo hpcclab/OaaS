@@ -3,11 +3,9 @@ package org.hpcclab.oaas.model.provision;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -35,38 +33,12 @@ public class KnativeProvision {
   String limitsCpu;
   @ProtoField(10)
   String limitsMemory;
-  @ProtoField(value = 11, javaType = HashMap.class)
-  Map<String, String> env;
+  @ProtoField(value = 11)
+  DSMap env;
   @ProtoField(12)
   String apiPath;
 
   public KnativeProvision() {
-  }
-
-  public KnativeProvision(String image,
-                          int minScale,
-                          int maxScale,
-                          int concurrency,
-                          int targetConcurrency,
-                          String scaleDownDelay,
-                          String requestsCpu,
-                          String requestsMemory,
-                          String limitsCpu,
-                          String limitsMemory,
-                          Map<String, String> env,
-                          String apiPath) {
-    this.image = image;
-    this.minScale = minScale;
-    this.maxScale = maxScale;
-    this.concurrency = concurrency;
-    this.targetConcurrency = targetConcurrency;
-    this.scaleDownDelay = scaleDownDelay;
-    this.requestsCpu = requestsCpu;
-    this.requestsMemory = requestsMemory;
-    this.limitsCpu = limitsCpu;
-    this.limitsMemory = limitsMemory;
-    this.env = env;
-    this.apiPath = apiPath;
   }
 
   @ProtoFactory
@@ -80,7 +52,7 @@ public class KnativeProvision {
                           String requestsMemory,
                           String limitsCpu,
                           String limitsMemory,
-                          HashMap<String, String> env,
+                          DSMap env,
                           String apiPath) {
     this.image = image;
     this.minScale = minScale;

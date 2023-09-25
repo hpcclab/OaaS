@@ -37,16 +37,15 @@ public class RecordConsumerVerticleFactory implements VerticleFactory<RecordCons
     var consumer = KafkaConsumer.create(vertx, options(config, suffix),
       String.class, Buffer.class);
     var offsetManager = new OffsetManager(consumer);
-    var dispatcher = new TaskVerticlePoolDispatcher(vertx,
-            (VerticleFactory<? extends RecordHandlerVerticle<KafkaConsumerRecord>>) createVerticleFactory(),
+    var dispatcher = new TaskVerticlePoolDispatcher<>(vertx, createVerticleFactory(),
       offsetManager, config);
     dispatcher.setName(suffix);
-    var verticle = new RecordConsumerVerticle(consumer, dispatcher, config);
+    var verticle = new RecordConsumerVerticle<>(consumer, dispatcher, config);
     verticle.setTopics(Set.of(config.invokeTopicPrefix() + suffix));
     return verticle;
   }
 
-  VerticleFactory<?> createVerticleFactory() {
+  VerticleFactory<RecordHandlerVerticle<KafkaConsumerRecord<String,Buffer>>> createVerticleFactory() {
     if (config.clusterLock()) {
       logger.warn("The experimental 'Cluster lock' is enabled. LockingRecordHandlerVerticle will be used.");
       return f -> lockingInvokerVerticleInstance.get();

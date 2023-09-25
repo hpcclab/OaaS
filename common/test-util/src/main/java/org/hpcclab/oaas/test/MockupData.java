@@ -10,7 +10,7 @@ import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.object.ObjectType;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -53,19 +53,19 @@ public class MockupData {
         new DataflowStep()
           .setFunction("f1")
           .setTarget("$")
-          .setArgRefs(Map.of("key1", "arg1"))
+          .setArgRefs(DSMap.of("key1", "arg1"))
           .setAs("tmp1")
-          .setArgs(Map.of("STEP", "1")),
+          .setArgs(DSMap.of("STEP", "1")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp1")
           .setAs("tmp2")
-          .setArgs(Map.of("STEP", "2")),
+          .setArgs(DSMap.of("STEP", "2")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp2")
           .setAs("tmp3")
-          .setArgs(Map.of("STEP", "3"))
+          .setArgs(DSMap.of("STEP", "3"))
       ))
       .setExport("tmp3")
     );
@@ -80,18 +80,18 @@ public class MockupData {
           .setFunction("f3")
           .setTarget("$")
           .setAs("tmp1")
-          .setArgs(Map.of("STEP", "1.1")),
+          .setArgs(DSMap.of("STEP", "1.1")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("$")
           .setAs("tmp2")
-          .setArgs(Map.of("STEP", "1.2")),
+          .setArgs(DSMap.of("STEP", "1.2")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp1")
           .setInputRefs(List.of("tmp2"))
           .setAs("tmp3")
-          .setArgs(Map.of("STEP", "2"))
+          .setArgs(DSMap.of("STEP", "2"))
       ))
       .setExport("tmp3")
     );
@@ -121,7 +121,7 @@ public class MockupData {
         .setName("f1")
         .setFunction(FUNC_1.getKey())
         .setOutputCls(CLS_1_KEY)
-        .setDefaultArgs(Map.of("aa", "aa", "aaa", "aaa")),
+        .setDefaultArgs(DSMap.of("aa", "aa", "aaa", "aaa")),
       new FunctionBinding()
         .setName("func2")
         .setFunction(FUNC_1.getKey())
@@ -156,7 +156,7 @@ public class MockupData {
 //    .setOrigin(new ObjectOrigin())
     .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
-      .setVerIds(Sets.mutable.of(new KvPair("k1", "kkkk")))
+      .setVerIds(DSMap.of("k1", "kkkk"))
     );
 
   public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)

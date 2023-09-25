@@ -16,10 +16,9 @@ import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskDetail;
-import org.hpcclab.oaas.model.task.TaskStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -139,7 +138,7 @@ public class InvocationContext implements TaskDetail {
       node.setInputs(getInputs().stream().map(OaasObject::getId).toList());
     }
     node.setFb(getFbName());
-    node.setArgs(KvPair.fromMap(getArgs()));
+    node.setArgs(DSMap.copy(getArgs()));
     node.setMain(getMain().getId());
     node.setCls(getMainCls().getKey());
     setNode(node);
@@ -149,7 +148,7 @@ public class InvocationContext implements TaskDetail {
   public InvocationRequest.InvocationRequestBuilder toRequest() {
     return initNode()
       .toReq()
-      .macro(function.getType() == FunctionType.MACRO)
+      .macro(function.getType()==FunctionType.MACRO)
       .immutable(getFb().isForceImmutable());
   }
 
@@ -178,8 +177,8 @@ public class InvocationContext implements TaskDetail {
       .main(getMain())
       .output(getOutput())
       .fb(getFbName())
-      .status(node == null? null : node.getStatus())
+      .status(node==null ? null:node.getStatus())
       .body(respBody)
-      .stats(node == null? null : node.extractStats());
+      .stats(node==null ? null:node.extractStats());
   }
 }

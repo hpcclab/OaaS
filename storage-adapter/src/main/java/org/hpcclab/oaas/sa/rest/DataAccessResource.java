@@ -3,7 +3,6 @@ package org.hpcclab.oaas.sa.rest;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
-import org.hpcclab.oaas.model.exception.NoStackException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.sa.AdapterLoader;
@@ -34,7 +33,7 @@ public class DataAccessResource {
                            String key,
                            @RestQuery String contextKey) {
     // TODO protect contextKey with encryption and signature
-    if (contextKey==null) throw new NoStackException("'contextKey' query param is required", 400);
+    if (contextKey==null) throw new StdOaasException("'contextKey' query param is required", 400);
     var dac = DataAccessContext.parse(contextKey);
     var clsName = dac.getCls();
     var cls =  clsRepo.get(clsName);

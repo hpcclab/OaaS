@@ -1,13 +1,14 @@
 package org.hpcclab.oaas.invocation;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.model.proto.KvPair;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectStatus;
+import org.hpcclab.oaas.model.proto.DSMap;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -44,11 +45,9 @@ public class OaasObjectFactory {
     obj.setStatus(status);
     var state = new OaasObjectState();
     if (cls.getStateType() != StateType.COLLECTION) {
-      var verIds = cls.getStateSpec().getKeySpecs()
-        .stream()
-        .map(ks -> new KvPair(ks.getName(), id))
-        .collect(Collectors.toSet());
-      state.setVerIds(verIds);
+      var verIds = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
+          .toMap(KeySpecification::getName, __ -> id);
+      state.setVerIds(DSMap.wrap(verIds));
     }
     obj.setState(state);
     obj.setRevision(1);

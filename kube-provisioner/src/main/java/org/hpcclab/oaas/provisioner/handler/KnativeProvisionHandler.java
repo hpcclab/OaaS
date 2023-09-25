@@ -26,6 +26,7 @@ import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +170,7 @@ public class KnativeProvisionHandler {
       limits.put("memory", Quantity.parse(provision.getLimitsMemory()));
     }
     var env = provision.getEnv();
-    if (env==null) env = Map.of();
+    if (env==null) env = DSMap.of();
     var envList = env.entrySet()
       .stream()
       .map(entry -> new EnvVar(entry.getKey(), entry.getValue(), null))

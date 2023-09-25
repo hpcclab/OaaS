@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -23,8 +22,8 @@ public class FunctionBinding {
   String name;
   @ProtoField(4)
   Set<String> forwardRecords;
-  @ProtoField(value = 5, javaType = HashMap.class)
-  Map<String, String> defaultArgs;
+  @ProtoField(value = 5)
+  DSMap defaultArgs;
   @ProtoField(6)
   String description;
   @ProtoField(7)
@@ -38,25 +37,12 @@ public class FunctionBinding {
   public FunctionBinding() {
   }
 
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls,
-                         boolean forceImmutable, boolean allowNoMain) {
-    this.access = access;
-    this.function = function;
-    this.name = name;
-    this.forwardRecords = forwardRecords;
-    this.defaultArgs = defaultArgs;
-    this.description = description;
-    this.outputCls = outputCls;
-    this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
-  }
-
   @ProtoFactory
   public FunctionBinding(FunctionAccessModifier access,
                          String function,
                          String name,
                          Set<String> forwardRecords,
-                         HashMap<String, String> defaultArgs,
+                         DSMap defaultArgs,
                          String description,
                          String outputCls,
                          boolean forceImmutable,

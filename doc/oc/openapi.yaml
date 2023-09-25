@@ -372,6 +372,14 @@ paths:
                 $ref: '#/components/schemas/OaasPackageContainer'
 components:
   schemas:
+    DSMap:
+      type: array
+      items:
+        type: string
+    DSMap_Public:
+      type: array
+      items:
+        type: string
     DataflowStep:
       type: object
       properties:
@@ -386,13 +394,9 @@ components:
           items:
             type: string
         args:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap'
         argRefs:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap'
     DataflowStep_Public:
       type: object
       properties:
@@ -407,13 +411,9 @@ components:
           items:
             type: string
         args:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap_Public'
         argRefs:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap_Public'
     DeploymentCondition:
       enum:
       - PENDING
@@ -457,9 +457,7 @@ components:
           items:
             type: string
         defaultArgs:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap'
         description:
           type: string
         outputCls:
@@ -483,9 +481,7 @@ components:
           items:
             type: string
         defaultArgs:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap_Public'
         description:
           type: string
         outputCls:
@@ -681,9 +677,7 @@ components:
         limitsMemory:
           type: string
         env:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap'
         apiPath:
           type: string
     KnativeProvision_Public:
@@ -714,17 +708,8 @@ components:
         limitsMemory:
           type: string
         env:
-          type: object
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/DSMap_Public'
         apiPath:
-          type: string
-    KvPair_Public:
-      type: object
-      properties:
-        key:
-          type: string
-        val:
           type: string
     MacroSpec:
       type: object
@@ -906,15 +891,9 @@ components:
       type: object
       properties:
         overrideUrls:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/KvPair_Public'
+          $ref: '#/components/schemas/DSMap_Public'
         verIds:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/KvPair_Public'
+          $ref: '#/components/schemas/DSMap_Public'
     OaasObject_Public:
       type: object
       properties:

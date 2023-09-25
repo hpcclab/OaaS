@@ -26,7 +26,7 @@ public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
     var kafkaRecord = KafkaProducerRecord.create(
         topic,
         request.partKey(),
-        Json.encodeToBuffer(request)
+        serialize(request)
       );
     if (logger.isDebugEnabled())
       logger.debug("send {} [{} {} {}]", topic, request.invId(), request.partKey(), request.outId());
@@ -34,6 +34,10 @@ public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
       kafkaRecord.addHeader("ce_id", request.invId());
     return producer.send(kafkaRecord)
       .replaceWithVoid();
+  }
+
+  public Buffer serialize(InvocationRequest request) {
+    return Json.encodeToBuffer(request);
   }
 
   public String selectTopic(InvocationRequest request) {

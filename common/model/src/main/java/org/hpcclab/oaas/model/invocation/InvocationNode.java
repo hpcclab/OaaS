@@ -6,13 +6,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(5)
   String cls;
   @ProtoField(6)
-  Set<KvPair> args;
+  DSMap args;
   @ProtoField(7)
   List<String> inputs;
   @ProtoField(8)
@@ -57,7 +56,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, Set<KvPair> args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
+  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, DSMap args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -82,13 +81,13 @@ public class InvocationNode implements HasKey<String> {
 
   public InvocationRequest.InvocationRequestBuilder toReq() {
 
-    var partKey = main !=null ? main:null;
+    var partKey = main!=null ? main:null;
     return InvocationRequest.builder()
       .invId(key)
       .partKey(partKey)
       .main(main)
       .cls(cls)
-      .args(KvPair.toMap(args))
+      .args(args)
       .fb(fb)
       .inputs(inputs)
       .outId(outId)

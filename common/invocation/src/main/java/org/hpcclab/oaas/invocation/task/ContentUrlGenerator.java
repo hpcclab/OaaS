@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.invocation.task;
 
+import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -24,12 +26,7 @@ public interface ContentUrlGenerator {
   default Map<String, String> generateUrl(OaasObject obj,
                                           AccessLevel level) {
     return obj.getState().getVerIds()
-      .stream()
-      .map(kv -> {
-        var url = generateUrl(obj, kv.getKey(), level, false);
-        return Map.entry(kv.getKey(), url);
-      })
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      .collect((k, v) -> Tuples.pair(k, generateUrl(obj, k, level, false)));
   }
 
 

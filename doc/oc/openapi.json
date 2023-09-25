@@ -551,6 +551,18 @@
   },
   "components" : {
     "schemas" : {
+      "DSMap" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        }
+      },
+      "DSMap_Public" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        }
+      },
       "DataflowStep" : {
         "type" : "object",
         "properties" : {
@@ -570,16 +582,10 @@
             }
           },
           "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap"
           },
           "argRefs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap"
           }
         }
       },
@@ -602,16 +608,10 @@
             }
           },
           "args" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           },
           "argRefs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           }
         }
       },
@@ -651,10 +651,7 @@
             }
           },
           "defaultArgs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap"
           },
           "description" : {
             "type" : "string"
@@ -690,10 +687,7 @@
             }
           },
           "defaultArgs" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           },
           "description" : {
             "type" : "string"
@@ -930,10 +924,7 @@
             "type" : "string"
           },
           "env" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap"
           },
           "apiPath" : {
             "type" : "string"
@@ -978,23 +969,9 @@
             "type" : "string"
           },
           "env" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           },
           "apiPath" : {
-            "type" : "string"
-          }
-        }
-      },
-      "KvPair_Public" : {
-        "type" : "object",
-        "properties" : {
-          "key" : {
-            "type" : "string"
-          },
-          "val" : {
             "type" : "string"
           }
         }
@@ -1257,18 +1234,10 @@
         "type" : "object",
         "properties" : {
           "overrideUrls" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/KvPair_Public"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           },
           "verIds" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/KvPair_Public"
-            }
+            "$ref" : "#/components/schemas/DSMap_Public"
           }
         }
       },

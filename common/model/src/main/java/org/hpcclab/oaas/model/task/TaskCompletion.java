@@ -29,6 +29,7 @@ public class TaskCompletion {
   @JsonIgnore
   long smtTs = -1;
   ObjectNode body;
+  @Builder.Default
   List<ObjectAccessLanguage> invokes = List.of();
 
 

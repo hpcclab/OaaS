@@ -136,10 +136,10 @@ public class OalResource {
       return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
     }
     var oUrl = obj.getState().getOverrideUrls();
-    var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
+    var replaced = oUrl!=null? oUrl.get(filePath): null;
     if (replaced!= null)
       return Response.status(redirectCode)
-        .location(URI.create(replaced.getVal()))
+        .location(URI.create(replaced))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(obj, filePath, AccessLevel.UNIDENTIFIED, conf.respPubS3());
     return Response.status(redirectCode)
@@ -152,10 +152,10 @@ public class OalResource {
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
     var oUrl = object.getState().getOverrideUrls();
-    var replaced = oUrl!=null? oUrl.stream().filter(e -> e.getKey().equals(filePath)).findFirst().orElse(null): null;
+    var replaced = oUrl!=null? oUrl.get(filePath): null;
     if (replaced!= null)
       return Response.status(redirectCode)
-        .location(URI.create(replaced.getVal()))
+        .location(URI.create(replaced))
         .build();
     var fileUrl = contentUrlGenerator.generateUrl(object, filePath, AccessLevel.UNIDENTIFIED, conf.respPubS3());
     return Response.status(redirectCode)
