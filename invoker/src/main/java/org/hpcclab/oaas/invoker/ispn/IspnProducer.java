@@ -116,7 +116,8 @@ public class IspnProducer {
                                  IspnConfig.CacheStore cacheStore,
                                  boolean transactional,
                                  Class<?> valueCls) {
-    return new ConfigurationBuilder()
+    var builder = new ConfigurationBuilder();
+    builder
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
       .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
@@ -129,23 +130,25 @@ public class IspnProducer {
       .transactionMode(transactional ? TransactionMode.TRANSACTIONAL:TransactionMode.NON_TRANSACTIONAL)
       .locking()
       .isolationLevel(IsolationLevel.REPEATABLE_READ)
-      .persistence()
-      .addStore(ArgCacheStoreConfig.Builder.class)
-      .valueCls(valueCls)
-      .connectionFactory(new ArgConnectionFactory(connectionConfig))
-      .shared(true)
-      .segmented(false)
-      .ignoreModifications(cacheStore.readOnly())
-      .async()
-      .enabled(cacheStore.queueSize() > 0)
-      .modificationQueueSize(cacheStore.queueSize())
-      .failSilently(false)
       .memory()
       .storage(cacheStore.storageType())
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
-      .statistics().enabled(true)
-      .build();
+      .statistics().enabled(true);
+    if (connectionConfig.enabled()) {
+      builder.persistence()
+        .addStore(ArgCacheStoreConfig.Builder.class)
+        .valueCls(valueCls)
+        .connectionFactory(new ArgConnectionFactory(connectionConfig))
+        .shared(true)
+        .segmented(false)
+        .ignoreModifications(cacheStore.readOnly())
+        .async()
+        .enabled(cacheStore.queueSize() > 0)
+        .modificationQueueSize(cacheStore.queueSize())
+        .failSilently(false);
+    }
+    return builder.build();
   }
 
   Configuration createSimpleConfig(ArgConnectionConfig connectionConfig,
