@@ -12,10 +12,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ *  Dual-String Map (Map with string as key and value) that wrap on eclipse {@link MutableMap}
+ */
 public class DSMap extends AbstractMutableMap<String, String> {
   private static final DSMap EMPTY_MAP = new DSMap(Maps.fixedSize.of());
 
   MutableMap<String, String> wrapped;
+
 
   public DSMap() {
 

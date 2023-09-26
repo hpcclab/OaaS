@@ -17,8 +17,8 @@ public class InternalInvocationNode {
   List<InternalInvocationNode> internalDeps;
   List<InternalInvocationNode> next;
   String as;
-  boolean completed = false;
-  boolean marked = false;
+  boolean completed;
+  boolean marked;
 
   public InternalInvocationNode() {
   }

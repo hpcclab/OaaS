@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.oal;
 
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -186,7 +187,7 @@ class ObjectAccessLanguageTest {
       .main(ids.get(0))
       .fb("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
-      .args(Map.of("aaa","bbb"))
+      .args(DSMap.of("aaa","bbb"))
       .build();
     assertEquals(
       "%s:more.test(%s,%s)(aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
@@ -197,7 +198,7 @@ class ObjectAccessLanguageTest {
       .main(ids.get(0))
       .fb("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
-      .args(Map.of("aaa","bbb", "231aa^()", "-*/++"))
+      .args(DSMap.of("aaa","bbb", "231aa^()", "-*/++"))
       .build();
 
     assertEquals(

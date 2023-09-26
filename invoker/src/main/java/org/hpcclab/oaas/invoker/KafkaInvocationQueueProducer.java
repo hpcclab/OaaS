@@ -7,11 +7,15 @@ import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.infinispan.protostream.ProtobufUtil;
+import org.infinispan.protostream.SerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
+import java.util.concurrent.Executors;
 
 @Dependent
 public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
@@ -20,6 +24,7 @@ public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
   KafkaProducer<String, Buffer> producer;
   @Inject
   InvokerConfig config;
+
   @Override
   public Uni<Void> offer(InvocationRequest request) {
     var topic = selectTopic(request);

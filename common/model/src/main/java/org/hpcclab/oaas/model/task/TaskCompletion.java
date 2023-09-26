@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
 
@@ -25,8 +24,10 @@ public class TaskCompletion {
   ObjectUpdate main;
   ObjectUpdate output;
   @JsonIgnore
+  @Builder.Default
   long cptTs = -1;
   @JsonIgnore
+  @Builder.Default
   long smtTs = -1;
   ObjectNode body;
   @Builder.Default
@@ -83,7 +84,7 @@ public class TaskCompletion {
   }
 
   public List<ObjectAccessLanguage> getInvokes() {
-    if (invokes == null) invokes = List.of();
+    if (invokes==null) invokes = List.of();
     return invokes;
   }
 }

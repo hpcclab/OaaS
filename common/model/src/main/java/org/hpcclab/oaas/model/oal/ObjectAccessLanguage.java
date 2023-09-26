@@ -5,7 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,11 +30,11 @@ public class ObjectAccessLanguage {
   final String cls;
   final String fb;
   final ObjectNode body;
-  final Map<String, String> args;
+  final DSMap args;
   final List<String> inputs;
 
   @JsonCreator
-  public ObjectAccessLanguage(String main, String mainCls, String fb, Map<String, String> args, List<String> inputs, ObjectNode body) {
+  public ObjectAccessLanguage(String main, String mainCls, String fb, DSMap args, List<String> inputs, ObjectNode body) {
     this.main = main;
     this.cls = mainCls;
     this.fb = fb;
@@ -67,14 +71,14 @@ public class ObjectAccessLanguage {
       oal.inputs(list);
     }
     if (args!=null && !args.isEmpty()) {
-      var argMap = Arrays.stream(args.split(","))
-        .map(pair -> {
+      var argMap = Lists.fixedSize.of(args.split(","))
+        .collect(pair -> {
           var kv = pair.split("=");
           if (kv.length!=2) throw new OalParsingException("Arguments parsing exception");
-          return Map.entry(kv[0], kv[1]);
+          return Tuples.pair(kv[0], kv[1]);
         })
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      oal.args(argMap);
+        .toMap(Pair::getOne, Pair::getTwo);
+      oal.args(DSMap.wrap(argMap));
     }
     return oal.build();
   }

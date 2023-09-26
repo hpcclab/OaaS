@@ -8,6 +8,7 @@ import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -139,7 +140,7 @@ class AsyncInvocationTest {
       .main(main.getId())
       .outId(mid3)
       .fb(fn.getName())
-      .macroIds(Map.of(
+      .macroIds(DSMap.of(
         "tmp1", mid1,
         "tmp2", mid2,
         "tmp3", mid3
@@ -191,7 +192,7 @@ class AsyncInvocationTest {
       .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
-      .macroIds(Map.of(
+      .macroIds(DSMap.of(
         "tmp1", mid1,
         "tmp2", mid2,
         "tmp3", mid3

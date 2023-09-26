@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectUpdate;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.model.task.TaskStatus;
@@ -68,8 +69,8 @@ class MockingInvocationTest {
     var ctx = router.apply(req)
       .await().indefinitely();
 
-    assertThat(req.args())
-      .containsEntry("aa", "bb");
+    assertThat(req.args().entrySet())
+      .contains(Map.entry("aa", "bb"));
 
     syncInvoker.setMapper(detail -> new TaskCompletion()
       .setId(TaskIdentity.decode(detail.getId()))
@@ -150,7 +151,7 @@ class MockingInvocationTest {
       .main("o1")
       .fb(MockupData.MACRO_FUNC_1.getName())
       .outId("m2")
-      .macroIds(Map.of(
+      .macroIds(DSMap.of(
         "tmp1", "m1",
         "tmp2", "m2",
         "tmp3", "m3"

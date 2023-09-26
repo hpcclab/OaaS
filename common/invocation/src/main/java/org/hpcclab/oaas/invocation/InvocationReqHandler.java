@@ -3,6 +3,7 @@ package org.hpcclab.oaas.invocation;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.inject.Inject;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.validate.InvocationValidator;
@@ -14,11 +15,13 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -98,11 +101,11 @@ public class InvocationReqHandler {
 
 
   private void addMacroIds(InvocationRequest.InvocationRequestBuilder builder, MacroSpec dataflow) {
-    var map = dataflow.getSteps().stream()
-      .filter(step -> step.getAs()!=null)
-      .map(step -> Map.entry(step.getAs(), idGenerator.generate()))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    builder.macroIds(map);
+    var map = Lists.fixedSize.ofAll(dataflow.getSteps())
+      .select(step -> step.getAs()!=null)
+      .collect(step -> Map.entry(step.getAs(), idGenerator.generate()))
+      .toMap(Map.Entry::getKey, Map.Entry::getValue);
+    builder.macroIds(DSMap.wrap(map));
     if (dataflow.getExport()!=null)
       builder.outId(map.get(dataflow.getExport()));
   }
