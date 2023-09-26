@@ -157,6 +157,8 @@ services:
       OAAS_ISPN_ARGCONNECTION_DB: oaas
       OAAS_ISPN_ARGCONNECTION_USER: root
       OAAS_ISPN_ARGCONNECTION_PASS: changeme
+#      OAAS_ISPN_OBJSTORE_PERSISTENTENABLED: 'false'
+#      OAAS_ISPN_INVSTORE_PERSISTENTENABLED: 'false'
       OAAS_INVOKER_S3_URL: http://s3:9000
       OAAS_INVOKER_S3_BUCKET: oaas
       OAAS_INVOKER_S3_ACCESSKEY: minio_access_key
@@ -173,7 +175,7 @@ services:
       - arangodb
       - redpanda
     deploy:
-      replicas: 0
+      replicas: 2
     environment:
       *invoker-env
     healthcheck: *oaas-healthcheck

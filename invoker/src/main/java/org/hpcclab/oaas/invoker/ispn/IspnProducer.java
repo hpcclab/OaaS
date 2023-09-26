@@ -92,7 +92,7 @@ public class IspnProducer {
   synchronized EmbeddedIspnInvNodeRepository invNodeRepository() {
     Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf = createDistConfig(config.argConnection(), config.invNode(),
+      var conf = createDistConfig(config.argConnection(), config.invStore(),
         false,
         InvocationNode.class);
       log(INV_NODE_CACHE, conf);
@@ -135,7 +135,7 @@ public class IspnProducer {
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (connectionConfig.enabled()) {
+    if (cacheStore.persistentEnabled()) {
       builder.persistence()
         .addStore(ArgCacheStoreConfig.Builder.class)
         .valueCls(valueCls)

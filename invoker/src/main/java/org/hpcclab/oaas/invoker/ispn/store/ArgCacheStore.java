@@ -41,14 +41,11 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   private static final Logger logger = LoggerFactory.getLogger(ArgCacheStore.class);
   ArangoCollectionAsync collectionAsync;
   MarshallableEntryFactory<String, T> marshallableEntryFactory;
-
   String name;
   Class<T> valueCls;
   Function<T, String> keyExtractor;
-
   DataConversion valueDataConversion;
   DataConversion keyDataConversion;
-
 
   @Override
   public CompletionStage<Void> start(InitializationContext ctx) {

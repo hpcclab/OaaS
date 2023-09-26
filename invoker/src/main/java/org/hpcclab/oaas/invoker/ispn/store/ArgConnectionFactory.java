@@ -25,7 +25,7 @@ public class ArgConnectionFactory  implements ConnectionFactory<ArangoCollection
       .acquireHostList(true)
       .serializer(new ArangoJack())
       .build()
-      .db(DbName.of(connectionConfig.db()))
+      .db(connectionConfig.db())
       .collection(cacheName);
   }
 }

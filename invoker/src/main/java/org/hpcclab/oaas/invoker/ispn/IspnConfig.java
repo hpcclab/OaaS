@@ -11,13 +11,15 @@ import org.infinispan.configuration.cache.StorageType;
 )
 public interface IspnConfig {
   CacheStore objStore();
-  CacheStore invNode();
+  CacheStore invStore();
   CacheStore clsStore();
   CacheStore fnStore();
   @WithDefault("-1")
   int hotRodPort();
   ArgConnectionConfig argConnection();
   interface CacheStore{
+    @WithDefault("true")
+    boolean persistentEnabled();
     @WithDefault("100000")
     int queueSize();
     @WithDefault("HEAP")

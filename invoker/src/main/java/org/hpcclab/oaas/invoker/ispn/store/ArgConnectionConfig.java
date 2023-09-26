@@ -15,7 +15,4 @@ public interface ArgConnectionConfig {
   Optional<String> pass();
   @WithDefault("_system")
   String db();
-
-  @WithDefault("true")
-  boolean enabled();
 }
