@@ -166,7 +166,7 @@ services:
       OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
       OAAS_INVOKER_USESA: "false"
       OAAS_INVOKER_RESPPUBS3: "true"
-      OAAS_INVOKER_CLUSTERLOCK: "true"
+      OAAS_INVOKER_CLUSTERLOCK: "false"
     healthcheck: *oaas-healthcheck
 
   invoker-n:
@@ -174,8 +174,9 @@ services:
     depends_on:
       - arangodb
       - redpanda
+      - invoker
     deploy:
-      replicas: 2
+      replicas: 0
     environment:
       *invoker-env
     healthcheck: *oaas-healthcheck
