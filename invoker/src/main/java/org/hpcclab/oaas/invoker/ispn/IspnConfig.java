@@ -26,6 +26,8 @@ public interface IspnConfig {
     StorageType storageType();
     @WithDefault("1000000")
     int maxCount();
+    @WithDefault("2")
+    int owner();
     @WithDefault("30")
     int ttl();
     @WithDefault("false")

@@ -31,7 +31,7 @@ public class FunctionBinding {
   @ProtoField(value = 8, defaultValue = "false")
   boolean forceImmutable = false;
   @ProtoField(value = 9, defaultValue = "false")
-  boolean allowNoMain;
+  boolean noMain;
 
 
   public FunctionBinding() {
@@ -46,7 +46,7 @@ public class FunctionBinding {
                          String description,
                          String outputCls,
                          boolean forceImmutable,
-                         boolean allowNoMain) {
+                         boolean noMain) {
     this.access = access;
     this.function = function;
     this.name = name;
@@ -55,7 +55,7 @@ public class FunctionBinding {
     this.description = description;
     this.outputCls = outputCls;
     this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
+    this.noMain = noMain;
   }
 
   public void validate() {

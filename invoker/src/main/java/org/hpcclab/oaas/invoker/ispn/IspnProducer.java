@@ -120,6 +120,7 @@ public class IspnProducer {
     builder
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
+      .hash().numOwners(cacheStore.owner())
       .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)

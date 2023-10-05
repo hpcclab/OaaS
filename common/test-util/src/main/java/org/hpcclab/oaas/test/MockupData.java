@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -18,7 +17,6 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.List;
-import java.util.Map;
 
 public class MockupData {
 
@@ -115,7 +113,7 @@ public class MockupData {
         .setName("new")
         .setFunction("builtin.logical.new")
         .setOutputCls(CLS_1_KEY)
-        .setAllowNoMain(true)
+        .setNoMain(true)
       ,
       new FunctionBinding()
         .setName("f1")
