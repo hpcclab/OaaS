@@ -54,6 +54,8 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
   String description;
   @ProtoField(value = 11, defaultValue = "false")
   boolean markForRemoval;
+  @ProtoField(12)
+  DatastoreLink store;
 
   ResolvedMember resolved;
 
@@ -72,7 +74,8 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
                    StateSpecification stateSpec,
                    List<ReferenceSpecification> refSpec,
                    List<String> parents,
-                   boolean markForRemoval) {
+                   boolean markForRemoval,
+                   DatastoreLink store) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -84,6 +87,7 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
     this.refSpec = refSpec;
     this.parents = parents;
     this.markForRemoval = markForRemoval;
+    this.store = store;
 
     updateKey();
   }
@@ -133,7 +137,8 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
       stateSpec==null ? null:stateSpec.copy(),
       refSpec==null ? null:List.copyOf(refSpec),
       parents==null ? null:List.copyOf(parents),
-      markForRemoval
+      markForRemoval,
+      store
     )
       .setResolved(resolved==null ? null:resolved.copy());
   }

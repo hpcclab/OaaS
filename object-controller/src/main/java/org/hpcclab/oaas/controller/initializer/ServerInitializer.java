@@ -14,12 +14,8 @@ public class ServerInitializer {
 
   @Inject
   BuiltInLoader builtInLoader;
-  @Inject
-  ArgRepositoryInitializer initializer;
-
 
   void onStart(@Observes StartupEvent startupEvent) throws IOException{
-    initializer.setup();
     builtInLoader.setup();
   }
 

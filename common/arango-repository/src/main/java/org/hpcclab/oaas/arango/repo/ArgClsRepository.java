@@ -10,6 +10,7 @@ import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.repository.AsyncEntityRepository;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.slf4j.Logger;
@@ -28,23 +29,23 @@ import java.util.Set;
 public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger( ArgClsRepository.class );
 
-  @Inject
-  @Named("ClassCollection")
   ArangoCollection collection;
-  @Inject
-  @Named("ClassCollectionAsync")
   ArangoCollectionAsync collectionAsync;
+  CacheFactory cacheFactory;
+  private final Cache<String, OaasClass> cache;
+  private final Cache<String, List<String>> subClsCache;
 
   @Inject
-  CacheFactory cacheFactory;
-  private Cache<String, OaasClass> cache;
-  private Cache<String, List<String>> subClsCache;
-
-  @PostConstruct
-  void setup() {
+  public ArgClsRepository(@Named("ClassCollection") ArangoCollection collection,
+                          @Named("ClassCollectionAsync") ArangoCollectionAsync collectionAsync,
+                          CacheFactory cacheFactory) {
+    this.collection = collection;
+    this.collectionAsync = collectionAsync;
+    this.cacheFactory = cacheFactory;
     cache = cacheFactory.get();
     subClsCache = cacheFactory.getLongTermVer();
   }
+
 
   @Override
   public ArangoCollection getCollection() {

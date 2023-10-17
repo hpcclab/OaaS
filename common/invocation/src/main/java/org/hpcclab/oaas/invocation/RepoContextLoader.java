@@ -47,7 +47,7 @@ public class RepoContextLoader implements ContextLoader {
     ctx.setRequest(request);
     Uni<?> uni;
     if (request.main() != null) {
-      uni = objectRepo.getAsync(request.main())
+      uni = objectRepo.async().getAsync(request.main())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject400(request.main()))
         .invoke(ctx::setMain);
@@ -55,11 +55,11 @@ public class RepoContextLoader implements ContextLoader {
       uni = Uni.createFrom().item(ctx);
     }
     uni = uni.map(ignore -> loadClsAndFunc(ctx, request.fb()))
-      .flatMap(ignore -> objectRepo.orderedListAsync(request.inputs()))
+      .flatMap(ignore -> objectRepo.async().orderedListAsync(request.inputs()))
       .invoke(ctx::setInputs);
 
     if (request.preloadingNode()) {
-      uni = uni.flatMap(__ -> invNodeRepo.getAsync(request.invId()))
+      uni = uni.flatMap(__ -> invNodeRepo.async().getAsync(request.invId()))
         .invoke(invNode -> {
           if (invNode!=null)
             ctx.setNode(invNode);
@@ -109,7 +109,7 @@ public class RepoContextLoader implements ContextLoader {
         if (obj!=null)
           return Uni.createFrom().item(obj);
         var id = res.get().getObjId();
-        return objectRepo.getAsync(id)
+        return objectRepo.async().getAsync(id)
           .onItem().ifNull()
           .failWith(() -> FunctionValidationException.cannotResolveMacro(ref, "object not found"))
           .invoke(o -> baseCtx.getMainRefs().put(id, o));

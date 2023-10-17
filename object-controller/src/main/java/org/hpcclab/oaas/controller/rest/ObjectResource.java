@@ -45,7 +45,7 @@ public class ObjectResource {
   @Path("{id}")
   @JsonView(Views.Public.class)
   public Uni<OaasObject> get(String id) {
-    return objectRepo.getAsync(id)
+    return objectRepo.async().getAsync(id)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
@@ -53,6 +53,6 @@ public class ObjectResource {
   @Path("{id}")
   @JsonView(Views.Public.class)
   public Uni<OaasObject> delete(String id) {
-    return objectRepo.removeAsync(id);
+    return objectRepo.async().removeAsync(id);
   }
 }

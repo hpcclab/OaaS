@@ -662,7 +662,7 @@
           "forceImmutable" : {
             "type" : "boolean"
           },
-          "allowNoMain" : {
+          "noMain" : {
             "type" : "boolean"
           }
         }
@@ -698,7 +698,7 @@
           "forceImmutable" : {
             "type" : "boolean"
           },
-          "allowNoMain" : {
+          "noMain" : {
             "type" : "boolean"
           }
         }

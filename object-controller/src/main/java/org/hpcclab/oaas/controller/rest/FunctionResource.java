@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
@@ -51,7 +52,8 @@ public class FunctionResource {
   @POST
   @JsonView(Views.Public.class)
   @Deprecated(forRemoval = true)
-  public Uni<List<OaasFunction>> create(@RestQuery boolean update,
+  @RunOnVirtualThread
+  public List<OaasFunction> create(@RestQuery boolean update,
                                         List<OaasFunction> functions) {
     var pkg = new OaasPackageContainer()
       .setFunctions(functions);
@@ -59,15 +61,15 @@ public class FunctionResource {
       pkg.setName("default");
     }
 
-    return packageResource.create(update, false, pkg)
-      .map(OaasPackageContainer::getFunctions);
+    return packageResource.create(update, false, pkg).getFunctions();
   }
 
   @POST
   @Consumes("text/x-yaml")
   @JsonView(Views.Public.class)
   @Deprecated(forRemoval = true)
-  public Uni<List<OaasFunction>> createByYaml(@RestQuery boolean update,
+  @RunOnVirtualThread
+  public List<OaasFunction> createByYaml(@RestQuery boolean update,
                                               String body) {
     try {
       var funcs = yamlMapper.readValue(body, OaasFunction[].class);
@@ -81,7 +83,7 @@ public class FunctionResource {
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
   public Uni<OaasFunction> get(String funcKey) {
-    return funcRepo.getAsync(funcKey)
+    return funcRepo.async().getAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
 
@@ -89,7 +91,7 @@ public class FunctionResource {
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
   public Uni<OaasFunction> delete(String funcKey) {
-    return funcRepo.removeAsync(funcKey)
+    return funcRepo.async().removeAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new)
       .call(__ -> provisionPublisher.submitDeleteFn(funcKey));
   }

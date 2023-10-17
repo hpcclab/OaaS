@@ -75,7 +75,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM azul/zulu-openjdk:21-jre
+FROM eclipse-temurin:21-jre
 
 ENV LANGUAGE='en_US:en'
 

@@ -24,8 +24,12 @@ import java.util.stream.Collectors;
 public class ClassResolver {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResolver.class);
 
-  @Inject
   ClassRepository clsRepo;
+
+  @Inject
+  public ClassResolver(ClassRepository clsRepo) {
+    this.clsRepo = clsRepo;
+  }
 
   public OaasClass resolve(OaasClass base, List<OaasClass> parentClasses) {
     var resolved = base.copy();

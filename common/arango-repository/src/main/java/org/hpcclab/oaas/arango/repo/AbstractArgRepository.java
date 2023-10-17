@@ -14,6 +14,8 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.repository.AsyncEntityRepository;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +31,17 @@ import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
 import static org.hpcclab.oaas.arango.repo.ArgQueryService.queryOptions;
 
 public abstract class AbstractArgRepository<V>
-  implements EntityRepository<String, V> {
+  implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractArgRepository.class);
 
   protected ArgQueryService<V> queryService;
   protected ArgAtomicService<V> atomicService;
+
+
+  @Override
+  public AsyncEntityRepository<String, V> async() {
+    return this;
+  }
 
   public abstract ArangoCollection getCollection();
 
@@ -142,6 +150,13 @@ public abstract class AbstractArgRepository<V>
     getCollection().insertDocument(value, createOptions());
     return value;
   }
+
+  @Override
+  public V persist(V v) {
+    return put(extractKey(v), v);
+  }
+
+
 
   @Override
   public Uni<V> putAsync(String key, V value) {

@@ -464,7 +464,7 @@ components:
           type: string
         forceImmutable:
           type: boolean
-        allowNoMain:
+        noMain:
           type: boolean
     FunctionBinding_Public:
       type: object
@@ -488,7 +488,7 @@ components:
           type: string
         forceImmutable:
           type: boolean
-        allowNoMain:
+        noMain:
           type: boolean
     FunctionDeploymentStatus:
       type: object

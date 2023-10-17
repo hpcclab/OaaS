@@ -58,7 +58,7 @@ public class CompletionValidator {
                                            String fbName,
                                            boolean isMain,
                                            ObjectUpdate update) {
-    return clsRepo.getAsync(clsKey)
+    return clsRepo.async().getAsync(clsKey)
       .map(cls -> {
         if (isMain) {
           var fb = cls.findFunction(fbName);
@@ -71,7 +71,7 @@ public class CompletionValidator {
   }
 
   private Uni<Void> validateFunction(TaskDetail taskDetail, TaskCompletion completion) {
-    return funcRepo.getAsync(taskDetail.getFuncKey())
+    return funcRepo.async().getAsync(taskDetail.getFuncKey())
       .onItem()
       .ifNull().failWith(() -> new CompletionCheckException("Can not find the matched func"))
       .invoke(func -> {

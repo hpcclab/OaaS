@@ -51,7 +51,7 @@ public class OalResource {
     if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async);
     } else {
-      return objectRepo.getAsync(oal.getMain())
+      return objectRepo.async().getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> OalResponse.builder()
@@ -84,7 +84,7 @@ public class OalResource {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
-      return objectRepo.getAsync(oal.getMain())
+      return objectRepo.async().getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> createResponse(obj, filePath));

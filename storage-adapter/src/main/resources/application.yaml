@@ -7,13 +7,6 @@
         url: http://s3.test.com
         publicUrl: http://s3.test.com
 
-#"%prod":
-#  quarkus:
-#    infinispan-client:
-#      auth-username: ${infinispan.username:}
-#      auth-password: ${infinispan.password:}
-#      server-list: ${infinispan.server:}
-
 "%dev":
   oaas:
     log: DEBUG
@@ -25,6 +18,17 @@
 
 oaas:
   log: INFO
+oprc:
+  env: |
+    OPRC_DB_CLS_HOST=localhost
+    OPRC_DB_CLS_PORT=8529
+    OPRC_DB_CLS_USER=root
+    OPRC_DB_FN_HOST=localhost
+    OPRC_DB_FN_PORT=8529
+    OPRC_DB_FN_USER=root
+    OPRC_DB_OBJ_HOST=localhost
+    OPRC_DB_OBJ_PORT=8529
+    OPRC_DB_OBJ_USER=root
 
 quarkus:
   s3:

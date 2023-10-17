@@ -11,9 +11,9 @@ import java.util.Random;
 public class DefaultAtomicOperationService<K,V extends HasKey<K>>
   implements AtomicOperationService<K,V> {
   Random random = new Random();
-  EntityRepository<K,V> repository;
+  AsyncEntityRepository<K,V> repository;
 
-  public DefaultAtomicOperationService(EntityRepository<K, V> repository) {
+  public DefaultAtomicOperationService(AsyncEntityRepository<K, V> repository) {
     this.repository = repository;
   }
 

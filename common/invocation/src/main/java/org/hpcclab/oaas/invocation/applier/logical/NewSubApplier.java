@@ -87,20 +87,21 @@ public class NewSubApplier implements LogicalSubApplier {
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
     var obj = objectFactory.createBase(construction, cls);
+    var async = objRepo.async();
     linkReference(construction, obj, cls);
     var stateSpec = cls.getStateSpec();
-    if (stateSpec==null) return objRepo.persistAsync(obj)
+    if (stateSpec==null) return async.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .select(k -> construction.getKeys().contains(k.getName()));
     if (ks.isEmpty()) {
-      return objRepo.persistAsync(obj)
+      return async.persistAsync(obj)
         .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
     }
     DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, cls.getStateSpec().getDefaultProvider(), true);
     return allocator.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
-      .call(() -> objRepo.persistAsync(obj));
+      .call(() -> async.persistAsync(obj));
   }
 }

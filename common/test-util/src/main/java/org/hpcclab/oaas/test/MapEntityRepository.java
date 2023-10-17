@@ -1,23 +1,20 @@
 package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.repository.AtomicOperationService;
-import org.hpcclab.oaas.repository.DefaultAtomicOperationService;
-import org.hpcclab.oaas.repository.EntityRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class MapEntityRepository<K, V extends HasKey<K>> implements EntityRepository<K, V > {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MapEntityRepository.class);
+public class MapEntityRepository<K, V extends HasKey<K>> implements EntityRepository<K, V>
+  , AsyncEntityRepository<K, V> {
   MutableMap<K, V> map;
   Function<V, K> keyExtractor;
 
@@ -50,6 +47,11 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     return Uni.createFrom().item(list(keys));
   }
 
+  @Override
+  public Uni<List<V>> orderedListAsync(Collection<K> keys) {
+    return AsyncEntityRepository.super.orderedListAsync(keys);
+  }
+
 
   @Override
   public V remove(K key) {
@@ -59,6 +61,11 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   @Override
   public Uni<V> removeAsync(K key) {
     return Uni.createFrom().item(map.remove(key));
+  }
+
+  @Override
+  public Uni<Void> deleteAsync(K key) {
+    return AsyncEntityRepository.super.deleteAsync(key);
   }
 
   @Override
@@ -73,25 +80,27 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     return Uni.createFrom().item(put(key, value));
   }
 
-  //  @Override
-  public Uni<Void> putAllAsync(Map<K, V> m) {
-    m.forEach(this::put);
-    return Uni.createFrom().voidItem();
+  @Override
+  public V persist(V v) {
+    return put(v.getKey(), v);
   }
-
 
   @Override
   public Uni<V> persistAsync(V v) {
-    LOGGER.debug("persistAsync {}", v);
-    return putAsync(keyExtractor.apply(v), v);
+    return Uni.createFrom().item(persist(v));
   }
 
   @Override
   public Uni<Void> persistAsync(Collection<V> collection) {
-    LOGGER.debug("persistAsync {}", collection);
-    var m = Lists.fixedSize.ofAll(collection)
-      .groupByUniqueKey(keyExtractor::apply);
-    return putAllAsync(m);
+    var map = collection.stream().collect(Collectors.toMap(HasKey::getKey, Function.identity()));
+    return putAllAsync(map);
+  }
+
+
+  //  @Override
+  public Uni<Void> putAllAsync(Map<K, V> m) {
+    m.forEach(this::put);
+    return Uni.createFrom().voidItem();
   }
 
   @Override
@@ -117,5 +126,10 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   @Override
   public AtomicOperationService<K, V> atomic() {
     return new DefaultAtomicOperationService<>(this);
+  }
+
+  @Override
+  public QueryService<K, V> getQueryService() {
+    throw new UnsupportedOperationException();
   }
 }

@@ -4,15 +4,15 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.async.ArangoCollectionAsync;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +24,18 @@ import java.util.Map;
   registerFullHierarchy = true
 )
 public class ArgObjectRepository extends AbstractArgRepository<OaasObject> implements ObjectRepository {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ArgObjectRepository.class );
-  @Inject
-  @Named("ObjectCollection")
+  private static final Logger LOGGER = LoggerFactory.getLogger(ArgObjectRepository.class);
+
   ArangoCollection collection;
-  @Inject
-  @Named("ObjectCollectionAsync")
+
   ArangoCollectionAsync collectionAsync;
+
+  @Inject
+  public ArgObjectRepository(@Named("ObjectCollection") ArangoCollection collection,
+                             @Named("ObjectCollectionAsync") ArangoCollectionAsync collectionAsync) {
+    this.collection = collection;
+    this.collectionAsync = collectionAsync;
+  }
 
   @Override
   public ArangoCollection getCollection() {
@@ -95,7 +100,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
       query,
       Map.of("@col", getCollection().name(),
         "cls", clsKeys,
-        "order",  desc? "DESC" : "ASC",
+        "order", desc ? "DESC":"ASC",
         "off", offset,
         "lim", limit,
         "sort", sortKey.split("\\.")

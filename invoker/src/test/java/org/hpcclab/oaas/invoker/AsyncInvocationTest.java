@@ -56,7 +56,7 @@ class AsyncInvocationTest {
   @BeforeEach
   void setup() {
     for (var cls : clsList) {
-      clsRepo.persistAsync(cls).await().indefinitely();
+      clsRepo.put(cls.getKey(), cls);
       deployer.deployVerticleIfNew(cls.getKey())
         .await().indefinitely();
     }

@@ -30,11 +30,11 @@ services:
       OAAS_OC_PROVISIONTOPIC: msc-provisions
       OAAS_OC_KAFKAENABLED: 'true'
       OAAS_OC_STORAGEADAPTERURL: http://sa:8080
-      OAAS_REPO_ARG_HOST: arangodb
-      OAAS_REPO_ARG_PORT: "8529"
-      OAAS_REPO_ARG_DB: oaas
-      OAAS_REPO_ARG_USER: root
-      OAAS_REPO_ARG_PASS: changeme
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
     healthcheck: &oaas-healthcheck
       test: curl --fail http://localhost:8080/q/health || exit 1
       interval: 10s
@@ -56,11 +56,11 @@ services:
       OAAS_SA_S3_ACCESSKEY: minio_access_key
       OAAS_SA_S3_SECRETKEY: minio_secret_key
       OAAS_SA_S3_PUBLICURL: http://localhost:9000
-      OAAS_REPO_ARG_HOST: arangodb
-      OAAS_REPO_ARG_PORT: "8529"
-      OAAS_REPO_ARG_DB: oaas
-      OAAS_REPO_ARG_USER: root
-      OAAS_REPO_ARG_PASS: changeme
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
     healthcheck: *oaas-healthcheck
 
   redpanda:
@@ -152,13 +152,6 @@ services:
       OAAS_LOG: DEBUG
       OAAS_INVOKER_KAFKA: PLAINTEXT://redpanda:9092
       OAAS_INVOKER_STORAGEADAPTERURL: http://sa:8080
-      OAAS_ISPN_ARGCONNECTION_HOST: arangodb
-      OAAS_ISPN_ARGCONNECTION_PORT: "8529"
-      OAAS_ISPN_ARGCONNECTION_DB: oaas
-      OAAS_ISPN_ARGCONNECTION_USER: root
-      OAAS_ISPN_ARGCONNECTION_PASS: changeme
-#      OAAS_ISPN_OBJSTORE_PERSISTENTENABLED: 'false'
-#      OAAS_ISPN_INVSTORE_PERSISTENTENABLED: 'false'
       OAAS_INVOKER_S3_URL: http://s3:9000
       OAAS_INVOKER_S3_BUCKET: oaas
       OAAS_INVOKER_S3_ACCESSKEY: minio_access_key
@@ -167,6 +160,21 @@ services:
       OAAS_INVOKER_USESA: "false"
       OAAS_INVOKER_RESPPUBS3: "true"
       OAAS_INVOKER_CLUSTERLOCK: "false"
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
+      OPRC_DB_OBJ_HOST: arangodb
+      OPRC_DB_OBJ_PORT: "8529"
+      OPRC_DB_OBJ_DB: oaas
+      OPRC_DB_OBJ_USER: root
+      OPRC_DB_OBJ_PASS: changeme
+      OPRC_DB_INV_HOST: arangodb
+      OPRC_DB_INV_PORT: "8529"
+      OPRC_DB_INV_DB: oaas
+      OPRC_DB_INV_USER: root
+      OPRC_DB_INV_PASS: changeme
     healthcheck: *oaas-healthcheck
 
   invoker-n:

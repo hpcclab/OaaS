@@ -59,7 +59,8 @@ public class VerticleDeployer {
   }
 
   void deployPerFunc() {
-    var funcList = funcRepo.values()
+    var funcList = funcRepo.async()
+      .values()
       .select().first(1000)
       .collect().asList().await().indefinitely();
 
@@ -76,7 +77,8 @@ public class VerticleDeployer {
   }
 
   void deployPerCls() {
-    var clsList = clsRepo.values()
+    var clsList = clsRepo.async()
+      .values()
       .select().first(1000)
       .collect().asList().await().indefinitely();
 

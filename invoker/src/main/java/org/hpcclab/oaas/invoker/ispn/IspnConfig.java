@@ -16,7 +16,6 @@ public interface IspnConfig {
   CacheStore fnStore();
   @WithDefault("-1")
   int hotRodPort();
-  ArgConnectionConfig argConnection();
   interface CacheStore{
     @WithDefault("true")
     boolean persistentEnabled();

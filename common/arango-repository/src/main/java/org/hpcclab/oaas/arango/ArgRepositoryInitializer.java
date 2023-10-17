@@ -33,7 +33,6 @@ public class ArgRepositoryInitializer {
     if (!database.exists()) database.create();
     if (!objCol.exists()) {
       objCol.create(new CollectionCreateOptions());
-//      objCol.ensurePersistentIndex(List.of("cls"), new PersistentIndexOptions());
     }
 
     if (!funcCol.exists()) {

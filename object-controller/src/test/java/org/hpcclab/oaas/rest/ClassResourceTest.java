@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.*;
 class ClassResourceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResourceTest.class);
 
-
   // language=yaml
   String clsText1 = """
       functions:

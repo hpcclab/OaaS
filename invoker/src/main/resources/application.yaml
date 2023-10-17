@@ -32,13 +32,6 @@
         secretKey: minio_access_key
       useSa: false
       clusterLock: true
-    ispn:
-      argConnection:
-        host: localhost
-        port: 8529
-        user: root
-        pass: changeme
-        db: oaas
 
 
 oaas:
@@ -56,6 +49,17 @@ oaas:
       maxCount: 10000
       storageType: HEAP
 
+oprc:
+  env: |
+    OPRC_DB_PKG_HOST=localhost
+    OPRC_DB_PKG_PORT=8529
+    OPRC_DB_PKG_USER=root
+    OPRC_DB_OBJ_HOST=localhost
+    OPRC_DB_OBJ_PORT=8529
+    OPRC_DB_OBJ_USER=root
+    OPRC_DB_INV_HOST=localhost
+    OPRC_DB_INV_PORT=8529
+    OPRC_DB_INV_USER=root
 
 quarkus:
   s3:

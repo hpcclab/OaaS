@@ -229,12 +229,15 @@ public class MockupData {
   public static void persistMock(ObjectRepository objectRepo,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {
-    objectRepo.persistAsync(testObjects())
-      .await().indefinitely();
-    clsRepo.persistAsync(testClasses().values())
-      .await().indefinitely();
-    fnRepo.persistAsync(testFunctions().values())
-      .await().indefinitely();
+    for (OaasObject testObject : testObjects()) {
+      objectRepo.persist(testObject);
+    }
+    for (OaasClass cls : testClasses()) {
+      clsRepo.persist(cls);
+    }
+    for (OaasFunction func : testFunctions()) {
+      fnRepo.persist(func);
+    }
   }
 
 }

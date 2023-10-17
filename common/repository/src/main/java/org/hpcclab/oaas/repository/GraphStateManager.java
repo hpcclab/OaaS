@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 public class GraphStateManager {
   private static final Logger logger = LoggerFactory.getLogger(GraphStateManager.class);
 
-  EntityRepository<String, InvocationNode> invNodeRepo;
-  EntityRepository<String, OaasObject> objRepo;
+  AsyncEntityRepository<String, InvocationNode> invNodeRepo;
+  AsyncEntityRepository<String, OaasObject> objRepo;
 
   public GraphStateManager(EntityRepository<String, InvocationNode> invNodeRepo,
                            EntityRepository<String, OaasObject> objRepo) {
-    this.invNodeRepo = invNodeRepo;
-    this.objRepo = objRepo;
+    this.invNodeRepo = invNodeRepo.async();
+    this.objRepo = objRepo.async();
   }
 
   public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {

@@ -4,9 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.repository.AtomicOperationService;
-import org.hpcclab.oaas.repository.DefaultAtomicOperationService;
-import org.hpcclab.oaas.repository.EntityRepository;
+import org.hpcclab.oaas.repository.*;
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
 
@@ -19,9 +17,10 @@ import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V> {
+public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
 
   protected EmbededIspnAtomicOperationService<V> atomicService;
+
 
   abstract AdvancedCache<String, V> getCache();
 
@@ -30,6 +29,16 @@ public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implem
     if (atomicService == null)
       atomicService = new EmbededIspnAtomicOperationService<>(this);
     return atomicService;
+  }
+
+  @Override
+  public AsyncEntityRepository<String, V> async() {
+    return this;
+  }
+
+  @Override
+  public QueryService<String, V> getQueryService() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -82,6 +91,11 @@ public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implem
   @Override
   public V put(String key, V value) {
     return getCache().put(key, value);
+  }
+
+  @Override
+  public V persist(V v) {
+    return put(v.getKey(), v);
   }
 
   @Override

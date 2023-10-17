@@ -15,6 +15,8 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -37,21 +39,25 @@ import static org.infinispan.commons.dataconversion.MediaType.*;
 @ApplicationScoped
 @Startup
 public class IspnProducer {
-  public static final String OBJECT_CACHE = "OaasObject";
-  public static final String INV_NODE_CACHE = "InvNode";
-  public static final String CLASS_CACHE = "OaasClass";
-  public static final String FUNCTION_CACHE = "OaasFunction";
+  public static final String OBJECT_CACHE = "OprcObject";
+  public static final String INV_NODE_CACHE = "OprcInv";
+  public static final String CLASS_CACHE = "OprcClass";
+  public static final String FUNCTION_CACHE = "OprcFunction";
   private static final Logger logger = LoggerFactory.getLogger(IspnProducer.class);
   @Inject
   EmbeddedCacheManager cacheManager;
   @Inject
   IspnConfig config;
 
+  DatastoreConfRegistry confRegistry = DatastoreConfRegistry.createDefault();
+
   @Produces
   synchronized EmbeddedIspnObjectRepository objectRepository() {
     Cache<String, OaasObject> cache;
     if (!cacheManager.cacheExists(OBJECT_CACHE)) {
-      var conf = createDistConfig(config.argConnection(), config.objStore(),
+      var conf = createDistConfig(
+        confRegistry.getConfMap().get("OBJ"),
+        config.objStore(),
         true,
         OaasObject.class);
       log(OBJECT_CACHE, conf);
@@ -66,7 +72,10 @@ public class IspnProducer {
   synchronized EmbeddedIspnClsRepository clsRepository() {
     Cache<String, OaasClass> cache;
     if (!cacheManager.cacheExists(CLASS_CACHE)) {
-      var conf = createSimpleConfig(config.argConnection(), config.clsStore(), OaasClass.class);
+      var conf = createSimpleConfig(
+        confRegistry.getConfMap().get("PKG"),
+        config.clsStore(),
+        OaasClass.class);
       log(CLASS_CACHE, conf);
       cache = cacheManager.createCache(CLASS_CACHE, conf);
     } else {
@@ -79,7 +88,10 @@ public class IspnProducer {
   synchronized EmbeddedIspnFnRepository fnRepository() {
     Cache<String, OaasFunction> cache;
     if (!cacheManager.cacheExists(FUNCTION_CACHE)) {
-      var conf = createSimpleConfig(config.argConnection(), config.fnStore(), OaasFunction.class);
+      var conf = createSimpleConfig(
+        confRegistry.getConfMap().get("PKG"),
+        config.fnStore(),
+        OaasFunction.class);
       log(FUNCTION_CACHE, conf);
       cache = cacheManager.createCache(FUNCTION_CACHE, conf);
     } else {
@@ -92,7 +104,9 @@ public class IspnProducer {
   synchronized EmbeddedIspnInvNodeRepository invNodeRepository() {
     Cache<String, InvocationNode> cache;
     if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf = createDistConfig(config.argConnection(), config.invStore(),
+      var conf = createDistConfig(
+        confRegistry.getConfMap().get("INV"),
+        config.invStore(),
         false,
         InvocationNode.class);
       log(INV_NODE_CACHE, conf);
@@ -112,7 +126,7 @@ public class IspnProducer {
   }
 
 
-  Configuration createDistConfig(ArgConnectionConfig connectionConfig,
+  Configuration createDistConfig(DatastoreConf datastoreConf,
                                  IspnConfig.CacheStore cacheStore,
                                  boolean transactional,
                                  Class<?> valueCls) {
@@ -140,7 +154,7 @@ public class IspnProducer {
       builder.persistence()
         .addStore(ArgCacheStoreConfig.Builder.class)
         .valueCls(valueCls)
-        .connectionFactory(new ArgConnectionFactory(connectionConfig))
+        .connectionFactory(new ArgConnectionFactory(datastoreConf))
         .shared(true)
         .segmented(false)
         .ignoreModifications(cacheStore.readOnly())
@@ -152,7 +166,7 @@ public class IspnProducer {
     return builder.build();
   }
 
-  Configuration createSimpleConfig(ArgConnectionConfig connectionConfig,
+  Configuration createSimpleConfig(DatastoreConf datastoreConf,
                                    IspnConfig.CacheStore cacheStore,
                                    Class<?> valueCls) {
     return new ConfigurationBuilder()
@@ -165,7 +179,7 @@ public class IspnProducer {
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)
-      .connectionFactory(new ArgConnectionFactory(connectionConfig))
+      .connectionFactory(new ArgConnectionFactory(datastoreConf))
       .shared(false)
       .ignoreModifications(true)
       .segmented(false)
