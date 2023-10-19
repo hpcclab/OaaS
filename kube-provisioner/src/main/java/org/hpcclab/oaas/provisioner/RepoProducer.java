@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.sa;
+package org.hpcclab.oaas.provisioner;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;

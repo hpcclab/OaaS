@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@ApplicationScoped
+
 public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ArgClsRepository.class );
+
 
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
@@ -36,8 +36,8 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   private final Cache<String, List<String>> subClsCache;
 
   @Inject
-  public ArgClsRepository(@Named("ClassCollection") ArangoCollection collection,
-                          @Named("ClassCollectionAsync") ArangoCollectionAsync collectionAsync,
+  public ArgClsRepository(ArangoCollection collection,
+                          ArangoCollectionAsync collectionAsync,
                           CacheFactory cacheFactory) {
     this.collection = collection;
     this.collectionAsync = collectionAsync;

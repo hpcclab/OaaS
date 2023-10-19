@@ -29,6 +29,7 @@ public class LogicalFunctionApplier implements FunctionApplier {
   public LogicalFunctionApplier(IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
   }
+
   @PostConstruct
   public void setup() {
     appliers = applierInstance.stream()

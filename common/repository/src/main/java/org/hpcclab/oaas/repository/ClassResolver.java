@@ -20,13 +20,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
 public class ClassResolver {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResolver.class);
 
   ClassRepository clsRepo;
 
-  @Inject
   public ClassResolver(ClassRepository clsRepo) {
     this.clsRepo = clsRepo;
   }

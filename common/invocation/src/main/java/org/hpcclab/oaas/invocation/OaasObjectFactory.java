@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class OaasObjectFactory {
-  private static final Logger LOGGER = LoggerFactory.getLogger( OaasObjectFactory.class );
-
   IdGenerator idGenerator;
 
   @Inject

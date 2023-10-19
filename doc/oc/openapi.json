@@ -615,6 +615,28 @@
           }
         }
       },
+      "DatastoreLink" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "colName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DatastoreLink_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "colName" : {
+            "type" : "string"
+          }
+        }
+      },
       "DeploymentCondition" : {
         "enum" : [ "PENDING", "DEPLOYING", "RUNNING", "DOWN", "DELETED" ],
         "type" : "string"
@@ -1075,6 +1097,9 @@
           "markForRemoval" : {
             "type" : "boolean"
           },
+          "store" : {
+            "$ref" : "#/components/schemas/DatastoreLink"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember"
           }
@@ -1127,6 +1152,9 @@
           },
           "markForRemoval" : {
             "type" : "boolean"
+          },
+          "store" : {
+            "$ref" : "#/components/schemas/DatastoreLink_Public"
           },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"

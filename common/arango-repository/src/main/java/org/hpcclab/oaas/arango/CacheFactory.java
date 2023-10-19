@@ -7,17 +7,12 @@ import jakarta.inject.Inject;
 
 import java.time.Duration;
 
-@ApplicationScoped
+
 public class CacheFactory {
   int cacheTimeout;
 
   public CacheFactory(int cacheTimeout) {
     this.cacheTimeout = cacheTimeout;
-  }
-
-  @Inject
-  public CacheFactory(ArgRepositoryConfig config) {
-    cacheTimeout = config.cacheTimeout();
   }
 
   public <V> Cache<String, V> get() {

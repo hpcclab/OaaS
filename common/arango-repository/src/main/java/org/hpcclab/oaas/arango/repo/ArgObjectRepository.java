@@ -16,13 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-@ApplicationScoped
-@RegisterForReflection(
-  targets = {
-    OaasObject.class
-  },
-  registerFullHierarchy = true
-)
 public class ArgObjectRepository extends AbstractArgRepository<OaasObject> implements ObjectRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger(ArgObjectRepository.class);
 
@@ -30,9 +23,8 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
 
   ArangoCollectionAsync collectionAsync;
 
-  @Inject
-  public ArgObjectRepository(@Named("ObjectCollection") ArangoCollection collection,
-                             @Named("ObjectCollectionAsync") ArangoCollectionAsync collectionAsync) {
+  public ArgObjectRepository(ArangoCollection collection,
+                             ArangoCollectionAsync collectionAsync) {
     this.collection = collection;
     this.collectionAsync = collectionAsync;
   }

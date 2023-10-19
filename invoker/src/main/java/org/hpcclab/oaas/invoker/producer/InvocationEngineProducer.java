@@ -5,6 +5,7 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
@@ -19,6 +20,7 @@ import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.InvNodeRepository;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.id.IdGenerator;
+import org.hpcclab.oaas.repository.id.TsidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,19 +75,26 @@ public class InvocationEngineProducer {
     return new HttpOffLoader(webClient, config);
   }
 
-
-
   @Produces
+  @ApplicationScoped
   InvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
     return new InvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
   }
 
   @Produces
+  @ApplicationScoped
   ContentUrlGenerator contentUrlGenerator(InvokerConfig config) {
     if (config.useSa()) {
       return new SaContentUrlGenerator(config.storageAdapterUrl());
     } else {
       return new S3ContentUrlGenerator(config);
     }
+  }
+
+
+  @Produces
+  @Singleton
+  IdGenerator idGenerator() {
+    return new TsidGenerator();
   }
 }

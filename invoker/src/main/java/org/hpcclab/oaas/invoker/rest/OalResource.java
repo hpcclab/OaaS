@@ -44,8 +44,7 @@ public class OalResource {
   @POST
   @JsonView(Views.Public.class)
   public Uni<OalResponse> getObjectWithPost(ObjectAccessLanguage oal,
-                                            @QueryParam("async") Boolean async,
-                                            @QueryParam("timeout") Integer timeout) {
+                                            @QueryParam("async") Boolean async) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFb()!=null) {
@@ -61,14 +60,13 @@ public class OalResource {
   }
 
   @GET
-  @Path("{oal}")
+  @Path("{oal:.+}")
   @JsonView(Views.Public.class)
   public Uni<OalResponse> getObject(@PathParam("oal") String oal,
-                                    @QueryParam("async") Boolean async,
-                                    @QueryParam("timeout") Integer timeout) {
+                                    @QueryParam("async") Boolean async) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAL getObject '{}'", oaeObj);
-    return getObjectWithPost(oaeObj, async, timeout);
+    return getObjectWithPost(oaeObj, async);
   }
 
   @POST
@@ -76,7 +74,6 @@ public class OalResource {
   @JsonView(Views.Public.class)
   public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
                                              @QueryParam("async") Boolean async,
-                                             @QueryParam("timeout") Integer timeout,
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
@@ -94,14 +91,13 @@ public class OalResource {
 
   @GET
   @JsonView(Views.Public.class)
-  @Path("{oal}/{filePath:.*}")
+  @Path("{oal:.+}/{filePath:.*}")
   public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
-                                         @QueryParam("async") Boolean async,
-                                         @QueryParam("timeout") Integer timeout) {
+                                         @QueryParam("async") Boolean async) {
     var oalObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAL getContent '{}' '{}'", oalObj, filePath);
-    return execAndGetContentPost(filePath, async, timeout, oalObj);
+    return execAndGetContentPost(filePath, async, oalObj);
   }
 
   public Uni<OalResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {

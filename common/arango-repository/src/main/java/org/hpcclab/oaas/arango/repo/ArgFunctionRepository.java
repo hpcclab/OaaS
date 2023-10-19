@@ -11,7 +11,6 @@ import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
-@ApplicationScoped
 public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunction> implements FunctionRepository {
 
   ArangoCollection collection;
@@ -19,10 +18,9 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
   CacheFactory cacheFactory;
   private Cache<String, OaasFunction> cache;
 
-  @Inject
-  public ArgFunctionRepository(@Named("FunctionCollection") ArangoCollection collection,
 
-                               @Named("FunctionCollectionAsync") ArangoCollectionAsync collectionAsync,
+  public ArgFunctionRepository(ArangoCollection collection,
+                               ArangoCollectionAsync collectionAsync,
                                CacheFactory cacheFactory) {
     this.collection = collection;
     this.collectionAsync = collectionAsync;

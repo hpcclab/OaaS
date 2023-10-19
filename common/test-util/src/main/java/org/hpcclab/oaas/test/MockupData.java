@@ -166,7 +166,7 @@ public class MockupData {
     .setStatus(new ObjectStatus());
 
   public static MutableMap<String, OaasClass> testClasses() {
-    var clsResolver = new ClassResolver();
+    var clsResolver = new ClassResolver(null);
     var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
     var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
     return Lists.fixedSize.of(

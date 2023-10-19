@@ -1,7 +1,7 @@
 mvn := "mvnd"
 
-build:
-  ./mvnw package
+build options="":
+  ./mvnw  package {{options}}
 
 build-no-test:
   {{mvn}} package -DskipTests

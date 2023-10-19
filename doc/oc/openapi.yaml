@@ -414,6 +414,20 @@ components:
           $ref: '#/components/schemas/DSMap_Public'
         argRefs:
           $ref: '#/components/schemas/DSMap_Public'
+    DatastoreLink:
+      type: object
+      properties:
+        name:
+          type: string
+        colName:
+          type: string
+    DatastoreLink_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        colName:
+          type: string
     DeploymentCondition:
       enum:
       - PENDING
@@ -778,6 +792,8 @@ components:
           type: string
         markForRemoval:
           type: boolean
+        store:
+          $ref: '#/components/schemas/DatastoreLink'
         resolved:
           $ref: '#/components/schemas/ResolvedMember'
     OaasClass_Public:
@@ -813,6 +829,8 @@ components:
           type: string
         markForRemoval:
           type: boolean
+        store:
+          $ref: '#/components/schemas/DatastoreLink_Public'
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
         rev:
