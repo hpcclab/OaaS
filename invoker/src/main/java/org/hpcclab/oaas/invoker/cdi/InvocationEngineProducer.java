@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker.producer;
+package org.hpcclab.oaas.invoker.cdi;
 
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;

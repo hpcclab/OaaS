@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker.producer;
+package org.hpcclab.oaas.invoker.cdi;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;

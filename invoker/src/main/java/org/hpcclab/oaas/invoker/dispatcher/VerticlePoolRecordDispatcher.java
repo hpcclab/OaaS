@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.dispatcher;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Multi;
@@ -9,6 +9,8 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.OffsetManager;
 import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.slf4j.Logger;
@@ -18,8 +20,8 @@ import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskVerticlePoolDispatcher<R extends KafkaConsumerRecord<?, ?>> {
-  private static final Logger logger = LoggerFactory.getLogger(TaskVerticlePoolDispatcher.class);
+public class VerticlePoolRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> implements  RecordDispatcher{
+  private static final Logger logger = LoggerFactory.getLogger(VerticlePoolRecordDispatcher.class);
   private final AtomicInteger inflight = new AtomicInteger(0);
   private final Context context;
   private final OffsetManager offsetManager;
@@ -31,10 +33,10 @@ public class TaskVerticlePoolDispatcher<R extends KafkaConsumerRecord<?, ?>> {
   private ImmutableList<RecordHandlerVerticle<R>> verticles = Lists.immutable.empty();
   private Runnable drainHandler;
 
-  public TaskVerticlePoolDispatcher(Vertx vertx,
-                                    VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory,
-                                    OffsetManager offsetManager,
-                                    InvokerConfig config) {
+  public VerticlePoolRecordDispatcher(Vertx vertx,
+                                      VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory,
+                                      OffsetManager offsetManager,
+                                      InvokerConfig config) {
     this.vertx = vertx;
     this.invokerVerticleFactory = invokerVerticleFactory;
     this.context = vertx.getOrCreateContext();
@@ -110,7 +112,7 @@ public class TaskVerticlePoolDispatcher<R extends KafkaConsumerRecord<?, ?>> {
   public Uni<Void> waitTillQueueEmpty() {
     return Multi.createFrom().ticks().every(Duration.ofMillis(100))
       .filter(l -> verticles.stream()
-        .mapToInt(RecordHandlerVerticle::countQueueingTasks)
+        .mapToInt(RecordHandlerVerticle::countPending)
         .sum()==0)
       .toUni()
       .replaceWithVoid();

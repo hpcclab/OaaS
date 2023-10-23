@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker.producer;
+package org.hpcclab.oaas.invoker.cdi;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.buffer.Buffer;
@@ -7,7 +7,6 @@ import io.vertx.kafka.client.serialization.BufferDeserializer;
 import io.vertx.kafka.client.serialization.BufferSerializer;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 

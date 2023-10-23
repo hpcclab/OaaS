@@ -2,13 +2,13 @@ package org.hpcclab.oaas.invoker.verticle;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
-import org.hpcclab.oaas.invoker.TaskVerticlePoolDispatcher;
+import org.hpcclab.oaas.invoker.dispatcher.PartitionRecordHandler;
+import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,8 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RecordConsumerVerticle<K, V> extends AbstractVerticle {
+public class RecordConsumerVerticle<K, V> extends AbstractVerticle
+ {
   public static final long RETRY_DELAY = 200;
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordConsumerVerticle.class);
   public final Duration timeout = Duration.ofMillis(500);
@@ -24,12 +25,12 @@ public class RecordConsumerVerticle<K, V> extends AbstractVerticle {
   private final AtomicBoolean isPolling = new AtomicBoolean(false);
   private final int numberOfVerticle;
   KafkaConsumer<K, V> consumer;
-  TaskVerticlePoolDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher;
+  VerticlePoolRecordDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher;
   OffsetManager offsetManager;
   Set<String> topics = Set.of();
 
   public RecordConsumerVerticle(KafkaConsumer<K, V> consumer,
-                                TaskVerticlePoolDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher,
+                                VerticlePoolRecordDispatcher<KafkaConsumerRecord<K,V>> taskDispatcher,
                                 InvokerConfig config) {
     this.consumer = consumer;
     this.taskDispatcher = taskDispatcher;

@@ -112,7 +112,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
   }
 
   @Override
-  public int countQueueingTasks() {
+  public int countPending() {
     return acquireCounter.get() + taskQueue.size();
   }
 

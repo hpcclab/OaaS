@@ -92,7 +92,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   protected abstract void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, T parsedContent);
 
   @Override
-  public int countQueueingTasks() {
+  public int countPending() {
     return incomingQueue.size() + pausedTask.size() + inflight.get();
   }
 
@@ -139,7 +139,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       .every(Duration.ofMillis(interval))
       .filter(l -> {
         logger.info("{} ms waiting {} tasks for closing OrderedTaskInvoker[{}]",
-          l * interval, countQueueingTasks(), name);
+          l * interval, countPending(), name);
         return incomingQueue.isEmpty() && pausedTask.isEmpty();
       })
       .toUni()
