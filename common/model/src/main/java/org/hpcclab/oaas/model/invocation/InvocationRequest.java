@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
+import lombok.With;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
 
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@With
 public record InvocationRequest(
   String main,
   String cls,

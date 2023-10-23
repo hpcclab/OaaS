@@ -117,6 +117,11 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
       outputCls.equalsIgnoreCase("void"))) {
       outputCls = null;
     }
+
+    if (provision != null && provision.getUrl() != null){
+      deploymentStatus.setCondition(DeploymentCondition.RUNNING)
+        .setInvocationUrl(provision.getUrl().getUrl());
+    }
   }
 
   public OaasFunction setName(String name) {

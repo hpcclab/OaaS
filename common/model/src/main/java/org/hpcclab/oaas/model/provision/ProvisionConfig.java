@@ -3,47 +3,38 @@ package org.hpcclab.oaas.model.provision;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.infinispan.protostream.annotations.ProtoEnumValue;
+import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
-
-import java.io.Serializable;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProvisionConfig {
+  @ProtoField(1)
   KnativeProvision knative;
-  Type type;
-
-  public enum Type {
-    @ProtoEnumValue(1)
-    EPHEMERAL,
-    @ProtoEnumValue(2)
-    DURABLE
-  }
+  @ProtoField(2)
+  KDeploymentProvision deployment;
+  @ProtoField(3)
+  StaticUrlProvision url;
 
   public ProvisionConfig() {
   }
 
   @ProtoFactory
-  public ProvisionConfig(KnativeProvision knative, Type type) {
+  public ProvisionConfig(KnativeProvision knative, KDeploymentProvision deployment, StaticUrlProvision staticUrl) {
     this.knative = knative;
-    this.type = type;
+    this.deployment = deployment;
+    this.url = staticUrl;
   }
+
 
   public void validate() {
-    if (knative != null) type = Type.DURABLE;
-  }
-
-  @ProtoField(2)
-  public KnativeProvision getKnative() {
-    return knative;
-  }
-
-  @ProtoField(3)
-  public Type getType() {
-    return type;
+    var nonNullCounter = 0;
+    if (knative != null) nonNullCounter ++;
+    if (deployment != null) nonNullCounter ++;
+    if (url != null) nonNullCounter ++;
+    if (nonNullCounter > 1)
+      throw FunctionValidationException.format("provision config must be declared only one option");
   }
 }

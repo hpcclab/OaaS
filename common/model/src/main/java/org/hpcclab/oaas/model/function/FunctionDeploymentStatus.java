@@ -14,7 +14,6 @@ public class FunctionDeploymentStatus {
   DeploymentCondition condition;
   @ProtoField(2)
   String invocationUrl;
-
   @ProtoField(3)
   String errorMsg;
 
