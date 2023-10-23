@@ -14,5 +14,8 @@ public interface KpConfig {
 
   String fnProvisionTopic();
   String clsProvisionTopic();
+
+  @WithDefault("oaas-invoke-")
+  String invokeTopicPrefix();
   String LABEL_KEY = "oaas.function";
 }

@@ -30,9 +30,15 @@ quarkus:
 mp:
   messaging:
     incoming:
-      provisions:
+      fnProvisions:
         connector: smallrye-kafka
         topic: ${oaas.kp.fnProvisionTopic}
+        auto:
+          offset:
+            reset: earliest
+      clsProvisions:
+        connector: smallrye-kafka
+        topic: ${oaas.kp.clsProvisionTopic}
         auto:
           offset:
             reset: earliest

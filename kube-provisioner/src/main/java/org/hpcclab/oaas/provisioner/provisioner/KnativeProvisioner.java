@@ -1,30 +1,19 @@
-package org.hpcclab.oaas.provisioner.handler;
+package org.hpcclab.oaas.provisioner.provisioner;
 
 import io.fabric8.knative.client.KnativeClient;
-import io.fabric8.knative.eventing.v1.Trigger;
-import io.fabric8.knative.eventing.v1.TriggerBuilder;
-import io.fabric8.knative.eventing.v1.TriggerFilter;
-import io.fabric8.knative.eventing.v1.TriggerSpec;
-import io.fabric8.knative.flows.v1.*;
-import io.fabric8.knative.internal.pkg.apis.duck.v1.Destination;
-import io.fabric8.knative.internal.pkg.apis.duck.v1.KReference;
-import io.fabric8.knative.messaging.v1.ChannelTemplateSpec;
 import io.fabric8.knative.serving.v1.*;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.common.annotation.RunOnVirtualThread;
-import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
+import org.hpcclab.oaas.model.function.FunctionState;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.provisioner.KpConfig;
@@ -33,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.hpcclab.oaas.provisioner.FunctionWatcher.extractReadyCondition;
 import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
@@ -41,48 +31,33 @@ import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 @RegisterForReflection(
   targets = {
     OaasFunction.class,
-    Service.class,
-    ServiceSpec.class,
-    TrafficTarget.class,
-    RevisionTemplateSpec.class,
-    RevisionSpec.class,
-    Sequence.class,
-    SequenceSpec.class,
-    SequenceStep.class,
-    ChannelTemplateSpec.class,
-    KReference.class,
-    Trigger.class,
-    TriggerSpec.class,
-    TriggerFilter.class,
-    Destination.class
+    Service.class
   },
   registerFullHierarchy = true
 )
-public class KnativeProvisionHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(KnativeProvisionHandler.class);
+public class KnativeProvisioner implements Provisioner<OaasFunction> {
 
+  private static final Logger logger = LoggerFactory.getLogger(KnativeProvisioner.class);
   @Inject
   KnativeClient knativeClient;
   @Inject
   KpConfig kpConfig;
-  @Inject
-  ArgFunctionRepository functionRepo;
 
-  @Incoming("provisions")
-  @RunOnVirtualThread
-  public void provision(Record<String, OaasFunction> functionRecord) {
-    var key = functionRecord.key();
-    LOGGER.debug("Received Knative provision: {}", key);
+  @Override
+  public Consumer<OaasFunction> provision(Record<String, OaasFunction> functionRecord) {
     var function = functionRecord.value();
-    if (function==null) {
+    var key = function.getKey();
+    if (function.getState() == FunctionState.REMOVING) {
       boolean deleted;
       deleted = !knativeClient
         .services()
         .withLabel(LABEL_KEY, key)
         .delete()
         .isEmpty();
-      if (deleted) LOGGER.info("Deleted service: {}", key);
-    } else if (function.getProvision()!=null && function.getProvision().getKnative()!=null) {
+      if (deleted) logger.info("Deleted service: {}", key);
+      return f ->
+        f.getDeploymentStatus().setCondition(DeploymentCondition.DELETED);
+    } else {
       var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
       Service service = createService(function, svcName);
@@ -97,25 +72,24 @@ public class KnativeProvisionHandler {
             svc.setSpec(service.getSpec());
             return svc;
           });
-        LOGGER.info("Patched service: {}", service.getMetadata().getName());
+        logger.info("Patched service: {}", service.getMetadata().getName());
       } else {
-        if (LOGGER.isDebugEnabled())
-          LOGGER.debug("Submitting service: {}", Json.encodePrettily(service));
+        if (logger.isDebugEnabled())
+          logger.debug("Submitting service: {}", Json.encodePrettily(service));
         newSvc = knativeClient.services().resource(service).create();
-        LOGGER.info("Created service: {}", service.getMetadata().getName());
+        logger.info("Created service: {}", service.getMetadata().getName());
       }
-      updateFunctionStatus(function, newSvc);
+      return updateFunctionStatus(newSvc);
     }
   }
 
-  private void updateFunctionStatus(OaasFunction function,
-                                    Service service) {
+
+  private Consumer<OaasFunction> updateFunctionStatus(Service service) {
     var condition = extractReadyCondition(service);
     var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
-
-      functionRepo.compute(function.getKey(), (k, f) -> {
-        var kn = function.getProvision().getKnative();
+      return f -> {
+        var kn = f.getProvision().getKnative();
         var apiPath = kn.getApiPath();
         if (apiPath==null)
           apiPath = "";
@@ -128,16 +102,13 @@ public class KnativeProvisionHandler {
           .setCondition(DeploymentCondition.RUNNING)
           .setInvocationUrl(service.getStatus().getUrl() + apiPath)
           .setErrorMsg(null);
-        return f;
-      });
+      };
     } else {
-      functionRepo.compute(function.getKey(), (k, func) -> {
-        func.getDeploymentStatus()
+      return f -> f.getDeploymentStatus()
           .setCondition(DeploymentCondition.DEPLOYING);
-        return func;
-      });
     }
   }
+
 
   private Service createService(OaasFunction function,
                                 String svcName) {
