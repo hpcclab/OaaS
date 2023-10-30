@@ -9,10 +9,15 @@ import java.util.stream.Collectors;
 
 public class DatastoreConfRegistry {
 
+  public static final String DEFAULT = "DEFAULT";
+
   Map<String, DatastoreConf> confMap = new HashMap<>();
 
-  public static DatastoreConfRegistry createDefault() {
-    return new DatastoreConfRegistry("OPRC_DB_", "oprc.env");
+  private static DatastoreConfRegistry INSTANCE;
+  public static DatastoreConfRegistry getDefault() {
+    if (INSTANCE == null)
+      INSTANCE = new DatastoreConfRegistry("OPRC_DB_", "oprc.env");
+    return INSTANCE;
   }
 
   public DatastoreConfRegistry(String prefix, String keyToLoad) {
@@ -60,6 +65,14 @@ public class DatastoreConfRegistry {
 
   public Map<String, DatastoreConf> getConfMap() {
     return confMap;
+  }
+
+  public DatastoreConf getOrDefault(String name) {
+    if (name == null)
+      return confMap.get(DEFAULT);
+    if (confMap.containsKey(name))
+      return confMap.get(name);
+    return confMap.get(DEFAULT);
   }
 
   DatastoreConf get(String name) {

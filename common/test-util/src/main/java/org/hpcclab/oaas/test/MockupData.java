@@ -20,6 +20,7 @@ import java.util.List;
 
 public class MockupData {
 
+  private MockupData(){}
   public static final OaasFunction FUNC_NEW = new OaasFunction()
     .setName("new")
     .setPkg("builtin.logical")
@@ -128,6 +129,7 @@ public class MockupData {
         .setName("f3")
         .setFunction(FUNC_1.getKey())
         .setForceImmutable(true)
+        .setInputTypes(List.of(CLS_1_KEY))
         .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
         .setName(FUNC_2.getName())
@@ -149,20 +151,15 @@ public class MockupData {
     .setObjectType(ObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
 
-  public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
+  public static final OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
     .setId("o1")
-//    .setOrigin(new ObjectOrigin())
     .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
       .setVerIds(DSMap.of("k1", "kkkk"))
     );
 
-  public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
+  public static final OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
     .setId("o2")
-//    .setOrigin(new ObjectOrigin()
-//      .setParentId(OBJ_1.getId())
-//    .setFbName("f1")
-//    )
     .setStatus(new ObjectStatus());
 
   public static MutableMap<String, OaasClass> testClasses() {
@@ -202,41 +199,25 @@ public class MockupData {
                                                     MutableMap<String, OaasClass> classes,
                                                     MutableMap<String, OaasFunction> functions,
                                                     MutableMap<String, InvocationNode> nodes) {
-    var objRepo = mockObjectRepo(objects);
-    var clsRepo = mockClsRepo(classes);
-    var funcRepo = mockFuncRepo(functions);
-    var nodeRepo = mockInvRepo(nodes);
-    return new RepoContextLoader(objRepo, funcRepo, clsRepo, nodeRepo);
+
+    var clsRepo =  new MapEntityRepository.MapClsRepository(classes);
+    var funcRepo = new MapEntityRepository.MapFnRepository(functions);
+    var nodeRepo = new MapEntityRepository.MapInvRepository(nodes);
+    var objectRepoManager =  new MapEntityRepository.MapObjectRepoManager(objects ,classes);
+    return new RepoContextLoader(objectRepoManager, funcRepo, clsRepo, nodeRepo);
   }
-
-  public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String, OaasObject> objects) {
-    return new MapEntityRepository<>(objects, OaasObject::getId);
-  }
-
-
-  public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String, OaasClass> classes) {
-    return new MapEntityRepository<>(classes, OaasClass::getKey);
-  }
-
-  public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String, OaasFunction> functions) {
-    return new MapEntityRepository<>(functions, OaasFunction::getKey);
-  }
-
-  public static EntityRepository<String, InvocationNode> mockInvRepo(MutableMap<String, InvocationNode> functions) {
-    return new MapEntityRepository<>(functions, InvocationNode::getKey);
-  }
-
-  public static void persistMock(ObjectRepository objectRepo,
+  public static void persistMock(ObjectRepoManager objectRepoManager,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {
-    for (OaasObject testObject : testObjects()) {
-      objectRepo.persist(testObject);
-    }
     for (OaasClass cls : testClasses()) {
       clsRepo.persist(cls);
     }
     for (OaasFunction func : testFunctions()) {
       fnRepo.persist(func);
+    }
+    for (OaasObject testObject : testObjects()) {
+      objectRepoManager.persistAsync(testObject)
+        .await().indefinitely();
     }
   }
 

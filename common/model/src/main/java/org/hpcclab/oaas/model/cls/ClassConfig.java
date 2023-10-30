@@ -17,11 +17,20 @@ public class ClassConfig {
   int partitions = 12;
   @ProtoField(value = 3, defaultValue = "1")
   int replicas = 1;
+  @ProtoField(4)
+  String structStore;
+  @ProtoField(5)
+  String unstructStore;
+
+  public ClassConfig() {
+  }
 
   @ProtoFactory
-  public ClassConfig(DSMap options, int partitions, int replicas) {
+  public ClassConfig(DSMap options, int partitions, int replicas, String structStore, String unstructStore) {
     this.options = options;
     this.partitions = partitions;
     this.replicas = replicas;
+    this.structStore = structStore;
+    this.unstructStore = unstructStore;
   }
 }

@@ -13,19 +13,4 @@ import java.util.List;
 )
 public interface ObjectRepository extends EntityRepository<String, OaasObject> {
 
-  default Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys,
-                                                long offset,
-                                                int limit){
-    throw new UnsupportedOperationException();
-  }
-
-  default Uni<Pagination<OaasObject>> sortedListByCls(List<String> clsKeys,
-                                              String sortKey,
-                                              boolean desc,
-                                              long offset,
-                                              int limit){
-    throw new UnsupportedOperationException();
-  }
-
-
 }

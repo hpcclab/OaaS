@@ -12,12 +12,15 @@ import org.infinispan.protostream.annotations.ProtoField;
 public class VariableDescription {
   @ProtoField(1)
   String name;
+  @ProtoField(2)
+  String comment;
 
   public VariableDescription() {
   }
 
   @ProtoFactory
-  public VariableDescription(String name) {
+  public VariableDescription(String name, String comment) {
     this.name = name;
+    this.comment = comment;
   }
 }

@@ -27,8 +27,8 @@ public class MockInvocationEngine {
 
   public boolean debug = true;
   public final UnifiedFunctionRouter router;
-  public final EntityRepository<String, OaasObject> objectRepo;
-  public final EntityRepository<String, InvocationNode> invRepo;
+  public final ObjectRepoManager objectRepoManager;
+  public final InvNodeRepository invRepo;
   public final GraphStateManager graphStateManager;
   public final MockInvocationQueueSender invocationQueueSender;
   public final MockOffLoader syncInvoker;
@@ -51,7 +51,7 @@ public class MockInvocationEngine {
     var invNodeMap = Lists.mutable.ofAll(nodes)
       .groupByUniqueKey(InvocationNode::getKey);
     loader = MockupData.mockContextLoader(objectMap, classes, functions, invNodeMap);
-    objectRepo = loader.getObjectRepo();
+    objectRepoManager = loader.getObjManager();
     invRepo = loader.getInvNodeRepo();
     idGen = new TsidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);
@@ -60,7 +60,7 @@ public class MockInvocationEngine {
     var macroApplier = new MacroFunctionApplier(loader, objectFactory);
     router = new UnifiedFunctionRouter(logicalApplier, macroApplier, taskApplier, loader);
 
-    graphStateManager = new GraphStateManager(invRepo, objectRepo);
+    graphStateManager = new GraphStateManager(invRepo, objectRepoManager);
     var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
     taskFactory = new TaskFactory(contentUrlGenerator, new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
@@ -81,7 +81,7 @@ public class MockInvocationEngine {
       graphStateManager
     );
     var invValidator = new DefaultInvocationValidator(
-      objectRepo,
+      objectRepoManager,
       loader.getFuncRepo(),
       loader.getClsRepo()
     );

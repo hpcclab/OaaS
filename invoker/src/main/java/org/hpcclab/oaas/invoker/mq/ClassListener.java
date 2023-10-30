@@ -1,9 +1,9 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.mq;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
-import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.cls.OaasClass;
 
 import jakarta.enterprise.context.ApplicationScoped;

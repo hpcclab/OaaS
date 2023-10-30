@@ -17,9 +17,7 @@ import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
-import org.hpcclab.oaas.repository.CachedEntityRepository;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -73,7 +71,7 @@ public class PackageResource {
     var newClasses = partitioned.get(true);
     var oldClasses = partitioned.get(false);
     classRepo
-      .atomic().persistWithPreconditionAsync(oldClasses).await().indefinitely();
+      .atomic().persistWithRevAsync(oldClasses).await().indefinitely();
     classRepo.persist(newClasses);
     funcRepo.persist(functions);
     for (var cls : changedClasses.values()) {

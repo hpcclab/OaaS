@@ -2,23 +2,15 @@ name: example
 functions:
   - name: record.random
     type: TASK
-    validation: { }
     provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
-    deploymentStatus:
-      invocationUrl: "http://json-update-fn:8080/"
-      condition: RUNNING
+      staticUrl:
+        url: "http://json-update-fn:8080/"
 
   - name: record.merge
     type: TASK
-    validation: { }
     provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
-    deploymentStatus:
-      invocationUrl: "http://json-update-fn:8080/"
-      condition: RUNNING
+      staticUrl:
+        url: "http://json-update-fn:8080/"
 
   - name: record.chain-update
     type: MACRO
@@ -46,15 +38,12 @@ functions:
       export: record3
   - name: concat
     type: TASK
-    validation: {}
     provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
+      staticUrl:
+        url: "http://concat-fn:8080/"
     variableDescriptions:
       - name: append
-    deploymentStatus:
-      invocationUrl: "http://concat-fn:8080/"
-      condition: RUNNING
+
   - name: record.chain-update-atomic
     type: MACRO
     macro:
@@ -84,17 +73,13 @@ functions:
   - name: video.transcode
     type: TASK
     outputCls: .video
-    validation: { }
     provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:dev
+      staticUrl:
+        url: "http://transcode-fn:8080/"
     variableDescriptions:
       - name: RESOLUTION
       - name: VCODEC
       - name: FORMAT
-    deploymentStatus:
-      invocationUrl: "http://transcode-fn:8080/"
-      condition: RUNNING
 
 classes:
   - name: record

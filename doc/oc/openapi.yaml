@@ -160,6 +160,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginationOaasObject_Public'
+      deprecated: true
   /api/functions:
     get:
       tags:
@@ -252,70 +253,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OaasFunction_Public'
-  /api/objects:
-    get:
-      tags:
-      - Object Resource
-      parameters:
-      - name: desc
-        in: query
-        schema:
-          default: false
-          type: boolean
-      - name: limit
-        in: query
-        schema:
-          format: int32
-          type: integer
-      - name: offset
-        in: query
-        schema:
-          format: int32
-          type: integer
-      - name: sort
-        in: query
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginationOaasObject_Public'
-  /api/objects/{id}:
-    get:
-      tags:
-      - Object Resource
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OaasObject_Public'
-    delete:
-      tags:
-      - Object Resource
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OaasObject_Public'
   /api/packages:
     post:
       tags:
@@ -372,6 +309,36 @@ paths:
                 $ref: '#/components/schemas/OaasPackageContainer'
 components:
   schemas:
+    ClassConfig:
+      type: object
+      properties:
+        options:
+          $ref: '#/components/schemas/DSMap'
+        partitions:
+          format: int32
+          type: integer
+        replicas:
+          format: int32
+          type: integer
+        structStore:
+          type: string
+        unstructStore:
+          type: string
+    ClassConfig_Public:
+      type: object
+      properties:
+        options:
+          $ref: '#/components/schemas/DSMap_Public'
+        partitions:
+          format: int32
+          type: integer
+        replicas:
+          format: int32
+          type: integer
+        structStore:
+          type: string
+        unstructStore:
+          type: string
     DSMap:
       type: array
       items:
@@ -465,11 +432,6 @@ components:
           type: string
         name:
           type: string
-        forwardRecords:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         defaultArgs:
           $ref: '#/components/schemas/DSMap'
         description:
@@ -480,6 +442,10 @@ components:
           type: boolean
         noMain:
           type: boolean
+        inputTypes:
+          type: array
+          items:
+            type: string
     FunctionBinding_Public:
       type: object
       properties:
@@ -489,11 +455,6 @@ components:
           type: string
         name:
           type: string
-        forwardRecords:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
         defaultArgs:
           $ref: '#/components/schemas/DSMap_Public'
         description:
@@ -504,6 +465,10 @@ components:
           type: boolean
         noMain:
           type: boolean
+        inputTypes:
+          type: array
+          items:
+            type: string
     FunctionDeploymentStatus:
       type: object
       properties:
@@ -554,24 +519,6 @@ components:
       - READONLY
       - STATIC_READONLY
       type: string
-    FunctionValidation:
-      type: object
-      properties:
-        bindingRequirement:
-          $ref: '#/components/schemas/ObjectRequirement'
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectRequirement'
-    FunctionValidation_Public:
-      type: object
-      properties:
-        bindingRequirement:
-          $ref: '#/components/schemas/ObjectRequirement_Public'
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectRequirement_Public'
     JsonNodeType_Public:
       enum:
       - ARRAY
@@ -631,6 +578,46 @@ components:
           type: boolean
         binary:
           type: boolean
+    KDeploymentProvision:
+      type: object
+      properties:
+        image:
+          type: string
+        replicas:
+          format: int32
+          type: integer
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: '#/components/schemas/DSMap'
+        apiPath:
+          type: string
+    KDeploymentProvision_Public:
+      type: object
+      properties:
+        image:
+          type: string
+        replicas:
+          format: int32
+          type: integer
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: '#/components/schemas/DSMap_Public'
+        apiPath:
+          type: string
     KeyAccessModifier:
       enum:
       - PUBLIC
@@ -794,6 +781,8 @@ components:
           type: boolean
         store:
           $ref: '#/components/schemas/DatastoreLink'
+        config:
+          $ref: '#/components/schemas/ClassConfig'
         resolved:
           $ref: '#/components/schemas/ResolvedMember'
     OaasClass_Public:
@@ -831,6 +820,8 @@ components:
           type: boolean
         store:
           $ref: '#/components/schemas/DatastoreLink_Public'
+        config:
+          $ref: '#/components/schemas/ClassConfig_Public'
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
         rev:
@@ -856,8 +847,6 @@ components:
         outputCls:
           pattern: \S
           type: string
-        validation:
-          $ref: '#/components/schemas/FunctionValidation'
         macro:
           $ref: '#/components/schemas/MacroSpec'
         provision:
@@ -891,8 +880,6 @@ components:
         outputCls:
           pattern: \S
           type: string
-        validation:
-          $ref: '#/components/schemas/FunctionValidation_Public'
         macro:
           $ref: '#/components/schemas/MacroSpec_Public'
         provision:
@@ -982,16 +969,6 @@ components:
           type: string
         access:
           $ref: '#/components/schemas/KeyAccessModifier_Public'
-    ObjectRequirement:
-      type: object
-      properties:
-        cls:
-          type: string
-    ObjectRequirement_Public:
-      type: object
-      properties:
-        cls:
-          type: string
     ObjectStatus_Public:
       type: object
       properties:
@@ -1063,15 +1040,19 @@ components:
       properties:
         knative:
           $ref: '#/components/schemas/KnativeProvision'
-        type:
-          $ref: '#/components/schemas/Type'
+        deployment:
+          $ref: '#/components/schemas/KDeploymentProvision'
+        staticUrl:
+          $ref: '#/components/schemas/StaticUrlProvision'
     ProvisionConfig_Public:
       type: object
       properties:
         knative:
           $ref: '#/components/schemas/KnativeProvision_Public'
-        type:
-          $ref: '#/components/schemas/Type_Public'
+        deployment:
+          $ref: '#/components/schemas/KDeploymentProvision_Public'
+        staticUrl:
+          $ref: '#/components/schemas/StaticUrlProvision_Public'
     ReferenceSpecification:
       type: object
       properties:
@@ -1162,25 +1143,29 @@ components:
       - FILES
       - COLLECTION
       type: string
-    Type:
-      enum:
-      - EPHEMERAL
-      - DURABLE
-      type: string
-    Type_Public:
-      enum:
-      - EPHEMERAL
-      - DURABLE
-      type: string
+    StaticUrlProvision:
+      type: object
+      properties:
+        url:
+          type: string
+    StaticUrlProvision_Public:
+      type: object
+      properties:
+        url:
+          type: string
     VariableDescription:
       type: object
       properties:
         name:
           type: string
+        comment:
+          type: string
     VariableDescription_Public:
       type: object
       properties:
         name:
+          type: string
+        comment:
           type: string
     WorkflowExport:
       type: object

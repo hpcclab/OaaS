@@ -18,6 +18,7 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
@@ -33,8 +34,8 @@ public class ClassResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResource.class);
   @Inject
   ClassRepository classRepo;
-  @Inject
-  ObjectRepository objectRepo;
+//  @Inject
+//  ObjectRepoManager objectRepoManager;
   @Inject
   CtxMapper oaasMapper;
   @Inject
@@ -60,24 +61,26 @@ public class ClassResource {
   @GET
   @Path("{name}/objects")
   @JsonView(Views.Public.class)
+  @Deprecated
   public Uni<Pagination<OaasObject>> listObject(String name,
                                                 @RestQuery String sort,
                                                 @RestQuery @DefaultValue("false") boolean desc,
                                                 @RestQuery Long offset,
                                                 @RestQuery Integer limit,
                                                 @RestQuery @DefaultValue("false") boolean includeSub) {
-    final var fOffset = offset==null ? 0L:offset;
-    final var fLimit = limit==null ? 20:limit;
-    final var fSort = sort==null ? "_key":sort;
-    var uni = includeSub ?
-      classRepo.listSubClsKeys(name)
-      :Uni.createFrom().item(List.of(name));
-    Uni<Pagination<OaasObject>> uni2;
-    if (fSort.equals("_"))
-      uni2 = uni.flatMap(keys -> objectRepo.listByCls(keys, fOffset, fLimit));
-    else
-      uni2 = uni.flatMap(keys -> objectRepo.sortedListByCls(keys, fSort, desc, fOffset, fLimit));
-    return uni2;
+//    final var fOffset = offset==null ? 0L:offset;
+//    final var fLimit = limit==null ? 20:limit;
+//    final var fSort = sort==null ? "_key":sort;
+//    var uni = includeSub ?
+//      classRepo.listSubClsKeys(name)
+//      :Uni.createFrom().item(List.of(name));
+//    Uni<Pagination<OaasObject>> uni2;
+//    if (fSort.equals("_"))
+//      uni2 = uni.flatMap(keys -> objectRepo.listByCls(keys, fOffset, fLimit));
+//    else
+//      uni2 = uni.flatMap(keys -> objectRepo.sortedListByCls(keys, fSort, desc, fOffset, fLimit));
+//    return uni2;
+    return Uni.createFrom().item(null);
   }
 
   @POST

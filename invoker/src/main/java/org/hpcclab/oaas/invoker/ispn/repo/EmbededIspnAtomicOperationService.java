@@ -29,7 +29,7 @@ public class EmbededIspnAtomicOperationService<V extends HasKey<String>> impleme
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V value) {
+  public Uni<V> persistWithRevAsync(V value) {
     Objects.requireNonNull(value);
     if (!(value instanceof HasRev)) throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);
@@ -54,7 +54,7 @@ public class EmbededIspnAtomicOperationService<V extends HasKey<String>> impleme
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V value, BinaryOperator<V> failureMerger) {
+  public Uni<V> persistWithRevAsync(V value, BinaryOperator<V> failureMerger) {
     Objects.requireNonNull(value);
     if (!(value instanceof HasRev)) throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);

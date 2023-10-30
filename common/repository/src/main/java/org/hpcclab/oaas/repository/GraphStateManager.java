@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 public class GraphStateManager {
   private static final Logger logger = LoggerFactory.getLogger(GraphStateManager.class);
 
-  AsyncEntityRepository<String, InvocationNode> invNodeRepo;
-  AsyncEntityRepository<String, OaasObject> objRepo;
+  InvNodeRepository invNodeRepo;
+  ObjectRepoManager objRepo;
 
-  public GraphStateManager(EntityRepository<String, InvocationNode> invNodeRepo,
-                           EntityRepository<String, OaasObject> objRepo) {
-    this.invNodeRepo = invNodeRepo.async();
-    this.objRepo = objRepo.async();
+  public GraphStateManager(InvNodeRepository invNodeRepo,
+                           ObjectRepoManager objRepo) {
+    this.invNodeRepo = invNodeRepo;
+    this.objRepo = objRepo;
   }
 
   public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {
@@ -48,12 +48,10 @@ public class GraphStateManager {
     if (oldObjs.isEmpty()) {
       return objRepo.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo
-        .atomic().persistWithPreconditionAsync(oldObjs);
+      return objRepo.persistWithRevAsync(oldObjs);
     } else {
       return objRepo
-        .atomic()
-        .persistWithPreconditionAsync(oldObjs)
+        .persistWithRevAsync(oldObjs)
         .flatMap(__ -> objRepo.persistAsync(newObjs));
     }
   }
@@ -72,7 +70,7 @@ public class GraphStateManager {
     }
 
     Uni<Void> uni = persistWithPrecondition(objs)
-      .call(__ -> invNodeRepo.persistAsync(context.initNode()));
+      .call(__ -> invNodeRepo.async().persistAsync(context.initNode()));
     return uni.onItem()
       .transformToMulti(__ -> {
         if (completion.isSuccess()) {
@@ -88,7 +86,9 @@ public class GraphStateManager {
   private Multi<InvocationNode> handleFailed(InvocationNode failedNode) {
     return getDependentsRecursive(failedNode)
       .onItem()
-      .transformToUniAndConcatenate(node -> invNodeRepo.computeAsync(node.getKey(), (k, v) -> v.markAsFailed()))
+      .transformToUniAndConcatenate(node -> invNodeRepo
+        .async()
+        .computeAsync(node.getKey(), (k, v) -> v.markAsFailed()))
       .filter(i -> false);
 
   }
@@ -103,7 +103,8 @@ public class GraphStateManager {
     if (srcNode.getNextInv().isEmpty()) {
       return Multi.createFrom().empty();
     }
-    return invNodeRepo.listAsync(srcNode.getNextInv())
+    return invNodeRepo.async()
+      .listAsync(srcNode.getNextInv())
       .onItem()
       .transformToMulti(map -> Multi.createFrom().iterable(map.values()));
   }
@@ -115,12 +116,15 @@ public class GraphStateManager {
     }
     return Multi.createFrom().iterable(srcNode.getNextInv())
       .onItem()
-      .transformToUniAndConcatenate(id -> invNodeRepo.computeAsync(id, (k, node) -> node.trigger(srcNode.getOriginator(), srcNode.getKey())))
-      .filter(node -> Objects.equals(srcNode.getOriginator(), node.getOriginator()));
+      .transformToUniAndConcatenate(id -> invNodeRepo.async()
+        .computeAsync(id, (k, node) -> node.trigger(srcNode.getKey(), srcNode.getKey())))
+      .filter(node -> Objects.equals(srcNode.getKey(), node.getOriginator()));
   }
 
 
   public Uni<Void> persistNodes(List<InvocationNode> nodes) {
-    return invNodeRepo.persistAsync(nodes);
+    return invNodeRepo
+      .async()
+      .persistAsync(nodes);
   }
 }

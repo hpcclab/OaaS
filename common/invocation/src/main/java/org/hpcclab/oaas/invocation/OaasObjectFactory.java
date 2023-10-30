@@ -55,20 +55,8 @@ public class OaasObjectFactory {
   public OaasObject createOutput(InvocationContext ctx) {
     var cls = ctx.getOutputCls();
     var source = ctx.getMain();
-    FunctionBinding binding = ctx.getFb();
     var obj = OaasObject.createFromClasses(cls);
-
-    if (source.getData() != null) {
-      var node = source.getData();
-      var forwardRecords = binding.getForwardRecords();
-      if (forwardRecords!=null && !forwardRecords.isEmpty()) {
-        node = node.deepCopy();
-        var keys = Lists.mutable.ofAll(node::fieldNames);
-        keys.removeAllIterable(forwardRecords);
-        node.remove(keys);
-      }
-      obj.setData(node);
-    }
+    obj.setData(source.getData());
     obj.setId(idGenerator.generate(ctx));
     var status = new ObjectStatus();
     obj.setStatus(status);

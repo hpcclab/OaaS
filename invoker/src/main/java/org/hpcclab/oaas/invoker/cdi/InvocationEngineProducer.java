@@ -18,6 +18,7 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.InvNodeRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
@@ -39,10 +40,11 @@ public class InvocationEngineProducer {
     return new InvocationExecutor(sender, graphStateManager, contextLoader, offLoader, taskFactory, completionHandler);
   }
 
+
   @Produces
   GraphStateManager graphStateManager(InvNodeRepository invNodeRepo,
-                                      ObjectRepository objRepo) {
-    return new GraphStateManager(invNodeRepo, objRepo);
+                                      ObjectRepoManager objectRepoManager) {
+    return new GraphStateManager(invNodeRepo, objectRepoManager);
   }
 
 

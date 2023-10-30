@@ -9,7 +9,5 @@ public interface ContextLoader {
   Uni<InvocationContext> loadCtxAsync(InvocationRequest request);
 
   InvocationContext loadClsAndFunc(InvocationContext ctx, String fbName);
-//  Uni<TaskContext> getTaskContextAsync(OaasObject output);
-
   Uni<OaasObject> resolveObj(InvocationContext ctx, String refName);
 }

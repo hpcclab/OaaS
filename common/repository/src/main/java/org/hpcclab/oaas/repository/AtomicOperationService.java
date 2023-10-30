@@ -4,18 +4,17 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 import java.util.Collection;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 public interface AtomicOperationService<K, V> {
-  Uni<V> persistWithPreconditionAsync(V v);
-  default Uni<V> persistWithPreconditionAsync(V value, BinaryOperator<V> failureMerger){
+  Uni<V> persistWithRevAsync(V v);
+  default Uni<V> persistWithRevAsync(V value, BinaryOperator<V> failureMerger){
     throw new UnsupportedOperationException();
   }
 
-  default Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
+  default Uni<Void> persistWithRevAsync(Collection<V> collection) {
     return Multi.createFrom().iterable(collection)
-      .onItem().transformToUniAndMerge(this::persistWithPreconditionAsync
+      .onItem().transformToUniAndMerge(this::persistWithRevAsync
       )
       .collect().last()
       .replaceWithVoid();

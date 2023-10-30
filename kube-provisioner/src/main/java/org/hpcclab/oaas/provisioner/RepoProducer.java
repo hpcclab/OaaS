@@ -23,11 +23,11 @@ public class RepoProducer {
     return AutoRepoBuilder.funcRepository();
   }
 
-  @Produces
-  @ApplicationScoped
-  ArgObjectRepository objRepository() {
-    return AutoRepoBuilder.objRepository();
-  }
+//  @Produces
+//  @ApplicationScoped
+//  ArgObjectRepository objRepository() {
+//    return AutoRepoBuilder.objRepository();
+//  }
 
   @Produces
   @ApplicationScoped

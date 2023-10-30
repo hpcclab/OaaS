@@ -8,10 +8,10 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.mutiny.core.Vertx;
+import org.hpcclab.oaas.invoker.mq.ClassListener;
+import org.hpcclab.oaas.invoker.mq.FunctionListener;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.FunctionState;
-import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -38,10 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VerticleDeployer {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
   @Inject
-  FunctionRepository funcRepo;
-  @Inject
-  FunctionListener functionListener;
-  @Inject
   ClassRepository clsRepo;
   @Inject
   ClassListener clsListener;
@@ -56,24 +52,6 @@ public class VerticleDeployer {
 
   void init(@Observes StartupEvent event) {
     deployPerCls();
-  }
-
-  void deployPerFunc() {
-    var funcList = funcRepo.async()
-      .values()
-      .select().first(1000)
-      .collect().asList().await().indefinitely();
-
-    functionListener.setHandler(func -> {
-      LOGGER.info("receive func[{}] update event", func.getKey());
-      funcRepo.delete(func.getKey());
-      handleFunc(func);
-    });
-    functionListener.start().await().indefinitely();
-
-    for (var func : funcList) {
-      handleFunc(func);
-    }
   }
 
   void deployPerCls() {
@@ -94,24 +72,6 @@ public class VerticleDeployer {
     }
   }
 
-
-  void handleFunc(OaasFunction func) {
-    if (func.getType()==FunctionType.LOGICAL)
-      return;
-    if (func.getState()==FunctionState.ENABLED) {
-      deployVerticleIfNew(func.getKey())
-        .subscribe().with(
-          __ -> {},
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey(), e)
-        );
-    } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
-      deleteVerticle(func.getKey())
-        .subscribe().with(
-          __ -> { },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey(), e)
-        );
-    }
-  }
 
   void handleCls(OaasClass cls) {
     if (!cls.isMarkForRemoval()) {
@@ -140,14 +100,14 @@ public class VerticleDeployer {
       .await().indefinitely();
   }
 
-  public Uni<Void> deployVerticleIfNew(String function) {
-    if (verticleMap.containsKey(function) && !verticleMap.get(function).isEmpty()) {
+  public Uni<Void> deployVerticleIfNew(String cls) {
+    if (verticleMap.containsKey(cls) && !verticleMap.get(cls).isEmpty()) {
       return Uni.createFrom().nullItem();
     }
     int size = config.numOfVerticle();
     var options = new DeploymentOptions();
 
-    return deployVerticle(function, options, size);
+    return deployVerticle(cls, options, size);
   }
 
   protected Uni<Void> deployVerticle(String suffix,

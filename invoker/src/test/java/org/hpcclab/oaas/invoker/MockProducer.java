@@ -41,7 +41,7 @@ public class MockProducer {
         .orElse(0);
       if (task.getInputs()!=null && !task.getInputs().isEmpty()) {
         for (OaasObject input : task.getInputs()) {
-          var ni = Optional.ofNullable(task.getMain())
+          var ni = Optional.ofNullable(input)
             .map(OaasObject::getData)
             .map(on -> on.get("n").asInt())
             .orElse(0);

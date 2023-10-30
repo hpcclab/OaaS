@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.mq;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
@@ -7,6 +7,8 @@ import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.hpcclab.oaas.invoker.InvokerConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;

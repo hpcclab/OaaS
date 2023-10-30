@@ -20,15 +20,12 @@ oaas:
   log: INFO
 oprc:
   env: |
-    OPRC_DB_CLS_HOST=localhost
-    OPRC_DB_CLS_PORT=8529
-    OPRC_DB_CLS_USER=root
-    OPRC_DB_FN_HOST=localhost
-    OPRC_DB_FN_PORT=8529
-    OPRC_DB_FN_USER=root
-    OPRC_DB_OBJ_HOST=localhost
-    OPRC_DB_OBJ_PORT=8529
-    OPRC_DB_OBJ_USER=root
+    OPRC_DB_PKG_HOST=localhost
+    OPRC_DB_PKG_PORT=8529
+    OPRC_DB_PKG_USER=root
+    OPRC_DB_DEFAULT_HOST=localhost
+    OPRC_DB_DEFAULT_PORT=8529
+    OPRC_DB_DEFAULT_USER=root
 
 quarkus:
   s3:

@@ -71,25 +71,6 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   Cache<String, OaasClass> cache() {
     return cache;
   }
-
-  @Override
-  public Uni<List<String>> listSubClsKeys(String clsKey) {
-    var res = subClsCache.getIfPresent(clsKey);
-    if (res != null)
-      return Uni.createFrom().item(res);
-    var query = """
-      FOR cls IN @@col
-        FILTER cls.resolved.identities ANY == @key
-        return cls._key
-      """;
-    var param = Map.<String, Object>of(
-      "@col", getCollection().name(),
-      "key", clsKey
-    );
-    return this.queryService.queryAsync(query, String.class, param)
-      .invoke(l -> subClsCache.put(clsKey, l));
-  }
-
   @Override
   public List<OaasClass> listSubCls(String clsKey) {
     var query = """

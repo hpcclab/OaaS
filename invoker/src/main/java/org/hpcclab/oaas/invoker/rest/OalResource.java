@@ -19,6 +19,7 @@ import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import java.net.URI;
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
   @Inject
-  ObjectRepository objectRepo;
+  ObjectRepoManager objectRepoManager;
   @Inject
   ContentUrlGenerator contentUrlGenerator;
   @Inject
@@ -47,10 +48,14 @@ public class OalResource {
                                             @QueryParam("async") Boolean async) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
+    if (oal.getCls() == null)
+      return Uni.createFrom().failure(BadRequestException::new);
+
     if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async);
     } else {
-      return objectRepo.async().getAsync(oal.getMain())
+      return objectRepoManager.getOrCreate(oal.getCls())
+        .async().getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> OalResponse.builder()
@@ -77,11 +82,15 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
+    if (oal.getCls() == null)
+      return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async)
         .map(res -> createResponse(res, filePath));
     } else {
-      return objectRepo.async().getAsync(oal.getMain())
+      return objectRepoManager
+        .getOrCreate(oal.getCls()).async()
+        .getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
         .map(obj -> createResponse(obj, filePath));

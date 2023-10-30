@@ -232,7 +232,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/api/functions" : {
@@ -371,99 +372,6 @@
         }
       }
     },
-    "/api/objects" : {
-      "get" : {
-        "tags" : [ "Object Resource" ],
-        "parameters" : [ {
-          "name" : "desc",
-          "in" : "query",
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "limit",
-          "in" : "query",
-          "schema" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "offset",
-          "in" : "query",
-          "schema" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasObject_Public"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/objects/{id}" : {
-      "get" : {
-        "tags" : [ "Object Resource" ],
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject_Public"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "tags" : [ "Object Resource" ],
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasObject_Public"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/packages" : {
       "post" : {
         "tags" : [ "Package Resource" ],
@@ -551,6 +459,50 @@
   },
   "components" : {
     "schemas" : {
+      "ClassConfig" : {
+        "type" : "object",
+        "properties" : {
+          "options" : {
+            "$ref" : "#/components/schemas/DSMap"
+          },
+          "partitions" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "structStore" : {
+            "type" : "string"
+          },
+          "unstructStore" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ClassConfig_Public" : {
+        "type" : "object",
+        "properties" : {
+          "options" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          },
+          "partitions" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "structStore" : {
+            "type" : "string"
+          },
+          "unstructStore" : {
+            "type" : "string"
+          }
+        }
+      },
       "DSMap" : {
         "type" : "array",
         "items" : {
@@ -665,13 +617,6 @@
           "name" : {
             "type" : "string"
           },
-          "forwardRecords" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "defaultArgs" : {
             "$ref" : "#/components/schemas/DSMap"
           },
@@ -686,6 +631,12 @@
           },
           "noMain" : {
             "type" : "boolean"
+          },
+          "inputTypes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -701,13 +652,6 @@
           "name" : {
             "type" : "string"
           },
-          "forwardRecords" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "defaultArgs" : {
             "$ref" : "#/components/schemas/DSMap_Public"
           },
@@ -722,6 +666,12 @@
           },
           "noMain" : {
             "type" : "boolean"
+          },
+          "inputTypes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -768,34 +718,6 @@
       "FunctionType_Public" : {
         "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
         "type" : "string"
-      },
-      "FunctionValidation" : {
-        "type" : "object",
-        "properties" : {
-          "bindingRequirement" : {
-            "$ref" : "#/components/schemas/ObjectRequirement"
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectRequirement"
-            }
-          }
-        }
-      },
-      "FunctionValidation_Public" : {
-        "type" : "object",
-        "properties" : {
-          "bindingRequirement" : {
-            "$ref" : "#/components/schemas/ObjectRequirement_Public"
-          },
-          "inputs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectRequirement_Public"
-            }
-          }
-        }
       },
       "JsonNodeType_Public" : {
         "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ],
@@ -869,6 +791,66 @@
           },
           "binary" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "KDeploymentProvision" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "env" : {
+            "$ref" : "#/components/schemas/DSMap"
+          },
+          "apiPath" : {
+            "type" : "string"
+          }
+        }
+      },
+      "KDeploymentProvision_Public" : {
+        "type" : "object",
+        "properties" : {
+          "image" : {
+            "type" : "string"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "requestsCpu" : {
+            "type" : "string"
+          },
+          "requestsMemory" : {
+            "type" : "string"
+          },
+          "limitsCpu" : {
+            "type" : "string"
+          },
+          "limitsMemory" : {
+            "type" : "string"
+          },
+          "env" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          },
+          "apiPath" : {
+            "type" : "string"
           }
         }
       },
@@ -1100,6 +1082,9 @@
           "store" : {
             "$ref" : "#/components/schemas/DatastoreLink"
           },
+          "config" : {
+            "$ref" : "#/components/schemas/ClassConfig"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember"
           }
@@ -1156,6 +1141,9 @@
           "store" : {
             "$ref" : "#/components/schemas/DatastoreLink_Public"
           },
+          "config" : {
+            "$ref" : "#/components/schemas/ClassConfig_Public"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"
           },
@@ -1187,9 +1175,6 @@
           "outputCls" : {
             "pattern" : "\\S",
             "type" : "string"
-          },
-          "validation" : {
-            "$ref" : "#/components/schemas/FunctionValidation"
           },
           "macro" : {
             "$ref" : "#/components/schemas/MacroSpec"
@@ -1234,9 +1219,6 @@
           "outputCls" : {
             "pattern" : "\\S",
             "type" : "string"
-          },
-          "validation" : {
-            "$ref" : "#/components/schemas/FunctionValidation_Public"
           },
           "macro" : {
             "$ref" : "#/components/schemas/MacroSpec_Public"
@@ -1375,22 +1357,6 @@
           }
         }
       },
-      "ObjectRequirement" : {
-        "type" : "object",
-        "properties" : {
-          "cls" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ObjectRequirement_Public" : {
-        "type" : "object",
-        "properties" : {
-          "cls" : {
-            "type" : "string"
-          }
-        }
-      },
       "ObjectStatus_Public" : {
         "type" : "object",
         "properties" : {
@@ -1486,8 +1452,11 @@
           "knative" : {
             "$ref" : "#/components/schemas/KnativeProvision"
           },
-          "type" : {
-            "$ref" : "#/components/schemas/Type"
+          "deployment" : {
+            "$ref" : "#/components/schemas/KDeploymentProvision"
+          },
+          "staticUrl" : {
+            "$ref" : "#/components/schemas/StaticUrlProvision"
           }
         }
       },
@@ -1497,8 +1466,11 @@
           "knative" : {
             "$ref" : "#/components/schemas/KnativeProvision_Public"
           },
-          "type" : {
-            "$ref" : "#/components/schemas/Type_Public"
+          "deployment" : {
+            "$ref" : "#/components/schemas/KDeploymentProvision_Public"
+          },
+          "staticUrl" : {
+            "$ref" : "#/components/schemas/StaticUrlProvision_Public"
           }
         }
       },
@@ -1632,18 +1604,29 @@
         "enum" : [ "FILES", "COLLECTION" ],
         "type" : "string"
       },
-      "Type" : {
-        "enum" : [ "EPHEMERAL", "DURABLE" ],
-        "type" : "string"
+      "StaticUrlProvision" : {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string"
+          }
+        }
       },
-      "Type_Public" : {
-        "enum" : [ "EPHEMERAL", "DURABLE" ],
-        "type" : "string"
+      "StaticUrlProvision_Public" : {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string"
+          }
+        }
       },
       "VariableDescription" : {
         "type" : "object",
         "properties" : {
           "name" : {
+            "type" : "string"
+          },
+          "comment" : {
             "type" : "string"
           }
         }
@@ -1652,6 +1635,9 @@
         "type" : "object",
         "properties" : {
           "name" : {
+            "type" : "string"
+          },
+          "comment" : {
             "type" : "string"
           }
         }

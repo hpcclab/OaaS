@@ -18,7 +18,7 @@ public class DefaultAtomicOperationService<K,V extends HasKey<K>>
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V value) {
+  public Uni<V> persistWithRevAsync(V value) {
     if (!(value instanceof HasRev))
       throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);

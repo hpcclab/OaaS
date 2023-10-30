@@ -27,7 +27,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString(
-  callSuper = true,
   exclude = {"parent", "dataflowGraph"}
 )
 @Accessors(chain = true)

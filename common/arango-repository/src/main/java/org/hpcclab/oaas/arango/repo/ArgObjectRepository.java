@@ -49,7 +49,7 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
     return oaasObject.getId();
   }
 
-  @Override
+
   public Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys,
                                                long offset,
                                                int limit) {

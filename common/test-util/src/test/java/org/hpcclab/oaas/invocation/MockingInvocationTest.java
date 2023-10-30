@@ -15,6 +15,7 @@ import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.GraphStateManager;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.test.*;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +35,7 @@ class MockingInvocationTest {
   ObjectMapper objectMapper = new ObjectMapper();
 
   UnifiedFunctionRouter router;
-  EntityRepository<String, OaasObject> objectRepo;
+  ObjectRepoManager objectRepo;
   GraphStateManager graphStateManager;
   MockInvocationQueueSender invocationQueueSender;
   MockOffLoader syncInvoker;
@@ -49,7 +50,7 @@ class MockingInvocationTest {
   public void setup() {
     mockEngine = new MockInvocationEngine();
     router = mockEngine.router;
-    objectRepo = mockEngine.objectRepo;
+    objectRepo = mockEngine.objectRepoManager;
     graphStateManager = mockEngine.graphStateManager;
     invocationQueueSender = mockEngine.invocationQueueSender;
     syncInvoker = mockEngine.syncInvoker;
@@ -60,7 +61,7 @@ class MockingInvocationTest {
 
   @Test
   void testSimpleTaskInvocation() {
-    var oal = ObjectAccessLanguage.parse("o1:f1()(aa=bb)");
+    var oal = ObjectAccessLanguage.parse("_ex.cls1/o1:f1()(aa=bb)");
     var req = oal.toRequest()
       .invId(idGenerator.generate())
       .outId(idGenerator.generate())
@@ -80,7 +81,8 @@ class MockingInvocationTest {
       .setCptTs(System.currentTimeMillis()));
     ctx = invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
-    var loadedObj = objectRepo.get(req.outId());
+    var loadedObj = objectRepo.getOrCreate(ctx.getOutputCls())
+      .get(req.outId());
     var invNode = ctx.getNode();
     LOGGER.debug("INV NODE: {}", Json.encodePrettily(invNode));
     LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(loadedObj));
@@ -93,7 +95,8 @@ class MockingInvocationTest {
     assertThat(invNode.getStatus())
       .isEqualTo(TaskStatus.SUCCEEDED);
 
-    loadedObj = objectRepo.get(ctx.getMain().getId());
+    loadedObj = objectRepo.getOrCreate(ctx.getMainCls())
+      .get(ctx.getMain().getId());
     LOGGER.debug("OBJECT MAIN: {}", Json.encodePrettily(loadedObj));
     assertThat(loadedObj.getState().getVerIds().entrySet())
       .doesNotContain(Map.entry("k1", "kkkk"));
@@ -101,7 +104,7 @@ class MockingInvocationTest {
 
   @Test
   void testNoOutputTaskInvocation() {
-    var oal = ObjectAccessLanguage.parse("o1:func2()");
+    var oal = ObjectAccessLanguage.parse("_ex.cls1/o1:func2()");
     var req = oal.toRequest()
       .invId(idGenerator.generate())
       .build();
@@ -117,14 +120,15 @@ class MockingInvocationTest {
     invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
 
-    var mainObj = objectRepo.get(req.main());
+    var mainObj = objectRepo.getOrCreate(ctx.getMainCls())
+      .get(req.main());
     System.out.printf("OBJECT MAIN: %s%n", Json.encodePrettily(mainObj));
     Assertions.assertEquals("bbb", mainObj.getData().get("aaa").asText());
   }
 
   @Test
   void testMacroInvocation() {
-    var oal = ObjectAccessLanguage.parse("o1:%s()(arg1=ttt)"
+    var oal = ObjectAccessLanguage.parse("_ex.cls1/o1:%s()(arg1=ttt)"
       .formatted(MockupData.MACRO_FUNC_1.getName()));
     var req = oal.toRequest()
       .invId(idGenerator.generate())
@@ -148,6 +152,7 @@ class MockingInvocationTest {
   void testMacroGeneration() {
     var request = InvocationRequest.builder()
       .invId(idGenerator.generate())
+      .cls(MockupData.CLS_1_KEY)
       .main("o1")
       .fb(MockupData.MACRO_FUNC_1.getName())
       .outId("m2")

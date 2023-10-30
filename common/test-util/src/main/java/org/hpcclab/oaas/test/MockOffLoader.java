@@ -22,7 +22,7 @@ private static final Logger logger = LoggerFactory.getLogger( MockOffLoader.clas
   public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (mapper!=null) {
       var tc = mapper.apply(invokingDetail);
-      logger.debug("invoke mapping {} to {}", invokingDetail, tc);
+      logger.debug("invoke mapping {}\nto {}", invokingDetail, tc);
       return Uni.createFrom().item(tc);
     }
     return Uni.createFrom().nullItem();

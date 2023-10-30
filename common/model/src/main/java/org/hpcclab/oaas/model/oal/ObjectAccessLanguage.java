@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class ObjectAccessLanguage {
   // language=RegExp
   private static final String EXPR_REGEX =
-    "^(?:_(?<cls>[a-zA-Z0-9._-]+[~/]?))?(?<main>[a-zA-Z0-9-]*)(?::(?<fn>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^)]*)\\))?)?)?$";
+    "^(?:_(?<cls>[a-zA-Z0-9._-]+)[~/]?)?(?<main>[a-zA-Z0-9-]*)(?::(?<fn>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^)]*)\\))?)?)?$";
   private static final Pattern EXPR_PATTERN = Pattern.compile(EXPR_REGEX);
   final String main;
   final String cls;

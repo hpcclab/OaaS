@@ -10,6 +10,7 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.test.MockupData;
 import org.junit.FixMethodOrder;
@@ -28,7 +29,7 @@ public class NewApplierTest {
   private static final Logger logger = LoggerFactory.getLogger( NewApplierTest.class );
 
   @Inject
-  ObjectRepository objectRepo;
+  ObjectRepoManager objectRepoManager;
   @Inject
   ClassRepository clsRepo;
   @Inject
@@ -39,7 +40,7 @@ public class NewApplierTest {
 
   @BeforeEach
   void setup() {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
   }
 
   @Test

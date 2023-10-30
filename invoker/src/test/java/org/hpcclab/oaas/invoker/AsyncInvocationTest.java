@@ -11,6 +11,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.test.MockupData;
@@ -42,7 +43,7 @@ class AsyncInvocationTest {
   @Inject
   InvokerConfig config;
   @Inject
-  ObjectRepository objectRepo;
+  ObjectRepoManager objectRepoManager;
   @Inject
   ClassRepository clsRepo;
   @Inject
@@ -66,7 +67,7 @@ class AsyncInvocationTest {
   @Test
   void _0testSubscribingDeploy() throws InterruptedException {
     var cls = CLS_2;
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
     kafkaProducer.sendAndAwait(
       KafkaProducerRecord.create(
         config.clsProvisionTopic(),
@@ -93,14 +94,16 @@ class AsyncInvocationTest {
 
   @Test
   void _1testSingleMutable() throws InterruptedException {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
     var main = OBJ_1.copy();
     main.setId(idGenerator.generate());
-    objectRepo.put(main.getKey(), main);
+    var objectRepo = objectRepoManager.getOrCreate(CLS_1);
+    objectRepo.persist(main);
     var oId = idGenerator.generate();
     var fn = FUNC_1;
     var cls = CLS_1;
     InvocationRequest request = InvocationRequest.builder()
+      .cls(cls.getKey())
       .main(main.getId())
       .outId(oId)
       .fb("f1")
@@ -126,9 +129,10 @@ class AsyncInvocationTest {
 
   @Test
   void _2testMacro() throws InterruptedException {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
     var main = OBJ_1.copy();
     main.setId(idGenerator.generate());
+    var objectRepo = objectRepoManager.getOrCreate(CLS_1);
     objectRepo.put(main.getKey(), main);
     var fn = MACRO_FUNC_1;
     var cls = CLS_1;
@@ -137,6 +141,7 @@ class AsyncInvocationTest {
     var mid2 = idGenerator.generate();
     var mid3 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
+      .cls(cls.getKey())
       .main(main.getId())
       .outId(mid3)
       .fb(fn.getName())
@@ -178,9 +183,10 @@ class AsyncInvocationTest {
 
   @Test
   void _3testAtomicMacro() throws InterruptedException {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
     var main = OBJ_1.copy();
     main.setId(idGenerator.generate());
+    var objectRepo = objectRepoManager.getOrCreate(CLS_1);
     objectRepo.put(main.getKey(), main);
     var fn = ATOMIC_MACRO_FUNC;
     var cls = CLS_1;
@@ -189,6 +195,7 @@ class AsyncInvocationTest {
     var mid2 = idGenerator.generate();
     var mid3 = idGenerator.generate();
     InvocationRequest request = InvocationRequest.builder()
+      .cls(cls.getKey())
       .main(main.getId())
       .outId(mid2)
       .fb(fn.getName())
@@ -203,6 +210,7 @@ class AsyncInvocationTest {
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
+
     TestUtil.retryTillConditionMeet(() -> {
       var o = objectRepo.get(mid3);
       return o!= null;

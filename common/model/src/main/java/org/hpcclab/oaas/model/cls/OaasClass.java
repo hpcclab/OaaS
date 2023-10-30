@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
@@ -20,6 +21,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Data
 @Accessors(chain = true)
@@ -112,6 +114,9 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
     for (FunctionBinding binding : functions) {
       binding.validate();
     }
+    if (config == null) {
+      config = new ClassConfig();
+    }
   }
 
   public FunctionBinding findFunction(String funcName) {
@@ -185,5 +190,12 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
       return getPkg() == null;
     var otherPkg = classKey.substring(0, i);
     return otherPkg.equals(pkg);
+  }
+
+
+  public Optional<ReferenceSpecification> findReference(String name) {
+    return refSpec.stream()
+      .filter(mem -> mem.getName().equals(name))
+      .findFirst();
   }
 }

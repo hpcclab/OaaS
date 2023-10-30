@@ -16,7 +16,7 @@ public enum FunctionType {
   @ProtoEnumValue(5) STATIC(false),
   @ProtoEnumValue(6) READONLY(false),
   @ProtoEnumValue(7) STATIC_READONLY(false);
-  boolean mutable;
+  final boolean mutable;
 
   FunctionType(boolean allowUpdateMain) {
     this.mutable = allowUpdateMain;

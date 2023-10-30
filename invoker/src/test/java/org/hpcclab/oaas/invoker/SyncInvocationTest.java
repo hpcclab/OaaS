@@ -13,6 +13,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.test.MockupData;
@@ -39,7 +40,7 @@ class SyncInvocationTest {
   private static final Logger logger = LoggerFactory.getLogger(SyncInvocationTest.class);
 
   @Inject
-  ObjectRepository objectRepo;
+  ObjectRepoManager objectRepoManager;
   @Inject
   ClassRepository clsRepo;
   @Inject
@@ -49,16 +50,18 @@ class SyncInvocationTest {
 
   @BeforeEach
   void setup() {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
   }
 
   @Test
   void _1testSingleMutable() {
     var main = OBJ_1.copy();
     main.setId(idGenerator.generate());
+    var objectRepo = objectRepoManager.getOrCreate(CLS_1);
     objectRepo.put(main.getKey(), main);
-    ObjectAccessLanguage oal = ObjectAccessLanguage.parse("%s:%s".formatted(main.getId(), "f1"));
+    ObjectAccessLanguage oal = ObjectAccessLanguage.parse("_%s~%s:%s".formatted(main.getCls(), main.getId(), "f1"));
     given()
+      .urlEncodingEnabled(false)
       .when()
       .get("/oal/{oal}", oal.toString())
       .then()
@@ -66,6 +69,7 @@ class SyncInvocationTest {
       .statusCode(200)
       .body("main.data.n", Matchers.equalTo(1));
     given()
+      .urlEncodingEnabled(false)
       .when()
       .get("/oal/{oal}", oal.toString())
       .then()

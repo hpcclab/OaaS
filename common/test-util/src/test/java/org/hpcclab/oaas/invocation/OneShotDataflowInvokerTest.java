@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hpcclab.oaas.test.MockupData.ATOMIC_MACRO_FUNC;
+import static org.hpcclab.oaas.test.MockupData.CLS_1;
 
 public class OneShotDataflowInvokerTest {
   MockInvocationEngine engine;
@@ -20,7 +21,7 @@ public class OneShotDataflowInvokerTest {
 
   @Test
   void test() {
-    var oal = ObjectAccessLanguage.parse("o1:" + ATOMIC_MACRO_FUNC.getName());
+    var oal = ObjectAccessLanguage.parse("_%s/o1:%s".formatted(CLS_1.getKey(),ATOMIC_MACRO_FUNC.getName()));
     var req = oal.toRequest()
       .invId(engine.idGen.generate())
       .build();

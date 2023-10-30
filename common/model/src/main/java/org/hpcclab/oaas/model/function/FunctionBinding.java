@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -20,8 +21,6 @@ public class FunctionBinding {
   String function;
   @ProtoField(3)
   String name;
-  @ProtoField(4)
-  Set<String> forwardRecords;
   @ProtoField(value = 5)
   DSMap defaultArgs;
   @ProtoField(6)
@@ -32,30 +31,25 @@ public class FunctionBinding {
   boolean forceImmutable = false;
   @ProtoField(value = 9, defaultValue = "false")
   boolean noMain;
+  @ProtoField(10)
+  List<String> inputTypes;
 
 
   public FunctionBinding() {
   }
 
   @ProtoFactory
-  public FunctionBinding(FunctionAccessModifier access,
-                         String function,
-                         String name,
-                         Set<String> forwardRecords,
-                         DSMap defaultArgs,
-                         String description,
-                         String outputCls,
-                         boolean forceImmutable,
-                         boolean noMain) {
+
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, DSMap defaultArgs, String description, String outputCls, boolean forceImmutable, boolean noMain, List<String> inputTypes) {
     this.access = access;
     this.function = function;
     this.name = name;
-    this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
     this.forceImmutable = forceImmutable;
     this.noMain = noMain;
+    this.inputTypes = inputTypes;
   }
 
   public void validate() {

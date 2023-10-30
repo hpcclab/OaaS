@@ -16,16 +16,18 @@ public class ProvisionConfig {
   @ProtoField(2)
   KDeploymentProvision deployment;
   @ProtoField(3)
-  StaticUrlProvision url;
+  StaticUrlProvision staticUrl;
 
   public ProvisionConfig() {
   }
 
   @ProtoFactory
-  public ProvisionConfig(KnativeProvision knative, KDeploymentProvision deployment, StaticUrlProvision staticUrl) {
+  public ProvisionConfig(KnativeProvision knative,
+                         KDeploymentProvision deployment,
+                         StaticUrlProvision staticUrl) {
     this.knative = knative;
     this.deployment = deployment;
-    this.url = staticUrl;
+    this.staticUrl = staticUrl;
   }
 
 
@@ -33,7 +35,7 @@ public class ProvisionConfig {
     var nonNullCounter = 0;
     if (knative != null) nonNullCounter ++;
     if (deployment != null) nonNullCounter ++;
-    if (url != null) nonNullCounter ++;
+    if (staticUrl != null) nonNullCounter ++;
     if (nonNullCounter > 1)
       throw FunctionValidationException.format("provision config must be declared only one option");
   }

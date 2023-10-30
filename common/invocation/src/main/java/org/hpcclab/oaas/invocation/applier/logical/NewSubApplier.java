@@ -18,6 +18,7 @@ import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.invocation.OaasObjectFactory;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class NewSubApplier implements LogicalSubApplier {
   @Inject
   ClassRepository clsRepo;
   @Inject
-  ObjectRepository objRepo;
+  ObjectRepoManager objRepoManager;
   @Inject
   ObjectMapper mapper;
 
@@ -87,21 +88,20 @@ public class NewSubApplier implements LogicalSubApplier {
   private Uni<ObjectConstructResponse> constructSimple(ObjectConstructRequest construction,
                                                        OaasClass cls) {
     var obj = objectFactory.createBase(construction, cls);
-    var async = objRepo.async();
     linkReference(construction, obj, cls);
     var stateSpec = cls.getStateSpec();
-    if (stateSpec==null) return async.persistAsync(obj)
+    if (stateSpec==null) return objRepoManager.persistAsync(obj)
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .select(k -> construction.getKeys().contains(k.getName()));
     if (ks.isEmpty()) {
-      return async.persistAsync(obj)
+      return objRepoManager.persistAsync(obj)
         .map(ignored -> new ObjectConstructResponse(obj, Map.of()));
     }
     DataAllocateRequest request = new DataAllocateRequest(obj.getId(), ks, cls.getStateSpec().getDefaultProvider(), true);
     return allocator.allocate(List.of(request))
       .map(list -> new ObjectConstructResponse(obj, list.get(0).getUrlKeys()))
-      .call(() -> async.persistAsync(obj));
+      .call(() -> objRepoManager.persistAsync(obj));
   }
 }

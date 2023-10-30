@@ -25,7 +25,6 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
   @NotBlank
   @ProtoField(1)
   String name;
-
   @ProtoField(2)
   String pkg;
   @ProtoField(3)
@@ -36,10 +35,6 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
   @NotBlank
   @ProtoField(5)
   String outputCls;
-
-  @ProtoField(6)
-  FunctionValidation validation;
-
   @ProtoField(7)
   MacroSpec macro;
 
@@ -65,7 +60,6 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
                       String description,
                       FunctionType type,
                       String outputCls,
-                      FunctionValidation validation,
                       MacroSpec macro,
                       ProvisionConfig provision,
                       List<VariableDescription> variableDescriptions,
@@ -76,7 +70,6 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
     this.description = description;
     this.type = type;
     this.outputCls = outputCls;
-    this.validation = validation;
     this.macro = macro;
     this.provision = provision;
     this.variableDescriptions = variableDescriptions;
@@ -118,9 +111,9 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
       outputCls = null;
     }
 
-    if (provision != null && provision.getUrl() != null){
+    if (provision != null && provision.getStaticUrl() != null){
       deploymentStatus.setCondition(DeploymentCondition.RUNNING)
-        .setInvocationUrl(provision.getUrl().getUrl());
+        .setInvocationUrl(provision.getStaticUrl().getUrl());
     }
   }
 
@@ -154,7 +147,6 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
       description,
       type,
       outputCls,
-      validation,
       macro,
       provision,
       variableDescriptions == null? null : List.copyOf(variableDescriptions),

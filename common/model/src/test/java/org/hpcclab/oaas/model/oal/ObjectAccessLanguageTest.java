@@ -16,9 +16,15 @@ class ObjectAccessLanguageTest {
     return UUID.randomUUID().toString();
   }
 
+  String cls() {
+    return "example.record";
+  }
+
   @Test
   void testValid() {
     assertTrue(ObjectAccessLanguage.validate(id()));
+    assertTrue(ObjectAccessLanguage.validate("_%s~%s".formatted(cls(),id())));
+    assertTrue(ObjectAccessLanguage.validate("_%s/%s".formatted(cls(),id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test".formatted(id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test()".formatted(id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test(%s)".formatted(id(),id())));
@@ -55,18 +61,20 @@ class ObjectAccessLanguageTest {
     assertNull(fc.getFb());
 
     fc = ObjectAccessLanguage.parse(
-      "%s:test".formatted(ids.get(0))
+      "_%s~%s:test".formatted(cls(), ids.get(0))
     );
     assertNotNull(fc);
+    assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
     assertNull(fc.getInputs());
     assertNull(fc.getArgs());
 
     fc = ObjectAccessLanguage.parse(
-      "%s:test()".formatted(ids.get(0))
+      "_%s/%s:test()".formatted(cls(), ids.get(0))
     );
     assertNotNull(fc);
+    assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
     assertNull(fc.getInputs());
