@@ -45,6 +45,8 @@ oprc:
 
 
 quarkus:
+  docker:
+    dockerfile-jvm-path: src/main/docker/Dockerfile.jvm21
   http:
     access-log:
       enabled: true

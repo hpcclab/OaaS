@@ -28,6 +28,8 @@ oprc:
     OPRC_DB_DEFAULT_USER=root
 
 quarkus:
+  docker:
+    dockerfile-jvm-path: src/main/docker/Dockerfile.jvm21
   s3:
     devservices:
       enabled: false

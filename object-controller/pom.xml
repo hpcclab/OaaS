@@ -72,9 +72,13 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-container-image-jib</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-jib</artifactId>
+      <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
       <groupId>io.netty.incubator</groupId>
@@ -85,11 +89,6 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-io_uring-incubator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mapstruct</groupId>
@@ -150,23 +149,6 @@
         <version>${compiler-plugin.version}</version>
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
-          <annotationProcessorPaths>
-            <annotationProcessorPath>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${org.mapstruct.version}</version>
-            </annotationProcessorPath>
-            <annotationProcessorPath>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${org.projectlombok.version}</version>
-            </annotationProcessorPath>
-            <annotationProcessorPath>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok-mapstruct-binding</artifactId>
-              <version>0.1.0</version>
-            </annotationProcessorPath>
-          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>

@@ -55,43 +55,6 @@
             }
           }
         }
-      },
-      "post" : {
-        "tags" : [ "Class Resource" ],
-        "parameters" : [ {
-          "name" : "update",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
-              }
-            },
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/OaasClass"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass_Public"
-                }
-              }
-            }
-          }
-        },
-        "deprecated" : true
       }
     },
     "/api/classes/{clsKey}" : {
@@ -142,100 +105,6 @@
         }
       }
     },
-    "/api/classes/{name}" : {
-      "patch" : {
-        "tags" : [ "Class Resource" ],
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/OaasClass"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass_Public"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/classes/{name}/objects" : {
-      "get" : {
-        "tags" : [ "Class Resource" ],
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "desc",
-          "in" : "query",
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "includeSub",
-          "in" : "query",
-          "schema" : {
-            "default" : false,
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "limit",
-          "in" : "query",
-          "schema" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "offset",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasObject_Public"
-                }
-              }
-            }
-          }
-        },
-        "deprecated" : true
-      }
-    },
     "/api/functions" : {
       "get" : {
         "tags" : [ "Function Resource" ],
@@ -279,49 +148,6 @@
             }
           }
         }
-      },
-      "post" : {
-        "tags" : [ "Function Resource" ],
-        "parameters" : [ {
-          "name" : "update",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
-              }
-            },
-            "application/json" : {
-              "schema" : {
-                "type" : "array",
-                "items" : {
-                  "$ref" : "#/components/schemas/OaasFunction"
-                }
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/OaasFunction_Public"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated" : true
       }
     },
     "/api/functions/{funcKey}" : {
@@ -718,81 +544,6 @@
       "FunctionType_Public" : {
         "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
         "type" : "string"
-      },
-      "JsonNodeType_Public" : {
-        "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ],
-        "type" : "string"
-      },
-      "JsonNode_Public" : {
-        "type" : "object",
-        "properties" : {
-          "empty" : {
-            "type" : "boolean"
-          },
-          "valueNode" : {
-            "type" : "boolean"
-          },
-          "containerNode" : {
-            "type" : "boolean"
-          },
-          "missingNode" : {
-            "type" : "boolean"
-          },
-          "array" : {
-            "type" : "boolean"
-          },
-          "object" : {
-            "type" : "boolean"
-          },
-          "nodeType" : {
-            "$ref" : "#/components/schemas/JsonNodeType_Public"
-          },
-          "pojo" : {
-            "type" : "boolean"
-          },
-          "number" : {
-            "type" : "boolean"
-          },
-          "integralNumber" : {
-            "type" : "boolean"
-          },
-          "floatingPointNumber" : {
-            "type" : "boolean"
-          },
-          "short" : {
-            "type" : "boolean"
-          },
-          "int" : {
-            "type" : "boolean"
-          },
-          "long" : {
-            "type" : "boolean"
-          },
-          "float" : {
-            "type" : "boolean"
-          },
-          "double" : {
-            "type" : "boolean"
-          },
-          "bigDecimal" : {
-            "type" : "boolean"
-          },
-          "bigInteger" : {
-            "type" : "boolean"
-          },
-          "textual" : {
-            "type" : "boolean"
-          },
-          "boolean" : {
-            "type" : "boolean"
-          },
-          "null" : {
-            "type" : "boolean"
-          },
-          "binary" : {
-            "type" : "boolean"
-          }
-        }
       },
       "KDeploymentProvision" : {
         "type" : "object",
@@ -1240,51 +991,6 @@
           }
         }
       },
-      "OaasObjectState_Public" : {
-        "type" : "object",
-        "properties" : {
-          "overrideUrls" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          },
-          "verIds" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          }
-        }
-      },
-      "OaasObject_Public" : {
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string"
-          },
-          "revision" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "cls" : {
-            "type" : "string"
-          },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState_Public"
-          },
-          "refs" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ObjectReference_Public"
-            }
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/ObjectStatus_Public"
-          },
-          "data" : {
-            "$ref" : "#/components/schemas/ObjectNode_Public"
-          },
-          "key" : {
-            "type" : "string"
-          }
-        }
-      },
       "OaasPackageContainer" : {
         "type" : "object",
         "properties" : {
@@ -1334,38 +1040,6 @@
             "items" : {
               "$ref" : "#/components/schemas/OaasFunction_Public"
             }
-          }
-        }
-      },
-      "ObjectNode_Public" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/JsonNode_Public"
-        }
-      },
-      "ObjectReference_Public" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "objId" : {
-            "type" : "string"
-          },
-          "access" : {
-            "$ref" : "#/components/schemas/KeyAccessModifier_Public"
-          }
-        }
-      },
-      "ObjectStatus_Public" : {
-        "type" : "object",
-        "properties" : {
-          "updatedOffset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "lastInv" : {
-            "type" : "string"
           }
         }
       },
@@ -1419,29 +1093,6 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OaasFunction_Public"
-            }
-          }
-        }
-      },
-      "PaginationOaasObject_Public" : {
-        "type" : "object",
-        "properties" : {
-          "total" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "offset" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "itemCount" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "items" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/OaasObject_Public"
             }
           }
         }
@@ -1663,13 +1314,6 @@
             "type" : "string"
           }
         }
-      }
-    },
-    "securitySchemes" : {
-      "SecurityScheme" : {
-        "type" : "http",
-        "description" : "Authentication",
-        "scheme" : "basic"
       }
     }
   }

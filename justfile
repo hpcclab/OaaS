@@ -1,10 +1,13 @@
 mvn := "mvnd"
+export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
 
 build options="":
   ./mvnw  package {{options}}
 
-build-no-test:
-  {{mvn}} package -DskipTests
+build-no-test options="":
+  {{mvn}} package -DskipTests {{options}}
+
+build-image : (build-no-test '"-Dquarkus.container-image.build=true"')
 
 kind-upload-image:
   docker images --format json | jq -r .Repository | grep oaas- | xargs kind load docker-image -n 1node-cluster
