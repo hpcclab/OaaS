@@ -2,7 +2,6 @@ name: example
 functions:
   - name: record.random
     type: TASK
-    validation: {}
     provision:
       knative:
 #        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19
@@ -16,7 +15,6 @@ functions:
 
   - name: record.merge
     type: TASK
-    validation: {}
     provision:
       knative:
 #        image: core.harbor.10.131.36.2.nip.io/oaas/json-update-fn-py:0.2.19

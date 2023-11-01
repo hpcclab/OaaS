@@ -20,7 +20,7 @@ spec:
             - name: KAFKA_CLUSTERS_0_NAME
               value: oaas
             - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-              value: oaas-kafka.oaas.svc.cluster.local:9092
+              value: oaas-kafka:9092
           image: provectuslabs/kafka-ui:latest
           ports:
             - containerPort: 8080

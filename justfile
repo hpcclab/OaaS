@@ -9,35 +9,34 @@ build-no-test options="":
 
 build-image : (build-no-test '"-Dquarkus.container-image.build=true"')
 
-kind-upload-image:
-  docker images --format json | jq -r .Repository | grep oaas- | xargs kind load docker-image -n 1node-cluster
+kind-build-image:
+  docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | xargs kind load docker-image -n 1node-cluster
 
-k3d-upload-image:
-  docker images --format json | jq -r .Repository | grep oaas- | xargs k3d image import
-
-k3d-build-image: build-no-test && k3d-upload-image
-  docker compose build
+k3d-build-image: build-image
+  docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | xargs k3d image import
 
 k3d-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/local-build
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
 
-k8s-deploy-preq:
-  kubectl create ns oaas
-  kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.10.2/serving-crds.yaml
-  kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.10.2/serving-core.yaml
-  kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-v1.10.0/kourier.yaml
+k3d-reload: k3d-build-image
+  kubectl -n oaas delete pod -l platform=oaas
+
+k8s-deploy-preq kn-version="v1.12.0" kourier-version="v1.12.0":
+  kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -
+  kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-crds.yaml
+  kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-core.yaml
+  kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-{{kourier-version}}/kourier.yaml
   kubectl patch configmap/config-network \
     --namespace knative-serving \
     --type merge \
     --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
-  helm install oaas oci://registry-1.docker.io/bitnamicharts/kafka -n oaas
+  helm upgrade oaas oci://registry-1.docker.io/bitnamicharts/kafka -n oaas --install --set controller.replicaCount=1 --set listeners.client.protocol=PLAINTEXT
   kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
 
 k8s-deploy-deps:
   kubectl apply -n oaas -f deploy/local-k8s/minio.yml
-
   kubectl apply -n oaas -f deploy/arango/arango-single.yml
   kubectl apply -n oaas -f deploy/local-k8s/arango-ingress.yml
 
@@ -55,8 +54,8 @@ k8s-clean:
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "9090:80@loadbalancer"
 
-compose-build-up: build-no-test
-  docker compose up -d --build
+compose-build-up: build-image
+  docker compose up -d
 
-compose-clean:
+compose-down:
   docker compose down -v

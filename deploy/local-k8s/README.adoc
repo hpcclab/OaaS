@@ -7,81 +7,61 @@
 {empty}
 
 == Introduction
-This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d). Note that it is focusing on testing and development but not suitable for real-world usage.
+This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d).
 
 == OaaS Installation
 === Prerequisites
-* Kubernetes
-** Create via k3d
-+
-[source,bash]
-----
-k3d cluster create -p "9090:80@loadbalancer"
-----
+* https://github.com/casey/just[*just*]
 
-* Kubernetes-related commandline tools
-** *kubectl*
-** *helm*
-
-=== Install dependencies
-
-. Clone this project.
+* Clone this project.
 +
 [source,bash]
 ----
 git clone https://github.com/hpcclab/OaaS.git
 cd OaaS
 ----
-+
-The deployment files for this guide are inside `deploy/local-k8s` directory.
 
+* Kubernetes
+** Create via k3d
++
+[source,bash]
+----
+k3d cluster create -p "9090:80@loadbalancer"
+# or using just (after clone this project)
+just k3d-create
+----
+
+* Kubernetes-related commandline tools
+** *kubectl*
+** *helm*
+
+
+
+=== Install dependencies
+
+Use `just` command to install dependencies
+
+[source,bash]
+----
+just k8s-deploy-preq
+just k8s-deploy-deps
+----
+
+This command will do the following steps:
 
 . Create `oaas` namespace
-+
-[source,bash]
-----
-kubectl create ns oaas
-----
-// . NGINX ingress controller
-// .. Use this https://kind.sigs.k8s.io/docs/user/ingress[guide] to install ingress controller if you doesn't have one
 
 . Knative
-.. Follow the official https://knative.dev/docs/install/yaml-install/serving/install-serving-with-yaml/[guide] to install Knative Serving. (*Kourier* is preferable)
+
 
 . Kafka
-.. Install Kafka via helm (https://github.com/bitnami/charts/blob/main/bitnami/kafka/README.md[doc])
-+
-[source,bash]
-----
-helm install oaas oci://registry-1.docker.io/bitnamicharts/kafka -n oaas
-----
-
-.. _Optional:_ Kafka UI
-+
-[source,bash]
-----
-kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
-----
+** Open Kafka UI at `http://kui.127.0.0.1.nip.io:9090`
 
 . MinIO (S3-compatible storage)
-.. Install MinIO
-+
-[source,bash]
-----
-kubectl apply -n oaas -f deploy/local-k8s/minio.yml
-----
-.. Open the web console at http://minio.127.0.0.1.nip.io and login with `minio_access_key` as a user and `minio_secret_key` as a password.
-
-
+** Open the web console at `http://minio.127.0.0.1.nip.io:9090` and login with `minio_access_key` as a user and `minio_secret_key` as a password.
 
 . ArangoDB
-+
-[source,bash]
-----
-kubectl apply -n oaas -f deploy/arango/arango-single.yml
-kubectl apply -n oaas -f deploy/local-k8s/arango-ingress.yml
-----
-
+** Open the web console at `http://arg.127.0.0.1.nip.io:9090` and login with `root` as a user and `changeme` as a password.
 
 === Install and Access OaaS
 . Install OaaS
@@ -97,15 +77,22 @@ kubectl apply -n oaas -k deploy/oaas/local
 kubectl get pod -n oaas -w
 ----
 . Access OaaS
-.. Object controller: http://oc.oaas.127.0.0.1.nip.io
-.. Content Delivery Service: http://cds.127.0.0.1.nip.io
-.. ArangoDB console: http://localhost:31235
 +
-NOTE: Both of them have Swagger UI at `/q/swagger-ui`. Swagger UI provides the API schema and an easy way to try sending the request.
+[source,bash]
+----
+# For bash
+export OPRC_CDS=http://cds.127.0.0.1.nip.io:9090
+# For powershell
+$ENV:OPRC_CDS="http://cds.127.0.0.1.nip.io:9090"
+
+----
+.. Object controller: `http://oc.oaas.127.0.0.1.nip.io:9090`
+.. Content Delivery Service: `http://cds.127.0.0.1.nip.io:9090`
+.. Invoker: `http://inv.oaas.127.0.0.1.nip.io:9090`
+
 
 == Troubleshooting
-* Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:cds.yml[]
+* Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:../oaas/base/cds.yml[]
 * In the case that you can not access Kubernetes via localhost, you need to change the hostname of `*.127.0.0.1.nip.io` to match your setup.
 ** link:oaas-ingress.yml[]
 ** link:minio.yml[]
-** link:sa.yml[]

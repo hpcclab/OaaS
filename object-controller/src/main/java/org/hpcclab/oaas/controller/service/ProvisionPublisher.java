@@ -11,10 +11,14 @@ import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ProvisionPublisher {
+  private static final Logger logger = LoggerFactory.getLogger( ProvisionPublisher.class );
   @Channel("fnProvisions")
   MutinyEmitter<Record<String, OaasFunction>> fnProvisionEmitter;
   @Channel("clsProvisions")
@@ -59,6 +63,7 @@ public class ProvisionPublisher {
   }
 
   public Uni<Void> submitNewPkg(OaasPackageContainer packageContainer) {
+    logger.debug("publish pkg {}", packageContainer.getName());
     return submitNewFunction(packageContainer.getFunctions().stream())
       .flatMap(__ -> submitNewCls(packageContainer.getClasses().stream()));
   }

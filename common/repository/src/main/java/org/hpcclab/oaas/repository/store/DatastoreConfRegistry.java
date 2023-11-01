@@ -5,6 +5,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DatastoreConfRegistry {
@@ -21,12 +22,16 @@ public class DatastoreConfRegistry {
   }
 
   public DatastoreConfRegistry(String prefix, String keyToLoad) {
-    var rawConf = ConfigProvider.getConfig().getValue(keyToLoad, String.class);
+    var rawConf = ConfigProvider.getConfig().getOptionalValue(keyToLoad, String.class)
+      .orElse("");
     var map = Arrays.stream(rawConf.split("\\\n"))
       .map(line -> {
         var kv = line.split("=");
-        return Map.entry(kv[0], kv[1]);
+        if (kv.length == 2)
+          return Map.entry(kv[0], kv[1]);
+        return null;
       })
+      .filter(Objects::nonNull)
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     load(prefix, map);
   }

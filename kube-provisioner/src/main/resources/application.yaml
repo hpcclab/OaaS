@@ -25,8 +25,6 @@ quarkus:
     prefer-native-transport: true
   container-image:
     image: ${ci.registry.image:oaas}/kube-provisioner${tag:}
-  jib:
-    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
   console:
     color: true
 mp:

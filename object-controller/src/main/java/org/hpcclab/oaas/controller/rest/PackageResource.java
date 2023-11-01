@@ -88,7 +88,7 @@ public class PackageResource {
     pkg.setClasses(pkgCls);
 
     if (config.kafkaEnabled()) {
-      provisionPublisher.submitNewPkg(pkg);
+      provisionPublisher.submitNewPkg(pkg).await().indefinitely();
     }
     logger.debug("pkg {}", Json.encodePrettily(pkg));
     return pkg;

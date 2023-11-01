@@ -3,7 +3,6 @@ functions:
   - name: text.concat
     type: TASK
     outputCls: .text
-    validation: {}
     provision:
       knative:
         image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev

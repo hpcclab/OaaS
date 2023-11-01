@@ -3,7 +3,6 @@ functions:
   - name: video.transcode
     type: TASK
     outputCls: .video
-    validation: {}
     provision:
       knative:
         image: ghcr.io/pawissanutt/oaas/transcode-fn-py:dev
