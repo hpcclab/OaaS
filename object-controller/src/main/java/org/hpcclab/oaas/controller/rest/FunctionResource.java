@@ -49,36 +49,6 @@ public class FunctionResource {
       .sortedPaginationAsync(sort, desc, offset, limit);
   }
 
-  @POST
-  @JsonView(Views.Public.class)
-  @Deprecated(forRemoval = true)
-  @RunOnVirtualThread
-  public List<OaasFunction> create(@RestQuery boolean update,
-                                        List<OaasFunction> functions) {
-    var pkg = new OaasPackageContainer()
-      .setFunctions(functions);
-    if (pkg.getName() == null) {
-      pkg.setName("default");
-    }
-
-    return packageResource.create(update, false, pkg).getFunctions();
-  }
-
-  @POST
-  @Consumes("text/x-yaml")
-  @JsonView(Views.Public.class)
-  @Deprecated(forRemoval = true)
-  @RunOnVirtualThread
-  public List<OaasFunction> createByYaml(@RestQuery boolean update,
-                                              String body) {
-    try {
-      var funcs = yamlMapper.readValue(body, OaasFunction[].class);
-      return create(update, Arrays.asList(funcs));
-    } catch (JsonProcessingException e) {
-      throw new BadRequestException(e);
-    }
-  }
-
   @GET
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
