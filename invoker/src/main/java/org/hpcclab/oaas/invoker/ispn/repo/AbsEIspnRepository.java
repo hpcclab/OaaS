@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker.ispn.repo;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.repository.*;
 import org.infinispan.AdvancedCache;
@@ -17,17 +16,17 @@ import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public abstract class AbsEmbeddedIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
+public abstract class AbsEIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
 
-  protected EmbededIspnAtomicOperationService<V> atomicService;
+  protected EIspnAtomicOperationService<V> atomicService;
 
 
-  abstract AdvancedCache<String, V> getCache();
+  public abstract AdvancedCache<String, V> getCache();
 
   @Override
-  public EmbededIspnAtomicOperationService<V> atomic() {
+  public EIspnAtomicOperationService<V> atomic() {
     if (atomicService == null)
-      atomicService = new EmbededIspnAtomicOperationService<>(this);
+      atomicService = new EIspnAtomicOperationService<>(this);
     return atomicService;
   }
 

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class DatastoreConfRegistry {
 
   public static final String DEFAULT = "DEFAULT";
+  public static final String NONE = "NONE";
 
   Map<String, DatastoreConf> confMap = new HashMap<>();
 
@@ -24,7 +25,7 @@ public class DatastoreConfRegistry {
   public DatastoreConfRegistry(String prefix, String keyToLoad) {
     var rawConf = ConfigProvider.getConfig().getOptionalValue(keyToLoad, String.class)
       .orElse("");
-    var map = Arrays.stream(rawConf.split("\\\n"))
+    Map<String,String> map = Arrays.stream(rawConf.split("\\\n"))
       .map(line -> {
         var kv = line.split("=");
         if (kv.length == 2)
@@ -75,6 +76,8 @@ public class DatastoreConfRegistry {
   public DatastoreConf getOrDefault(String name) {
     if (name == null)
       return confMap.get(DEFAULT);
+    if (name.equals(NONE))
+      return null;
     if (confMap.containsKey(name))
       return confMap.get(name);
     return confMap.get(DEFAULT);

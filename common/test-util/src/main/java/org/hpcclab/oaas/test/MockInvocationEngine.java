@@ -13,7 +13,6 @@ import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.DefaultInvocationValidator;
-import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.*;
@@ -28,7 +27,7 @@ public class MockInvocationEngine {
   public boolean debug = true;
   public final UnifiedFunctionRouter router;
   public final ObjectRepoManager objectRepoManager;
-  public final InvNodeRepository invRepo;
+  public final InvRepoManager invRepoManager;
   public final GraphStateManager graphStateManager;
   public final MockInvocationQueueSender invocationQueueSender;
   public final MockOffLoader syncInvoker;
@@ -52,7 +51,7 @@ public class MockInvocationEngine {
       .groupByUniqueKey(InvocationNode::getKey);
     loader = MockupData.mockContextLoader(objectMap, classes, functions, invNodeMap);
     objectRepoManager = loader.getObjManager();
-    invRepo = loader.getInvNodeRepo();
+    invRepoManager = loader.getInvRepoManager();
     idGen = new TsidGenerator();
     var objectFactory = new OaasObjectFactory(idGen);
     var logicalApplier = new LogicalFunctionApplier(idGen);
@@ -60,7 +59,7 @@ public class MockInvocationEngine {
     var macroApplier = new MacroFunctionApplier(loader, objectFactory);
     router = new UnifiedFunctionRouter(logicalApplier, macroApplier, taskApplier, loader);
 
-    graphStateManager = new GraphStateManager(invRepo, objectRepoManager);
+    graphStateManager = new GraphStateManager(invRepoManager, objectRepoManager);
     var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
     taskFactory = new TaskFactory(contentUrlGenerator, new TsidGenerator());
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
@@ -94,11 +93,9 @@ public class MockInvocationEngine {
     );
   }
 
-  public void printDebug(InvocationContext ctx) {
+  public void printDebug() {
     if (debug && logger.isDebugEnabled()) {
       logger.debug("TASK MAP: {}", Json.encodePrettily(invocationQueueSender.multimap.toMap()));
-      logger.debug("NODES: {}", Json.encodePrettily(
-        ((MapEntityRepository<String, InvocationNode>)invRepo).getMap()));
       int i = 0;
       for (var o : objectMap) {
         logger.debug("REPO OBJ {}: {}", i, Json.encode(o));

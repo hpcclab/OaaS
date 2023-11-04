@@ -6,11 +6,11 @@ import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
-public class EmbededIspnObjectRepoManager extends ObjectRepoManager {
+public class EIspnObjectRepoManager extends ObjectRepoManager {
   ClassRepository classRepo;
   IspnCacheCreator cacheCreator;
 
-  public EmbededIspnObjectRepoManager(ClassRepository classRepo, IspnCacheCreator cacheCreator) {
+  public EIspnObjectRepoManager(ClassRepository classRepo, IspnCacheCreator cacheCreator) {
     this.classRepo = classRepo;
     this.cacheCreator = cacheCreator;
   }
@@ -18,7 +18,7 @@ public class EmbededIspnObjectRepoManager extends ObjectRepoManager {
   @Override
   public ObjectRepository createRepo(OaasClass cls) {
     var objCache = cacheCreator.getObjectCache(cls);
-    return new EmbeddedIspnObjectRepository(objCache.getAdvancedCache());
+    return new EIspnObjectRepository(objCache.getAdvancedCache());
   }
 
   @Override

@@ -29,7 +29,7 @@ public class OneShotDataflowInvokerTest {
       .await().indefinitely();
     engine.dataflowInvoker.invoke(ctx)
       .await().indefinitely();
-    engine.printDebug(ctx);
+    engine.printDebug();
     var graph = ctx.getDataflowGraph();
     for (InternalInvocationNode node : graph.getAll()) {
       assertThat(node.getCtx().initNode().getStatus())

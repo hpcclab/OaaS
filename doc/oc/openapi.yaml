@@ -208,6 +208,8 @@ components:
           type: string
         unstructStore:
           type: string
+        logStore:
+          type: string
     ClassConfig_Public:
       type: object
       properties:
@@ -222,6 +224,8 @@ components:
         structStore:
           type: string
         unstructStore:
+          type: string
+        logStore:
           type: string
     DSMap:
       type: array

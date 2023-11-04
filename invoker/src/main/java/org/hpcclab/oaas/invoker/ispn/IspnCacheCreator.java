@@ -6,6 +6,7 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.ClassConfig;
 import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -23,13 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
 @ApplicationScoped
 public class IspnCacheCreator {
-  private static final Logger logger = LoggerFactory.getLogger( IspnCacheCreator.class );
+  private static final Logger logger = LoggerFactory.getLogger(IspnCacheCreator.class);
   DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
   @Inject
   IspnConfig ispnConfig;
@@ -38,33 +38,54 @@ public class IspnCacheCreator {
 
   public Cache<String, OaasObject> getObjectCache(OaasClass cls) {
     var name = cls.getKey();
-    if (cacheManager.cacheExists(name)){
+    if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);
     } else {
-      var config = getCacheDistConfig(cls, ispnConfig.objStore(), true);
+      DatastoreConf datastoreConf = confRegistry
+        .getOrDefault(Optional.ofNullable(cls.getConfig())
+          .map(ClassConfig::getStructStore)
+          .orElse(DatastoreConfRegistry.DEFAULT));
+      var config = getCacheDistConfig(cls,
+        ispnConfig.objStore(),
+        datastoreConf,
+        OaasObject.class,
+        true);
+      return cacheManager.createCache(name, config);
+    }
+  }
+
+  public Cache<String, InvocationNode> getInvCache(OaasClass cls) {
+    var name = cls.getKey() + ".InvNode";
+    if (cacheManager.cacheExists(name)) {
+      return cacheManager.getCache(name);
+    } else {
+      DatastoreConf datastoreConf = confRegistry
+        .getOrDefault(Optional.ofNullable(cls.getConfig())
+          .map(ClassConfig::getLogStore)
+          .orElse(DatastoreConfRegistry.DEFAULT));
+      var config = getCacheDistConfig(cls,
+        ispnConfig.invStore(),
+        datastoreConf,
+        InvocationNode.class,
+        true);
       return cacheManager.createCache(name, config);
     }
   }
 
   public Configuration getCacheDistConfig(OaasClass cls,
                                           IspnConfig.CacheStore cacheStore,
+                                          DatastoreConf datastoreConf,
+                                          Class<?> type,
                                           boolean transactional) {
     var builder = new ConfigurationBuilder();
     var conf = cls.getConfig();
-    if (conf == null) conf = new ClassConfig();
-    var structStore = Optional.of(conf)
-      .map(ClassConfig::getStructStore)
-      .orElse("DEFAULT");
-    DatastoreConf datastoreConf = null;
-    if (!structStore.equals("NONE")) {
-      datastoreConf = confRegistry.getConfMap()
-        .get(structStore);
-    }
-    logger.debug("cls[{}] use store({})", cls.getKey(), structStore);
+    if (conf==null) conf = new ClassConfig();
+
     builder
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
       .hash().numOwners(conf.getReplicas())
+      .numSegments(conf.getPartitions())
       .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
@@ -80,10 +101,10 @@ public class IspnCacheCreator {
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (datastoreConf != null) {
+    if (datastoreConf!=null) {
       builder.persistence()
         .addStore(ArgCacheStoreConfig.Builder.class)
-        .valueCls(OaasObject.class)
+        .valueCls(type)
         .connectionFactory(new ArgConnectionFactory(datastoreConf))
         .shared(true)
         .segmented(false)
@@ -96,45 +117,6 @@ public class IspnCacheCreator {
     return builder.build();
   }
 
-  public Configuration createDistConfig(DatastoreConf datastoreConf,
-                                        IspnConfig.CacheStore cacheStore,
-                                        boolean transactional,
-                                        Class<?> valueCls) {
-    var builder = new ConfigurationBuilder();
-    builder
-      .clustering()
-      .cacheMode(CacheMode.DIST_SYNC)
-      .hash().numOwners(cacheStore.owner())
-      .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
-      .encoding()
-      .key().mediaType(TEXT_PLAIN_TYPE)
-      .encoding()
-      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE:APPLICATION_PROTOSTREAM_TYPE)
-      .transaction()
-      .lockingMode(LockingMode.OPTIMISTIC)
-      .transactionMode(transactional ? TransactionMode.TRANSACTIONAL:TransactionMode.NON_TRANSACTIONAL)
-      .locking()
-      .isolationLevel(IsolationLevel.READ_COMMITTED)
-      .memory()
-      .storage(cacheStore.storageType())
-      .maxCount(cacheStore.maxCount())
-      .whenFull(EvictionStrategy.REMOVE)
-      .statistics().enabled(true);
-    if (cacheStore.persistentEnabled()) {
-      builder.persistence()
-        .addStore(ArgCacheStoreConfig.Builder.class)
-        .valueCls(valueCls)
-        .connectionFactory(new ArgConnectionFactory(datastoreConf))
-        .shared(true)
-        .segmented(false)
-        .ignoreModifications(cacheStore.readOnly())
-        .async()
-        .enabled(cacheStore.queueSize() > 0)
-        .modificationQueueSize(cacheStore.queueSize())
-        .failSilently(false);
-    }
-    return builder.build();
-  }
 
   public Configuration createSimpleConfig(DatastoreConf datastoreConf,
                                           IspnConfig.CacheStore cacheStore,
@@ -157,8 +139,8 @@ public class IspnCacheCreator {
       .storage(cacheStore.storageType())
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
-      .expiration()
-      .lifespan(cacheStore.ttl(), TimeUnit.SECONDS)
+//      .expiration()
+//      .lifespan(cacheStore.ttl(), TimeUnit.SECONDS)
       .statistics().enabled(true)
       .build();
   }

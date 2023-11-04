@@ -3,6 +3,7 @@ package org.hpcclab.oaas.test;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
+import org.hpcclab.oaas.model.cls.ClassConfig;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
@@ -100,6 +101,7 @@ public class MockupData {
     .setName("cls1")
     .setPkg("ex")
     .setObjectType(ObjectType.SIMPLE)
+    .setConfig(new ClassConfig())
     .setStateSpec(new StateSpecification()
       .setKeySpecs(
         List.of(
@@ -148,6 +150,7 @@ public class MockupData {
   public static final OaasClass CLS_2 = new OaasClass()
     .setName("cls2")
     .setPkg("ex")
+    .setConfig(new ClassConfig())
     .setObjectType(ObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
 
@@ -202,17 +205,19 @@ public class MockupData {
 
     var clsRepo =  new MapEntityRepository.MapClsRepository(classes);
     var funcRepo = new MapEntityRepository.MapFnRepository(functions);
-    var nodeRepo = new MapEntityRepository.MapInvRepository(nodes);
+    var nodeRepoManager = new MapEntityRepository.MapInvRepoManager(nodes, classes);
     var objectRepoManager =  new MapEntityRepository.MapObjectRepoManager(objects ,classes);
-    return new RepoContextLoader(objectRepoManager, funcRepo, clsRepo, nodeRepo);
+    return new RepoContextLoader(objectRepoManager, funcRepo, clsRepo, nodeRepoManager);
   }
   public static void persistMock(ObjectRepoManager objectRepoManager,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {
     for (OaasClass cls : testClasses()) {
+      cls.validate();
       clsRepo.persist(cls);
     }
     for (OaasFunction func : testFunctions()) {
+      func.validate(true);
       fnRepo.persist(func);
     }
     for (OaasObject testObject : testObjects()) {

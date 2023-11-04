@@ -58,7 +58,9 @@ class AsyncInvocationTest {
   void setup() {
     for (var cls : clsList) {
       clsRepo.put(cls.getKey(), cls);
-      deployer.deployVerticleIfNew(cls.getKey())
+      deployer.createTopic(cls)
+          .await().indefinitely();
+      deployer.deployVerticleIfNew(cls)
         .await().indefinitely();
     }
   }
@@ -119,9 +121,10 @@ class AsyncInvocationTest {
     main = objectRepo.get(main.getId());
     var out = objectRepo.get(oId);
     assertThat(main.getStatus().getUpdatedOffset())
-      .isPositive();
+      .withFailMessage("Offset is negative %s", main)
+      .isNotNegative();
     assertThat(out.getStatus().getUpdatedOffset())
-      .isPositive();
+      .isNegative();
     assertThat(main.getData().get("n").asInt())
       .isEqualTo(1);
   }
@@ -156,28 +159,22 @@ class AsyncInvocationTest {
     kafkaProducer.sendAndAwait(KafkaProducerRecord
       .create(config.invokeTopicPrefix() + cls.getKey(), request.main(), Json.encodeToBuffer(request))
     );
-    TestUtil.retryTillConditionMeet(() -> {
-      var o = objectRepo.get(mid1);
-      return o!= null;
-    });
+    TestUtil.retryTillConditionMeet(() -> objectRepo.get(mid1)!= null);
 
     var m1 = objectRepo.get(mid1);
     assertNotNull(m1);
     assertThat(m1.getStatus().getUpdatedOffset() )
-      .isPositive();
+      .isNegative();
     assertEquals(1, m1.getData().get("n").asInt());
 
-    TestUtil.retryTillConditionMeet(() -> {
-      var o = objectRepo.get(mid2);
-      return o!= null;
-    });
+    TestUtil.retryTillConditionMeet(() -> objectRepo.get(mid3) != null);
 
-    var m2 = objectRepo.get(mid2);
-    assertNotNull(m2);
-    assertThat(m2.getStatus().getUpdatedOffset())
-      .isPositive();
-    assertThat(m2.getData().get("n").asInt())
-      .isEqualTo(2);
+    var m3 = objectRepo.get(mid3);
+    assertNotNull(m3);
+    assertThat(m3.getStatus().getUpdatedOffset())
+      .isNegative();
+    assertThat(m3.getData().get("n").asInt())
+      .isEqualTo(3);
   }
 
 
@@ -218,16 +215,21 @@ class AsyncInvocationTest {
 
     var m1 = objectRepo.get(mid1);
     assertNotNull(m1);
-    assertTrue(m1.getStatus().getUpdatedOffset() >= 0);
-    assertEquals(1, m1.getData().get("n").asInt());
+    assertThat(m1.getData().get("n").asInt())
+      .withFailMessage("n should be 1 %s", m1)
+      .isEqualTo(1);
     var m2 = objectRepo.get(mid2);
     assertNotNull(m2);
-    assertTrue(m2.getStatus().getUpdatedOffset() >= 0);
-    assertEquals(1, m2.getData().get("n").asInt());
+    assertThat(m2.getData().get("n").asInt())
+      .withFailMessage("n should be 1 %s", m2)
+      .isEqualTo(1);
     var m3 = objectRepo.get(mid3);
     assertNotNull(m3);
-    assertTrue(m3.getStatus().getUpdatedOffset() >= 0);
-    assertEquals(3, m3.getData().get("n").asInt());
+    assertThat(m3.getStatus().getUpdatedOffset())
+      .isNegative();
+    assertThat(m3.getData().get("n").asInt())
+      .withFailMessage("n should be 3 %s", m3)
+      .isEqualTo(3);
   }
 
 

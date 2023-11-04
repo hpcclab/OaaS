@@ -42,7 +42,6 @@ public class CompletedStateUpdater {
       if (completion.getOutput()!=null)
         completion.getOutput().update(out, completion
           .getId().iid());
-      out.getStatus().setUpdatedOffset(context.getMqOffset());
     }
 
     context.setRespBody(completion.getBody());

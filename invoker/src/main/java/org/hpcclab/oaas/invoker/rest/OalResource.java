@@ -75,7 +75,7 @@ public class OalResource {
   }
 
   @POST
-  @Path("-/{filePath:.*}")
+  @Path("-/{filePath::\\w+}")
   @JsonView(Views.Public.class)
   public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
                                              @QueryParam("async") Boolean async,
@@ -100,7 +100,7 @@ public class OalResource {
 
   @GET
   @JsonView(Views.Public.class)
-  @Path("{oal:.+}/{filePath:.*}")
+  @Path("{oal:.+}/{filePath:\\w+}")
   public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
                                          @QueryParam("async") Boolean async) {

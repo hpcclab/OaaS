@@ -26,8 +26,8 @@ public class BuiltInLoader {
     mapper = new ObjectMapper(new YAMLFactory());
 
     var files = List.of(
-      "/builtin/builtin.logical.yml",
-      "/builtin/builtin.basic.yml"
+//      "/builtin/builtin.basic.yml",
+      "/builtin/builtin.logical.yml"
     );
 
     for (String file : files) {

@@ -5,24 +5,26 @@ import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
+import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
+import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
+import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @ApplicationScoped
 public class RecordConsumerVerticleFactory implements VerticleFactory<RecordConsumerVerticle> {
-  private static final Logger logger = LoggerFactory.getLogger( RecordConsumerVerticleFactory.class );
+  private static final Logger logger = LoggerFactory.getLogger(RecordConsumerVerticleFactory.class);
   @Inject
   Instance<OrderedInvocationHandlerVerticle> orderedInvokerVerticleInstance;
   @Inject
@@ -30,22 +32,32 @@ public class RecordConsumerVerticleFactory implements VerticleFactory<RecordCons
   @Inject
   InvokerConfig config;
   @Inject
+  ObjectRepoManager objectRepoManager;
+  @Inject
+  LocationRegistry registry;
+  @Inject
   Vertx vertx;
 
   @Override
-  public RecordConsumerVerticle createVerticle(String suffix) {
-    var consumer = KafkaConsumer.create(vertx, options(config, suffix),
+  public RecordConsumerVerticle createVerticle(OaasClass cls) {
+    var consumer = KafkaConsumer.create(vertx, options(config, cls.getKey()),
       String.class, Buffer.class);
     var offsetManager = new OffsetManager(consumer);
     var dispatcher = new VerticlePoolRecordDispatcher<>(vertx, createVerticleFactory(),
       offsetManager, config);
-    dispatcher.setName(suffix);
-    var verticle = new RecordConsumerVerticle<>(consumer, dispatcher, config);
-    verticle.setTopics(Set.of(config.invokeTopicPrefix() + suffix));
+    dispatcher.setName(cls.getKey());
+    var segmentCoordinator = new SegmentCoordinator(
+      cls,
+      objectRepoManager,
+      consumer,
+      registry,
+      config
+    );
+    var verticle = new RecordConsumerVerticle<>(segmentCoordinator, consumer, dispatcher, config);
     return verticle;
   }
 
-  VerticleFactory<RecordHandlerVerticle<KafkaConsumerRecord<String,Buffer>>> createVerticleFactory() {
+  VerticleFactory<RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>>> createVerticleFactory() {
     if (config.clusterLock()) {
       logger.warn("The experimental 'Cluster lock' is enabled. LockingRecordHandlerVerticle will be used.");
       return f -> lockingInvokerVerticleInstance.get();

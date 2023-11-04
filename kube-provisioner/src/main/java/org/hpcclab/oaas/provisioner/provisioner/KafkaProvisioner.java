@@ -21,8 +21,7 @@ private static final Logger logger = LoggerFactory.getLogger( KafkaProvisioner.c
   KpConfig config;
 
   @Override
-  public Consumer<OaasClass> provision(Record<String, OaasClass> rec) {
-    var cls = rec.value();
+  public Consumer<OaasClass> provision(OaasClass cls) {
     var topicName = config.invokeTopicPrefix() + cls.getKey();
     var req = new KafkaCreateTopicRequest(topicName, cls.getConfig().getPartitions(), (short) cls.getConfig().getReplicas());
     var success = adminClient.createTopic(req);

@@ -13,8 +13,13 @@ oaas:
     fnProvisionTopic: oaas-fn
     clsProvisionTopic: oaas-cls
     exposeKnative: false
+  log: INFO
 
 quarkus:
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oaas.log}
   docker:
     dockerfile-jvm-path: src/main/docker/Dockerfile.jvm21
   http:
@@ -29,6 +34,14 @@ quarkus:
     color: true
 mp:
   messaging:
+    outgoing:
+      fnUpdated:
+        connector: smallrye-kafka
+        topic: ${oaas.kp.fnProvisionTopic}
+        merge: true
+      clsUpdated:
+        connector: smallrye-kafka
+        topic: ${oaas.kp.clsProvisionTopic}
     incoming:
       fnProvisions:
         connector: smallrye-kafka

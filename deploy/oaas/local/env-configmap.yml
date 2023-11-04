@@ -11,8 +11,8 @@ data:
   OPRC_DB_DEFAULT_DB: "oaas"
   OPRC_DB_DEFAULT_USER: "root"
   OPRC_DB_DEFAULT_PASS: "changeme"
-  KAFKA_BOOTSTRAP_SERVERS: "oaas-kafka:9092"
-  OAAS_INVOKER_KAFKA: "oaas-kafka:9092"
+#  KAFKA_BOOTSTRAP_SERVERS: "oaas-kafka:9092"
+#  OAAS_INVOKER_KAFKA: "oaas-kafka:9092"
 kind: ConfigMap
 metadata:
   name: oaas-env

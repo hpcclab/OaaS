@@ -6,7 +6,9 @@ import io.vertx.kafka.client.common.KafkaClientOptions;
 import io.vertx.kafka.client.serialization.BufferDeserializer;
 import io.vertx.kafka.client.serialization.BufferSerializer;
 import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.kafka.admin.KafkaAdminClient;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 
@@ -37,4 +39,12 @@ public class VertxKafkaClientProducer {
       vertx, "default", options, String.class, Buffer.class
     );
   }
+
+  @Produces
+  public KafkaAdminClient adminClient(Vertx vertx, InvokerConfig invokerConfig) {
+    Map<String, String> configMap = new HashMap<>();
+    configMap.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, invokerConfig.kafka());
+    return KafkaAdminClient.create(vertx, configMap);
+  }
+
 }

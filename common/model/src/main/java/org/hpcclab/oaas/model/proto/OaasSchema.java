@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.proto;
 
+import org.hpcclab.oaas.model.invocation.InvocationRef;
 import org.infinispan.protostream.GeneratedSchema;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
 

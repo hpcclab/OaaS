@@ -9,11 +9,11 @@ build-no-test options="":
 
 build-image : (build-no-test '"-Dquarkus.container-image.build=true"')
 
-kind-build-image:
+kind-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | xargs kind load docker-image -n 1node-cluster
 
 k3d-build-image: build-image
-  docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | xargs k3d image import
+  docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 
 k3d-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/local-build
@@ -32,7 +32,8 @@ k8s-deploy-preq kn-version="v1.12.0" kourier-version="v1.12.0":
     --type merge \
     --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
-  helm upgrade oaas oci://registry-1.docker.io/bitnamicharts/kafka -n oaas --install --set controller.replicaCount=1 --set listeners.client.protocol=PLAINTEXT
+  kubectl apply -f 'https://strimzi.io/install/latest?namespace=oaas' -n oaas
+  kubectl apply -n oaas -f deploy/local-k8s/kafka-cluster.yml
   kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
 
 k8s-deploy-deps:
@@ -50,6 +51,9 @@ k8s-clean:
   kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml
 
   kubectl delete -n oaas -f deploy/local-k8s/minio.yml
+
+  kubectl delete -n oaas -f deploy/local-k8s/kafka-ui.yml
+  kubectl delete -n oaas -f deploy/local-k8s/kafka-cluster.yml
 
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "9090:80@loadbalancer"

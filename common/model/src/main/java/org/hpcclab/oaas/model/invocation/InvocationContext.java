@@ -138,7 +138,7 @@ public class InvocationContext implements TaskDetail {
     }
     node.setFb(getFbName());
     node.setArgs(DSMap.copy(getArgs()));
-    node.setMain(getMain().getId());
+    node.setMain(getMain().getKey());
     node.setCls(getMainCls().getKey());
     setNode(node);
     return node;

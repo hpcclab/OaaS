@@ -31,17 +31,17 @@ public class RepoContextLoader implements ContextLoader {
   ObjectRepoManager objManager;
   FunctionRepository funcRepo;
   ClassRepository clsRepo;
-  InvNodeRepository invNodeRepo;
+  InvRepoManager invRepoManager;
 
   @Inject
   public RepoContextLoader(ObjectRepoManager objectRepoManager,
                            FunctionRepository funcRepo,
                            ClassRepository clsRepo,
-                           InvNodeRepository invNodeRepo) {
+                           InvRepoManager invRepoManager) {
     this.objManager = objectRepoManager;
     this.funcRepo = funcRepo;
     this.clsRepo = clsRepo;
-    this.invNodeRepo = invNodeRepo;
+    this.invRepoManager = invRepoManager;
   }
 
   @Override
@@ -74,7 +74,8 @@ public class RepoContextLoader implements ContextLoader {
     }
 
     if (request.preloadingNode()) {
-      uni = uni.flatMap(__ -> invNodeRepo.async().getAsync(request.invId()))
+      uni = uni.flatMap(__ -> invRepoManager.getOrCreate(request.cls())
+          .async().getAsync(request.invId()))
         .invoke(invNode -> {
           if (invNode!=null)
             ctx.setNode(invNode);

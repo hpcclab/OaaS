@@ -2,7 +2,6 @@ package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,13 +18,13 @@ import java.util.stream.Collectors;
 public class GraphStateManager {
   private static final Logger logger = LoggerFactory.getLogger(GraphStateManager.class);
 
-  InvNodeRepository invNodeRepo;
-  ObjectRepoManager objRepo;
+  InvRepoManager invRepoManager;
+  ObjectRepoManager objRepoManager;
 
-  public GraphStateManager(InvNodeRepository invNodeRepo,
-                           ObjectRepoManager objRepo) {
-    this.invNodeRepo = invNodeRepo;
-    this.objRepo = objRepo;
+  public GraphStateManager(InvRepoManager invRepoManager,
+                           ObjectRepoManager objRepoManager) {
+    this.invRepoManager = invRepoManager;
+    this.objRepoManager = objRepoManager;
   }
 
   public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {
@@ -46,13 +44,13 @@ public class GraphStateManager {
     var oldObjs = partitionedObjs.get(false);
 
     if (oldObjs.isEmpty()) {
-      return objRepo.persistAsync(newObjs);
+      return objRepoManager.persistAsync(newObjs);
     } else if (newObjs.isEmpty()) {
-      return objRepo.persistWithRevAsync(oldObjs);
+      return objRepoManager.persistWithRevAsync(oldObjs);
     } else {
-      return objRepo
+      return objRepoManager
         .persistWithRevAsync(oldObjs)
-        .flatMap(__ -> objRepo.persistAsync(newObjs));
+        .flatMap(__ -> objRepoManager.persistAsync(newObjs));
     }
   }
 
@@ -70,7 +68,7 @@ public class GraphStateManager {
     }
 
     Uni<Void> uni = persistWithPrecondition(objs)
-      .call(__ -> invNodeRepo.async().persistAsync(context.initNode()));
+      .call(__ -> invRepoManager.persistAsync(context.initNode()));
     return uni.onItem()
       .transformToMulti(__ -> {
         if (completion.isSuccess()) {
@@ -86,7 +84,8 @@ public class GraphStateManager {
   private Multi<InvocationNode> handleFailed(InvocationNode failedNode) {
     return getDependentsRecursive(failedNode)
       .onItem()
-      .transformToUniAndConcatenate(node -> invNodeRepo
+      .transformToUniAndConcatenate(node -> invRepoManager
+        .getOrCreate(node.getCls())
         .async()
         .computeAsync(node.getKey(), (k, v) -> v.markAsFailed()))
       .filter(i -> false);
@@ -103,10 +102,10 @@ public class GraphStateManager {
     if (srcNode.getNextInv().isEmpty()) {
       return Multi.createFrom().empty();
     }
-    return invNodeRepo.async()
-      .listAsync(srcNode.getNextInv())
-      .onItem()
-      .transformToMulti(map -> Multi.createFrom().iterable(map.values()));
+    return Multi.createFrom().iterable(srcNode.getNextInv())
+      .onItem().transformToUniAndMerge(ref -> invRepoManager
+        .getOrCreate(ref.cls()).async().getAsync(ref.key())
+      );
   }
 
   private Multi<InvocationNode> loadNextSubmittableNodes(InvocationNode srcNode) {
@@ -116,15 +115,17 @@ public class GraphStateManager {
     }
     return Multi.createFrom().iterable(srcNode.getNextInv())
       .onItem()
-      .transformToUniAndConcatenate(id -> invNodeRepo.async()
-        .computeAsync(id, (k, node) -> node.trigger(srcNode.getKey(), srcNode.getKey())))
+      .transformToUniAndMerge(ref -> invRepoManager
+        .getOrCreate(ref.cls())
+        .async()
+        .computeAsync(ref.key(), (k, node) -> node.trigger(srcNode.getKey(), srcNode.getKey()))
+      )
       .filter(node -> Objects.equals(srcNode.getKey(), node.getOriginator()));
   }
 
 
   public Uni<Void> persistNodes(List<InvocationNode> nodes) {
-    return invNodeRepo
-      .async()
+    return invRepoManager
       .persistAsync(nodes);
   }
 }

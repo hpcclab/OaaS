@@ -29,6 +29,7 @@ public class ArgConnectionFactory  implements ConnectionFactory<ArangoCollection
       .serializer(new ArangoJack())
       .build()
       .db(datastoreConf.options().getOrDefault("DB", "_system"))
-      .collection(datastoreConf.options().getOrDefault("COL", cacheName.replace(".","_")));
+      .collection(datastoreConf.options()
+        .getOrDefault("COL", cacheName.replace(".","_")));
   }
 }

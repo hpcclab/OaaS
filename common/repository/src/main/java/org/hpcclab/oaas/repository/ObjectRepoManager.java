@@ -10,26 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ObjectRepoManager {
-  protected Map<String, ObjectRepository> repoMap = new HashMap<>();
+public abstract class ObjectRepoManager extends RepoManager<OaasClass, OaasObject, ObjectRepository> {
 
-  public abstract ObjectRepository createRepo(OaasClass cls);
-  protected abstract OaasClass load(String clsKey);
-
-  public ObjectRepository getOrCreate(String clsKey) {
-    return repoMap.computeIfAbsent(clsKey, __ -> createRepo(load(clsKey)));
-  }
-  public ObjectRepository getOrCreate(OaasClass cls) {
-    return repoMap.computeIfAbsent(cls.getKey(), k -> createRepo(cls));
-  }
-
-
-  public Uni<OaasObject> persistAsync(OaasObject newObj){
+  public Uni<OaasObject> persistAsync(OaasObject newObj) {
     return getOrCreate(newObj.getCls())
       .async()
       .persistAsync(newObj);
   }
-  public Uni<Void> persistAsync(Collection<OaasObject> newObjs){
+
+  public Uni<Void> persistAsync(Collection<OaasObject> newObjs) {
     return Multi.createFrom().iterable(newObjs)
       .onItem()
       .transformToUniAndMerge(obj -> getOrCreate(obj.getCls())
@@ -40,7 +29,7 @@ public abstract class ObjectRepoManager {
       .replaceWithVoid();
   }
 
-  public Uni<Void> persistWithRevAsync(List<OaasObject> oldObjs){
+  public Uni<Void> persistWithRevAsync(List<OaasObject> oldObjs) {
     return Multi.createFrom().iterable(oldObjs)
       .onItem()
       .transformToUniAndMerge(obj -> getOrCreate(obj.getCls())

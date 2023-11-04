@@ -13,7 +13,6 @@ import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.model.task.TaskStatus;
-import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hpcclab.oaas.test.MockupData.CLS_1_KEY;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MockingInvocationTest {
@@ -139,9 +139,11 @@ class MockingInvocationTest {
 
     invocationExecutor.disaggregateMacro(ctx)
       .await().indefinitely();
-    mockEngine.printDebug(ctx);
-    var node1 = mockEngine.invRepo.get(ctx.getWorkflowMap().get("tmp1").getKey());
-    var node2 = mockEngine.invRepo.get(ctx.getWorkflowMap().get("tmp2").getKey());
+    mockEngine.printDebug();
+    var node1 = mockEngine.invRepoManager.getOrCreate(CLS_1_KEY)
+      .get(ctx.getWorkflowMap().get("tmp1").getKey());
+    var node2 = mockEngine.invRepoManager.getOrCreate(CLS_1_KEY)
+      .get(ctx.getWorkflowMap().get("tmp2").getKey());
     assertNotNull(node1);
     assertNotNull(node2);
     assertTrue(node1.getStatus().isSubmitted());
@@ -152,7 +154,7 @@ class MockingInvocationTest {
   void testMacroGeneration() {
     var request = InvocationRequest.builder()
       .invId(idGenerator.generate())
-      .cls(MockupData.CLS_1_KEY)
+      .cls(CLS_1_KEY)
       .main("o1")
       .fb(MockupData.MACRO_FUNC_1.getName())
       .outId("m2")
@@ -188,10 +190,10 @@ class MockingInvocationTest {
       .await().indefinitely();
     invocationExecutor.asyncExec(step1Ctx)
       .await().indefinitely();
-    mockEngine.printDebug(ctx);
+    mockEngine.printDebug();
     var req2 = invocationQueueSender.multimap.get("m1").getAny();
     assertEquals("2", req2.args().get("STEP"));
     assertEquals("f3", req2.fb());
-    mockEngine.printDebug(ctx);
+    mockEngine.printDebug();
   }
 }

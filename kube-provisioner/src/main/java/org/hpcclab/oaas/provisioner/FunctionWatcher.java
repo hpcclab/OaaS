@@ -8,14 +8,22 @@ import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import io.quarkus.runtime.StartupEvent;
+import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import org.apache.kafka.common.header.internals.RecordHeaders;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -28,6 +36,8 @@ public class FunctionWatcher {
   KnativeClient knativeClient;
   @Inject
   FunctionRepository functionRepo;
+  @Channel("fnUpdated")
+  Emitter<OaasFunction> emitter;
 
   Watch watch;
 
@@ -62,17 +72,17 @@ public class FunctionWatcher {
       .get(LABEL_KEY);
     if (functionName==null)
       return;
-    switch (action) {
+    OaasFunction fn = switch (action) {
       case MODIFIED -> {
         var condition = extractReadyCondition(service);
         if (condition.isEmpty())
-          return;
+          yield null;
         var ready = condition.get().getStatus().equals("True");
         var reason = condition.get().getReason();
         if (ready) {
           LOGGER.info("updating status {} to {}",
             functionName, DeploymentCondition.RUNNING);
-          functionRepo.compute(functionName, (k, f) -> {
+          yield  functionRepo.compute(functionName, (k, f) -> {
             f.getDeploymentStatus()
               .setCondition(DeploymentCondition.RUNNING)
               .setInvocationUrl(service.getStatus().getAddress().getUrl())
@@ -82,13 +92,14 @@ public class FunctionWatcher {
         } else if (reason!=null) {
           LOGGER.info("updating of status {} to {}",
             functionName, DeploymentCondition.DOWN);
-          functionRepo.compute(functionName, (k, f) -> {
+          yield functionRepo.compute(functionName, (k, f) -> {
             f.getDeploymentStatus()
               .setCondition(DeploymentCondition.DOWN)
               .setErrorMsg(reason);
             return f;
           });
         }
+        yield null;
       }
       case DELETED -> functionRepo.compute(functionName, (k, f) -> {
         f.getDeploymentStatus().setCondition(DeploymentCondition.DELETED)
@@ -104,7 +115,22 @@ public class FunctionWatcher {
           );
         return f;
       });
-      default -> {}
-    }
+      default -> null;
+    };
+    pubUpdate(fn);
+  }
+
+  void pubUpdate(OaasFunction fn) {
+    if (fn == null) return;
+    var msg = Message.of(fn, Metadata.of(
+        OutgoingKafkaRecordMetadata.builder()
+          .withKey(fn.getKey())
+          .withHeaders(new RecordHeaders()
+            .add("oprc-provision-skip", "true".getBytes(StandardCharsets.UTF_8))
+          )
+          .build()
+      )
+    );
+    emitter.send(msg);
   }
 }

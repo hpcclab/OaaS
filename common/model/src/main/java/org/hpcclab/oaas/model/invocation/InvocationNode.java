@@ -23,7 +23,7 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(1)
   String key;
   @ProtoField(2)
-  Set<String> nextInv;
+  Set<InvocationRef> nextInv;
   @ProtoField(3)
   String fb;
   @ProtoField(4)
@@ -56,7 +56,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
   @ProtoFactory
-  public InvocationNode(String key, Set<String> nextInv, String fb, String main, String cls, DSMap args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
+  public InvocationNode(String key, Set<InvocationRef> nextInv, String fb, String main, String cls, DSMap args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -74,7 +74,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
 
-  public Set<String> getNextInv() {
+  public Set<InvocationRef> getNextInv() {
     if (nextInv==null) nextInv = Sets.mutable.empty();
     return nextInv;
   }
@@ -146,4 +146,6 @@ public class InvocationNode implements HasKey<String> {
       smtTs = completion.getSmtTs();
     }
   }
+
+
 }

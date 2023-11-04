@@ -3,6 +3,8 @@ package org.hpcclab.oaas.invoker.ispn.lookup;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.io.Serializable;
+
 
 public record ApiAddress( String host,  int port) {
     @ProtoFactory

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.With;
+import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
@@ -20,13 +21,14 @@ public record InvocationRequest(
   List<String> inputs,
   boolean immutable,
   boolean macro,
+  boolean inMacro,
   String invId,
   String outId,
   DSMap macroIds,
-  @JsonIgnore String partKey,
   boolean preloadingNode,
   long queTs,
-  ObjectNode body
+  ObjectNode body,
+  @JsonIgnore String partKey
 ) {
   public static final String CE_TYPE = "oaas.invReq";
 }

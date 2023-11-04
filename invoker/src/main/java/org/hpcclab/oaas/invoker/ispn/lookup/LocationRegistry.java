@@ -5,7 +5,6 @@ import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 
 public class LocationRegistry {
-
     Cache<String, ApiAddress> map;
 
     public LocationRegistry(Cache<String, ApiAddress> map) {

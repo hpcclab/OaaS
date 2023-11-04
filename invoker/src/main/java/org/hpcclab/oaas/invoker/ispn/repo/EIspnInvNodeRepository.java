@@ -4,17 +4,17 @@ import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.repository.InvNodeRepository;
 import org.infinispan.AdvancedCache;
 
-public class EmbeddedIspnInvNodeRepository extends AbsEmbeddedIspnRepository<InvocationNode>
+public class EIspnInvNodeRepository extends AbsEIspnRepository<InvocationNode>
 implements InvNodeRepository {
 
   AdvancedCache<String, InvocationNode> cache;
 
-  public EmbeddedIspnInvNodeRepository(AdvancedCache<String, InvocationNode> cache) {
+  public EIspnInvNodeRepository(AdvancedCache<String, InvocationNode> cache) {
     this.cache = cache;
   }
 
   @Override
-  AdvancedCache<String, InvocationNode> getCache() {
+  public AdvancedCache<String, InvocationNode> getCache() {
     return cache;
   }
 

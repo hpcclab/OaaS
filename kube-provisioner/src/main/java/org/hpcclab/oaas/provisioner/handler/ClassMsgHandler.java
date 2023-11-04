@@ -1,15 +1,21 @@
 package org.hpcclab.oaas.provisioner.handler;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
-import io.smallrye.reactive.messaging.kafka.Record;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.internals.RecordHeaders;
+import org.eclipse.microprofile.reactive.messaging.*;
 import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.provisioner.provisioner.KafkaProvisioner;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 @ApplicationScoped
 public class ClassMsgHandler {
@@ -19,21 +25,36 @@ public class ClassMsgHandler {
   KafkaProvisioner kafkaProvisioner;
   @Inject
   ClassRepository classRepository;
+  @Channel("clsUpdated")
+  Emitter<OaasClass> emitter;
 
   @Incoming("clsProvisions")
   @RunOnVirtualThread
-  public void handle(Record<String, OaasClass> clsRecord) {
-    if (clsRecord.value()==null)
+  public void handle(ConsumerRecord<String, OaasClass> clsRecord) {
+    var header = clsRecord.headers().lastHeader("oprc-provision-skip");
+    if (header!=null && new String(header.value()).equals("true")) {
       return;
+    }
+    LOGGER.debug("Received class provision: {}", clsRecord.key());
     var cls = clsRecord.value();
     if (cls.isMarkForRemoval())
       return;
-    var updater = kafkaProvisioner.provision(clsRecord);
+
+    var updater = kafkaProvisioner.provision(cls);
     if (updater!=null) {
-      classRepository.compute(cls.getKey(), (k, v) -> {
+      var updatedCls = classRepository.compute(cls.getKey(), (k, v) -> {
         updater.accept(v);
         return v;
       });
+        var msg = Message.of(updatedCls, Metadata.of(
+          OutgoingKafkaRecordMetadata.builder()
+            .withKey(updatedCls.getKey())
+            .withHeaders(new RecordHeaders()
+              .add("oprc-provision-skip", "true".getBytes(StandardCharsets.UTF_8))
+            )
+            .build()
+        ));
+        emitter.send(msg);
     }
   }
 }

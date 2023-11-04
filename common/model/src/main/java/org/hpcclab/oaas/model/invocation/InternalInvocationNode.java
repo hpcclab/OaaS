@@ -3,7 +3,6 @@ package org.hpcclab.oaas.model.invocation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 import org.hpcclab.oaas.model.function.FunctionType;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class InternalInvocationNode {
 
 
   public boolean isNested() {
-    return ctx.getFunction().getType() == FunctionType.MACRO;
+    return ctx.getFunction().getType()==FunctionType.MACRO;
   }
 
   public boolean isReady() {
@@ -52,7 +51,11 @@ public class InternalInvocationNode {
 
   public InvocationNode export() {
     var exportNode = ctx.initNode();
-    exportNode.setNextInv(next.stream().map(c -> c.getCtx().initNode().getKey())
+    exportNode.setNextInv(next.stream()
+      .map(n -> new InvocationRef(
+        n.getCtx().initNode().getKey(),
+        n.getCtx().getMainCls().getKey())
+      )
       .collect(Collectors.toSet()));
     exportNode.setWaitFor(internalDeps.stream().map(c -> c.getCtx().initNode().getKey())
       .collect(Collectors.toSet()));
@@ -65,7 +68,7 @@ public class InternalInvocationNode {
       "as='" + as + '\'' +
       ", completed=" + completed +
       ", marked=" + marked +
-      ", next=["+next.size()+"]"+
+      ", next=[" + next.size() + "]" +
       '}';
   }
 }

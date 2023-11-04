@@ -304,6 +304,9 @@
           },
           "unstructStore" : {
             "type" : "string"
+          },
+          "logStore" : {
+            "type" : "string"
           }
         }
       },
@@ -325,6 +328,9 @@
             "type" : "string"
           },
           "unstructStore" : {
+            "type" : "string"
+          },
+          "logStore" : {
             "type" : "string"
           }
         }

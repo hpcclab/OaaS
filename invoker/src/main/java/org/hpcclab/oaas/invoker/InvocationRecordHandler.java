@@ -10,15 +10,16 @@ import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
+import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
 @Dependent
@@ -30,14 +31,16 @@ public class InvocationRecordHandler {
   final ContextLoader loader;
   final UnifiedFunctionRouter router;
   final OneShotDataflowInvoker dataflowInvoker;
+  final ObjectRepoManager objectRepoManager;
 
   @Inject
-  public InvocationRecordHandler(OffLoader invoker, InvocationExecutor invocationExecutor, ContextLoader loader, UnifiedFunctionRouter router, OneShotDataflowInvoker dataflowInvoker) {
+  public InvocationRecordHandler(OffLoader invoker, InvocationExecutor invocationExecutor, ContextLoader loader, UnifiedFunctionRouter router, OneShotDataflowInvoker dataflowInvoker, ObjectRepoManager objectRepoManager) {
     this.invoker = invoker;
     this.invocationExecutor = invocationExecutor;
     this.loader = loader;
     this.router = router;
     this.dataflowInvoker = dataflowInvoker;
+    this.objectRepoManager = objectRepoManager;
   }
 
   public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
@@ -149,6 +152,20 @@ public class InvocationRecordHandler {
       request.invId(),
       request.macro(),
       System.currentTimeMillis() - submittedTs
+    );
+    checkLocality(kafkaRecord, request);
+  }
+
+
+  void checkLocality(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
+    var repo = objectRepoManager.getOrCreate(request.cls());
+    var cache = ((EIspnObjectRepository)repo).getCache();
+    var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
+    logger.debug("record[{},{}]: locality check {}={}",
+      request.invId(),
+      request.main(),
+      kafkaRecord.partition(),
+      local
     );
   }
 }

@@ -117,6 +117,7 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
     if (config == null) {
       config = new ClassConfig();
     }
+    config.validate();
   }
 
   public FunctionBinding findFunction(String funcName) {

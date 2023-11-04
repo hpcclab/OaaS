@@ -3,7 +3,6 @@ package org.hpcclab.oaas.test;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.cls.OaasClass;
@@ -149,16 +148,19 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
       super(map, OaasObject::getKey);
     }
   }
+
   public static class MapInvRepository extends MapEntityRepository<String, InvocationNode> implements InvNodeRepository {
     public MapInvRepository(MutableMap<String, InvocationNode> map) {
       super(map, InvocationNode::getKey);
     }
   }
+
   public static class MapClsRepository extends MapEntityRepository<String, OaasClass> implements ClassRepository {
     public MapClsRepository(MutableMap<String, OaasClass> map) {
       super(map, OaasClass::getKey);
     }
   }
+
   public static class MapFnRepository extends MapEntityRepository<String, OaasFunction> implements FunctionRepository {
     public MapFnRepository(MutableMap<String, OaasFunction> map) {
       super(map, OaasFunction::getKey);
@@ -168,9 +170,10 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   public static class MapObjectRepoManager extends ObjectRepoManager {
 
     MutableMap<String, OaasClass> clsMap;
+
     public MapObjectRepoManager(MutableMap<String, OaasObject> map,
                                 MutableMap<String, OaasClass> clsMap
-                                ) {
+    ) {
       var bagMultimap = map.groupBy(OaasObject::getCls);
       bagMultimap.keyMultiValuePairsView()
         .forEach(pair -> {
@@ -184,6 +187,34 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     @Override
     public ObjectRepository createRepo(OaasClass cls) {
       return new MapObjectRepository(Maps.mutable.empty());
+    }
+
+    @Override
+    protected OaasClass load(String clsKey) {
+      return clsMap.get(clsKey);
+    }
+  }
+
+  public static class MapInvRepoManager extends InvRepoManager {
+
+    MutableMap<String, OaasClass> clsMap;
+
+    public MapInvRepoManager(MutableMap<String, InvocationNode> map,
+                             MutableMap<String, OaasClass> clsMap
+    ) {
+      var bagMultimap = map.groupBy(InvocationNode::getCls);
+      bagMultimap.keyMultiValuePairsView()
+        .forEach(pair -> {
+          MutableMap<String, InvocationNode> invs = pair.getTwo()
+            .toMap(InvocationNode::getKey, o -> o);
+          repoMap.put(pair.getOne(), new MapInvRepository(invs));
+        });
+      this.clsMap = clsMap;
+    }
+
+    @Override
+    public InvNodeRepository createRepo(OaasClass cls) {
+      return new MapInvRepository(Maps.mutable.empty());
     }
 
     @Override

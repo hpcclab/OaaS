@@ -6,25 +6,21 @@ import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.repository.AtomicOperationService;
-import org.infinispan.util.function.SerializableBiFunction;
-import org.infinispan.util.function.SerializableBinaryOperator;
-import org.infinispan.util.function.SerializableCallable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Random;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public class EmbededIspnAtomicOperationService<V extends HasKey<String>> implements AtomicOperationService<String, V> {
-  private static final Logger logger = LoggerFactory.getLogger(EmbededIspnAtomicOperationService.class);
-  AbsEmbeddedIspnRepository<V> repo;
+public class EIspnAtomicOperationService<V extends HasKey<String>> implements AtomicOperationService<String, V> {
+  private static final Logger logger = LoggerFactory.getLogger(EIspnAtomicOperationService.class);
+  AbsEIspnRepository<V> repo;
   Random random = new Random();
 
-  public EmbededIspnAtomicOperationService(AbsEmbeddedIspnRepository<V> repository) {
+  public EIspnAtomicOperationService(AbsEIspnRepository<V> repository) {
     this.repo = repository;
   }
 

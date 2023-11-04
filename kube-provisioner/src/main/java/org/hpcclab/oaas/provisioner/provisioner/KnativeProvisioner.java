@@ -1,13 +1,13 @@
 package org.hpcclab.oaas.provisioner.provisioner;
 
 import io.fabric8.knative.client.KnativeClient;
-import io.fabric8.knative.serving.v1.*;
+import io.fabric8.knative.serving.v1.Service;
+import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.reactive.messaging.kafka.Record;
 import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -44,10 +44,9 @@ public class KnativeProvisioner implements Provisioner<OaasFunction> {
   KpConfig kpConfig;
 
   @Override
-  public Consumer<OaasFunction> provision(Record<String, OaasFunction> functionRecord) {
-    var function = functionRecord.value();
+  public Consumer<OaasFunction> provision(OaasFunction function) {
     var key = function.getKey();
-    if (function.getState() == FunctionState.REMOVING) {
+    if (function.getState()==FunctionState.REMOVING) {
       boolean deleted;
       deleted = !knativeClient
         .services()
@@ -105,7 +104,7 @@ public class KnativeProvisioner implements Provisioner<OaasFunction> {
       };
     } else {
       return f -> f.getDeploymentStatus()
-          .setCondition(DeploymentCondition.DEPLOYING);
+        .setCondition(DeploymentCondition.DEPLOYING);
     }
   }
 

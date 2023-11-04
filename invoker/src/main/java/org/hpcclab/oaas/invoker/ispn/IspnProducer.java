@@ -4,21 +4,28 @@ import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invoker.ispn.repo.*;
+import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
+import org.hpcclab.oaas.invoker.ispn.repo.EIspnClsRepository;
+import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
+import org.hpcclab.oaas.invoker.ispn.repo.EIspnInvRepoManager;
+import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
 import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.lock.EmbeddedClusteredLockManagerFactory;
 import org.infinispan.lock.api.ClusteredLockManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.infinispan.commons.dataconversion.MediaType.APPLICATION_OBJECT_TYPE;
+import static org.infinispan.commons.dataconversion.MediaType.TEXT_PLAIN_TYPE;
 
 @ApplicationScoped
 @Startup
@@ -37,35 +44,17 @@ public class IspnProducer {
 
   DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
 
-//  @Produces
-//  @ApplicationScoped
-//  synchronized EmbeddedIspnObjectRepository objectRepository() {
-//    Cache<String, OaasObject> cache;
-//    if (!cacheManager.cacheExists(OBJECT_CACHE)) {
-//      var conf = cacheCreator.createDistConfig(
-//        confRegistry.getConfMap().get("OBJ"),
-//        config.objStore(),
-//        true,
-//        OaasObject.class);
-//      log(OBJECT_CACHE, conf);
-//      cache = cacheManager.createCache(OBJECT_CACHE, conf);
-//    } else {
-//      cache = cacheManager.getCache(OBJECT_CACHE);
-//    }
-//    return new EmbeddedIspnObjectRepository(cache.getAdvancedCache());
-//  }
-
 
   @Produces
   @ApplicationScoped
   ObjectRepoManager objectRepoManager(IspnCacheCreator cacheCreator,
                                       ClassRepository classRepository) {
-    return new EmbededIspnObjectRepoManager(classRepository, cacheCreator);
+    return new EIspnObjectRepoManager(classRepository, cacheCreator);
   }
 
   @Produces
   @ApplicationScoped
-  synchronized EmbeddedIspnClsRepository clsRepository() {
+  synchronized EIspnClsRepository clsRepository() {
     Cache<String, OaasClass> cache;
     if (!cacheManager.cacheExists(CLASS_CACHE)) {
       var conf = cacheCreator.createSimpleConfig(
@@ -77,12 +66,12 @@ public class IspnProducer {
     } else {
       cache = cacheManager.getCache(CLASS_CACHE);
     }
-    return new EmbeddedIspnClsRepository(cache.getAdvancedCache());
+    return new EIspnClsRepository(cache.getAdvancedCache());
   }
 
   @Produces
   @ApplicationScoped
-  synchronized EmbeddedIspnFnRepository fnRepository() {
+  synchronized EIspnFnRepository fnRepository() {
     Cache<String, OaasFunction> cache;
     if (!cacheManager.cacheExists(FUNCTION_CACHE)) {
       var conf = cacheCreator.createSimpleConfig(
@@ -94,25 +83,14 @@ public class IspnProducer {
     } else {
       cache = cacheManager.getCache(FUNCTION_CACHE);
     }
-    return new EmbeddedIspnFnRepository(cache.getAdvancedCache());
+    return new EIspnFnRepository(cache.getAdvancedCache());
   }
 
   @Produces
   @ApplicationScoped
-  synchronized EmbeddedIspnInvNodeRepository invNodeRepository() {
-    Cache<String, InvocationNode> cache;
-    if (!cacheManager.cacheExists(INV_NODE_CACHE)) {
-      var conf = cacheCreator.createDistConfig(
-        confRegistry.getOrDefault("INV"),
-        config.invStore(),
-        false,
-        InvocationNode.class);
-      log(INV_NODE_CACHE, conf);
-      cache = cacheManager.createCache(INV_NODE_CACHE, conf);
-    } else {
-      cache = cacheManager.getCache(INV_NODE_CACHE);
-    }
-    return new EmbeddedIspnInvNodeRepository(cache.getAdvancedCache());
+  synchronized EIspnInvRepoManager invNodeRepository(IspnCacheCreator cacheCreator,
+                                                     ClassRepository classRepository) {
+    return new EIspnInvRepoManager(classRepository, cacheCreator);
   }
 
   private void log(String name, Configuration configuration) {
@@ -123,11 +101,26 @@ public class IspnProducer {
     }
   }
 
-
+  @Produces
+  @ApplicationScoped
+  LocationRegistry locationRegistry() {
+    var name = "LocationRegistry";
+    if (!cacheManager.cacheExists(name)) {
+      var conf = new ConfigurationBuilder()
+        .clustering().cacheMode(CacheMode.REPL_SYNC)
+        .encoding()
+        .key().mediaType(TEXT_PLAIN_TYPE)
+        .encoding()
+        .value().mediaType(APPLICATION_OBJECT_TYPE)
+        .build();
+      cacheManager.createCache(name, conf);
+    }
+    return new LocationRegistry(cacheManager.getCache(name));
+  }
 
   @Produces
   @ApplicationScoped
-  ClusteredLockManager clusteredLockManager(){
+  ClusteredLockManager clusteredLockManager() {
     return EmbeddedClusteredLockManagerFactory.from(cacheManager);
   }
 }
