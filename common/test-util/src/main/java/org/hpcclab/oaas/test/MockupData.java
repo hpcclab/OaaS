@@ -8,7 +8,6 @@ import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.object.ObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
@@ -156,14 +155,12 @@ public class MockupData {
 
   public static final OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
     .setId("o1")
-    .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
       .setVerIds(DSMap.of("k1", "kkkk"))
     );
 
   public static final OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
-    .setId("o2")
-    .setStatus(new ObjectStatus());
+    .setId("o2");
 
   public static MutableMap<String, OaasClass> testClasses() {
     var clsResolver = new ClassResolver(null);

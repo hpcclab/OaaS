@@ -26,16 +26,20 @@ import java.util.Map;
 
 @ApplicationScoped
 public class NewSubApplier implements LogicalSubApplier {
-  @Inject
   DataUrlAllocator allocator;
-  @Inject
   OaasObjectFactory objectFactory;
-  @Inject
   ClassRepository clsRepo;
-  @Inject
   ObjectRepoManager objRepoManager;
-  @Inject
   ObjectMapper mapper;
+
+  @Inject
+  public NewSubApplier(DataUrlAllocator allocator, OaasObjectFactory objectFactory, ClassRepository clsRepo, ObjectRepoManager objRepoManager, ObjectMapper mapper) {
+    this.allocator = allocator;
+    this.objectFactory = objectFactory;
+    this.clsRepo = clsRepo;
+    this.objRepoManager = objRepoManager;
+    this.mapper = mapper;
+  }
 
   @Override
   public void validate(InvocationContext context) {

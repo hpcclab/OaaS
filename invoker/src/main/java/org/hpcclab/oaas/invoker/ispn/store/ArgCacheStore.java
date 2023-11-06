@@ -1,12 +1,14 @@
 package org.hpcclab.oaas.invoker.ispn.store;
 
+import com.arangodb.ArangoCollectionAsync;
+import com.arangodb.ArangoCursorAsync;
 import com.arangodb.ArangoDBException;
-import com.arangodb.async.ArangoCollectionAsync;
 import com.arangodb.entity.CollectionPropertiesEntity;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.OverwriteMode;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.subscription.MultiEmitter;
 import mutiny.zero.flow.adapters.AdaptersToFlow;
 import mutiny.zero.flow.adapters.AdaptersToReactiveStreams;
 import org.hpcclab.oaas.model.HasKey;
@@ -34,6 +36,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @ConfiguredBy(ArgCacheStoreConfig.class)
 
@@ -217,24 +220,18 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   public Publisher<MarshallableEntry<String, T>> publishEntries(IntSet segments, Predicate<? super String> filter, boolean includeValues) {
     if (!segments.contains(0))
       return AdaptersToReactiveStreams.publisher(Multi.createFrom().empty());
-    logger.debug("[{}]publishEntries {} {}", name, segments, includeValues);
+    logger.debug("[{},{}]publishEntries {} {}", name, collectionAsync.name(), segments, includeValues);
     var query = """
-      FOR doc in @@col
+      FOR doc in %s
       return doc
-      """;
-    var multi = Multi.createFrom()
-      .completionStage(() -> collectionAsync.db()
-        .query(query, Map.of("@col", collectionAsync.name()), valueCls)
-      )
-      .flatMap(cursor -> Multi.createFrom().items(cursor.stream())
-
-      )
-//                .filter(val -> filter.test(keyExtractor.apply(val)))
+      """.formatted(collectionAsync.name());
+    var multi = toMulti(() -> collectionAsync.db()
+      .query(query, valueCls)
+    )
       .map(val -> marshallableEntryFactory.create(
         keyDataConversion.toStorage(keyExtractor.apply(val)),
         valueDataConversion.toStorage(val))
       );
-//                        .invoke(entry -> logger.debug("publish {} {}",segments, entry.getKey()))
     return AdaptersToReactiveStreams.publisher(multi);
   }
 
@@ -248,11 +245,29 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
       """;
     logger.debug("[{}]publishKeys {}", name, segments);
     return AdaptersToReactiveStreams.publisher(
-      Multi.createFrom()
-        .completionStage(collectionAsync.db()
-          .query(query, Map.of("@col", collectionAsync.name()), String.class))
-        .flatMap(cursor -> Multi.createFrom().items(cursor.streamRemaining()))
+      toMulti(() -> collectionAsync.db()
+        .query(query, String.class, Map.of("@col", collectionAsync.name()))
+      )
     );
+  }
+
+  <T> Multi<T> toMulti(Supplier<CompletionStage<ArangoCursorAsync<T>>> supplier) {
+    return Multi.createFrom().emitter(emitter -> pipe(supplier.get(), emitter));
+  }
+
+  <T> void pipe(CompletionStage<ArangoCursorAsync<T>> stage, MultiEmitter<? super T> emitter) {
+    stage.whenComplete((cursorAsync, throwable) -> {
+      if (throwable!=null) emitter.fail(throwable);
+      for (T t : cursorAsync.getResult()) {
+        emitter.emit(t);
+      }
+      if (Boolean.TRUE.equals(cursorAsync.hasMore())) {
+        pipe(cursorAsync.nextBatch(), emitter);
+      } else {
+        cursorAsync.close();
+        emitter.complete();
+      }
+    });
   }
 
   @Override

@@ -87,7 +87,6 @@ class MockingInvocationTest {
     LOGGER.debug("INV NODE: {}", Json.encodePrettily(invNode));
     LOGGER.debug("OBJECT OUT: {}", Json.encodePrettily(loadedObj));
     assertNotNull(loadedObj);
-
     assertNotNull(invNode);
     assertNotNull(invNode.getStatus());
     assertThat(invNode.getCptTs())

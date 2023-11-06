@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.MutinyUtils.createUni;
 import static org.hpcclab.oaas.arango.repo.AbstractArgRepository.replaceOptions;
 
 public class ArgAtomicService<V> implements AtomicOperationService<String, V> {

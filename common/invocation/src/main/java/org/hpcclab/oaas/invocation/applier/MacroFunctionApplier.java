@@ -10,11 +10,13 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.MacroSpec;
+import org.hpcclab.oaas.model.function.WorkflowExport;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectReference;
 import org.hpcclab.oaas.invocation.OaasObjectFactory;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,14 +80,12 @@ public class MacroFunctionApplier implements FunctionApplier {
         .get(dataflow.getExport());
     } else {
       var output = objectFactory.createOutput(ctx);
-      var mem = dataflow.getExports()
-        .stream()
-        .map(export -> new ObjectReference()
-          .setName(export.getAs())
-          .setObjId(ctx.getWorkflowMap()
-            .get(export.getFrom()).getId()))
-        .collect(Collectors.toUnmodifiableSet());
-      output.setRefs(mem);
+      var refs = new DSMap();
+      for (WorkflowExport export : dataflow.getExports()) {
+        refs.put(export.getAs(), ctx.getWorkflowMap()
+          .get(export.getFrom()).getId());
+      }
+      output.setRefs(refs);
       return output;
     }
   }

@@ -1,12 +1,8 @@
 package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
-import com.arangodb.async.ArangoCollectionAsync;
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import com.arangodb.ArangoCollectionAsync;
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.repository.ObjectRepository;

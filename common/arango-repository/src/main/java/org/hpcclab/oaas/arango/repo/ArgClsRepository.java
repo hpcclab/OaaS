@@ -1,39 +1,25 @@
 package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
-import com.arangodb.async.ArangoCollectionAsync;
+import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
-import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Maps;
-import org.eclipse.collections.api.factory.Sets;
+import jakarta.inject.Inject;
 import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.repository.AsyncEntityRepository;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.ClassResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
 
 
+  private final Cache<String, OaasClass> cache;
+  private final Cache<String, List<String>> subClsCache;
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
   CacheFactory cacheFactory;
-  private final Cache<String, OaasClass> cache;
-  private final Cache<String, List<String>> subClsCache;
 
   @Inject
   public ArgClsRepository(ArangoCollection collection,
@@ -71,6 +57,7 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   Cache<String, OaasClass> cache() {
     return cache;
   }
+
   @Override
   public List<OaasClass> listSubCls(String clsKey) {
     var query = """

@@ -1,19 +1,19 @@
 package org.hpcclab.oaas.arango.repo;
 
+import com.arangodb.BaseArangoCursor;
 import com.arangodb.model.AqlQueryOptions;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.QueryService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.MutinyUtils.createUni;
 
-public class ArgQueryService<V> implements QueryService<String,V> {
+public class ArgQueryService<V> implements QueryService<String, V> {
 
   AbstractArgRepository<V> repository;
 
@@ -21,10 +21,14 @@ public class ArgQueryService<V> implements QueryService<String,V> {
     this.repository = repository;
   }
 
+  static AqlQueryOptions queryOptions() {
+    return new AqlQueryOptions();
+  }
+
   @Override
   public Pagination<V> queryPagination(String queryString, Map<String, Object> params, long offset, int limit) {
     var cursor = repository.getCollection().db()
-      .query(queryString, params, queryOptions().fullCount(true), repository.getValueCls());
+      .query(queryString, repository.getValueCls(), params, queryOptions().fullCount(true));
     try (cursor) {
       var items = cursor.asListRemaining();
       return new Pagination<>(cursor.getStats().getFullCount(), offset, limit, items);
@@ -37,15 +41,15 @@ public class ArgQueryService<V> implements QueryService<String,V> {
   public Uni<Pagination<V>> queryPaginationAsync(String queryString, Map<String, Object> params, long offset, int limit) {
     return createUni(() -> repository.getAsyncCollection()
       .db()
-      .query(queryString, params, queryOptions().fullCount(true), repository.getValueCls())
+      .query(queryString, repository.getValueCls(), params, queryOptions().fullCount(true)
+        .batchSize(limit)
+      )
       .thenApply(cursor -> {
-        try (cursor) {
-          var items = cursor.streamRemaining().toList();
-          return new Pagination<>(cursor.getStats().getFullCount(), offset, items.size(),
+          var items = cursor.getResult();
+          return new Pagination<>(cursor.getCount(),
+            offset,
+            items.size(),
             items);
-        } catch (IOException e) {
-          throw new ArgDataAccessException(e);
-        }
       }));
   }
 
@@ -84,43 +88,29 @@ public class ArgQueryService<V> implements QueryService<String,V> {
         "sorted", name.split("\\."),
         "off", offset,
         "lim", limit,
-        "order", desc ? "DESC": "ASC"
+        "order", desc ? "DESC":"ASC"
       ),
       offset, limit);
   }
 
   @Override
   public List<V> query(String queryString, Map<String, Object> params) {
-    var cursor = repository.getCollection().db().query(queryString, params, queryOptions(), repository.getValueCls());
-    try (cursor) {
-      return cursor.asListRemaining();
-    } catch (IOException e) {
-      throw new ArgDataAccessException(e);
-    }
+    var cursor = repository.getCollection().db().query(queryString, repository.getValueCls(), params, queryOptions());
+    return cursor.asListRemaining();
   }
-
 
   @Override
   public Uni<List<V>> queryAsync(String queryString, Map<String, Object> params) {
     return queryAsync(queryString, repository.getValueCls(), params);
   }
 
-  static AqlQueryOptions queryOptions() {
-    return new AqlQueryOptions();
-  }
-
-
   public <T> Uni<List<T>> queryAsync(String queryString, Class<T> resultCls, Map<String, Object> params) {
     return createUni(() -> repository.getAsyncCollection()
       .db()
-      .query(queryString, params, queryOptions(), resultCls).thenApply(cursor -> {
-        try (cursor) {
-          return cursor.streamRemaining().toList();
-        } catch (IOException e) {
-          throw new ArgDataAccessException(e);
-        }
-      })
+      .query(queryString, resultCls, params, queryOptions()).thenApply(BaseArangoCursor::getResult)
     );
   }
+
+
 
 }

@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class OaasObjectState implements Serializable {
+public class OaasObjectState {
   @ProtoField(number = 2)
   DSMap overrideUrls;
 
@@ -45,4 +45,5 @@ public class OaasObjectState implements Serializable {
     if (overrideUrls==null) return null;
     return overrideUrls.get(key);
   }
+
 }

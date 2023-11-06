@@ -22,7 +22,6 @@ public class DSMap extends AbstractMutableMap<String, String> {
 
 
   public DSMap() {
-
     this.wrapped = Maps.mutable.empty();
   }
 
@@ -168,5 +167,10 @@ public class DSMap extends AbstractMutableMap<String, String> {
   @Override
   public int size() {
     return wrapped.size();
+  }
+
+  @Override
+  public String toString() {
+    return wrapped.toString();
   }
 }

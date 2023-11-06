@@ -128,21 +128,21 @@ public class RepoContextLoader implements ContextLoader {
   @Override
   public Uni<OaasObject> resolveObj(InvocationContext baseCtx, String ref) {
     if (ref.startsWith("$.")) {
-      var res = baseCtx.getMain().findReference(ref.substring(2));
-      if (res.isPresent()) {
+      var refName = ref.substring(2);
+      var refKey = baseCtx.getMain().getRefs().get(refName);
+      if (refKey != null) {
         var mainCls = baseCtx.getMainCls();
-        var refSpec =mainCls.findReference(ref.substring(2));
-        var obj = baseCtx.getMainRefs().get(res.get().getName());
+        var refSpec = mainCls.findReference(ref.substring(2));
+        var obj = baseCtx.getMainRefs().get(refName);
         if (obj!=null)
           return Uni.createFrom().item(obj);
         if (refSpec.isEmpty())
           throw FunctionValidationException.cannotResolveMacro(ref,
             "No ref to satisfy " + ref);
-        var id = res.get().getObjId();
-        return load(refSpec.get().getCls(), id)
+        return load(refSpec.get().getCls(), refKey)
           .onItem().ifNull()
           .failWith(() -> FunctionValidationException.cannotResolveMacro(ref, "object not found"))
-          .invoke(o -> baseCtx.getMainRefs().put(id, o));
+          .invoke(o -> baseCtx.getMainRefs().put(refName, o));
       }
     } else {
       return Uni.createFrom().item(baseCtx.resolveDataflowRef(ref));

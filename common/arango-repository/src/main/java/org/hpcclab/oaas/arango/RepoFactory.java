@@ -1,12 +1,10 @@
 package org.hpcclab.oaas.arango;
 
-import com.arangodb.ArangoDB;
-import com.arangodb.ArangoDatabase;
-import com.arangodb.Protocol;
-import com.arangodb.async.ArangoDBAsync;
-import com.arangodb.async.ArangoDatabaseAsync;
+import com.arangodb.*;
 import com.arangodb.entity.LoadBalancingStrategy;
-import com.arangodb.mapping.ArangoJack;
+import com.arangodb.internal.ArangoDBAsyncImpl;
+import com.arangodb.internal.ArangoDBImpl;
+import com.arangodb.serde.jackson.JacksonSerde;
 import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.arango.repo.ArgObjectRepository;
@@ -29,20 +27,8 @@ public class RepoFactory {
       .maxConnections(30)
       .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
       .acquireHostList(true)
-      .useProtocol(Protocol.VST)
-      .serializer(new ArangoJack())
-      .build();
-  }
-
-  public ArangoDBAsync arangoDBAsync() {
-    return new ArangoDBAsync.Builder()
-      .user(conf.user())
-      .password(conf.pass()!=null ? conf.pass():"")
-      .host(conf.host(), conf.port())
-      .maxConnections(30)
-      .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
-      .acquireHostList(true)
-      .serializer(new ArangoJack())
+      .protocol(Protocol.VST)
+      .serde(JacksonSerde.of(ContentType.VPACK))
       .build();
   }
 
@@ -55,8 +41,9 @@ public class RepoFactory {
   }
 
   public ArgClsRepository clsRepository() {
-    var database = arangoDatabase(arangoDB());
-    var databaseAsync = arangoDatabase(arangoDBAsync());
+    var db= arangoDB();
+    var database = arangoDatabase(db);
+    var databaseAsync = arangoDatabase(db.async());
     var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
     var colName = conf.options().getOrDefault(COLLECTION, "OprcClass");
     return new ArgClsRepository(
@@ -66,8 +53,9 @@ public class RepoFactory {
   }
 
   public ArgFunctionRepository fnRepository() {
-    var database = arangoDatabase(arangoDB());
-    var databaseAsync = arangoDatabase(arangoDBAsync());
+    var db= arangoDB();
+    var database = arangoDatabase(db);
+    var databaseAsync = arangoDatabase(db.async());
     var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
     var colName = conf.options().getOrDefault(COLLECTION, "OprcFunction");
     return new ArgFunctionRepository(
@@ -77,8 +65,9 @@ public class RepoFactory {
   }
 
   public ArgObjectRepository objRepository() {
-    var database = arangoDatabase(arangoDB());
-    var databaseAsync = arangoDatabase(arangoDBAsync());
+    var db= arangoDB();
+    var database = arangoDatabase(db);
+    var databaseAsync = arangoDatabase(db.async());
     var colName = conf.options().getOrDefault(COLLECTION, "OprcObject");
     return new ArgObjectRepository(
       database.collection(colName),

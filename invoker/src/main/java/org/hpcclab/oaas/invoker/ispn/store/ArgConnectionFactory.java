@@ -1,11 +1,13 @@
 package org.hpcclab.oaas.invoker.ispn.store;
 
-import com.arangodb.DbName;
-import com.arangodb.async.ArangoCollectionAsync;
-import com.arangodb.async.ArangoDBAsync;
-import com.arangodb.async.ArangoDatabaseAsync;
+
+import com.arangodb.ArangoCollectionAsync;
+import com.arangodb.ArangoDB;
+import com.arangodb.ContentType;
+import com.arangodb.Protocol;
 import com.arangodb.entity.LoadBalancingStrategy;
-import com.arangodb.mapping.ArangoJack;
+import com.arangodb.serde.ArangoSerde;
+import com.arangodb.serde.jackson.JacksonSerde;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 
 import java.util.Optional;
@@ -19,15 +21,17 @@ public class ArgConnectionFactory  implements ConnectionFactory<ArangoCollection
 
   @Override
   public ArangoCollectionAsync getConnection(String cacheName) {
-    return new ArangoDBAsync.Builder()
+    return new ArangoDB.Builder()
       .user(datastoreConf.user())
       .password(datastoreConf.pass())
       .host(datastoreConf.host(), datastoreConf.port())
       .maxConnections(30)
       .loadBalancingStrategy(LoadBalancingStrategy.ROUND_ROBIN)
       .acquireHostList(true)
-      .serializer(new ArangoJack())
+      .protocol(Protocol.VST)
+      .serde(JacksonSerde.of(ContentType.VPACK))
       .build()
+      .async()
       .db(datastoreConf.options().getOrDefault("DB", "_system"))
       .collection(datastoreConf.options()
         .getOrDefault("COL", cacheName.replace(".","_")));

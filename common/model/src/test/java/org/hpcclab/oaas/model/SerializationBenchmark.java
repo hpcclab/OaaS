@@ -4,17 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.object.ObjectStatus;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.proto.OaasSchemaImpl;
-import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.infinispan.protostream.ProtobufUtil;
 import org.infinispan.protostream.SerializationContext;
 import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -22,6 +18,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -61,18 +58,14 @@ public class SerializationBenchmark {
     mapper = new ObjectMapper();
     msgpackMapper = new MessagePackMapper();
     random = new Random();
+    var refs = IntStream.range(0, 5)
+      .mapToObj(__ -> Map.entry(rand(), rand()))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     var node = genNode();
     object = new OaasObject()
       .setId(rand())
       .setCls(rand())
-      .setRefs(IntStream.range(0, 5)
-        .mapToObj(__ -> new ObjectReference(rand(), rand(), KeyAccessModifier.PUBLIC))
-        .collect(Collectors.toSet())
-      )
-      .setStatus(new ObjectStatus()
-        .setUpdatedOffset(random.nextLong())
-        .setLastInv(rand())
-      )
+      .setRefs(DSMap.copy(refs))
       .setState(new OaasObjectState()
         .setVerIds(DSMap.of(rand(), rand(), rand(), rand(), rand(), rand()))
       )
@@ -120,6 +113,7 @@ public class SerializationBenchmark {
   public byte[] testSerializeJson() throws JsonProcessingException {
     return mapper.writeValueAsBytes(object);
   }
+
   @Benchmark
   public byte[] testSerializeMsgpack() throws JsonProcessingException {
     return msgpackMapper.writeValueAsBytes(object);
@@ -135,6 +129,7 @@ public class SerializationBenchmark {
   public OaasObject testDeserializeJson() throws IOException {
     return mapper.readValue(jsonBytes, OaasObject.class);
   }
+
   @Benchmark
   public OaasObject testDeserializeMsgpack() throws IOException {
     return msgpackMapper.readValue(msgpackBytes, OaasObject.class);

@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.arango.repo;
 
-import com.arangodb.ArangoCollection;
-import com.arangodb.ArangoDBException;
-import com.arangodb.async.ArangoCollectionAsync;
+import com.arangodb.*;
 import com.arangodb.entity.DocumentDeleteEntity;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentDeleteOptions;
@@ -14,20 +12,19 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.core.Vertx;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.arango.MutinyUtils;
 import org.hpcclab.oaas.repository.AsyncEntityRepository;
 import org.hpcclab.oaas.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.MutinyUtils.createUni;
 import static org.hpcclab.oaas.arango.repo.ArgQueryService.queryOptions;
 
 public abstract class AbstractArgRepository<V>
@@ -37,6 +34,19 @@ public abstract class AbstractArgRepository<V>
   protected ArgQueryService<V> queryService;
   protected ArgAtomicService<V> atomicService;
 
+  static DocumentReplaceOptions replaceOptions() {
+    return new DocumentReplaceOptions()
+      .ignoreRevs(false);
+  }
+
+  static DocumentCreateOptions createOptions() {
+    return new DocumentCreateOptions()
+      .overwriteMode(OverwriteMode.replace);
+  }
+
+  static DocumentDeleteOptions deleteOptions() {
+    return new DocumentDeleteOptions().returnOld(true);
+  }
 
   @Override
   public AsyncEntityRepository<String, V> async() {
@@ -74,6 +84,7 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
+  @Deprecated(forRemoval = true)
   public Multi<V> values() {
     var queryString = """
       FOR doc IN @@col
@@ -83,18 +94,12 @@ public abstract class AbstractArgRepository<V>
       "@col",
       getCollection().name()
     );
-    return createUni(() -> getAsyncCollection()
+    return MutinyUtils.toMulti(() -> getAsyncCollection()
       .db()
-      .query(queryString, params, queryOptions(), getValueCls())
-    )
-      .onItem().transformToMulti(Unchecked.function(cursor -> {
-        try (cursor) {
-          return Multi.createFrom().items(cursor.stream());
-        } catch (IOException e) {
-          throw new ArgDataAccessException(e);
-        }
-      }));
+      .query(queryString, getValueCls(), params, queryOptions())
+    );
   }
+
 
   @Override
   public Uni<V> getAsync(String key) {
@@ -131,7 +136,7 @@ public abstract class AbstractArgRepository<V>
   public V remove(String key) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("remove[{}] {}", getCollection().name(), key);
-    var deleteEntity = getCollection().deleteDocument(key, getValueCls(), deleteOptions());
+    var deleteEntity = getCollection().deleteDocument(key, deleteOptions(),getValueCls());
     return deleteEntity.getOld();
   }
 
@@ -139,7 +144,7 @@ public abstract class AbstractArgRepository<V>
   public Uni<V> removeAsync(String key) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("removeAsync[{}] {}", getCollection().name(), key);
-    return createUni(() -> getAsyncCollection().deleteDocument(key, getValueCls(), deleteOptions()))
+    return createUni(() -> getAsyncCollection().deleteDocument(key, deleteOptions(), getValueCls()))
       .map(DocumentDeleteEntity::getOld);
   }
 
@@ -155,8 +160,6 @@ public abstract class AbstractArgRepository<V>
   public V persist(V v) {
     return put(extractKey(v), v);
   }
-
-
 
   @Override
   public Uni<V> putAsync(String key, V value) {
@@ -226,21 +229,6 @@ public abstract class AbstractArgRepository<V>
       retryCount--;
     }
     throw exception;
-  }
-
-
-  static DocumentReplaceOptions replaceOptions() {
-    return new DocumentReplaceOptions()
-      .ignoreRevs(false);
-  }
-
-  static DocumentCreateOptions createOptions() {
-    return new DocumentCreateOptions()
-      .overwriteMode(OverwriteMode.replace);
-  }
-
-  static DocumentDeleteOptions deleteOptions() {
-    return new DocumentDeleteOptions().returnOld(true);
   }
 
 

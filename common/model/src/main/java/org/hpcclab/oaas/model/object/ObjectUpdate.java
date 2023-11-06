@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 public class ObjectUpdate {
   ObjectNode data;
-  Set<ObjectReference> refs;
+  DSMap refs = DSMap.of();
   Set<String> updatedKeys = Set.of();
 
   public ObjectUpdate() {
@@ -32,7 +32,7 @@ public class ObjectUpdate {
   }
 
   public ObjectUpdate(ObjectNode data,
-                      Set<ObjectReference> refs,
+                      DSMap refs,
                       Set<String> updatedKeys) {
     this.data = data;
     this.refs = refs;
@@ -52,17 +52,16 @@ public class ObjectUpdate {
   public void update(OaasObject obj, String newVerId) {
     if (obj==null)
       return;
+
     if (data!=null)
       obj.setData(data);
+
     if (refs!=null && !refs.isEmpty()) {
-      var map = obj.getRefs()
-        .stream()
-        .collect(Collectors.toMap(ObjectReference::getName, Function.identity()));
-      for (var ref : refs) {
-        map.put(ref.getName(), ref);
-      }
-      obj.setRefs(Set.copyOf(map.values()));
+      var map = DSMap.copy(obj.getRefs());
+      map.putAll(refs);
+      obj.setRefs(map);
     }
+
     if (updatedKeys!=null && !updatedKeys.isEmpty()) {
       var verIds = DSMap.wrap(Sets.fixedSize.ofAll(updatedKeys)
         .toMap(k -> k, __ -> newVerId)

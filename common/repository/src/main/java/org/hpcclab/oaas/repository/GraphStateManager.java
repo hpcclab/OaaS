@@ -67,6 +67,7 @@ public class GraphStateManager {
       objs.add(out);
     }
 
+    logger.debug("persist {}", objs);
     Uni<Void> uni = persistWithPrecondition(objs)
       .call(__ -> invRepoManager.persistAsync(context.initNode()));
     return uni.onItem()
@@ -104,7 +105,7 @@ public class GraphStateManager {
     }
     return Multi.createFrom().iterable(srcNode.getNextInv())
       .onItem().transformToUniAndMerge(ref -> invRepoManager
-        .getOrCreate(ref.cls()).async().getAsync(ref.key())
+        .getOrCreate(ref.getCls()).async().getAsync(ref.getKey())
       );
   }
 
@@ -116,9 +117,9 @@ public class GraphStateManager {
     return Multi.createFrom().iterable(srcNode.getNextInv())
       .onItem()
       .transformToUniAndMerge(ref -> invRepoManager
-        .getOrCreate(ref.cls())
+        .getOrCreate(ref.getCls())
         .async()
-        .computeAsync(ref.key(), (k, node) -> node.trigger(srcNode.getKey(), srcNode.getKey()))
+        .computeAsync(ref.getKey(), (k, node) -> node.trigger(srcNode.getKey(), srcNode.getKey()))
       )
       .filter(node -> Objects.equals(srcNode.getKey(), node.getOriginator()));
   }

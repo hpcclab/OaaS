@@ -9,22 +9,16 @@ import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
-import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskStatus;
-import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.Optional;
-import java.util.Set;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Accessors(chain = true)
-@ProtoDoc("@Indexed")
 public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev {
-
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
@@ -37,27 +31,27 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
   @ProtoField(6)
   OaasObjectState state;
   @ProtoField(7)
-  Set<ObjectReference> refs;
-  @ProtoField(value = 8)
-  ObjectStatus status;
-  @ProtoField(value = 10, javaType = ObjectNode.class)
+  DSMap refs;
+  @ProtoField(value = 8, javaType = ObjectNode.class)
   ObjectNode data;
+  @ProtoField(value = 9, defaultValue = "-1")
+  long lastOffset = -1;
+  @ProtoField(10)
+  String lastInv;
 
   public OaasObject() {}
 
   @ProtoFactory
-  public OaasObject(String id,
-                    String cls,
-                    OaasObjectState state, Set<ObjectReference> refs, ObjectNode data, ObjectStatus status,
-                    long revision) {
+  public OaasObject(String id, long revision, String cls, OaasObjectState state, DSMap refs, ObjectNode data, long lastOffset, String lastInv) {
     this.id = id;
     this.key = id;
+    this.revision = revision;
     this.cls = cls;
     this.state = state;
     this.refs = refs;
     this.data = data;
-    this.status = status;
-    this.revision = revision;
+    this.lastOffset = lastOffset;
+    this.lastInv = lastInv;
   }
 
   public static OaasObject createFromClasses(OaasClass cls) {
@@ -67,21 +61,16 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
     return o;
   }
 
-  public Optional<ObjectReference> findReference(String name) {
-    return refs.stream()
-      .filter(mem -> mem.getName().equals(name))
-      .findFirst();
-  }
-
   public OaasObject copy() {
     return new OaasObject(
       id,
+      revision,
       cls,
       state.copy(),
-      refs==null ? null:Set.copyOf(refs),
+      refs==null ? null:DSMap.copy(refs),
       data != null? data.deepCopy(): null,
-      status.copy(),
-      revision
+      lastOffset,
+      lastInv
     );
   }
 

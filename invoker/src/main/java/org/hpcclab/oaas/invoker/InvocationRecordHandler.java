@@ -53,7 +53,7 @@ public class InvocationRecordHandler {
                            BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler,
                            BiPredicate<KafkaConsumerRecord<String, Buffer>, InvocationContext> skipCondition) {
     if (logger.isDebugEnabled()) {
-      logLatency(kafkaRecord, request);
+      logDebug(kafkaRecord, request);
     }
     if (request.macro()) {
       handleMacro(kafkaRecord, request, completionHandler);
@@ -122,11 +122,11 @@ public class InvocationRecordHandler {
     var obj = ctx.getMain();
     if (ctx.isImmutable())
       return false;
-    if (obj.getStatus().getUpdatedOffset() < kafkaRecord.offset())
+    if (obj.getLastOffset() < kafkaRecord.offset())
       return false;
     logger.warn("detect duplication [main={}, objOfs={}, reqOfs={}]",
       ctx.getRequest().main(),
-      ctx.getMain().getStatus().getUpdatedOffset(),
+      ctx.getMain().getLastOffset(),
       kafkaRecord.offset());
     return true;
   }
@@ -145,25 +145,17 @@ public class InvocationRecordHandler {
     return null;
   }
 
-  void logLatency(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
+  void logDebug(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
     var submittedTs = kafkaRecord.timestamp();
-    logger.debug("record[{},{},{}]: Kafka latency {} ms",
-      kafkaRecord.key(),
-      request.invId(),
-      request.macro(),
-      System.currentTimeMillis() - submittedTs
-    );
-    checkLocality(kafkaRecord, request);
-  }
-
-
-  void checkLocality(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
     var repo = objectRepoManager.getOrCreate(request.cls());
     var cache = ((EIspnObjectRepository)repo).getCache();
     var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
-    logger.debug("record[{},{}]: locality check {}={}",
+
+    logger.debug("record[{},{},{}]: Kafka latency {} ms, locality[{}={}]",
+      kafkaRecord.key(),
       request.invId(),
-      request.main(),
+      request.macro(),
+      System.currentTimeMillis() - submittedTs,
       kafkaRecord.partition(),
       local
     );

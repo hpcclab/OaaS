@@ -83,9 +83,8 @@ public class VerticleDeployer {
 //  }
 
   void deployPerCls() {
-    var clsList = clsRepo.async()
+    var clsList = clsRepo
       .values()
-      .select().first(1000)
       .collect().asList().await().indefinitely();
     for (var cls : clsList) {
       handleCls(cls);

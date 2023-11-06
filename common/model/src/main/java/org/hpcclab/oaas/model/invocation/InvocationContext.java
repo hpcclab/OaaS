@@ -96,13 +96,14 @@ public class InvocationContext implements TaskDetail {
       return getMain();
     }
     if (ref.startsWith("$.")) {
-      var res = getMain().findReference(ref.substring(2));
-      if (res.isPresent()) {
-        var obj = getMainRefs().get(res.get().getName());
+      var refName = ref.substring(2);
+      if (getMain().getRefs().containsKey(refName)) {
+        var obj = getMainRefs().get(refName);
         if (obj!=null)
           return obj;
         else
-          throw FunctionValidationException.cannotResolveMacro(ref, "object not found");
+          throw FunctionValidationException.cannotResolveMacro(ref,
+            "object not found");
       }
     }
     if (ref.startsWith("#")) {

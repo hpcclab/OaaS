@@ -13,7 +13,6 @@ import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
-import org.hpcclab.oaas.repository.ObjectRepository;
 import org.hpcclab.oaas.test.MockupData;
 import org.hpcclab.oaas.test.TestUtil;
 import org.junit.FixMethodOrder;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hpcclab.oaas.test.MockupData.*;
@@ -120,10 +118,10 @@ class AsyncInvocationTest {
     });
     main = objectRepo.get(main.getId());
     var out = objectRepo.get(oId);
-    assertThat(main.getStatus().getUpdatedOffset())
+    assertThat(main.getLastOffset())
       .withFailMessage("Offset is negative %s", main)
       .isNotNegative();
-    assertThat(out.getStatus().getUpdatedOffset())
+    assertThat(out.getLastOffset())
       .isNegative();
     assertThat(main.getData().get("n").asInt())
       .isEqualTo(1);
@@ -163,7 +161,7 @@ class AsyncInvocationTest {
 
     var m1 = objectRepo.get(mid1);
     assertNotNull(m1);
-    assertThat(m1.getStatus().getUpdatedOffset() )
+    assertThat(m1.getLastOffset() )
       .isNegative();
     assertEquals(1, m1.getData().get("n").asInt());
 
@@ -171,7 +169,7 @@ class AsyncInvocationTest {
 
     var m3 = objectRepo.get(mid3);
     assertNotNull(m3);
-    assertThat(m3.getStatus().getUpdatedOffset())
+    assertThat(m3.getLastOffset())
       .isNegative();
     assertThat(m3.getData().get("n").asInt())
       .isEqualTo(3);
@@ -225,7 +223,7 @@ class AsyncInvocationTest {
       .isEqualTo(1);
     var m3 = objectRepo.get(mid3);
     assertNotNull(m3);
-    assertThat(m3.getStatus().getUpdatedOffset())
+    assertThat(m3.getLastOffset())
       .isNegative();
     assertThat(m3.getData().get("n").asInt())
       .withFailMessage("n should be 3 %s", m3)

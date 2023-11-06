@@ -1,12 +1,9 @@
 package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
-import com.arangodb.async.ArangoCollectionAsync;
+import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
