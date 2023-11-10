@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
@@ -121,7 +122,7 @@ public class IspnCacheCreator {
   public Configuration createSimpleConfig(DatastoreConf datastoreConf,
                                           IspnConfig.CacheStore cacheStore,
                                           Class<?> valueCls) {
-    return new ConfigurationBuilder()
+    var cb = new ConfigurationBuilder()
       .clustering()
       .cacheMode(CacheMode.LOCAL)
       .encoding()
@@ -139,9 +140,11 @@ public class IspnCacheCreator {
       .storage(cacheStore.storageType())
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
-//      .expiration()
-//      .lifespan(cacheStore.ttl(), TimeUnit.SECONDS)
-      .statistics().enabled(true)
-      .build();
+      .statistics().enabled(true);
+    if (cacheStore.ttl() > 0) {
+      cb.expiration()
+        .lifespan(cacheStore.ttl(), TimeUnit.SECONDS);
+    }
+    return cb.build();
   }
 }
