@@ -67,8 +67,8 @@ class ObjectAccessLanguageTest {
     assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
-    assertNull(fc.getInputs());
-    assertNull(fc.getArgs());
+    assertTrue(fc.getInputs().isEmpty());
+    assertTrue(fc.getArgs().isEmpty());
 
     fc = ObjectAccessLanguage.parse(
       "_%s/%s:test()".formatted(cls(), ids.get(0))
@@ -77,8 +77,8 @@ class ObjectAccessLanguageTest {
     assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
-    assertNull(fc.getInputs());
-    assertNull(fc.getArgs());
+    assertTrue(fc.getInputs().isEmpty());
+    assertTrue(fc.getArgs().isEmpty());
 
 
     fc = ObjectAccessLanguage.parse(
@@ -90,7 +90,7 @@ class ObjectAccessLanguageTest {
     assertNotNull(fc.getInputs());
     assertEquals(1, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
-    assertNull(fc.getArgs());
+    assertTrue(fc.getArgs().isEmpty());
 
     fc = ObjectAccessLanguage.parse(
       "%s:test(%s,%s)()".formatted(ids.get(0), ids.get(1), ids.get(2))
@@ -102,7 +102,7 @@ class ObjectAccessLanguageTest {
     assertEquals(2, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
     assertEquals(ids.get(2), fc.getInputs().get(1));
-    assertNull(fc.getArgs());
+    assertTrue(fc.getArgs().isEmpty());
 
 
     fc = ObjectAccessLanguage.parse(

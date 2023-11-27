@@ -11,7 +11,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
-import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
+import org.hpcclab.oaas.invoker.verticle.RecordConsumerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,14 @@ public class VerticlePoolRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> i
   private final OffsetManager offsetManager;
   private final int maxInflight;
   private final Vertx vertx;
-  private final VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory;
+  private final VerticleFactory<? extends RecordConsumerVerticle<R>> invokerVerticleFactory;
   String name = "unknown";
   Random random = ThreadLocalRandom.current();
-  private ImmutableList<RecordHandlerVerticle<R>> verticles = Lists.immutable.empty();
+  private ImmutableList<RecordConsumerVerticle<R>> verticles = Lists.immutable.empty();
   private Runnable drainHandler;
 
   public VerticlePoolRecordDispatcher(Vertx vertx,
-                                      VerticleFactory<? extends RecordHandlerVerticle<R>> invokerVerticleFactory,
+                                      VerticleFactory<? extends RecordConsumerVerticle<R>> invokerVerticleFactory,
                                       OffsetManager offsetManager,
                                       InvokerConfig config) {
     this.vertx = vertx;
@@ -71,7 +71,7 @@ public class VerticlePoolRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> i
       .replaceWithVoid();
   }
 
-  private RecordHandlerVerticle<R> buildVerticle(int i) {
+  private RecordConsumerVerticle<R> buildVerticle(int i) {
     var verticle = invokerVerticleFactory.createVerticle();
     verticle.setName("invoker-verticle-" + name + "-" + i);
     verticle.setOnRecordCompleteHandler(this::handleRecordComplete);
@@ -112,7 +112,7 @@ public class VerticlePoolRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> i
   public Uni<Void> waitTillQueueEmpty() {
     return Multi.createFrom().ticks().every(Duration.ofMillis(100))
       .filter(l -> verticles.stream()
-        .mapToInt(RecordHandlerVerticle::countPending)
+        .mapToInt(RecordConsumerVerticle::countPending)
         .sum()==0)
       .toUni()
       .replaceWithVoid();

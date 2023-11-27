@@ -10,7 +10,6 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-<!--    <infinispan.version>15.0.0.Dev02</infinispan.version>-->
     <infinispan.version>14.0.21.Final</infinispan.version>
   </properties>
 
@@ -43,17 +42,25 @@
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
 <!--      <version>6.25.0</version>-->
-      <version>7.2.0</version>
+      <version>7.3.0</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>vst-protocol</artifactId>
-      <version>7.2.0</version>
+      <version>7.3.0</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>jackson-serde-vpack</artifactId>
-      <version>7.2.0</version>
+      <version>7.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
@@ -109,7 +116,7 @@
     <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.24.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
+      <version>0.0.24.Final</version>
       <classifier>linux-x86_64</classifier>
     </dependency>
     <dependency>

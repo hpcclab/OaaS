@@ -16,10 +16,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
-  implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
+  implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(AbstractOrderedRecordVerticle.class);
   final AtomicInteger inflight = new AtomicInteger(0);
   final AtomicBoolean lock = new AtomicBoolean(false);

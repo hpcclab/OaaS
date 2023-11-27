@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Dependent
-public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
+public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(LockingRecordHandlerVerticle.class);
   final AtomicInteger acquireCounter = new AtomicInteger(0);
   final AtomicInteger inflightCounter = new AtomicInteger(0);

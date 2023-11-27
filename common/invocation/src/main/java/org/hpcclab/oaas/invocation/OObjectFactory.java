@@ -14,11 +14,11 @@ import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 @ApplicationScoped
-public class OaasObjectFactory {
+public class OObjectFactory {
   IdGenerator idGenerator;
 
   @Inject
-  public OaasObjectFactory(IdGenerator idGenerator) {
+  public OObjectFactory(IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
   }
 
@@ -53,5 +53,9 @@ public class OaasObjectFactory {
     obj.setId(idGenerator.generate(ctx));
     obj.setRevision(0);
     return obj;
+  }
+
+  public String newId(InvocationContext ctx){
+    return idGenerator.generate(ctx);
   }
 }

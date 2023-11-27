@@ -3,8 +3,8 @@ package org.hpcclab.oaas.model.oal;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -16,9 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-@SuperBuilder
+@Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectAccessLanguage {
@@ -34,13 +33,13 @@ public class ObjectAccessLanguage {
   final List<String> inputs;
 
   @JsonCreator
-  public ObjectAccessLanguage(String main, String mainCls, String fb, DSMap args, List<String> inputs, ObjectNode body) {
+  public ObjectAccessLanguage(String main, String cls, String fb, ObjectNode body, DSMap args, List<String> inputs) {
     this.main = main;
-    this.cls = mainCls;
+    this.cls = cls;
     this.fb = fb;
-    this.args = args;
-    this.inputs = inputs;
     this.body = body;
+    this.args = args == null? DSMap.of(): args;
+    this.inputs = inputs == null? List.of(): inputs;
   }
 
   public static boolean validate(String expr) {

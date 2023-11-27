@@ -3,9 +3,12 @@ package org.hpcclab.oaas.invoker.ispn.lookup;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
+import org.infinispan.remoting.transport.jgroups.JGroupsAddress;
+import org.jgroups.stack.IpAddress;
 
 public class LocationRegistry {
     Cache<String, ApiAddress> map;
+    String localhost;
 
     public LocationRegistry(Cache<String, ApiAddress> map) {
         this.map = map;
@@ -35,4 +38,17 @@ public class LocationRegistry {
             push(cls, segment, new ApiAddress(host, port));
         }
     }
+
+    public void initLocal() {
+      if (localhost == null) {
+        JGroupsAddress address = (JGroupsAddress) map.getCacheManager()
+          .getTransport().getPhysicalAddresses().get(0);
+        IpAddress ipAddress = (IpAddress) address.getJGroupsAddress();
+        localhost = ipAddress.getIpAddress().getHostAddress();
+      }
+    }
+
+  public String getLocalhost() {
+    return localhost;
+  }
 }

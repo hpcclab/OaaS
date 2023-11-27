@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -14,8 +15,7 @@ import org.hpcclab.oaas.model.function.WorkflowExport;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.invocation.OaasObjectFactory;
+import org.hpcclab.oaas.invocation.OObjectFactory;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +24,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MacroFunctionApplier implements FunctionApplier {
   private static final Logger logger = LoggerFactory.getLogger(MacroFunctionApplier.class);
 
   ContextLoader contextLoader;
-  OaasObjectFactory objectFactory;
+  OObjectFactory objectFactory;
 
   Function<InvocationContext, Uni<InvocationContext>> subFunctionApplier;
 
   @Inject
   public MacroFunctionApplier(ContextLoader contextLoader,
-                              OaasObjectFactory objectFactory) {
+                              OObjectFactory objectFactory) {
     this.contextLoader = contextLoader;
     this.objectFactory = objectFactory;
   }
@@ -93,7 +92,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   private Uni<List<InvocationContext>> applyDataflow(InvocationContext context,
                                                      MacroSpec workflow) {
     var request = context.getRequest();
-    var macroIds = request==null || request.macroIds()==null ? Map.of():request.macroIds();
+    var macroIds = makeMacroIds(context, workflow);
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step ->
         loadSubContext(context, step)
@@ -102,7 +101,7 @@ public class MacroFunctionApplier implements FunctionApplier {
             if (newCtx.getOutput()!=null
               && step.getAs()!=null
               && macroIds.containsKey(step.getAs())) {
-              newCtx.getOutput().setId(request.macroIds().get(step.getAs()));
+              newCtx.getOutput().setId(macroIds.get(step.getAs()));
             }
 
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());
@@ -114,6 +113,21 @@ public class MacroFunctionApplier implements FunctionApplier {
           context.addTaskOutput(ctx.getOutput());
         }
       });
+  }
+
+  private DSMap makeMacroIds(InvocationContext ctx,
+                             MacroSpec dataflow) {
+    var request = ctx.getRequest();
+    var macroIds = request.macroIds();
+    if (macroIds == null) {
+      macroIds = DSMap.mutable();
+      for (DataflowStep step : dataflow.getSteps()) {
+        if (step.getAs()==null)
+          continue;
+        macroIds.put(step.getAs(), objectFactory.newId(ctx));
+      }
+    }
+    return macroIds;
   }
 
 

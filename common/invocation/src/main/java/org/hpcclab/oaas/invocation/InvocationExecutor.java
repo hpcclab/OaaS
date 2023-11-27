@@ -70,8 +70,10 @@ public class InvocationExecutor {
   }
 
   public Uni<InvocationContext> syncExec(InvocationContext ctx) {
-    ctx.initNode()
-      .markAsSubmitted(null, false);
+    if (logger.isTraceEnabled())
+      logger.trace("syncExec {} {}", new TaskIdentity(ctx), ctx);
+
+    ctx.initNode().markAsSubmitted(null, false);
     var uni = offLoader.offload(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))

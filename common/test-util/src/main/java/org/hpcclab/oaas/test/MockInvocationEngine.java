@@ -53,7 +53,7 @@ public class MockInvocationEngine {
     objectRepoManager = loader.getObjManager();
     invRepoManager = loader.getInvRepoManager();
     idGen = new TsidGenerator();
-    var objectFactory = new OaasObjectFactory(idGen);
+    var objectFactory = new OObjectFactory(idGen);
     var logicalApplier = new LogicalFunctionApplier(idGen);
     var taskApplier = new TaskFunctionApplier(objectFactory);
     var macroApplier = new MacroFunctionApplier(loader, objectFactory);

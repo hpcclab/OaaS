@@ -1,10 +1,13 @@
-package org.hpcclab.oaas.invoker.ispn;
+package org.hpcclab.oaas.invoker.cdi;
 
 import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
+import org.hpcclab.oaas.invoker.ispn.IspnConfig;
 import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
+import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnClsRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnInvRepoManager;
@@ -30,8 +33,6 @@ import static org.infinispan.commons.dataconversion.MediaType.TEXT_PLAIN_TYPE;
 @ApplicationScoped
 @Startup
 public class IspnProducer {
-  public static final String OBJECT_CACHE = "OprcObject";
-  public static final String INV_NODE_CACHE = "OprcInv";
   public static final String CLASS_CACHE = "OprcClass";
   public static final String FUNCTION_CACHE = "OprcFunction";
   private static final Logger logger = LoggerFactory.getLogger(IspnProducer.class);
@@ -41,9 +42,7 @@ public class IspnProducer {
   IspnCacheCreator cacheCreator;
   @Inject
   IspnConfig config;
-
   DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
-
 
   @Produces
   @ApplicationScoped
@@ -115,7 +114,15 @@ public class IspnProducer {
         .build();
       cacheManager.createCache(name, conf);
     }
-    return new LocationRegistry(cacheManager.getCache(name));
+    var locationRegistry= new LocationRegistry(cacheManager.getCache(name));
+    locationRegistry.initLocal();
+    return locationRegistry;
+  }
+
+  @Produces
+  @ApplicationScoped
+  LookupManager lookupManager(LocationRegistry locationRegistry) {
+    return new LookupManager(locationRegistry);
   }
 
   @Produces

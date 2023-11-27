@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.invoker.proto";
+
+package oprc;
+
+
+import "google/protobuf/struct.proto";
+
+message ProtoInvocationRequest {
+  optional string main = 1;
+  optional string cls = 2;
+  optional string fb = 3;
+  map<string, string> args = 4;
+  repeated string inputs = 5;
+  bool immutable = 6;
+  bool macro = 7;
+  bool inMacro = 8;
+  optional string invId = 9;
+  optional string outId = 10;
+  map<string, string> macroIds = 11;
+  bool preloadingNode = 12;
+  int64 queTs = 13;
+  bytes body = 14;
+}
+
+message Test{
+  google.protobuf.Struct data = 1;
+}
+
+message ProtoInvocationResponse {
+  optional OObject main = 1;
+  optional OObject output = 2;
+  optional string invId = 3;
+  optional string fb = 4;
+  map<string, string> macroIds = 5;
+  ProtoTaskStatus status = 6;
+  ProtoInvocationStats stats = 7;
+  bool async = 8;
+  bytes body = 9;
+}
+
+message ProtoInvocationStats{
+  int64 queTs = 1;
+  int64 smtTs = 2;
+  int64 cptTs = 3;
+
+}
+
+message OObject {
+  optional string key = 1;
+  int64 revision = 2;
+  optional string cls = 3;
+  optional OOState state = 4;
+  map<string, string> refs = 5;
+  bytes data = 6;
+  int64 lastOffset = 7;
+  optional string lastInv = 8;
+}
+
+
+message OOState {
+  map<string, string> overrideUrls = 1;
+  map<string, string> verIds = 2;
+}
+
+enum ProtoTaskStatus {
+  LAZY = 0;
+  DOING = 1;
+  SUCCEEDED = 2;
+  FAILED = 3;
+  DEPENDENCY_FAILED = 4;
+  READY = 5;
+}
+
+service InvocationService {
+  rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
+}

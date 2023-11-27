@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn.lookup;
 
+import io.vertx.core.net.SocketAddress;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -23,4 +24,7 @@ public record ApiAddress( String host,  int port) {
         return port;
     }
 
+    public SocketAddress toSocketAddress() {
+      return SocketAddress.inetSocketAddress(port, host);
+    }
 }

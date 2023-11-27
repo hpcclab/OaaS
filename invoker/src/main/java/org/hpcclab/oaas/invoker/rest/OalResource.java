@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.Response;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -39,6 +40,8 @@ public class OalResource {
   ContentUrlGenerator contentUrlGenerator;
   @Inject
   InvocationReqHandler invocationHandlerService;
+  @Inject
+  HashAwareInvocationHandler hashAwareInvocationHandler;
   @Inject
   InvokerConfig conf;
 
@@ -113,7 +116,7 @@ public class OalResource {
     if (async!=null && async) {
       return invocationHandlerService.asyncInvoke(oal);
     } else {
-      return invocationHandlerService.syncInvoke(oal);
+      return hashAwareInvocationHandler.invoke(oal);
     }
   }
 

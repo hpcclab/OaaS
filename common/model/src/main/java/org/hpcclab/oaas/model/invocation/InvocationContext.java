@@ -123,14 +123,15 @@ public class InvocationContext implements TaskDetail {
     throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
 
+
+
   public InvocationNode initNode() {
-    var node = getNode();
     if (node!=null)
       return node;
     node = new InvocationNode();
     if (request!=null) {
       node.setKey(request.invId());
-      node.setOutId(request.outId());
+      node.setOutId(output != null? output.getId(): null);
       node.setInputs(request.inputs());
     } else {
       node.setKey(getOutput().getId());

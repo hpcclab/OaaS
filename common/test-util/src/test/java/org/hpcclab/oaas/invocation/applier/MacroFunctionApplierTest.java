@@ -19,7 +19,7 @@ public class MacroFunctionApplierTest {
 
   @Test
   void test() {
-    var oal = ObjectAccessLanguage.parse("_%s/o1:%s".formatted(CLS_1.getKey(),ATOMIC_MACRO_FUNC.getName()));
+    var oal = ObjectAccessLanguage.parse("_%s~o1:%s".formatted(CLS_1.getKey(),ATOMIC_MACRO_FUNC.getName()));
     var req = oal.toRequest()
       .invId(engine.idGen.generate())
       .build();

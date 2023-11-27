@@ -13,6 +13,6 @@ public record ValidationContext(
     OaasObject main,
     OaasClass cls,
     OaasFunction func,
-    FunctionBinding funcBind
+    FunctionBinding fnBind
   ) {
 }

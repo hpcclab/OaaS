@@ -23,4 +23,8 @@ public class LookupManager {
       k -> new ObjectLocationLookup(cls.getConfig().getPartitions(), cls.getKey(), registry)
     );
   }
+
+  public boolean isLocal(ApiAddress address) {
+    return address.host().equals(registry.getLocalhost());
+  }
 }

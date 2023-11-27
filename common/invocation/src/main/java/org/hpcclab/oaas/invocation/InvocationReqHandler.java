@@ -4,13 +4,13 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.MacroSpec;
+import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.OalResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
@@ -21,9 +21,7 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class InvocationReqHandler {
   private static final Logger logger = LoggerFactory.getLogger(InvocationReqHandler.class);
@@ -49,7 +47,12 @@ public class InvocationReqHandler {
   public Uni<OalResponse> syncInvoke(ObjectAccessLanguage oal) {
     var req = toRequest(oal)
       .build();
-    return router.apply(req)
+    return syncInvoke(req)
+      .map(ctx -> ctx.createResponse().async(false).build());
+  }
+  public Uni<InvocationContext> syncInvoke(InvocationRequest request) {
+    logger.debug("syncInvoke {}", request);
+    return router.apply(request)
       .flatMap(Unchecked.function(ctx -> {
         var func = ctx.getFunction();
         if (func.getType()==FunctionType.MACRO) {
@@ -62,17 +65,17 @@ public class InvocationReqHandler {
           throw new InvocationException("Function is not ready", 409);
         }
         return invocationExecutor.syncExec(ctx);
-      }))
-      .map(ctx -> ctx.createResponse().async(false).build());
+      }));
   }
 
 
   public Uni<OalResponse> asyncInvoke(ObjectAccessLanguage oal) {
+    record ReqAndCtx(InvocationRequest req, ValidationContext ctx) {}
     return
       invocationValidator.validate(oal)
         .map(ctx -> {
           var builder = toRequest(oal)
-            .immutable(ctx.funcBind().isForceImmutable())
+            .immutable(ctx.fnBind().isForceImmutable())
             .macro(ctx.func().getType()==FunctionType.MACRO)
             .partKey(ctx.main()!=null ? ctx.main().getKey():null)
             .queTs(System.currentTimeMillis())
@@ -80,23 +83,24 @@ public class InvocationReqHandler {
             .invId(idGenerator.generate());
           if (ctx.func().getType()==FunctionType.MACRO) {
             addMacroIds(builder, ctx.func().getMacro());
-          } else if (ctx.funcBind().getOutputCls()!=null) {
+          } else if (ctx.fnBind().getOutputCls()!=null) {
             builder.outId(idGenerator.generate());
           }
 
-          return Tuples.pair(ctx, builder.build());
+          return new ReqAndCtx(builder.build(), ctx);
         })
-        .call(pair -> producer.offer(pair.getTwo()))
-        .map(pair -> OalResponse.builder()
-          .invId(pair.getTwo().invId())
-          .output(new OaasObject().setId(pair.getTwo().outId()))
-          .main(pair.getOne().main())
-          .fb(pair.getOne().funcBind().getName())
-          .macroIds(pair.getTwo().macroIds())
+        .call(reqAndCtx -> producer.offer(reqAndCtx.req()))
+        .map(reqAndCtx -> OalResponse.builder()
+          .invId(reqAndCtx.req().invId())
+          .output(new OaasObject().setId(reqAndCtx.req().outId()))
+          .main(reqAndCtx.ctx.main())
+          .fb(reqAndCtx.ctx.fnBind().getName())
+          .macroIds(reqAndCtx.req.macroIds())
           .status(TaskStatus.DOING)
           .async(true)
           .build());
   }
+
 
 
 
@@ -113,5 +117,9 @@ public class InvocationReqHandler {
   public InvocationRequest.InvocationRequestBuilder toRequest(ObjectAccessLanguage oal){
     return oal.toRequest()
       .invId(idGenerator.generate());
+  }
+
+  public String newId() {
+    return idGenerator.generate();
   }
 }

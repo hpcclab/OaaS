@@ -17,9 +17,8 @@ import org.hpcclab.oaas.model.object.OaasObject;
 import org.hpcclab.oaas.model.object.ObjectConstructRequest;
 import org.hpcclab.oaas.model.object.ObjectConstructResponse;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.invocation.OaasObjectFactory;
+import org.hpcclab.oaas.invocation.OObjectFactory;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
-import org.hpcclab.oaas.repository.ObjectRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -27,13 +26,13 @@ import java.util.Map;
 @ApplicationScoped
 public class NewSubApplier implements LogicalSubApplier {
   DataUrlAllocator allocator;
-  OaasObjectFactory objectFactory;
+  OObjectFactory objectFactory;
   ClassRepository clsRepo;
   ObjectRepoManager objRepoManager;
   ObjectMapper mapper;
 
   @Inject
-  public NewSubApplier(DataUrlAllocator allocator, OaasObjectFactory objectFactory, ClassRepository clsRepo, ObjectRepoManager objRepoManager, ObjectMapper mapper) {
+  public NewSubApplier(DataUrlAllocator allocator, OObjectFactory objectFactory, ClassRepository clsRepo, ObjectRepoManager objRepoManager, ObjectMapper mapper) {
     this.allocator = allocator;
     this.objectFactory = objectFactory;
     this.clsRepo = clsRepo;

@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.cdi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
@@ -15,6 +16,8 @@ import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
+import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.repository.*;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -78,6 +81,17 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   InvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
     return new InvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
+  }
+
+  @Produces
+  @ApplicationScoped
+  HashAwareInvocationHandler hashAwareInvocationHandler(
+    LookupManager lookupManager, ClassRepository classRepository, Vertx vertx, ObjectMapper objectMapper, InvocationReqHandler invocationReqHandler
+  ) {
+    return new HashAwareInvocationHandler(
+      lookupManager, classRepository, vertx.getDelegate(),
+      objectMapper, invocationReqHandler
+    );
   }
 
   @Produces

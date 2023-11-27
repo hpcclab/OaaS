@@ -16,5 +16,4 @@ public class InvocationStats {
   long queTs;
   long smtTs;
   long cptTs;
-
 }

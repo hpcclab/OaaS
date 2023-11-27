@@ -38,6 +38,10 @@ public class DSMap extends AbstractMutableMap<String, String> {
     return EMPTY_MAP;
   }
 
+  public static DSMap mutable(){
+    return new DSMap(Maps.mutable.empty());
+  }
+
   public static DSMap of(String k1, String v1) {
     return wrap(Maps.fixedSize.of(k1, v1));
   }

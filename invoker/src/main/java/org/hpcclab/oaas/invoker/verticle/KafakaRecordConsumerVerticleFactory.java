@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
-public class RecordConsumerVerticleFactory implements VerticleFactory<RecordConsumerVerticle> {
-  private static final Logger logger = LoggerFactory.getLogger(RecordConsumerVerticleFactory.class);
+public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<KafkaRecordConsumerVerticle> {
+  private static final Logger logger = LoggerFactory.getLogger(KafakaRecordConsumerVerticleFactory.class);
   @Inject
   Instance<OrderedInvocationHandlerVerticle> orderedInvokerVerticleInstance;
   @Inject
@@ -39,7 +39,7 @@ public class RecordConsumerVerticleFactory implements VerticleFactory<RecordCons
   Vertx vertx;
 
   @Override
-  public RecordConsumerVerticle createVerticle(OaasClass cls) {
+  public KafkaRecordConsumerVerticle createVerticle(OaasClass cls) {
     var consumer = KafkaConsumer.create(vertx, options(config, cls.getKey()),
       String.class, Buffer.class);
     var offsetManager = new OffsetManager(consumer);
@@ -53,11 +53,11 @@ public class RecordConsumerVerticleFactory implements VerticleFactory<RecordCons
       registry,
       config
     );
-    var verticle = new RecordConsumerVerticle<>(segmentCoordinator, consumer, dispatcher, config);
+    var verticle = new KafkaRecordConsumerVerticle<>(segmentCoordinator, consumer, dispatcher, config);
     return verticle;
   }
 
-  VerticleFactory<RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>>> createVerticleFactory() {
+  VerticleFactory<RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>>> createVerticleFactory() {
     if (config.clusterLock()) {
       logger.warn("The experimental 'Cluster lock' is enabled. LockingRecordHandlerVerticle will be used.");
       return f -> lockingInvokerVerticleInstance.get();

@@ -20,7 +20,6 @@ services:
     build:
       context: object-controller
       dockerfile: src/main/docker/Dockerfile.jvm21
-#    restart: always
     ports:
       - "8088:8080"
     environment:
@@ -35,6 +34,7 @@ services:
       OPRC_DB_PKG_DB: oaas
       OPRC_DB_PKG_USER: root
       OPRC_DB_PKG_PASS: changeme
+    restart: on-failure
     healthcheck: &oaas-healthcheck
       test: curl --fail http://localhost:8080/q/health || exit 1
       interval: 10s
@@ -70,7 +70,6 @@ services:
       - --smp 1
       # The amount of memory to make available to Redpanda.
       - --memory 1G
-#      - --overprovisioned
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers
@@ -175,6 +174,7 @@ services:
       OPRC_DB_INV_DB: oaas
       OPRC_DB_INV_USER: root
       OPRC_DB_INV_PASS: changeme
+    restart: on-failure
     healthcheck: *oaas-healthcheck
 
   invoker-n:
@@ -184,9 +184,10 @@ services:
       - redpanda
       - invoker
     deploy:
-      replicas: 0
+      replicas: 2
     environment:
       *invoker-env
+    restart: on-failure
     healthcheck: *oaas-healthcheck
 
   kp:

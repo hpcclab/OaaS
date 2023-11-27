@@ -3,16 +3,12 @@ package org.hpcclab.oaas.invoker.dispatcher;
 import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.Context;
-import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.OffsetManager;
-import org.hpcclab.oaas.invoker.verticle.RecordHandlerVerticle;
-import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -33,7 +33,6 @@ public class SegmentCoordinator {
   final SegmentObserver segmentObserver;
   final ObjectRepoManager objectRepoManager;
   AdvancedCache<?, ?> cache;
-  String host;
 
   public SegmentCoordinator(OaasClass cls,
                             ObjectRepoManager objectRepoManager,
@@ -53,10 +52,6 @@ public class SegmentCoordinator {
   public void init() {
     var repo = (EIspnObjectRepository) objectRepoManager.getOrCreate(cls);
     this.cache = repo.getCache();
-    JGroupsAddress address = (JGroupsAddress) cache.getCacheManager()
-      .getTransport().getPhysicalAddresses().get(0);
-    IpAddress ipAddress = (IpAddress) address.getJGroupsAddress();
-    host = ipAddress.getIpAddress().getHostAddress();
     cache.addListener(segmentObserver);
   }
 
@@ -93,7 +88,7 @@ public class SegmentCoordinator {
       })
 //      .call(__ -> consumer.partitionsFor(topic).invoke(p -> logger.info("parts {}", p)))
       .invoke(__ ->
-        registry.update(cls.getKey(), cache, host, port));
+        registry.update(cls.getKey(), cache, registry.getLocalhost(), port));
   }
 
   @Listener
