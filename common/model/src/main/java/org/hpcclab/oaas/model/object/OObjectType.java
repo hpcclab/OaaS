@@ -2,11 +2,9 @@ package org.hpcclab.oaas.model.object;
 
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
-public enum ObjectType {
+public enum OObjectType {
   @ProtoEnumValue(1)
   SIMPLE,
   @ProtoEnumValue(2)
   COMPOUND,
-//  @ProtoEnumValue(3)
-//  STREAM
 }

@@ -1,10 +1,10 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.object.ObjectUpdate;
+import org.hpcclab.oaas.model.object.OOUpdate;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.repository.EntityRepository;
 
@@ -13,12 +13,12 @@ import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class CompletionValidator {
-  EntityRepository<String, OaasClass> clsRepo;
-  EntityRepository<String, OaasFunction> funcRepo;
+  EntityRepository<String, OClass> clsRepo;
+  EntityRepository<String, OFunction> funcRepo;
 
   @Inject
-  public CompletionValidator(EntityRepository<String, OaasClass> clsRepo,
-                             EntityRepository<String, OaasFunction> funcRepo) {
+  public CompletionValidator(EntityRepository<String, OClass> clsRepo,
+                             EntityRepository<String, OFunction> funcRepo) {
     this.clsRepo = clsRepo;
     this.funcRepo = funcRepo;
   }
@@ -51,10 +51,10 @@ public class CompletionValidator {
     return uni.replaceWith(completion);
   }
 
-  private Uni<ObjectUpdate> validateUpdate(String clsKey,
-                                           String fbName,
-                                           boolean isMain,
-                                           ObjectUpdate update) {
+  private Uni<OOUpdate> validateUpdate(String clsKey,
+                                       String fbName,
+                                       boolean isMain,
+                                       OOUpdate update) {
     return clsRepo.async().getAsync(clsKey)
       .map(cls -> {
         if (isMain) {

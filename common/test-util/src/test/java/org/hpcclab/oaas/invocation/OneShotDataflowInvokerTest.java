@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.invocation;
 
 import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.test.MockInvocationEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public class OneShotDataflowInvokerTest {
     var graph = ctx.getDataflowGraph();
     for (InternalInvocationNode node : graph.getAll()) {
       assertThat(node.getCtx().initNode().getStatus())
-        .isEqualTo(TaskStatus.SUCCEEDED);
+        .isEqualTo(InvocationStatus.SUCCEEDED);
 //      System.out.println(node);
 //      System.out.println(node.getCtx().initNode());
     }

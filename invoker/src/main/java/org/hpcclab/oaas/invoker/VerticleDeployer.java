@@ -17,9 +17,9 @@ import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
 import org.hpcclab.oaas.invoker.mq.FunctionListener;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
-import org.hpcclab.oaas.model.cls.ClassConfig;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ApplicationScoped
 @RegisterForReflection(
   targets = {
-    OaasFunction.class
+    OFunction.class
   },
   registerFullHierarchy = true
 )
@@ -92,7 +92,7 @@ public class VerticleDeployer {
   }
 
 
-  void handleCls(OaasClass cls) {
+  void handleCls(OClass cls) {
     if (!cls.isMarkForRemoval()) {
       createTopic(cls)
         .flatMap(__ -> deployVerticleIfNew(cls))
@@ -112,7 +112,7 @@ public class VerticleDeployer {
     }
   }
 
-  Uni<Void> createTopic(OaasClass cls) {
+  Uni<Void> createTopic(OClass cls) {
     var topicName = config.invokeTopicPrefix() + cls.getKey();
     return adminClient.listTopics()
       .flatMap(topics -> {
@@ -121,7 +121,7 @@ public class VerticleDeployer {
           var conf = cls.getConfig();
           return adminClient.createTopics(List.of(
             new NewTopic(topicName,
-              conf == null? ClassConfig.DEFAULT_PARTITIONS : conf.getPartitions(),
+              conf == null? OClassConfig.DEFAULT_PARTITIONS : conf.getPartitions(),
               (short) 1)
           ));
         }
@@ -130,7 +130,7 @@ public class VerticleDeployer {
   }
 
 
-  public Uni<Void> deployVerticleIfNew(OaasClass cls) {
+  public Uni<Void> deployVerticleIfNew(OClass cls) {
     if (verticleMap.containsKey(cls.getKey()) && !verticleMap.get(cls.getKey()).isEmpty()) {
       return Uni.createFrom().nullItem();
     }
@@ -140,7 +140,7 @@ public class VerticleDeployer {
     return deployVerticle(cls, options, size);
   }
 
-  protected Uni<Void> deployVerticle(OaasClass cls,
+  protected Uni<Void> deployVerticle(OClass cls,
                                      DeploymentOptions options,
                                      int size) {
     return vertx
@@ -162,7 +162,7 @@ public class VerticleDeployer {
       .replaceWithVoid();
   }
 
-  public Uni<Void> deleteVerticle(OaasClass cls) {
+  public Uni<Void> deleteVerticle(OClass cls) {
     var verticleSet = verticleMap.get(cls.getKey());
     if (verticleSet!=null) {
       return Multi.createFrom().iterable(verticleSet)

@@ -14,7 +14,7 @@ import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.DefaultInvocationValidator;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.*;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
@@ -32,7 +32,7 @@ public class MockInvocationEngine {
   public final MockInvocationQueueSender invocationQueueSender;
   public final MockOffLoader syncInvoker;
   public final InvocationExecutor invocationExecutor;
-  public final MutableMap<String, OaasObject> objectMap;
+  public final MutableMap<String, OObject> objectMap;
   public final OneShotDataflowInvoker dataflowInvoker;
   public final CompletedStateUpdater completedStateUpdater;
   public final TaskFactory taskFactory;
@@ -46,7 +46,7 @@ public class MockInvocationEngine {
     var functions = MockupData.testFunctions();
     var nodes = MockupData.testNodes();
     objectMap = Lists.mutable.ofAll(objects)
-      .groupByUniqueKey(OaasObject::getId);
+      .groupByUniqueKey(OObject::getId);
     var invNodeMap = Lists.mutable.ofAll(nodes)
       .groupByUniqueKey(InvocationNode::getKey);
     loader = MockupData.mockContextLoader(objectMap, classes, functions, invNodeMap);

@@ -4,9 +4,9 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.ValidationContext;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.EntityRepository;
@@ -16,8 +16,8 @@ import org.hpcclab.oaas.repository.ObjectRepoManager;
 @ApplicationScoped
 public class DefaultInvocationValidator implements InvocationValidator {
   ObjectRepoManager objectRepo;
-  EntityRepository<String, OaasFunction> funcRepo;
-  EntityRepository<String, OaasClass> clsRepo;
+  EntityRepository<String, OFunction> funcRepo;
+  EntityRepository<String, OClass> clsRepo;
 
   @Inject
   public DefaultInvocationValidator(ObjectRepoManager objectRepo,
@@ -34,7 +34,7 @@ public class DefaultInvocationValidator implements InvocationValidator {
     builder.oal(oal);
     if (oal.getCls()==null)
       throw new InvocationException("Cls can not be null", 400);
-    Uni<OaasClass> uni = clsRepo.async().getAsync(oal.getCls())
+    Uni<OClass> uni = clsRepo.async().getAsync(oal.getCls())
       .invoke(builder::cls);
     if (oal.getMain()!=null) {
       uni = uni.call(cls -> objectRepo.getOrCreate(cls)

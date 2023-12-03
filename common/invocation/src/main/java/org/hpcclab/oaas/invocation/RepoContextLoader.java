@@ -7,14 +7,11 @@ import jakarta.inject.Inject;
 import lombok.Getter;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.function.OaasFunction;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +82,7 @@ public class RepoContextLoader implements ContextLoader {
     return uni.replaceWith(ctx);
   }
 
-  private Uni<OaasObject> load(String clsKey, String id) {
+  private Uni<OObject> load(String clsKey, String id) {
     var cls = clsRepo.get(clsKey);
     return objManager.getOrCreate(cls)
       .async()
@@ -95,7 +92,7 @@ public class RepoContextLoader implements ContextLoader {
   public InvocationContext loadClsAndFunc(InvocationContext ctx,
                                           String fbName) {
     var mainClsKey = Optional.ofNullable(ctx.getMain())
-      .map(OaasObject::getCls)
+      .map(OObject::getCls)
       .orElseGet(() -> ctx.getRequest().cls());
     var mainCls = clsRepo.get(mainClsKey);
     Set<String> clsKeys = Sets.mutable.of(mainClsKey);
@@ -103,7 +100,7 @@ public class RepoContextLoader implements ContextLoader {
     if (mainCls==null)
       throw StdOaasException.format("Can not find class '%s'", mainClsKey);
     ctx.setMainCls(mainCls);
-    ctx.getInputs().stream().map(OaasObject::getCls).forEach(clsKeys::add);
+    ctx.getInputs().stream().map(OObject::getCls).forEach(clsKeys::add);
     var clsMap = clsRepo.list(clsKeys);
     ctx.setClsMap(clsMap);
 
@@ -126,7 +123,7 @@ public class RepoContextLoader implements ContextLoader {
   }
 
   @Override
-  public Uni<OaasObject> resolveObj(InvocationContext baseCtx, String ref) {
+  public Uni<OObject> resolveObj(InvocationContext baseCtx, String ref) {
     if (ref.startsWith("$.")) {
       var refName = ref.substring(2);
       var refKey = baseCtx.getMain().getRefs().get(refName);

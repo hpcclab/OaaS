@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 
 import java.util.List;
 
@@ -14,6 +14,6 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasPackageContainer extends OaasPackage{
-  List<OaasClass> classes = List.of();
-  List<OaasFunction> functions = List.of();
+  List<OClass> classes = List.of();
+  List<OFunction> functions = List.of();
 }

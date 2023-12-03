@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 
 import java.util.Base64;
 
@@ -60,13 +60,13 @@ public class DataAccessContext {
   }
 
 
-  public static DataAccessContext generate(OaasObject obj) {
+  public static DataAccessContext generate(OObject obj) {
     return generate(obj, AccessLevel.UNIDENTIFIED);
   }
 
 
 
-  public static DataAccessContext generate(OaasObject obj,
+  public static DataAccessContext generate(OObject obj,
                                            AccessLevel level) {
     var dac = new DataAccessContext();
     dac.id = obj.getId();
@@ -75,7 +75,7 @@ public class DataAccessContext {
     return dac;
   }
 
-  public static DataAccessContext generate(OaasObject obj,
+  public static DataAccessContext generate(OObject obj,
                                            AccessLevel level,
                                            String vid) {
     var dac = new DataAccessContext();
@@ -85,7 +85,7 @@ public class DataAccessContext {
     dac.level = level;
     return dac;
   }
-  public static DataAccessContext generate(OaasObject obj,
+  public static DataAccessContext generate(OObject obj,
                                            AccessLevel level,
                                            String vid,
                                            boolean pub) {

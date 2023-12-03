@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -18,7 +18,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Data
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Accessors(chain = true)
-public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev {
+public class OObject implements Copyable<OObject>, HasKey<String>, HasRev {
   @JsonProperty("_key")
   @JsonView(Views.Internal.class)
   String key;
@@ -39,10 +39,10 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
   @ProtoField(10)
   String lastInv;
 
-  public OaasObject() {}
+  public OObject() {}
 
   @ProtoFactory
-  public OaasObject(String id, long revision, String cls, OaasObjectState state, DSMap refs, ObjectNode data, long lastOffset, String lastInv) {
+  public OObject(String id, long revision, String cls, OaasObjectState state, DSMap refs, ObjectNode data, long lastOffset, String lastInv) {
     this.id = id;
     this.key = id;
     this.revision = revision;
@@ -54,15 +54,15 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
     this.lastInv = lastInv;
   }
 
-  public static OaasObject createFromClasses(OaasClass cls) {
-    var o = new OaasObject();
+  public static OObject createFromClasses(OClass cls) {
+    var o = new OObject();
     o.setCls(cls.getKey());
     o.setState(new OaasObjectState());
     return o;
   }
 
-  public OaasObject copy() {
-    return new OaasObject(
+  public OObject copy() {
+    return new OObject(
       id,
       revision,
       cls,
@@ -74,7 +74,7 @@ public class OaasObject implements Copyable<OaasObject>, HasKey<String>, HasRev 
     );
   }
 
-  public OaasObject setId(String id) {
+  public OObject setId(String id) {
     this.id = id;
     setKey(id);
     return this;

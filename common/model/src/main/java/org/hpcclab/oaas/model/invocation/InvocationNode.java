@@ -8,7 +8,6 @@ import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskStatus;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -41,7 +40,7 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(10)
   Set<String> waitFor;
   @ProtoField(11)
-  TaskStatus status = TaskStatus.LAZY;
+  InvocationStatus status = InvocationStatus.LAZY;
   @ProtoField(value = 12, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long queTs;
@@ -56,7 +55,7 @@ public class InvocationNode implements HasKey<String> {
   }
 
   @ProtoFactory
-  public InvocationNode(String key, Set<InvocationRef> nextInv, String fb, String main, String cls, DSMap args, List<String> inputs, String outId, String originator, Set<String> waitFor, TaskStatus status, long queTs, long smtTs, long cptTs) {
+  public InvocationNode(String key, Set<InvocationRef> nextInv, String fb, String main, String cls, DSMap args, List<String> inputs, String outId, String originator, Set<String> waitFor, InvocationStatus status, long queTs, long smtTs, long cptTs) {
     this.key = key;
     this.nextInv = nextInv;
     this.fb = fb;
@@ -99,7 +98,7 @@ public class InvocationNode implements HasKey<String> {
     waitFor.remove(srcId);
     if (status.isSubmitted() || status.isFailed() || !waitFor.isEmpty())
       return this;
-    status = TaskStatus.DOING;
+    status = InvocationStatus.DOING;
     this.originator = originator;
     return this;
   }
@@ -112,7 +111,7 @@ public class InvocationNode implements HasKey<String> {
       this.originator = key;
     else
       this.originator = originator;
-    status = TaskStatus.DOING;
+    status = InvocationStatus.DOING;
     if (queue)
       queTs = System.currentTimeMillis();
     else
@@ -124,7 +123,7 @@ public class InvocationNode implements HasKey<String> {
   public InvocationNode markAsFailed() {
     if (status.isSubmitted() || status.isFailed())
       return this;
-    status = TaskStatus.DEPENDENCY_FAILED;
+    status = InvocationStatus.DEPENDENCY_FAILED;
     return this;
   }
 
@@ -134,9 +133,9 @@ public class InvocationNode implements HasKey<String> {
 
   public void updateStatus(TaskCompletion completion) {
     if (completion.isSuccess()) {
-      status = TaskStatus.SUCCEEDED;
+      status = InvocationStatus.SUCCEEDED;
     } else
-      status = TaskStatus.FAILED;
+      status = InvocationStatus.FAILED;
     if (completion.getCptTs() > 0) {
       cptTs = completion.getCptTs();
     } else {

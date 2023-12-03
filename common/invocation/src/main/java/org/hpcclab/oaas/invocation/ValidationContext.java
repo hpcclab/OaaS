@@ -1,18 +1,18 @@
 package org.hpcclab.oaas.invocation;
 
 import lombok.Builder;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.FunctionBinding;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 
 @Builder()
 public record ValidationContext(
     ObjectAccessLanguage oal,
-    OaasObject main,
-    OaasClass cls,
-    OaasFunction func,
+    OObject main,
+    OClass cls,
+    OFunction func,
     FunctionBinding fnBind
   ) {
 }

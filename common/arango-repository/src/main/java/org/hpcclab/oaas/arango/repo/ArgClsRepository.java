@@ -5,17 +5,17 @@ import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.arango.CacheFactory;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ClassRepository;
 
 import java.util.List;
 import java.util.Map;
 
 
-public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
+public class ArgClsRepository extends AbstractCachedArgRepository<OClass> implements ClassRepository {
 
 
-  private final Cache<String, OaasClass> cache;
+  private final Cache<String, OClass> cache;
   private final Cache<String, List<String>> subClsCache;
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
@@ -44,22 +44,22 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   }
 
   @Override
-  public Class<OaasClass> getValueCls() {
-    return OaasClass.class;
+  public Class<OClass> getValueCls() {
+    return OClass.class;
   }
 
   @Override
-  public String extractKey(OaasClass cls) {
+  public String extractKey(OClass cls) {
     return cls.getKey();
   }
 
   @Override
-  Cache<String, OaasClass> cache() {
+  Cache<String, OClass> cache() {
     return cache;
   }
 
   @Override
-  public List<OaasClass> listSubCls(String clsKey) {
+  public List<OClass> listSubCls(String clsKey) {
     var query = """
       FOR cls IN @@col
         FILTER cls.resolved.identities ANY == @key

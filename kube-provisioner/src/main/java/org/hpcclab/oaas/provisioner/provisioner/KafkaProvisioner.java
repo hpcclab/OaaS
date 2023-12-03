@@ -2,10 +2,9 @@ package org.hpcclab.oaas.provisioner.provisioner;
 
 import io.quarkus.kafka.client.runtime.KafkaAdminClient;
 import io.quarkus.kafka.client.runtime.devui.model.request.KafkaCreateTopicRequest;
-import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 
 @ApplicationScoped
-public class KafkaProvisioner implements Provisioner<OaasClass>{
+public class KafkaProvisioner implements Provisioner<OClass>{
 private static final Logger logger = LoggerFactory.getLogger( KafkaProvisioner.class );
   @Inject
   KafkaAdminClient adminClient;
@@ -21,7 +20,7 @@ private static final Logger logger = LoggerFactory.getLogger( KafkaProvisioner.c
   KpConfig config;
 
   @Override
-  public Consumer<OaasClass> provision(OaasClass cls) {
+  public Consumer<OClass> provision(OClass cls) {
     var topicName = config.invokeTopicPrefix() + cls.getKey();
     var req = new KafkaCreateTopicRequest(topicName, cls.getConfig().getPartitions(), (short) cls.getConfig().getReplicas());
     var success = adminClient.createTopic(req);

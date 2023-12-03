@@ -3,8 +3,8 @@ package org.hpcclab.oaas.sa;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.sa.adapter.InternalDataAllocateRequest;
 import org.hpcclab.oaas.sa.adapter.S3Adapter;
@@ -26,7 +26,7 @@ public class AdapterLoader {
     adapterMap = Map.of("s3", s3Adapter);
   }
 
-  public StorageAdapter load(String key, OaasClass cls) {
+  public StorageAdapter load(String key, OClass cls) {
     // NOTE: We currently only have S3 implementation.
     return s3Adapter;
   }

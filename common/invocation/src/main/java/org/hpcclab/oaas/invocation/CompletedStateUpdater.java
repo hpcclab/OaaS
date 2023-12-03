@@ -38,16 +38,16 @@ public class CompletedStateUpdater {
       }
       main.setLastOffset(context.getMqOffset());
       if (completion.isSuccess()) {
-        main.setLastInv(completion.getId().iid());
+        main.setLastInv(completion.getId());
       }
     }
 
     if (out!=null) {
       if (completion.getOutput()!=null)
         completion.getOutput().update(out, completion
-          .getId().iid());
+          .getId());
       if (completion.isSuccess()) {
-        out.setLastInv(completion.getId().iid());
+        out.setLastInv(completion.getId());
       }
     }
 

@@ -7,16 +7,14 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
-import org.hpcclab.oaas.model.cls.ClassConfig;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.infinispan.AdvancedCache;
 import org.infinispan.commons.util.IntSet;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.TopologyChanged;
 import org.infinispan.notifications.cachelistener.event.TopologyChangedEvent;
-import org.infinispan.remoting.transport.jgroups.JGroupsAddress;
-import org.jgroups.stack.IpAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +25,14 @@ public class SegmentCoordinator {
   final String topic;
   final int port;
   final int partitions;
-  final OaasClass cls;
+  final OClass cls;
   final KafkaConsumer<?, ?> consumer;
   final LocationRegistry registry;
   final SegmentObserver segmentObserver;
   final ObjectRepoManager objectRepoManager;
   AdvancedCache<?, ?> cache;
 
-  public SegmentCoordinator(OaasClass cls,
+  public SegmentCoordinator(OClass cls,
                             ObjectRepoManager objectRepoManager,
                             KafkaConsumer<?, ?> consumer,
                             LocationRegistry registry,
@@ -44,7 +42,7 @@ public class SegmentCoordinator {
     this.registry = registry;
     this.objectRepoManager = objectRepoManager;
     topic = config.invokeTopicPrefix() + cls.getKey();
-    partitions = cls.getConfig() != null?cls.getConfig().getPartitions() : ClassConfig.DEFAULT_PARTITIONS;
+    partitions = cls.getConfig() != null?cls.getConfig().getPartitions() : OClassConfig.DEFAULT_PARTITIONS;
     port = ConfigProvider.getConfig().getValue("quarkus.http.port", Integer.class);
     segmentObserver = new SegmentObserver();
   }
@@ -59,7 +57,7 @@ public class SegmentCoordinator {
     cache.removeListener(segmentObserver);
   }
 
-  public OaasClass getCls() {
+  public OClass getCls() {
     return cls;
   }
 

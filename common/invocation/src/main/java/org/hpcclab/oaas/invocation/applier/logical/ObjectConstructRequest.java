@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.model.object;
+package org.hpcclab.oaas.invocation.applier.logical;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;

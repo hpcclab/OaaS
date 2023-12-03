@@ -7,12 +7,11 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectUpdate;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.OOUpdate;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskIdentity;
-import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -41,7 +40,7 @@ class MockingInvocationTest {
   MockOffLoader syncInvoker;
 
   InvocationExecutor invocationExecutor;
-  MutableMap<String, OaasObject> objectMap;
+  MutableMap<String, OObject> objectMap;
 
   MockInvocationEngine mockEngine;
   IdGenerator idGenerator;
@@ -74,10 +73,10 @@ class MockingInvocationTest {
       .contains(Map.entry("aa", "bb"));
 
     syncInvoker.setMapper(detail -> new TaskCompletion()
-      .setId(TaskIdentity.decode(detail.getId()))
+      .setId(detail.getId())
       .setSuccess(true)
-      .setOutput(new ObjectUpdate(objectMapper.createObjectNode()))
-      .setMain(new ObjectUpdate().setUpdatedKeys(Set.of("k1")))
+      .setOutput(new OOUpdate(objectMapper.createObjectNode()))
+      .setMain(new OOUpdate().setUpdatedKeys(Set.of("k1")))
       .setCptTs(System.currentTimeMillis()));
     ctx = invocationExecutor.asyncExec(ctx)
       .await().indefinitely();
@@ -92,7 +91,7 @@ class MockingInvocationTest {
     assertThat(invNode.getCptTs())
       .isPositive();
     assertThat(invNode.getStatus())
-      .isEqualTo(TaskStatus.SUCCEEDED);
+      .isEqualTo(InvocationStatus.SUCCEEDED);
 
     loadedObj = objectRepo.getOrCreate(ctx.getMainCls())
       .get(ctx.getMain().getId());
@@ -111,9 +110,9 @@ class MockingInvocationTest {
       .await().indefinitely();
 
     syncInvoker.setMapper(detail -> new TaskCompletion()
-      .setId(TaskIdentity.decode(detail.getId()))
+      .setId(detail.getId())
       .setSuccess(true)
-      .setMain(new ObjectUpdate(objectMapper.createObjectNode()
+      .setMain(new OOUpdate(objectMapper.createObjectNode()
         .put("aaa", "bbb")))
       .setCptTs(System.currentTimeMillis()));
     invocationExecutor.asyncExec(ctx)

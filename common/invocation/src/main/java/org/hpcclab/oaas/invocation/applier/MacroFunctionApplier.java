@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
@@ -14,7 +13,7 @@ import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.function.WorkflowExport;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.invocation.OObjectFactory;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   }
 
   private void setupMap(InvocationContext ctx) {
-    Map<String, OaasObject> map = new HashMap<>();
+    Map<String, OObject> map = new HashMap<>();
     ctx.setWorkflowMap(map);
     map.put("$self", ctx.getMain());
     for (int i = 0; i < ctx.getInputs().size(); i++) {
@@ -72,8 +71,8 @@ public class MacroFunctionApplier implements FunctionApplier {
       });
   }
 
-  private OaasObject export(InvocationContext ctx,
-                            MacroSpec dataflow) {
+  private OObject export(InvocationContext ctx,
+                         MacroSpec dataflow) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
         .get(dataflow.getExport());

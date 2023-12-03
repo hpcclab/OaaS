@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class GraphStateManager {
     this.objRepoManager = objRepoManager;
   }
 
-  public Uni<Void> persistAll(InvocationContext ctx, List<OaasObject> objs) {
+  public Uni<Void> persistAll(InvocationContext ctx, List<OObject> objs) {
     objs.addAll(ctx.getSubOutputs());
     var dataflow = ctx.getFunction().getMacro();
     if (ctx.getOutput()!=null && (dataflow==null || dataflow.getExport()==null)) {
@@ -36,7 +36,7 @@ public class GraphStateManager {
     return persistWithPrecondition(objs);
   }
 
-  private Uni<Void> persistWithPrecondition(List<OaasObject> objs) {
+  private Uni<Void> persistWithPrecondition(List<OObject> objs) {
     var partitionedObjs = objs.stream()
       .collect(Collectors.partitioningBy(o -> o.getRevision() <= 0));
     var newObjs = partitionedObjs.get(true);
@@ -57,7 +57,7 @@ public class GraphStateManager {
   public Multi<InvocationRequest> persistThenLoadNext(InvocationContext context, TaskCompletion completion) {
 
     var main = context.getMain();
-    List<OaasObject> objs = new ArrayList<>();
+    List<OObject> objs = new ArrayList<>();
 
     if (main!=null && !context.isImmutable()) {
       objs.add(main);

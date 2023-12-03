@@ -6,8 +6,8 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.Record;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,18 +20,18 @@ import java.util.stream.Stream;
 public class ProvisionPublisher {
   private static final Logger logger = LoggerFactory.getLogger( ProvisionPublisher.class );
   @Channel("fnProvisions")
-  MutinyEmitter<Record<String, OaasFunction>> fnProvisionEmitter;
+  MutinyEmitter<Record<String, OFunction>> fnProvisionEmitter;
   @Channel("clsProvisions")
-  MutinyEmitter<Record<String, OaasClass>> clsProvisionEmitter;
+  MutinyEmitter<Record<String, OClass>> clsProvisionEmitter;
 
 
-  public Uni<Void> submitNewFunction(OaasFunction function) {
+  public Uni<Void> submitNewFunction(OFunction function) {
     return fnProvisionEmitter
       .send(Record.of(function.getKey(), function));
   }
 
 
-  public Uni<Void> submitNewCls(OaasClass cls) {
+  public Uni<Void> submitNewCls(OClass cls) {
     return clsProvisionEmitter
       .send(Record.of(cls.getKey(), cls));
   }
@@ -48,14 +48,14 @@ public class ProvisionPublisher {
   }
 
 
-  public Uni<Void> submitNewFunction(Stream<OaasFunction> functions) {
+  public Uni<Void> submitNewFunction(Stream<OFunction> functions) {
     return Multi.createFrom().items(functions)
       .onItem()
       .transformToUniAndConcatenate(this::submitNewFunction)
       .collect().last();
   }
 
-  public Uni<Void> submitNewCls(Stream<OaasClass> classStream) {
+  public Uni<Void> submitNewCls(Stream<OClass> classStream) {
     return Multi.createFrom().items(classStream)
       .onItem()
       .transformToUniAndConcatenate(this::submitNewCls)

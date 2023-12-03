@@ -4,14 +4,13 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
 public class MockOffLoader implements OffLoader {
-private static final Logger logger = LoggerFactory.getLogger( MockOffLoader.class );
+  private static final Logger logger = LoggerFactory.getLogger(MockOffLoader.class);
   Function<InvokingDetail<?>, TaskCompletion> mapper = new DefaultMapper();
 
   public void setMapper(Function<InvokingDetail<?>, TaskCompletion> mapper) {
@@ -32,9 +31,7 @@ private static final Logger logger = LoggerFactory.getLogger( MockOffLoader.clas
 
     @Override
     public TaskCompletion apply(InvokingDetail<?> detail) {
-      return new TaskCompletion()
-        .setId(TaskIdentity.decode(detail.getId()))
-        .setSuccess(true);
+      return new TaskCompletion().setId(detail.getId()).setSuccess(true);
     }
   }
 }

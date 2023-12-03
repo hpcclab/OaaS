@@ -13,12 +13,12 @@ import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.proto.*;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
-import org.hpcclab.oaas.model.oal.OalResponse;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
+import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
-import org.hpcclab.oaas.model.task.TaskStatus;
 import org.hpcclab.oaas.repository.ClassRepository;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class HashAwareInvocationHandler {
 
   }
 
-  public Uni<OalResponse> invoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
     if (oal.getMain()==null)
       return invocationReqHandler.syncInvoke(oal);
 
@@ -79,9 +79,9 @@ public class HashAwareInvocationHandler {
     }
   }
 
-  OalResponse convert(ProtoInvocationResponse response) {
+  InvocationResponse convert(ProtoInvocationResponse response) {
     try {
-      return new OalResponse(
+      return new InvocationResponse(
         convert(response.getMain()),
         convert(response.getOutput()),
         response.getInvId(),
@@ -97,14 +97,14 @@ public class HashAwareInvocationHandler {
     }
   }
 
-  TaskStatus convert(ProtoTaskStatus taskStatus) {
+  InvocationStatus convert(ProtoTaskStatus taskStatus) {
     return switch (taskStatus) {
-      case LAZY -> TaskStatus.LAZY;
-      case DOING -> TaskStatus.DOING;
-      case SUCCEEDED -> TaskStatus.SUCCEEDED;
-      case FAILED, UNRECOGNIZED -> TaskStatus.FAILED;
-      case DEPENDENCY_FAILED -> TaskStatus.DEPENDENCY_FAILED;
-      case READY -> TaskStatus.READY;
+      case LAZY -> InvocationStatus.LAZY;
+      case DOING -> InvocationStatus.DOING;
+      case SUCCEEDED -> InvocationStatus.SUCCEEDED;
+      case FAILED, UNRECOGNIZED -> InvocationStatus.FAILED;
+      case DEPENDENCY_FAILED -> InvocationStatus.DEPENDENCY_FAILED;
+      case READY -> InvocationStatus.READY;
     };
   }
 
@@ -112,9 +112,9 @@ public class HashAwareInvocationHandler {
     return new InvocationStats(stats.getQueTs(), stats.getSmtTs(), stats.getCptTs());
   }
 
-  OaasObject convert(OObject object) {
+  OObject convert(ProtoOObject object) {
     try {
-      return new OaasObject(
+      return new OObject(
         object.getKey(),
         object.getRevision(),
         object.getCls(),

@@ -3,12 +3,12 @@ package org.hpcclab.oaas.test;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
-import org.hpcclab.oaas.model.cls.ClassConfig;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
@@ -21,11 +21,11 @@ import java.util.List;
 public class MockupData {
 
   private MockupData(){}
-  public static final OaasFunction FUNC_NEW = new OaasFunction()
+  public static final OFunction FUNC_NEW = new OFunction()
     .setName("new")
     .setPkg("builtin.logical")
     .setType(FunctionType.LOGICAL);
-  public static final OaasFunction FUNC_1 = new OaasFunction()
+  public static final OFunction FUNC_1 = new OFunction()
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
@@ -34,7 +34,7 @@ public class MockupData {
       .setInvocationUrl("http://localhost:8080")
     );
 
-  public static final OaasFunction FUNC_2 = new OaasFunction()
+  public static final OFunction FUNC_2 = new OFunction()
     .setName("im-fn")
     .setPkg("ex")
     .setType(FunctionType.IM_TASK)
@@ -43,7 +43,7 @@ public class MockupData {
       .setInvocationUrl("http://localhost:8080")
     );
 
-  public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
+  public static final OFunction MACRO_FUNC_1 = new OFunction()
     .setName("macroFunc1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
@@ -69,7 +69,7 @@ public class MockupData {
       .setExport("tmp3")
     );
 
-  public static final OaasFunction ATOMIC_MACRO_FUNC = new OaasFunction()
+  public static final OFunction ATOMIC_MACRO_FUNC = new OFunction()
     .setName("atomic-macro")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
@@ -96,11 +96,11 @@ public class MockupData {
     );
 
   public static final String CLS_1_KEY = "ex.cls1";
-  public static final OaasClass CLS_1 = new OaasClass()
+  public static final OClass CLS_1 = new OClass()
     .setName("cls1")
     .setPkg("ex")
-    .setObjectType(ObjectType.SIMPLE)
-    .setConfig(new ClassConfig())
+    .setObjectType(OObjectType.SIMPLE)
+    .setConfig(new OClassConfig())
     .setStateSpec(new StateSpecification()
       .setKeySpecs(
         List.of(
@@ -146,23 +146,23 @@ public class MockupData {
         .setOutputCls(CLS_1_KEY)
     ));
 
-  public static final OaasClass CLS_2 = new OaasClass()
+  public static final OClass CLS_2 = new OClass()
     .setName("cls2")
     .setPkg("ex")
-    .setConfig(new ClassConfig())
-    .setObjectType(ObjectType.SIMPLE)
+    .setConfig(new OClassConfig())
+    .setObjectType(OObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
 
-  public static final OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
+  public static final OObject OBJ_1 = OObject.createFromClasses(CLS_1)
     .setId("o1")
     .setState(new OaasObjectState()
       .setVerIds(DSMap.of("k1", "kkkk"))
     );
 
-  public static final OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
+  public static final OObject OBJ_2 = OObject.createFromClasses(CLS_1)
     .setId("o2");
 
-  public static MutableMap<String, OaasClass> testClasses() {
+  public static MutableMap<String, OClass> testClasses() {
     var clsResolver = new ClassResolver(null);
     var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
     var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
@@ -170,21 +170,21 @@ public class MockupData {
         cls1,
         cls2
       )
-      .groupByUniqueKey(OaasClass::getKey);
+      .groupByUniqueKey(OClass::getKey);
   }
 
-  public static MutableMap<String, OaasFunction> testFunctions() {
+  public static MutableMap<String, OFunction> testFunctions() {
     return Lists.fixedSize.of(
         FUNC_NEW.copy(),
         FUNC_1.copy(),
         MACRO_FUNC_1.copy(),
         ATOMIC_MACRO_FUNC.copy()
       )
-      .groupByUniqueKey(OaasFunction::getKey);
+      .groupByUniqueKey(OFunction::getKey);
   }
 
-  public static List<OaasObject> testObjects() {
-    var l = Lists.mutable.<OaasObject>empty();
+  public static List<OObject> testObjects() {
+    var l = Lists.mutable.<OObject>empty();
     l.add(OBJ_1.copy());
     l.add(OBJ_2.copy());
     return l;
@@ -195,9 +195,9 @@ public class MockupData {
   }
 
 
-  public static RepoContextLoader mockContextLoader(MutableMap<String, OaasObject> objects,
-                                                    MutableMap<String, OaasClass> classes,
-                                                    MutableMap<String, OaasFunction> functions,
+  public static RepoContextLoader mockContextLoader(MutableMap<String, OObject> objects,
+                                                    MutableMap<String, OClass> classes,
+                                                    MutableMap<String, OFunction> functions,
                                                     MutableMap<String, InvocationNode> nodes) {
 
     var clsRepo =  new MapEntityRepository.MapClsRepository(classes);
@@ -209,15 +209,15 @@ public class MockupData {
   public static void persistMock(ObjectRepoManager objectRepoManager,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {
-    for (OaasClass cls : testClasses()) {
+    for (OClass cls : testClasses()) {
       cls.validate();
       clsRepo.persist(cls);
     }
-    for (OaasFunction func : testFunctions()) {
+    for (OFunction func : testFunctions()) {
       func.validate(true);
       fnRepo.persist(func);
     }
-    for (OaasObject testObject : testObjects()) {
+    for (OObject testObject : testObjects()) {
       objectRepoManager.persistAsync(testObject)
         .await().indefinitely();
     }

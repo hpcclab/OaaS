@@ -30,8 +30,8 @@ message Test{
 }
 
 message ProtoInvocationResponse {
-  optional OObject main = 1;
-  optional OObject output = 2;
+  optional ProtoOObject main = 1;
+  optional ProtoOObject output = 2;
   optional string invId = 3;
   optional string fb = 4;
   map<string, string> macroIds = 5;
@@ -48,7 +48,7 @@ message ProtoInvocationStats{
 
 }
 
-message OObject {
+message ProtoOObject {
   optional string key = 1;
   int64 revision = 2;
   optional string cls = 3;

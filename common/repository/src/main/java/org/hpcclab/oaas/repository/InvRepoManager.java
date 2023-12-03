@@ -2,13 +2,12 @@ package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
 
 import java.util.Collection;
 
-public abstract class InvRepoManager extends RepoManager<OaasClass, InvocationNode, InvNodeRepository> {
+public abstract class InvRepoManager extends RepoManager<OClass, InvocationNode, InvNodeRepository> {
 
   public Uni<InvocationNode> persistAsync(InvocationNode newObj) {
     return getOrCreate(newObj.getCls())

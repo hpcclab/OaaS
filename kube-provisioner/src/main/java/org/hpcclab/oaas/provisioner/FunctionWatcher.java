@@ -18,7 +18,7 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class FunctionWatcher {
   @Inject
   FunctionRepository functionRepo;
   @Channel("fnUpdated")
-  Emitter<OaasFunction> emitter;
+  Emitter<OFunction> emitter;
 
   Watch watch;
 
@@ -72,7 +72,7 @@ public class FunctionWatcher {
       .get(LABEL_KEY);
     if (functionName==null)
       return;
-    OaasFunction fn = switch (action) {
+    OFunction fn = switch (action) {
       case MODIFIED -> {
         var condition = extractReadyCondition(service);
         if (condition.isEmpty())
@@ -120,7 +120,7 @@ public class FunctionWatcher {
     pubUpdate(fn);
   }
 
-  void pubUpdate(OaasFunction fn) {
+  void pubUpdate(OFunction fn) {
     if (fn == null) return;
     var msg = Message.of(fn, Metadata.of(
         OutgoingKafkaRecordMetadata.builder()

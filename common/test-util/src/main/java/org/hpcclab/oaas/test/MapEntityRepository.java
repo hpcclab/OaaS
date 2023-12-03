@@ -5,10 +5,10 @@ import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
@@ -143,9 +143,9 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     throw new UnsupportedOperationException();
   }
 
-  public static class MapObjectRepository extends MapEntityRepository<String, OaasObject> implements ObjectRepository {
-    public MapObjectRepository(MutableMap<String, OaasObject> map) {
-      super(map, OaasObject::getKey);
+  public static class MapObjectRepository extends MapEntityRepository<String, OObject> implements ObjectRepository {
+    public MapObjectRepository(MutableMap<String, OObject> map) {
+      super(map, OObject::getKey);
     }
   }
 
@@ -155,52 +155,52 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     }
   }
 
-  public static class MapClsRepository extends MapEntityRepository<String, OaasClass> implements ClassRepository {
-    public MapClsRepository(MutableMap<String, OaasClass> map) {
-      super(map, OaasClass::getKey);
+  public static class MapClsRepository extends MapEntityRepository<String, OClass> implements ClassRepository {
+    public MapClsRepository(MutableMap<String, OClass> map) {
+      super(map, OClass::getKey);
     }
   }
 
-  public static class MapFnRepository extends MapEntityRepository<String, OaasFunction> implements FunctionRepository {
-    public MapFnRepository(MutableMap<String, OaasFunction> map) {
-      super(map, OaasFunction::getKey);
+  public static class MapFnRepository extends MapEntityRepository<String, OFunction> implements FunctionRepository {
+    public MapFnRepository(MutableMap<String, OFunction> map) {
+      super(map, OFunction::getKey);
     }
   }
 
   public static class MapObjectRepoManager extends ObjectRepoManager {
 
-    MutableMap<String, OaasClass> clsMap;
+    MutableMap<String, OClass> clsMap;
 
-    public MapObjectRepoManager(MutableMap<String, OaasObject> map,
-                                MutableMap<String, OaasClass> clsMap
+    public MapObjectRepoManager(MutableMap<String, OObject> map,
+                                MutableMap<String, OClass> clsMap
     ) {
-      var bagMultimap = map.groupBy(OaasObject::getCls);
+      var bagMultimap = map.groupBy(OObject::getCls);
       bagMultimap.keyMultiValuePairsView()
         .forEach(pair -> {
-          MutableMap<String, OaasObject> objs = pair.getTwo()
-            .toMap(OaasObject::getId, o -> o);
+          MutableMap<String, OObject> objs = pair.getTwo()
+            .toMap(OObject::getId, o -> o);
           repoMap.put(pair.getOne(), new MapObjectRepository(objs));
         });
       this.clsMap = clsMap;
     }
 
     @Override
-    public ObjectRepository createRepo(OaasClass cls) {
+    public ObjectRepository createRepo(OClass cls) {
       return new MapObjectRepository(Maps.mutable.empty());
     }
 
     @Override
-    protected OaasClass load(String clsKey) {
+    protected OClass load(String clsKey) {
       return clsMap.get(clsKey);
     }
   }
 
   public static class MapInvRepoManager extends InvRepoManager {
 
-    MutableMap<String, OaasClass> clsMap;
+    MutableMap<String, OClass> clsMap;
 
     public MapInvRepoManager(MutableMap<String, InvocationNode> map,
-                             MutableMap<String, OaasClass> clsMap
+                             MutableMap<String, OClass> clsMap
     ) {
       var bagMultimap = map.groupBy(InvocationNode::getCls);
       bagMultimap.keyMultiValuePairsView()
@@ -213,12 +213,12 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     }
 
     @Override
-    public InvNodeRepository createRepo(OaasClass cls) {
+    public InvNodeRepository createRepo(OClass cls) {
       return new MapInvRepository(Maps.mutable.empty());
     }
 
     @Override
-    protected OaasClass load(String clsKey) {
+    protected OClass load(String clsKey) {
       return clsMap.get(clsKey);
     }
   }

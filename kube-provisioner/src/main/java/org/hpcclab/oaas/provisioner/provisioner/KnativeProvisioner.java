@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.FunctionState;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.provisioner.KpConfig;
 import org.slf4j.Logger;
@@ -30,12 +30,12 @@ import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
 @ApplicationScoped
 @RegisterForReflection(
   targets = {
-    OaasFunction.class,
+    OFunction.class,
     Service.class
   },
   registerFullHierarchy = true
 )
-public class KnativeProvisioner implements Provisioner<OaasFunction> {
+public class KnativeProvisioner implements Provisioner<OFunction> {
 
   private static final Logger logger = LoggerFactory.getLogger(KnativeProvisioner.class);
   @Inject
@@ -44,7 +44,7 @@ public class KnativeProvisioner implements Provisioner<OaasFunction> {
   KpConfig kpConfig;
 
   @Override
-  public Consumer<OaasFunction> provision(OaasFunction function) {
+  public Consumer<OFunction> provision(OFunction function) {
     var key = function.getKey();
     if (function.getState()==FunctionState.REMOVING) {
       boolean deleted;
@@ -83,7 +83,7 @@ public class KnativeProvisioner implements Provisioner<OaasFunction> {
   }
 
 
-  private Consumer<OaasFunction> updateFunctionStatus(Service service) {
+  private Consumer<OFunction> updateFunctionStatus(Service service) {
     var condition = extractReadyCondition(service);
     var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
@@ -109,7 +109,7 @@ public class KnativeProvisioner implements Provisioner<OaasFunction> {
   }
 
 
-  private Service createService(OaasFunction function,
+  private Service createService(OFunction function,
                                 String svcName) {
     var provision = function.getProvision().getKnative();
     var annotation = new HashMap<String, String>();

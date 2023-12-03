@@ -135,7 +135,7 @@ public class InvocationRecordHandler {
     if (exception instanceof InvocationException invocationException) {
       if (logger.isWarnEnabled())
         logger.warn("Catch invocation fail on id='{}'",
-          invocationException.getTaskCompletion().getId().encode(),
+          invocationException.getInvId(),
           invocationException
         );
       // TODO send to dead letter topic

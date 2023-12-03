@@ -1,15 +1,13 @@
 package org.hpcclab.oaas.provisioner.handler;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.*;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.provisioner.provisioner.KafkaProvisioner;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.slf4j.Logger;
@@ -26,11 +24,11 @@ public class ClassMsgHandler {
   @Inject
   ClassRepository classRepository;
   @Channel("clsUpdated")
-  Emitter<OaasClass> emitter;
+  Emitter<OClass> emitter;
 
   @Incoming("clsProvisions")
   @RunOnVirtualThread
-  public void handle(ConsumerRecord<String, OaasClass> clsRecord) {
+  public void handle(ConsumerRecord<String, OClass> clsRecord) {
     var header = clsRecord.headers().lastHeader("oprc-provision-skip");
     if (header!=null && new String(header.value()).equals("true")) {
       return;

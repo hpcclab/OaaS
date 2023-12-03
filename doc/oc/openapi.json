@@ -49,7 +49,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasClass_Public"
+                  "$ref" : "#/components/schemas/PaginationOClass_Public"
                 }
               }
             }
@@ -74,7 +74,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass_Public"
+                  "$ref" : "#/components/schemas/OClass_Public"
                 }
               }
             }
@@ -97,7 +97,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasClass_Public"
+                  "$ref" : "#/components/schemas/OClass_Public"
                 }
               }
             }
@@ -142,7 +142,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOaasFunction_Public"
+                  "$ref" : "#/components/schemas/PaginationOFunction_Public"
                 }
               }
             }
@@ -167,7 +167,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasFunction_Public"
+                  "$ref" : "#/components/schemas/OFunction_Public"
                 }
               }
             }
@@ -190,7 +190,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasFunction_Public"
+                  "$ref" : "#/components/schemas/OFunction_Public"
                 }
               }
             }
@@ -285,56 +285,6 @@
   },
   "components" : {
     "schemas" : {
-      "ClassConfig" : {
-        "type" : "object",
-        "properties" : {
-          "options" : {
-            "$ref" : "#/components/schemas/DSMap"
-          },
-          "partitions" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "replicas" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "structStore" : {
-            "type" : "string"
-          },
-          "unstructStore" : {
-            "type" : "string"
-          },
-          "logStore" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ClassConfig_Public" : {
-        "type" : "object",
-        "properties" : {
-          "options" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          },
-          "partitions" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "replicas" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "structStore" : {
-            "type" : "string"
-          },
-          "unstructStore" : {
-            "type" : "string"
-          },
-          "logStore" : {
-            "type" : "string"
-          }
-        }
-      },
       "DSMap" : {
         "type" : "array",
         "items" : {
@@ -785,7 +735,7 @@
           }
         }
       },
-      "OaasClass" : {
+      "OClass" : {
         "type" : "object",
         "properties" : {
           "_key" : {
@@ -804,7 +754,7 @@
             "type" : "string"
           },
           "objectType" : {
-            "$ref" : "#/components/schemas/ObjectType"
+            "$ref" : "#/components/schemas/OObjectType"
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType"
@@ -840,14 +790,70 @@
             "$ref" : "#/components/schemas/DatastoreLink"
           },
           "config" : {
-            "$ref" : "#/components/schemas/ClassConfig"
+            "$ref" : "#/components/schemas/OClassConfig"
           },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember"
           }
         }
       },
-      "OaasClass_Public" : {
+      "OClassConfig" : {
+        "type" : "object",
+        "properties" : {
+          "options" : {
+            "$ref" : "#/components/schemas/DSMap"
+          },
+          "partitions" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "structStore" : {
+            "type" : "string"
+          },
+          "unstructStore" : {
+            "type" : "string"
+          },
+          "logStore" : {
+            "type" : "string"
+          },
+          "hashAwareSync" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "OClassConfig_Public" : {
+        "type" : "object",
+        "properties" : {
+          "options" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          },
+          "partitions" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "replicas" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "structStore" : {
+            "type" : "string"
+          },
+          "unstructStore" : {
+            "type" : "string"
+          },
+          "logStore" : {
+            "type" : "string"
+          },
+          "hashAwareSync" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "OClass_Public" : {
         "type" : "object",
         "properties" : {
           "_key" : {
@@ -863,7 +869,7 @@
             "type" : "string"
           },
           "objectType" : {
-            "$ref" : "#/components/schemas/ObjectType_Public"
+            "$ref" : "#/components/schemas/OObjectType_Public"
           },
           "stateType" : {
             "$ref" : "#/components/schemas/StateType_Public"
@@ -899,7 +905,7 @@
             "$ref" : "#/components/schemas/DatastoreLink_Public"
           },
           "config" : {
-            "$ref" : "#/components/schemas/ClassConfig_Public"
+            "$ref" : "#/components/schemas/OClassConfig_Public"
           },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"
@@ -909,7 +915,7 @@
           }
         }
       },
-      "OaasFunction" : {
+      "OFunction" : {
         "required" : [ "name", "type", "outputCls" ],
         "type" : "object",
         "properties" : {
@@ -953,7 +959,7 @@
           }
         }
       },
-      "OaasFunction_Public" : {
+      "OFunction_Public" : {
         "required" : [ "name", "type", "outputCls" ],
         "type" : "object",
         "properties" : {
@@ -997,6 +1003,14 @@
           }
         }
       },
+      "OObjectType" : {
+        "enum" : [ "SIMPLE", "COMPOUND" ],
+        "type" : "string"
+      },
+      "OObjectType_Public" : {
+        "enum" : [ "SIMPLE", "COMPOUND" ],
+        "type" : "string"
+      },
       "OaasPackageContainer" : {
         "type" : "object",
         "properties" : {
@@ -1012,13 +1026,13 @@
           "classes" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasClass"
+              "$ref" : "#/components/schemas/OClass"
             }
           },
           "functions" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunction"
+              "$ref" : "#/components/schemas/OFunction"
             }
           }
         }
@@ -1038,26 +1052,18 @@
           "classes" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasClass_Public"
+              "$ref" : "#/components/schemas/OClass_Public"
             }
           },
           "functions" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunction_Public"
+              "$ref" : "#/components/schemas/OFunction_Public"
             }
           }
         }
       },
-      "ObjectType" : {
-        "enum" : [ "SIMPLE", "COMPOUND" ],
-        "type" : "string"
-      },
-      "ObjectType_Public" : {
-        "enum" : [ "SIMPLE", "COMPOUND" ],
-        "type" : "string"
-      },
-      "PaginationOaasClass_Public" : {
+      "PaginationOClass_Public" : {
         "type" : "object",
         "properties" : {
           "total" : {
@@ -1075,12 +1081,12 @@
           "items" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasClass_Public"
+              "$ref" : "#/components/schemas/OClass_Public"
             }
           }
         }
       },
-      "PaginationOaasFunction_Public" : {
+      "PaginationOFunction_Public" : {
         "type" : "object",
         "properties" : {
           "total" : {
@@ -1098,7 +1104,7 @@
           "items" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/OaasFunction_Public"
+              "$ref" : "#/components/schemas/OFunction_Public"
             }
           }
         }

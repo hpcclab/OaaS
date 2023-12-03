@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.provisioner.handler;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,7 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.*;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.provisioner.provisioner.KnativeProvisioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +23,12 @@ public class FunctionMsgHandler {
   @Inject
   KnativeProvisioner knativeProvisioner;
   @Channel("fnUpdated")
-  Emitter<OaasFunction> emitter;
+  Emitter<OFunction> emitter;
 
 
   @Incoming("fnProvisions")
   @RunOnVirtualThread
-  public void handle(ConsumerRecord<String, OaasFunction> functionRecord) {
+  public void handle(ConsumerRecord<String, OFunction> functionRecord) {
     var header = functionRecord.headers().lastHeader("oprc-provision-skip");
     if (header!=null && new String(header.value()).equals("true")) {
       return;

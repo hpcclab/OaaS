@@ -1,15 +1,12 @@
 package org.hpcclab.oaas;
 
 import io.restassured.common.mapper.TypeRef;
-import io.vertx.core.json.Json;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectConstructRequest;
-import org.hpcclab.oaas.model.object.ObjectConstructResponse;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
@@ -67,42 +64,28 @@ public class TestUtils {
     """;
 
 
-  public static List<OaasObject> listObject() {
+  public static List<OObject> listObject() {
     return given()
       .when().get("/api/objects")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .log().ifValidationFails()
-      .extract().body().as( new TypeRef<Pagination<OaasObject>>() {})
+      .extract().body().as( new TypeRef<Pagination<OObject>>() {})
       .getItems();
   }
-  public static List<OaasClass> listClasses() {
+  public static List<OClass> listClasses() {
     return given()
       .when().get("/api/classes")
       .then()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .log().ifValidationFails()
-      .extract().body().as( new TypeRef<Pagination<OaasClass>>() {})
+      .extract().body().as( new TypeRef<Pagination<OClass>>() {})
       .getItems();
   }
 
-  public static OaasObject create(ObjectConstructRequest o) {
-    return given()
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(Json.encodePrettily(o))
-      .when().post("/api/object-construct")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("object.id", Matchers.notNullValue())
-      .extract().body().as(ObjectConstructResponse.class)
-      .getObject();
-  }
-
-  public static OaasObject getObject(String id) {
+  public static OObject getObject(String id) {
     return given()
       .pathParam("id", id)
       .when().get("/api/objects/{id}")
@@ -111,10 +94,10 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("id", Matchers.equalTo(id))
-      .extract().body().as(OaasObject.class);
+      .extract().body().as(OObject.class);
   }
 
-  public static OaasClass getClass(String name) {
+  public static OClass getClass(String name) {
     return given()
       .pathParam("name", name)
       .when().get("/api/classes/{name}")
@@ -123,7 +106,7 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("name", Matchers.equalTo(name))
-      .extract().body().as(OaasClass.class);
+      .extract().body().as(OClass.class);
   }
 
   public static OaasPackageContainer createBatchYaml(String clsText) {
@@ -139,7 +122,7 @@ public class TestUtils {
       .extract().body().as(OaasPackageContainer.class);
   }
 
-  public static List<OaasFunction> createFunctionYaml(String function) {
+  public static List<OFunction> createFunctionYaml(String function) {
     return given()
       .contentType("text/x-yaml")
       .body(function)
@@ -148,6 +131,6 @@ public class TestUtils {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(new TypeRef<List<OaasFunction>>(){});
+      .extract().body().as(new TypeRef<List<OFunction>>(){});
   }
 }

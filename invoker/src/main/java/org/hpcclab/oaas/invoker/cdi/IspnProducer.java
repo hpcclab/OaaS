@@ -12,8 +12,8 @@ import org.hpcclab.oaas.invoker.ispn.repo.EIspnClsRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnInvRepoManager;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -54,12 +54,12 @@ public class IspnProducer {
   @Produces
   @ApplicationScoped
   synchronized EIspnClsRepository clsRepository() {
-    Cache<String, OaasClass> cache;
+    Cache<String, OClass> cache;
     if (!cacheManager.cacheExists(CLASS_CACHE)) {
       var conf = cacheCreator.createSimpleConfig(
         confRegistry.getOrDefault("PKG"),
         config.clsStore(),
-        OaasClass.class);
+        OClass.class);
       log(CLASS_CACHE, conf);
       cache = cacheManager.createCache(CLASS_CACHE, conf);
     } else {
@@ -71,12 +71,12 @@ public class IspnProducer {
   @Produces
   @ApplicationScoped
   synchronized EIspnFnRepository fnRepository() {
-    Cache<String, OaasFunction> cache;
+    Cache<String, OFunction> cache;
     if (!cacheManager.cacheExists(FUNCTION_CACHE)) {
       var conf = cacheCreator.createSimpleConfig(
         confRegistry.getOrDefault("PKG"),
         config.fnStore(),
-        OaasFunction.class);
+        OFunction.class);
       log(FUNCTION_CACHE, conf);
       cache = cacheManager.createCache(FUNCTION_CACHE, conf);
     } else {

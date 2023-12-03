@@ -4,7 +4,7 @@ import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoCollectionAsync;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-public class ArgObjectRepository extends AbstractArgRepository<OaasObject> implements ObjectRepository {
+public class ArgObjectRepository extends AbstractArgRepository<OObject> implements ObjectRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger(ArgObjectRepository.class);
 
   ArangoCollection collection;
@@ -36,19 +36,19 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
   }
 
   @Override
-  public Class<OaasObject> getValueCls() {
-    return OaasObject.class;
+  public Class<OObject> getValueCls() {
+    return OObject.class;
   }
 
   @Override
-  public String extractKey(OaasObject oaasObject) {
-    return oaasObject.getId();
+  public String extractKey(OObject oObject) {
+    return oObject.getId();
   }
 
 
-  public Uni<Pagination<OaasObject>> listByCls(List<String> clsKeys,
-                                               long offset,
-                                               int limit) {
+  public Uni<Pagination<OObject>> listByCls(List<String> clsKeys,
+                                            long offset,
+                                            int limit) {
     // langauge=AQL
     var query = """
       FOR obj IN @@col
@@ -68,11 +68,11 @@ public class ArgObjectRepository extends AbstractArgRepository<OaasObject> imple
     );
   }
 
-  public Uni<Pagination<OaasObject>> sortedListByCls(List<String> clsKeys,
-                                                     String sortKey,
-                                                     boolean desc,
-                                                     long offset,
-                                                     int limit) {
+  public Uni<Pagination<OObject>> sortedListByCls(List<String> clsKeys,
+                                                  String sortKey,
+                                                  boolean desc,
+                                                  long offset,
+                                                  int limit) {
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("sortedListByCls {}, {}, {}",
         clsKeys, sortKey, desc);

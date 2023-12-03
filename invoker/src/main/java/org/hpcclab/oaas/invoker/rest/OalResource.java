@@ -16,12 +16,11 @@ import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.oal.OalResponse;
+import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
-import org.hpcclab.oaas.repository.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,8 @@ public class OalResource {
 
   @POST
   @JsonView(Views.Public.class)
-  public Uni<OalResponse> getObjectWithPost(ObjectAccessLanguage oal,
-                                            @QueryParam("async") Boolean async) {
+  public Uni<InvocationResponse> getObjectWithPost(ObjectAccessLanguage oal,
+                                                   @QueryParam("async") Boolean async) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getCls() == null)
@@ -61,7 +60,7 @@ public class OalResource {
         .async().getAsync(oal.getMain())
         .onItem().ifNull()
         .failWith(() -> StdOaasException.notFoundObject(oal.getMain(), 404))
-        .map(obj -> OalResponse.builder()
+        .map(obj -> InvocationResponse.builder()
           .main(obj)
           .build());
     }
@@ -70,8 +69,8 @@ public class OalResource {
   @GET
   @Path("{oal:.+}")
   @JsonView(Views.Public.class)
-  public Uni<OalResponse> getObject(@PathParam("oal") String oal,
-                                    @QueryParam("async") Boolean async) {
+  public Uni<InvocationResponse> getObject(@PathParam("oal") String oal,
+                                           @QueryParam("async") Boolean async) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
     LOGGER.debug("Receive OAL getObject '{}'", oaeObj);
     return getObjectWithPost(oaeObj, async);
@@ -112,7 +111,7 @@ public class OalResource {
     return execAndGetContentPost(filePath, async, oalObj);
   }
 
-  public Uni<OalResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
+  public Uni<InvocationResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
     if (async!=null && async) {
       return invocationHandlerService.asyncInvoke(oal);
     } else {
@@ -120,23 +119,23 @@ public class OalResource {
     }
   }
 
-  public Response createResponse(OalResponse oalResponse,
+  public Response createResponse(InvocationResponse invocationResponse,
                                  String filePath) {
-    return createResponse(oalResponse, filePath, HttpResponseStatus.SEE_OTHER.code());
+    return createResponse(invocationResponse, filePath, HttpResponseStatus.SEE_OTHER.code());
   }
 
 
-  public Response createResponse(OaasObject object,
+  public Response createResponse(OObject object,
                                  String filePath) {
     return createResponse(object, filePath, HttpResponseStatus.SEE_OTHER.code());
   }
 
-  public Response createResponse(OalResponse response,
+  public Response createResponse(InvocationResponse response,
                                  String filePath,
                                  int redirectCode) {
     var obj = response.output()!=null ? response.output():response.main();
     var ts = response.status();
-    if (ts==TaskStatus.DOING) {
+    if (ts==InvocationStatus.DOING) {
       return Response.status(HttpResponseStatus.GATEWAY_TIMEOUT.code())
         .build();
     }
@@ -155,7 +154,7 @@ public class OalResource {
       .build();
   }
 
-  public Response createResponse(OaasObject object,
+  public Response createResponse(OObject object,
                                  String filePath,
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();

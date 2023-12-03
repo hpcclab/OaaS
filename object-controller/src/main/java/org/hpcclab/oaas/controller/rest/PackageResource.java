@@ -15,7 +15,7 @@ import org.hpcclab.oaas.controller.OcConfig;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -63,7 +63,7 @@ public class PackageResource {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var clsMap = classes.stream()
-      .collect(Collectors.toMap(OaasClass::getKey, Function.identity()));
+      .collect(Collectors.toMap(OClass::getKey, Function.identity()));
     var changedClasses = classResolver.resolveInheritance(clsMap);
     var partitioned = changedClasses.values()
       .stream()

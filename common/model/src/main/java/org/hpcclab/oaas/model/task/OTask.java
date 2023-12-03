@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.invocation.RoutableTaskMeta;
+import org.hpcclab.oaas.model.object.OObject;
 
 import java.util.List;
 import java.util.Map;
@@ -13,16 +14,16 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class OaasTask implements TaskDetail {
+public class OTask implements RoutableTaskMeta {
   public static final String CE_TYPE = "oaas.task";
-  TaskIdentity id;
+  String id;
   String partKey;
-  OaasObject main;
-  OaasObject output;
+  OObject main;
+  OObject output;
   String funcKey;
   @JsonIgnore
-  OaasFunction function;
-  List<OaasObject> inputs = List.of();
+  OFunction function;
+  List<OObject> inputs = List.of();
   String allocMainUrl;
   String allocOutputUrl;
   Map<String,String> mainKeys;

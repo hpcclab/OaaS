@@ -14,7 +14,7 @@ import org.hpcclab.oaas.invoker.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
 import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<Kafk
   Vertx vertx;
 
   @Override
-  public KafkaRecordConsumerVerticle createVerticle(OaasClass cls) {
+  public KafkaRecordConsumerVerticle createVerticle(OClass cls) {
     var consumer = KafkaConsumer.create(vertx, options(config, cls.getKey()),
       String.class, Buffer.class);
     var offsetManager = new OffsetManager(consumer);

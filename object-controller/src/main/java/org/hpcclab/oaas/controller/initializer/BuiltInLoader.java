@@ -3,9 +3,9 @@ package org.hpcclab.oaas.controller.initializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.hpcclab.oaas.controller.rest.PackageResource;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +37,13 @@ public class BuiltInLoader {
       var funcNames = funcList==null ? List.of()
         :funcList.stream()
         .map(f -> f.setPkg(pkg.getName()))
-        .map(OaasFunction::getKey)
+        .map(OFunction::getKey)
         .toList();
       var clsList = pkg.getClasses();
       var clsNames = clsList==null ? List.of()
         :clsList.stream()
         .map(c -> c.setPkg(pkg.getName()))
-        .map(OaasClass::getKey)
+        .map(OClass::getKey)
         .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
       pkgService.create(true, false, pkg);

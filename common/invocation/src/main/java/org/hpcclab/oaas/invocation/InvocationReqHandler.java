@@ -12,11 +12,11 @@ import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.OalResponse;
+import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
-import org.hpcclab.oaas.model.task.TaskStatus;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class InvocationReqHandler {
     this.idGenerator = idGenerator;
   }
 
-  public Uni<OalResponse> syncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationResponse> syncInvoke(ObjectAccessLanguage oal) {
     var req = toRequest(oal)
       .build();
     return syncInvoke(req)
@@ -69,7 +69,7 @@ public class InvocationReqHandler {
   }
 
 
-  public Uni<OalResponse> asyncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationResponse> asyncInvoke(ObjectAccessLanguage oal) {
     record ReqAndCtx(InvocationRequest req, ValidationContext ctx) {}
     return
       invocationValidator.validate(oal)
@@ -90,13 +90,13 @@ public class InvocationReqHandler {
           return new ReqAndCtx(builder.build(), ctx);
         })
         .call(reqAndCtx -> producer.offer(reqAndCtx.req()))
-        .map(reqAndCtx -> OalResponse.builder()
+        .map(reqAndCtx -> InvocationResponse.builder()
           .invId(reqAndCtx.req().invId())
-          .output(new OaasObject().setId(reqAndCtx.req().outId()))
+          .output(new OObject().setId(reqAndCtx.req().outId()))
           .main(reqAndCtx.ctx.main())
           .fb(reqAndCtx.ctx.fnBind().getName())
           .macroIds(reqAndCtx.req.macroIds())
-          .status(TaskStatus.DOING)
+          .status(InvocationStatus.DOING)
           .async(true)
           .build());
   }

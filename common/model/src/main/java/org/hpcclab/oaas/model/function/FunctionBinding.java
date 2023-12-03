@@ -9,7 +9,6 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Accessors(chain = true)
@@ -63,7 +62,7 @@ public class FunctionBinding {
     }
   }
 
-  public void validate(OaasFunction oaasFunction) {
+  public void validate(OFunction oaasFunction) {
     if (outputCls==null) {
       outputCls = oaasFunction.getOutputCls();
     } else if (outputCls.equalsIgnoreCase("none") ||

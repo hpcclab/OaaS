@@ -4,13 +4,13 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class FunctionListener extends NoGroupKafkaConsumer<OaasFunction> {
+public class FunctionListener extends NoGroupKafkaConsumer<OFunction> {
 
   public FunctionListener() {
   }
@@ -22,7 +22,7 @@ public class FunctionListener extends NoGroupKafkaConsumer<OaasFunction> {
   }
 
   @Override
-  OaasFunction deserialize(Buffer buffer) {
-    return Json.decodeValue(buffer, OaasFunction.class);
+  OFunction deserialize(Buffer buffer) {
+    return Json.decodeValue(buffer, OFunction.class);
   }
 }

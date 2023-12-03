@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
@@ -28,10 +28,10 @@ public class ClassResource {
 
   @GET
   @JsonView(Views.Public.class)
-  public Uni<Pagination<OaasClass>> list(@RestQuery Long offset,
-                                         @RestQuery Integer limit,
-                                         @RestQuery String sort,
-                                         @RestQuery @DefaultValue("false") boolean desc) {
+  public Uni<Pagination<OClass>> list(@RestQuery Long offset,
+                                      @RestQuery Integer limit,
+                                      @RestQuery String sort,
+                                      @RestQuery @DefaultValue("false") boolean desc) {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort==null) sort = "_key";
@@ -43,7 +43,7 @@ public class ClassResource {
   @GET
   @Path("{clsKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasClass> get(String clsKey) {
+  public Uni<OClass> get(String clsKey) {
     return classRepo.async().getAsync(clsKey)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
@@ -51,7 +51,7 @@ public class ClassResource {
   @DELETE
   @Path("{clsKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasClass> delete(String clsKey) {
+  public Uni<OClass> delete(String clsKey) {
     return classRepo.async().removeAsync(clsKey)
       .onItem().ifNull().failWith(NotFoundException::new)
       .call(__ -> provisionPublisher.submitDeleteCls(clsKey));

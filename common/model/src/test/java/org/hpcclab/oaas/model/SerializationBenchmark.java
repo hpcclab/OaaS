@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.proto.OaasSchemaImpl;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @State(Scope.Thread)
 public class SerializationBenchmark {
 
-  OaasObject object;
+  OObject object;
   ObjectMapper mapper;
   ObjectMapper msgpackMapper;
   Random random;
@@ -62,7 +62,7 @@ public class SerializationBenchmark {
       .mapToObj(__ -> Map.entry(rand(), rand()))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     var node = genNode();
-    object = new OaasObject()
+    object = new OObject()
       .setId(rand())
       .setCls(rand())
       .setRefs(DSMap.copy(refs))
@@ -126,18 +126,18 @@ public class SerializationBenchmark {
 
 
   @Benchmark
-  public OaasObject testDeserializeJson() throws IOException {
-    return mapper.readValue(jsonBytes, OaasObject.class);
+  public OObject testDeserializeJson() throws IOException {
+    return mapper.readValue(jsonBytes, OObject.class);
   }
 
   @Benchmark
-  public OaasObject testDeserializeMsgpack() throws IOException {
-    return msgpackMapper.readValue(msgpackBytes, OaasObject.class);
+  public OObject testDeserializeMsgpack() throws IOException {
+    return msgpackMapper.readValue(msgpackBytes, OObject.class);
   }
 
   @Benchmark
-  public OaasObject testDeserializeProto() throws IOException {
-    return ProtobufUtil.fromByteArray(context, protoBytes, OaasObject.class);
+  public OObject testDeserializeProto() throws IOException {
+    return ProtobufUtil.fromByteArray(context, protoBytes, OObject.class);
   }
 
   @TearDown(Level.Trial)

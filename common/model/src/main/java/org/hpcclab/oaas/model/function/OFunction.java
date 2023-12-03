@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
+public class OFunction implements Copyable<OFunction>, HasKey<String> {
   @JsonProperty("_key")
 //  @JsonView(Views.Internal.class)
   String key;
@@ -51,20 +51,20 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
   FunctionState state = FunctionState.ENABLED;
 
 
-  public OaasFunction() {
+  public OFunction() {
   }
 
   @ProtoFactory
-  public OaasFunction(String name,
-                      String pkg,
-                      String description,
-                      FunctionType type,
-                      String outputCls,
-                      MacroSpec macro,
-                      ProvisionConfig provision,
-                      List<VariableDescription> variableDescriptions,
-                      FunctionDeploymentStatus deploymentStatus,
-                      FunctionState state) {
+  public OFunction(String name,
+                   String pkg,
+                   String description,
+                   FunctionType type,
+                   String outputCls,
+                   MacroSpec macro,
+                   ProvisionConfig provision,
+                   List<VariableDescription> variableDescriptions,
+                   FunctionDeploymentStatus deploymentStatus,
+                   FunctionState state) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -117,13 +117,13 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
     }
   }
 
-  public OaasFunction setName(String name) {
+  public OFunction setName(String name) {
     this.name = name;
     updateKey();
     return this;
   }
 
-  public OaasFunction setPkg(String pkg) {
+  public OFunction setPkg(String pkg) {
     this.pkg = pkg;
     updateKey();
     return this;
@@ -140,8 +140,8 @@ public class OaasFunction implements Copyable<OaasFunction>, HasKey<String> {
   }
 
   @Override
-  public OaasFunction copy() {
-    return new OaasFunction(
+  public OFunction copy() {
+    return new OFunction(
       name,
       pkg,
       description,

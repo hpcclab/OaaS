@@ -3,7 +3,7 @@ package org.hpcclab.oaas.invoker.service;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.storage.PresignGenerator;
 import org.hpcclab.oaas.storage.S3ClientBuilderUtil;
 import org.hpcclab.oaas.storage.S3ConnConf;
@@ -23,7 +23,7 @@ public class S3ContentUrlGenerator extends SaContentUrlGenerator {
   }
 
   @Override
-  public String generateUrl(OaasObject obj,
+  public String generateUrl(OObject obj,
                             DataAccessContext dac,
                             String file) {
     var gen = dac.isPub()? pubPresignGenerator: presignGenerator;

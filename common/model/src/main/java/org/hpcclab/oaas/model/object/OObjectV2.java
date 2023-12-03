@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -18,29 +18,29 @@ import org.infinispan.protostream.annotations.ProtoField;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OaasObjectV2 implements Copyable<OaasObjectV2>, HasKey<String>, HasRev {
+public class OObjectV2 implements Copyable<OObjectV2>, HasKey<String>, HasRev {
   @ProtoField(1)
   Meta meta;
   @ProtoField(value = 2, javaType = ObjectNode.class)
   ObjectNode data;
 
-  public OaasObjectV2() {
+  public OObjectV2() {
     meta = new Meta();
   }
 
   @ProtoFactory
   @JsonCreator
-  public OaasObjectV2(Meta meta, ObjectNode data) {
+  public OObjectV2(Meta meta, ObjectNode data) {
     this.meta = meta;
     this.data = data;
   }
 
-  public static OaasObjectV2 createFromClasses(OaasClass cls) {
-    return new OaasObjectV2(new Meta(cls.getKey()), null);
+  public static OObjectV2 createFromClasses(OClass cls) {
+    return new OObjectV2(new Meta(cls.getKey()), null);
   }
 
-  public OaasObjectV2 copy() {
-    return new OaasObjectV2(
+  public OObjectV2 copy() {
+    return new OObjectV2(
       meta != null? meta.copy(): null,
       data
     );

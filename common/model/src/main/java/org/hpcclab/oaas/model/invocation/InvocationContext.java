@@ -9,16 +9,14 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.oal.OalResponse;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -31,34 +29,34 @@ import java.util.Objects;
 )
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class InvocationContext implements TaskDetail {
+public class InvocationContext implements RoutableTaskMeta {
   @JsonIgnore
   InvocationContext parent;
-  OaasObject output;
-  OaasObject main;
-  Map<String, OaasObject> mainRefs;
-  OaasFunction function;
-  List<OaasObject> inputs = List.of();
+  OObject output;
+  OObject main;
+  Map<String, OObject> mainRefs;
+  OFunction function;
+  List<OObject> inputs = List.of();
   Map<String, String> args = Map.of();
   boolean immutable;
   InvocationNode node;
-  OaasClass mainCls;
-  OaasClass outputCls;
-  List<OaasObject> subOutputs = Lists.mutable.empty();
+  OClass mainCls;
+  OClass outputCls;
+  List<OObject> subOutputs = Lists.mutable.empty();
   FunctionBinding fb;
-  Map<String, OaasObject> workflowMap = Maps.mutable.empty();
+  Map<String, OObject> workflowMap = Maps.mutable.empty();
   List<InvocationContext> subContexts = Lists.mutable.empty();
   TaskCompletion completion;
   InvocationRequest request;
   @JsonIgnore
   DataflowGraph dataflowGraph;
-  Map<String, OaasClass> clsMap = Map.of();
+  Map<String, OClass> clsMap = Map.of();
   ObjectNode respBody;
 
   long mqOffset = -1;
 
 
-  public void addTaskOutput(OaasObject object) {
+  public void addTaskOutput(OObject object) {
     if (object==null) return;
     subOutputs.add(object);
     if (parent!=null) {
@@ -91,7 +89,7 @@ public class InvocationContext implements TaskDetail {
     return false;
   }
 
-  public OaasObject resolveDataflowRef(String ref) {
+  public OObject resolveDataflowRef(String ref) {
     if (ref.equals("$")) {
       return getMain();
     }
@@ -136,7 +134,7 @@ public class InvocationContext implements TaskDetail {
     } else {
       node.setKey(getOutput().getId());
       node.setOutId(getOutput().getId());
-      node.setInputs(getInputs().stream().map(OaasObject::getId).toList());
+      node.setInputs(getInputs().stream().map(OObject::getId).toList());
     }
     node.setFb(getFbName());
     node.setArgs(DSMap.copy(getArgs()));
@@ -172,8 +170,8 @@ public class InvocationContext implements TaskDetail {
     return function.getKey();
   }
 
-  public OalResponse.OalResponseBuilder createResponse() {
-    return OalResponse.builder()
+  public InvocationResponse.InvocationResponseBuilder createResponse() {
+    return InvocationResponse.builder()
       .invId(request.invId())
       .main(getMain())
       .output(getOutput())

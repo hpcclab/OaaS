@@ -8,9 +8,8 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InternalInvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,15 +69,17 @@ public class InvocationExecutor {
   }
 
   public Uni<InvocationContext> syncExec(InvocationContext ctx) {
+    var req = ctx.getRequest();
     if (logger.isTraceEnabled())
-      logger.trace("syncExec {} {}", new TaskIdentity(ctx), ctx);
+      logger.trace("syncExec {}-({})>{} {}",
+        req.main(), ctx.getRequest().invId(), req.outId(), ctx);
 
     ctx.initNode().markAsSubmitted(null, false);
     var uni = offLoader.offload(taskFactory.genTask(ctx));
     return uni
       .flatMap(tc -> completionHandler.handleComplete(ctx, tc))
       .call(tc -> {
-        List<OaasObject> list = tc.getMain()!=null ?
+        List<OObject> list = tc.getMain()!=null ?
           Lists.mutable.of(ctx.getMain()):
           Lists.mutable.empty();
         return gsm.persistAll(ctx, list);
@@ -90,8 +91,10 @@ public class InvocationExecutor {
 
 
   public Uni<InvocationContext> asyncExec(InvocationContext ctx) {
+    var req = ctx.getRequest();
     if (logger.isTraceEnabled())
-      logger.trace("asyncExec {} {}", new TaskIdentity(ctx), ctx);
+      logger.trace("asyncExec {}-({})>{} {}",
+        req.main(), ctx.getRequest().invId(), req.outId(), ctx);
 
     ctx.initNode().markAsSubmitted(null, false);
     if (ctx.getRequest()!=null) {

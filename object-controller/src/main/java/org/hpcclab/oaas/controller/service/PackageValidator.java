@@ -1,15 +1,13 @@
 package org.hpcclab.oaas.controller.service;
 
-import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import lombok.Builder;
 import org.eclipse.collections.impl.factory.Sets;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.function.DeploymentCondition;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
@@ -38,12 +36,12 @@ public class PackageValidator {
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
       .map(f -> f.setPkg(pkg.getName()))
-      .collect(Collectors.toMap(OaasFunction::getKey, Function.identity()));
-    for (OaasFunction function : functions) {
+      .collect(Collectors.toMap(OFunction::getKey, Function.identity()));
+    for (OFunction function : functions) {
       function.setPkg(pkg.getName());
       function.validate(options.overrideDeploymentStatus);
     }
-    for (OaasClass cls : classes) {
+    for (OClass cls : classes) {
       cls.setPkg(pkg.getName());
       cls.validate();
     }
@@ -60,7 +58,7 @@ public class PackageValidator {
         .collect().last());
   }
 
-  public Uni<Void> validateFunctionBinding(List<OaasClass> classes, Map<String, OaasFunction> functionMap) {
+  public Uni<Void> validateFunctionBinding(List<OClass> classes, Map<String, OFunction> functionMap) {
     return Multi.createFrom().iterable(classes)
       .call(cls -> validateFunctionBinding(cls, functionMap))
       .collect()
@@ -68,8 +66,8 @@ public class PackageValidator {
       .replaceWithVoid();
   }
 
-  public Uni<Void> validateFunctionBinding(OaasClass cls,
-                                           Map<String, OaasFunction> functionMap) {
+  public Uni<Void> validateFunctionBinding(OClass cls,
+                                           Map<String, OFunction> functionMap) {
     return Multi.createFrom().iterable(cls.getFunctions())
       .map(binding -> binding.replaceRelative(cls.getPkg()))
       .call(binding -> Uni.createFrom()
@@ -82,7 +80,7 @@ public class PackageValidator {
       .replaceWithVoid();
   }
 
-  public void validateMacro(OaasFunction function) {
+  public void validateMacro(OFunction function) {
     var macro = function.getMacro();
     var steps = macro.getSteps();
     int i = -1;

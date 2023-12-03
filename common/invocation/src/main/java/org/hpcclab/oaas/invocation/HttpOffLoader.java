@@ -11,7 +11,6 @@ import org.hpcclab.oaas.invocation.task.TaskDecoder;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public class HttpOffLoader implements OffLoader {
   public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (logger.isDebugEnabled())
       logger.debug("invoke {}", invokingDetail.getId());
-    if (invokingDetail.getFuncUrl() == null) {
+    if (invokingDetail.getFuncUrl()==null) {
       throw StdOaasException.format("Function is not ready");
     }
     var content = invokingDetail.getContent();
@@ -68,7 +67,7 @@ public class HttpOffLoader implements OffLoader {
         .setSmtTs(detail.getSmtTs());
     else
       return TaskCompletion.error(
-        TaskIdentity.decode(detail.getId()),
+        detail.getId(),
         "Fail to perform invocation: func return not 200 code (%s)"
           .formatted(resp.statusCode()),
         System.currentTimeMillis(),

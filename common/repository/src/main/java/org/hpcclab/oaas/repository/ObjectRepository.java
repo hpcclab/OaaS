@@ -1,16 +1,12 @@
 package org.hpcclab.oaas.repository;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.model.object.OaasObject;
-
-import java.util.List;
+import org.hpcclab.oaas.model.object.OObject;
 
 @RegisterForReflection(
-  targets = OaasObject.class,
+  targets = OObject.class,
   registerFullHierarchy = true
 )
-public interface ObjectRepository extends EntityRepository<String, OaasObject> {
+public interface ObjectRepository extends EntityRepository<String, OObject> {
 
 }

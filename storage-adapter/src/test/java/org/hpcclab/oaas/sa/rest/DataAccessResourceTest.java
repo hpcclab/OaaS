@@ -6,8 +6,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
-import org.hpcclab.oaas.model.object.ObjectType;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.object.OObjectType;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
@@ -34,9 +34,9 @@ class DataAccessResourceTest {
 
   @BeforeEach
   public void setup() {
-    var testCls = new OaasClass();
+    var testCls = new OClass();
     testCls.setName("test");
-    testCls.setObjectType(ObjectType.SIMPLE);
+    testCls.setObjectType(OObjectType.SIMPLE);
     testCls.setStateType(StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(

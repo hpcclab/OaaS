@@ -1,10 +1,10 @@
 package org.hpcclab.oaas.provisioner;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 
-public class FunctionDeserializer extends ObjectMapperDeserializer<OaasFunction> {
+public class FunctionDeserializer extends ObjectMapperDeserializer<OFunction> {
   public FunctionDeserializer() {
-    super(OaasFunction.class);
+    super(OFunction.class);
   }
 }

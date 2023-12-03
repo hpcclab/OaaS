@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 
@@ -25,10 +25,10 @@ public class FunctionResource {
 
   @GET
   @JsonView(Views.Public.class)
-  public Uni<Pagination<OaasFunction>> list(@RestQuery Long offset,
-                                            @RestQuery Integer limit,
-                                            @RestQuery String sort,
-                                            @RestQuery @DefaultValue("false") boolean desc) {
+  public Uni<Pagination<OFunction>> list(@RestQuery Long offset,
+                                         @RestQuery Integer limit,
+                                         @RestQuery String sort,
+                                         @RestQuery @DefaultValue("false") boolean desc) {
     if (offset==null) offset = 0L;
     if (limit==null) limit = 20;
     if (sort==null) sort = "_key";
@@ -39,7 +39,7 @@ public class FunctionResource {
   @GET
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasFunction> get(String funcKey) {
+  public Uni<OFunction> get(String funcKey) {
     return funcRepo.async().getAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new);
   }
@@ -47,7 +47,7 @@ public class FunctionResource {
   @DELETE
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
-  public Uni<OaasFunction> delete(String funcKey) {
+  public Uni<OFunction> delete(String funcKey) {
     return funcRepo.async().removeAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new)
       .call(__ -> provisionPublisher.submitDeleteFn(funcKey));

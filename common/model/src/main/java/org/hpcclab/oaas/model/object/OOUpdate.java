@@ -6,40 +6,37 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.proto.DSMap;
-import org.hpcclab.oaas.model.cls.OaasClass;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
-public class ObjectUpdate {
+public class OOUpdate {
   ObjectNode data;
   DSMap refs = DSMap.of();
   Set<String> updatedKeys = Set.of();
 
-  public ObjectUpdate() {
+  public OOUpdate() {
   }
 
-  public ObjectUpdate(ObjectNode data) {
+  public OOUpdate(ObjectNode data) {
     this.data = data;
   }
 
-  public ObjectUpdate(ObjectNode data,
-                      DSMap refs,
-                      Set<String> updatedKeys) {
+  public OOUpdate(ObjectNode data,
+                  DSMap refs,
+                  Set<String> updatedKeys) {
     this.data = data;
     this.refs = refs;
     this.updatedKeys = updatedKeys;
   }
 
-  public void filterKeys(OaasClass cls) {
+  public void filterKeys(OClass cls) {
     if (updatedKeys==null || updatedKeys.isEmpty())
       return;
     if (cls.getStateType()==StateType.COLLECTION)
@@ -49,7 +46,7 @@ public class ObjectUpdate {
       .intersect(Sets.fixedSize.withAll(updatedKeys));
   }
 
-  public void update(OaasObject obj, String newVerId) {
+  public void update(OObject obj, String newVerId) {
     if (obj==null)
       return;
 

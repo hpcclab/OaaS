@@ -10,7 +10,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ClassConfig {
+public class OClassConfig {
   public static final int DEFAULT_PARTITIONS = 12;
 
   @ProtoField(1)
@@ -25,18 +25,21 @@ public class ClassConfig {
   String unstructStore;
   @ProtoField(6)
   String logStore;
+  @ProtoField(value = 7, defaultValue = "true")
+  boolean hashAwareSync;
 
-  public ClassConfig() {
+  public OClassConfig() {
   }
 
   @ProtoFactory
-  public ClassConfig(DSMap options, int partitions, int replicas, String structStore, String unstructStore, String logStore) {
+  public OClassConfig(DSMap options, int partitions, int replicas, String structStore, String unstructStore, String logStore, boolean hashAwareSync) {
     this.options = options;
     this.partitions = partitions;
     this.replicas = replicas;
     this.structStore = structStore;
     this.unstructStore = unstructStore;
     this.logStore = logStore;
+    this.hashAwareSync = hashAwareSync;
   }
 
   void validate() {

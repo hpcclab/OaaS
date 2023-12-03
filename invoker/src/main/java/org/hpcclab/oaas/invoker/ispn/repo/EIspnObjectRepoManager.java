@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.invoker.ispn.repo;
 
 import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
@@ -16,13 +16,13 @@ public class EIspnObjectRepoManager extends ObjectRepoManager {
   }
 
   @Override
-  public ObjectRepository createRepo(OaasClass cls) {
+  public ObjectRepository createRepo(OClass cls) {
     var objCache = cacheCreator.getObjectCache(cls);
     return new EIspnObjectRepository(objCache.getAdvancedCache());
   }
 
   @Override
-  protected OaasClass load(String clsKey) {
+  protected OClass load(String clsKey) {
     return classRepo.get(clsKey);
   }
 }

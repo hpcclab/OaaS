@@ -1,8 +1,8 @@
-package org.hpcclab.oaas.model.task;
+package org.hpcclab.oaas.model.invocation;
 
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
-public enum TaskStatus {
+public enum InvocationStatus {
   @ProtoEnumValue(1)
   LAZY(false,false, false),
   @ProtoEnumValue(2)
@@ -20,7 +20,7 @@ public enum TaskStatus {
   final boolean completed;
   final boolean failed;
 
-  TaskStatus(boolean submitted, boolean completed, boolean failed) {
+  InvocationStatus(boolean submitted, boolean completed, boolean failed) {
     this.submitted = submitted;
     this.completed = completed;
     this.failed = failed;

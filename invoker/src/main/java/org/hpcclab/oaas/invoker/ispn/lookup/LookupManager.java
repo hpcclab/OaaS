@@ -2,7 +2,7 @@ package org.hpcclab.oaas.invoker.ispn.lookup;
 
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 
 public class LookupManager {
   int defaultSegmentSize = 64;
@@ -17,7 +17,7 @@ public class LookupManager {
     return registry;
   }
 
-  public ObjectLocationLookup getOrInit(OaasClass cls) {
+  public ObjectLocationLookup getOrInit(OClass cls) {
     return map.computeIfAbsent(
       cls.getKey(),
       k -> new ObjectLocationLookup(cls.getConfig().getPartitions(), cls.getKey(), registry)

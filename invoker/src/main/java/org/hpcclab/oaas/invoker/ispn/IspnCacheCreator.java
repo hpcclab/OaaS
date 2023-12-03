@@ -4,10 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
-import org.hpcclab.oaas.model.cls.ClassConfig;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
@@ -37,32 +37,32 @@ public class IspnCacheCreator {
   @Inject
   EmbeddedCacheManager cacheManager;
 
-  public Cache<String, OaasObject> getObjectCache(OaasClass cls) {
+  public Cache<String, OObject> getObjectCache(OClass cls) {
     var name = cls.getKey();
     if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);
     } else {
       DatastoreConf datastoreConf = confRegistry
         .getOrDefault(Optional.ofNullable(cls.getConfig())
-          .map(ClassConfig::getStructStore)
+          .map(OClassConfig::getStructStore)
           .orElse(DatastoreConfRegistry.DEFAULT));
       var config = getCacheDistConfig(cls,
         ispnConfig.objStore(),
         datastoreConf,
-        OaasObject.class,
+        OObject.class,
         true);
       return cacheManager.createCache(name, config);
     }
   }
 
-  public Cache<String, InvocationNode> getInvCache(OaasClass cls) {
+  public Cache<String, InvocationNode> getInvCache(OClass cls) {
     var name = cls.getKey() + ".InvNode";
     if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);
     } else {
       DatastoreConf datastoreConf = confRegistry
         .getOrDefault(Optional.ofNullable(cls.getConfig())
-          .map(ClassConfig::getLogStore)
+          .map(OClassConfig::getLogStore)
           .orElse(DatastoreConfRegistry.DEFAULT));
       var config = getCacheDistConfig(cls,
         ispnConfig.invStore(),
@@ -73,14 +73,14 @@ public class IspnCacheCreator {
     }
   }
 
-  public Configuration getCacheDistConfig(OaasClass cls,
+  public Configuration getCacheDistConfig(OClass cls,
                                           IspnConfig.CacheStore cacheStore,
                                           DatastoreConf datastoreConf,
                                           Class<?> type,
                                           boolean transactional) {
     var builder = new ConfigurationBuilder();
     var conf = cls.getConfig();
-    if (conf==null) conf = new ClassConfig();
+    if (conf==null) conf = new OClassConfig();
 
     builder
       .clustering()

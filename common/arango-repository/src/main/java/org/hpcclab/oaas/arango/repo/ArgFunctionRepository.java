@@ -5,15 +5,15 @@ import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.annotation.PostConstruct;
 import org.hpcclab.oaas.arango.CacheFactory;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
-public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunction> implements FunctionRepository {
+public class ArgFunctionRepository extends AbstractCachedArgRepository<OFunction> implements FunctionRepository {
 
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
   CacheFactory cacheFactory;
-  private Cache<String, OaasFunction> cache;
+  private Cache<String, OFunction> cache;
 
 
   public ArgFunctionRepository(ArangoCollection collection,
@@ -41,17 +41,17 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
   }
 
   @Override
-  public Class<OaasFunction> getValueCls() {
-    return OaasFunction.class;
+  public Class<OFunction> getValueCls() {
+    return OFunction.class;
   }
 
   @Override
-  public String extractKey(OaasFunction oaasFunction) {
+  public String extractKey(OFunction oaasFunction) {
     return oaasFunction.getKey();
   }
 
   @Override
-  Cache<String, OaasFunction> cache() {
+  Cache<String, OFunction> cache() {
     return cache;
   }
 }

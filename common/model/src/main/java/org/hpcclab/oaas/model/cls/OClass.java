@@ -9,11 +9,9 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.Views;
-import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
-import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.model.object.ObjectType;
+import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -26,7 +24,7 @@ import java.util.Optional;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
+public class OClass implements Copyable<OClass>, HasKey<String> {
 
   @JsonProperty("_key")
   String key;
@@ -41,7 +39,7 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
   @ProtoField(3)
   String genericType;
   @ProtoField(4)
-  ObjectType objectType;
+  OObjectType objectType;
   @ProtoField(5)
   StateType stateType;
   @ProtoField(6)
@@ -59,28 +57,28 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
   @ProtoField(12)
   DatastoreLink store;
   @ProtoField(13)
-  ClassConfig config;
+  OClassConfig config;
 
   ResolvedMember resolved;
 
 
-  public OaasClass() {
+  public OClass() {
   }
 
   @ProtoFactory
-  public OaasClass(String name,
-                   String pkg,
-                   String description,
-                   String genericType,
-                   ObjectType objectType,
-                   StateType stateType,
-                   List<FunctionBinding> functions,
-                   StateSpecification stateSpec,
-                   List<ReferenceSpecification> refSpec,
-                   List<String> parents,
-                   boolean markForRemoval,
-                   DatastoreLink store,
-                   ClassConfig config) {
+  public OClass(String name,
+                String pkg,
+                String description,
+                String genericType,
+                OObjectType objectType,
+                StateType stateType,
+                List<FunctionBinding> functions,
+                StateSpecification stateSpec,
+                List<ReferenceSpecification> refSpec,
+                List<String> parents,
+                boolean markForRemoval,
+                DatastoreLink store,
+                OClassConfig config) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -103,7 +101,7 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
       throw new OaasValidationException("Class's name can not be null");
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
       throw new OaasValidationException("Class's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
-    if (objectType==null) objectType = ObjectType.SIMPLE;
+    if (objectType==null) objectType = OObjectType.SIMPLE;
     if (stateType==null) stateType = StateType.FILES;
     if (stateSpec==null) stateSpec = new StateSpecification();
     stateSpec.validate();
@@ -115,7 +113,7 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
       binding.validate();
     }
     if (config == null) {
-      config = new ClassConfig();
+      config = new OClassConfig();
     }
     config.validate();
   }
@@ -135,8 +133,8 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
   }
 
   @Override
-  public OaasClass copy() {
-    return new OaasClass(
+  public OClass copy() {
+    return new OClass(
       name,
       pkg,
       description,
@@ -154,13 +152,13 @@ public class OaasClass implements Copyable<OaasClass>, HasKey<String> {
       .setResolved(resolved==null ? null:resolved.copy());
   }
 
-  public OaasClass setName(String name) {
+  public OClass setName(String name) {
     this.name = name;
     updateKey();
     return this;
   }
 
-  public OaasClass setPkg(String pkg) {
+  public OClass setPkg(String pkg) {
     this.pkg = pkg;
     updateKey();
     return this;
