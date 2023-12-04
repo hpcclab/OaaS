@@ -10,7 +10,7 @@
     <module>common</module>
     <module>invoker</module>
     <module>kube-provisioner</module>
-    <module>object-controller</module>
+    <module>oparaca-manager</module>
     <module>storage-adapter</module>
   </modules>
   <properties>

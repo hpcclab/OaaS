@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>object-controller</artifactId>
+  <artifactId>oparaca-manager</artifactId>
 
   <properties>
   </properties>
