@@ -8,7 +8,7 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
-import org.hpcclab.oaas.invoker.proto.*;
+import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;

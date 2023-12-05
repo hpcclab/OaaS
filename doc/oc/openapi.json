@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "object-controller API",
+    "title" : "oparaca-manager API",
     "version" : "0.2.0-SNAPSHOT"
   },
   "servers" : [ {

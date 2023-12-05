@@ -8,7 +8,7 @@
     <artifactId>oaas-parent</artifactId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
-  <artifactId>kube-provisioner</artifactId>
+  <artifactId>orbit-manager</artifactId>
   <properties>
   </properties>
   <dependencyManagement>

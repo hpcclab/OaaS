@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.invoker.cdi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpVersion;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
@@ -55,6 +57,7 @@ public class InvocationEngineProducer {
       .setFollowRedirects(false)
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
+      .setProtocolVersion(HttpVersion.HTTP_2)
       .setShared(true);
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Creating WebClient with options {}", options.toJson());

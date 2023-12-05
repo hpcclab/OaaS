@@ -8,7 +8,7 @@ import io.smallrye.reactive.messaging.kafka.Record;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OPackage;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class ProvisionPublisher {
       .collect().last();
   }
 
-  public Uni<Void> submitNewPkg(OaasPackageContainer packageContainer) {
+  public Uni<Void> submitNewPkg(OPackage packageContainer) {
     logger.debug("publish pkg {}", packageContainer.getName());
     return submitNewFunction(packageContainer.getFunctions().stream())
       .flatMap(__ -> submitNewCls(packageContainer.getClasses().stream()));

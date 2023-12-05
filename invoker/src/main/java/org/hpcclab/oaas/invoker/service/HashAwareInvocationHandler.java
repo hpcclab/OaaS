@@ -10,7 +10,7 @@ import io.vertx.core.Vertx;
 import io.vertx.grpc.client.GrpcClient;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
-import org.hpcclab.oaas.invoker.proto.*;
+import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;

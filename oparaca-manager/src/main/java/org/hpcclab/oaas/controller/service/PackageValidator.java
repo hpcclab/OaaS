@@ -8,7 +8,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,11 @@ public class PackageValidator {
   @Inject
   FunctionRepository functionRepo;
 
-  public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg) {
+  public Uni<OPackage> validate(OPackage pkg) {
     return validate(pkg, new ValidationOptions(false));
   }
-  public Uni<OaasPackageContainer> validate(OaasPackageContainer pkg,
-                                            ValidationOptions options) {
+  public Uni<OPackage> validate(OPackage pkg,
+                                ValidationOptions options) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()

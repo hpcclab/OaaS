@@ -3,7 +3,7 @@ package org.hpcclab.oaas;
 import io.restassured.common.mapper.TypeRef;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
@@ -109,7 +109,7 @@ public class TestUtils {
       .extract().body().as(OClass.class);
   }
 
-  public static OaasPackageContainer createBatchYaml(String clsText) {
+  public static OPackage createBatchYaml(String clsText) {
     return given()
       .contentType("text/x-yaml")
       .body(clsText)
@@ -119,7 +119,7 @@ public class TestUtils {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .extract().body().as(OaasPackageContainer.class);
+      .extract().body().as(OPackage.class);
   }
 
   public static List<OFunction> createFunctionYaml(String function) {

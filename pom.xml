@@ -9,7 +9,7 @@
   <modules>
     <module>common</module>
     <module>invoker</module>
-    <module>kube-provisioner</module>
+    <module>orbit-manager</module>
     <module>oparaca-manager</module>
     <module>storage-adapter</module>
   </modules>

@@ -12,14 +12,14 @@ services:
     volumes:
       - arango-data:/var/lib/arangodb3
 
-  oc:
+  om:
     depends_on:
       - arangodb
       - redpanda
-    image: ghcr.io/hpcclab/oaas/object-controller
+    image: ghcr.io/hpcclab/oaas/oparaca-manager
     build:
-      context: object-controller
-      dockerfile: src/main/docker/Dockerfile.jvm21
+      context: oparaca-manager
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - "8088:8080"
     environment:
@@ -44,7 +44,7 @@ services:
   sa:
     build:
       context: storage-adapter
-      dockerfile: src/main/docker/Dockerfile.jvm21
+      dockerfile: src/main/docker/Dockerfile.jvm
     image: ghcr.io/hpcclab/oaas/storage-adapter
 #    restart: always
     ports:
@@ -140,7 +140,7 @@ services:
     image: ghcr.io/hpcclab/oaas/invoker
     build:
       context: invoker
-      dockerfile: src/main/docker/Dockerfile.jvm21
+      dockerfile: src/main/docker/Dockerfile.jvm
     deploy:
       replicas: 1
     ports:
@@ -184,17 +184,17 @@ services:
       - redpanda
       - invoker
     deploy:
-      replicas: 2
+      replicas: 0
     environment:
       *invoker-env
     restart: on-failure
     healthcheck: *oaas-healthcheck
 
-  kp:
+  orbit:
     build:
-      context: kube-provisioner
-      dockerfile: src/main/docker/Dockerfile.jvm21
-    image: ghcr.io/hpcclab/oaas/kube-provisioner
+      context: orbit-manager
+      dockerfile: src/main/docker/Dockerfile.jvm
+    image: ghcr.io/hpcclab/oaas/orbit-manager
     deploy:
       replicas: 0
     healthcheck: *oaas-healthcheck

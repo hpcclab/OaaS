@@ -17,7 +17,7 @@ import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -54,9 +54,9 @@ public class PackageResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @JsonView(Views.Public.class)
   @RunOnVirtualThread
-  public OaasPackageContainer create(@RestQuery Boolean update,
-                                     @RestQuery @DefaultValue("false") Boolean overrideDeploy,
-                                     OaasPackageContainer packageContainer) {
+  public OPackage create(@RestQuery Boolean update,
+                         @RestQuery @DefaultValue("false") Boolean overrideDeploy,
+                         OPackage packageContainer) {
     var options = PackageValidator.ValidationOptions.builder()
       .overrideDeploymentStatus(overrideDeploy).build();
     var pkg = validator.validate(packageContainer, options).await().indefinitely();
@@ -98,8 +98,8 @@ public class PackageResource {
   @PATCH
   @Consumes(MediaType.APPLICATION_JSON)
   @RunOnVirtualThread
-  public OaasPackageContainer patch(String name,
-                                    OaasPackageContainer oaasPackage) {
+  public OPackage patch(String name,
+                        OPackage oaasPackage) {
     // TODO
     throw new NotImplementedException();
   }
@@ -108,10 +108,10 @@ public class PackageResource {
   @PATCH
   @Consumes("text/x-yaml")
   @RunOnVirtualThread
-  public OaasPackageContainer patchByYaml(String name,
-                                          String body) {
+  public OPackage patchByYaml(String name,
+                              String body) {
     try {
-      var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
+      var pkg = yamlMapper.readValue(body, OPackage.class);
       return patch(name, pkg);
     } catch (JsonProcessingException e) {
       throw new StdOaasException(e.getMessage(), 400);
@@ -121,11 +121,11 @@ public class PackageResource {
   @POST
   @Consumes("text/x-yaml")
   @RunOnVirtualThread
-  public OaasPackageContainer createByYaml(@RestQuery Boolean update,
-                                           @RestQuery @DefaultValue("false") Boolean overrideDeploy,
-                                           String body) {
+  public OPackage createByYaml(@RestQuery Boolean update,
+                               @RestQuery @DefaultValue("false") Boolean overrideDeploy,
+                               String body) {
     try {
-      var pkg = yamlMapper.readValue(body, OaasPackageContainer.class);
+      var pkg = yamlMapper.readValue(body, OPackage.class);
       return create(update, overrideDeploy, pkg);
     } catch (JsonProcessingException e) {
       throw new StdOaasException(e.getMessage(), 400);

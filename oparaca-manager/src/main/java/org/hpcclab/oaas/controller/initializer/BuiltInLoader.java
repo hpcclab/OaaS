@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.hpcclab.oaas.controller.rest.PackageResource;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.model.pkg.OaasPackageContainer;
+import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class BuiltInLoader {
 
     for (String file : files) {
       var is = getClass().getResourceAsStream(file);
-      var pkg = mapper.readValue(is, OaasPackageContainer.class);
+      var pkg = mapper.readValue(is, OPackage.class);
       var funcList = pkg.getFunctions();
       var funcNames = funcList==null ? List.of()
         :funcList.stream()

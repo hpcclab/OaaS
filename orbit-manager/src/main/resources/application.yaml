@@ -14,6 +14,7 @@ oaas:
     clsProvisionTopic: oaas-cls
     exposeKnative: false
   log: INFO
+  name: orbit-manager
 
 quarkus:
   log:
@@ -27,7 +28,7 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
-    image: ${ci.registry.image:oaas}/kube-provisioner${tag:}
+    image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   console:
     color: true
 mp:

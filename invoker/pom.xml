@@ -39,6 +39,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
 <!--      <version>6.25.0</version>-->
