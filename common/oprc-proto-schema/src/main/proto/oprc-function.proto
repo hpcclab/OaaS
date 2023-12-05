@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message ProtoOFunction{
+  string name = 1;
+  string pkg = 2;
+  string description = 3;
+  ProtoFunctionType type = 4;
+  string outputCls = 5;
+  ProtoMacroSpec macro = 6;
+  ProvisionConfig provision = 7;
+  repeated VariableDescription variableDescriptions = 8;
+  FunctionDeploymentStatus deploymentStatus = 9;
+  ProtoFunctionState state = 10;
+}
+
+enum ProtoFunctionType{
+  TASK = 0;
+  IM_TASK = 1;
+  LOGICAL = 2;
+  MACRO = 3;
+  STATIC = 4;
+  READONLY = 5;
+  STATIC_READONLY = 6;
+}
+
+message ProtoMacroSpec {
+  repeated DataflowStep steps = 1;
+  repeated WorkflowExport exports = 2;
+  string export = 3;
+  bool atomic = 4;
+}
+
+message ProvisionConfig {
+  KnativeProvision knative = 1;
+  KDeploymentProvision deployment = 2;
+  StaticUrlProvision staticUrl = 3;
+}
+
+message KnativeProvision{
+  string image = 1;
+  int32 minScale = 2;
+  int32 maxScale = 3;
+  int32 concurrency = 4;
+  int32 targetConcurrency = 5;
+  string scaleDownDelay = 6;
+  string requestsCpu = 7;
+  string requestsMemory = 8;
+  string limitsCpu = 9;
+  string limitsMemory = 10;
+  map<string, string> env = 11;
+  string apiPath = 12;
+}
+message KDeploymentProvision{
+  string image = 1;
+  int32 replicas = 2;
+  string requestsCpu = 3;
+  string requestsMemory = 4;
+  string limitsCpu = 5;
+  string limitsMemory = 6;
+  map<string, string> env = 7;
+  string apiPath = 8;
+}
+message StaticUrlProvision{
+  string url = 1;
+}
+
+message VariableDescription {
+  string name = 1;
+  string comment = 2;
+}
+
+
+message FunctionDeploymentStatus {
+  ProtoDeploymentCondition condition = 1;
+  string invocationUrl = 2;
+  string errorMsg = 3;
+}
+
+enum ProtoDeploymentCondition{
+  PENDING = 0;
+  DEPLOYING = 1;
+  RUNNING = 2;
+  DOWN = 3;
+  DELETED = 4;
+}
+
+
+enum ProtoFunctionState {
+  ENABLED = 0;
+  DISABLED = 1;
+  REMOVING = 2;
+}
+
+message DataflowStep {
+  string function = 1;
+  string target = 2;
+  string as = 3;
+  repeated  string inputRefs = 4;
+  map<string, string> args = 5;
+  map<string, string> argRefs = 6;
+}
+
+
+message WorkflowExport {
+  string from = 1;
+  string as = 2;
+}

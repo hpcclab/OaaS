@@ -1,0 +1,31 @@
+syntax = "proto3";
+import "oprc-package.proto";
+import "oprc-class.proto";
+import "oprc-function.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service PackageService {
+  rpc createOrUpdate(OPackage) returns (OPackage) {};
+  rpc get(SingleKeyQuery) returns (OPackage) {};
+}
+
+service ClassService {
+  rpc list(PaginateQuery) returns (stream ProtoOClass) {};
+}
+
+service FunctionService {
+  rpc list(PaginateQuery) returns (stream ProtoOFunction) {};
+}
+
+message SingleKeyQuery{
+  string name = 1;
+}
+
+message PaginateQuery{
+  int64 offset = 1;
+  int32 limit = 2;
+}

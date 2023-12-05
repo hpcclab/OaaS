@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "oprc-package.proto";
+import "oprc-class.proto";
+import "oprc-function.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service InternalClassService {
+  rpc update(ProtoOClass) returns (ProtoOClass) {};
+}
+
+service InternalFunctionService {
+  rpc update(ProtoOFunction) returns (ProtoOFunction) {};
+}
+

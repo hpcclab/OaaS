@@ -1,12 +1,13 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.hpcclab.oaas.invoker.proto";
+option java_package = "org.hpcclab.oaas.proto";
 
 package oprc;
 
-
-import "google/protobuf/struct.proto";
+service InvocationService {
+  rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
+}
 
 message ProtoInvocationRequest {
   optional string main = 1;
@@ -25,10 +26,6 @@ message ProtoInvocationRequest {
   bytes body = 14;
 }
 
-message Test{
-  google.protobuf.Struct data = 1;
-}
-
 message ProtoInvocationResponse {
   optional ProtoOObject main = 1;
   optional ProtoOObject output = 2;
@@ -45,7 +42,6 @@ message ProtoInvocationStats{
   int64 queTs = 1;
   int64 smtTs = 2;
   int64 cptTs = 3;
-
 }
 
 message ProtoOObject {
@@ -74,6 +70,3 @@ enum ProtoTaskStatus {
   READY = 5;
 }
 
-service InvocationService {
-  rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
-}

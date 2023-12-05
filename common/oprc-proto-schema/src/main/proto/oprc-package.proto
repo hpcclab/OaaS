@@ -1,0 +1,15 @@
+syntax = "proto3";
+import "oprc-class.proto";
+import "oprc-function.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message OPackage {
+  string name = 1;
+  repeated ProtoOClass classes = 2;
+  repeated ProtoOFunction functions = 3;
+  repeated string required = 4;
+}
