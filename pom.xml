@@ -12,6 +12,7 @@
     <module>orbit-manager</module>
     <module>oparaca-manager</module>
     <module>storage-adapter</module>
+    <module>cli</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>

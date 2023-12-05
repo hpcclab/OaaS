@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
-    <artifactId>oaas-common</artifactId>
+    <artifactId>oprc-common</artifactId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>common-storage</artifactId>

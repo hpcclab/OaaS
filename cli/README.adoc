@@ -1,0 +1,30 @@
+= OPRC-CLI
+
+The commandline interface for Oparaca (aka https://github.com/hpcclab/OaaS[OaaS]).
+
+== Installation
+=== Native Image
+The native image is more preferable than the jar file because it has a much faster startup time.
+
+[source,bash]
+----
+VERSION="v0.1.10"
+curl -Lo ocli https://github.com/pawissanutt/oprc-cli/releases/download/$VERSION/oprc-cli-$VERSION-runner
+sudo chmod +x ocli
+cp ocli $HOME/.local/bin
+# or
+# sudo cp ocli /usr/local/bin
+----
+
+
+=== Jar file via JBang
+You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
+
+[source,bash]
+----
+jbang app install --name ocli --force --fresh ocli@pawissanutt/oprc-cli
+----
+
+== Usage
+You can check the usage instruction by running `ocli -h`.
+
