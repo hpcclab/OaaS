@@ -7,7 +7,7 @@ option java_package = "org.hpcclab.oaas.proto";
 
 package oprc;
 
-message OPackage {
+message ProtoOPackage {
   string name = 1;
   repeated ProtoOClass classes = 2;
   repeated ProtoOFunction functions = 3;

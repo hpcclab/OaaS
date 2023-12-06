@@ -224,7 +224,7 @@
             },
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasPackageContainer"
+                "$ref" : "#/components/schemas/OPackage"
               }
             }
           }
@@ -235,7 +235,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasPackageContainer_Public"
+                  "$ref" : "#/components/schemas/OPackage_Public"
                 }
               }
             }
@@ -263,7 +263,7 @@
             },
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/OaasPackageContainer"
+                "$ref" : "#/components/schemas/OPackage"
               }
             }
           }
@@ -274,7 +274,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OaasPackageContainer"
+                  "$ref" : "#/components/schemas/OPackage"
                 }
               }
             }
@@ -1011,17 +1011,11 @@
         "enum" : [ "SIMPLE", "COMPOUND" ],
         "type" : "string"
       },
-      "OaasPackageContainer" : {
+      "OPackage" : {
         "type" : "object",
         "properties" : {
           "name" : {
             "type" : "string"
-          },
-          "required" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           },
           "classes" : {
             "type" : "array",
@@ -1034,20 +1028,20 @@
             "items" : {
               "$ref" : "#/components/schemas/OFunction"
             }
-          }
-        }
-      },
-      "OaasPackageContainer_Public" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
           },
           "required" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
+          }
+        }
+      },
+      "OPackage_Public" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
           },
           "classes" : {
             "type" : "array",
@@ -1059,6 +1053,12 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/OFunction_Public"
+            }
+          },
+          "required" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
             }
           }
         }

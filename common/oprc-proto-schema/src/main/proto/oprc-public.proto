@@ -9,8 +9,8 @@ option java_package = "org.hpcclab.oaas.proto";
 package oprc;
 
 service PackageService {
-  rpc createOrUpdate(OPackage) returns (OPackage) {};
-  rpc get(SingleKeyQuery) returns (OPackage) {};
+  rpc createOrUpdate(ProtoOPackage) returns (ProtoOPackage) {};
+  rpc get(SingleKeyQuery) returns (ProtoOPackage) {};
 }
 
 service ClassService {

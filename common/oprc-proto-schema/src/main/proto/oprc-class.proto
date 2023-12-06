@@ -22,16 +22,6 @@ message ProtoOClass{
   optional ProtoOClassConfig config = 14;
 }
 
-enum ProtoOObjectType{
-  SIMPLE = 0;
-  COMPOUND = 1;
-}
-
-enum ProtoStateType {
-  FILES = 0;
-  COLLECTION = 1;
-}
-
 message ProtoFunctionBinding {
   optional ProtoFunctionAccessModifier access = 1;
   string function = 2;
@@ -42,12 +32,6 @@ message ProtoFunctionBinding {
   bool forceImmutable = 7;
   bool noMain = 8;
   repeated string inputTypes = 9;
-}
-
-enum ProtoFunctionAccessModifier {
-  PUBLIC = 0;
-  INTERNAL = 1;
-  PRIVATE = 2;
 }
 
 message ProtoStateSpecification{
@@ -67,13 +51,6 @@ message ProtoReferenceSpecification {
   ProtoKeyAccessModifier access = 3;
 }
 
-enum ProtoKeyAccessModifier {
-  KEY_PUBLIC = 0;
-  KEY_DEPENDENT = 1;
-  KEY_INTERNAL = 2;
-  KEY_PRIVATE = 3;
-}
-
 
 message ProtoDatastoreLink{
   string name = 1;
@@ -88,4 +65,44 @@ message ProtoOClassConfig {
   string unstructStore = 5;
   string logStore = 6;
   bool hashAwareSync = 7;
+}
+
+
+enum ProtoOObjectType{
+//  SIMPLE = 0;
+//  COMPOUND = 1;
+  PROTO_O_OBJECT_TYPE_UNSPECIFIED = 0;
+  PROTO_O_OBJECT_TYPE_SIMPLE = 1;
+  PROTO_O_OBJECT_TYPE_COMPOUND = 2;
+}
+
+enum ProtoStateType {
+//  FILES = 0;
+//  COLLECTION = 1;
+  PROTO_STATE_TYPE_UNSPECIFIED = 0;
+  PROTO_STATE_TYPE_FILES = 1;
+  PROTO_STATE_TYPE_COLLECTION = 2;
+}
+
+
+enum ProtoFunctionAccessModifier {
+//  PUBLIC = 0;
+//  INTERNAL = 1;
+//  PRIVATE = 2;
+  PROTO_FUNCTION_ACCESS_MODIFIER_UNSPECIFIED = 0;
+  PROTO_FUNCTION_ACCESS_MODIFIER_PUBLIC = 1;
+  PROTO_FUNCTION_ACCESS_MODIFIER_INTERNAL = 2;
+  PROTO_FUNCTION_ACCESS_MODIFIER_PRIVATE = 3;
+}
+
+enum ProtoKeyAccessModifier {
+//  KEY_PUBLIC = 0;
+//  KEY_DEPENDENT = 1;
+//  KEY_INTERNAL = 2;
+//  KEY_PRIVATE = 3;
+  PROTO_KEY_ACCESS_MODIFIER_UNSPECIFIED = 0;
+  PROTO_KEY_ACCESS_MODIFIER_PUBLIC = 1;
+  PROTO_KEY_ACCESS_MODIFIER_DEPENDENT = 2;
+  PROTO_KEY_ACCESS_MODIFIER_INTERNAL = 3;
+  PROTO_KEY_ACCESS_MODIFIER_PRIVATE = 4;
 }

@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "oprc-object.proto";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
@@ -42,23 +43,6 @@ message ProtoInvocationStats{
   int64 queTs = 1;
   int64 smtTs = 2;
   int64 cptTs = 3;
-}
-
-message ProtoOObject {
-  optional string key = 1;
-  int64 revision = 2;
-  optional string cls = 3;
-  optional OOState state = 4;
-  map<string, string> refs = 5;
-  bytes data = 6;
-  int64 lastOffset = 7;
-  optional string lastInv = 8;
-}
-
-
-message OOState {
-  map<string, string> overrideUrls = 1;
-  map<string, string> verIds = 2;
 }
 
 enum ProtoTaskStatus {
