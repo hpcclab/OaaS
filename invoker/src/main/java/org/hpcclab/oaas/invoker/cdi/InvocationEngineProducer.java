@@ -1,7 +1,5 @@
 package org.hpcclab.oaas.invoker.cdi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
@@ -12,7 +10,6 @@ import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.*;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
-import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
@@ -21,9 +18,15 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
-import org.hpcclab.oaas.repository.*;
+import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.GraphStateManager;
+import org.hpcclab.oaas.repository.InvRepoManager;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
+import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,11 +92,15 @@ public class InvocationEngineProducer {
   @Produces
   @ApplicationScoped
   HashAwareInvocationHandler hashAwareInvocationHandler(
-    LookupManager lookupManager, ClassRepository classRepository, Vertx vertx, ObjectMapper objectMapper, InvocationReqHandler invocationReqHandler
+    LookupManager lookupManager,
+    ClassRepository classRepository,
+    Vertx vertx,
+    ProtoObjectMapper mapper,
+    InvocationReqHandler invocationReqHandler
   ) {
     return new HashAwareInvocationHandler(
       lookupManager, classRepository, vertx.getDelegate(),
-      objectMapper, invocationReqHandler
+      mapper, invocationReqHandler
     );
   }
 
@@ -112,5 +119,13 @@ public class InvocationEngineProducer {
   @Singleton
   IdGenerator idGenerator() {
     return new TsidGenerator();
+  }
+
+  @Produces
+  @Singleton
+  ProtoObjectMapper mapper() {
+    var protoObjectMapper = new ProtoObjectMapperImpl();
+    protoObjectMapper.setMapper(new MessagePackMapper());
+    return protoObjectMapper;
   }
 }

@@ -33,7 +33,7 @@ message ProtoInvocationResponse {
   optional string invId = 3;
   optional string fb = 4;
   map<string, string> macroIds = 5;
-  ProtoTaskStatus status = 6;
+  ProtoInvocationStatus status = 6;
   ProtoInvocationStats stats = 7;
   bool async = 8;
   bytes body = 9;
@@ -45,12 +45,13 @@ message ProtoInvocationStats{
   int64 cptTs = 3;
 }
 
-enum ProtoTaskStatus {
-  LAZY = 0;
-  DOING = 1;
-  SUCCEEDED = 2;
-  FAILED = 3;
-  DEPENDENCY_FAILED = 4;
-  READY = 5;
+enum ProtoInvocationStatus {
+  PROTO_INVOCATION_STATUS_UNSPECIFIED = 0;
+  PROTO_INVOCATION_STATUS_LAZY = 1;
+  PROTO_INVOCATION_STATUS_DOING = 2;
+  PROTO_INVOCATION_STATUS_SUCCEEDED = 3;
+  PROTO_INVOCATION_STATUS_FAILED = 4;
+  PROTO_INVOCATION_STATUS_DEPENDENCY_FAILED = 5;
+  PROTO_INVOCATION_STATUS_READY = 6;
 }
 
