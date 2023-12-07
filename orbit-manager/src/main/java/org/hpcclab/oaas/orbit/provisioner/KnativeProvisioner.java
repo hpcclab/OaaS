@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.provisioner.provisioner;
+package org.hpcclab.oaas.orbit.provisioner;
 
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.serving.v1.Service;
@@ -12,11 +12,11 @@ import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
+import org.hpcclab.oaas.model.function.OFunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.FunctionState;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.proto.DSMap;
-import org.hpcclab.oaas.provisioner.KpConfig;
+import org.hpcclab.oaas.orbit.OrbitManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static org.hpcclab.oaas.provisioner.FunctionWatcher.extractReadyCondition;
-import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
+import static org.hpcclab.oaas.orbit.FunctionWatcher.extractReadyCondition;
+import static org.hpcclab.oaas.orbit.OrbitManagerConfig.LABEL_KEY;
 
 @ApplicationScoped
 @RegisterForReflection(
@@ -35,16 +35,16 @@ import static org.hpcclab.oaas.provisioner.KpConfig.LABEL_KEY;
   },
   registerFullHierarchy = true
 )
-public class KnativeProvisioner implements Provisioner<OFunction> {
+public class KnativeProvisioner implements Provisioner<OFunction,OFunction> {
 
   private static final Logger logger = LoggerFactory.getLogger(KnativeProvisioner.class);
   @Inject
   KnativeClient knativeClient;
   @Inject
-  KpConfig kpConfig;
+  OrbitManagerConfig orbitConfig;
 
   @Override
-  public Consumer<OFunction> provision(OFunction function) {
+  public OFunction provision(OFunction function) {
     var key = function.getKey();
     if (function.getState()==FunctionState.REMOVING) {
       boolean deleted;
@@ -54,8 +54,8 @@ public class KnativeProvisioner implements Provisioner<OFunction> {
         .delete()
         .isEmpty();
       if (deleted) logger.info("Deleted service: {}", key);
-      return f ->
-        f.getDeploymentStatus().setCondition(DeploymentCondition.DELETED);
+      function.getStatus().setCondition(DeploymentCondition.DELETED);
+      return function;
     } else {
       var svcName = "oaas-" + function.getKey().replaceAll("[/._]", "-")
         .toLowerCase();
@@ -78,34 +78,33 @@ public class KnativeProvisioner implements Provisioner<OFunction> {
         newSvc = knativeClient.services().resource(service).create();
         logger.info("Created service: {}", service.getMetadata().getName());
       }
-      return updateFunctionStatus(newSvc);
+      return updateFunctionStatus(function, newSvc);
     }
   }
 
 
-  private Consumer<OFunction> updateFunctionStatus(Service service) {
+  private OFunction updateFunctionStatus(OFunction function, Service service) {
     var condition = extractReadyCondition(service);
     var ready = condition.isPresent() && condition.get().getStatus().equals("True");
     if (ready) {
-      return f -> {
-        var kn = f.getProvision().getKnative();
-        var apiPath = kn.getApiPath();
-        if (apiPath==null)
-          apiPath = "";
-        else if (!apiPath.isEmpty() && !apiPath.startsWith("/"))
-          apiPath = "/" + apiPath;
-        if (f.getDeploymentStatus()==null) {
-          f.setDeploymentStatus(new FunctionDeploymentStatus());
-        }
-        f.getDeploymentStatus()
-          .setCondition(DeploymentCondition.RUNNING)
-          .setInvocationUrl(service.getStatus().getUrl() + apiPath)
-          .setErrorMsg(null);
-      };
+      var kn = function.getProvision().getKnative();
+      var apiPath = kn.getApiPath();
+      if (apiPath==null)
+        apiPath = "";
+      else if (!apiPath.isEmpty() && !apiPath.startsWith("/"))
+        apiPath = "/" + apiPath;
+      if (function.getStatus()==null) {
+        function.setStatus(new OFunctionDeploymentStatus());
+      }
+      function.getStatus()
+        .setCondition(DeploymentCondition.RUNNING)
+        .setInvocationUrl(service.getStatus().getUrl() + apiPath)
+        .setErrorMsg(null);
     } else {
-      return f -> f.getDeploymentStatus()
+      function.getStatus()
         .setCondition(DeploymentCondition.DEPLOYING);
     }
+    return function;
   }
 
 
@@ -156,7 +155,7 @@ public class KnativeProvisioner implements Provisioner<OFunction> {
 
     var labels = new HashMap<String, String>();
     labels.put(LABEL_KEY, function.getKey());
-    if (!kpConfig.exposeKnative()) {
+    if (!orbitConfig.exposeKnative()) {
       labels.put("networking.knative.dev/visibility", "cluster-local");
     }
 

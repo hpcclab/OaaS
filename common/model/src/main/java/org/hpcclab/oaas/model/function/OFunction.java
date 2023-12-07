@@ -45,7 +45,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
   List<VariableDescription> variableDescriptions;
 
   @ProtoField(10)
-  FunctionDeploymentStatus deploymentStatus;
+  OFunctionDeploymentStatus status;
 
   @ProtoField(11)
   FunctionState state = FunctionState.ENABLED;
@@ -63,7 +63,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
                    MacroSpec macro,
                    ProvisionConfig provision,
                    List<VariableDescription> variableDescriptions,
-                   FunctionDeploymentStatus deploymentStatus,
+                   OFunctionDeploymentStatus status,
                    FunctionState state) {
     this.name = name;
     this.pkg = pkg;
@@ -73,7 +73,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     this.macro = macro;
     this.provision = provision;
     this.variableDescriptions = variableDescriptions;
-    this.deploymentStatus = deploymentStatus;
+    this.status = status;
     this.state = state;
     updateKey();
   }
@@ -96,12 +96,12 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       }
     }
     if (!ignoreDeploy) {
-      if (deploymentStatus==null)
-        deploymentStatus = new FunctionDeploymentStatus();
+      if (status==null)
+        status = new OFunctionDeploymentStatus();
       if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
-        deploymentStatus.setCondition(DeploymentCondition.RUNNING);
+        status.setCondition(DeploymentCondition.RUNNING);
       } else {
-        deploymentStatus.setCondition(DeploymentCondition.PENDING);
+        status.setCondition(DeploymentCondition.PENDING);
       }
     }
 
@@ -112,7 +112,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     }
 
     if (provision != null && provision.getStaticUrl() != null){
-      deploymentStatus.setCondition(DeploymentCondition.RUNNING)
+      status.setCondition(DeploymentCondition.RUNNING)
         .setInvocationUrl(provision.getStaticUrl().getUrl());
     }
   }
@@ -150,7 +150,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       macro,
       provision,
       variableDescriptions == null? null : List.copyOf(variableDescriptions),
-      deploymentStatus,
+      status,
       state
     );
   }

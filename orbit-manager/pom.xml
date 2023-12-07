@@ -24,17 +24,17 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
+      <version>0.2.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>arango-repository</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -49,13 +49,9 @@
       <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
     <dependency>
-    <groupId>io.fabric8</groupId>
-    <artifactId>knative-client</artifactId>
-  </dependency>
-    <!--    <dependency>-->
-    <!--      <groupId>io.quarkus</groupId>-->
-    <!--      <artifactId>quarkus-container-image-jib</artifactId>-->
-    <!--    </dependency>-->
+      <groupId>io.fabric8</groupId>
+      <artifactId>knative-client</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-container-image-docker</artifactId>
@@ -67,7 +63,8 @@
     <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.24.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
+      <version>0.0.24.Final
+      </version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
       <classifier>linux-x86_64</classifier>
     </dependency>
     <dependency>

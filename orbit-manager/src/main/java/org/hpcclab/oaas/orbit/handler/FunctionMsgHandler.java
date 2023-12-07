@@ -1,5 +1,6 @@
-package org.hpcclab.oaas.provisioner.handler;
+package org.hpcclab.oaas.orbit.handler;
 
+import io.quarkus.grpc.GrpcClient;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,9 +8,11 @@ import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.eclipse.microprofile.reactive.messaging.*;
-import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
+import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.provisioner.provisioner.KnativeProvisioner;
+import org.hpcclab.oaas.orbit.provisioner.KnativeProvisioner;
+import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
+import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +21,13 @@ import java.nio.charset.StandardCharsets;
 @ApplicationScoped
 public class FunctionMsgHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionMsgHandler.class);
-  @Inject
-  ArgFunctionRepository functionRepo;
+  @GrpcClient("oparaca-manager")
+  DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
+
   @Inject
   KnativeProvisioner knativeProvisioner;
+  @Inject
+  ProtoMapper mapper;
   @Channel("fnUpdated")
   Emitter<OFunction> emitter;
 
@@ -39,11 +45,13 @@ public class FunctionMsgHandler {
     if (function!=null &&
       function.getProvision()!=null &&
       function.getProvision().getKnative()!=null) {
-      var functionUpdater = knativeProvisioner.provision(function);
-      var updatedFunc = functionRepo.compute(function.getKey(), (k, f) -> {
-        functionUpdater.accept(f);
-        return f;
-      });
+      var updatedFunction = knativeProvisioner.provision(function);
+      var statusUpdate = OFunctionStatusUpdate.newBuilder()
+        .setKey(updatedFunction.getKey())
+        .setStatus(mapper.toProto(updatedFunction.getStatus()))
+        .build();
+      var updatedFunc = mapper.fromProto(deploymentStatusUpdater
+        .updateFn(statusUpdate));
       var msg = Message.of(updatedFunc, Metadata.of(
           OutgoingKafkaRecordMetadata.builder()
             .withKey(updatedFunc.getKey())

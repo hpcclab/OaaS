@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.controller;
+package org.hpcclab.oaas.controller.cdi;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -25,12 +25,6 @@ public class RepoProducer {
   ArgFunctionRepository funcRepository() {
     return AutoRepoBuilder.funcRepository();
   }
-
-//  @Produces
-//  @ApplicationScoped
-//  ArgObjectRepository objRepository() {
-//    return AutoRepoBuilder.objRepository();
-//  }
 
   @Produces
   @ApplicationScoped

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.provisioner;
+package org.hpcclab.oaas.orbit;
 
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.knative.client.KnativeClient;

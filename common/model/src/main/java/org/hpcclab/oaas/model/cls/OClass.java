@@ -58,6 +58,8 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   DatastoreLink store;
   @ProtoField(13)
   OClassConfig config;
+  @ProtoField(14)
+  OClassDeploymentStatus status;
 
   ResolvedMember resolved;
 
@@ -78,7 +80,9 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
                 List<String> parents,
                 boolean markForRemoval,
                 DatastoreLink store,
-                OClassConfig config) {
+                OClassConfig config,
+                OClassDeploymentStatus status
+                ) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -92,12 +96,13 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.markForRemoval = markForRemoval;
     this.store = store;
     this.config = config;
+    this.status = status;
 
     updateKey();
   }
 
   public void validate() {
-    if (name == null)
+    if (name==null)
       throw new OaasValidationException("Class's name can not be null");
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
       throw new OaasValidationException("Class's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
@@ -112,7 +117,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     for (FunctionBinding binding : functions) {
       binding.validate();
     }
-    if (config == null) {
+    if (config==null) {
       config = new OClassConfig();
     }
     config.validate();
@@ -147,7 +152,8 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       parents==null ? null:List.copyOf(parents),
       markForRemoval,
       store,
-      config
+      config,
+      status
     )
       .setResolved(resolved==null ? null:resolved.copy());
   }
@@ -186,7 +192,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   public boolean isSamePackage(String classKey) {
     var i = classKey.lastIndexOf('.');
     if (i < 0)
-      return getPkg() == null;
+      return getPkg()==null;
     var otherPkg = classKey.substring(0, i);
     return otherPkg.equals(pkg);
   }

@@ -14,26 +14,8 @@ message ProtoOFunction{
   ProtoMacroSpec macro = 6;
   ProvisionConfig provision = 7;
   repeated VariableDescription variableDescriptions = 8;
-  FunctionDeploymentStatus deploymentStatus = 9;
+  ProtoOFunctionDeploymentStatus deploymentStatus = 9;
   ProtoFunctionState state = 10;
-}
-
-enum ProtoFunctionType{
-//  TASK = 0;
-//  IM_TASK = 1;
-//  LOGICAL = 2;
-//  MACRO = 3;
-//  STATIC = 4;
-//  READONLY = 5;
-//  STATIC_READONLY = 6;
-  PROTO_FUNCTION_TYPE_UNSPECIFIED = 0;
-  PROTO_FUNCTION_TYPE_TASK = 1;
-  PROTO_FUNCTION_TYPE_IM_TASK = 2;
-  PROTO_FUNCTION_TYPE_LOGICAL = 3;
-  PROTO_FUNCTION_TYPE_MACRO = 4;
-  PROTO_FUNCTION_TYPE_STATIC = 5;
-  PROTO_FUNCTION_TYPE_READONLY = 6;
-  PROTO_FUNCTION_TYPE_STATIC_READONLY = 7;
 }
 
 message ProtoMacroSpec {
@@ -81,39 +63,6 @@ message VariableDescription {
   string name = 1;
   string comment = 2;
 }
-
-
-message FunctionDeploymentStatus {
-  ProtoDeploymentCondition condition = 1;
-  string invocationUrl = 2;
-  string errorMsg = 3;
-}
-
-enum ProtoDeploymentCondition{
-//  PENDING = 0;
-//  DEPLOYING = 1;
-//  RUNNING = 2;
-//  DOWN = 3;
-//  DELETED = 4;
-  PROTO_DEPLOYMENT_CONDITION_UNSPECIFIED = 0;
-  PROTO_DEPLOYMENT_CONDITION_PENDING = 1;
-  PROTO_DEPLOYMENT_CONDITION_DEPLOYING = 2;
-  PROTO_DEPLOYMENT_CONDITION_RUNNING = 3;
-  PROTO_DEPLOYMENT_CONDITION_DOWN = 4;
-  PROTO_DEPLOYMENT_CONDITION_DELETED = 5;
-}
-
-
-enum ProtoFunctionState {
-//  ENABLED = 0;
-//  DISABLED = 1;
-//  REMOVING = 2;
-  PROTO_FUNCTION_STATE_UNSPECIFIED = 0;
-  PROTO_FUNCTION_STATE_ENABLED = 1;
-  PROTO_FUNCTION_STATE_DISABLED = 2;
-  PROTO_FUNCTION_STATE_REMOVING = 3;
-}
-
 message DataflowStep {
   string function = 1;
   string target = 2;
@@ -127,4 +76,38 @@ message DataflowStep {
 message WorkflowExport {
   string from = 1;
   string as = 2;
+}
+
+message ProtoOFunctionDeploymentStatus {
+  ProtoDeploymentCondition condition = 1;
+  string invocationUrl = 2;
+  string errorMsg = 3;
+}
+
+
+enum ProtoDeploymentCondition{
+  PROTO_DEPLOYMENT_CONDITION_UNSPECIFIED = 0;
+  PROTO_DEPLOYMENT_CONDITION_PENDING = 1;
+  PROTO_DEPLOYMENT_CONDITION_DEPLOYING = 2;
+  PROTO_DEPLOYMENT_CONDITION_RUNNING = 3;
+  PROTO_DEPLOYMENT_CONDITION_DOWN = 4;
+  PROTO_DEPLOYMENT_CONDITION_DELETED = 5;
+}
+
+enum ProtoFunctionState {
+  PROTO_FUNCTION_STATE_UNSPECIFIED = 0;
+  PROTO_FUNCTION_STATE_ENABLED = 1;
+  PROTO_FUNCTION_STATE_DISABLED = 2;
+  PROTO_FUNCTION_STATE_REMOVING = 3;
+}
+
+enum ProtoFunctionType{
+  PROTO_FUNCTION_TYPE_UNSPECIFIED = 0;
+  PROTO_FUNCTION_TYPE_TASK = 1;
+  PROTO_FUNCTION_TYPE_IM_TASK = 2;
+  PROTO_FUNCTION_TYPE_LOGICAL = 3;
+  PROTO_FUNCTION_TYPE_MACRO = 4;
+  PROTO_FUNCTION_TYPE_STATIC = 5;
+  PROTO_FUNCTION_TYPE_READONLY = 6;
+  PROTO_FUNCTION_TYPE_STATIC_READONLY = 7;
 }

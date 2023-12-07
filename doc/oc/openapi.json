@@ -562,11 +562,11 @@
         }
       },
       "KeyAccessModifier" : {
-        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
+        "enum" : [ "PUBLIC", "DEPENDENT", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "KeyAccessModifier_Public" : {
-        "enum" : [ "PUBLIC", "DEP", "INTERNAL", "PRIVATE" ],
+        "enum" : [ "PUBLIC", "DEPENDENT", "INTERNAL", "PRIVATE" ],
         "type" : "string"
       },
       "KeySpecification" : {

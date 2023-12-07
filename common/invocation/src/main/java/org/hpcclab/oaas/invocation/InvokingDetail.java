@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.function.FunctionDeploymentStatus;
+import org.hpcclab.oaas.model.function.OFunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.task.OTask;
 
@@ -26,8 +26,8 @@ public class InvokingDetail<V> {
       task.getId(),
       task.getFuncKey(),
       Optional.of(task.getFunction())
-        .map(OFunction::getDeploymentStatus)
-        .map(FunctionDeploymentStatus::getInvocationUrl)
+        .map(OFunction::getStatus)
+        .map(OFunctionDeploymentStatus::getInvocationUrl)
         .orElse(null),
       task,
       task.getTs()

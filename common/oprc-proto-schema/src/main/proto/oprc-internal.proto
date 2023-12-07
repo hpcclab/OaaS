@@ -8,11 +8,18 @@ option java_package = "org.hpcclab.oaas.proto";
 
 package oprc;
 
-service InternalClassService {
-  rpc update(ProtoOClass) returns (ProtoOClass) {};
+service DeploymentStatusUpdater {
+  rpc updateCls(OClassStatusUpdate) returns (ProtoOClass) {};
+  rpc updateFn(OFunctionStatusUpdate) returns (ProtoOFunction) {};
 }
 
-service InternalFunctionService {
-  rpc update(ProtoOFunction) returns (ProtoOFunction) {};
+message OClassStatusUpdate {
+  string key = 1;
+  ProtoOClassDeploymentStatus status = 2;
+}
+
+message OFunctionStatusUpdate {
+  string key = 1;
+  ProtoOFunctionDeploymentStatus status = 2;
 }
 

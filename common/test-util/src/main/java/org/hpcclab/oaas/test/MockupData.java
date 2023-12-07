@@ -29,7 +29,7 @@ public class MockupData {
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
-    .setDeploymentStatus(new FunctionDeploymentStatus()
+    .setStatus(new OFunctionDeploymentStatus()
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
@@ -38,7 +38,7 @@ public class MockupData {
     .setName("im-fn")
     .setPkg("ex")
     .setType(FunctionType.IM_TASK)
-    .setDeploymentStatus(new FunctionDeploymentStatus()
+    .setStatus(new OFunctionDeploymentStatus()
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );

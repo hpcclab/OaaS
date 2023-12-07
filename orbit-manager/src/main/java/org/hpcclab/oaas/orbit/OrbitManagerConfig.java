@@ -1,15 +1,10 @@
-package org.hpcclab.oaas.provisioner;
+package org.hpcclab.oaas.orbit;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 
 @ConfigMapping(prefix = "oaas.kp", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
-public interface KpConfig {
-  String completionHandlerService();
-
-  @WithDefault("/ce")
-  String completionHandlerPath();
-
+public interface OrbitManagerConfig {
   boolean exposeKnative();
 
   String fnProvisionTopic();

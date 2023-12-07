@@ -15,14 +15,16 @@ service PackageService {
 
 service ClassService {
   rpc list(PaginateQuery) returns (stream ProtoOClass) {};
+  rpc get(SingleKeyQuery) returns (ProtoOClass) {};
 }
 
 service FunctionService {
   rpc list(PaginateQuery) returns (stream ProtoOFunction) {};
+  rpc get(SingleKeyQuery) returns (ProtoOFunction) {};
 }
 
 message SingleKeyQuery{
-  string name = 1;
+  string key = 1;
 }
 
 message PaginateQuery{

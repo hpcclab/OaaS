@@ -11,13 +11,13 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 
 @GrpcService
-public class InvokerGrpc implements InvocationService {
+public class InvocationServiceImpl implements InvocationService {
   final InvocationReqHandler invocationReqHandler;
   final ProtoObjectMapper mapper;
 
   @Inject
-  public InvokerGrpc(InvocationReqHandler invocationReqHandler,
-                     ProtoObjectMapper protoObjectMapper) {
+  public InvocationServiceImpl(InvocationReqHandler invocationReqHandler,
+                               ProtoObjectMapper protoObjectMapper) {
     this.invocationReqHandler = invocationReqHandler;
     this.mapper = protoObjectMapper;
   }

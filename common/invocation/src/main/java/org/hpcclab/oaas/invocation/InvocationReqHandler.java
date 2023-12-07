@@ -61,7 +61,7 @@ public class InvocationReqHandler {
         if (func.getType()==FunctionType.LOGICAL) {
           return Uni.createFrom().item(ctx);
         }
-        if (func.getDeploymentStatus().getCondition()!=DeploymentCondition.RUNNING) {
+        if (func.getStatus().getCondition()!=DeploymentCondition.RUNNING) {
           throw new InvocationException("Function is not ready", 409);
         }
         return invocationExecutor.syncExec(ctx);

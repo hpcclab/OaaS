@@ -13,6 +13,9 @@ oaas:
     fnProvisionTopic: oaas-fn
     clsProvisionTopic: oaas-cls
     exposeKnative: false
+  orbit:
+    oparacaManagerHost: localhost
+    oparacaManagerPort: 8088
   log: INFO
   name: orbit-manager
 
@@ -31,6 +34,13 @@ quarkus:
     image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
   console:
     color: true
+
+  grpc:
+    clients:
+      oparaca-manager:
+        use-quarkus-grpc-client: true
+        host: ${oaas.orbit.oparacaManagerHost}
+        port: ${oaas.orbit.oparacaManagerPort}
 mp:
   messaging:
     outgoing:

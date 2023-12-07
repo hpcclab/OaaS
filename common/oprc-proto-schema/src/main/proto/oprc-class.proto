@@ -20,6 +20,7 @@ message ProtoOClass{
   bool markForRemoval = 12;
   optional ProtoDatastoreLink store = 13;
   optional ProtoOClassConfig config = 14;
+  optional ProtoOClassDeploymentStatus status = 15;
 }
 
 message ProtoFunctionBinding {
@@ -67,18 +68,17 @@ message ProtoOClassConfig {
   bool hashAwareSync = 7;
 }
 
+message ProtoOClassDeploymentStatus{
+  string orbitId = 1;
+}
 
 enum ProtoOObjectType{
-//  SIMPLE = 0;
-//  COMPOUND = 1;
   PROTO_O_OBJECT_TYPE_UNSPECIFIED = 0;
   PROTO_O_OBJECT_TYPE_SIMPLE = 1;
   PROTO_O_OBJECT_TYPE_COMPOUND = 2;
 }
 
 enum ProtoStateType {
-//  FILES = 0;
-//  COLLECTION = 1;
   PROTO_STATE_TYPE_UNSPECIFIED = 0;
   PROTO_STATE_TYPE_FILES = 1;
   PROTO_STATE_TYPE_COLLECTION = 2;
@@ -86,9 +86,6 @@ enum ProtoStateType {
 
 
 enum ProtoFunctionAccessModifier {
-//  PUBLIC = 0;
-//  INTERNAL = 1;
-//  PRIVATE = 2;
   PROTO_FUNCTION_ACCESS_MODIFIER_UNSPECIFIED = 0;
   PROTO_FUNCTION_ACCESS_MODIFIER_PUBLIC = 1;
   PROTO_FUNCTION_ACCESS_MODIFIER_INTERNAL = 2;
@@ -96,10 +93,6 @@ enum ProtoFunctionAccessModifier {
 }
 
 enum ProtoKeyAccessModifier {
-//  KEY_PUBLIC = 0;
-//  KEY_DEPENDENT = 1;
-//  KEY_INTERNAL = 2;
-//  KEY_PRIVATE = 3;
   PROTO_KEY_ACCESS_MODIFIER_UNSPECIFIED = 0;
   PROTO_KEY_ACCESS_MODIFIER_PUBLIC = 1;
   PROTO_KEY_ACCESS_MODIFIER_DEPENDENT = 2;

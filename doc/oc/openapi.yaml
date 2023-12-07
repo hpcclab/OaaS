@@ -416,14 +416,14 @@ components:
     KeyAccessModifier:
       enum:
       - PUBLIC
-      - DEP
+      - DEPENDENT
       - INTERNAL
       - PRIVATE
       type: string
     KeyAccessModifier_Public:
       enum:
       - PUBLIC
-      - DEP
+      - DEPENDENT
       - INTERNAL
       - PRIVATE
       type: string
