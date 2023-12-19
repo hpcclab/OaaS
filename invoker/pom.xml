@@ -47,7 +47,7 @@
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>jackson-dataformat-velocypack</artifactId>
-      <version>4.1.0</version>
+      <version>4.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
