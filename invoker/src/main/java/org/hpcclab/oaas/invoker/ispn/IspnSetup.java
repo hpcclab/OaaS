@@ -64,14 +64,12 @@ public class IspnSetup {
   }
 
   @Produces
-  @Blocking
   EmbeddedCacheManager embeddedCacheManager() {
     if (cacheManager == null)
       cacheManager = setup();
     return cacheManager;
   }
 
-  @Blocking
   void clean(@Observes ShutdownEvent event) {
     logger.info("Stopping infinispan...");
     cacheManager.stop();

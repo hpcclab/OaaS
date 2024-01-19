@@ -1,4 +1,9 @@
 package org.hpcclab.oaas.orbit;
 
-public class OrbitTemplate {
+import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.ProtoOrbit;
+
+public interface OrbitTemplate {
+  OrbitStructure create(DeploymentUnit deploymentUnit);
+  OrbitStructure load(ProtoOrbit orbit);
 }

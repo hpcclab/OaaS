@@ -150,11 +150,6 @@
       <artifactId>protostream-processor</artifactId>
       <scope>provided</scope>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.infinispan</groupId>-->
-<!--      <artifactId>infinispan-server-rest</artifactId>-->
-<!--      <version>${infinispan.version}</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>org.jgroups</groupId>
       <artifactId>jgroups-raft</artifactId>

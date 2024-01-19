@@ -1,0 +1,4 @@
+templates:
+  default:
+    invokerImage: ghcr.io/hpcclab/oaas/invoker
+    storageAdapterImage: ghcr.io/hpcclab/oaas/storage-adapter

@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 @ApplicationScoped
 public class FunctionMsgHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionMsgHandler.class);
-  @GrpcClient("oparaca-manager")
+  @GrpcClient("class-manager")
   DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
 
   @Inject

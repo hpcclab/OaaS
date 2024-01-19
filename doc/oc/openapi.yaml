@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.3
 info:
-  title: oparaca-manager API
+  title: class-manager API
   version: 0.2.0-SNAPSHOT
 servers:
 - url: http://localhost:8080
@@ -323,24 +323,6 @@ components:
           type: array
           items:
             type: string
-    FunctionDeploymentStatus:
-      type: object
-      properties:
-        condition:
-          $ref: '#/components/schemas/DeploymentCondition'
-        invocationUrl:
-          type: string
-        errorMsg:
-          type: string
-    FunctionDeploymentStatus_Public:
-      type: object
-      properties:
-        condition:
-          $ref: '#/components/schemas/DeploymentCondition_Public'
-        invocationUrl:
-          type: string
-        errorMsg:
-          type: string
     FunctionState:
       enum:
       - ENABLED
@@ -578,6 +560,8 @@ components:
           $ref: '#/components/schemas/DatastoreLink'
         config:
           $ref: '#/components/schemas/OClassConfig'
+        status:
+          $ref: '#/components/schemas/OClassDeploymentStatus'
         resolved:
           $ref: '#/components/schemas/ResolvedMember'
     OClassConfig:
@@ -618,6 +602,18 @@ components:
           type: string
         hashAwareSync:
           type: boolean
+    OClassDeploymentStatus:
+      type: object
+      properties:
+        orbitId:
+          format: int64
+          type: integer
+    OClassDeploymentStatus_Public:
+      type: object
+      properties:
+        orbitId:
+          format: int64
+          type: integer
     OClass_Public:
       type: object
       properties:
@@ -655,6 +651,8 @@ components:
           $ref: '#/components/schemas/DatastoreLink_Public'
         config:
           $ref: '#/components/schemas/OClassConfig_Public'
+        status:
+          $ref: '#/components/schemas/OClassDeploymentStatus_Public'
         resolved:
           $ref: '#/components/schemas/ResolvedMember_Public'
         rev:
@@ -688,10 +686,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VariableDescription'
-        deploymentStatus:
-          $ref: '#/components/schemas/FunctionDeploymentStatus'
+        status:
+          $ref: '#/components/schemas/OFunctionDeploymentStatus'
         state:
           $ref: '#/components/schemas/FunctionState'
+    OFunctionDeploymentStatus:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/DeploymentCondition'
+        invocationUrl:
+          type: string
+        errorMsg:
+          type: string
+    OFunctionDeploymentStatus_Public:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/DeploymentCondition_Public'
+        invocationUrl:
+          type: string
+        errorMsg:
+          type: string
     OFunction_Public:
       required:
       - name
@@ -721,8 +737,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VariableDescription_Public'
-        deploymentStatus:
-          $ref: '#/components/schemas/FunctionDeploymentStatus_Public'
+        status:
+          $ref: '#/components/schemas/OFunctionDeploymentStatus_Public'
         state:
           $ref: '#/components/schemas/FunctionState_Public'
     OObjectType:

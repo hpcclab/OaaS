@@ -12,13 +12,14 @@ public class DatastoreConfRegistry {
 
   public static final String DEFAULT = "DEFAULT";
   public static final String NONE = "NONE";
+  public static final String DEFAULT_ENV_PREFIX = "OPRC_DB_";
 
   Map<String, DatastoreConf> confMap = new HashMap<>();
 
   private static DatastoreConfRegistry INSTANCE;
   public static DatastoreConfRegistry getDefault() {
     if (INSTANCE == null)
-      INSTANCE = new DatastoreConfRegistry("OPRC_DB_", "oprc.env");
+      INSTANCE = new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
     return INSTANCE;
   }
 
@@ -67,6 +68,29 @@ public class DatastoreConfRegistry {
       options.remove("PASS");
       confMap.put(name, new DatastoreConf(name, type, host, port, user, pass, options));
     }
+  }
+
+  public Map<String, String> dump() {
+    var map = new HashMap<String, String>();
+    for (Map.Entry<String, DatastoreConf> entry : confMap.entrySet()) {
+      var conf = entry.getValue();
+      var key = entry.getKey();
+      putIfNotNull(map, key + "_TYPE", conf.type());
+      putIfNotNull(map, key + "_HOST", conf.host());
+      putIfNotNull(map, key + "_PORT", conf.port());
+      putIfNotNull(map, key + "_USER", conf.user());
+      putIfNotNull(map, key + "_PASS", conf.pass());
+      for (var optionEntry : conf.options().entrySet()) {
+        putIfNotNull(map, key + "_" + optionEntry.getKey(), optionEntry.getValue());
+      }
+    }
+    return map;
+  }
+
+  void putIfNotNull(Map<String,String> m, String k, Object v) {
+    if (k == null) return;
+    if (v == null) return;
+    m.put(DatastoreConfRegistry.DEFAULT_ENV_PREFIX + k, String.valueOf(v));
   }
 
   public Map<String, DatastoreConf> getConfMap() {

@@ -16,7 +16,6 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OClass> implem
 
 
   private final Cache<String, OClass> cache;
-  private final Cache<String, List<String>> subClsCache;
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
   CacheFactory cacheFactory;
@@ -29,7 +28,6 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OClass> implem
     this.collectionAsync = collectionAsync;
     this.cacheFactory = cacheFactory;
     cache = cacheFactory.get();
-    subClsCache = cacheFactory.getLongTermVer();
   }
 
 

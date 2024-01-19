@@ -6,6 +6,7 @@ option java_package = "org.hpcclab.oaas.proto";
 package oprc;
 
 message ProtoOFunction{
+  string key = 11;
   string name = 1;
   string pkg = 2;
   string description = 3;

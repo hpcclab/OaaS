@@ -2,13 +2,13 @@ package org.hpcclab.oaas.arango;
 
 import com.arangodb.*;
 import com.arangodb.entity.LoadBalancingStrategy;
-import com.arangodb.internal.ArangoDBAsyncImpl;
-import com.arangodb.internal.ArangoDBImpl;
 import com.arangodb.serde.jackson.JacksonSerde;
 import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
-import org.hpcclab.oaas.arango.repo.ArgObjectRepository;
+import org.hpcclab.oaas.arango.repo.GenericArgRepository;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
+
+import java.util.function.Function;
 
 public class RepoFactory {
   static final String CACHE_TIMEOUT = "CACHETIMEOUT";
@@ -41,7 +41,7 @@ public class RepoFactory {
   }
 
   public ArgClsRepository clsRepository() {
-    var db= arangoDB();
+    var db = arangoDB();
     var database = arangoDatabase(db);
     var databaseAsync = arangoDatabase(db.async());
     var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
@@ -53,7 +53,7 @@ public class RepoFactory {
   }
 
   public ArgFunctionRepository fnRepository() {
-    var db= arangoDB();
+    var db = arangoDB();
     var database = arangoDatabase(db);
     var databaseAsync = arangoDatabase(db.async());
     var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
@@ -64,14 +64,19 @@ public class RepoFactory {
       cf);
   }
 
-  public ArgObjectRepository objRepository() {
-    var db= arangoDB();
+  public <V> GenericArgRepository<V> createGenericRepo(Class<V> cls,
+                                                       Function<V, String> keyExtractor,
+                                                       String defaultCollection) {
+    var db = arangoDB();
     var database = arangoDatabase(db);
     var databaseAsync = arangoDatabase(db.async());
-    var colName = conf.options().getOrDefault(COLLECTION, "OprcObject");
-    return new ArgObjectRepository(
+    var colName = conf.options().getOrDefault(COLLECTION, defaultCollection);
+    return new GenericArgRepository<>(
+      cls,
+      keyExtractor,
       database.collection(colName),
-      databaseAsync.collection(colName));
+      databaseAsync.collection(colName)
+    );
   }
 
   public void init() {
@@ -87,7 +92,10 @@ public class RepoFactory {
     if (!col.exists()) {
       col.create();
     }
-    col = database.collection(conf.options().getOrDefault(COLLECTION, "OprcObject"));
+  }
+
+  public static void createIfNotExist(ArangoDatabase database, String colName) {
+    var col = database.collection(colName);
     if (!col.exists()) {
       col.create();
     }

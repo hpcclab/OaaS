@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+
+
+message ProtoOrbit {
+  int64 id = 1;
+  string type = 2;
+  repeated string attachedCls = 3;
+  repeated string attachedFn = 4;
+  string namespace = 5;
+  ProtoOrbitState state = 6;
+}
+
+message ProtoOrbitState{
+  string jsonDump = 1;
+}
+
+message ProtoOrbitHash {
+  int64 id = 1;
+  repeated string assignedCls = 2;
+  map<string, ProtoHashTopology> hashTopologies = 3;
+}
+
+message ProtoHashTopology {
+  int32 numSegment = 1;
+  repeated ProtoApiAddress segmentAddr = 2;
+}
+
+message ProtoApiAddress {
+  string host = 1;
+  int32 port = 2;
+}

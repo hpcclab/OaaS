@@ -19,9 +19,8 @@
     <module>arango-repository</module>
     <module>invocation</module>
     <module>test-util</module>
-      <module>oprc-proto-schema</module>
+    <module>oprc-proto-schema</module>
   </modules>
-
 
 
 </project>

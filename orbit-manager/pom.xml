@@ -10,6 +10,7 @@
   </parent>
   <artifactId>orbit-manager</artifactId>
   <properties>
+    <tsid-creator.version>5.2.5</tsid-creator.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -25,8 +26,18 @@
   <dependencies>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>repository</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
       <artifactId>oprc-proto-schema</artifactId>
-      <version>0.2.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -57,24 +68,14 @@
       <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-funqy-knative-events</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.24.Final
-      </version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
+      <version>0.0.24.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
       <classifier>linux-x86_64</classifier>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-io_uring-incubator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>model</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

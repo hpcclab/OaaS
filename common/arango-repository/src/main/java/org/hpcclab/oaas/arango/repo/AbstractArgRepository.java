@@ -232,4 +232,9 @@ public abstract class AbstractArgRepository<V>
   }
 
 
+  public void createIfNotExist() {
+    if (!getCollection().exists()) {
+      getCollection().create();
+    }
+  }
 }

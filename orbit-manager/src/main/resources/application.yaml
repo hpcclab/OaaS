@@ -14,8 +14,8 @@ oaas:
     clsProvisionTopic: oaas-cls
     exposeKnative: false
   orbit:
-    oparacaManagerHost: localhost
-    oparacaManagerPort: 8088
+    clsManagerHost: localhost
+    clsManagerPort: 8088
   log: INFO
   name: orbit-manager
 
@@ -37,10 +37,10 @@ quarkus:
 
   grpc:
     clients:
-      oparaca-manager:
+      class-manager:
         use-quarkus-grpc-client: true
-        host: ${oaas.orbit.oparacaManagerHost}
-        port: ${oaas.orbit.oparacaManagerPort}
+        host: ${oaas.orbit.clsManagerHost}
+        port: ${oaas.orbit.clsManagerPort}
 mp:
   messaging:
     outgoing:

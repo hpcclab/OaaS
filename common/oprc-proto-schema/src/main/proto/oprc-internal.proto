@@ -2,6 +2,8 @@ syntax = "proto3";
 import "oprc-package.proto";
 import "oprc-class.proto";
 import "oprc-function.proto";
+import "oprc-orbit.proto";
+import "oprc-common.proto";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
@@ -11,6 +13,19 @@ package oprc;
 service DeploymentStatusUpdater {
   rpc updateCls(OClassStatusUpdate) returns (ProtoOClass) {};
   rpc updateFn(OFunctionStatusUpdate) returns (ProtoOFunction) {};
+}
+service OrbitStateUpdater{
+  rpc updateOrbit(ProtoOrbit) returns (OprcResponse) {};
+}
+
+service OrbitManager{
+  rpc deploy(DeploymentUnit) returns (ProtoOrbit) {};
+  rpc destroy(ProtoOrbit) returns (OprcResponse) {};
+}
+
+message DeploymentUnit{
+  ProtoOClass cls = 1;
+  repeated ProtoOFunction fnList = 2;
 }
 
 message OClassStatusUpdate {
@@ -22,4 +37,6 @@ message OFunctionStatusUpdate {
   string key = 1;
   ProtoOFunctionDeploymentStatus status = 2;
 }
+
+
 

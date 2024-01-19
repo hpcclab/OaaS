@@ -1,0 +1,20 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message OprcResponse{
+  bool success = 1;
+  string error = 2;
+}
+
+
+message SingleKeyQuery{
+  string key = 1;
+}
+
+message PaginateQuery{
+  int64 offset = 1;
+  int32 limit = 2;
+}

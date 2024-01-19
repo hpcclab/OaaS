@@ -28,13 +28,6 @@ import static org.hpcclab.oaas.orbit.FunctionWatcher.extractReadyCondition;
 import static org.hpcclab.oaas.orbit.OrbitManagerConfig.LABEL_KEY;
 
 @ApplicationScoped
-@RegisterForReflection(
-  targets = {
-    OFunction.class,
-    Service.class
-  },
-  registerFullHierarchy = true
-)
 public class KnativeProvisioner implements Provisioner<OFunction,OFunction> {
 
   private static final Logger logger = LoggerFactory.getLogger(KnativeProvisioner.class);

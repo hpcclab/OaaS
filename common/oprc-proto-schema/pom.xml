@@ -62,12 +62,6 @@
       <artifactId>mapstruct</artifactId>
       <version>${org.mapstruct.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.mapstruct</groupId>-->
-<!--      <artifactId>mapstruct-processor</artifactId>-->
-<!--      <version>${org.mapstruct.version}</version>-->
-<!--      <scope>provided</scope>-->
-<!--    </dependency>-->
   </dependencies>
 
   <build>
@@ -86,11 +80,6 @@
         <version>3.8.1</version>
         <configuration>
           <annotationProcessorPaths>
-<!--            <path>-->
-<!--              <groupId>org.mapstruct</groupId>-->
-<!--              <artifactId>mapstruct-processor</artifactId>-->
-<!--              <version>${org.mapstruct.version}</version>-->
-<!--            </path>-->
             <path>
               <groupId>no.entur.mapstruct.spi</groupId>
               <artifactId>protobuf-spi-impl</artifactId>

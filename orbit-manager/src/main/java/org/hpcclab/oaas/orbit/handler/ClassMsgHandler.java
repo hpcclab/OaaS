@@ -24,7 +24,7 @@ public class ClassMsgHandler {
 
   @Inject
   KafkaProvisioner kafkaProvisioner;
-  @GrpcClient("oparaca-manager")
+  @GrpcClient("class-manager")
   DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   @Inject
   ProtoMapper mapper;
