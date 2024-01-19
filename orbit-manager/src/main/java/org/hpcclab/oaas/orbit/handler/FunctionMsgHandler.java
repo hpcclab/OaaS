@@ -23,7 +23,6 @@ public class FunctionMsgHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionMsgHandler.class);
   @GrpcClient("class-manager")
   DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
-
   @Inject
   KnativeProvisioner knativeProvisioner;
   @Inject
