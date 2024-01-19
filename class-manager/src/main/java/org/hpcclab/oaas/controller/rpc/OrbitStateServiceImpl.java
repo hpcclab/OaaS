@@ -18,6 +18,11 @@ import static org.hpcclab.oaas.arango.AutoRepoBuilder.confRegistry;
 public class OrbitStateServiceImpl implements OrbitStateUpdater, OrbitStateService {
   OrbitStateManager stateManager;
 
+  @Inject
+  public OrbitStateServiceImpl(OrbitStateManager stateManager) {
+    this.stateManager = stateManager;
+  }
+
   @Override
   public Uni<OprcResponse> updateOrbit(ProtoOrbit protoOrbit) {
     return stateManager.updateOrbit(protoOrbit);

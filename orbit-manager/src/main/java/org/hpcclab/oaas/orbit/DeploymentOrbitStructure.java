@@ -33,6 +33,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
                                   Tsid tsid) {
     this.template = template;
     this.kubernetesClient = client;
+    namespace = kubernetesClient.getNamespace();
     id = tsid.toLong();
     prefix = "orbit-" + tsid;
   }
@@ -41,6 +42,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
                                   ProtoOrbit orbit) {
     this.template = template;
     this.kubernetesClient = client;
+    namespace = kubernetesClient.getNamespace();
     id = orbit.getId();
     prefix = "orbit-" + Tsid.from(orbit.getId());
     attachedCls.addAll(orbit.getAttachedClsList());

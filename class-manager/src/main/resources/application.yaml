@@ -77,11 +77,14 @@ quarkus:
       enabled: false
 
   grpc:
+    server:
+      enable-reflection-service: true
+      use-separate-server: false
     clients:
       orbit-manager:
         use-quarkus-grpc-client: true
-        host: ${oaas.orbit.clsManagerHost}
-        port: ${oaas.orbit.clsManagerPort}
+        host: ${oaas.oc.orbitManagerHost}
+        port: ${oaas.oc.orbitManagerPort}
 mp:
   messaging:
     outgoing:

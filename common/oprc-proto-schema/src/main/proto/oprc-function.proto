@@ -9,9 +9,9 @@ message ProtoOFunction{
   string key = 11;
   string name = 1;
   string pkg = 2;
-  string description = 3;
+  optional string description = 3;
   ProtoFunctionType type = 4;
-  string outputCls = 5;
+  optional string outputCls = 5;
   ProtoMacroSpec macro = 6;
   ProvisionConfig provision = 7;
   repeated VariableDescription variableDescriptions = 8;
@@ -22,14 +22,14 @@ message ProtoOFunction{
 message ProtoMacroSpec {
   repeated DataflowStep steps = 1;
   repeated WorkflowExport exports = 2;
-  string export = 3;
+  optional string export = 3;
   bool atomic = 4;
 }
 
 message ProvisionConfig {
-  KnativeProvision knative = 1;
-  KDeploymentProvision deployment = 2;
-  StaticUrlProvision staticUrl = 3;
+  optional KnativeProvision knative = 1;
+  optional KDeploymentProvision deployment = 2;
+  optional StaticUrlProvision staticUrl = 3;
 }
 
 message KnativeProvision{
@@ -38,23 +38,23 @@ message KnativeProvision{
   int32 maxScale = 3;
   int32 concurrency = 4;
   int32 targetConcurrency = 5;
-  string scaleDownDelay = 6;
-  string requestsCpu = 7;
-  string requestsMemory = 8;
-  string limitsCpu = 9;
-  string limitsMemory = 10;
+  optional string scaleDownDelay = 6;
+  optional string requestsCpu = 7;
+  optional string requestsMemory = 8;
+  optional string limitsCpu = 9;
+  optional string limitsMemory = 10;
   map<string, string> env = 11;
-  string apiPath = 12;
+  optional string apiPath = 12;
 }
 message KDeploymentProvision{
   string image = 1;
   int32 replicas = 2;
-  string requestsCpu = 3;
-  string requestsMemory = 4;
-  string limitsCpu = 5;
-  string limitsMemory = 6;
+  optional string requestsCpu = 3;
+  optional string requestsMemory = 4;
+  optional string limitsCpu = 5;
+  optional string limitsMemory = 6;
   map<string, string> env = 7;
-  string apiPath = 8;
+  optional string apiPath = 8;
 }
 message StaticUrlProvision{
   string url = 1;
@@ -67,7 +67,7 @@ message VariableDescription {
 message DataflowStep {
   string function = 1;
   string target = 2;
-  string as = 3;
+  optional string as = 3;
   repeated  string inputRefs = 4;
   map<string, string> args = 5;
   map<string, string> argRefs = 6;
@@ -81,8 +81,8 @@ message WorkflowExport {
 
 message ProtoOFunctionDeploymentStatus {
   ProtoDeploymentCondition condition = 1;
-  string invocationUrl = 2;
-  string errorMsg = 3;
+  optional string invocationUrl = 2;
+  optional string errorMsg = 3;
 }
 
 

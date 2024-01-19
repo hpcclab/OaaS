@@ -7,7 +7,8 @@
       category:
         "org.hpcclab.oaas":
           level: DEBUG
-
+    kubernetes-client:
+      namespace: oaas
 oaas:
   om:
     exposeKnative: false
@@ -39,3 +40,8 @@ quarkus:
         use-quarkus-grpc-client: true
         host: ${oaas.orbit.clsManagerHost}
         port: ${oaas.orbit.clsManagerPort}
+
+    server:
+      enable-reflection-service: true
+      use-separate-server: false
+

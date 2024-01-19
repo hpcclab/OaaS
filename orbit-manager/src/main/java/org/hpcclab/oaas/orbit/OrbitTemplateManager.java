@@ -22,8 +22,14 @@ public class OrbitTemplateManager {
   @GrpcClient("class-manager")
   OrbitStateServiceGrpc.OrbitStateServiceBlockingStub orbitStateService;
 
+
+  public OrbitTemplateManager(KubernetesClient kubernetesClient) {
+    this.kubernetesClient = kubernetesClient;
+    load();
+  }
+
   public void load() {
-    var file = "/orbit.yaml";
+    var file = "/orbits.yaml";
     var is = getClass().getResourceAsStream(file);
     try {
       var conf = yamlMapper.readValue(is, OrbitMappingConfig.class);
@@ -50,7 +56,7 @@ public class OrbitTemplateManager {
     return templateMap.valuesView().getAny();
   }
 
-  public OrbitStructure load(DeploymentUnit unit, ProtoOrbit orbit) {
+  public OrbitStructure load(ProtoOrbit orbit) {
     var temp = selectTemplate(orbit);
     return temp.load(orbit);
   }

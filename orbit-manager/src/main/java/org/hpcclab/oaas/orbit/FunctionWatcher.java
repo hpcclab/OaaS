@@ -9,23 +9,17 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.runtime.StartupEvent;
-import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import org.apache.kafka.common.header.internals.RecordHeaders;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
+import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
+import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -37,12 +31,10 @@ public class FunctionWatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionWatcher.class);
   @Inject
   KnativeClient knativeClient;
-  @GrpcClient("oparaca-manager")
+  @GrpcClient("class-manager")
   DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub updater;
   @Inject
   ProtoMapper mapper;
-  @Channel("fnUpdated")
-  Emitter<OFunction> emitter;
 
   Watch watch;
 
@@ -56,7 +48,9 @@ public class FunctionWatcher {
       .findAny();
   }
 
-  public void start(@Observes StartupEvent event) {
+  public void start(
+//    @Observes StartupEvent event
+  ) {
     watch = knativeClient.services()
       .withLabel(LABEL_KEY)
       .watch(new Watcher<Service>() {
@@ -77,27 +71,28 @@ public class FunctionWatcher {
       .get(LABEL_KEY);
     if (fnKey==null)
       return;
-    ProtoOFunction fn = switch (action) {
+    switch (action) {
       case MODIFIED -> {
         var condition = extractReadyCondition(service);
         if (condition.isEmpty())
-          yield null;
+          break;
         var ready = condition.get().getStatus().equals("True");
         var reason = condition.get().getReason();
         if (ready) {
           LOGGER.info("updating status {} to {}",
             fnKey, DeploymentCondition.RUNNING);
-          yield updater.updateFn(OFunctionStatusUpdate.newBuilder()
-              .setKey(fnKey)
-              .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
-                  .setCondition(PROTO_DEPLOYMENT_CONDITION_RUNNING)
-                  .setInvocationUrl(service.getStatus().getAddress().getUrl())
-                )
+          updater.updateFn(OFunctionStatusUpdate.newBuilder()
+            .setKey(fnKey)
+            .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
+              .setCondition(PROTO_DEPLOYMENT_CONDITION_RUNNING)
+              .setInvocationUrl(service.getStatus().getAddress().getUrl())
+            )
             .build());
+
         } else if (reason!=null) {
           LOGGER.info("updating of status {} to {}",
             fnKey, DeploymentCondition.DOWN);
-          yield updater.updateFn(OFunctionStatusUpdate.newBuilder()
+          updater.updateFn(OFunctionStatusUpdate.newBuilder()
             .setKey(fnKey)
             .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
               .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
@@ -105,7 +100,6 @@ public class FunctionWatcher {
             )
             .build());
         }
-        yield null;
       }
       case DELETED -> updater.updateFn(OFunctionStatusUpdate.newBuilder()
         .setKey(fnKey)
@@ -118,7 +112,7 @@ public class FunctionWatcher {
         var msg = extractReadyCondition(service)
           .map(Condition::getReason)
           .orElse("");
-        yield updater.updateFn(OFunctionStatusUpdate.newBuilder()
+        updater.updateFn(OFunctionStatusUpdate.newBuilder()
           .setKey(fnKey)
           .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
             .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
@@ -126,22 +120,20 @@ public class FunctionWatcher {
           )
           .build());
       }
-      default -> null;
-    };
-    pubUpdate(mapper.fromProto(fn));
+    }
   }
+//    pubUpdate(mapper.fromProto(fn));
 
-  void pubUpdate(OFunction fn) {
-    if (fn==null) return;
-    var msg = Message.of(fn, Metadata.of(
-        OutgoingKafkaRecordMetadata.builder()
-          .withKey(fn.getKey())
-          .withHeaders(new RecordHeaders()
-            .add("oprc-provision-skip", "true".getBytes(StandardCharsets.UTF_8))
-          )
-          .build()
-      )
-    );
-    emitter.send(msg);
-  }
+//  void pubUpdate(OFunction fn) {
+//    if (fn==null) return;
+//    var msg = Message.of(fn, Metadata.of(
+//        OutgoingKafkaRecordMetadata.builder()
+//          .withKey(fn.getKey())
+//          .withHeaders(new RecordHeaders()
+//            .add("oprc-provision-skip", "true".getBytes(StandardCharsets.UTF_8))
+//          )
+//          .build()
+//      )
+//    );
+//    emitter.send(msg);
 }

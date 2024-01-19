@@ -11,7 +11,9 @@ import org.mapstruct.*;
 
 import java.util.Map;
 
-@Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED)
+@Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+  nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+  nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProtoMapper {
   ProtoOClass toProto(OClass cls);
   ProtoOFunction toProto(OFunction fn);

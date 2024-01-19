@@ -13,19 +13,18 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.controller.OcConfig;
-import org.hpcclab.oaas.controller.rpc.OrbitStateServiceImpl;
 import org.hpcclab.oaas.controller.service.OrbitStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.OrbitManagerGrpc;
-import org.hpcclab.oaas.proto.OrbitStateService;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -149,7 +148,7 @@ public class PackageResource {
   }
 
   private void deploy(OPackage pkg) {
-    for (var cls :pkg.getClasses()) {
+    for (var cls : pkg.getClasses()) {
       var resolvedFnList = cls.getResolved().getFunctions().values()
         .stream()
         .map(FunctionBinding::getFunction)
@@ -165,6 +164,7 @@ public class PackageResource {
         .build();
       var orbit = orbitManager.deploy(unit);
       orbitStateManager.updateOrbit(orbit).await().indefinitely();
+      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
       cls.getStatus().setOrbitId(orbit.getId());
       classRepo.persist(cls);
     }
