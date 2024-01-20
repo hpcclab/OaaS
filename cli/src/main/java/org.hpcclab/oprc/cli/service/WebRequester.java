@@ -1,5 +1,6 @@
 package org.hpcclab.oprc.cli.service;
 
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,8 +18,8 @@ public class WebRequester {
     OutputFormatter outputFormatter;
 
 
-    public JsonObject get(String url) {
-        var res = webClient.getAbs(url)
+    public JsonObject request(HttpMethod method, String url) {
+        var res = webClient.requestAbs(method, url)
                 .sendAndAwait();
         if (res.statusCode() != 200){
             logger.error("error response: code={}", res.statusCode());
@@ -28,7 +29,14 @@ public class WebRequester {
     }
 
     public int getAndPrint(String url, CommonOutputMixin.OutputFormat format) {
-        var jsonObject = get(url);
+        var jsonObject = request(HttpMethod.GET, url);
+        if (jsonObject == null)
+            return 1;
+        outputFormatter.print(format, jsonObject);
+        return 0;
+    }
+    public int deleteAndPrint(String url, CommonOutputMixin.OutputFormat format) {
+        var jsonObject = request(HttpMethod.DELETE, url);
         if (jsonObject == null)
             return 1;
         outputFormatter.print(format, jsonObject);
