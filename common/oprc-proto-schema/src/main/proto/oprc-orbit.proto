@@ -5,8 +5,6 @@ option java_package = "org.hpcclab.oaas.proto";
 
 package oprc;
 
-
-
 message ProtoOrbit {
   int64 id = 1;
   string type = 2;

@@ -1,12 +1,13 @@
 package org.hpcclab.oaas.controller.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.controller.service.ProvisionPublisher;
+import org.hpcclab.oaas.controller.service.OrbitStateManager;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -24,7 +25,7 @@ public class ClassResource {
   @Inject
   ClassRepository classRepo;
   @Inject
-  ProvisionPublisher provisionPublisher;
+  OrbitStateManager orbitStateManager;
 
   @GET
   @JsonView(Views.Public.class)
@@ -51,9 +52,16 @@ public class ClassResource {
   @DELETE
   @Path("{clsKey}")
   @JsonView(Views.Public.class)
-  public Uni<OClass> delete(String clsKey) {
-    return classRepo.async().removeAsync(clsKey)
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .call(__ -> provisionPublisher.submitDeleteCls(clsKey));
+  @RunOnVirtualThread
+  public OClass delete(String clsKey) {
+    var cls = classRepo.get(clsKey);
+    if (cls==null) {
+      throw new NotFoundException();
+    }
+    if (cls.getStatus()!=null && cls.getStatus().getOrbitId() > 0) {
+      orbitStateManager.detach(cls);
+    }
+    classRepo.remove(clsKey);
+    return cls;
   }
 }

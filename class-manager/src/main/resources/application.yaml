@@ -69,9 +69,6 @@ quarkus:
     resources:
       includes:
         - builtin/**
-  rest-client:
-    allocation-api:
-      url: ${oaas.oc.storageAdapterUrl}
   kafka:
     devservices:
       enabled: false

@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.orbit;
 
 import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOrbit;
 
@@ -23,6 +24,9 @@ public interface OrbitStructure {
   void deployExecutionModule() throws Throwable;
   void deployDataModule() throws Throwable;
   void deployFunction(ProtoOFunction function) throws Throwable;
+
+  void detach(ProtoOClass cls) throws  Throwable;
+  void destroy() throws Throwable;
 
   ProtoOrbit dump();
 }

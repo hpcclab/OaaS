@@ -7,7 +7,7 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 
 @ApplicationScoped
-public class MapperProducer {
+public class GrpcProducer {
 
   @Produces
   @Singleton

@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOrbit;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -35,8 +36,9 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     this.kubernetesClient = client;
     namespace = kubernetesClient.getNamespace();
     id = tsid.toLong();
-    prefix = "orbit-" + tsid;
+    prefix = "orbit-" + tsid.toLowerCase();
   }
+
   public DeploymentOrbitStructure(OrbitTemplate template,
                                   KubernetesClient client,
                                   ProtoOrbit orbit) {
@@ -44,7 +46,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     this.kubernetesClient = client;
     namespace = kubernetesClient.getNamespace();
     id = orbit.getId();
-    prefix = "orbit-" + Tsid.from(orbit.getId());
+    prefix = "orbit-" + Tsid.from(orbit.getId()).toLowerCase();
     attachedCls.addAll(orbit.getAttachedClsList());
     attachedFn.addAll(orbit.getAttachedFnList());
   }
@@ -86,7 +88,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       .withNamespace(namespace)
       .withLabels(labels)
       .endMetadata()
-      .withData(map)
+      .withStringData(map)
       .build();
     kubernetesClient.secrets().resource(sec).create();
     k8sResources.add(sec);
@@ -177,6 +179,38 @@ public class DeploymentOrbitStructure implements OrbitStructure {
 
   public void removeFunction(String fnKey) throws Throwable {
     // TODO
+  }
+
+  @Override
+  public void detach(ProtoOClass cls) throws Throwable {
+    // TODO send signal
+    attachedCls.removeIf(key -> key.equals(cls.getKey()));
+    if (attachedCls.isEmpty()) {
+      destroy();
+    }
+  }
+
+  @Override
+  public void destroy() throws Throwable {
+    if (k8sResources.isEmpty()) {
+      var depList = kubernetesClient.apps().deployments()
+        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .list()
+        .getItems();
+      k8sResources.addAll(depList);
+      var svcList = kubernetesClient.services()
+        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .list()
+        .getItems();
+      k8sResources.addAll(svcList);
+      var sec = kubernetesClient.secrets()
+        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .list()
+        .getItems();
+      k8sResources.addAll(sec);
+    }
+    kubernetesClient.resourceList(k8sResources)
+      .delete();
   }
 
   private Deployment createDeployment(String filePath,

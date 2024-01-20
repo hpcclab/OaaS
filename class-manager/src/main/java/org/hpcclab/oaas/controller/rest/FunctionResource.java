@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.controller.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -10,6 +11,7 @@ import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.proto.OrbitManagerGrpc;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 

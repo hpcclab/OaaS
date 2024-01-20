@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.controller.model;
 
+import com.arangodb.serde.jackson.Key;
+
 import java.util.List;
 
 public record Orbit (
@@ -10,6 +12,7 @@ public record Orbit (
   String namespace,
   OrbitState state
 ){
+  @Key
   public String getKey() {
     return String.valueOf(id);
   }

@@ -35,23 +35,39 @@ public class OrbitManagerImpl implements OrbitManager {
       } else {
         var template = templateManager.selectTemplate(deploymentUnit);
         var orbitStructure = template.create(deploymentUnit);
-      try {
         orbitStructure.deployAll();
-      } catch (Throwable e) {
-        return Uni.createFrom().failure(e);
-      }
         return Uni
           .createFrom().item(orbitStructure.dump());
       }
     } catch (Throwable e) {
-      logger.error("error ", e);
+      logger.error("orbit deploying error", e);
       return Uni.createFrom().failure(e);
     }
   }
 
   @Override
-  public Uni<OprcResponse> destroy(ProtoOrbit request) {
-    // TODO
-    return null;
+  @RunOnVirtualThread
+  public Uni<OprcResponse> destroy(ProtoOrbit orbit) {
+    try {
+      if (orbit.getId() > 0) {
+        var orbitStructure = templateManager.load(orbit);
+        orbitStructure.destroy();
+      }
+      return Uni.createFrom().item(OprcResponse.newBuilder().setSuccess(true).build());
+    } catch (Throwable e) {
+      return Uni.createFrom().failure(e);
+    }
+  }
+
+  @Override
+  @RunOnVirtualThread
+  public Uni<ProtoOrbit> detach(DetachOrbitRequest request) {
+    try {
+      var orbitStructure = templateManager.load(request.getOrbit());
+      orbitStructure.detach(request.getCls());
+      return Uni.createFrom().item(orbitStructure.dump());
+    } catch (Throwable e) {
+      return Uni.createFrom().failure(e);
+    }
   }
 }
