@@ -1,5 +1,5 @@
 "%test":
-  oaas:
+  oprc:
     sa:
       s3:
         accessKey: accessKey
@@ -8,7 +8,7 @@
         publicUrl: http://s3.test.com
 
 "%dev":
-  oaas:
+  oprc:
     log: DEBUG
   quarkus:
     http:
@@ -16,9 +16,8 @@
     console:
       color: true
 
-oaas:
-  log: INFO
 oprc:
+  log: INFO
   env: |
     OPRC_DB_PKG_HOST=localhost
     OPRC_DB_PKG_PORT=8529
@@ -46,4 +45,4 @@ quarkus:
   log:
     category:
       "org.hpcclab.oaas":
-        level: ${oaas.log}
+        level: ${oprc.log}

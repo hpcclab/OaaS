@@ -17,6 +17,7 @@ public class OrbitTemplateManager {
   ImmutableMap<String, OrbitTemplate> templateMap = Maps.immutable.empty();
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   KubernetesClient kubernetesClient;
+
   @GrpcClient("class-manager")
   OrbitStateUpdaterGrpc.OrbitStateUpdaterBlockingStub orbitStateUpdater;
   @GrpcClient("class-manager")
@@ -47,7 +48,7 @@ public class OrbitTemplateManager {
     }
   }
 
-  public OrbitTemplate selectTemplate(DeploymentUnit deploymentUnit) {
+  public OrbitTemplate selectTemplate(OprcEnvironment env, DeploymentUnit deploymentUnit) {
     // TODO PLACEHOLDER
     return templateMap.valuesView().getAny();
   }
@@ -56,8 +57,8 @@ public class OrbitTemplateManager {
     return templateMap.valuesView().getAny();
   }
 
-  public OrbitStructure load(ProtoOrbit orbit) {
+  public OrbitStructure load(OprcEnvironment env, ProtoOrbit orbit) {
     var temp = selectTemplate(orbit);
-    return temp.load(orbit);
+    return temp.load(env, orbit);
   }
 }

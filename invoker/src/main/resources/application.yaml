@@ -7,7 +7,7 @@
     kafka:
       devservices:
         port: 9092
-  oaas:
+  oprc:
     log: TRACE
     invoker:
       kafka: localhost:9092
@@ -19,7 +19,7 @@
       port: 8089
     devservices:
       enabled: false
-  oaas:
+  oprc:
     log: DEBUG
     invoker:
       kafka: PLAINTEXT://localhost:19092
@@ -33,8 +33,7 @@
       useSa: false
       clusterLock: true
 
-
-oaas:
+oprc:
   log: INFO
   name: invoker
   ispn:
@@ -48,8 +47,6 @@ oaas:
     fnStore:
       maxCount: 10000
       storageType: HEAP
-
-oprc:
   env: |
     OPRC_DB_PKG_HOST=localhost
     OPRC_DB_PKG_PORT=8529
@@ -83,9 +80,9 @@ quarkus:
   log:
     category:
       "org.hpcclab.oaas":
-        level: ${oaas.log}
+        level: ${oprc.log}
   container-image:
-    image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
+    image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
   micrometer:
     export:
       json:

@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoOFunction;
@@ -14,6 +15,7 @@ import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DeploymentOrbitStructure implements OrbitStructure {
   long id;
@@ -21,8 +23,10 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   String namespace;
   OrbitTemplate template;
   KubernetesClient kubernetesClient;
-  List<String> attachedCls = Lists.mutable.empty();
-  List<String> attachedFn = Lists.mutable.empty();
+  OprcEnvironment.Config envConfig;
+
+  Set<String> attachedCls = Sets.mutable.empty();
+  Set<String> attachedFn = Sets.mutable.empty();
   Map<String, Long> versions = Maps.mutable.empty();
   List<HasMetadata> k8sResources = Lists.mutable.empty();
 
@@ -31,9 +35,11 @@ public class DeploymentOrbitStructure implements OrbitStructure {
 
   public DeploymentOrbitStructure(OrbitTemplate template,
                                   KubernetesClient client,
+                                  OprcEnvironment.Config envConfig,
                                   Tsid tsid) {
     this.template = template;
     this.kubernetesClient = client;
+    this.envConfig = envConfig;
     namespace = kubernetesClient.getNamespace();
     id = tsid.toLong();
     prefix = "orbit-" + tsid.toLowerCase();
@@ -41,9 +47,11 @@ public class DeploymentOrbitStructure implements OrbitStructure {
 
   public DeploymentOrbitStructure(OrbitTemplate template,
                                   KubernetesClient client,
+                                  OprcEnvironment.Config envConfig,
                                   ProtoOrbit orbit) {
     this.template = template;
     this.kubernetesClient = client;
+    this.envConfig = envConfig;
     namespace = kubernetesClient.getNamespace();
     id = orbit.getId();
     prefix = "orbit-" + Tsid.from(orbit.getId()).toLowerCase();
@@ -62,12 +70,12 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public List<String> getAttachedCls() {
+  public Set<String> getAttachedCls() {
     return attachedCls;
   }
 
   @Override
-  public List<String> getAttachedFn() {
+  public Set<String> getAttachedFn() {
     return attachedFn;
   }
 
@@ -81,17 +89,34 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id)
     );
-    var map = DatastoreConfRegistry.getDefault().dump();
+    var datastoreMap = DatastoreConfRegistry.getDefault().dump();
     var sec = new SecretBuilder()
       .withNewMetadata()
       .withName(prefix + "-secret")
       .withNamespace(namespace)
       .withLabels(labels)
       .endMetadata()
-      .withStringData(map)
+      .withStringData(datastoreMap)
       .build();
     kubernetesClient.secrets().resource(sec).create();
     k8sResources.add(sec);
+    var confMapData = Map.of(
+      "OAAS_INVOKER_KAFKA", envConfig.kafkaBootstrap(),
+      "OAAS_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
+        .formatted(prefix, namespace)
+
+    );
+    var confMap = new ConfigMapBuilder()
+      .withNewMetadata()
+      .withName(prefix + "-cm")
+      .withNamespace(namespace)
+      .withLabels(labels)
+      .endMetadata()
+      .withData(confMapData)
+      .build();
+    kubernetesClient.configMaps().resource(confMap).create();
+    k8sResources.add(confMap);
+
   }
 
   @Override
@@ -105,6 +130,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       prefix + "-invoker",
       labels);
     attachSecret(deployment, prefix + "-secret");
+    attachConf(deployment, prefix + "-cm");
     var invokerSvc = createSvc(
       "/orbits/invoker-svc.yml",
       prefix + "-invoker",
@@ -115,29 +141,14 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       labels);
     var container = deployment.getSpec().getTemplate().getSpec()
       .getContainers().getFirst();
-    container.getEnv()
-      .add(new EnvVar(
-        "ISPN_DNS_PING",
-        invokerSvcPing.getMetadata().getName() + "." + namespace + ".cluster.local",
-        null)
-      );
-    container.getEnv()
-      .add(new EnvVar(
-        "KUBERNETES_NAMESPACE",
-        namespace,
-        null)
-      );
+    addEnv(container, "ISPN_DNS_PING",
+      invokerSvcPing.getMetadata().getName() + "." + namespace + ".cluster.local");
+    addEnv(container, "KUBERNETES_NAMESPACE", namespace);
     container.getEnv()
       .add(new EnvVar(
         "ISPN_POD_NAME",
         null,
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
-      );
-    container.getEnv()
-      .add(new EnvVar(
-        "OAAS_INVOKER_STORAGEADAPTERURL",
-        "http://" + prefix + "-storage-adapter",
-        null)
       );
 
     kubernetesClient.resourceList(deployment, invokerSvc, invokerSvcPing)
@@ -162,6 +173,8 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       "/orbits/storage-adapter-dep.yml",
       prefix + "-storage-adapter",
       labels);
+    attachSecret(deployment, prefix + "-secret");
+    attachConf(deployment, prefix + "-cm");
     var svc = createSvc(
       "/orbits/storage-adapter-svc.yml",
       prefix + "-storage-adapter",
@@ -298,5 +311,20 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       container.getEnvFrom()
         .add(new EnvFromSource(null, null, new SecretEnvSource(secretName, false)));
     }
+  }
+
+  private void attachConf(Deployment deployment, String confName) {
+    var cons = deployment.getSpec()
+      .getTemplate()
+      .getSpec()
+      .getContainers();
+    for (Container container : cons) {
+      container.getEnvFrom()
+        .add(new EnvFromSource(new ConfigMapEnvSource(confName, false), null, null));
+    }
+  }
+
+  private void addEnv(Container container, String key, String val) {
+    container.getEnv().add(new EnvVar(key, val, null));
   }
 }

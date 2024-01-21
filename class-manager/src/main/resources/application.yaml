@@ -4,7 +4,7 @@
       color: true
     log:
       min-level: TRACE
-  oaas:
+  oprc:
     log: TRACE
     oc:
       orbitEnabled: false
@@ -15,15 +15,15 @@
       color: true
     http:
       port: 8088
-  oaas:
+  oprc:
     log: DEBUG
 
 "%prod":
-  oaas:
+  oprc:
     oc:
       kafkaEnabled: true
 
-oaas:
+oprc:
   oc:
     clsProvisionTopic: oaas-cls
     kafkaEnabled: false
@@ -32,8 +32,6 @@ oaas:
     orbitManagerPort: 8091
   log: INFO
   name: class-manager
-
-oprc:
   env: |
     OPRC_DB_PKG_HOST=localhost
     OPRC_DB_PKG_PORT=8529
@@ -57,9 +55,9 @@ quarkus:
   log:
     category:
       "org.hpcclab.oaas":
-        level: ${oaas.log}
+        level: ${oprc.log}
   container-image:
-    image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
+    image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
   micrometer:
     export:
       json:
@@ -80,20 +78,20 @@ quarkus:
     clients:
       orbit-manager:
         use-quarkus-grpc-client: true
-        host: ${oaas.oc.orbitManagerHost}
-        port: ${oaas.oc.orbitManagerPort}
+        host: ${oprc.oc.orbitManagerHost}
+        port: ${oprc.oc.orbitManagerPort}
 mp:
   messaging:
     outgoing:
       fnProvisions:
-        enabled: ${oaas.oc.kafkaEnabled}
+        enabled: ${oprc.oc.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oaas.oc.fnProvisionTopic}
+        topic: ${oprc.oc.fnProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
       clsProvisions:
-        enabled: ${oaas.oc.kafkaEnabled}
+        enabled: ${oprc.oc.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oaas.oc.clsProvisionTopic}
+        topic: ${oprc.oc.clsProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

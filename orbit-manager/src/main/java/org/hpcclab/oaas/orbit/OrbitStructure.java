@@ -6,11 +6,12 @@ import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOrbit;
 
 import java.util.List;
+import java.util.Set;
 
 public interface OrbitStructure {
   long getId();
-  List<String> getAttachedCls();
-  List<String> getAttachedFn();
+  Set<String> getAttachedCls();
+  Set<String> getAttachedFn();
   void update(DeploymentUnit unit);
   default void deployAll() throws Throwable{
     deployShared();

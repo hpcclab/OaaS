@@ -3,7 +3,7 @@ package org.hpcclab.oaas.controller;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 
-@ConfigMapping(prefix = "oaas.oc", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
+@ConfigMapping(prefix = "oprc.oc", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface OcConfig {
   @WithDefault("oaas-fn")
   String fnProvisionTopic();

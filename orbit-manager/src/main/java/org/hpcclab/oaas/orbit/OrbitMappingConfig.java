@@ -6,6 +6,7 @@ public record OrbitMappingConfig(
   Map<String, OrbitTemplateConfig> templates
 ) {
   public record OrbitTemplateConfig(
-    Map<String, String> images
+    Map<String, String> images,
+    Map<String, Map<String, String>> additionalEnv
   ){}
 }

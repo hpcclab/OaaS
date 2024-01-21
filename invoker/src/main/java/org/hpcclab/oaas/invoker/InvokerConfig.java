@@ -5,7 +5,7 @@ import io.smallrye.config.WithDefault;
 import org.hpcclab.oaas.storage.S3ConnConf;
 
 @ConfigMapping(
-  prefix = "oaas.invoker",
+  prefix = "oprc.invoker",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface InvokerConfig {

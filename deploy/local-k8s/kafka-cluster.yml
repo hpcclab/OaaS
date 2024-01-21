@@ -28,6 +28,17 @@ spec:
         port: 9093
         type: internal
         tls: true
+      - name: external
+        port: 9094
+        type: nodeport
+        tls: false
+        configuration:
+          bootstrap:
+            nodePort: 31000
+          brokers:
+            - broker: 0
+              nodePort: 31001
+
     resources:
       requests:
         cpu: 0.5

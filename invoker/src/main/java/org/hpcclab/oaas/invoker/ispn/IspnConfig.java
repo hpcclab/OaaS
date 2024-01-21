@@ -6,7 +6,7 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionConfig;
 import org.infinispan.configuration.cache.StorageType;
 
 @ConfigMapping(
-  prefix = "oaas.ispn",
+  prefix = "oprc.ispn",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface IspnConfig {
