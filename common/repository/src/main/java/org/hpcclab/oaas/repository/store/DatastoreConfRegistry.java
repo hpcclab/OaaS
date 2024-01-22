@@ -58,7 +58,7 @@ public class DatastoreConfRegistry {
       options.remove("TYPE");
       var host = options.get("HOST");
       options.remove("HOST");
-      var port = Integer.parseInt(options.get("PORT"));
+      var port = Integer.parseInt(options.getOrDefault("PORT", "80"));
       options.remove("PORT");
       var user = options.get("USER");
       options.remove("USER");

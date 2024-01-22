@@ -14,6 +14,7 @@
       OPRC_DB_PKG_HOST=arango-cluster
       OPRC_DB_PKG_PORT=8529
       OPRC_DB_PKG_USER=root
+      OPRC_DB_PKG_DB=oaas
       OPRC_DB_DEFAULT_HOST=arango-cluster
       OPRC_DB_DEFAULT_PORT=8529
       OPRC_DB_DEFAULT_DB=oaas

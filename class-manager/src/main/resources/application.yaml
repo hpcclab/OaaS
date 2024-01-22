@@ -34,8 +34,9 @@ oprc:
   name: class-manager
   env: |
     OPRC_DB_PKG_HOST=localhost
-    OPRC_DB_PKG_PORT=8529
+    OPRC_DB_PKG_PORT=31235
     OPRC_DB_PKG_USER=root
+    OPRC_DB_PKG_DB=oaas
 
 
 quarkus:

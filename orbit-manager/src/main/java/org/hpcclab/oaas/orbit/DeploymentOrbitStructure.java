@@ -146,7 +146,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     var container = deployment.getSpec().getTemplate().getSpec()
       .getContainers().getFirst();
     addEnv(container, "ISPN_DNS_PING",
-      invokerSvcPing.getMetadata().getName() + "." + namespace + ".cluster.local");
+      invokerSvcPing.getMetadata().getName() + "." + namespace + ".svc.cluster.local");
     addEnv(container, "KUBERNETES_NAMESPACE", namespace);
     container.getEnv()
       .add(new EnvVar(
