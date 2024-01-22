@@ -44,17 +44,15 @@ public class DatastoreConfRegistry {
       .stream()
       .filter(k -> k.startsWith(prefix))
       .map(k -> k.substring(prefix.length()).split("_"))
-      .filter(ks -> ks.length==2)
+      .filter(ks -> ks.length>=2)
       .map(ks -> ks[0])
       .collect(Collectors.toSet());
-    for (String storeSet : storeSets) {
-      var name = storeSet;
-      var storePrefix = (prefix + storeSet);
+    for (String name : storeSets) {
+      var storePrefix = prefix + name + "_";
       var options = mapToMerge.entrySet()
         .stream()
-        .filter(entry -> entry.getKey().startsWith(storePrefix) &&
-          entry.getKey().substring(prefix.length()).split("_").length==2)
-        .map(entry -> Map.entry(entry.getKey().substring(storePrefix.length() + 1), entry.getValue()))
+        .filter(entry -> entry.getKey().startsWith(storePrefix))
+        .map(entry -> Map.entry(entry.getKey().substring(storePrefix.length()), entry.getValue()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
       var type = options.get("TYPE");
       options.remove("TYPE");

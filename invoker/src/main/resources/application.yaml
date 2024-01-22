@@ -68,7 +68,7 @@ quarkus:
   naming:
     enable-jndi: true
   console:
-    color: true
+    color: false
   http:
     access-log:
       enabled: true

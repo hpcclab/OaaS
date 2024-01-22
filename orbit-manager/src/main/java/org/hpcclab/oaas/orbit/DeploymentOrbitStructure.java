@@ -7,17 +7,21 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOrbit;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class DeploymentOrbitStructure implements OrbitStructure {
+  private static final Logger logger = LoggerFactory.getLogger( DeploymentOrbitStructure.class );
   long id;
   String prefix;
   String namespace;
@@ -101,10 +105,10 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     kubernetesClient.secrets().resource(sec).create();
     k8sResources.add(sec);
     var confMapData = Map.of(
-      "OAAS_INVOKER_KAFKA", envConfig.kafkaBootstrap(),
-      "OAAS_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
-        .formatted(prefix, namespace)
-
+      "OPRC_INVOKER_KAFKA", envConfig.kafkaBootstrap(),
+      "OPRC_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
+        .formatted(prefix, namespace),
+      "OPRC_ORBIT", Tsid.from(id).toLowerCase()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()
@@ -221,6 +225,11 @@ public class DeploymentOrbitStructure implements OrbitStructure {
         .list()
         .getItems();
       k8sResources.addAll(sec);
+      var configMaps = kubernetesClient.configMaps()
+        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .list()
+        .getItems();
+      k8sResources.addAll(configMaps);
     }
     kubernetesClient.resourceList(k8sResources)
       .delete();

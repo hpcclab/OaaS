@@ -8,6 +8,7 @@
     log: TRACE
     oc:
       orbitEnabled: false
+      kafkaEnabled: false
 
 "%dev":
   quarkus:
@@ -17,16 +18,15 @@
       port: 8088
   oprc:
     log: DEBUG
+  kafka:
+    bootstrap:
+      servers: localhost:31000
 
-"%prod":
-  oprc:
-    oc:
-      kafkaEnabled: true
 
 oprc:
   oc:
     clsProvisionTopic: oaas-cls
-    kafkaEnabled: false
+    kafkaEnabled: true
     fnProvisionTopic: oaas-fn
     orbitManagerHost: localhost
     orbitManagerPort: 8091
@@ -70,7 +70,6 @@ quarkus:
   kafka:
     devservices:
       enabled: false
-
   grpc:
     server:
       enable-reflection-service: true

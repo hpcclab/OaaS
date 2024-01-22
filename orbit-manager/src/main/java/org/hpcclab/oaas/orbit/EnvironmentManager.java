@@ -11,7 +11,7 @@ public class EnvironmentManager {
 
   @Inject
   public EnvironmentManager() {
-    var kafka = ConfigProvider.getConfig().getOptionalValue("oprc.env.kafka", String.class);
+    var kafka = ConfigProvider.getConfig().getOptionalValue("oprc.envconf.kafka", String.class);
     environment = new OprcEnvironment(new OprcEnvironment.Config(kafka.orElseThrow()));
   }
 

@@ -26,6 +26,8 @@ import org.hpcclab.oaas.repository.InvRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +112,8 @@ public class InvocationEngineProducer {
     if (config.useSa()) {
       return new SaContentUrlGenerator(config.storageAdapterUrl());
     } else {
-      return new S3ContentUrlGenerator(config);
+      return new S3ContentUrlGenerator(DatastoreConfRegistry.getDefault()
+        .getOrDefault("S3DEFAULT"));
     }
   }
 

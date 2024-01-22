@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.hpcclab.oaas.model.data.DataAccessRequest;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.hpcclab.oaas.sa.SaConfig;
 import org.hpcclab.oaas.storage.PresignGeneratorPool;
 import org.slf4j.Logger;
@@ -20,25 +21,22 @@ import java.util.Map;
 @ApplicationScoped
 public class S3Adapter implements StorageAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(S3Adapter.class);
-  @Inject
-  SaConfig config;
-  @Inject
-  Vertx vertx;
-  @Inject
   PresignGeneratorPool generatorPool;
-  private boolean relay;
-  private WebClient webClient;
-  private String prefix;
-  private String bkt;
+  private final boolean relay;
+  private final WebClient webClient;
+  private final String prefix;
+  private final String bkt;
 
+  @Inject
+  public S3Adapter(SaConfig config, Vertx vertx, PresignGeneratorPool generatorPool) {
+    this.generatorPool = generatorPool;
+    var datastoreConf = DatastoreConfRegistry.getDefault()
+      .getOrDefault("S3DEFAULT");
+    bkt = datastoreConf.options().get("BUCKET");
+    prefix = datastoreConf.options().get("PREFIXPATH");
 
-  @PostConstruct
-  void setup() {
-    var s3Config = config.s3();
     relay = config.relay();
     webClient = WebClient.create(vertx);
-    prefix = s3Config.prefix().orElse("");
-    bkt = s3Config.bucket();
   }
 
   @Override
