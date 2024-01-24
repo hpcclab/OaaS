@@ -5,7 +5,7 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.orbit.EnvironmentManager;
+import org.hpcclab.oaas.orbit.env.EnvironmentManager;
 import org.hpcclab.oaas.orbit.OrbitTemplateManager;
 import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
@@ -42,7 +42,8 @@ public class OrbitManagerImpl implements OrbitManager {
       } else {
         var template = templateManager.selectTemplate(env, deploymentUnit);
         var orbitStructure = template.create(env, deploymentUnit);
-        orbitStructure.deployAll();
+        var plan = orbitStructure.createPlan(deploymentUnit);
+        orbitStructure.deployAll(plan, deploymentUnit);
         return Uni
           .createFrom().item(orbitStructure.dump());
       }

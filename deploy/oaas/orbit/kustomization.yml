@@ -1,0 +1,7 @@
+resources:
+  - class-manager.yml
+  - env-configmap.yml
+  - orbit-manager.yml
+  - orbit-manager-rb.yml
+  - invoker-svc.yml
+

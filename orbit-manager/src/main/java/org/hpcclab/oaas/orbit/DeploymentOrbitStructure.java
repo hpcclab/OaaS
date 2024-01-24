@@ -7,7 +7,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.hpcclab.oaas.orbit.env.OprcEnvironment;
+import org.hpcclab.oaas.orbit.optimize.OrbitDeploymentPlan;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoOFunction;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class DeploymentOrbitStructure implements OrbitStructure {
-  private static final Logger logger = LoggerFactory.getLogger( DeploymentOrbitStructure.class );
+  private static final Logger logger = LoggerFactory.getLogger(DeploymentOrbitStructure.class);
   long id;
   String prefix;
   String namespace;
@@ -63,11 +64,6 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     attachedFn.addAll(orbit.getAttachedFnList());
   }
 
-  public DeploymentOrbitStructure attach(DeploymentUnit unit) {
-    attachedCls.add(unit.getCls().getKey());
-    return this;
-  }
-
   @Override
   public long getId() {
     return id;
@@ -89,7 +85,12 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public void deployShared() throws Throwable {
+  public OrbitDeploymentPlan createPlan(DeploymentUnit unit) {
+    return template.getQosOptimizer().resolve(unit);
+  }
+
+  @Override
+  public void deployShared(OrbitDeploymentPlan plan) throws Throwable {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id)
     );
@@ -108,7 +109,9 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       "OPRC_INVOKER_KAFKA", envConfig.kafkaBootstrap(),
       "OPRC_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
         .formatted(prefix, namespace),
-      "OPRC_ORBIT", Tsid.from(id).toLowerCase()
+      "OPRC_ORBIT", Tsid.from(id).toLowerCase(),
+      "OPRC_INVOKER_CLASSMANAGERHOST", envConfig.classManagerHost(),
+      "OPRC_INVOKER_CLASSMANAGERPORT", envConfig.classManagerPort()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()
@@ -124,7 +127,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public void deployObjectModule() throws Throwable {
+  public void deployObjectModule(OrbitDeploymentPlan plan) throws Throwable {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id),
       ORBIT_COMPONENT_LABEL_KEY, "invoker"
@@ -163,12 +166,12 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public void deployExecutionModule() throws Throwable {
+  public void deployExecutionModule(OrbitDeploymentPlan plan) throws Throwable {
     // no needed
   }
 
   @Override
-  public void deployDataModule() throws Throwable {
+  public void deployDataModule(OrbitDeploymentPlan plan) throws Throwable {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id),
       ORBIT_COMPONENT_LABEL_KEY, "storage-adapter"
@@ -190,7 +193,8 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public void deployFunction(ProtoOFunction function) throws Throwable {
+  public void deployFunction(OrbitDeploymentPlan plan,
+                             ProtoOFunction function) throws Throwable {
 
   }
 

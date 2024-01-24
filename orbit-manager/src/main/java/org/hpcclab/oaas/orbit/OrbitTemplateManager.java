@@ -3,10 +3,12 @@ package org.hpcclab.oaas.orbit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
+import org.hpcclab.oaas.orbit.env.OprcEnvironment;
+import org.hpcclab.oaas.orbit.optimize.DefaultQoSOptimizer;
+import org.hpcclab.oaas.orbit.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.*;
 
 import java.io.IOException;
@@ -17,19 +19,16 @@ public class OrbitTemplateManager {
   ImmutableMap<String, OrbitTemplate> templateMap = Maps.immutable.empty();
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   KubernetesClient kubernetesClient;
+  OrbitRepository orbitRepo;
 
-  @GrpcClient("class-manager")
-  OrbitStateUpdaterGrpc.OrbitStateUpdaterBlockingStub orbitStateUpdater;
-  @GrpcClient("class-manager")
-  OrbitStateServiceGrpc.OrbitStateServiceBlockingStub orbitStateService;
-
-
-  public OrbitTemplateManager(KubernetesClient kubernetesClient) {
+  public OrbitTemplateManager(KubernetesClient kubernetesClient,
+                              OrbitRepository orbitRepo) {
     this.kubernetesClient = kubernetesClient;
-    load();
+    this.orbitRepo = orbitRepo;
+    loadTemplate();
   }
 
-  public void load() {
+  public void loadTemplate() {
     var file = "/orbits.yaml";
     var is = getClass().getResourceAsStream(file);
     try {
@@ -39,7 +38,11 @@ public class OrbitTemplateManager {
       }
       var m = new HashMap<String, OrbitTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
-        var template = new DefaultOrbitTemplate(kubernetesClient, configEntry.getValue());
+        var template = new DefaultOrbitTemplate(
+          kubernetesClient,
+          selectOptimizer(configEntry.getValue()),
+          configEntry.getValue()
+        );
         m.put(configEntry.getKey(), template);
       }
       templateMap = Maps.immutable.ofMap(m);
@@ -48,7 +51,12 @@ public class OrbitTemplateManager {
     }
   }
 
-  public OrbitTemplate selectTemplate(OprcEnvironment env, DeploymentUnit deploymentUnit) {
+  public QosOptimizer selectOptimizer(OrbitMappingConfig.OrbitTemplateConfig config) {
+    return new DefaultQoSOptimizer();
+  }
+
+  public OrbitTemplate selectTemplate(OprcEnvironment env,
+                                      DeploymentUnit deploymentUnit) {
     // TODO PLACEHOLDER
     return templateMap.valuesView().getAny();
   }
@@ -58,7 +66,8 @@ public class OrbitTemplateManager {
   }
 
   public OrbitStructure load(OprcEnvironment env, ProtoOrbit orbit) {
-    var temp = selectTemplate(orbit);
-    return temp.load(env, orbit);
+    return orbitRepo.getOrLoad(orbit.getId(),
+      () -> selectTemplate(orbit).load(env, orbit)
+    );
   }
 }

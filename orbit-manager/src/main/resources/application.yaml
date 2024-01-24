@@ -26,11 +26,12 @@
       OPRC_DB_S3DEFAULT_PASS=minio_secret_key
     envconf:
       kafka: "oaas-kafka-bootstrap:9092"
+      clsManagerHost: host.docker.internal
+      clsManagerPort: 8088
 
 oprc:
   om:
     exposeKnative: false
-  orbit:
     clsManagerHost: localhost
     clsManagerPort: 8088
   log: INFO
@@ -60,8 +61,8 @@ quarkus:
     clients:
       class-manager:
         use-quarkus-grpc-client: true
-        host: ${oprc.orbit.clsManagerHost}
-        port: ${oprc.orbit.clsManagerPort}
+        host: ${oprc.om.clsManagerHost}
+        port: ${oprc.om.clsManagerPort}
 
     server:
       enable-reflection-service: true

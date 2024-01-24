@@ -16,13 +16,13 @@ k3d-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 
 k3d-deploy: k8s-deploy-deps
-  kubectl apply -n oaas -k deploy/oaas/local-build
-  kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -k deploy/oaas/orbit
+  kubectl apply -n oaas -f deploy/local-k8s/orbit-ingress.yml
 
 k3d-reload: k3d-build-image
   kubectl -n oaas delete pod -l platform=oaas
 
-k8s-deploy-preq kn-version="v1.12.0" kourier-version="v1.12.0":
+k8s-deploy-preq kn-version="v1.12.3" kourier-version="v1.12.3":
   kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-crds.yaml
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-core.yaml
@@ -44,8 +44,8 @@ k8s-deploy-deps:
 
 k8s-clean:
   kubectl delete -n oaas ksvc -l oaas.function
-  kubectl delete -n oaas -k deploy/oaas/local-build
-  kubectl delete -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl delete -n oaas -k deploy/oaas/orbit
+  kubectl delete -n oaas -f deploy/local-k8s/orbit-ingress.yml
 
   kubectl delete -n oaas -f deploy/arango/arango-single.yml
   kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml

@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "oprc-common.proto";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
@@ -21,6 +22,8 @@ message ProtoOClass{
   optional ProtoDatastoreLink store = 13;
   optional ProtoOClassConfig config = 14;
   optional ProtoOClassDeploymentStatus status = 15;
+  optional ProtoQosRequirement qos = 16;
+  optional ProtoConstraint constraint = 17;
 }
 
 message ProtoFunctionBinding {
@@ -71,6 +74,7 @@ message ProtoOClassConfig {
 message ProtoOClassDeploymentStatus{
   int64 orbitId = 1;
 }
+
 
 enum ProtoOObjectType{
   PROTO_O_OBJECT_TYPE_UNSPECIFIED = 0;

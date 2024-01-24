@@ -6,7 +6,7 @@
       min-level: TRACE
   oprc:
     log: TRACE
-    oc:
+    cm:
       orbitEnabled: false
       kafkaEnabled: false
 
@@ -24,7 +24,7 @@
 
 
 oprc:
-  oc:
+  cm:
     clsProvisionTopic: oaas-cls
     kafkaEnabled: true
     fnProvisionTopic: oaas-fn
@@ -51,7 +51,7 @@ quarkus:
   swagger-ui:
     always-include: true
   smallrye-openapi:
-    store-schema-directory: ../doc/oc
+    store-schema-directory: ../doc/class-manager
     enable: true
   log:
     category:
@@ -78,20 +78,20 @@ quarkus:
     clients:
       orbit-manager:
         use-quarkus-grpc-client: true
-        host: ${oprc.oc.orbitManagerHost}
-        port: ${oprc.oc.orbitManagerPort}
+        host: ${oprc.cm.orbitManagerHost}
+        port: ${oprc.cm.orbitManagerPort}
 mp:
   messaging:
     outgoing:
       fnProvisions:
-        enabled: ${oprc.oc.kafkaEnabled}
+        enabled: ${oprc.cm.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oprc.oc.fnProvisionTopic}
+        topic: ${oprc.cm.fnProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
       clsProvisions:
-        enabled: ${oprc.oc.kafkaEnabled}
+        enabled: ${oprc.cm.kafkaEnabled}
         connector: smallrye-kafka
-        topic: ${oprc.oc.clsProvisionTopic}
+        topic: ${oprc.cm.clsProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

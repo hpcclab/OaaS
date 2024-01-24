@@ -1,15 +1,15 @@
 resources:
-  - env-configmap.yaml
+  - env-configmap.yml
 ### kube-provisioner
-  - kp.yml
-  - kp-rb.yml
+  - orbit-manager.yml
+  - orbit-manager-rb.yml
 ### object-controller
-  - oc.yml
+  - class-manager.yml
 ### content-delivery-service
   - cds.yml
 ### storage adapter
   - sa.yml
 ### invoker
-  - invoker.yml
+  - invoker-svc.yml
 #  - invoker-hpa.yml
 

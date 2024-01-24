@@ -233,6 +233,9 @@ public abstract class AbstractArgRepository<V>
 
 
   public void createIfNotExist() {
+    if (!getCollection().db().exists()) {
+      getCollection().db().create();
+    }
     if (!getCollection().exists()) {
       getCollection().create();
     }

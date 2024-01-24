@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "oprc-common.proto";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
@@ -6,17 +7,19 @@ option java_package = "org.hpcclab.oaas.proto";
 package oprc;
 
 message ProtoOFunction{
-  string key = 11;
-  string name = 1;
-  string pkg = 2;
-  optional string description = 3;
-  ProtoFunctionType type = 4;
-  optional string outputCls = 5;
-  ProtoMacroSpec macro = 6;
-  ProvisionConfig provision = 7;
-  repeated VariableDescription variableDescriptions = 8;
-  ProtoOFunctionDeploymentStatus deploymentStatus = 9;
-  ProtoFunctionState state = 10;
+  string key = 1;
+  string name = 2;
+  string pkg = 3;
+  optional string description = 4;
+  optional ProtoFunctionType type = 5;
+  optional string outputCls = 6;
+  optional ProtoMacroSpec macro = 7;
+  optional ProvisionConfig provision = 8;
+  repeated VariableDescription variableDescriptions = 9;
+  optional ProtoOFunctionDeploymentStatus deploymentStatus = 10;
+  optional ProtoFunctionState state = 11;
+  optional ProtoQosRequirement qos = 12;
+  optional ProtoConstraint constraint = 13;
 }
 
 message ProtoMacroSpec {

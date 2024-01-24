@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.lang3.NotImplementedException;
-import org.hpcclab.oaas.controller.OcConfig;
+import org.hpcclab.oaas.controller.ClsManagerConfig;
 import org.hpcclab.oaas.controller.service.OrbitStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
@@ -49,7 +49,7 @@ public class PackageResource {
   @Inject
   ProvisionPublisher provisionPublisher;
   @Inject
-  OcConfig config;
+  ClsManagerConfig config;
   @Inject
   PackageValidator validator;
   @Inject
