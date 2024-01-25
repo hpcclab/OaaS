@@ -11,6 +11,7 @@
 
   <properties>
     <infinispan.version>14.0.21.Final</infinispan.version>
+    <arangodb.version>7.5.1</arangodb.version>
   </properties>
 
   <dependencyManagement>
@@ -46,18 +47,17 @@
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
-<!--      <version>6.25.0</version>-->
-      <version>7.3.0</version>
+      <version>${arangodb.version}</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>vst-protocol</artifactId>
-      <version>7.3.0</version>
+      <version>${arangodb.version}</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>jackson-serde-vpack</artifactId>
-      <version>7.3.0</version>
+      <version>${arangodb.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

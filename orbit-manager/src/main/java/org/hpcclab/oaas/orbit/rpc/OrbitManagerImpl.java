@@ -5,8 +5,10 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.orbit.env.EnvironmentManager;
+import org.hpcclab.oaas.orbit.OrbitStructure;
 import org.hpcclab.oaas.orbit.OrbitTemplateManager;
+import org.hpcclab.oaas.orbit.env.EnvironmentManager;
+import org.hpcclab.oaas.orbit.optimize.OrbitDeploymentPlan;
 import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +45,24 @@ public class OrbitManagerImpl implements OrbitManager {
         var template = templateManager.selectTemplate(env, deploymentUnit);
         var orbitStructure = template.create(env, deploymentUnit);
         var plan = orbitStructure.createPlan(deploymentUnit);
-        orbitStructure.deployAll(plan, deploymentUnit);
-        return Uni
-          .createFrom().item(orbitStructure.dump());
+        return deployOrNothing(orbitStructure, plan, deploymentUnit);
       }
     } catch (Throwable e) {
       logger.error("orbit deploying error", e);
+      return Uni.createFrom().failure(e);
+    }
+  }
+
+  private Uni<ProtoOrbit> deployOrNothing(OrbitStructure orbitStructure,
+                               OrbitDeploymentPlan plan,
+                               DeploymentUnit unit) throws Throwable {
+    try {
+      orbitStructure.deployAll(plan, unit);
+      return Uni
+        .createFrom().item(orbitStructure.dump());
+    } catch (Throwable e) {
+      logger.error("orbit deploying error and attempt to clean up", e);
+      orbitStructure.destroy();
       return Uni.createFrom().failure(e);
     }
   }

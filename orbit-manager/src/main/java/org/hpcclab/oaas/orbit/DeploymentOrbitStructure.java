@@ -3,6 +3,7 @@ package org.hpcclab.oaas.orbit;
 import com.github.f4b6a3.tsid.Tsid;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
@@ -37,6 +38,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
 
   static final String ORBIT_LABEL_KEY = "orbit-id";
   static final String ORBIT_COMPONENT_LABEL_KEY = "orbit-part";
+  static final String ORBIT_FN_KEY = "orbit-fn";
 
   public DeploymentOrbitStructure(OrbitTemplate template,
                                   KubernetesClient client,
@@ -94,6 +96,8 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id)
     );
+    kubernetesClient.top()
+      .nodes().metric().getUsage();
     var datastoreMap = DatastoreConfRegistry.getDefault().dump();
     var sec = new SecretBuilder()
       .withNewMetadata()
@@ -127,7 +131,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   }
 
   @Override
-  public void deployObjectModule(OrbitDeploymentPlan plan) throws Throwable {
+  public void deployObjectModule(OrbitDeploymentPlan plan, DeploymentUnit unit) throws Throwable {
     var labels = Map.of(
       ORBIT_LABEL_KEY, String.valueOf(id),
       ORBIT_COMPONENT_LABEL_KEY, "invoker"
@@ -163,6 +167,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
     k8sResources.add(deployment);
     k8sResources.add(invokerSvc);
     k8sResources.add(invokerSvcPing);
+    attachedCls.add(unit.getCls().getKey());
   }
 
   @Override
@@ -195,11 +200,88 @@ public class DeploymentOrbitStructure implements OrbitStructure {
   @Override
   public void deployFunction(OrbitDeploymentPlan plan,
                              ProtoOFunction function) throws Throwable {
+    var instance = plan.fnInstances()
+      .getOrDefault(function.getKey(), 0);
+    var labels = Map.of(
+      ORBIT_LABEL_KEY, String.valueOf(id),
+      ORBIT_COMPONENT_LABEL_KEY, "function",
+      ORBIT_FN_KEY, function.getKey()
+    );
+    var deployConf = function.getProvision()
+      .getDeployment();
+    if (deployConf.getImage() == null || deployConf.getImage().isEmpty())
+      return;
+    var container = new ContainerBuilder()
+      .withName("fn")
+      .withImage(deployConf.getImage())
+      .addAllToEnv(deployConf.getEnvMap()
+        .entrySet().stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
+        .toList()
+      )
+      .withPorts(new ContainerPortBuilder()
+        .withName("http")
+        .withProtocol("TCP")
+        .withContainerPort(deployConf.getPort() <= 0? 8080 : deployConf.getPort())
+        .build()
+      )
+      .build();
+    var fnName = prefix + function.getKey().toLowerCase().replaceAll("[\\._]", "-");
+    var deploymentBuilder  = new DeploymentBuilder()
+      .withNewMetadata()
+      .withName(fnName)
+      .withLabels(labels)
+      .endMetadata();
+    deploymentBuilder
+      .withNewSpec()
+      .withReplicas(instance)
+      .withNewSelector()
+      .addToMatchLabels(labels)
+      .endSelector()
+      .withNewTemplate()
+      .withNewMetadata()
+      .addToLabels(labels)
+      .endMetadata()
+      .withNewSpec()
+      .addToContainers(container)
+      .endSpec()
+      .endTemplate()
+      .endSpec();
+    var deployment = deploymentBuilder.build();
+    var svc = new ServiceBuilder()
+      .withNewMetadata()
+      .withName(fnName)
+      .withLabels(labels)
+      .endMetadata()
+      .withNewSpec()
+      .addToSelector(labels)
+      .addToPorts(
+        new ServicePortBuilder()
+          .withName("http")
+          .withProtocol("TCP")
+          .withPort(80)
+          .withTargetPort(new IntOrString(deployConf.getPort() <= 0? 8080 : deployConf.getPort()))
+          .build()
+      )
+      .endSpec()
+      .build();
 
+    k8sResources.add(deployment);
+    k8sResources.add(svc);
+    kubernetesClient.resourceList(deployment, svc)
+      .create();
+    attachedFn.add(function.getKey());
   }
 
   public void removeFunction(String fnKey) throws Throwable {
-    // TODO
+    var list = kubernetesClient.apps()
+      .deployments()
+      .withLabels(Map.of(
+        ORBIT_LABEL_KEY, String.valueOf(id),
+        ORBIT_FN_KEY, fnKey
+      ))
+      .list().getItems();
+    kubernetesClient.resourceList(list).delete();
+    attachedFn.remove(fnKey);
   }
 
   @Override
@@ -257,7 +339,7 @@ public class DeploymentOrbitStructure implements OrbitStructure {
       .setType(template.type())
       .setNamespace(namespace)
       .addAllAttachedCls(attachedCls)
-      .addAllAttachedCls(attachedFn)
+      .addAllAttachedFn(attachedFn)
       .build();
   }
 

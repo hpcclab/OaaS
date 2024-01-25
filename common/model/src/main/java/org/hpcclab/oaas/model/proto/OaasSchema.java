@@ -21,7 +21,8 @@ import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
     "org.hpcclab.oaas.model.invocation",
   }
 )
-public interface OaasSchema extends GeneratedSchema {
+public
+interface OaasSchema extends GeneratedSchema {
   String PACKAGE_NAME = "oaas";
   static String makeFullName(Class<?> cls) {
     return PACKAGE_NAME + '.' + cls.getSimpleName();

@@ -1,5 +1,6 @@
 #!/usr/bin/env just --justfile
 mvn := "mvnd"
+version := "0.2.0-SNAPSHOT"
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 # maven build
@@ -28,4 +29,4 @@ build-native-window:
     cmd /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && mvn package -Dnative'
 
 install-native-window: build-native-window
-    cp target/oprc-cli-0.2.0-SNAPSHOT-runner.exe $HOME/.local/bin/ocli.exe
+    cp target/oprc-cli-{{version}}-runner.exe $HOME/.local/bin/ocli.exe

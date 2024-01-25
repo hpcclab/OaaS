@@ -27,12 +27,14 @@ public class KDeploymentProvision {
   DSMap env;
   @ProtoField(12)
   String apiPath;
+  @ProtoField(value = 13, defaultValue = "8080")
+  int port;
 
   public KDeploymentProvision() {
   }
 
   @ProtoFactory
-  public KDeploymentProvision(String image, int replicas, String requestsCpu, String requestsMemory, String limitsCpu, String limitsMemory, DSMap env, String apiPath) {
+  public KDeploymentProvision(String image, int replicas, String requestsCpu, String requestsMemory, String limitsCpu, String limitsMemory, DSMap env, String apiPath, int port) {
     this.image = image;
     this.replicas = replicas;
     this.requestsCpu = requestsCpu;
@@ -41,5 +43,6 @@ public class KDeploymentProvision {
     this.limitsMemory = limitsMemory;
     this.env = env;
     this.apiPath = apiPath;
+    this.port = port;
   }
 }

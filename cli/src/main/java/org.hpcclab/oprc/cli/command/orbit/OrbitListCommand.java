@@ -1,6 +1,5 @@
-package org.hpcclab.oprc.cli.command.cls;
+package org.hpcclab.oprc.cli.command.orbit;
 
-import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
@@ -15,12 +14,12 @@ import picocli.CommandLine.Command;
 import java.util.concurrent.Callable;
 
 @Command(
-        name = "list classes",
-        aliases = {"l", "list"},
+        name = "list orbits",
+  aliases = {"l", "list"},
         mixinStandardHelpOptions = true
 )
-public class ClsListCommand implements Callable<Integer> {
-    private static final Logger logger = LoggerFactory.getLogger( ClsListCommand.class );
+public class OrbitListCommand implements Callable<Integer> {
+    private static final Logger logger = LoggerFactory.getLogger( OrbitListCommand.class );
     @CommandLine.Mixin
     OaasMixin oaasMixin;
     @CommandLine.Mixin
@@ -29,16 +28,16 @@ public class ClsListCommand implements Callable<Integer> {
     WebRequester webRequester;
 
     @CommandLine.Parameters(defaultValue = "")
-    String cls;
+    String orbitId;
 
     @Override
     public Integer call() throws Exception {
         var oc = oaasMixin.getOcUrl();
         return webRequester.getAndPrint(
-                UriTemplate.of("{+oc}/api/classes/{+cls}")
+                UriTemplate.of("{+oc}/api/orbits/{+orbitId}")
                         .expandToString(Variables.variables()
                                 .set("oc", oc)
-                                .set("cls",cls)
+                                .set("orbitId",orbitId)
                         ),
                 commonOutputMixin.getOutputFormat()
         );

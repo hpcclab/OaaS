@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.controller.model;
 
 import com.arangodb.serde.jackson.Key;
+import com.github.f4b6a3.tsid.Tsid;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public record Orbit (
 ){
   @Key
   public String getKey() {
-    return String.valueOf(id);
+    return Tsid.from(id).toLowerCase();
   }
   public record OrbitState(String jsonDump){}
 }

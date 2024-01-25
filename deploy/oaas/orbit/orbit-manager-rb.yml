@@ -20,6 +20,17 @@ rules:
     verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: orbit-manager-cluster-role
+rules:
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: orbit-manager-rb
@@ -30,3 +41,16 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: orbit-manager-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: orbit-manager-crb
+roleRef:
+  kind: ClusterRole
+  name: orbit-manager-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: orbit-manager-sa
+    namespace: oaas

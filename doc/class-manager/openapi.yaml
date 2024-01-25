@@ -2882,6 +2882,9 @@ components:
           $ref: '#/components/schemas/DSMap'
         apiPath:
           type: string
+        port:
+          format: int32
+          type: integer
     KDeploymentProvision_Public:
       type: object
       properties:
@@ -2902,6 +2905,9 @@ components:
           $ref: '#/components/schemas/DSMap_Public'
         apiPath:
           type: string
+        port:
+          format: int32
+          type: integer
     KeyAccessModifier:
       enum:
       - PUBLIC
@@ -2965,6 +2971,9 @@ components:
           $ref: '#/components/schemas/DSMap'
         apiPath:
           type: string
+        port:
+          format: int32
+          type: integer
     KnativeProvision_Public:
       type: object
       properties:
@@ -2996,6 +3005,9 @@ components:
           $ref: '#/components/schemas/DSMap_Public'
         apiPath:
           type: string
+        port:
+          format: int32
+          type: integer
     Label:
       enum:
       - LABEL_OPTIONAL
@@ -3890,6 +3902,10 @@ components:
           type: array
           items:
             type: string
+        options:
+          type: object
+          additionalProperties:
+            type: string
     OPackage_Public:
       type: object
       properties:
@@ -3906,6 +3922,10 @@ components:
         required:
           type: array
           items:
+            type: string
+        options:
+          type: object
+          additionalProperties:
             type: string
     OneofDescriptor:
       type: object

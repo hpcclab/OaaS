@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -16,4 +17,5 @@ public class OPackage {
   List<OClass> classes = List.of();
   List<OFunction> functions = List.of();
   List<String> required;
+  Map<String, String> options = Map.of();
 }

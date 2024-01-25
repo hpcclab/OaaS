@@ -4049,6 +4049,10 @@
           },
           "apiPath" : {
             "type" : "string"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }
       },
@@ -4079,6 +4083,10 @@
           },
           "apiPath" : {
             "type" : "string"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }
       },
@@ -4160,6 +4168,10 @@
           },
           "apiPath" : {
             "type" : "string"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }
       },
@@ -4205,6 +4217,10 @@
           },
           "apiPath" : {
             "type" : "string"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }
       },
@@ -5488,6 +5504,12 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "options" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -5512,6 +5534,12 @@
           "required" : {
             "type" : "array",
             "items" : {
+              "type" : "string"
+            }
+          },
+          "options" : {
+            "type" : "object",
+            "additionalProperties" : {
               "type" : "string"
             }
           }

@@ -19,14 +19,15 @@ public interface OrbitStructure {
     deployShared(plan);
     deployDataModule(plan);
     deployExecutionModule(plan);
-    deployObjectModule(plan);
+    deployObjectModule(plan, unit);
     for (ProtoOFunction fn : unit.getFnListList()) {
       deployFunction(plan, fn);
     }
   }
 
   void deployShared(OrbitDeploymentPlan plan) throws Throwable;
-  void deployObjectModule(OrbitDeploymentPlan plan) throws Throwable;
+  void deployObjectModule(OrbitDeploymentPlan plan,
+                          DeploymentUnit unit) throws Throwable;
   void deployExecutionModule(OrbitDeploymentPlan plan) throws Throwable;
   void deployDataModule(OrbitDeploymentPlan plan) throws Throwable;
   void deployFunction(OrbitDeploymentPlan plan,
