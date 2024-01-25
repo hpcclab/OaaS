@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.controller.service;
 
+import com.github.f4b6a3.tsid.Tsid;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -60,13 +61,13 @@ public class OrbitStateManager {
   }
 
   public void detach(OClass cls) {
-    var orbit = getRepo().get(String.valueOf(cls.getStatus().getOrbitId()));
+    var orbit = getRepo().get(Orbit.toKey(cls.getStatus().getOrbitId()));
     var newOrbit = orbitManager.detach(DetachOrbitRequest.newBuilder()
       .setOrbit(orbitMapper.map(orbit)).setCls(
         protoMapper.toProto(cls)
       ).build());
     if (newOrbit.getAttachedClsList().isEmpty()) {
-      repo.remove(String.valueOf(newOrbit.getId()));
+      repo.remove(Orbit.toKey(newOrbit.getId()));
     } else {
       repo.persistAsync(orbitMapper.map(newOrbit));
     }

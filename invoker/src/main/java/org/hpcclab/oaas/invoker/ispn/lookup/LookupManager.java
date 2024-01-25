@@ -6,7 +6,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 
 public class LookupManager {
   int defaultSegmentSize = 64;
-  ConcurrentMutableMap<String, ObjectLocationLookup> map = new ConcurrentHashMap<>();
+  ConcurrentMutableMap<String, ObjectLocationFinder> map = new ConcurrentHashMap<>();
   final LocationRegistry registry;
 
   public LookupManager(LocationRegistry registry) {
@@ -17,10 +17,10 @@ public class LookupManager {
     return registry;
   }
 
-  public ObjectLocationLookup getOrInit(OClass cls) {
+  public ObjectLocationFinder getOrInit(OClass cls) {
     return map.computeIfAbsent(
       cls.getKey(),
-      k -> new ObjectLocationLookup(cls.getConfig().getPartitions(), cls.getKey(), registry)
+      k -> new ObjectLocationFinder(cls.getConfig().getPartitions(), cls.getKey(), registry)
     );
   }
 

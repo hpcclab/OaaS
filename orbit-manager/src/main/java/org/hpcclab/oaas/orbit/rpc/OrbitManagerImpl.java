@@ -38,7 +38,8 @@ public class OrbitManagerImpl implements OrbitManager {
       if (orbitId > 0) {
         var orbit = stateService.get(SingleKeyQuery.newBuilder().setKey(String.valueOf(orbitId)).build());
         var orbitStructure = templateManager.load(env, orbit);
-        orbitStructure.update(deploymentUnit);
+        var plan = orbitStructure.createPlan(deploymentUnit);
+        orbitStructure.update(plan, deploymentUnit);
         return Uni
           .createFrom().item(orbitStructure.dump());
       } else {

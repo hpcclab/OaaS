@@ -17,5 +17,9 @@ public record Orbit (
   public String getKey() {
     return Tsid.from(id).toLowerCase();
   }
+
+  public static String toKey(long id) {
+    return Tsid.from(id).toLowerCase();
+  }
   public record OrbitState(String jsonDump){}
 }

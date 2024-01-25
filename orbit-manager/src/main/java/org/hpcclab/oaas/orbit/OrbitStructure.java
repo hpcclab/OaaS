@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.orbit;
 
+import org.hpcclab.oaas.orbit.exception.OrbitDeployException;
+import org.hpcclab.oaas.orbit.exception.OrbitUpdateException;
 import org.hpcclab.oaas.orbit.optimize.OrbitDeploymentPlan;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOClass;
@@ -12,10 +14,10 @@ public interface OrbitStructure {
   long getId();
   Set<String> getAttachedCls();
   Set<String> getAttachedFn();
-  void update(DeploymentUnit unit);
+  void update(OrbitDeploymentPlan plan, DeploymentUnit unit);
 
   OrbitDeploymentPlan createPlan(DeploymentUnit unit);
-  default void deployAll(OrbitDeploymentPlan plan, DeploymentUnit unit) throws Throwable{
+  default void deployAll(OrbitDeploymentPlan plan, DeploymentUnit unit) throws OrbitDeployException {
     deployShared(plan);
     deployDataModule(plan);
     deployExecutionModule(plan);
@@ -25,16 +27,16 @@ public interface OrbitStructure {
     }
   }
 
-  void deployShared(OrbitDeploymentPlan plan) throws Throwable;
+  void deployShared(OrbitDeploymentPlan plan) throws OrbitDeployException;
   void deployObjectModule(OrbitDeploymentPlan plan,
-                          DeploymentUnit unit) throws Throwable;
-  void deployExecutionModule(OrbitDeploymentPlan plan) throws Throwable;
-  void deployDataModule(OrbitDeploymentPlan plan) throws Throwable;
+                          DeploymentUnit unit) throws OrbitDeployException;
+  void deployExecutionModule(OrbitDeploymentPlan plan) throws OrbitDeployException;
+  void deployDataModule(OrbitDeploymentPlan plan) throws OrbitDeployException;
   void deployFunction(OrbitDeploymentPlan plan,
-                      ProtoOFunction function) throws Throwable;
+                      ProtoOFunction function) throws OrbitDeployException;
 
-  void detach(ProtoOClass cls) throws  Throwable;
-  void destroy() throws Throwable;
+  void detach(ProtoOClass cls) throws OrbitUpdateException;
+  void destroy() throws OrbitUpdateException;
 
   ProtoOrbit dump();
 }

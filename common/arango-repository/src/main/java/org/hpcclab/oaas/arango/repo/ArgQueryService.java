@@ -45,11 +45,13 @@ public class ArgQueryService<V> implements QueryService<String, V> {
         .batchSize(limit)
       )
       .thenApply(cursor -> {
-          var items = cursor.getResult();
-          return new Pagination<>(cursor.getCount(),
-            offset,
-            items.size(),
-            items);
+        var items = cursor.getResult();
+        return new Pagination<>(
+          cursor.getCount(),
+          offset,
+          items.size(),
+          items
+        );
       }));
   }
 
@@ -110,7 +112,6 @@ public class ArgQueryService<V> implements QueryService<String, V> {
       .query(queryString, resultCls, params, queryOptions()).thenApply(BaseArangoCursor::getResult)
     );
   }
-
 
 
 }

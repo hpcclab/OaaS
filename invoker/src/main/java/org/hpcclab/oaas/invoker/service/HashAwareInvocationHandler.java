@@ -44,7 +44,7 @@ public class HashAwareInvocationHandler {
 
     var cls = classRepository.get(oal.getCls());
     var lookup = lookupManager.getOrInit(cls);
-    var addr = lookup.resolve(oal.getMain());
+    var addr = lookup.find(oal.getMain());
     if (lookupManager.isLocal(addr)) {
       return invocationReqHandler.syncInvoke(oal);
     } else {

@@ -45,7 +45,7 @@ public class OrbitResource {
     var orbit = stateManager.get(id).await().indefinitely();
     if (orbit != null) {
       var res =  orbitManager.destroy(orbit);
-      stateManager.getRepo().delete(String.valueOf(orbit.getId()));
+      stateManager.getRepo().delete(id);
       return res;
     }
     throw new NotFoundException();
