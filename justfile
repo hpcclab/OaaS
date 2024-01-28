@@ -1,4 +1,5 @@
 mvn := "mvnd"
+#mvn := "./mvnw"
 export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
 
 build options="":

@@ -2,7 +2,6 @@ package org.hpcclab.oaas.controller.rest;
 
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.common.annotation.RunOnVirtualThread;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,8 +10,8 @@ import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.controller.model.Orbit;
 import org.hpcclab.oaas.controller.service.OrbitStateManager;
 import org.hpcclab.oaas.model.Pagination;
-import org.hpcclab.oaas.proto.*;
-import org.jboss.resteasy.reactive.RestMulti;
+import org.hpcclab.oaas.proto.OprcResponse;
+import org.hpcclab.oaas.proto.OrbitManagerGrpc;
 import org.jboss.resteasy.reactive.RestQuery;
 
 @Path("/api/orbits")
@@ -43,8 +42,8 @@ public class OrbitResource {
   @RunOnVirtualThread
   public OprcResponse delete(String id) {
     var orbit = stateManager.get(id).await().indefinitely();
-    if (orbit != null) {
-      var res =  orbitManager.destroy(orbit);
+    if (orbit!=null) {
+      var res = orbitManager.destroy(orbit);
       stateManager.getRepo().delete(id);
       return res;
     }

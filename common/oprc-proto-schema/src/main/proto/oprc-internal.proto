@@ -20,8 +20,14 @@ service OrbitStateUpdater{
 
 service OrbitManager{
   rpc deploy(DeploymentUnit) returns (ProtoOrbit) {};
+  rpc update(OrbitUpdateRequest) returns (ProtoOrbit) {};
   rpc destroy(ProtoOrbit) returns (OprcResponse) {};
   rpc detach(DetachOrbitRequest) returns (ProtoOrbit) {};
+}
+
+message OrbitUpdateRequest{
+  ProtoOrbit orbit = 1;
+  DeploymentUnit unit = 2;
 }
 
 message DetachOrbitRequest{

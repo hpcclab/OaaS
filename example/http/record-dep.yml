@@ -6,6 +6,8 @@ functions:
       deployment:
         image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
         port: 8080
+        requestsCpu: "0.5"
+        requestsMemory: "256m"
 
   - name: record.merge
     type: TASK
@@ -13,6 +15,8 @@ functions:
       deployment:
         image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
         port: 8080
+        requestsCpu: "0.5"
+        requestsMemory: "256M"
 
   - name: record.chain-update
     type: MACRO
@@ -79,6 +83,13 @@ classes:
       - access: PUBLIC
         name: random
         function: .record.random
+        outputCls: .record
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: merge
+        function: .record.merge
         outputCls: .record
         defaultArgs:
           INPLACE: "false"

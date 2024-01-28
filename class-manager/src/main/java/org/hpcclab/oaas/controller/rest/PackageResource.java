@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.f4b6a3.tsid.Tsid;
+import com.github.f4b6a3.tsid.TsidCreator;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.vertx.core.json.Json;
@@ -11,7 +13,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.commons.lang3.NotImplementedException;
 import org.hpcclab.oaas.controller.ClsManagerConfig;
 import org.hpcclab.oaas.controller.service.OrbitStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
@@ -25,6 +26,8 @@ import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.OrbitManagerGrpc;
+import org.hpcclab.oaas.proto.OrbitUpdateRequest;
+import org.hpcclab.oaas.proto.OrbitUpdateRequestOrBuilder;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -32,6 +35,7 @@ import org.jboss.resteasy.reactive.RestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -83,8 +87,11 @@ public class PackageResource {
       .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
     var newClasses = partitioned.get(true);
     var oldClasses = partitioned.get(false);
+    refresh(oldClasses);
+    refresh(newClasses);
     classRepo
-      .atomic().persistWithRevAsync(oldClasses).await().indefinitely();
+      .atomic().persistWithRevAsync(oldClasses)
+      .await().indefinitely();
     classRepo.persist(newClasses);
     funcRepo.persist(functions);
     for (var cls : changedClasses.values()) {
@@ -100,36 +107,35 @@ public class PackageResource {
       .toList();
     pkg.setClasses(pkgCls);
 
+    if (config.orbitEnabled()) {
+      deploy(pkg);
+    } else {
+      for (OClass cls : pkg.getClasses()) {
+        if (cls.getStatus()==null) {
+          cls.setStatus(new OClassDeploymentStatus().setOrbitId(TsidCreator.getTsid1024().toLong()));
+          classRepo.persist(cls);
+        }
+      }
+    }
     if (config.kafkaEnabled()) {
       provisionPublisher.submitNewPkg(pkg).await().indefinitely();
     }
-    deploy(pkg);
     if (logger.isDebugEnabled())
       logger.debug("pkg {}", Json.encodePrettily(pkg));
+
     return pkg;
   }
 
-  @Path("{name}")
-  @PATCH
-  @Consumes(MediaType.APPLICATION_JSON)
-  @RunOnVirtualThread
-  public OPackage patch(String name,
-                        OPackage oaasPackage) {
-    // TODO
-    throw new NotImplementedException();
-  }
-
-  @Path("{name}")
-  @PATCH
-  @Consumes("text/x-yaml")
-  @RunOnVirtualThread
-  public OPackage patchByYaml(String name,
-                              String body) {
-    try {
-      var pkg = yamlMapper.readValue(body, OPackage.class);
-      return patch(name, pkg);
-    } catch (JsonProcessingException e) {
-      throw new StdOaasException(e.getMessage(), 400);
+  void refresh(Collection<OClass> clsList) {
+    var keys = clsList.stream().map(OClass::getKey).toList();
+    classRepo.invalidate(keys);
+    var clsMap = classRepo.list(keys);
+    for (OClass cls : clsList) {
+      var oldCls = clsMap.get(cls.getKey());
+      if (oldCls==null)
+        continue;
+      cls.setStatus(oldCls.getStatus());
+      logger.info("refresh cls {}", cls);
     }
   }
 
@@ -162,11 +168,26 @@ public class PackageResource {
         .setCls(protoMapper.toProto(cls))
         .addAllFnList(protoFnList)
         .build();
-      var orbit = orbitManager.deploy(unit);
-      orbitStateManager.updateOrbit(orbit).await().indefinitely();
-      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
-      cls.getStatus().setOrbitId(orbit.getId());
-      classRepo.persist(cls);
+      var orbitId = cls.getStatus() == null? 0 : cls.getStatus().getOrbitId();
+      if (orbitId ==0) {
+        logger.info("deploy a new orbit for cls [{}]", cls.getKey());
+        var orbit = orbitManager.deploy(unit);
+        orbitStateManager.updateOrbit(orbit).await().indefinitely();
+        if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
+        cls.getStatus().setOrbitId(orbit.getId());
+        classRepo.persist(cls);
+      } else {
+        logger.info("update orbit [{}] for cls [{}]", orbitId, cls.getKey());
+        var orbit = orbitStateManager.get(Tsid.from(orbitId).toLowerCase())
+          .await().indefinitely();
+        var req = OrbitUpdateRequest.newBuilder()
+          .setOrbit(orbit)
+          .setUnit(unit)
+          .build();
+        var newOrbitState = orbitManager.update(req);
+        orbitStateManager.updateOrbit(newOrbitState);
+      }
+
     }
   }
 }

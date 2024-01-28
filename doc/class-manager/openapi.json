@@ -299,45 +299,6 @@
           }
         }
       }
-    },
-    "/api/packages/{name}" : {
-      "patch" : {
-        "tags" : [ "Package Resource" ],
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "text/x-yaml" : {
-              "schema" : {
-                "type" : "string"
-              }
-            },
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/OPackage"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OPackage"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components" : {

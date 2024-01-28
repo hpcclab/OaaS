@@ -18,6 +18,9 @@
       port: 8088
   oprc:
     log: DEBUG
+    cm:
+      orbitEnabled: false
+      kafkaEnabled: false
   kafka:
     bootstrap:
       servers: localhost:31000

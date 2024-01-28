@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
+import org.hpcclab.oaas.orbit.controller.OrbitController;
 import org.hpcclab.oaas.orbit.env.OprcEnvironment;
 import org.hpcclab.oaas.orbit.optimize.DefaultQoSOptimizer;
 import org.hpcclab.oaas.orbit.optimize.QosOptimizer;
@@ -65,7 +66,7 @@ public class OrbitTemplateManager {
     return templateMap.valuesView().getAny();
   }
 
-  public OrbitStructure load(OprcEnvironment env, ProtoOrbit orbit) {
+  public OrbitController load(OprcEnvironment env, ProtoOrbit orbit) {
     return orbitRepo.getOrLoad(orbit.getId(),
       () -> selectTemplate(orbit).load(env, orbit)
     );

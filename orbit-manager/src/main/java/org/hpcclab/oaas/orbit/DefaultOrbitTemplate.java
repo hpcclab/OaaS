@@ -3,6 +3,8 @@ package org.hpcclab.oaas.orbit;
 import com.github.f4b6a3.tsid.TsidFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.orbit.OrbitMappingConfig.OrbitTemplateConfig;
+import org.hpcclab.oaas.orbit.controller.DeploymentOrbitController;
+import org.hpcclab.oaas.orbit.controller.OrbitController;
 import org.hpcclab.oaas.orbit.env.OprcEnvironment;
 import org.hpcclab.oaas.orbit.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentUnit;
@@ -23,14 +25,14 @@ public class DefaultOrbitTemplate implements OrbitTemplate {
   }
 
   @Override
-  public OrbitStructure create(OprcEnvironment env, DeploymentUnit deploymentUnit) {
-    return new DeploymentOrbitStructure(
+  public OrbitController create(OprcEnvironment env, DeploymentUnit deploymentUnit) {
+    return new DeploymentOrbitController(
       this, k8sClient, env.config(), tsidFactory.create()
     );
   }
 
-  public OrbitStructure load(OprcEnvironment env, ProtoOrbit orbit) {
-    return new DeploymentOrbitStructure(this, k8sClient, env.config(), orbit);
+  public OrbitController load(OprcEnvironment env, ProtoOrbit orbit) {
+    return new DeploymentOrbitController(this, k8sClient, env.config(), orbit);
   }
 
   @Override

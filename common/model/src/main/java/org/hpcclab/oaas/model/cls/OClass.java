@@ -28,7 +28,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
 
   @JsonProperty("_key")
   String key;
-
   @JsonProperty("_rev")
   @JsonView(Views.Internal.class)
   String rev;

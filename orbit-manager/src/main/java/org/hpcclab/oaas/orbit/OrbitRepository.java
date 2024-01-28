@@ -3,6 +3,7 @@ package org.hpcclab.oaas.orbit;
 import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
+import org.hpcclab.oaas.orbit.controller.OrbitController;
 import org.hpcclab.oaas.proto.OrbitStateServiceGrpc;
 import org.hpcclab.oaas.proto.OrbitStateUpdaterGrpc;
 
@@ -15,13 +16,13 @@ public class OrbitRepository {
   OrbitStateUpdaterGrpc.OrbitStateUpdaterBlockingStub orbitStateUpdater;
   @GrpcClient("class-manager")
   OrbitStateServiceGrpc.OrbitStateServiceBlockingStub orbitStateService;
-  Map<Long, OrbitStructure> orbitMap = ConcurrentHashMap.newMap();
+  Map<Long, OrbitController> orbitMap = ConcurrentHashMap.newMap();
 
-  public OrbitStructure get(long id) {
+  public OrbitController get(long id) {
     return orbitMap.get(id);
   }
 
-  public OrbitStructure getOrLoad(long id, Supplier<OrbitStructure> supplier) {
+  public OrbitController getOrLoad(long id, Supplier<OrbitController> supplier) {
     var orbit = orbitMap.get(id);
     if (orbit==null) {
       orbit = supplier.get();
@@ -30,7 +31,7 @@ public class OrbitRepository {
     return orbit;
   }
 
-  public void save(OrbitStructure orbit) {
+  public void save(OrbitController orbit) {
     orbitMap.put(orbit.getId(), orbit);
   }
 }
