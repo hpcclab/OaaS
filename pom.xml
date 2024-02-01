@@ -9,8 +9,8 @@
   <modules>
     <module>common</module>
     <module>invoker</module>
-    <module>orbit-manager</module>
-    <module>class-manager</module>
+    <module>class-runtime-manager</module>
+    <module>package-manager</module>
     <module>storage-adapter</module>
     <module>cli</module>
   </modules>
@@ -22,7 +22,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.6.7</quarkus.platform.version>
+    <quarkus.platform.version>3.6.9</quarkus.platform.version>
     <surefire-plugin.version>3.2.2</surefire-plugin.version>
     <org.projectlombok.version>1.18.30</org.projectlombok.version>
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>

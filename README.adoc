@@ -21,66 +21,9 @@ concept,480]
 == Architecture
 image:doc/diagrams/oaas_architecture_v10.dio.png[ architecture,480]
 
-== Try it via Docker Compose
+== Try it via k3d
 
-This guide is for local development using docker-compose. This deployment is not included Kube Provisioner. Therefore, it can not automatically deploy a new container when you submit a new function. However, you can run your own function container in the compose files to locally test it.
-
-To use it with full functional, go through  link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on local Kubernetes (ex. kind, k3d, Docker Desktop).
-
-=== Prerequisites
-* Docker Runtime
-* Docker Compose plugin
-* JDK 21
-
-
-=== Deploy with docker-compose
-[source,bash]
-----
-# build project with mavan
-./mvnw package -DskipTests
-# start docker compose
-docker-compose up -d --build
-----
-
-NOTE: The provided compose file will perform building container image from the local files. If you want to pull the images from Github, you have to run `docker-compose pull` and then `docker-compose up -d`.
-
-=== Exposed Ports
-
-|===
-|Services |URL
-
-|*Object Controller*
-|`http://localhost:8088`
-
-|*Invoker*
-|`http://localhost:8089`
-
-|*Storage Adapter*
-|`http://localhost:8090`
-
-|*Arangodb*
-|`http://localhost:8529`
-
-|*MinIO*
-|`http://localhost:9001`
-|===
-
-=== Access OaaS via https://github.com/pawissanutt/oprc-cli[oprc-cli]
-[source,bash]
-----
-# For bash
-export OPRC_CDS=http://localhost:8088
-export OPRC_OC=http://localhost:8088
-export OPRC_INVOKER=http://localhost:8080
-
-# For powershell
-$ENV:OPRC_INVOKER="http://localhost:8089"
-$ENV:OPRC_CDS="http://localhost:8088"
-$ENV:OPRC_OC="http://localhost:8088"
-
-ocli package apply example/http/local-compose.yml
-ocli object create
-----
+Check on link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on local Kubernetes (ex. kind, k3d, Docker Desktop).
 
 == OaaS Usage
 

@@ -13,13 +13,13 @@ services:
     volumes:
       - arango-data:/var/lib/arangodb3
 
-  cm:
+  pm:
     depends_on:
       - arangodb
       - redpanda
-    image: ghcr.io/hpcclab/oaas/class-manager
+    image: ghcr.io/hpcclab/oaas/package-manager
     build:
-      context: oparaca-manager
+      context: package-manager
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - "8088:8080"
@@ -90,8 +90,6 @@ services:
       - 18082:18082
       - 19092:19092
       - 19644:9644
-#    volumes:
-#      - redpanda:/var/lib/redpanda/data
     healthcheck:
       test: [ "CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1" ]
       interval: 15s
@@ -191,11 +189,11 @@ services:
     restart: on-failure
     healthcheck: *oaas-healthcheck
 
-  orbit:
+  crm:
     build:
-      context: orbit-manager
+      context: class-runtime-manager
       dockerfile: src/main/docker/Dockerfile.jvm
-    image: ghcr.io/hpcclab/oaas/orbit-manager
+    image: ghcr.io/hpcclab/oaas/class-runtime-manager
     deploy:
       replicas: 0
     healthcheck: *oaas-healthcheck

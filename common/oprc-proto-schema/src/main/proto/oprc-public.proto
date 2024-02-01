@@ -26,6 +26,6 @@ service FunctionService {
 }
 
 service OrbitStateService{
-  rpc listOrbit(PaginateQuery) returns (stream ProtoOrbit) {};
-  rpc get(SingleKeyQuery) returns (ProtoOrbit) {};
+  rpc listOrbit(PaginateQuery) returns (stream ProtoCr) {};
+  rpc get(SingleKeyQuery) returns (ProtoCr) {};
 }

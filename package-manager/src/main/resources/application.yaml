@@ -1,0 +1,100 @@
+"%test":
+  quarkus:
+    console:
+      color: true
+    log:
+      min-level: TRACE
+  oprc:
+    log: TRACE
+    cm:
+      orbitEnabled: false
+      kafkaEnabled: false
+
+"%dev":
+  quarkus:
+    console:
+      color: true
+    http:
+      port: 8088
+  oprc:
+    log: DEBUG
+    pm:
+      orbitEnabled: false
+      kafkaEnabled: false
+  kafka:
+    bootstrap:
+      servers: localhost:31000
+
+
+oprc:
+  pm:
+    clsProvisionTopic: oaas-cls
+    kafkaEnabled: true
+    fnProvisionTopic: oaas-fn
+    crmHost: localhost
+    crmPort: 8091
+  log: INFO
+  name: package-manager
+  env: |
+    OPRC_DB_PKG_HOST=localhost
+    OPRC_DB_PKG_PORT=31235
+    OPRC_DB_PKG_USER=root
+    OPRC_DB_PKG_DB=oaas
+
+
+quarkus:
+  http:
+    access-log:
+      enabled: true
+      pattern: '"%r" %s %b %{RESPONSE_TIME} ms'
+      exclude-pattern: /q/.*
+    record-request-start-time: true
+  vertx:
+    prefer-native-transport: true
+  swagger-ui:
+    always-include: true
+  smallrye-openapi:
+    store-schema-directory: ../doc/package-manager
+    enable: true
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oprc.log}
+  container-image:
+    image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
+  micrometer:
+    export:
+      json:
+        enabled: true
+        path: jsonmetrics
+  native:
+    resources:
+      includes:
+        - builtin/**
+  kafka:
+    devservices:
+      enabled: false
+  grpc:
+    server:
+      enable-reflection-service: true
+      use-separate-server: false
+    clients:
+      orbit-manager:
+        use-quarkus-grpc-client: true
+        host: ${oprc.pm.crmHost}
+        port: ${oprc.pm.crmPort}
+mp:
+  messaging:
+    outgoing:
+      fnProvisions:
+        enabled: ${oprc.pm.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oprc.pm.fnProvisionTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+      clsProvisions:
+        enabled: ${oprc.pm.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oprc.pm.clsProvisionTopic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

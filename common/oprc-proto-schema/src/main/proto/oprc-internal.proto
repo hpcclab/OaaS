@@ -14,24 +14,24 @@ service DeploymentStatusUpdater {
   rpc updateCls(OClassStatusUpdate) returns (ProtoOClass) {};
   rpc updateFn(OFunctionStatusUpdate) returns (ProtoOFunction) {};
 }
-service OrbitStateUpdater{
-  rpc updateOrbit(ProtoOrbit) returns (OprcResponse) {};
+service CrStateUpdater{
+  rpc updateOrbit(ProtoCr) returns (OprcResponse) {};
 }
 
-service OrbitManager{
-  rpc deploy(DeploymentUnit) returns (ProtoOrbit) {};
-  rpc update(OrbitUpdateRequest) returns (ProtoOrbit) {};
-  rpc destroy(ProtoOrbit) returns (OprcResponse) {};
-  rpc detach(DetachOrbitRequest) returns (ProtoOrbit) {};
+service CrManager{
+  rpc deploy(DeploymentUnit) returns (ProtoCr) {};
+  rpc update(CrUpdateRequest) returns (ProtoCr) {};
+  rpc destroy(ProtoCr) returns (OprcResponse) {};
+  rpc detach(DetachCrRequest) returns (ProtoCr) {};
 }
 
-message OrbitUpdateRequest{
-  ProtoOrbit orbit = 1;
+message CrUpdateRequest{
+  ProtoCr orbit = 1;
   DeploymentUnit unit = 2;
 }
 
-message DetachOrbitRequest{
-  ProtoOrbit orbit = 1;
+message DetachCrRequest{
+  ProtoCr orbit = 1;
   ProtoOClass cls = 2;
 }
 
