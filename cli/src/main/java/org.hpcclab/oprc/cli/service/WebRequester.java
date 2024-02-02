@@ -22,7 +22,9 @@ public class WebRequester {
         var res = webClient.requestAbs(method, url)
                 .sendAndAwait();
         if (res.statusCode() != 200){
-            logger.error("error response: code={}", res.statusCode());
+            logger.error("error response: code={}, body={}",
+              res.statusCode(),
+              res.bodyAsString());
             return null;
         }
         return res.bodyAsJsonObject();

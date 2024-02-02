@@ -8,5 +8,5 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OClassDeploymentStatus {
-  long orbitId;
+  long crId;
 }

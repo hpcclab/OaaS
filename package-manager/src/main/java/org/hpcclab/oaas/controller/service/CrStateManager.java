@@ -12,12 +12,13 @@ import org.hpcclab.oaas.controller.model.CrMapperImpl;
 import org.hpcclab.oaas.controller.model.CrMapper;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.*;
 
 import static org.hpcclab.oaas.arango.AutoRepoBuilder.confRegistry;
 
 @ApplicationScoped
-public class OrbitStateManager {
+public class CrStateManager {
   @Inject
   CrMapper crMapper;
   @Inject
@@ -27,7 +28,7 @@ public class OrbitStateManager {
   CrManagerGrpc.CrManagerBlockingStub orbitManager;
 
   @Inject
-  public OrbitStateManager() {
+  public CrStateManager() {
     var fac = new RepoFactory(confRegistry.getConfMap().get("PKG"));
     repo = fac.createGenericRepo(OprcCr.class, OprcCr::getKey, "orbit");
     repo.createIfNotExist();
@@ -38,7 +39,7 @@ public class OrbitStateManager {
     return repo;
   }
 
-  public Uni<OprcResponse> updateOrbit(ProtoCr protoOrbit) {
+  public Uni<OprcResponse> updateCr(ProtoCr protoOrbit) {
     var orbit = crMapper.map(protoOrbit);
     return repo.persistAsync(orbit)
       .map(entity -> OprcResponse.newBuilder()
@@ -60,16 +61,19 @@ public class OrbitStateManager {
   }
 
   public void detach(OClass cls) {
-    var orbit = getRepo().get(OprcCr.toKey(cls.getStatus().getOrbitId()));
-    var newOrbit = orbitManager.detach(DetachCrRequest.newBuilder()
-      .setOrbit(crMapper.map(orbit)).setCls(
-        protoMapper.toProto(cls)
-      ).build());
-    if (newOrbit.getAttachedClsList().isEmpty()) {
-      repo.remove(OprcCr.toKey(newOrbit.getId()));
+    var cr = getRepo().get(OprcCr.toKey(cls.getStatus().getCrId()));
+    if (cr == null)
+      throw new StdOaasException("No matched CR for give class");
+    var response = orbitManager.detach(DetachCrRequest.newBuilder()
+      .setOrbit(crMapper.map(cr))
+      .setCls(protoMapper.toProto(cls))
+      .build());
+    var newCr = response.getCr();
+    if (response.getCr().getAttachedClsList().isEmpty()) {
+      repo.remove(OprcCr.toKey(newCr.getId()));
     } else {
-      repo.persistAsync(crMapper.map(newOrbit));
+      repo.persistAsync(crMapper.map(newCr));
     }
-    cls.getStatus().setOrbitId(0);
+    cls.getStatus().setCrId(0);
   }
 }

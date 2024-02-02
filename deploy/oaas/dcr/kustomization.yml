@@ -1,0 +1,7 @@
+resources:
+  - package-manager.yml
+  - env-configmap.yml
+  - class-runtime-manager.yml
+  - class-runtime-manager-rb.yml
+  - invoker-svc.yml
+

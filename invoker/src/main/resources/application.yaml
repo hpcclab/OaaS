@@ -37,8 +37,8 @@ oprc:
   log: INFO
   name: invoker
   invoker:
-    classManagerHost: localhost
-    classManagerPort: 8088
+    pmHost: localhost
+    pmPort: 8088
   ispn:
     objStore:
       maxCount: 1000000
@@ -66,9 +66,9 @@ quarkus:
     server:
       use-separate-server: false
     clients:
-      class-manager:
-        host: ${oprc.invoker.classManagerHost}
-        port: ${oprc.invoker.classManagerPort}
+      package-manager:
+        host: ${oprc.invoker.pmHost}
+        port: ${oprc.invoker.pmPort}
 
   s3:
     devservices:

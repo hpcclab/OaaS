@@ -16,16 +16,16 @@ public interface CrController {
 
   Set<String> getAttachedFn();
 
-  OrbitOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
+  CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
 
   CrDeploymentPlan createPlan(DeploymentUnit unit);
 
-  OrbitOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
+  CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
     throws CrDeployException;
 
-  OrbitOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException;
+  CrOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException;
 
-  OrbitOperation createDestroyOperation() throws CrUpdateException;
+  CrOperation createDestroyOperation() throws CrUpdateException;
 
   ProtoCr dump();
 }

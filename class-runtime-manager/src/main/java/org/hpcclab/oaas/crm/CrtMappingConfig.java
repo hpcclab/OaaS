@@ -6,8 +6,10 @@ public record CrtMappingConfig(
   Map<String, CrtConfig> templates
 ) {
   public record CrtConfig(
+    String type,
     Map<String, String> images,
     Map<String, Map<String, String>> additionalEnv,
-    Map<String, String> optimizer
+    String optimizer,
+    Map<String, String> optimizerConf
   ){}
 }

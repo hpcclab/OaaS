@@ -7,11 +7,12 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.crm.OrbitTemplate;
+import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
+import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.slf4j.Logger;
@@ -21,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class BaseK8SCrController implements CrController {
-  private static final Logger logger = LoggerFactory.getLogger(BaseK8SCrController.class);
-  long id;
-  String prefix;
-  String namespace;
-  OrbitTemplate template;
+public class K8SCrController implements CrController {
+  private static final Logger logger = LoggerFactory.getLogger(K8SCrController.class);
+  final long id;
+  final String prefix;
+  final String namespace;
+  ClassRuntimeTemplate template;
   KubernetesClient kubernetesClient;
   OprcEnvironment.Config envConfig;
 
@@ -34,21 +35,39 @@ public abstract class BaseK8SCrController implements CrController {
   Set<String> attachedFn = Sets.mutable.empty();
   Map<String, Long> versions = Maps.mutable.empty();
   List<HasMetadata> k8sResources = Lists.mutable.empty();
+  DeploymentFnController deploymentFnController;
+  KnativeFnController knativeFnController;
 
-  static final String ORBIT_LABEL_KEY = "orbit-id";
-  static final String ORBIT_COMPONENT_LABEL_KEY = "orbit-part";
-  static final String ORBIT_FN_KEY = "orbit-fn";
 
-  protected BaseK8SCrController(OrbitTemplate template,
-                                KubernetesClient client,
-                                OprcEnvironment.Config envConfig,
-                                Tsid tsid) {
+  public static final String CR_LABEL_KEY = "cr-id";
+  public static final String CR_COMPONENT_LABEL_KEY = "cr-part";
+  public static final String CR_FN_KEY = "cr-fn";
+  public static final String NAME_INVOKER = "invoker";
+  public static final String NAME_SA = "storage-adapter";
+  public static final String NAME_SECRET = "secret";
+  public static final String NAME_CONFIGMAP = "cm";
+
+  public K8SCrController(ClassRuntimeTemplate template,
+                         KubernetesClient client,
+                         OprcEnvironment.Config envConfig,
+                         Tsid tsid) {
     this.template = template;
     this.kubernetesClient = client;
     this.envConfig = envConfig;
     namespace = kubernetesClient.getNamespace();
     id = tsid.toLong();
     prefix = "orbit-" + tsid.toLowerCase() + "-";
+    deploymentFnController = new DeploymentFnController(kubernetesClient, this);
+    knativeFnController = new KnativeFnController(kubernetesClient, this, envConfig);
+  }
+
+  public K8SCrController(ClassRuntimeTemplate template,
+                         KubernetesClient client,
+                         OprcEnvironment.Config envConfig,
+                         ProtoCr orbit) {
+    this(template, client, envConfig, Tsid.from(orbit.getId()));
+    attachedCls.addAll(orbit.getAttachedClsList());
+    attachedFn.addAll(orbit.getAttachedFnList());
   }
 
   @Override
@@ -67,18 +86,22 @@ public abstract class BaseK8SCrController implements CrController {
   }
 
   @Override
-  public OrbitOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit) {
+  public CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit) {
     List<HasMetadata> resources = Lists.mutable.empty();
-    for (var f : unit.getFnListList()) {
-      if (!attachedFn.contains(f.getKey()))
-        resources.addAll(deployFunction(plan, f));
-    }
-    return new ApplyK8sOrbitOperation(kubernetesClient, resources, () -> {
+    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resources, () -> {
       for (var f : unit.getFnListList()) {
         attachedFn.add(f.getKey());
       }
       k8sResources.addAll(resources);
     });
+    for (var f : unit.getFnListList()) {
+      if (!attachedFn.contains(f.getKey())) {
+        FnResourcePlan fnResourcePlan = deployFunction(plan, f);
+        resources.addAll(fnResourcePlan.resources());
+        crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
+      }
+    }
+    return crOperation;
   }
 
   @Override
@@ -87,34 +110,37 @@ public abstract class BaseK8SCrController implements CrController {
   }
 
   @Override
-  public OrbitOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
+  public CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
     throws CrDeployException {
     List<HasMetadata> resourceList = Lists.mutable.empty();
-    resourceList.addAll(deployShared(plan));
-    resourceList.addAll(deployDataModule(plan));
-    resourceList.addAll(deployExecutionModule(plan));
-    resourceList.addAll(deployObjectModule(plan, unit));
-    for (ProtoOFunction fn : unit.getFnListList()) {
-      resourceList.addAll(deployFunction(plan, fn));
-    }
-    return new ApplyK8sOrbitOperation(kubernetesClient, resourceList, () -> {
+    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resourceList, () -> {
       attachedCls.add(unit.getCls().getKey());
       for (ProtoOFunction fn : unit.getFnListList()) {
         attachedFn.add(fn.getKey());
       }
       k8sResources.addAll(resourceList);
     });
+    resourceList.addAll(deployShared(plan));
+    resourceList.addAll(deployDataModule(plan));
+    resourceList.addAll(deployExecutionModule(plan));
+    resourceList.addAll(deployObjectModule(plan, unit));
+    for (ProtoOFunction fn : unit.getFnListList()) {
+      var fnResourcePlan = deployFunction(plan, fn);
+      resourceList.addAll(fnResourcePlan.resources());
+      crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
+    }
+    return crOperation;
   }
 
 
-  public List<? extends HasMetadata> deployShared(CrDeploymentPlan plan) throws CrDeployException {
+  public List<HasMetadata> deployShared(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
-      ORBIT_LABEL_KEY, String.valueOf(id)
+      CR_LABEL_KEY, String.valueOf(id)
     );
     var datastoreMap = DatastoreConfRegistry.getDefault().dump();
     var sec = new SecretBuilder()
       .withNewMetadata()
-      .withName(prefix + "secret")
+      .withName(prefix + NAME_SECRET)
       .withNamespace(namespace)
       .withLabels(labels)
       .endMetadata()
@@ -126,12 +152,12 @@ public abstract class BaseK8SCrController implements CrController {
       "OPRC_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
         .formatted(prefix, namespace),
       "OPRC_ORBIT", Tsid.from(id).toLowerCase(),
-      "OPRC_INVOKER_CLASSMANAGERHOST", envConfig.classManagerHost(),
-      "OPRC_INVOKER_CLASSMANAGERPORT", envConfig.classManagerPort()
+      "OPRC_INVOKER_PMHOST", envConfig.classManagerHost(),
+      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()
-      .withName(prefix + "cm")
+      .withName(prefix + NAME_CONFIGMAP)
       .withNamespace(namespace)
       .withLabels(labels)
       .endMetadata()
@@ -141,23 +167,24 @@ public abstract class BaseK8SCrController implements CrController {
     return List.of(confMap, sec);
   }
 
-  public List<? extends HasMetadata> deployObjectModule(CrDeploymentPlan plan, DeploymentUnit unit) {
+  public List<HasMetadata> deployObjectModule(CrDeploymentPlan plan, DeploymentUnit unit) {
     var labels = Map.of(
-      ORBIT_LABEL_KEY, String.valueOf(id),
-      ORBIT_COMPONENT_LABEL_KEY, "invoker"
+      CR_LABEL_KEY, String.valueOf(id),
+      CR_COMPONENT_LABEL_KEY, NAME_INVOKER
     );
     var deployment = createDeployment(
-      "/orbits/invoker-dep.yml",
-      prefix + "invoker",
+      "/crts/invoker-dep.yml",
+      prefix + NAME_INVOKER,
       labels);
-    attachSecret(deployment, prefix + "secret");
-    attachConf(deployment, prefix + "cm");
+    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER));
+    attachSecret(deployment, prefix + NAME_SECRET);
+    attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
-      "/orbits/invoker-svc.yml",
-      prefix + "invoker",
+      "/crts/invoker-svc.yml",
+      prefix + NAME_INVOKER,
       labels);
     var invokerSvcPing = createSvc(
-      "/orbits/invoker-svc-ping.yml",
+      "/crts/invoker-svc-ping.yml",
       prefix + "invoker-ping",
       labels);
     var container = deployment.getSpec().getTemplate().getSpec()
@@ -181,38 +208,55 @@ public abstract class BaseK8SCrController implements CrController {
 
   public List<HasMetadata> deployDataModule(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
-      ORBIT_LABEL_KEY, String.valueOf(id),
-      ORBIT_COMPONENT_LABEL_KEY, "storage-adapter"
+      CR_LABEL_KEY, String.valueOf(id),
+      CR_COMPONENT_LABEL_KEY, NAME_SA
     );
     var deployment = createDeployment(
-      "/orbits/storage-adapter-dep.yml",
-      prefix + "storage-adapter",
+      "/crts/storage-adapter-dep.yml",
+      prefix + NAME_SA,
       labels);
-    attachSecret(deployment, prefix + "secret");
-    attachConf(deployment, prefix + "cm");
+    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER));
+    attachSecret(deployment, prefix + NAME_SECRET);
+    attachConf(deployment, prefix + NAME_CONFIGMAP);
     var svc = createSvc(
-      "/orbits/storage-adapter-svc.yml",
-      prefix + "storage-adapter",
+      "/crts/storage-adapter-svc.yml",
+      prefix + NAME_SA,
       labels);
     return List.of(deployment, svc);
   }
 
-  public abstract List<HasMetadata> deployFunction(CrDeploymentPlan plan,
-                                      ProtoOFunction function) throws CrDeployException;
+  public FnResourcePlan deployFunction(CrDeploymentPlan plan,
+                                       ProtoOFunction function) throws CrDeployException {
+    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_MACRO)
+      return FnResourcePlan.EMPTY;
+    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_LOGICAL)
+      return FnResourcePlan.EMPTY;
+    if (!function.getProvision().getDeployment().getImage().isEmpty()) {
+      return deploymentFnController.deployFunction(plan, function);
+    } else if (!function.getProvision().getKnative().getImage().isEmpty()) {
+      return knativeFnController.deployFunction(plan, function);
+    }
+    throw new CrDeployException("Can not find suitable function controller for function:\n" + function);
+  }
 
-  public abstract List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException;
+  public List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
+    List<HasMetadata> resourceList = Lists.mutable.empty();
+    resourceList.addAll(deploymentFnController.removeFunction(fnKey));
+    resourceList.addAll(knativeFnController.removeFunction(fnKey));
+    return resourceList;
+  }
 
   @Override
-  public OrbitOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException {
+  public CrOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException {
     // TODO send signal
-    if (attachedCls.size() == 1 && attachedCls.contains(cls.getKey())) {
+    if (attachedCls.size()==1 && attachedCls.contains(cls.getKey())) {
       return createDestroyOperation();
     }
     List<HasMetadata> resourceList = Lists.mutable.empty();
     for (ProtoFunctionBinding fb : cls.getFunctionsList()) {
       resourceList.addAll(removeFunction(fb.getFunction()));
     }
-    return new DeleteK8sOrbitOperation(kubernetesClient, resourceList, () -> {
+    return new DeleteK8SCrOperation(kubernetesClient, resourceList, () -> {
       attachedCls.remove(cls.getKey());
       for (ProtoFunctionBinding fb : cls.getFunctionsList()) {
         attachedFn.remove(fb.getFunction());
@@ -222,30 +266,32 @@ public abstract class BaseK8SCrController implements CrController {
   }
 
   @Override
-  public OrbitOperation createDestroyOperation() throws CrUpdateException {
+  public CrOperation createDestroyOperation() throws CrUpdateException {
     if (k8sResources.isEmpty()) {
       var depList = kubernetesClient.apps().deployments()
-        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, String.valueOf(id))
         .list()
         .getItems();
       k8sResources.addAll(depList);
       var svcList = kubernetesClient.services()
-        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, String.valueOf(id))
         .list()
         .getItems();
       k8sResources.addAll(svcList);
       var sec = kubernetesClient.secrets()
-        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, String.valueOf(id))
         .list()
         .getItems();
       k8sResources.addAll(sec);
       var configMaps = kubernetesClient.configMaps()
-        .withLabel(ORBIT_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, String.valueOf(id))
         .list()
         .getItems();
       k8sResources.addAll(configMaps);
+      var ksvc = knativeFnController.removeAllFunction();
+      k8sResources.addAll(ksvc);
     }
-    return new DeleteK8sOrbitOperation(kubernetesClient, k8sResources,
+    return new DeleteK8SCrOperation(kubernetesClient, k8sResources,
       () -> k8sResources.clear());
   }
 

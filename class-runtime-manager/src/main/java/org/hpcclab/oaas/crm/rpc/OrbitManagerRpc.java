@@ -5,9 +5,9 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.crm.CrTemplateManager;
+import org.hpcclab.oaas.crm.template.CrTemplateManager;
 import org.hpcclab.oaas.crm.controller.CrController;
-import org.hpcclab.oaas.crm.controller.OrbitOperation;
+import org.hpcclab.oaas.crm.controller.CrOperation;
 import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
@@ -16,13 +16,15 @@ import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 @GrpcService
 public class OrbitManagerRpc implements CrManager {
   private static final Logger logger = LoggerFactory.getLogger(OrbitManagerRpc.class);
   CrTemplateManager templateManager;
   EnvironmentManager environmentManager;
   FeasibilityChecker feasibilityChecker;
-  @GrpcClient("class-manager")
+  @GrpcClient("package-manager")
   OrbitStateServiceGrpc.OrbitStateServiceBlockingStub stateService;
 
   @Inject
@@ -36,7 +38,7 @@ public class OrbitManagerRpc implements CrManager {
 
   @Override
   @RunOnVirtualThread
-  public Uni<ProtoCr> deploy(DeploymentUnit deploymentUnit) {
+  public Uni<CrOperationResponse> deploy(DeploymentUnit deploymentUnit) {
     try {
       long orbitId = deploymentUnit.getCls()
         .getStatus().getOrbitId();
@@ -62,7 +64,7 @@ public class OrbitManagerRpc implements CrManager {
 
   @Override
   @RunOnVirtualThread
-  public Uni<ProtoCr> update(CrUpdateRequest request) {
+  public Uni<CrOperationResponse> update(CrUpdateRequest request) {
     try {
       var env = environmentManager.getEnvironment();
       var orbitStructure = templateManager.load(env, request.getOrbit());
@@ -75,16 +77,22 @@ public class OrbitManagerRpc implements CrManager {
     }
   }
 
-  private Uni<ProtoCr> deployOrNothing(CrController crController,
-                                       OrbitOperation operation,
+  private Uni<CrOperationResponse> deployOrNothing(CrController crController,
+                                       CrOperation operation,
                                        OprcEnvironment env) {
     var feasible = feasibilityChecker.deploymentCheck(env, crController, operation);
     if (!feasible)
       return Uni.createFrom().failure(new CrDeployException("Not feasible"));
     try {
       operation.apply();
+      var cr = crController.dump();
+      CrOperationResponse response = CrOperationResponse.newBuilder()
+        .setCr(cr)
+        .addAllClsUpdates(operation.stateUpdates().clsUpdates())
+        .addAllFnUpdates(operation.stateUpdates().fnUpdates())
+        .build();
       return Uni
-        .createFrom().item(crController.dump());
+        .createFrom().item(response);
     } catch (Throwable e) {
       logger.error("orbit deploying error and attempt to clean up", e);
       operation.rollback();
@@ -108,13 +116,13 @@ public class OrbitManagerRpc implements CrManager {
 
   @Override
   @RunOnVirtualThread
-  public Uni<ProtoCr> detach(DetachCrRequest request) {
+  public Uni<CrOperationResponse> detach(DetachCrRequest request) {
     var env = environmentManager.getEnvironment();
-    var orbitStructure = templateManager.load(env, request.getOrbit());
-    var operation = orbitStructure.createDetachOperation(request.getCls());
+    var crController = templateManager.load(env, request.getOrbit());
+    var operation = crController.createDetachOperation(request.getCls());
     try {
       operation.apply();
-      return Uni.createFrom().item(orbitStructure.dump());
+      return deployOrNothing(crController, operation, env);
     } catch (Throwable e) {
       return Uni.createFrom().failure(e);
     }

@@ -14,12 +14,12 @@ import picocli.CommandLine.Command;
 import java.util.concurrent.Callable;
 
 @Command(
-        name = "delete orbit",
+        name = "delete cr",
         aliases = {"d", "delete"},
         mixinStandardHelpOptions = true
 )
-public class OrbitDeleteCommand implements Callable<Integer> {
-    private static final Logger logger = LoggerFactory.getLogger( OrbitDeleteCommand.class );
+public class CrDeleteCommand implements Callable<Integer> {
+    private static final Logger logger = LoggerFactory.getLogger( CrDeleteCommand.class );
     @CommandLine.Mixin
     OaasMixin oaasMixin;
     @CommandLine.Mixin
@@ -28,16 +28,16 @@ public class OrbitDeleteCommand implements Callable<Integer> {
     WebRequester webRequester;
 
     @CommandLine.Parameters(defaultValue = "")
-    String orbitId;
+    String crId;
 
     @Override
     public Integer call() throws Exception {
         var oc = oaasMixin.getOcUrl();
         return webRequester.deleteAndPrint(
-                UriTemplate.of("{+oc}/api/orbits/{+orbitId}")
+                UriTemplate.of("{+oc}/api/class-runtimes/{+crId}")
                         .expandToString(Variables.variables()
                                 .set("oc", oc)
-                                .set("orbitId",orbitId)
+                                .set("crId", crId)
                         ),
                 commonOutputMixin.getOutputFormat()
         );

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ArgClsRepository extends AbstractCachedArgRepository<OClass> implements ClassRepository {
+public class ArgClsRepository extends AbstractArgRepository<OClass> implements ClassRepository {
 
 
   private final Cache<String, OClass> cache;
@@ -50,8 +50,6 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OClass> implem
   public String extractKey(OClass cls) {
     return cls.getKey();
   }
-
-  @Override
   Cache<String, OClass> cache() {
     return cache;
   }

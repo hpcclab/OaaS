@@ -17,7 +17,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     );
     var fnInstances = unit.getFnListList()
       .stream()
-      .map(f -> Map.entry(f.getKey(), 1))
+      .map(f -> Map.entry(f.getKey(), f.getProvision().getKnative().getImage().isEmpty()? 1: 0))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return new CrDeploymentPlan(
       instances, fnInstances

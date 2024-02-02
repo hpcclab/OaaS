@@ -1,58 +1,46 @@
 package org.hpcclab.oaas.crm.controller;
 
-import com.github.f4b6a3.tsid.Tsid;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.crm.OrbitTemplate;
-import org.hpcclab.oaas.crm.env.OprcEnvironment;
-import org.hpcclab.oaas.crm.exception.CrDeployException;
-import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
-import org.hpcclab.oaas.proto.ProtoCr;
+import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
+import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
 import org.hpcclab.oaas.proto.ProtoOFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DeploymentCrController extends BaseK8SCrController {
-  private static final Logger logger = LoggerFactory.getLogger(DeploymentCrController.class);
+import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 
-  public DeploymentCrController(OrbitTemplate template,
-                                KubernetesClient client,
-                                OprcEnvironment.Config envConfig,
-                                Tsid tsid) {
-    super(template, client, envConfig, tsid);
+public class DeploymentFnController implements FnController {
+  KubernetesClient kubernetesClient;
+  K8SCrController controller;
+
+  public DeploymentFnController(KubernetesClient kubernetesClient, K8SCrController controller) {
+    this.kubernetesClient = kubernetesClient;
+    this.controller = controller;
   }
 
-  public DeploymentCrController(OrbitTemplate template,
-                                KubernetesClient client,
-                                OprcEnvironment.Config envConfig,
-                                ProtoCr orbit) {
-    this(template, client, envConfig, Tsid.from(orbit.getId()));
-    attachedCls.addAll(orbit.getAttachedClsList());
-    attachedFn.addAll(orbit.getAttachedFnList());
-  }
-
-  public List<HasMetadata> deployFunction(CrDeploymentPlan plan,
-                                          ProtoOFunction function) throws CrDeployException {
+  @Override
+  public FnResourcePlan deployFunction(CrDeploymentPlan plan,
+                                          ProtoOFunction function) {
 
     var instance = plan.fnInstances()
       .getOrDefault(function.getKey(), 0);
     var labels = Map.of(
-      ORBIT_LABEL_KEY, String.valueOf(id),
-      ORBIT_COMPONENT_LABEL_KEY, "function",
-      ORBIT_FN_KEY, function.getKey()
+      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_COMPONENT_LABEL_KEY, "function",
+      CR_FN_KEY, function.getKey()
     );
     var deployConf = function.getProvision()
       .getDeployment();
     deployConf.getImage();
     if (deployConf.getImage().isEmpty())
-      return List.of();
+      return FnResourcePlan.EMPTY;
     Map<String, Quantity> requests = new HashMap<>();
     if (!deployConf.getRequestsCpu().isEmpty()) {
       requests.put("cpu", Quantity.parse(deployConf.getRequestsCpu()));
@@ -86,7 +74,7 @@ public class DeploymentCrController extends BaseK8SCrController {
         .build()
       )
       .build();
-    var fnName = prefix + function.getKey().toLowerCase().replaceAll("[\\._]", "-");
+    var fnName = controller.prefix + function.getKey().toLowerCase().replaceAll("[\\._]", "-");
     var deploymentBuilder = new DeploymentBuilder()
       .withNewMetadata()
       .withName(fnName)
@@ -125,14 +113,23 @@ public class DeploymentCrController extends BaseK8SCrController {
       )
       .endSpec()
       .build();
-    return List.of(deployment, svc);
+    return new FnResourcePlan(List.of(deployment, svc),
+      List.of(OFunctionStatusUpdate.newBuilder()
+          .setKey(function.getKey())
+          .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
+            .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
+            .setInvocationUrl("http://" +  svc.getMetadata().getName() + "."+ controller.namespace + ".svc.cluster.local")
+            .build())
+        .build())
+    );
   }
 
-  public List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
+  @Override
+  public List<HasMetadata> removeFunction(String fnKey) {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      ORBIT_LABEL_KEY, String.valueOf(id),
-      ORBIT_FN_KEY, fnKey
+      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_FN_KEY, fnKey
     );
     var deployments = kubernetesClient.apps()
       .deployments()
@@ -144,5 +141,10 @@ public class DeploymentCrController extends BaseK8SCrController {
       .list().getItems();
     resources.addAll(services);
     return resources;
+  }
+
+  @Override
+  public List<HasMetadata> removeAllFunction() {
+    return List.of();
   }
 }

@@ -13,9 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipITs>true</skipITs>
-    <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
-    <surefire-plugin.version>3.2.2</surefire-plugin.version>
     <tsid-creator.version>5.2.5</tsid-creator.version>
   </properties>
   <dependencyManagement>

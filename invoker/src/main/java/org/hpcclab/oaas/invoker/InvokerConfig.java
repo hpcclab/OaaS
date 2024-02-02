@@ -10,8 +10,8 @@ import org.hpcclab.oaas.storage.S3ConnConf;
 )
 public interface InvokerConfig {
   String kafka();
-  String classManagerHost();
-  String classManagerPort();
+  String pmHost();
+  String pmPort();
   @WithDefault("oaas-invoker")
   String kafkaGroup();
   @WithDefault("oaas-fn")

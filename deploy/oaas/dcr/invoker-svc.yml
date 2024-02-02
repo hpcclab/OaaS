@@ -6,7 +6,7 @@ metadata:
     platform: oaas
 spec:
   selector:
-    orbit-part: invoker
+    cr-part: invoker
   ports:
     - name: http
       protocol: TCP

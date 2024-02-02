@@ -73,7 +73,7 @@ public class PackageValidator {
       .call(binding -> Uni.createFrom()
         .item(functionMap.get(binding.getFunction()))
         .onItem().ifNull()
-        .switchTo(() -> functionRepo.getBypassCacheAsync(binding.getFunction()))
+        .switchTo(() -> functionRepo.async().getAsync(binding.getFunction()))
         .onItem().ifNull().failWith(() -> new FunctionValidationException("Can not find function [%s]".formatted(binding.getFunction())))
         .invoke(func -> binding.validate(func)))
       .collect().last()

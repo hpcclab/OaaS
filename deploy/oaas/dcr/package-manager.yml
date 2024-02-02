@@ -1,35 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orbit-manager
+  name: package-manager
   labels:
-    app: orbit-manager
+    app: package-manager
     platform: oaas
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: orbit-manager
+      app: package-manager
       platform: oaas
   template:
     metadata:
       labels:
-        app: orbit-manager
+        app: package-manager
         platform: oaas
     spec:
-      serviceAccountName: orbit-manager-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: package-manager
+                topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: orbit-manager
+        - name: class-manager
           envFrom:
             - configMapRef:
                 name: oaas-env
-          image: ghcr.io/hpcclab/oaas/orbit-manager
+          image: ghcr.io/hpcclab/oaas/package-manager:latest
           ports:
             - containerPort: 8080
+              name: http
           resources:
             limits:
-              cpu: '0.5'
               memory: 512M
+              cpu: '0.5'
             requests:
               cpu: '0.1'
               memory: 256M
@@ -58,11 +67,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orbit-manager
+  name: package-manager
+  labels:
+    app: package-manager
+    platform: oaas
 spec:
   selector:
-    app: orbit-manager
+    app: package-manager
+    platform: oaas
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 8080

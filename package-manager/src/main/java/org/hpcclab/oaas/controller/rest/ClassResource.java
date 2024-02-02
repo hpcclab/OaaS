@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.controller.service.OrbitStateManager;
+import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -25,7 +25,7 @@ public class ClassResource {
   @Inject
   ClassRepository classRepo;
   @Inject
-  OrbitStateManager orbitStateManager;
+  CrStateManager crStateManager;
 
   @GET
   @JsonView(Views.Public.class)
@@ -58,8 +58,8 @@ public class ClassResource {
     if (cls==null) {
       throw new NotFoundException();
     }
-    if (cls.getStatus()!=null && cls.getStatus().getOrbitId() > 0) {
-      orbitStateManager.detach(cls);
+    if (cls.getStatus()!=null && cls.getStatus().getCrId() > 0) {
+      crStateManager.detach(cls);
     }
     classRepo.remove(clsKey);
     return cls;

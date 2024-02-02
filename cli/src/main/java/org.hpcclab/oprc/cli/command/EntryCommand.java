@@ -5,7 +5,7 @@ import org.hpcclab.oprc.cli.command.cls.ClsEntryCommand;
 import org.hpcclab.oprc.cli.command.fn.FnEntryCommand;
 import org.hpcclab.oprc.cli.command.oal.InvocationCommand;
 import org.hpcclab.oprc.cli.command.obj.ObjectEntryCommand;
-import org.hpcclab.oprc.cli.command.orbit.OrbitEntryCommand;
+import org.hpcclab.oprc.cli.command.orbit.CrEntryCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageEntryCommand;
 import picocli.CommandLine.Command;
 
@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
         subcommands = {
                 ObjectEntryCommand.class,
                 ClsEntryCommand.class,
-                OrbitEntryCommand.class,
+                CrEntryCommand.class,
                 FnEntryCommand.class,
                 InvocationCommand.class,
                 PackageEntryCommand.class

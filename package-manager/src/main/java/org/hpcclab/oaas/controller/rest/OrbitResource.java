@@ -8,22 +8,22 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.controller.model.OprcCr;
-import org.hpcclab.oaas.controller.service.OrbitStateManager;
+import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.proto.CrManagerGrpc;
 import org.hpcclab.oaas.proto.OprcResponse;
 import org.jboss.resteasy.reactive.RestQuery;
 
-@Path("/api/orbits")
+@Path("/api/class-runtimes")
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrbitResource {
-  OrbitStateManager stateManager;
+  CrStateManager stateManager;
   CrManagerGrpc.CrManagerBlockingStub orbitManager;
 
   @Inject
-  public OrbitResource(OrbitStateManager stateManager,
+  public OrbitResource(CrStateManager stateManager,
                        @GrpcClient("orbit-manager") CrManagerGrpc.CrManagerBlockingStub orbitManager) {
     this.stateManager = stateManager;
     this.orbitManager = orbitManager;

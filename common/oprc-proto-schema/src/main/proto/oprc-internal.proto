@@ -11,18 +11,20 @@ option java_package = "org.hpcclab.oaas.proto";
 package oprc;
 
 service DeploymentStatusUpdater {
-  rpc updateCls(OClassStatusUpdate) returns (ProtoOClass) {};
-  rpc updateFn(OFunctionStatusUpdate) returns (ProtoOFunction) {};
+  rpc updateCls(OClassStatusUpdate) returns (OprcResponse) {};
+  rpc updateClsAll(OClassStatusUpdates) returns (OprcResponse) {};
+  rpc updateFn(OFunctionStatusUpdate) returns (OprcResponse) {};
+  rpc updateFnAll(OFunctionStatusUpdates) returns (OprcResponse) {};
 }
 service CrStateUpdater{
   rpc updateOrbit(ProtoCr) returns (OprcResponse) {};
 }
 
 service CrManager{
-  rpc deploy(DeploymentUnit) returns (ProtoCr) {};
-  rpc update(CrUpdateRequest) returns (ProtoCr) {};
+  rpc deploy(DeploymentUnit) returns (CrOperationResponse) {};
+  rpc update(CrUpdateRequest) returns (CrOperationResponse) {};
   rpc destroy(ProtoCr) returns (OprcResponse) {};
-  rpc detach(DetachCrRequest) returns (ProtoCr) {};
+  rpc detach(DetachCrRequest) returns (CrOperationResponse) {};
 }
 
 message CrUpdateRequest{
@@ -40,14 +42,26 @@ message DeploymentUnit{
   repeated ProtoOFunction fnList = 2;
 }
 
+message CrOperationResponse{
+  ProtoCr cr = 1;
+  repeated OClassStatusUpdate clsUpdates = 2;
+  repeated OFunctionStatusUpdate fnUpdates = 3;
+}
+
 message OClassStatusUpdate {
   string key = 1;
   ProtoOClassDeploymentStatus status = 2;
+}
+message OClassStatusUpdates {
+  repeated OClassStatusUpdate updateList = 1;
 }
 
 message OFunctionStatusUpdate {
   string key = 1;
   ProtoOFunctionDeploymentStatus status = 2;
+}
+message OFunctionStatusUpdates {
+  repeated OFunctionStatusUpdate updateList = 1;
 }
 
 

@@ -1,8 +1,8 @@
 resources:
   - env-configmap.yml
 ### kube-provisioner
-  - orbit-manager.yml
-  - orbit-manager-rb.yml
+  - dcr-manager.yml
+  - dcr-manager-rb.yml
 ### object-controller
   - class-manager.yml
 ### content-delivery-service

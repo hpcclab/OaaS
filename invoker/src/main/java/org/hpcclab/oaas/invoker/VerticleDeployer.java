@@ -56,9 +56,9 @@ public class VerticleDeployer {
   InvokerConfig config;
   @Inject
   KafkaAdminClient adminClient;
-  @GrpcClient("class-manager")
+  @GrpcClient("package-manager")
   OrbitStateServiceGrpc.OrbitStateServiceBlockingStub orbitStateService;
-  @GrpcClient("class-manager")
+  @GrpcClient("package-manager")
   ClassServiceGrpc.ClassServiceBlockingStub classService;
   final ProtoMapper protoMapper = new ProtoMapperImpl();
 
@@ -95,8 +95,7 @@ public class VerticleDeployer {
     createTopic(cls)
       .flatMap(__ -> deployVerticleIfNew(cls))
       .subscribe().with(
-        __ -> {
-        },
+        __ -> {},
         e -> logger.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
       );
   }

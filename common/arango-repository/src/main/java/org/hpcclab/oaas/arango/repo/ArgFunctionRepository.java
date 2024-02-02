@@ -8,7 +8,8 @@ import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
-public class ArgFunctionRepository extends AbstractCachedArgRepository<OFunction> implements FunctionRepository {
+public class ArgFunctionRepository extends AbstractCachedArgRepository<OFunction>
+  implements FunctionRepository {
 
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;

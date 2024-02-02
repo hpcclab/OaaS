@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.controller.PkgManagetConfig;
-import org.hpcclab.oaas.controller.service.OrbitStateManager;
+import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.controller.service.ProvisionPublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
@@ -24,9 +24,7 @@ import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.pkg.OPackage;
-import org.hpcclab.oaas.proto.CrManagerGrpc;
-import org.hpcclab.oaas.proto.CrUpdateRequest;
-import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -60,7 +58,7 @@ public class PackageResource {
   @Inject
   ProtoMapper protoMapper;
   @Inject
-  OrbitStateManager orbitStateManager;
+  CrStateManager crStateManager;
   @GrpcClient("orbit-manager")
   CrManagerGrpc.CrManagerBlockingStub orbitManager;
 
@@ -81,25 +79,6 @@ public class PackageResource {
     var clsMap = classes.stream()
       .collect(Collectors.toMap(OClass::getKey, Function.identity()));
     var changedClasses = classResolver.resolveInheritance(clsMap);
-    var partitioned = changedClasses.values()
-      .stream()
-      .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
-    var newClasses = partitioned.get(true);
-    var oldClasses = partitioned.get(false);
-    refresh(oldClasses);
-    refresh(newClasses);
-    classRepo
-      .atomic().persistWithRevAsync(oldClasses)
-      .await().indefinitely();
-    classRepo.persist(newClasses);
-    funcRepo.persist(functions);
-    for (var cls : changedClasses.values()) {
-      classRepo.invalidate(cls.getKey());
-    }
-    for (var fn : functions) {
-      funcRepo.invalidate(fn.getKey());
-    }
-
     var pkgCls = changedClasses.values()
       .stream()
       .filter(cls -> Objects.equals(cls.getPkg(), pkg.getName()))
@@ -111,11 +90,24 @@ public class PackageResource {
     } else {
       for (OClass cls : pkg.getClasses()) {
         if (cls.getStatus()==null) {
-          cls.setStatus(new OClassDeploymentStatus().setOrbitId(TsidCreator.getTsid1024().toLong()));
+          cls.setStatus(new OClassDeploymentStatus().setCrId(TsidCreator.getTsid1024().toLong()));
           classRepo.persist(cls);
         }
       }
     }
+
+    var partitioned = changedClasses.values()
+      .stream()
+      .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
+    var newClasses = partitioned.get(true);
+    var oldClasses = partitioned.get(false);
+    refresh(pkg.getClasses());
+    classRepo
+      .atomic().persistWithRevAsync(oldClasses)
+      .await().indefinitely();
+    classRepo.persist(newClasses);
+    funcRepo.persist(functions);
+
     if (config.kafkaEnabled()) {
       provisionPublisher.submitNewPkg(pkg).await().indefinitely();
     }
@@ -167,26 +159,54 @@ public class PackageResource {
         .setCls(protoMapper.toProto(cls))
         .addAllFnList(protoFnList)
         .build();
-      var orbitId = cls.getStatus()==null ? 0:cls.getStatus().getOrbitId();
+      var orbitId = cls.getStatus()==null ? 0:cls.getStatus().getCrId();
       if (orbitId==0) {
         logger.info("deploy a new orbit for cls [{}]", cls.getKey());
-        var orbit = orbitManager.deploy(unit);
-        orbitStateManager.updateOrbit(orbit).await().indefinitely();
-        if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
-        cls.getStatus().setOrbitId(orbit.getId());
-        classRepo.persist(cls);
+        var response = orbitManager.deploy(unit);
+        crStateManager.updateCr(response.getCr()).await().indefinitely();
+        updateState(pkg, response);
       } else {
         logger.info("update orbit [{}] for cls [{}]", orbitId, cls.getKey());
-        var orbit = orbitStateManager.get(Tsid.from(orbitId).toLowerCase())
+        var orbit = crStateManager.get(Tsid.from(orbitId).toLowerCase())
           .await().indefinitely();
         var req = CrUpdateRequest.newBuilder()
           .setOrbit(orbit)
           .setUnit(unit)
           .build();
-        var newOrbitState = orbitManager.update(req);
-        orbitStateManager.updateOrbit(newOrbitState);
+        var response = orbitManager.update(req);
+        crStateManager.updateCr(response.getCr());
+        updateState(pkg, response);
       }
+    }
 
+  }
+
+  void updateState(OPackage pkg, CrOperationResponse response) {
+    var cr = response.getCr();
+    for (OClassStatusUpdate statusUpdate : response.getClsUpdatesList()) {
+      var classOptional = pkg.getClasses().stream()
+        .filter(c -> c.getKey().equals(statusUpdate.getKey()))
+        .findAny();
+      if (classOptional.isEmpty()) continue;
+      var cls = classOptional.get();
+      cls.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
+    }
+    for (OFunctionStatusUpdate statusUpdate : response.getFnUpdatesList()) {
+      var functionOptional = pkg.getFunctions().stream()
+        .filter(f -> f.getKey().equals(statusUpdate.getKey()))
+        .findAny();
+      if (functionOptional.isEmpty()) continue;
+      var fn = functionOptional.get();
+      fn.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
+    }
+    for (var clsKey : cr.getAttachedClsList()) {
+      var classOptional = pkg.getClasses().stream()
+        .filter(c -> c.getKey().equals(clsKey))
+        .findAny();
+      if (classOptional.isEmpty()) continue;
+      var cls = classOptional.get();
+      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
+      cls.getStatus().setCrId(cr.getId());
     }
   }
 }

@@ -7,15 +7,15 @@ import org.hpcclab.oaas.crm.exception.CrDeployException;
 
 import java.util.List;
 
-public class DeleteK8sOrbitOperation implements OrbitOperation {
+public class DeleteK8SCrOperation implements CrOperation {
   KubernetesClient client;
   List<? extends HasMetadata> k8sResources;
   List<? extends HasMetadata> originalResources;
   Runnable updater;
 
-  public DeleteK8sOrbitOperation(KubernetesClient client,
-                                 List<? extends HasMetadata> k8sResources,
-                                 Runnable updater) {
+  public DeleteK8SCrOperation(KubernetesClient client,
+                              List<? extends HasMetadata> k8sResources,
+                              Runnable updater) {
     this.client = client;
     this.k8sResources = k8sResources;
     this.updater = updater;

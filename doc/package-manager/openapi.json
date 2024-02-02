@@ -12,6 +12,63 @@
     "description" : "Auto generated value"
   } ],
   "paths" : {
+    "/api/class-runtimes" : {
+      "get" : {
+        "tags" : [ "Orbit Resource" ],
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginationOprcCr"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/class-runtimes/{id}" : {
+      "delete" : {
+        "tags" : [ "Orbit Resource" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OprcResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/classes" : {
       "get" : {
         "tags" : [ "Class Resource" ],
@@ -191,63 +248,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/OFunction_Public"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orbits" : {
-      "get" : {
-        "tags" : [ "Orbit Resource" ],
-        "parameters" : [ {
-          "name" : "limit",
-          "in" : "query",
-          "schema" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "offset",
-          "in" : "query",
-          "schema" : {
-            "format" : "int32",
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginationOprcCr"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orbits/{id}" : {
-      "delete" : {
-        "tags" : [ "Orbit Resource" ],
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OprcResponse"
                 }
               }
             }
@@ -5238,7 +5238,7 @@
       "OClassDeploymentStatus" : {
         "type" : "object",
         "properties" : {
-          "orbitId" : {
+          "crId" : {
             "format" : "int64",
             "type" : "integer"
           }
@@ -5247,7 +5247,7 @@
       "OClassDeploymentStatus_Public" : {
         "type" : "object",
         "properties" : {
-          "orbitId" : {
+          "crId" : {
             "format" : "int64",
             "type" : "integer"
           }

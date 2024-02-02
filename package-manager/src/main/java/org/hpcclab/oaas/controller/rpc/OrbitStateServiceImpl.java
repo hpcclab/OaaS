@@ -4,15 +4,15 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.controller.service.OrbitStateManager;
+import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.proto.*;
 
 @GrpcService
 public class OrbitStateServiceImpl implements CrStateUpdater, OrbitStateService {
-  OrbitStateManager stateManager;
+  CrStateManager stateManager;
 
   @Inject
-  public OrbitStateServiceImpl(OrbitStateManager stateManager) {
+  public OrbitStateServiceImpl(CrStateManager stateManager) {
     this.stateManager = stateManager;
   }
 
@@ -28,6 +28,6 @@ public class OrbitStateServiceImpl implements CrStateUpdater, OrbitStateService 
 
   @Override
   public Uni<OprcResponse> updateOrbit(ProtoCr request) {
-    return stateManager.updateOrbit(request);
+    return stateManager.updateCr(request);
   }
 }

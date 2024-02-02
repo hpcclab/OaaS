@@ -27,7 +27,7 @@ public interface IspnConfig {
     int maxCount();
     @WithDefault("2")
     int owner();
-    @WithDefault("30")
+    @WithDefault("-1")
     int ttl();
     @WithDefault("false")
     boolean readOnly();

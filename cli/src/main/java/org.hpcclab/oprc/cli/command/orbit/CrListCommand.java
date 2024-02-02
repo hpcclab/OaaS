@@ -14,12 +14,12 @@ import picocli.CommandLine.Command;
 import java.util.concurrent.Callable;
 
 @Command(
-        name = "list orbits",
+        name = "list cr",
   aliases = {"l", "list"},
         mixinStandardHelpOptions = true
 )
-public class OrbitListCommand implements Callable<Integer> {
-    private static final Logger logger = LoggerFactory.getLogger( OrbitListCommand.class );
+public class CrListCommand implements Callable<Integer> {
+    private static final Logger logger = LoggerFactory.getLogger( CrListCommand.class );
     @CommandLine.Mixin
     OaasMixin oaasMixin;
     @CommandLine.Mixin
@@ -28,16 +28,16 @@ public class OrbitListCommand implements Callable<Integer> {
     WebRequester webRequester;
 
     @CommandLine.Parameters(defaultValue = "")
-    String orbitId;
+    String crId;
 
     @Override
     public Integer call() throws Exception {
         var oc = oaasMixin.getOcUrl();
         return webRequester.getAndPrint(
-                UriTemplate.of("{+oc}/api/orbits/{+orbitId}")
+                UriTemplate.of("{+oc}/api/class-runtimes/{+crId}")
                         .expandToString(Variables.variables()
                                 .set("oc", oc)
-                                .set("orbitId",orbitId)
+                                .set("crId",crId)
                         ),
                 commonOutputMixin.getOutputFormat()
         );

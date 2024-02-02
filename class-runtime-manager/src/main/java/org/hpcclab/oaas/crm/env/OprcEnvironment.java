@@ -10,7 +10,10 @@ public record OprcEnvironment (
   EnvResource total,
   EnvResource usable
 ){
-  public record Config (String kafkaBootstrap, String classManagerHost, String classManagerPort) {}
+  public record Config (String kafkaBootstrap,
+                        String classManagerHost,
+                        String classManagerPort,
+                        Boolean exposeKnative) {}
   public record EnvResource(double cpu, long mem){
     static final Quantity QUANTITY_ZERO = Quantity.parse("0");
     public static final EnvResource ZERO = new EnvResource(0d, 0L);

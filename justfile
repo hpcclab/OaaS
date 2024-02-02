@@ -17,16 +17,16 @@ k3d-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 
 k3d-deploy: k8s-deploy-deps
-  kubectl apply -n oaas -k deploy/oaas/oprcCr
-  kubectl apply -n oaas -f deploy/local-k8s/oprcCr-ingress.yml
+  kubectl apply -n oaas -k deploy/oaas/dcr
+  kubectl apply -n oaas -f deploy/local-k8s/dcr-ingress.yml
 
 k3d-reload: k3d-build-image
   kubectl -n oaas delete pod -l platform=oaas
 
 rd-reload: build-image
   kubectl -n oaas delete pod -l platform=oaas
-  kubectl -n oaas delete pod -l oprcCr-part=invoker
-  kubectl -n oaas delete pod -l oprcCr-part=storage-adapter
+  kubectl -n oaas delete pod -l cr-part=invoker
+  kubectl -n oaas delete pod -l cr-part=storage-adapter
 
 k8s-deploy-preq kn-version="v1.12.3" kourier-version="v1.12.3":
   kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -
@@ -39,10 +39,10 @@ k8s-deploy-preq kn-version="v1.12.3" kourier-version="v1.12.3":
     --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
   kubectl apply -f 'https://strimzi.io/install/latest?namespace=oaas' -n oaas
-  kubectl apply -n oaas -f deploy/local-k8s/kafka-cluster.yml
-  kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
 
 k8s-deploy-deps:
+  kubectl apply -n oaas -f deploy/local-k8s/kafka-cluster.yml
+  kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
   kubectl apply -n oaas -f deploy/local-k8s/minio.yml
   kubectl apply -n oaas -f deploy/arango/arango-single.yml
   kubectl apply -n oaas -f deploy/local-k8s/arango-ingress.yml
@@ -50,8 +50,8 @@ k8s-deploy-deps:
 
 k8s-clean:
   kubectl delete -n oaas ksvc -l oaas.function
-  kubectl delete -n oaas -k deploy/oaas/oprcCr
-  kubectl delete -n oaas -f deploy/local-k8s/oprcCr-ingress.yml
+  kubectl delete -n oaas -k deploy/oaas/dcr
+  kubectl delete -n oaas -f deploy/local-k8s/dcr-ingress.yml
 
   kubectl delete -n oaas -f deploy/arango/arango-single.yml
   kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml

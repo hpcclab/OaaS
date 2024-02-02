@@ -26,14 +26,16 @@ public class EnvironmentManager {
     this.client = client;
     var kafka = ConfigProvider.getConfig()
       .getValue("oprc.envconf.kafka", String.class);
-    var clsManagerHost = ConfigProvider.getConfig()
-      .getValue("oprc.envconf.clsManagerHost", String.class);
-    var clsManagerPort = ConfigProvider.getConfig()
-      .getValue("oprc.envconf.clsManagerPort", String.class);
+    var pmHost = ConfigProvider.getConfig()
+      .getValue("oprc.envconf.pmHost", String.class);
+    var pmPort = ConfigProvider.getConfig()
+      .getValue("oprc.envconf.pmPort", String.class);
     envConf = new OprcEnvironment.Config(
       kafka,
-      clsManagerHost,
-      clsManagerPort);
+      pmHost,
+      pmPort,
+      conf.exposeKnative()
+    );
     environment = new OprcEnvironment(
       envConf,
       null,
@@ -50,7 +52,7 @@ public class EnvironmentManager {
     var nodeMetricsList = client.top().nodes()
       .metrics().getItems();
     List<Node> nodes = client.nodes().list().getItems();
-    EnvResource total  = nodes.stream()
+    EnvResource total = nodes.stream()
       .map(node -> node.getStatus().getAllocatable())
       .map(m -> new EnvResource(
         m.get("cpu").getNumericalAmount(),
