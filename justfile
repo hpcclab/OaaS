@@ -24,9 +24,9 @@ k3d-reload: k3d-build-image
   kubectl -n oaas delete pod -l platform=oaas
 
 rd-reload: build-image
-  kubectl -n oaas delete pod -l platform=oaas
-  kubectl -n oaas delete pod -l cr-part=invoker
-  kubectl -n oaas delete pod -l cr-part=storage-adapter
+  kubectl -n oaas rollout restart deployment -l platform=oaas
+  kubectl -n oaas rollout restart deployment -l cr-part=invoker
+  kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
 k8s-deploy-preq kn-version="v1.12.3" kourier-version="v1.12.3":
   kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -

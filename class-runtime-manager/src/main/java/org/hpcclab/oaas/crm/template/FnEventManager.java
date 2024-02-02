@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.crm.controller;
+package org.hpcclab.oaas.crm.template;
 
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.internal.pkg.apis.Condition;
@@ -10,9 +10,7 @@ import io.fabric8.kubernetes.client.WatcherException;
 import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import org.hpcclab.oaas.model.function.DeploymentCondition;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdater;
+import org.hpcclab.oaas.crm.controller.K8SCrController;
 import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
@@ -20,32 +18,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.hpcclab.oaas.proto.ProtoDeploymentCondition.*;
 import static org.hpcclab.oaas.proto.ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DOWN;
 
 
-@ApplicationScoped
+
 public class FnEventManager {
   private static final Logger logger = LoggerFactory.getLogger( FnEventManager.class );
 
-  KnativeClient knativeClient;
-  DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
+  final KnativeClient knativeClient;
+  final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   Watch watch;
-  @Inject
+
   public FnEventManager(KnativeClient knativeClient,
-                        @GrpcClient("package-manager")
                         DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
     this.knativeClient = knativeClient;
+    Objects.requireNonNull(deploymentStatusUpdater);
     this.deploymentStatusUpdater = deploymentStatusUpdater;
   }
 
-  public void start() {
+  public void start(String label) {
     logger.info("start kn function watcher");
     watch = knativeClient.services()
-      .withLabel(K8SCrController.CR_FN_KEY)
+      .withLabel(label)
       .watch(new FnEventWatcher(deploymentStatusUpdater));
+  }
+
+  public void stop() {
+    watch.close();
   }
 
 
@@ -55,6 +59,7 @@ public class FnEventManager {
 
     public FnEventWatcher(
       DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
+      Objects.requireNonNull(deploymentStatusUpdater);
       this.deploymentStatusUpdater = deploymentStatusUpdater;
     }
 

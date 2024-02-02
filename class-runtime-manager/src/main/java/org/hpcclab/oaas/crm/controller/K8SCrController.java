@@ -56,7 +56,7 @@ public class K8SCrController implements CrController {
     this.envConfig = envConfig;
     namespace = kubernetesClient.getNamespace();
     id = tsid.toLong();
-    prefix = "orbit-" + tsid.toLowerCase() + "-";
+    prefix = "cr-" + tsid.toLowerCase() + "-";
     deploymentFnController = new DeploymentFnController(kubernetesClient, this);
     knativeFnController = new KnativeFnController(kubernetesClient, this, envConfig);
   }
@@ -149,9 +149,9 @@ public class K8SCrController implements CrController {
 
     var confMapData = Map.of(
       "OPRC_INVOKER_KAFKA", envConfig.kafkaBootstrap(),
-      "OPRC_INVOKER_STORAGEADAPTERURL", "http://%s-storage-adapter.%s.svc.cluster.local"
+      "OPRC_INVOKER_SA_URL", "http://%s-storage-adapter.%s.svc.cluster.local"
         .formatted(prefix, namespace),
-      "OPRC_ORBIT", Tsid.from(id).toLowerCase(),
+      "OPRC_CRID", Tsid.from(id).toLowerCase(),
       "OPRC_INVOKER_PMHOST", envConfig.classManagerHost(),
       "OPRC_INVOKER_PMPORT", envConfig.classManagerPort()
     );

@@ -1060,6 +1060,10 @@
           }
         }
       },
+      "Edition" : {
+        "enum" : [ "EDITION_UNKNOWN", "EDITION_PROTO2", "EDITION_PROTO3", "EDITION_2023", "EDITION_1_TEST_ONLY", "EDITION_2_TEST_ONLY", "EDITION_99997_TEST_ONLY", "EDITION_99998_TEST_ONLY", "EDITION_99999_TEST_ONLY" ],
+        "type" : "string"
+      },
       "EditionDefault" : {
         "type" : "object",
         "properties" : {
@@ -1096,17 +1100,17 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "edition_" : { },
+          "edition_" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "value_" : { },
           "memoizedIsInitialized" : {
             "format" : "byte",
             "type" : "string"
           },
           "edition" : {
-            "type" : "string"
-          },
-          "editionBytes" : {
-            "$ref" : "#/components/schemas/ByteString"
+            "$ref" : "#/components/schemas/Edition"
           },
           "value" : {
             "type" : "string"
@@ -1152,10 +1156,7 @@
             "type" : "boolean"
           },
           "edition" : {
-            "type" : "string"
-          },
-          "editionBytes" : {
-            "$ref" : "#/components/schemas/ByteString"
+            "$ref" : "#/components/schemas/Edition"
           },
           "value" : {
             "type" : "string"
@@ -2380,7 +2381,7 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "stringFieldValidation_" : {
+          "utf8Validation_" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -2391,9 +2392,6 @@
           "jsonFormat_" : {
             "format" : "int32",
             "type" : "integer"
-          },
-          "rawFeatures_" : {
-            "$ref" : "#/components/schemas/FeatureSet"
           },
           "memoizedIsInitialized" : {
             "format" : "byte",
@@ -2408,20 +2406,14 @@
           "repeatedFieldEncoding" : {
             "$ref" : "#/components/schemas/RepeatedFieldEncoding"
           },
-          "stringFieldValidation" : {
-            "$ref" : "#/components/schemas/StringFieldValidation"
+          "utf8Validation" : {
+            "$ref" : "#/components/schemas/Utf8Validation"
           },
           "messageEncoding" : {
             "$ref" : "#/components/schemas/MessageEncoding"
           },
           "jsonFormat" : {
             "$ref" : "#/components/schemas/JsonFormat"
-          },
-          "rawFeatures" : {
-            "$ref" : "#/components/schemas/FeatureSet"
-          },
-          "rawFeaturesOrBuilder" : {
-            "$ref" : "#/components/schemas/FeatureSetOrBuilder"
           },
           "initialized" : {
             "type" : "boolean"
@@ -2469,20 +2461,14 @@
           "repeatedFieldEncoding" : {
             "$ref" : "#/components/schemas/RepeatedFieldEncoding"
           },
-          "stringFieldValidation" : {
-            "$ref" : "#/components/schemas/StringFieldValidation"
+          "utf8Validation" : {
+            "$ref" : "#/components/schemas/Utf8Validation"
           },
           "messageEncoding" : {
             "$ref" : "#/components/schemas/MessageEncoding"
           },
           "jsonFormat" : {
             "$ref" : "#/components/schemas/JsonFormat"
-          },
-          "rawFeatures" : {
-            "$ref" : "#/components/schemas/FeatureSet"
-          },
-          "rawFeaturesOrBuilder" : {
-            "$ref" : "#/components/schemas/FeatureSetOrBuilder"
           }
         }
       },
@@ -3256,6 +3242,12 @@
               "$ref" : "#/components/schemas/Syntax"
             } ],
             "deprecated" : true
+          },
+          "edition" : {
+            "$ref" : "#/components/schemas/Edition"
+          },
+          "editionName" : {
+            "type" : "string"
           }
         }
       },
@@ -3337,7 +3329,10 @@
             "$ref" : "#/components/schemas/SourceCodeInfo"
           },
           "syntax_" : { },
-          "edition_" : { },
+          "edition_" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "memoizedIsInitialized" : {
             "format" : "byte",
             "type" : "string"
@@ -3466,10 +3461,7 @@
             "$ref" : "#/components/schemas/ByteString"
           },
           "edition" : {
-            "type" : "string"
-          },
-          "editionBytes" : {
-            "$ref" : "#/components/schemas/ByteString"
+            "$ref" : "#/components/schemas/Edition"
           },
           "initialized" : {
             "type" : "boolean"
@@ -4186,7 +4178,7 @@
         }
       },
       "Label" : {
-        "enum" : [ "LABEL_OPTIONAL", "LABEL_REQUIRED", "LABEL_REPEATED" ],
+        "enum" : [ "LABEL_OPTIONAL", "LABEL_REPEATED", "LABEL_REQUIRED" ],
         "type" : "string"
       },
       "LazyStringArrayList" : {
@@ -6847,12 +6839,8 @@
           }
         }
       },
-      "StringFieldValidation" : {
-        "enum" : [ "STRING_FIELD_VALIDATION_UNKNOWN", "MANDATORY", "HINT", "NONE" ],
-        "type" : "string"
-      },
       "Syntax" : {
-        "enum" : [ "UNKNOWN", "PROTO2", "PROTO3" ],
+        "enum" : [ "UNKNOWN", "PROTO2", "PROTO3", "EDITIONS" ],
         "type" : "string",
         "deprecated" : true
       },
@@ -7079,6 +7067,10 @@
             "$ref" : "#/components/schemas/Parser"
           }
         }
+      },
+      "Utf8Validation" : {
+        "enum" : [ "UTF8_VALIDATION_UNKNOWN", "NONE", "VERIFY" ],
+        "type" : "string"
       },
       "VariableDescription" : {
         "type" : "object",

@@ -17,7 +17,7 @@ public class ServiceProducer {
   @Produces
   DataAllocationService dataAllocationService() {
     return RestClientBuilder.newBuilder()
-      .baseUri(URI.create(invokerConfig.storageAdapterUrl()))
+      .baseUri(URI.create(invokerConfig.sa().url()))
       .build(DataAllocationService.class);
   }
 }

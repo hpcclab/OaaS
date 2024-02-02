@@ -11,5 +11,6 @@ public interface ClassRuntimeTemplate {
   CrController load(OprcEnvironment env, ProtoCr orbit);
   String type();
 
+  void init();
   QosOptimizer getQosOptimizer();
 }

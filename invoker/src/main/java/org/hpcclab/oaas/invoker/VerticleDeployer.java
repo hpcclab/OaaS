@@ -78,10 +78,10 @@ public class VerticleDeployer {
   }
 
   void deployPerCls() {
-    var orbitId = ConfigProvider.getConfig()
-      .getValue("oprc.orbit", String.class);
-    logger.info("loading orbit [id={}]", orbitId);
-    var orbit = orbitStateService.get(SingleKeyQuery.newBuilder().setKey(orbitId).build());
+    var crId = ConfigProvider.getConfig()
+      .getValue("oprc.crid", String.class);
+    logger.info("loading CR [id={}]", crId);
+    var orbit = orbitStateService.get(SingleKeyQuery.newBuilder().setKey(crId).build());
     logger.info("handle orbit [id={}, cls={}, fn={}]",
       orbit.getId(), orbit.getAttachedClsList(), orbit.getAttachedFnList());
     var clsList = orbit.getAttachedClsList();

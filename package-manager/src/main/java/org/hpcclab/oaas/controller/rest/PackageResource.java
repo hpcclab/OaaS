@@ -85,6 +85,8 @@ public class PackageResource {
       .toList();
     pkg.setClasses(pkgCls);
 
+
+    refresh(pkg.getClasses());
     if (config.orbitEnabled()) {
       deploy(pkg);
     } else {
@@ -101,7 +103,6 @@ public class PackageResource {
       .collect(Collectors.partitioningBy(cls -> cls.getRev()==null));
     var newClasses = partitioned.get(true);
     var oldClasses = partitioned.get(false);
-    refresh(pkg.getClasses());
     classRepo
       .atomic().persistWithRevAsync(oldClasses)
       .await().indefinitely();

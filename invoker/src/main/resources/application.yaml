@@ -23,7 +23,8 @@
     log: DEBUG
     invoker:
       kafka: PLAINTEXT://localhost:19092
-      storageAdapterUrl: http://localhost:8090
+      storageAdapter:
+        url: http://localhost:8090
       s3:
         url: http://localhost:9000
         publicUrl: http://localhost:9000
@@ -37,6 +38,8 @@ oprc:
   log: INFO
   name: invoker
   invoker:
+    sa:
+      url: http://localhost:8090
     pmHost: localhost
     pmPort: 8088
   ispn:

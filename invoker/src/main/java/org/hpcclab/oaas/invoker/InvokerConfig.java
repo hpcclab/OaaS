@@ -18,9 +18,9 @@ public interface InvokerConfig {
   String fnProvisionTopic();
   @WithDefault("oaas-cls")
   String clsProvisionTopic();
-  @WithDefault("oaas-invoke-")
+  @WithDefault("oaas-invoker-")
   String invokeTopicPrefix();
-  String storageAdapterUrl();
+  Url sa();
   @WithDefault("100")
   int connectionPoolMaxSize();
   @WithDefault("10")
@@ -44,4 +44,8 @@ public interface InvokerConfig {
 
   @WithDefault("false")
   boolean clusterLock();
+
+  interface Url{
+    String url();
+  }
 }
