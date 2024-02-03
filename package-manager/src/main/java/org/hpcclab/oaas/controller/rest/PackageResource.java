@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.f4b6a3.tsid.Tsid;
-import com.github.f4b6a3.tsid.TsidCreator;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.vertx.core.json.Json;
@@ -89,13 +88,6 @@ public class PackageResource {
     refresh(pkg.getClasses());
     if (config.orbitEnabled()) {
       deploy(pkg);
-    } else {
-      for (OClass cls : pkg.getClasses()) {
-        if (cls.getStatus()==null) {
-          cls.setStatus(new OClassDeploymentStatus().setCrId(TsidCreator.getTsid1024().toLong()));
-          classRepo.persist(cls);
-        }
-      }
     }
 
     var partitioned = changedClasses.values()

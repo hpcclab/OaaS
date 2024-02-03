@@ -1,21 +1,18 @@
 package org.hpcclab.oaas.invoker.ispn;
 
 import io.quarkus.runtime.ShutdownEvent;
-import io.smallrye.common.annotation.Blocking;
-import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.server.hotrod.HotRodServer;
-import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -53,17 +50,20 @@ public class IspnSetup {
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
     logger.info("started infinispan");
 
-    if (config.hotRodPort() >= 0) {
-      var hotrod = new HotRodServerConfigurationBuilder()
-        .port(config.hotRodPort())
-        .build();
-      var hotRodServer = new HotRodServer();
-      hotRodServer.start(hotrod, cacheManager);
-    }
+//    if (config.hotRodPort() >= 0) {
+//      var hotrod = new HotRodServerConfigurationBuilder()
+//        .port(config.hotRodPort())
+//        .build();
+//      var hotRodServer = new HotRodServer();
+//      hotRodServer.start(hotrod, cacheManager);
+//    }
     return cacheManager;
   }
 
   @Produces
+  @Alternative
+  @Priority(100)
+  @ApplicationScoped
   EmbeddedCacheManager embeddedCacheManager() {
     if (cacheManager == null)
       cacheManager = setup();

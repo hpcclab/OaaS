@@ -3,6 +3,9 @@ package org.hpcclab.oaas.invoker.ispn.lookup;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
+import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.manager.impl.InternalCacheManager;
+import org.infinispan.remoting.transport.Transport;
 import org.infinispan.remoting.transport.jgroups.JGroupsAddress;
 import org.jgroups.stack.IpAddress;
 
@@ -41,8 +44,9 @@ public class LocationRegistry {
 
     public void initLocal() {
       if (localhost == null) {
-        JGroupsAddress address = (JGroupsAddress) map.getCacheManager()
-          .getTransport().getPhysicalAddresses().get(0);
+        var registry = InternalCacheManager.of(map.getCacheManager());
+        var transport = registry.getComponent(Transport.class);
+        JGroupsAddress address = (JGroupsAddress) transport.getPhysicalAddresses().get(0);
         IpAddress ipAddress = (IpAddress) address.getJGroupsAddress();
         localhost = ipAddress.getIpAddress().getHostAddress();
       }

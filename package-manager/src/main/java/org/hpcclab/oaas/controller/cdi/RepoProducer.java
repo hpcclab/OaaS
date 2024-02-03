@@ -6,7 +6,6 @@ import jakarta.inject.Singleton;
 import org.hpcclab.oaas.arango.AutoRepoBuilder;
 import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
-import org.hpcclab.oaas.arango.repo.ArgObjectRepository;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.id.IdGenerator;

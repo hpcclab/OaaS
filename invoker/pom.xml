@@ -10,7 +10,8 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-    <infinispan.version>14.0.21.Final</infinispan.version>
+<!--    <infinispan.version>14.0.21.Final</infinispan.version>-->
+    <infinispan.version>15.0.0.Dev08</infinispan.version>
     <arangodb.version>7.5.1</arangodb.version>
   </properties>
 
@@ -125,22 +126,26 @@
       <classifier>linux-x86_64</classifier>
     </dependency>
     <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-quarkus-embedded</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-io_uring-incubator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-core-jakarta</artifactId>
+      <artifactId>infinispan-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-query-jakarta</artifactId>
+      <artifactId>infinispan-query</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-server-hotrod-jakarta</artifactId>
-      <version>${infinispan.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.infinispan</groupId>-->
+<!--      <artifactId>infinispan-server-hotrod</artifactId>-->
+<!--      <version>${infinispan.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.infinispan.protostream</groupId>
       <artifactId>protostream</artifactId>

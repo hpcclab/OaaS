@@ -12,6 +12,7 @@
   <artifactId>arango-repository</artifactId>
 
   <properties>
+    <arango.version>7.5.1</arango.version>
   </properties>
 
   <dependencyManagement>
@@ -40,22 +41,17 @@
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
-      <version>7.2.0</version>
+      <version>${arango.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.arangodb</groupId>-->
-<!--      <artifactId>jackson-dataformat-velocypack</artifactId>-->
-<!--      <version>4.1.0</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>vst-protocol</artifactId>
-      <version>7.2.0</version>
+      <version>${arango.version}</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>jackson-serde-vpack</artifactId>
-      <version>7.2.0</version>
+      <version>${arango.version}</version>
     </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
