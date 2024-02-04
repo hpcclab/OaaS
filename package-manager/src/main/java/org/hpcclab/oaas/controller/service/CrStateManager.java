@@ -14,8 +14,8 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 
-import static org.hpcclab.oaas.arango.AutoRepoBuilder.confRegistry;
 
 @ApplicationScoped
 public class CrStateManager {
@@ -29,7 +29,8 @@ public class CrStateManager {
 
   @Inject
   public CrStateManager() {
-    var fac = new RepoFactory(confRegistry.getConfMap().get("PKG"));
+    DatastoreConfRegistry registry = DatastoreConfRegistry.getDefault();
+    var fac = new RepoFactory(registry.getConfMap().get("PKG"));
     repo = fac.createGenericRepo(OprcCr.class, OprcCr::getKey, "orbit");
     repo.createIfNotExist();
     crMapper = new CrMapperImpl();

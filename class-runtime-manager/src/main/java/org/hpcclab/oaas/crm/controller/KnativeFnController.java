@@ -2,9 +2,13 @@ package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.knative.client.KnativeClient;
+import io.fabric8.knative.serving.v1.RevisionSpec;
+import io.fabric8.knative.serving.v1.RevisionTemplateSpec;
+import io.fabric8.knative.serving.v1.Service;
 import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
@@ -25,6 +29,15 @@ import java.util.Map;
 import static org.hpcclab.oaas.crm.CrmConfig.LABEL_KEY;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 
+@RegisterForReflection(
+  targets = {
+    Service.class,
+    io.fabric8.knative.serving.v1.ServiceSpec.class,
+    RevisionTemplateSpec.class,
+    RevisionSpec.class,
+    ServiceStatus.class
+  }
+)
 public class KnativeFnController implements FnController {
   private static final Logger logger = LoggerFactory.getLogger(KnativeFnController.class);
   KubernetesClient kubernetesClient;

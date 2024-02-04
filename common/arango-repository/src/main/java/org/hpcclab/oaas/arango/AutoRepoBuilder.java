@@ -7,9 +7,11 @@ import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 
 
 public class AutoRepoBuilder {
-  public static final  DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
+  private AutoRepoBuilder() {
+  }
 
   public static ArgClsRepository clsRepository(){
+    var confRegistry = DatastoreConfRegistry.getDefault();
     if (!confRegistry.getConfMap().containsKey("PKG")) {
       throw new IllegalStateException("Can not load database config for ClsRepo");
     }
@@ -20,6 +22,7 @@ public class AutoRepoBuilder {
 
 
   public static ArgFunctionRepository funcRepository(){
+    var confRegistry = DatastoreConfRegistry.getDefault();
     if (!confRegistry.getConfMap().containsKey("PKG")) {
       throw new IllegalStateException("Can not load database config for FuncRepo");
     }

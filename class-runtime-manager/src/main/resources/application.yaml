@@ -47,6 +47,11 @@ quarkus:
     access-log:
       enabled: true
       exclude-pattern: /q/.*
+  native:
+    resources:
+      includes:
+        - crts.yaml
+        - crts/**
   vertx:
     prefer-native-transport: true
   container-image:

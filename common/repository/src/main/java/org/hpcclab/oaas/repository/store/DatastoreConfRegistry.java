@@ -16,11 +16,12 @@ public class DatastoreConfRegistry {
 
   Map<String, DatastoreConf> confMap = new HashMap<>();
 
-  private static DatastoreConfRegistry INSTANCE;
+  private static DatastoreConfRegistry instance;
   public static DatastoreConfRegistry getDefault() {
-    if (INSTANCE == null)
-      INSTANCE = new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
-    return INSTANCE;
+    if (instance== null)
+      instance = new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
+    return instance;
+//    return new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
   }
 
   public DatastoreConfRegistry(String prefix, String keyToLoad) {

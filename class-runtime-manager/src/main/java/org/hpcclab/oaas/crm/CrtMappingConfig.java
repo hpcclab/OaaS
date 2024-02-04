@@ -1,7 +1,10 @@
 package org.hpcclab.oaas.crm;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 import java.util.Map;
 
+@RegisterForReflection(ignoreNested=false)
 public record CrtMappingConfig(
   Map<String, CrtConfig> templates
 ) {
