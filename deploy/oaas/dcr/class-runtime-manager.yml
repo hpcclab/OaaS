@@ -17,12 +17,15 @@ spec:
         app: class-runtime-manager
         platform: oaas
     spec:
+      automountServiceAccountToken: true
       serviceAccountName: class-runtime-manager-sa
       containers:
         - name: class-runtime-manager
           envFrom:
             - configMapRef:
                 name: oaas-env
+            - secretRef:
+                name: oaas-data
           image: ghcr.io/hpcclab/oaas/class-runtime-manager
           ports:
             - containerPort: 8080

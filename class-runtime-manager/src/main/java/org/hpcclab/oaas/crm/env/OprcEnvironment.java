@@ -8,7 +8,8 @@ import java.util.Map;
 public record OprcEnvironment (
   Config config,
   EnvResource total,
-  EnvResource usable
+  EnvResource usable,
+  EnvResource request
 ){
   public record Config (String kafkaBootstrap,
                         String classManagerHost,

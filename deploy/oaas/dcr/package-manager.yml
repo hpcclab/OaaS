@@ -31,6 +31,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: oaas-env
+            - secretRef:
+                name: oaas-data
           image: ghcr.io/hpcclab/oaas/package-manager:latest
           ports:
             - containerPort: 8080

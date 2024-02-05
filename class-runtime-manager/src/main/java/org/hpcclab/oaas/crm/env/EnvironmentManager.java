@@ -1,6 +1,9 @@
 package org.hpcclab.oaas.crm.env;
 
+import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,7 +14,9 @@ import org.hpcclab.oaas.crm.env.OprcEnvironment.EnvResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class EnvironmentManager {
@@ -39,6 +44,7 @@ public class EnvironmentManager {
     environment = new OprcEnvironment(
       envConf,
       null,
+      null,
       null
     );
   }
@@ -63,14 +69,36 @@ public class EnvironmentManager {
       .map(NodeMetrics::getUsage)
       .map(EnvResource::new)
       .reduce(EnvResource.ZERO, EnvResource::sum);
-    EnvResource remaining = total.subtract(usage);
+    EnvResource requests = calculateRequest();
+    EnvResource remaining = total.subtract(requests);
     logger.info("current resources: total {}, usage {}, remaining {}", total, usage, remaining);
     environment = new OprcEnvironment(
       envConf,
       total,
-      remaining
+      remaining,
+      requests
     );
   }
+
+  public EnvResource calculateRequest() {
+    PodList podList = client.pods().inAnyNamespace().list();
+    // Initialize a map to store total requested resources by node
+    double totalCPURequests = 0.0;
+    long totalMemoryRequests = 0L;
+
+    // Iterate through each pod and accumulate resource requests by node
+    for (Pod pod : podList.getItems()) {
+      for (Container container : pod.getSpec().getContainers()) {
+        if (container.getResources() != null && container.getResources().getRequests() != null) {
+          totalCPURequests += container.getResources().getRequests().get("cpu").getNumericalAmount().doubleValue();
+          totalMemoryRequests += container.getResources().getRequests().get("memory").getNumericalAmount().longValue();
+
+        }
+      }
+    }
+    return new EnvResource(totalCPURequests, totalMemoryRequests);
+  }
+
 
 
 }
