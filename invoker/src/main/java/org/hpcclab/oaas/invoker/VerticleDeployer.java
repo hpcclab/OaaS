@@ -22,10 +22,7 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
-import org.hpcclab.oaas.proto.ClassServiceGrpc;
-import org.hpcclab.oaas.proto.OrbitStateServiceGrpc;
-import org.hpcclab.oaas.proto.ProtoOClass;
-import org.hpcclab.oaas.proto.SingleKeyQuery;
+import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +54,7 @@ public class VerticleDeployer {
   @Inject
   KafkaAdminClient adminClient;
   @GrpcClient("package-manager")
-  OrbitStateServiceGrpc.OrbitStateServiceBlockingStub orbitStateService;
+  CrStateServiceGrpc.CrStateServiceBlockingStub crStateService;
   @GrpcClient("package-manager")
   ClassServiceGrpc.ClassServiceBlockingStub classService;
   final ProtoMapper protoMapper = new ProtoMapperImpl();
@@ -81,7 +78,7 @@ public class VerticleDeployer {
     var crId = ConfigProvider.getConfig()
       .getValue("oprc.crid", String.class);
     logger.info("loading CR [id={}]", crId);
-    var orbit = orbitStateService.get(SingleKeyQuery.newBuilder().setKey(crId).build());
+    var orbit = crStateService.get(SingleKeyQuery.newBuilder().setKey(crId).build());
     logger.info("handle orbit [id={}, cls={}, fn={}]",
       orbit.getId(), orbit.getAttachedClsList(), orbit.getAttachedFnList());
     var clsList = orbit.getAttachedClsList();
@@ -93,9 +90,9 @@ public class VerticleDeployer {
 
   void handleCls(ProtoOClass cls) {
     createTopic(cls)
-      .flatMap(__ -> deployVerticleIfNew(cls))
+      .flatMap(v -> deployVerticleIfNew(cls))
       .subscribe().with(
-        __ -> {},
+        v -> {},
         e -> logger.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
       );
   }
@@ -168,10 +165,8 @@ public class VerticleDeployer {
         options)
       .onFailure().retry().withBackOff(Duration.ofMillis(100)).atMost(3)
       .repeat().atMost(size)
-      .invoke(id -> {
-        logger.info("deploy verticle[id={}] for [{}] successfully",
-          id, cls.getKey());
-      })
+      .invoke(id -> logger.info("deploy verticle[id={}] for [{}] successfully",
+        id, cls.getKey()))
       .collect()
       .last()
       .replaceWithVoid();

@@ -12,6 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.controller.PkgManagetConfig;
 import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
@@ -22,6 +23,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -32,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,7 +63,7 @@ public class PackageResource {
   @Inject
   CrStateManager crStateManager;
   @GrpcClient("orbit-manager")
-  CrManagerGrpc.CrManagerBlockingStub orbitManager;
+  CrManagerGrpc.CrManagerBlockingStub crManager;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -142,12 +146,22 @@ public class PackageResource {
       var resolvedFnList = cls.getResolved().getFunctions().values()
         .stream()
         .map(FunctionBinding::getFunction)
-        .toList();
-      var fnList = funcRepo.list(resolvedFnList);
-      var protoFnList = fnList.values()
-        .stream()
+        .collect(Collectors.toSet());
+      List<OFunction> fnList = Lists.mutable.empty();
+      List<String> fnToLoad = Lists.mutable.empty();
+      for (String key : resolvedFnList) {
+        Optional<OFunction> fnOptional = pkg.getFunctions().stream()
+          .filter(f -> f.getKey().equals(key))
+          .findAny();
+        if (fnOptional.isPresent()) fnList.add(fnOptional.get());
+        else fnToLoad.add(key);
+      }
+      fnList.addAll(funcRepo.list(fnToLoad)
+        .values());
+      var protoFnList = fnList.stream()
         .map(protoMapper::toProto)
-        .toList();
+        .collect(Collectors.toList());
+      logger.info("deploy [cls={}, fnList={}]", cls.getKey(), resolvedFnList);
       var unit = DeploymentUnit.newBuilder()
         .setCls(protoMapper.toProto(cls))
         .addAllFnList(protoFnList)
@@ -155,7 +169,7 @@ public class PackageResource {
       var orbitId = cls.getStatus()==null ? 0:cls.getStatus().getCrId();
       if (orbitId==0) {
         logger.info("deploy a new orbit for cls [{}]", cls.getKey());
-        var response = orbitManager.deploy(unit);
+        var response = crManager.deploy(unit);
         crStateManager.updateCr(response.getCr()).await().indefinitely();
         updateState(pkg, response);
       } else {
@@ -166,12 +180,12 @@ public class PackageResource {
           .setOrbit(orbit)
           .setUnit(unit)
           .build();
-        var response = orbitManager.update(req);
-        crStateManager.updateCr(response.getCr());
+        var response = crManager.update(req);
+        crStateManager.updateCr(response.getCr())
+          .await().indefinitely();
         updateState(pkg, response);
       }
     }
-
   }
 
   void updateState(OPackage pkg, CrOperationResponse response) {

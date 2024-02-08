@@ -34,6 +34,7 @@ oprc:
     exposeKnative: false
     pmHost: localhost
     pmPort: 8088
+    promUrl: localhost:9090
   log: INFO
   name: class-runtime-manager
 

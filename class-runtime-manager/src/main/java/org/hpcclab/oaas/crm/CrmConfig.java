@@ -7,5 +7,6 @@ public interface CrmConfig {
   boolean exposeKnative();
   String pmHost();
   int pmPort();
+  String promUrl();
   String LABEL_KEY = "oaas.function";
 }

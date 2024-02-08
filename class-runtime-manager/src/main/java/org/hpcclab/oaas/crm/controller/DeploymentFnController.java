@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
@@ -74,7 +75,7 @@ public class DeploymentFnController implements FnController {
         .build()
       )
       .build();
-    var fnName = controller.prefix + function.getKey().toLowerCase().replaceAll("[\\._]", "-");
+    var fnName = createName(function.getKey());
     var deploymentBuilder = new DeploymentBuilder()
       .withNewMetadata()
       .withName(fnName)
@@ -122,6 +123,31 @@ public class DeploymentFnController implements FnController {
             .build())
         .build())
     );
+  }
+  @Override
+  public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
+    List<HasMetadata> resource = Lists.mutable.empty();
+    for (Map.Entry<String, Integer> entry : plan.fnInstances().entrySet()) {
+      var fnKey = entry.getKey();
+      var deployment = kubernetesClient.apps()
+        .deployments()
+        .inNamespace(controller.namespace)
+        .withName(createName(fnKey))
+        .get();
+      if (deployment == null) continue;
+      deployment.getSpec()
+        .setReplicas(entry.getValue());
+      resource.add(deployment);
+    }
+    return new FnResourcePlan(
+      resource,
+      List.of()
+    );
+  }
+
+  private String createName(String fnKey) {
+    return controller.prefix + "fn-"+ fnKey.toLowerCase().replaceAll("[\\._]", "-");
+
   }
 
   @Override

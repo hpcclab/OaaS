@@ -9,7 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
-import org.hpcclab.oaas.crm.CrRepository;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
@@ -29,16 +28,13 @@ public class CrTemplateManager {
   ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
-  final CrRepository orbitRepo;
   final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
-                           CrRepository orbitRepo,
                            @GrpcClient("package-manager")
                            DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
     this.kubernetesClient = kubernetesClient;
-    this.orbitRepo = orbitRepo;
     Objects.requireNonNull(deploymentStatusUpdater);
     this.deploymentStatusUpdater = deploymentStatusUpdater;
     loadTemplate();
@@ -93,8 +89,7 @@ public class CrTemplateManager {
   }
 
   public CrController load(OprcEnvironment env, ProtoCr orbit) {
-    return orbitRepo.getOrLoad(orbit.getId(),
-      () -> selectTemplate(orbit).load(env, orbit)
-    );
+    return selectTemplate(orbit)
+      .load(env, orbit);
   }
 }

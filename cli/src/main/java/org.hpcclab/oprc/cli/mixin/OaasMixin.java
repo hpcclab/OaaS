@@ -8,30 +8,30 @@ public class OaasMixin {
 
     @CommandLine.Option(
             names = {"--oc"},
-            description = "Base URL of oc server. Default(ENV:OPRC_OC): ${DEFAULT-VALUE}",
-            defaultValue = "${env:OPRC_OC}"
+            description = "Base URL of oc server. Default(ENV:OCLI_OC): ${DEFAULT-VALUE}",
+            defaultValue = "${env:OCLI_OC}"
     )
     private String ocUrl;
 
 
     @CommandLine.Option(
             names = {"--cds"},
-            description = "Base URL of oc server. Default(ENV:OPRC_CDS): ${DEFAULT-VALUE}",
-            defaultValue = "${env:OPRC_CDS}"
+            description = "Base URL of oc server. Default(ENV:OCLI_CDS): ${DEFAULT-VALUE}",
+            defaultValue = "${env:OCLI_CDS}"
     )
     private String cdsUrl;
 
     @CommandLine.Option(
             names = {"--inv"},
-            description = "Base URL of invoker server. Default(ENV:OPRC_INVOKER): ${DEFAULT-VALUE}",
-            defaultValue = "${env:OPRC_INVOKER}"
+            description = "Base URL of invoker server. Default(ENV:OCLI_INVOKER): ${DEFAULT-VALUE}",
+            defaultValue = "${env:OCLI_INVOKER}"
     )
     private String invUrl;
 
     @CommandLine.Option(
             names = {"--proxy"},
-            description = "The URL of proxy server. Default(ENV:OPRC_PROXY): ${DEFAULT-VALUE}",
-            defaultValue = "${env:OPRC_PROXY}"
+            description = "The URL of proxy server. Default(ENV:OCLI_PROXY): ${DEFAULT-VALUE}",
+            defaultValue = "${env:OCLI_PROXY}"
     )
     private String proxy;
 

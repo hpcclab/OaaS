@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.optimize;
 
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.controller.CrController;
+import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 
 import java.util.Map;
@@ -25,7 +26,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
   @Override
-  public CrAdjustmentPlan adjust(CrController controller) {
-    return null;
+  public CrAdjustmentPlan adjust(CrController controller, CrPerformanceMetrics metrics) {
+    //TODO
+    var currentPlan = controller.currentPlan();
+    if (currentPlan == null)
+      return new CrAdjustmentPlan(Map.of(), Map.of(), false);
+    return new CrAdjustmentPlan(
+      currentPlan.coreInstances(),
+      currentPlan.fnInstances(),
+      false);
   }
 }

@@ -4,6 +4,7 @@ import com.github.f4b6a3.tsid.Tsid;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
@@ -11,7 +12,9 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
+import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -27,16 +30,17 @@ public class K8SCrController implements CrController {
   final long id;
   final String prefix;
   final String namespace;
-  ClassRuntimeTemplate template;
-  KubernetesClient kubernetesClient;
-  OprcEnvironment.Config envConfig;
-
+  final ClassRuntimeTemplate template;
+  final KubernetesClient kubernetesClient;
+  final OprcEnvironment.Config envConfig;
   Set<String> attachedCls = Sets.mutable.empty();
   Set<String> attachedFn = Sets.mutable.empty();
   Map<String, Long> versions = Maps.mutable.empty();
   List<HasMetadata> k8sResources = Lists.mutable.empty();
   DeploymentFnController deploymentFnController;
   KnativeFnController knativeFnController;
+  CrDeploymentPlan currentPlan;
+  boolean isDeleted = false;
 
 
   public static final String CR_LABEL_KEY = "cr-id";
@@ -64,10 +68,14 @@ public class K8SCrController implements CrController {
   public K8SCrController(ClassRuntimeTemplate template,
                          KubernetesClient client,
                          OprcEnvironment.Config envConfig,
-                         ProtoCr orbit) {
-    this(template, client, envConfig, Tsid.from(orbit.getId()));
-    attachedCls.addAll(orbit.getAttachedClsList());
-    attachedFn.addAll(orbit.getAttachedFnList());
+                         ProtoCr protoCr) {
+    this(template, client, envConfig, Tsid.from(protoCr.getId()));
+    attachedCls.addAll(protoCr.getAttachedClsList());
+    attachedFn.addAll(protoCr.getAttachedFnList());
+    var jsonDump = protoCr.getState().getJsonDump();
+    if (!jsonDump.isEmpty()) {
+      currentPlan = Json.decodeValue(jsonDump, CrDeploymentPlan.class);
+    }
   }
 
   @Override
@@ -93,33 +101,40 @@ public class K8SCrController implements CrController {
         attachedFn.add(f.getKey());
       }
       k8sResources.addAll(resources);
+      currentPlan = plan;
     });
+
     for (var f : unit.getFnListList()) {
-      if (!attachedFn.contains(f.getKey())) {
-        FnResourcePlan fnResourcePlan = deployFunction(plan, f);
-        resources.addAll(fnResourcePlan.resources());
-        crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
-      }
+      FnResourcePlan fnResourcePlan = deployFunction(plan, f);
+      resources.addAll(fnResourcePlan.resources());
+      crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
     }
     return crOperation;
   }
 
   @Override
-  public CrDeploymentPlan createPlan(DeploymentUnit unit) {
+  public CrDeploymentPlan createDeploymentPlan(DeploymentUnit unit) {
     return template.getQosOptimizer().resolve(unit);
+  }
+
+  @Override
+  public CrDeploymentPlan currentPlan() {
+    return currentPlan;
   }
 
   @Override
   public CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
     throws CrDeployException {
     List<HasMetadata> resourceList = Lists.mutable.empty();
-    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resourceList, () -> {
-      attachedCls.add(unit.getCls().getKey());
-      for (ProtoOFunction fn : unit.getFnListList()) {
-        attachedFn.add(fn.getKey());
-      }
-      k8sResources.addAll(resourceList);
-    });
+    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resourceList,
+      () -> {
+        attachedCls.add(unit.getCls().getKey());
+        for (ProtoOFunction fn : unit.getFnListList()) {
+          attachedFn.add(fn.getKey());
+        }
+        k8sResources.addAll(resourceList);
+        currentPlan = plan;
+      });
     resourceList.addAll(deployShared(plan));
     resourceList.addAll(deployDataModule(plan));
     resourceList.addAll(deployExecutionModule(plan));
@@ -292,7 +307,42 @@ public class K8SCrController implements CrController {
       k8sResources.addAll(ksvc);
     }
     return new DeleteK8SCrOperation(kubernetesClient, k8sResources,
-      () -> k8sResources.clear());
+      () -> {
+        k8sResources.clear();
+        isDeleted = true;
+      });
+  }
+
+  @Override
+  public CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan) {
+    List<HasMetadata> resource = Lists.mutable.empty();
+    for (var entry : adjustmentPlan.coreInstances().entrySet()) {
+      String name = switch (entry.getKey()) {
+        case INVOKER -> prefix + NAME_INVOKER;
+        case STORAGE_ADAPTER -> prefix + NAME_SA;
+        default -> null;
+      };
+      if (name==null) continue;
+      var deployment = kubernetesClient.apps().deployments()
+        .inNamespace(namespace)
+        .withName(name).get();
+      if (deployment==null) continue;
+      deployment.getSpec().setReplicas(entry.getValue());
+      resource.add(deployment);
+    }
+    var crOperation = new ApplyK8SCrOperation(
+      kubernetesClient,
+      resource,
+      () -> currentPlan = currentPlan.update(adjustmentPlan)
+    );
+    var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
+    resource.addAll(fnResourcePlan.resources());
+    crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
+    var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
+    resource.addAll(fnResourcePlan2.resources());
+    crOperation.getFnUpdates().addAll(fnResourcePlan2.fnUpdates());
+
+    return crOperation;
   }
 
   protected Deployment createDeployment(String filePath,
@@ -308,13 +358,20 @@ public class K8SCrController implements CrController {
 
   @Override
   public ProtoCr dump() {
+    var str = Json.encode(currentPlan);
     return ProtoCr.newBuilder()
       .setId(id)
       .setType(template.type())
       .setNamespace(namespace)
       .addAllAttachedCls(attachedCls)
       .addAllAttachedFn(attachedFn)
+      .setState(ProtoCrState.newBuilder().setJsonDump(str).build())
       .build();
+  }
+
+  @Override
+  public QosOptimizer getOptimizer() {
+    return template.getQosOptimizer();
   }
 
   protected Service createSvc(String filePath,
@@ -395,5 +452,10 @@ public class K8SCrController implements CrController {
 
   protected void addEnv(Container container, String key, String val) {
     container.getEnv().add(new EnvVar(key, val, null));
+  }
+
+  @Override
+  public boolean isDeleted() {
+    return isDeleted;
   }
 }

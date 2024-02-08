@@ -15,10 +15,13 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @ApplicationScoped
 public class CrStateManager {
+  private static final Logger logger = LoggerFactory.getLogger( CrStateManager.class );
   @Inject
   CrMapper crMapper;
   @Inject
@@ -40,9 +43,9 @@ public class CrStateManager {
     return repo;
   }
 
-  public Uni<OprcResponse> updateCr(ProtoCr protoOrbit) {
-    var orbit = crMapper.map(protoOrbit);
-    return repo.persistAsync(orbit)
+  public Uni<OprcResponse> updateCr(ProtoCr protoCr) {
+    var cr = crMapper.map(protoCr);
+    return repo.persistAsync(cr)
       .map(entity -> OprcResponse.newBuilder()
         .setSuccess(true)
         .build());

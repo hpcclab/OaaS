@@ -3,7 +3,7 @@ import "oprc-package.proto";
 import "oprc-class.proto";
 import "oprc-function.proto";
 import "oprc-common.proto";
-import "oprc-orbit.proto";
+import "oprc-cr.proto";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
@@ -25,7 +25,7 @@ service FunctionService {
   rpc get(SingleKeyQuery) returns (ProtoOFunction) {};
 }
 
-service OrbitStateService{
-  rpc listOrbit(PaginateQuery) returns (stream ProtoCr) {};
+service CrStateService{
+  rpc list(PaginateQuery) returns (stream ProtoCr) {};
   rpc get(SingleKeyQuery) returns (ProtoCr) {};
 }

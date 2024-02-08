@@ -89,11 +89,14 @@ public class EnvironmentManager {
     // Iterate through each pod and accumulate resource requests by node
     for (Pod pod : podList.getItems()) {
       for (Container container : pod.getSpec().getContainers()) {
-        if (container.getResources() != null && container.getResources().getRequests() != null) {
-          totalCPURequests += container.getResources().getRequests().get("cpu").getNumericalAmount().doubleValue();
-          totalMemoryRequests += container.getResources().getRequests().get("memory").getNumericalAmount().longValue();
-
-        }
+        if (container.getResources() == null) continue;
+        if (container.getResources().getRequests() != null) continue;
+        var cpu = container.getResources().getRequests().get("cpu");
+        var mem = container.getResources().getRequests().get("memory");
+        if (cpu != null)
+          totalCPURequests += cpu.getNumericalAmount().doubleValue();
+        if (mem != null)
+          totalMemoryRequests += mem.getNumericalAmount().longValue();
       }
     }
     return new EnvResource(totalCPURequests, totalMemoryRequests);

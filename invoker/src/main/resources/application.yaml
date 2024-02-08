@@ -11,7 +11,6 @@
     log: TRACE
     invoker:
       kafka: localhost:9092
-      storageAdapterUrl: "http://localhost:8000"
 
 "%dev":
   quarkus:
@@ -23,7 +22,7 @@
     log: DEBUG
     invoker:
       kafka: PLAINTEXT://localhost:19092
-      storageAdapter:
+      sa:
         url: http://localhost:8090
       s3:
         url: http://localhost:9000

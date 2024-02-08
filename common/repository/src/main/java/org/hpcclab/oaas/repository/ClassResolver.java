@@ -93,7 +93,7 @@ public class ClassResolver {
     }
     path.add(baseCls.getKey());
     if (baseCls.getParents() ==null) baseCls.setParents(List.of());
-    LOGGER.info("resolve {} {}", baseCls, baseCls.getParents());
+    LOGGER.debug("resolve {} {}", baseCls, baseCls.getParents());
     var parentClasses = baseCls.getParents()
       .stream()
       .map(clsKey -> {

@@ -7,6 +7,8 @@ functions:
         image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
         requestsCpu: "0.5"
         requestsMemory: "256M"
+        limitsCpu: "1"
+        limitsMemory: "512M"
 #        targetConcurrency: 16
 #        minScale: -1
 #        maxScale: -1

@@ -14,6 +14,7 @@ import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
@@ -108,7 +109,7 @@ public class KnativeFnController implements FnController {
       );
     }
 
-    var fnName = controller.prefix + function.getKey().toLowerCase().replaceAll("[\\._]", "-");
+    var fnName = createName(function.getKey());
     var annotation = new HashMap<String, String>();
     if (instance >= 0)
       annotation.put("autoscaling.knative.dev/minScale",
@@ -150,6 +151,34 @@ public class KnativeFnController implements FnController {
           .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING)
           .build())
         .build())
+    );
+  }
+
+  private String createName(String key) {
+    return controller.prefix + "fn-" + key
+      .replaceAll("[\\._]", "-");
+  }
+
+  @Override
+  public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
+    List<HasMetadata> resource = Lists.mutable.empty();
+    for (Map.Entry<String, Integer> entry : plan.fnInstances().entrySet()) {
+      var fnKey = entry.getKey();
+      var svc = knativeClient.services()
+        .inNamespace(controller.namespace)
+        .withName(createName(fnKey))
+        .get();
+      if (svc == null) continue;
+      svc.getSpec()
+        .getTemplate()
+        .getMetadata()
+        .getAnnotations()
+        .put("autoscaling.knative.dev/minScale", String.valueOf(entry.getValue()));
+      resource.add(svc);
+    }
+    return new FnResourcePlan(
+      resource,
+      List.of()
     );
   }
 

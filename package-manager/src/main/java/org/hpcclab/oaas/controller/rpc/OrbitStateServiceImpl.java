@@ -8,7 +8,7 @@ import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.proto.*;
 
 @GrpcService
-public class OrbitStateServiceImpl implements CrStateUpdater, OrbitStateService {
+public class OrbitStateServiceImpl implements CrStateUpdater, CrStateService {
   CrStateManager stateManager;
 
   @Inject
@@ -22,7 +22,7 @@ public class OrbitStateServiceImpl implements CrStateUpdater, OrbitStateService 
   }
 
   @Override
-  public Multi<ProtoCr> listOrbit(PaginateQuery request) {
+  public Multi<ProtoCr> list(PaginateQuery request) {
     return stateManager.listOrbit(request);
   }
 

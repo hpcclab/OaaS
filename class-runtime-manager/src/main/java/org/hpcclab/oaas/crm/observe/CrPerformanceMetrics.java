@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.observe;
 
 import org.hpcclab.oaas.crm.OprcComponent;
 
+import java.util.List;
 import java.util.Map;
 
 public record CrPerformanceMetrics(
@@ -9,9 +10,12 @@ public record CrPerformanceMetrics(
   Map<String, SvcPerformanceMetrics> fnMetrics) {
 
   public record SvcPerformanceMetrics(
-    double cpu,
-    long mem,
-    double rps,
-    double msLatency
+    List<DataPoint> cpu,
+    List<DataPoint> mem,
+    List<DataPoint> rps,
+    List<DataPoint> msLatency
   ){}
+
+
+  public record DataPoint(long timestamp, double value){}
 }

@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.crm.controller;
 
-import org.hpcclab.oaas.crm.exception.CrDeployException;
-import org.hpcclab.oaas.crm.exception.CrUpdateException;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
+import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 import org.hpcclab.oaas.proto.ProtoOClass;
@@ -16,16 +16,20 @@ public interface CrController {
 
   Set<String> getAttachedFn();
 
+  CrDeploymentPlan createDeploymentPlan(DeploymentUnit unit);
+  CrDeploymentPlan currentPlan();
+
   CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
 
-  CrDeploymentPlan createPlan(DeploymentUnit unit);
+  CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit);
 
-  CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
-    throws CrDeployException;
+  CrOperation createDetachOperation(ProtoOClass cls);
 
-  CrOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException;
+  CrOperation createDestroyOperation();
 
-  CrOperation createDestroyOperation() throws CrUpdateException;
+  CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan);
 
   ProtoCr dump();
+  QosOptimizer getOptimizer();
+  boolean isDeleted();
 }
