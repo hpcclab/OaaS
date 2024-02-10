@@ -12,10 +12,14 @@ import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.io.IOException;
 
-@Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED)
+@Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+  nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+  nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class ProtoObjectMapper {
   public abstract ProtoOObject toProto(OObject object);
   public abstract ProtoInvocationRequest toProto(InvocationRequest req);

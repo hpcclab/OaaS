@@ -4,6 +4,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
 import org.hpcclab.oaas.model.function.OFunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.proto.*;

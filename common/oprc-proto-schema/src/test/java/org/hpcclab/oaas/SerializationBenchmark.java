@@ -1,12 +1,15 @@
-package org.hpcclab.oaas.model;
+package org.hpcclab.oaas;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.proto.OaasSchemaImpl;
 import org.hpcclab.oaas.model.state.OaasObjectState;
+import org.hpcclab.oaas.proto.ProtoOObject;
 import org.infinispan.protostream.ProtobufUtil;
 import org.infinispan.protostream.SerializationContext;
 import org.msgpack.jackson.dataformat.MessagePackMapper;
@@ -32,10 +35,14 @@ public class SerializationBenchmark {
   OObject object;
   ObjectMapper mapper;
   ObjectMapper msgpackMapper;
+  ProtoOObject protoOObject;
   Random random;
   byte[] jsonBytes;
   byte[] msgpackBytes;
-  byte[] protoBytes;
+  byte[] protostreamBytes;
+  byte[] protoByte;
+
+  ProtoObjectMapper protoMapper ;
 
   SerializationContext context;
 
@@ -57,6 +64,8 @@ public class SerializationBenchmark {
   public void doSetup() throws IOException {
     mapper = new ObjectMapper();
     msgpackMapper = new MessagePackMapper();
+    protoMapper = new ProtoObjectMapperImpl();
+    protoMapper.setMapper(msgpackMapper);
     random = new Random();
     var refs = IntStream.range(0, 5)
       .mapToObj(__ -> Map.entry(rand(), rand()))
@@ -72,6 +81,7 @@ public class SerializationBenchmark {
       .setData(node);
     object
       .setRevision(random.nextLong());
+    protoOObject = protoMapper.toProto(object);
     context = ProtobufUtil.newSerializationContext();
     var schema = new OaasSchemaImpl();
     schema.registerSchema(context);
@@ -79,10 +89,12 @@ public class SerializationBenchmark {
 
     jsonBytes = mapper.writeValueAsBytes(object);
     msgpackBytes = msgpackMapper.writeValueAsBytes(object);
-    protoBytes = ProtobufUtil.toByteArray(context, object);
+    protostreamBytes = ProtobufUtil.toByteArray(context, object);
+    protoByte = protoOObject.toByteArray();
     System.out.println("\njson length: " + jsonBytes.length);
     System.out.println("msgpack length: " + msgpackBytes.length);
-    System.out.println("proto length: " + protoBytes.length);
+    System.out.println("protostream length: " + protostreamBytes.length);
+    System.out.println("proto length: " + protoByte.length);
   }
 
   String rand() {
@@ -120,8 +132,16 @@ public class SerializationBenchmark {
   }
 
   @Benchmark
-  public byte[] testSerializeProto() throws IOException {
+  public byte[] testSerializeProtoStream() throws IOException {
     return ProtobufUtil.toByteArray(context, object);
+  }
+  @Benchmark
+  public byte[] testSerializeProto() throws IOException {
+    return protoOObject.toByteArray();
+  }
+  @Benchmark
+  public byte[] testSerializeProto2() throws IOException {
+    return protoMapper.toProto(object).toByteArray();
   }
 
 
@@ -136,8 +156,26 @@ public class SerializationBenchmark {
   }
 
   @Benchmark
-  public OObject testDeserializeProto() throws IOException {
-    return ProtobufUtil.fromByteArray(context, protoBytes, OObject.class);
+  public OObject testDeserializeProtoStream() throws IOException {
+    return ProtobufUtil.fromByteArray(context, protostreamBytes, OObject.class);
+  }
+  @Benchmark
+  public ProtoOObject testDeserializeProto() throws IOException {
+    return ProtoOObject.parseFrom(protoByte);
+  }
+
+  @Benchmark
+  public OObject testDeserializeProto2() throws IOException {
+    return protoMapper.fromProto(ProtoOObject.parseFrom(protoByte));
+  }
+
+  @Benchmark
+  public OObject fromProto() {
+    return protoMapper.fromProto(protoOObject);
+  }
+  @Benchmark
+  public ProtoOObject toProto() {
+    return protoMapper.toProto(object);
   }
 
   @TearDown(Level.Trial)

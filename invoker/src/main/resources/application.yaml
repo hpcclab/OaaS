@@ -32,6 +32,7 @@
         secretKey: minio_access_key
       useSa: false
       clusterLock: true
+      loadMode: disabled
 
 oprc:
   log: INFO

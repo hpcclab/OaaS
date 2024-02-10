@@ -4,6 +4,8 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 import org.hpcclab.oaas.storage.S3ConnConf;
 
+import java.util.List;
+
 @ConfigMapping(
   prefix = "oprc.invoker",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
@@ -45,7 +47,16 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean clusterLock();
 
+  @WithDefault("FETCH")
+  LoadAssignMode loadMode();
+  @WithDefault("none")
+  List<String> initClass();
+
   interface Url{
     String url();
+  }
+
+  enum LoadAssignMode{
+    FETCH, ENV, DISABLED
   }
 }

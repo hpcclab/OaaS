@@ -1,7 +1,5 @@
 package org.hpcclab.oaas.invoker;
 
-import io.quarkus.grpc.GrpcClient;
-import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.AbstractVerticle;
@@ -10,19 +8,12 @@ import io.vertx.kafka.admin.NewTopic;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.admin.KafkaAdminClient;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.hpcclab.oaas.invoker.ispn.repo.EIspnClsRepository;
-import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
-import org.hpcclab.oaas.invoker.mq.ClassListener;
-import org.hpcclab.oaas.invoker.mq.FunctionListener;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.ProtoOClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,62 +28,30 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VerticleDeployer {
   private static final Logger logger = LoggerFactory.getLogger(VerticleDeployer.class);
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
-  @Inject
-  EIspnClsRepository clsRepo;
-  @Inject
-  EIspnFnRepository fnRepo;
-  @Inject
-  ClassListener clsListener;
-  @Inject
-  FunctionListener functionListener;
-  @Inject
+
   VerticleFactory<?> verticleFactory;
-  @Inject
   Vertx vertx;
-  @Inject
   InvokerConfig config;
-  @Inject
   KafkaAdminClient adminClient;
-  @GrpcClient("package-manager")
-  CrStateServiceGrpc.CrStateServiceBlockingStub crStateService;
-  @GrpcClient("package-manager")
-  ClassServiceGrpc.ClassServiceBlockingStub classService;
   final ProtoMapper protoMapper = new ProtoMapperImpl();
 
-
-  void init(@Observes StartupEvent event) {
-    deployPerCls();
-    clsListener.setHandler(cls -> {
-      logger.info("receive cls[{}] update event", cls.getKey());
-      clsRepo.getCache().putForExternalRead(cls.getKey(), cls);
-    });
-    clsListener.start().await().indefinitely();
-    functionListener.setHandler(fn -> {
-      logger.info("receive fn[{}] update event", fn.getKey());
-      fnRepo.getCache().putForExternalRead(fn.getKey(), fn);
-    });
-    clsListener.start().await().indefinitely();
+  public VerticleDeployer(VerticleFactory<?> verticleFactory,
+                          Vertx vertx,
+                          InvokerConfig config,
+                          KafkaAdminClient adminClient) {
+    this.verticleFactory = verticleFactory;
+    this.vertx = vertx;
+    this.config = config;
+    this.adminClient = adminClient;
   }
 
-  void deployPerCls() {
-    var crId = ConfigProvider.getConfig()
-      .getValue("oprc.crid", String.class);
-    logger.info("loading CR [id={}]", crId);
-    var orbit = crStateService.get(SingleKeyQuery.newBuilder().setKey(crId).build());
-    logger.info("handle orbit [id={}, cls={}, fn={}]",
-      orbit.getId(), orbit.getAttachedClsList(), orbit.getAttachedFnList());
-    var clsList = orbit.getAttachedClsList();
-    for (var clsKey : clsList) {
-      var cls = classService.get(SingleKeyQuery.newBuilder().setKey(clsKey).build());
-      handleCls(cls);
-    }
-  }
 
   void handleCls(ProtoOClass cls) {
     createTopic(cls)
       .flatMap(v -> deployVerticleIfNew(cls))
       .subscribe().with(
-        v -> {},
+        v -> {
+        },
         e -> logger.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
       );
   }
@@ -123,7 +82,7 @@ public class VerticleDeployer {
           var conf = cls.getConfig();
           return adminClient.createTopics(List.of(
             new NewTopic(topicName,
-              conf.getPartitions() <=0 ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
+              conf.getPartitions() <= 0 ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
               (short) 1)
           ));
         }

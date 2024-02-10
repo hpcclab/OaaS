@@ -17,10 +17,14 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class IspnSetup {
-  @Inject
-  IspnConfig config;
+  final IspnConfig config;
   EmbeddedCacheManager cacheManager;
   private static final Logger logger = LoggerFactory.getLogger(IspnSetup.class);
+
+  @Inject
+  public IspnSetup(IspnConfig config) {
+    this.config = config;
+  }
 
   public EmbeddedCacheManager setup() {
     // Set up a clustered Cache Manager.

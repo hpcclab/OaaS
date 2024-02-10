@@ -53,11 +53,10 @@ public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<Kafk
       registry,
       config
     );
-    var verticle = new KafkaRecordConsumerVerticle<>(segmentCoordinator, consumer, dispatcher, config);
-    return verticle;
+    return new KafkaRecordConsumerVerticle<>(segmentCoordinator, consumer, dispatcher, config);
   }
 
-  VerticleFactory<RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>>> createVerticleFactory() {
+  private VerticleFactory<RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>>> createVerticleFactory() {
     if (config.clusterLock()) {
       logger.warn("The experimental 'Cluster lock' is enabled. LockingRecordHandlerVerticle will be used.");
       return f -> lockingInvokerVerticleInstance.get();
