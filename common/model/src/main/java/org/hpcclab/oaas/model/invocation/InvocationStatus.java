@@ -4,7 +4,7 @@ import org.infinispan.protostream.annotations.ProtoEnumValue;
 
 public enum InvocationStatus {
   @ProtoEnumValue(1)
-  LAZY(false,false, false),
+  QUEUE(false,false, false),
   @ProtoEnumValue(2)
   DOING(true,false, false),
   @ProtoEnumValue(3)
@@ -16,18 +16,18 @@ public enum InvocationStatus {
   @ProtoEnumValue(6)
   READY(false,true, false);
 
-  final boolean submitted;
+  final boolean offloaded;
   final boolean completed;
   final boolean failed;
 
-  InvocationStatus(boolean submitted, boolean completed, boolean failed) {
-    this.submitted = submitted;
+  InvocationStatus(boolean offloaded, boolean completed, boolean failed) {
+    this.offloaded = offloaded;
     this.completed = completed;
     this.failed = failed;
   }
 
-  public boolean isSubmitted() {
-    return submitted;
+  public boolean isOffloaded() {
+    return offloaded;
   }
 
   public boolean isCompleted() {

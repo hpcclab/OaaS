@@ -11,12 +11,13 @@ import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
   schemaFileName = "oaas.proto",
   schemaFilePath = "/protostream",
   basePackages = {
-    "org.hpcclab.oaas.model.function",
+//    "org.hpcclab.oaas.model.function",
+//    "org.hpcclab.oaas.model.qos",
     "org.hpcclab.oaas.model.object",
-    "org.hpcclab.oaas.model.cls",
-    "org.hpcclab.oaas.model.provision",
+//    "org.hpcclab.oaas.model.cls",
+//    "org.hpcclab.oaas.model.provision",
     "org.hpcclab.oaas.model.state",
-    "org.hpcclab.oaas.model.task",
+//    "org.hpcclab.oaas.model.task",
     "org.hpcclab.oaas.model.proto",
     "org.hpcclab.oaas.model.invocation",
   }

@@ -30,7 +30,11 @@ public class NewSubApplier implements LogicalSubApplier {
   ObjectMapper mapper;
 
   @Inject
-  public NewSubApplier(DataUrlAllocator allocator, OObjectFactory objectFactory, ClassRepository clsRepo, ObjectRepoManager objRepoManager, ObjectMapper mapper) {
+  public NewSubApplier(DataUrlAllocator allocator,
+                       OObjectFactory objectFactory,
+                       ClassRepository clsRepo,
+                       ObjectRepoManager objRepoManager,
+                       ObjectMapper mapper) {
     this.allocator = allocator;
     this.objectFactory = objectFactory;
     this.clsRepo = clsRepo;

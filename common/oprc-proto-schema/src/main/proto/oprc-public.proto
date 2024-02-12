@@ -18,11 +18,13 @@ service PackageService {
 service ClassService {
   rpc list(PaginateQuery) returns (stream ProtoOClass) {};
   rpc get(SingleKeyQuery) returns (ProtoOClass) {};
+  rpc select(MultiKeyQuery) returns (stream ProtoOClass) {};
 }
 
 service FunctionService {
   rpc list(PaginateQuery) returns (stream ProtoOFunction) {};
   rpc get(SingleKeyQuery) returns (ProtoOFunction) {};
+  rpc select(MultiKeyQuery) returns (stream ProtoOFunction) {};
 }
 
 service CrStateService{

@@ -84,6 +84,7 @@ public class ObjectAccessLanguage {
 
   public InvocationRequest.InvocationRequestBuilder toRequest() {
     return InvocationRequest.builder()
+      .partKey(main)
       .main(main)
       .cls(cls)
       .fb(fb)

@@ -4,6 +4,7 @@ import io.quarkus.grpc.GrpcService;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.RouterInvocationReqHandler;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
@@ -27,29 +28,6 @@ public class InvocationServiceImpl implements InvocationService {
   ) {
     InvocationRequest req = mapper.fromProto(protoInvocationRequest);
     return invocationReqHandler.syncInvoke(req)
-      .map(this::convert);
+      .map(mapper::toProto);
   }
-
-  ProtoInvocationResponse convert(InvocationContext context) {
-    return ProtoInvocationResponse.newBuilder()
-      .setMain(mapper.toProto(context.getMain()))
-      .setOutput(mapper.toProto(context.getOutput()))
-      .setInvId(context.initNode().getKey())
-      .setFb(context.getFbName())
-      .setStatus(mapper.convert(context.initNode().getStatus()))
-      .setBody(mapper.convert(context.getRespBody()))
-      .setStats(convert(context.initNode().extractStats()))
-      .build();
-  }
-
-  ProtoInvocationStats convert(InvocationStats stats) {
-    return ProtoInvocationStats.newBuilder()
-      .setCptTs(stats.getCptTs())
-      .setQueTs(stats.getQueTs())
-      .setSmtTs(stats.getSmtTs())
-      .build();
-  }
-
-
-
 }

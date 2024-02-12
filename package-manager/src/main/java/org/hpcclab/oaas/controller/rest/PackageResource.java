@@ -16,7 +16,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.controller.PkgManagetConfig;
 import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
-import org.hpcclab.oaas.controller.service.ProvisionPublisher;
+import org.hpcclab.oaas.controller.service.PackagePublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -51,7 +51,7 @@ public class PackageResource {
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  ProvisionPublisher provisionPublisher;
+  PackagePublisher packagePublisher;
   @Inject
   PkgManagetConfig config;
   @Inject
@@ -106,7 +106,7 @@ public class PackageResource {
     funcRepo.persist(functions);
 
     if (config.kafkaEnabled()) {
-      provisionPublisher.submitNewPkg(pkg).await().indefinitely();
+      packagePublisher.submitNewPkg(pkg).await().indefinitely();
     }
     if (logger.isDebugEnabled())
       logger.debug("pkg {}", Json.encodePrettily(pkg));

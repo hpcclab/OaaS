@@ -40,7 +40,7 @@ public class InvocationNode implements HasKey<String> {
   @ProtoField(10)
   Set<String> waitFor;
   @ProtoField(11)
-  InvocationStatus status = InvocationStatus.LAZY;
+  InvocationStatus status = InvocationStatus.QUEUE;
   @ProtoField(value = 12, defaultValue = "-1")
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long queTs;
@@ -96,7 +96,7 @@ public class InvocationNode implements HasKey<String> {
 
   public InvocationNode trigger(String originator, String srcId) {
     waitFor.remove(srcId);
-    if (status.isSubmitted() || status.isFailed() || !waitFor.isEmpty())
+    if (status.isOffloaded() || status.isFailed() || !waitFor.isEmpty())
       return this;
     status = InvocationStatus.DOING;
     this.originator = originator;
@@ -105,7 +105,7 @@ public class InvocationNode implements HasKey<String> {
 
   public InvocationNode markAsSubmitted(String originator,
                                         boolean queue) {
-    if (status.isSubmitted() || status.isFailed())
+    if (status.isOffloaded() || status.isFailed())
       return this;
     if (originator==null)
       this.originator = key;
@@ -121,7 +121,7 @@ public class InvocationNode implements HasKey<String> {
 
 
   public InvocationNode markAsFailed() {
-    if (status.isSubmitted() || status.isFailed())
+    if (status.isOffloaded() || status.isFailed())
       return this;
     status = InvocationStatus.DEPENDENCY_FAILED;
     return this;

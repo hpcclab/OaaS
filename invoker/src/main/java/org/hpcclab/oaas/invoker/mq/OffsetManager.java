@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.mq;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.UniHelper;

@@ -14,6 +14,10 @@ message SingleKeyQuery{
   string key = 1;
 }
 
+message MultiKeyQuery{
+  repeated string key = 1;
+}
+
 message PaginateQuery{
   int64 offset = 1;
   int32 limit = 2;

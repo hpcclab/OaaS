@@ -25,6 +25,7 @@ public class MockupData {
     .setName("new")
     .setPkg("builtin.logical")
     .setType(FunctionType.LOGICAL);
+
   public static final OFunction FUNC_1 = new OFunction()
     .setName("func1")
     .setPkg("ex")

@@ -21,14 +21,9 @@ public class TaskFactory {
   private static final Logger logger = LoggerFactory.getLogger(TaskFactory.class);
   private final ContentUrlGenerator contentUrlGenerator;
 
-
-  private final IdGenerator idGenerator;
-
   @Inject
-  public TaskFactory(ContentUrlGenerator contentUrlGenerator,
-                     IdGenerator idGenerator) {
+  public TaskFactory(ContentUrlGenerator contentUrlGenerator) {
     this.contentUrlGenerator = contentUrlGenerator;
-    this.idGenerator = idGenerator;
   }
 
   public OTask genTask(InvocationContext ctx) {

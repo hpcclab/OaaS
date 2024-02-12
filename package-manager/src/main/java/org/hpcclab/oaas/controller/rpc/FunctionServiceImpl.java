@@ -33,4 +33,13 @@ public class FunctionServiceImpl implements FunctionService {
       .flatMap(page -> Multi.createFrom().iterable(page.getItems()))
       .map(mapper::toProto);
   }
+
+  @Override
+  public Multi<ProtoOFunction> select(MultiKeyQuery request) {
+    return fnRepo.async()
+      .listAsync(request.getKeyList())
+      .toMulti()
+      .flatMap(l -> Multi.createFrom().iterable(l.values()))
+      .map(mapper::toProto);
+  }
 }

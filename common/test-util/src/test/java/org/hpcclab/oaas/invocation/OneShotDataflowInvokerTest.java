@@ -34,8 +34,6 @@ public class OneShotDataflowInvokerTest {
     for (InternalInvocationNode node : graph.getAll()) {
       assertThat(node.getCtx().initNode().getStatus())
         .isEqualTo(InvocationStatus.SUCCEEDED);
-//      System.out.println(node);
-//      System.out.println(node.getCtx().initNode());
     }
   }
 }

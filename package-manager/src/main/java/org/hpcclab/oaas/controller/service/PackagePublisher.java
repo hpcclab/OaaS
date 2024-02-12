@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.stream.Stream;
 
 @ApplicationScoped
-public class ProvisionPublisher {
-  private static final Logger logger = LoggerFactory.getLogger( ProvisionPublisher.class );
+public class PackagePublisher {
+  private static final Logger logger = LoggerFactory.getLogger( PackagePublisher.class );
   @Channel("fnProvisions")
   MutinyEmitter<Record<String, OFunction>> fnProvisionEmitter;
   @Channel("clsProvisions")

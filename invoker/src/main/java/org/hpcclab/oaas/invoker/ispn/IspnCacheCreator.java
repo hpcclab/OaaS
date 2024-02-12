@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
-import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
@@ -27,11 +27,16 @@ import static org.infinispan.commons.dataconversion.MediaType.*;
 @ApplicationScoped
 public class IspnCacheCreator {
   private static final Logger logger = LoggerFactory.getLogger(IspnCacheCreator.class);
+  final IspnConfig ispnConfig;
+  final EmbeddedCacheManager cacheManager;
   DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
+
   @Inject
-  IspnConfig ispnConfig;
-  @Inject
-  EmbeddedCacheManager cacheManager;
+  public IspnCacheCreator(IspnConfig ispnConfig, EmbeddedCacheManager cacheManager) {
+    this.ispnConfig = ispnConfig;
+    this.cacheManager = cacheManager;
+  }
+
 
   public Cache<String, OObject> getObjectCache(OClass cls) {
     var name = cls.getKey();

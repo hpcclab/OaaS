@@ -9,17 +9,17 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +33,25 @@ import java.net.URI;
 @Startup
 public class OalResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(OalResource.class);
+
+  final ObjectRepoManager objectRepoManager;
+  final ContentUrlGenerator contentUrlGenerator;
+  final InvocationReqHandler invocationHandlerService;
+  final HashAwareInvocationHandler hashAwareInvocationHandler;
+  final InvokerConfig conf;
+
   @Inject
-  ObjectRepoManager objectRepoManager;
-  @Inject
-  ContentUrlGenerator contentUrlGenerator;
-  @Inject
-  InvocationReqHandler invocationHandlerService;
-  @Inject
-  HashAwareInvocationHandler hashAwareInvocationHandler;
-  @Inject
-  InvokerConfig conf;
+  public OalResource(ObjectRepoManager objectRepoManager,
+                     ContentUrlGenerator contentUrlGenerator,
+                     InvocationReqHandler invocationHandlerService,
+                     HashAwareInvocationHandler hashAwareInvocationHandler,
+                     InvokerConfig conf) {
+    this.objectRepoManager = objectRepoManager;
+    this.contentUrlGenerator = contentUrlGenerator;
+    this.invocationHandlerService = invocationHandlerService;
+    this.hashAwareInvocationHandler = hashAwareInvocationHandler;
+    this.conf = conf;
+  }
 
   @POST
   @JsonView(Views.Public.class)
@@ -50,7 +59,7 @@ public class OalResource {
                                                    @QueryParam("async") Boolean async) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getCls() == null)
+    if (oal.getCls()==null)
       return Uni.createFrom().failure(BadRequestException::new);
 
     if (oal.getFb()!=null) {
@@ -84,7 +93,7 @@ public class OalResource {
                                              ObjectAccessLanguage oal) {
     if (oal==null)
       return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getCls() == null)
+    if (oal.getCls()==null)
       return Uni.createFrom().failure(BadRequestException::new);
     if (oal.getFb()!=null) {
       return selectAndInvoke(oal, async)
@@ -143,8 +152,8 @@ public class OalResource {
       return Response.status(HttpResponseStatus.FAILED_DEPENDENCY.code()).build();
     }
     var oUrl = obj.getState().getOverrideUrls();
-    var replaced = oUrl!=null? oUrl.get(filePath): null;
-    if (replaced!= null)
+    var replaced = oUrl!=null ? oUrl.get(filePath):null;
+    if (replaced!=null)
       return Response.status(redirectCode)
         .location(URI.create(replaced))
         .build();
@@ -159,8 +168,8 @@ public class OalResource {
                                  int redirectCode) {
     if (object==null) return Response.status(404).build();
     var oUrl = object.getState().getOverrideUrls();
-    var replaced = oUrl!=null? oUrl.get(filePath): null;
-    if (replaced!= null)
+    var replaced = oUrl!=null ? oUrl.get(filePath):null;
+    if (replaced!=null)
       return Response.status(redirectCode)
         .location(URI.create(replaced))
         .build();

@@ -5,18 +5,22 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.*;
-import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invocation.controller.ControllerInvocationReqHandler;
+import org.hpcclab.oaas.invocation.controller.CtxLoader;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
-import org.hpcclab.oaas.invocation.validate.InvocationValidator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
+import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
+import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
@@ -43,7 +47,12 @@ public class InvocationEngineProducer {
     OffLoader offLoader,
     TaskFactory taskFactory,
     CompletedStateUpdater completionHandler) {
-    return new InvocationExecutor(sender, graphStateManager, contextLoader, offLoader, taskFactory, completionHandler);
+    return new InvocationExecutor(sender,
+      graphStateManager,
+      contextLoader,
+      offLoader,
+      taskFactory,
+      completionHandler);
   }
 
 
@@ -84,11 +93,30 @@ public class InvocationEngineProducer {
     return new HttpOffLoader(webClient, config);
   }
 
+//  @Produces
+//  @ApplicationScoped
+//  RouterInvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
+//    return new RouterInvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
+//  }
+
   @Produces
-  @ApplicationScoped
-  InvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
-    return new InvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
+  @Dependent
+  ControllerInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
+                                                                CtxLoader ctxLoader,
+                                                                IdGenerator idGenerator) {
+    return new ControllerInvocationReqHandler(classControllerRegistry,
+      ctxLoader,
+      idGenerator);
   }
+
+  @Produces
+  @Dependent
+  InvocationRecordHandler invocationRecordHandler(ObjectRepoManager objectRepoManager,
+                                                  ClassControllerRegistry classControllerRegistry,
+                                                  CtxLoader ctxLoader) {
+    return new ControllerInvocationRecordHandler(objectRepoManager, classControllerRegistry, ctxLoader);
+  }
+
 
   @Produces
   @ApplicationScoped
@@ -97,11 +125,13 @@ public class InvocationEngineProducer {
     ClassRepository classRepository,
     Vertx vertx,
     ProtoObjectMapper mapper,
-    InvocationReqHandler invocationReqHandler
+    InvocationReqHandler invocationReqHandler,
+    IdGenerator idGenerator
   ) {
     return new HashAwareInvocationHandler(
       lookupManager, classRepository, vertx.getDelegate(),
-      mapper, invocationReqHandler
+      mapper, invocationReqHandler,
+      idGenerator
     );
   }
 

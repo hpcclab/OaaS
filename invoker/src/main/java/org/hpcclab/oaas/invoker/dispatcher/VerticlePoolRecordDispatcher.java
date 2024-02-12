@@ -10,7 +10,7 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.OffsetManager;
+import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.invoker.verticle.RecordConsumerVerticle;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
 import org.slf4j.Logger;

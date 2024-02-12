@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.mq;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
@@ -8,6 +8,7 @@ import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
+import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.lookup.HashUtil;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;

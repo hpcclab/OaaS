@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnClsRepository;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnFnRepository;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
@@ -24,25 +25,33 @@ import java.util.List;
 @ApplicationScoped
 public class InvokerInitializer {
   private static final Logger logger = LoggerFactory.getLogger(InvokerInitializer.class);
-  InvokerConfig config;
-  ClassListener clsListener;
-  FunctionListener functionListener;
-  VerticleDeployer verticleDeployer;
-  EIspnClsRepository clsRepo;
-  EIspnFnRepository fnRepo;
+  final InvokerConfig config;
+  final ClassListener clsListener;
+  final FunctionListener functionListener;
+  final VerticleDeployer verticleDeployer;
+  final EIspnClsRepository clsRepo;
+  final EIspnFnRepository fnRepo;
+  final ClassControllerRegistry registry;
   @GrpcClient("package-manager")
   CrStateServiceGrpc.CrStateServiceBlockingStub crStateService;
   @GrpcClient("package-manager")
   ClassServiceGrpc.ClassServiceBlockingStub classService;
 
   @Inject
-  public InvokerInitializer(InvokerConfig config, ClassListener clsListener, FunctionListener functionListener, VerticleDeployer verticleDeployer, EIspnClsRepository clsRepo, EIspnFnRepository fnRepo) {
+  public InvokerInitializer(InvokerConfig config,
+                            ClassListener clsListener,
+                            FunctionListener functionListener,
+                            VerticleDeployer verticleDeployer,
+                            EIspnClsRepository clsRepo,
+                            EIspnFnRepository fnRepo,
+                            ClassControllerRegistry registry) {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
     this.verticleDeployer = verticleDeployer;
     this.clsRepo = clsRepo;
     this.fnRepo = fnRepo;
+      this.registry = registry;
   }
 
   void init(@Observes StartupEvent event) {
@@ -50,11 +59,14 @@ public class InvokerInitializer {
     clsListener.setHandler(cls -> {
       logger.info("receive cls[{}] update event", cls.getKey());
       clsRepo.getCache().putForExternalRead(cls.getKey(), cls);
+      registry.registerOrUpdate(cls)
+        .await().indefinitely();
     });
     clsListener.start().await().indefinitely();
     functionListener.setHandler(fn -> {
       logger.info("receive fn[{}] update event", fn.getKey());
       fnRepo.getCache().putForExternalRead(fn.getKey(), fn);
+      registry.updateFunction(fn);
     });
     clsListener.start().await().indefinitely();
   }
@@ -76,7 +88,11 @@ public class InvokerInitializer {
     }
     for (var clsKey : clsList) {
       var cls = classService.get(SingleKeyQuery.newBuilder().setKey(clsKey).build());
+      registry.registerOrUpdate(cls)
+        .await().indefinitely();
       verticleDeployer.handleCls(cls);
     }
+    if (logger.isInfoEnabled())
+      logger.info("setup class controller registry:\n{}", registry.printStructure());
   }
 }

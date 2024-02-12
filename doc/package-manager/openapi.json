@@ -314,6 +314,14 @@
         "enum" : [ "STRING", "CORD", "STRING_PIECE" ],
         "type" : "string"
       },
+      "ConsistencyModel" : {
+        "enum" : [ "NONE", "EVENTUAL", "SEQUENTIAL", "LINEARIZATION" ],
+        "type" : "string"
+      },
+      "ConsistencyModel_Public" : {
+        "enum" : [ "NONE", "EVENTUAL", "SEQUENTIAL", "LINEARIZATION" ],
+        "type" : "string"
+      },
       "DSMap" : {
         "type" : "array",
         "items" : {
@@ -5166,6 +5174,12 @@
           "status" : {
             "$ref" : "#/components/schemas/OClassDeploymentStatus"
           },
+          "qos" : {
+            "$ref" : "#/components/schemas/QosRequirement"
+          },
+          "constraint" : {
+            "$ref" : "#/components/schemas/QosConstraint"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember"
           }
@@ -5302,6 +5316,12 @@
           "status" : {
             "$ref" : "#/components/schemas/OClassDeploymentStatus_Public"
           },
+          "qos" : {
+            "$ref" : "#/components/schemas/QosRequirement_Public"
+          },
+          "constraint" : {
+            "$ref" : "#/components/schemas/QosConstraint_Public"
+          },
           "resolved" : {
             "$ref" : "#/components/schemas/ResolvedMember_Public"
           },
@@ -5351,6 +5371,12 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/FunctionState"
+          },
+          "qos" : {
+            "$ref" : "#/components/schemas/QosRequirement"
+          },
+          "constraint" : {
+            "$ref" : "#/components/schemas/QosConstraint"
           }
         }
       },
@@ -5423,6 +5449,12 @@
           },
           "state" : {
             "$ref" : "#/components/schemas/FunctionState_Public"
+          },
+          "qos" : {
+            "$ref" : "#/components/schemas/QosRequirement_Public"
+          },
+          "constraint" : {
+            "$ref" : "#/components/schemas/QosConstraint_Public"
           }
         }
       },
@@ -6095,6 +6127,88 @@
           },
           "staticUrl" : {
             "$ref" : "#/components/schemas/StaticUrlProvision_Public"
+          }
+        }
+      },
+      "QosConstraint" : {
+        "type" : "object",
+        "properties" : {
+          "budget" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "consistency" : {
+            "$ref" : "#/components/schemas/ConsistencyModel"
+          },
+          "geographical" : {
+            "type" : "string"
+          },
+          "persistent" : {
+            "type" : "boolean"
+          },
+          "runtimeRequirements" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "QosConstraint_Public" : {
+        "type" : "object",
+        "properties" : {
+          "budget" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "consistency" : {
+            "$ref" : "#/components/schemas/ConsistencyModel_Public"
+          },
+          "geographical" : {
+            "type" : "string"
+          },
+          "persistent" : {
+            "type" : "boolean"
+          },
+          "runtimeRequirements" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "QosRequirement" : {
+        "type" : "object",
+        "properties" : {
+          "latency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "throughput" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "availability" : {
+            "format" : "float",
+            "type" : "number"
+          }
+        }
+      },
+      "QosRequirement_Public" : {
+        "type" : "object",
+        "properties" : {
+          "latency" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "throughput" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "availability" : {
+            "format" : "float",
+            "type" : "number"
           }
         }
       },

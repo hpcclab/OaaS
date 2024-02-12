@@ -6,7 +6,7 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.OffsetManager;
+import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
 
   @Override
   public Uni<Void> asyncStart() {
-    LOGGER.info("[{}] starting task consumer verticle", segmentCoordinator.getCls());
+    LOGGER.info("[{}] starting task consumer verticle", segmentCoordinator.getCls().getKey());
     consumer.exceptionHandler(this::handleException);
     consumer.partitionsRevokedHandler(offsetManager::handlePartitionRevoked);
     taskDispatcher.setDrainHandler(this::poll);

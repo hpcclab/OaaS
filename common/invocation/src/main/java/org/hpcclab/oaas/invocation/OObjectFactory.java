@@ -53,4 +53,7 @@ public class OObjectFactory {
   public String newId(InvocationContext ctx){
     return idGenerator.generate(ctx);
   }
+  public String newId(){
+    return idGenerator.generate();
+  }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.With;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public record InvocationRequest(
   String fb,
   DSMap args,
   List<String> inputs,
+  List<OObject> inputObjects,
   boolean immutable,
   boolean macro,
-  boolean inMacro,
   String invId,
   String outId,
   DSMap macroIds,

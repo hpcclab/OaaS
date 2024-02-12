@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.mq;
 
 import java.util.Arrays;
 import java.util.BitSet;

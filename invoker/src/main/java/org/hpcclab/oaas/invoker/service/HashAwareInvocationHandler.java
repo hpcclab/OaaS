@@ -13,29 +13,30 @@ import org.hpcclab.oaas.proto.InvocationServiceGrpc;
 import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import static io.smallrye.mutiny.vertx.UniHelper.toUni;
 
 public class HashAwareInvocationHandler {
   final LookupManager lookupManager;
   final ClassRepository classRepository;
-  final Vertx vertx;
   final ProtoObjectMapper mapper;
   final GrpcClient grpcClient;
   final InvocationReqHandler invocationReqHandler;
+  final IdGenerator idGenerator;
 
   public HashAwareInvocationHandler(LookupManager lookupManager,
                                     ClassRepository classRepository,
                                     Vertx vertx,
                                     ProtoObjectMapper mapper,
-                                    InvocationReqHandler invocationReqHandler) {
+                                    InvocationReqHandler invocationReqHandler,
+                                    IdGenerator idGenerator) {
     this.lookupManager = lookupManager;
     this.classRepository = classRepository;
-    this.vertx = vertx;
     this.mapper = mapper;
     this.invocationReqHandler = invocationReqHandler;
-    grpcClient = GrpcClient.client(vertx);
-
+    this.grpcClient = GrpcClient.client(vertx);
+    this.idGenerator = idGenerator;
   }
 
   public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
@@ -65,7 +66,7 @@ public class HashAwareInvocationHandler {
       .putAllArgs(oal.getArgs())
       .addAllInputs(oal.getInputs())
       .setBody(mapper.convert(oal.getBody()))
-      .setInvId(invocationReqHandler.newId())
+      .setInvId(idGenerator.generate())
       .build();
   }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
@@ -12,6 +13,8 @@ import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.OObjectType;
+import org.hpcclab.oaas.model.qos.QosConstraint;
+import org.hpcclab.oaas.model.qos.QosRequirement;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -59,6 +62,10 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   OClassConfig config;
   @ProtoField(14)
   OClassDeploymentStatus status;
+  @ProtoField(15)
+  QosRequirement qos;
+  @ProtoField(16)
+  QosConstraint constraint;
 
   ResolvedMember resolved;
 
@@ -67,9 +74,9 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   }
 
   @ProtoFactory
+
   public OClass(String name,
                 String pkg,
-                String description,
                 String genericType,
                 OObjectType objectType,
                 StateType stateType,
@@ -77,14 +84,15 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
                 StateSpecification stateSpec,
                 List<ReferenceSpecification> refSpec,
                 List<String> parents,
+                String description,
                 boolean markForRemoval,
                 DatastoreLink store,
                 OClassConfig config,
-                OClassDeploymentStatus status
-                ) {
+                OClassDeploymentStatus status,
+                QosRequirement qos,
+                QosConstraint constraint) {
     this.name = name;
     this.pkg = pkg;
-    this.description = description;
     this.genericType = genericType;
     this.objectType = objectType;
     this.stateType = stateType;
@@ -92,11 +100,13 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.stateSpec = stateSpec;
     this.refSpec = refSpec;
     this.parents = parents;
+    this.description = description;
     this.markForRemoval = markForRemoval;
     this.store = store;
     this.config = config;
     this.status = status;
-
+    this.qos = qos;
+    this.constraint = constraint;
     updateKey();
   }
 
@@ -141,7 +151,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     return new OClass(
       name,
       pkg,
-      description,
       genericType,
       objectType,
       stateType,
@@ -149,10 +158,13 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       stateSpec==null ? null:stateSpec.copy(),
       refSpec==null ? null:List.copyOf(refSpec),
       parents==null ? null:List.copyOf(parents),
+      description,
       markForRemoval,
       store,
       config,
-      status
+      status,
+      qos,
+      constraint
     )
       .setResolved(resolved==null ? null:resolved.copy());
   }

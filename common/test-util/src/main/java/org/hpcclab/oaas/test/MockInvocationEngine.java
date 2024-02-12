@@ -9,7 +9,7 @@ import org.hpcclab.oaas.invocation.applier.MacroFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.TaskFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
-import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.RouterInvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.DefaultInvocationValidator;
@@ -38,7 +38,7 @@ public class MockInvocationEngine {
   public final TaskFactory taskFactory;
   public final RepoContextLoader loader;
   public final IdGenerator idGen;
-  public final InvocationReqHandler invocationHandlerService;
+  public final RouterInvocationReqHandler invocationHandlerService;
 
   public MockInvocationEngine() {
     var objects = MockupData.testObjects();
@@ -61,7 +61,7 @@ public class MockInvocationEngine {
 
     graphStateManager = new GraphStateManager(invRepoManager, objectRepoManager);
     var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
-    taskFactory = new TaskFactory(contentUrlGenerator, new TsidGenerator());
+    taskFactory = new TaskFactory(contentUrlGenerator);
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
     syncInvoker = new MockOffLoader();
     completedStateUpdater = new CompletedStateUpdater(new CompletionValidator(loader.getClsRepo(), loader.getFuncRepo()));
@@ -84,7 +84,7 @@ public class MockInvocationEngine {
       loader.getFuncRepo(),
       loader.getClsRepo()
     );
-    invocationHandlerService = new InvocationReqHandler(
+    invocationHandlerService = new RouterInvocationReqHandler(
       router,
       invocationExecutor,
       invocationQueueSender,

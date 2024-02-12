@@ -10,7 +10,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.OffsetManager;
+import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
 import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
@@ -25,20 +25,33 @@ import java.util.Map;
 @ApplicationScoped
 public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<KafkaRecordConsumerVerticle> {
   private static final Logger logger = LoggerFactory.getLogger(KafakaRecordConsumerVerticleFactory.class);
-  @Inject
+  final
   Instance<OrderedInvocationHandlerVerticle> orderedInvokerVerticleInstance;
-  @Inject
+  final
   Instance<LockingRecordHandlerVerticle> lockingInvokerVerticleInstance;
-  @Inject
+  final
   InvokerConfig config;
-  @Inject
+  final
   ObjectRepoManager objectRepoManager;
-  @Inject
+  final
   LocationRegistry registry;
-  @Inject
+  final
   Vertx vertx;
 
-  @Override
+    public KafakaRecordConsumerVerticleFactory(
+      Instance<OrderedInvocationHandlerVerticle> orderedInvokerVerticleInstance,
+      Instance<LockingRecordHandlerVerticle> lockingInvokerVerticleInstance,
+      InvokerConfig config, ObjectRepoManager objectRepoManager,
+      LocationRegistry registry, Vertx vertx) {
+        this.orderedInvokerVerticleInstance = orderedInvokerVerticleInstance;
+        this.lockingInvokerVerticleInstance = lockingInvokerVerticleInstance;
+        this.config = config;
+        this.objectRepoManager = objectRepoManager;
+        this.registry = registry;
+        this.vertx = vertx;
+    }
+
+    @Override
   public KafkaRecordConsumerVerticle createVerticle(OClass cls) {
     var consumer = KafkaConsumer.create(vertx, options(config, cls.getKey()),
       String.class, Buffer.class);

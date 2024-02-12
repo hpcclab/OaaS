@@ -6,10 +6,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.mapper.ProtoMapper;
-import org.hpcclab.oaas.proto.ClassService;
-import org.hpcclab.oaas.proto.PaginateQuery;
-import org.hpcclab.oaas.proto.ProtoOClass;
-import org.hpcclab.oaas.proto.SingleKeyQuery;
+import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
 
 @GrpcService
@@ -30,9 +27,19 @@ public class ClassServiceImpl implements ClassService {
 
   @Override
   public Multi<ProtoOClass> list(PaginateQuery request) {
-    return clsRepo.getQueryService().paginationAsync(request.getOffset(), request.getLimit())
+    return clsRepo.getQueryService()
+      .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
       .flatMap(page -> Multi.createFrom().iterable(page.getItems()))
+      .map(mapper::toProto);
+  }
+
+  @Override
+  public Multi<ProtoOClass> select(MultiKeyQuery request) {
+    return clsRepo.async()
+      .listAsync(request.getKeyList())
+      .toMulti()
+      .flatMap(l -> Multi.createFrom().iterable(l.values()))
       .map(mapper::toProto);
   }
 }

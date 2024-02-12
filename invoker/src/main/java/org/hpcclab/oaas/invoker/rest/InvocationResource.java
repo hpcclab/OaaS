@@ -2,9 +2,11 @@ package org.hpcclab.oaas.invoker.rest;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.repository.InvRepoManager;
@@ -13,8 +15,12 @@ import org.hpcclab.oaas.repository.InvRepoManager;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InvocationResource {
-  @Inject
+  final
   InvRepoManager invRepoManager;
+  @Inject
+  public InvocationResource(InvRepoManager invRepoManager) {
+    this.invRepoManager = invRepoManager;
+  }
 
   @GET
   @Path("{key}")

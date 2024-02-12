@@ -144,8 +144,8 @@ class MockingInvocationTest {
       .get(ctx.getWorkflowMap().get("tmp2").getKey());
     assertNotNull(node1);
     assertNotNull(node2);
-    assertTrue(node1.getStatus().isSubmitted());
-    assertFalse(node2.getStatus().isSubmitted());
+    assertTrue(node1.getStatus().isOffloaded());
+    assertFalse(node2.getStatus().isOffloaded());
   }
 
   @Test

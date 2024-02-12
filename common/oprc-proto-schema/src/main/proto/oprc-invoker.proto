@@ -18,7 +18,7 @@ message ProtoInvocationRequest {
   repeated string inputs = 5;
   bool immutable = 6;
   bool macro = 7;
-  bool inMacro = 8;
+  repeated ProtoOObject inputObjects = 8;
   optional string invId = 9;
   optional string outId = 10;
   map<string, string> macroIds = 11;
@@ -47,7 +47,7 @@ message ProtoInvocationStats{
 
 enum ProtoInvocationStatus {
   PROTO_INVOCATION_STATUS_UNSPECIFIED = 0;
-  PROTO_INVOCATION_STATUS_LAZY = 1;
+  PROTO_INVOCATION_STATUS_QUEUE = 1;
   PROTO_INVOCATION_STATUS_DOING = 2;
   PROTO_INVOCATION_STATUS_SUCCEEDED = 3;
   PROTO_INVOCATION_STATUS_FAILED = 4;

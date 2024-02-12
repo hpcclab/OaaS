@@ -8,6 +8,8 @@ import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.model.qos.QosConstraint;
+import org.hpcclab.oaas.model.qos.QosRequirement;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -49,6 +51,10 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
 
   @ProtoField(11)
   FunctionState state = FunctionState.ENABLED;
+  @ProtoField(12)
+  QosRequirement qos;
+  @ProtoField(13)
+  QosConstraint constraint;
 
 
   public OFunction() {
@@ -64,7 +70,9 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
                    ProvisionConfig provision,
                    List<VariableDescription> variableDescriptions,
                    OFunctionDeploymentStatus status,
-                   FunctionState state) {
+                   FunctionState state,
+                   QosRequirement qos,
+                   QosConstraint constraint) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -75,6 +83,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     this.variableDescriptions = variableDescriptions;
     this.status = status;
     this.state = state;
+    this.qos = qos;
+    this.constraint = constraint;
     updateKey();
   }
 
@@ -151,7 +161,9 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       provision,
       variableDescriptions == null? null : List.copyOf(variableDescriptions),
       status,
-      state
+      state,
+      qos,
+      constraint
     );
   }
 }

@@ -57,6 +57,10 @@ public class InvocationException extends StdOaasException {
     return ex;
   }
 
+  public static StdOaasException notFoundFnInCls(String fb, String cls) {
+    return new StdOaasException("Not found FunctionBinding(" + fb + ") in Class(" + cls + ")", 400);
+  }
+
   public boolean isRetryable() {
     return retryable;
   }

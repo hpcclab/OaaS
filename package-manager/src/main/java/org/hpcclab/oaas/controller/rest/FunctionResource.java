@@ -1,13 +1,12 @@
 package org.hpcclab.oaas.controller.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.controller.service.ProvisionPublisher;
+import org.hpcclab.oaas.controller.service.PackagePublisher;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.function.OFunction;
@@ -22,7 +21,7 @@ public class FunctionResource {
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  ProvisionPublisher provisionPublisher;
+  PackagePublisher packagePublisher;
 
   @GET
   @JsonView(Views.Public.class)
@@ -51,6 +50,6 @@ public class FunctionResource {
   public Uni<OFunction> delete(String funcKey) {
     return funcRepo.async().removeAsync(funcKey)
       .onItem().ifNull().failWith(NotFoundException::new)
-      .call(__ -> provisionPublisher.submitDeleteFn(funcKey));
+      .call(__ -> packagePublisher.submitDeleteFn(funcKey));
   }
 }

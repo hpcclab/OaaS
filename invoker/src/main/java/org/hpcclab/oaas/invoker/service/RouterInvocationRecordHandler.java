@@ -1,10 +1,8 @@
-package org.hpcclab.oaas.invoker;
+package org.hpcclab.oaas.invoker.service;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.ContextLoader;
 import org.hpcclab.oaas.invocation.InvocationExecutor;
 import org.hpcclab.oaas.invocation.OffLoader;
@@ -19,13 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
-@Dependent
-public class InvocationRecordHandler {
 
-  private static final Logger logger = LoggerFactory.getLogger(InvocationRecordHandler.class);
+public class RouterInvocationRecordHandler implements InvocationRecordHandler {
+
+  private static final Logger logger = LoggerFactory.getLogger(RouterInvocationRecordHandler.class);
   final OffLoader invoker;
   final InvocationExecutor invocationExecutor;
   final ContextLoader loader;
@@ -33,8 +30,12 @@ public class InvocationRecordHandler {
   final OneShotDataflowInvoker dataflowInvoker;
   final ObjectRepoManager objectRepoManager;
 
-  @Inject
-  public InvocationRecordHandler(OffLoader invoker, InvocationExecutor invocationExecutor, ContextLoader loader, UnifiedFunctionRouter router, OneShotDataflowInvoker dataflowInvoker, ObjectRepoManager objectRepoManager) {
+  public RouterInvocationRecordHandler(OffLoader invoker,
+                                       InvocationExecutor invocationExecutor,
+                                       ContextLoader loader,
+                                       UnifiedFunctionRouter router,
+                                       OneShotDataflowInvoker dataflowInvoker,
+                                       ObjectRepoManager objectRepoManager) {
     this.invoker = invoker;
     this.invocationExecutor = invocationExecutor;
     this.loader = loader;
@@ -43,29 +44,22 @@ public class InvocationRecordHandler {
     this.objectRepoManager = objectRepoManager;
   }
 
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                           InvocationRequest request,
-                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler) {
-    handleRecord(kafkaRecord, request, completionHandler, null);
-  }
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                           InvocationRequest request,
-                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler,
-                           BiPredicate<KafkaConsumerRecord<String, Buffer>, InvocationContext> skipCondition) {
+  @Override
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request, Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler, boolean skipDeduplication) {
     if (logger.isDebugEnabled()) {
       logDebug(kafkaRecord, request);
     }
     if (request.macro()) {
       handleMacro(kafkaRecord, request, completionHandler);
     } else {
-      if (skipCondition == null) skipCondition = this::detectDuplication;
-      invokeTask(kafkaRecord, request, completionHandler, skipCondition);
+      invokeTask(kafkaRecord, request, completionHandler, skipDeduplication);
     }
+
   }
 
   private void handleMacro(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                            InvocationRequest request,
-                           BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler) {
+                           Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler) {
     loader.loadCtxAsync(request)
       .flatMap(router::apply)
       .flatMap(ctx -> {
@@ -81,23 +75,23 @@ public class InvocationRecordHandler {
       .atMost(3)
       .subscribe()
       .with(
-        ctx -> completionHandler.accept(kafkaRecord, request),
+        ctx -> completionHandler.accept(kafkaRecord),
         error -> {
           logger.error("Unexpected error on invoker ", error);
-          completionHandler.accept(kafkaRecord, request);
+          completionHandler.accept(kafkaRecord);
         }
       );
   }
 
   private void invokeTask(KafkaConsumerRecord<String, Buffer> kafkaRecord,
                           InvocationRequest request,
-                          BiConsumer<KafkaConsumerRecord<String, Buffer>, InvocationRequest> completionHandler,
-                          BiPredicate<KafkaConsumerRecord<String, Buffer>, InvocationContext> skipCondition) {
+                          Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler,
+                          boolean skipDeduplication) {
     if (logger.isDebugEnabled())
       logger.debug("invokeTask [{},{}] {}", request.main(), kafkaRecord.offset(), request);
     loader.loadCtxAsync(request)
       .flatMap(ctx -> {
-        if (skipCondition.test(kafkaRecord, ctx)) {
+        if (!skipDeduplication && detectDuplication(kafkaRecord, ctx)) {
           return Uni.createFrom().nullItem();
         }
         return router.apply(ctx)
@@ -110,10 +104,10 @@ public class InvocationRecordHandler {
       .recoverWithItem(this::handleFailInvocation)
       .subscribe()
       .with(
-        ctx -> completionHandler.accept(kafkaRecord, request),
+        ctx -> completionHandler.accept(kafkaRecord),
         error -> {
           logger.error("Get an unrecoverable repeating error on invoker ", error);
-          completionHandler.accept(kafkaRecord, request);
+          completionHandler.accept(kafkaRecord);
         });
   }
 
@@ -148,7 +142,7 @@ public class InvocationRecordHandler {
   void logDebug(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
     var submittedTs = kafkaRecord.timestamp();
     var repo = objectRepoManager.getOrCreate(request.cls());
-    var cache = ((EIspnObjectRepository)repo).getCache();
+    var cache = ((EIspnObjectRepository) repo).getCache();
     var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
 
     logger.debug("record[{},{},{}]: Kafka latency {} ms, locality[{}={}]",
@@ -160,4 +154,5 @@ public class InvocationRecordHandler {
       local
     );
   }
+
 }

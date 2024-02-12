@@ -24,6 +24,7 @@ message ProtoOClass{
   optional ProtoOClassDeploymentStatus status = 15;
   optional ProtoQosRequirement qos = 16;
   optional ProtoConstraint constraint = 17;
+  optional ProtoResolvedMember resolved = 18;
 }
 
 message ProtoFunctionBinding {
@@ -36,6 +37,13 @@ message ProtoFunctionBinding {
   bool forceImmutable = 7;
   bool noMain = 8;
   repeated string inputTypes = 9;
+}
+
+message ProtoResolvedMember{
+  map<string, ProtoFunctionBinding> functions = 1;
+  map<string, ProtoKeySpecification> keySpecs = 2;
+  map<string, ProtoReferenceSpecification> refSpecs = 3;
+  repeated string identities = 4;
 }
 
 message ProtoStateSpecification{
