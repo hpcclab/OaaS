@@ -80,7 +80,7 @@ message ProtoOClassConfig {
 }
 
 message ProtoOClassDeploymentStatus{
-  int64 orbitId = 1;
+  int64 crId = 1;
 }
 
 

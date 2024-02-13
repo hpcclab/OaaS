@@ -17,14 +17,13 @@ import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.ispn.lookup.LookupManager;
+import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
-import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.GraphStateManager;
 import org.hpcclab.oaas.repository.InvRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -39,28 +38,28 @@ import org.slf4j.LoggerFactory;
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
 
-  @Produces
-  InvocationExecutor invocationGraphExecutor(
-    InvocationQueueProducer sender,
-    GraphStateManager graphStateManager,
-    RepoContextLoader contextLoader,
-    OffLoader offLoader,
-    TaskFactory taskFactory,
-    CompletedStateUpdater completionHandler) {
-    return new InvocationExecutor(sender,
-      graphStateManager,
-      contextLoader,
-      offLoader,
-      taskFactory,
-      completionHandler);
-  }
+//  @Produces
+//  InvocationExecutor invocationGraphExecutor(
+//    InvocationQueueProducer sender,
+//    GraphStateManager graphStateManager,
+//    RepoContextLoader contextLoader,
+//    OffLoader offLoader,
+//    TaskFactory taskFactory,
+//    CompletedStateUpdater completionHandler) {
+//    return new InvocationExecutor(sender,
+//      graphStateManager,
+//      contextLoader,
+//      offLoader,
+//      taskFactory,
+//      completionHandler);
+//  }
 
 
-  @Produces
-  GraphStateManager graphStateManager(InvRepoManager invRepoManager,
-                                      ObjectRepoManager objectRepoManager) {
-    return new GraphStateManager(invRepoManager, objectRepoManager);
-  }
+//  @Produces
+//  GraphStateManager graphStateManager(InvRepoManager invRepoManager,
+//                                      ObjectRepoManager objectRepoManager) {
+//    return new GraphStateManager(invRepoManager, objectRepoManager);
+//  }
 
 
   @Produces
@@ -93,11 +92,6 @@ public class InvocationEngineProducer {
     return new HttpOffLoader(webClient, config);
   }
 
-//  @Produces
-//  @ApplicationScoped
-//  RouterInvocationReqHandler invocationHandlerService(UnifiedFunctionRouter router, InvocationExecutor invocationExecutor, InvocationQueueProducer sender, InvocationValidator invocationValidator, IdGenerator idGenerator) {
-//    return new RouterInvocationReqHandler(router, invocationExecutor, sender, invocationValidator, idGenerator);
-//  }
 
   @Produces
   @Dependent
@@ -122,15 +116,18 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   HashAwareInvocationHandler hashAwareInvocationHandler(
     LookupManager lookupManager,
-    ClassRepository classRepository,
+    ClassControllerRegistry registry,
     Vertx vertx,
     ProtoObjectMapper mapper,
     InvocationReqHandler invocationReqHandler,
     IdGenerator idGenerator
   ) {
     return new HashAwareInvocationHandler(
-      lookupManager, classRepository, vertx.getDelegate(),
-      mapper, invocationReqHandler,
+      lookupManager,
+      registry,
+      vertx.getDelegate(),
+      mapper,
+      invocationReqHandler,
       idGenerator
     );
   }

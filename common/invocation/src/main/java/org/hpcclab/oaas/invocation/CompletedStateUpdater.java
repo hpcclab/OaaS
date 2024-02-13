@@ -8,13 +8,11 @@ import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ApplicationScoped
 public class CompletedStateUpdater {
   private static final Logger logger = LoggerFactory.getLogger( CompletedStateUpdater.class );
 
   CompletionValidator validator;
 
-  @Inject
   public CompletedStateUpdater(CompletionValidator validator) {
     this.validator = validator;
   }

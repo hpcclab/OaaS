@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-@ApplicationScoped
+
 public class MacroFunctionApplier implements FunctionApplier {
   private static final Logger logger = LoggerFactory.getLogger(MacroFunctionApplier.class);
 
@@ -33,7 +33,7 @@ public class MacroFunctionApplier implements FunctionApplier {
 
   Function<InvocationContext, Uni<InvocationContext>> subFunctionApplier;
 
-  @Inject
+
   public MacroFunctionApplier(ContextLoader contextLoader,
                               OObjectFactory objectFactory) {
     this.contextLoader = contextLoader;

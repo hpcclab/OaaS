@@ -8,11 +8,10 @@ import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.proto.*;
 
 @GrpcService
-public class OrbitStateServiceImpl implements CrStateUpdater, CrStateService {
+public class CrStateServiceImpl implements InternalCrStateService, CrStateService {
   CrStateManager stateManager;
-
   @Inject
-  public OrbitStateServiceImpl(CrStateManager stateManager) {
+  public CrStateServiceImpl(CrStateManager stateManager) {
     this.stateManager = stateManager;
   }
 
@@ -27,7 +26,22 @@ public class OrbitStateServiceImpl implements CrStateUpdater, CrStateService {
   }
 
   @Override
-  public Uni<OprcResponse> updateOrbit(ProtoCr request) {
+  public Uni<OprcResponse> updateCr(ProtoCr request) {
     return stateManager.updateCr(request);
+  }
+
+  @Override
+  public Uni<ProtoCrHash> updateHash(ProtoCrHash request) {
+    return stateManager.updateCrHash(request);
+  }
+
+  @Override
+  public Uni<ProtoCrHash> getHash(SingleKeyQuery request) {
+    return stateManager.getHash(request.getKey());
+  }
+
+  @Override
+  public Multi<ProtoCrHash> listHash(PaginateQuery request) {
+    return stateManager.listHash(request);
   }
 }

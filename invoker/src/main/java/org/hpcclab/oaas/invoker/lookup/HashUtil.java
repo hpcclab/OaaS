@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invoker.ispn.lookup;
+package org.hpcclab.oaas.invoker.lookup;
 
 import org.infinispan.commons.hash.Hash;
 import org.infinispan.commons.hash.MurmurHash3;

@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @Getter
-@ApplicationScoped
 public class RepoContextLoader implements ContextLoader {
 
   private static final Logger logger = LoggerFactory.getLogger(RepoContextLoader.class);
@@ -30,7 +29,6 @@ public class RepoContextLoader implements ContextLoader {
   ClassRepository clsRepo;
   InvRepoManager invRepoManager;
 
-  @Inject
   public RepoContextLoader(ObjectRepoManager objectRepoManager,
                            FunctionRepository funcRepo,
                            ClassRepository clsRepo,

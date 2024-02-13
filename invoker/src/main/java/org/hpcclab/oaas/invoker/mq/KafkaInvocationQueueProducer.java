@@ -8,8 +8,9 @@ import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.ispn.lookup.HashUtil;
+import org.hpcclab.oaas.invoker.lookup.HashUtil;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -19,18 +20,23 @@ import org.slf4j.LoggerFactory;
 @Dependent
 public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
   private static final Logger logger = LoggerFactory.getLogger(KafkaInvocationQueueProducer.class);
-  @Inject
-  KafkaProducer<String, Buffer> producer;
-  @Inject
-  InvokerConfig config;
-  @Inject
-  ClassRepository clsRepo;
+
+  final KafkaProducer<String, Buffer> producer;
+  final InvokerConfig config;
+  final ClassControllerRegistry registry;
+
+  public KafkaInvocationQueueProducer(KafkaProducer<String, Buffer> producer, InvokerConfig config, ClassControllerRegistry registry) {
+    this.producer = producer;
+    this.config = config;
+    this.registry = registry;
+  }
 
   @Override
   public Uni<Void> offer(InvocationRequest request) {
     var topic = selectTopic(request);
-    var conf =
-      clsRepo.get(request.cls()).getConfig();
+    var conf = registry.getClassController(request.cls())
+      .getCls()
+      .getConfig();
     var partition = HashUtil.getHashed(
       request.partKey(),
       conf==null ? OClassConfig.DEFAULT_PARTITIONS: conf.getPartitions()

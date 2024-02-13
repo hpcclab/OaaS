@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.controller.PkgManagetConfig;
+import org.hpcclab.oaas.controller.PkgManagerConfig;
 import org.hpcclab.oaas.controller.service.CrStateManager;
 import org.hpcclab.oaas.controller.service.PackageValidator;
 import org.hpcclab.oaas.controller.service.PackagePublisher;
@@ -53,7 +53,7 @@ public class PackageResource {
   @Inject
   PackagePublisher packagePublisher;
   @Inject
-  PkgManagetConfig config;
+  PkgManagerConfig config;
   @Inject
   PackageValidator validator;
   @Inject

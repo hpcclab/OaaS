@@ -6,7 +6,7 @@
       min-level: TRACE
   oprc:
     log: TRACE
-    cm:
+    pm:
       orbitEnabled: false
       kafkaEnabled: false
 
@@ -30,9 +30,11 @@ oprc:
   pm:
     clsProvisionTopic: oaas-cls
     kafkaEnabled: true
+    orbitEnabled: true
     fnProvisionTopic: oaas-fn
     crmHost: localhost
     crmPort: 8091
+    crHashTopic: oaas-cr-hash
   log: INFO
   name: package-manager
   env: |
@@ -71,6 +73,7 @@ quarkus:
     resources:
       includes:
         - builtin/**
+
   kafka:
     devservices:
       enabled: false
@@ -98,3 +101,10 @@ mp:
         topic: ${oprc.pm.clsProvisionTopic}
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+      crHashs:
+        enabled: ${oprc.pm.kafkaEnabled}
+        connector: smallrye-kafka
+        topic: ${oprc.pm.crHashTopic}
+#        value:
+#          serializer: io.quarkus.kafka.client.serialization.BufferSerializer
+

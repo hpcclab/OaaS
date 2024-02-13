@@ -1,17 +1,12 @@
-package org.hpcclab.oaas.sa.producer;
+package org.hpcclab.oaas.sa.cdi;
 
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
-import org.hpcclab.oaas.sa.SaConfig;
 import org.hpcclab.oaas.storage.PresignGenerator;
 import org.hpcclab.oaas.storage.PresignGeneratorPool;
 import org.hpcclab.oaas.storage.S3ClientBuilderUtil;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 public class S3ClientProducer {
-  @Inject
-  SaConfig saConfig;
   @Produces
   public PresignGeneratorPool presignGenerator() {
     var pool =  new PresignGeneratorPool();

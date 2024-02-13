@@ -8,6 +8,7 @@ import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.ClassService;
@@ -56,6 +57,7 @@ public class ClassControllerRegistry {
     return registerOrUpdate(protoMapper.fromProto(cls));
   }
   public Uni<ClassController> registerOrUpdate(OClass cls) {
+    logger.info("registerOrUpdate class({})", cls.getKey());
     var outputClsKeys = cls.getFunctions()
       .stream()
       .map(FunctionBinding::getOutputCls)
@@ -108,6 +110,10 @@ public class ClassControllerRegistry {
                                        OFunction function,
                                        OClass cls,
                                        OClass outputCls) {
+    if (function == null)
+      throw StdOaasException.format("Cannot load OFunction(%s) for OClass(%s)",
+        functionBinding.getFunction(),
+        cls.getKey());
     var controller = functionControllerFactory.create(function);
     controller.bind(functionBinding, function, cls, outputCls);
     return controller;

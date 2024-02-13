@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.invocation.validate;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.ValidationContext;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -13,13 +11,12 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
-@ApplicationScoped
 public class DefaultInvocationValidator implements InvocationValidator {
   ObjectRepoManager objectRepo;
   EntityRepository<String, OFunction> funcRepo;
   EntityRepository<String, OClass> clsRepo;
 
-  @Inject
+
   public DefaultInvocationValidator(ObjectRepoManager objectRepo,
                                     FunctionRepository funcRepo,
                                     ClassRepository clsRepo) {

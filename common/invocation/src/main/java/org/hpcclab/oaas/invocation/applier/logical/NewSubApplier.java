@@ -21,7 +21,6 @@ import org.hpcclab.oaas.repository.ObjectRepoManager;
 import java.util.List;
 import java.util.Map;
 
-@ApplicationScoped
 public class NewSubApplier implements LogicalSubApplier {
   DataUrlAllocator allocator;
   OObjectFactory objectFactory;
@@ -29,7 +28,6 @@ public class NewSubApplier implements LogicalSubApplier {
   ObjectRepoManager objRepoManager;
   ObjectMapper mapper;
 
-  @Inject
   public NewSubApplier(DataUrlAllocator allocator,
                        OObjectFactory objectFactory,
                        ClassRepository clsRepo,

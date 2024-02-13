@@ -31,7 +31,6 @@ public class RouterInvocationReqHandler implements InvocationReqHandler{
   InvocationValidator invocationValidator;
   IdGenerator idGenerator;
 
-  @Inject
   public RouterInvocationReqHandler(UnifiedFunctionRouter router,
                                     InvocationExecutor invocationExecutor,
                                     InvocationQueueProducer producer,

@@ -4,9 +4,8 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.test.MockupData;
@@ -30,15 +29,16 @@ class SyncInvocationTest {
   @Inject
   ObjectRepoManager objectRepoManager;
   @Inject
-  ClassRepository clsRepo;
-  @Inject
-  FunctionRepository fnRepo;
-  @Inject
   IdGenerator idGenerator;
+  @Inject
+  ClassControllerRegistry registry;
 
   @BeforeEach
   void setup() {
-    MockupData.persistMock(objectRepoManager, clsRepo, fnRepo);
+    registry.registerOrUpdate(MockupData.CLS_1)
+      .await().indefinitely();
+    registry.registerOrUpdate(MockupData.CLS_2)
+      .await().indefinitely();
   }
 
   @Test

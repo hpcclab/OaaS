@@ -22,17 +22,8 @@ import static org.hpcclab.oaas.storage.S3ClientBuilderUtil.createPresigner;
 public class S3ContentUrlGenerator extends SaContentUrlGenerator {
   PresignGenerator presignGenerator;
   PresignGenerator pubPresignGenerator;
-//  S3ConnConf s3ConnConf;
   String prefixPath;
   String bucket;
-
-//  public S3ContentUrlGenerator(InvokerConfig config) {
-//    super(config.storageAdapterUrl());
-//    s3ConnConf = config.s3();
-//    presignGenerator = new PresignGenerator(S3ClientBuilderUtil.createPresigner(config.s3(), false));
-//    pubPresignGenerator = new PresignGenerator(S3ClientBuilderUtil.createPresigner(config.s3(), true));
-//    prefixPath = s3ConnConf.prefix().orElse("");
-//  }
 
   public S3ContentUrlGenerator(DatastoreConf datastoreConf) {
     super(datastoreConf.options().get("URL"));

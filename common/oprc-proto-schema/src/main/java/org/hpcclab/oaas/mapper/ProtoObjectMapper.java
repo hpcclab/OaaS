@@ -38,16 +38,19 @@ public abstract class ProtoObjectMapper {
 
   public ByteString convert(ObjectNode objectNode) {
     try {
+      if (objectNode == null) return ByteString.EMPTY;
       return ByteString.copyFrom(mapper.writeValueAsBytes(objectNode));
     } catch (JsonProcessingException e) {
-      throw new InvocationException("Json Error",e);
+      throw new InvocationException("Json parsing error:"+e.getMessage(),e);
     }
   }
   public ObjectNode convert(ByteString bytes) {
     try {
-      return mapper.readValue(bytes.toByteArray(), ObjectNode.class);
+      var b = bytes.toByteArray();
+      if (b.length == 0) return null;
+      return mapper.readValue(b, ObjectNode.class);
     } catch (IOException e) {
-      throw new InvocationException("Json Error",e);
+      throw new InvocationException("Json parsing error:"+e.getMessage(),e);
     }
   }
 }

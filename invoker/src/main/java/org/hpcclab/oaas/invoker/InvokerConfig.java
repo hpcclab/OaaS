@@ -20,6 +20,8 @@ public interface InvokerConfig {
   String fnProvisionTopic();
   @WithDefault("oaas-cls")
   String clsProvisionTopic();
+  @WithDefault("oaas-cr-hash")
+  String crHashTopic();
   @WithDefault("oaas-invoker-")
   String invokeTopicPrefix();
   Url sa();

@@ -4,3 +4,5 @@ functions:
     type: LOGICAL
   - name: new
     type: LOGICAL
+  - name: update
+    type: LOGICAL

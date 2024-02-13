@@ -29,17 +29,19 @@ public class EnvironmentManager {
   public EnvironmentManager(KubernetesClient client,
                             CrmConfig conf) {
     this.client = client;
-    var kafka = ConfigProvider.getConfig()
+    var configProvider = ConfigProvider.getConfig();
+    var kafka = configProvider
       .getValue("oprc.envconf.kafka", String.class);
-    var pmHost = ConfigProvider.getConfig()
+    var pmHost = configProvider
       .getValue("oprc.envconf.pmHost", String.class);
-    var pmPort = ConfigProvider.getConfig()
+    var pmPort = configProvider
       .getValue("oprc.envconf.pmPort", String.class);
     envConf = new OprcEnvironment.Config(
       kafka,
       pmHost,
       pmPort,
-      conf.exposeKnative()
+      conf.exposeKnative(),
+      configProvider.getValue("oprc.log", String.class)
     );
     environment = new OprcEnvironment(
       envConf,

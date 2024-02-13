@@ -10,6 +10,8 @@ import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.template.CrTemplateManager;
 import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.CrStateServiceGrpc.CrStateServiceBlockingStub;
+import org.hpcclab.oaas.proto.InternalCrStateServiceGrpc.InternalCrStateServiceBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +20,16 @@ import java.util.Map;
 @ApplicationScoped
 public class CrControllerManager {
   private static final Logger logger = LoggerFactory.getLogger(CrControllerManager.class);
-  final CrStateUpdaterGrpc.CrStateUpdaterBlockingStub crStateUpdater;
-  final CrStateServiceGrpc.CrStateServiceBlockingStub crStateService;
+  final InternalCrStateServiceBlockingStub crStateUpdater;
+  final CrStateServiceBlockingStub crStateService;
   final CrTemplateManager templateManager;
   final EnvironmentManager environmentManager;
   Map<Long, CrController> controllerMap = ConcurrentHashMap.newMap();
 
   @Inject
   public CrControllerManager(
-    @GrpcClient("package-manager") CrStateUpdaterGrpc.CrStateUpdaterBlockingStub crStateUpdater,
-    @GrpcClient("package-manager") CrStateServiceGrpc.CrStateServiceBlockingStub crStateService,
+    @GrpcClient("package-manager") InternalCrStateServiceBlockingStub crStateUpdater,
+    @GrpcClient("package-manager") CrStateServiceBlockingStub crStateService,
     CrTemplateManager templateManager,
     EnvironmentManager environmentManager) {
 
@@ -89,7 +91,7 @@ public class CrControllerManager {
   }
   public void saveToRemote(CrController orbit) {
     saveToLocal(orbit);
-    crStateUpdater.updateOrbit(orbit.dump());
+    crStateUpdater.updateCr(orbit.dump());
   }
 
   public void deleteFromLocal(CrController controller) {

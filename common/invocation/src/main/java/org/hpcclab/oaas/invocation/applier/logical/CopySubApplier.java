@@ -7,9 +7,8 @@ import org.hpcclab.oaas.invocation.applier.LogicalSubApplier;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
-@ApplicationScoped
 public class CopySubApplier implements LogicalSubApplier {
-  @Inject
+
   IdGenerator idGenerator;
 
   @Override

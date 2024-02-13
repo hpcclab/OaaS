@@ -1,12 +1,3 @@
-"%test":
-  oprc:
-    sa:
-      s3:
-        accessKey: accessKey
-        secretKey: secretKey
-        url: http://s3.test.com
-        publicUrl: http://s3.test.com
-
 "%dev":
   oprc:
     log: DEBUG

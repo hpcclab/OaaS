@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker.cdi;
 
 import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;

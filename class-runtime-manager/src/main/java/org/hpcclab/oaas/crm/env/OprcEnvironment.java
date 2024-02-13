@@ -14,7 +14,8 @@ public record OprcEnvironment (
   public record Config (String kafkaBootstrap,
                         String classManagerHost,
                         String classManagerPort,
-                        boolean exposeKnative) {}
+                        boolean exposeKnative,
+                        String logLevel) {}
   public record EnvResource(double cpu,
                             long mem){
     static final Quantity QUANTITY_ZERO = Quantity.parse("0");

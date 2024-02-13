@@ -32,7 +32,7 @@ public class OrbitResource {
   @GET
   public Uni<Pagination<OprcCr>> listOrbit(@RestQuery Integer limit,
                                            @RestQuery Integer offset) {
-    return stateManager.getRepo()
+    return stateManager.getCrRepo()
       .getQueryService()
       .paginationAsync(offset==null ? 0:offset, limit==null ? 20:limit);
   }
@@ -44,7 +44,7 @@ public class OrbitResource {
     var orbit = stateManager.get(id).await().indefinitely();
     if (orbit!=null) {
       var res = orbitManager.destroy(orbit);
-      stateManager.getRepo().delete(id);
+      stateManager.getCrRepo().delete(id);
       return res;
     }
     throw new NotFoundException();

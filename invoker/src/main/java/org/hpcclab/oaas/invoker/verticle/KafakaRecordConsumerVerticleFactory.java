@@ -7,13 +7,12 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
-import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
@@ -33,8 +32,9 @@ public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<Kafk
   InvokerConfig config;
   final
   ObjectRepoManager objectRepoManager;
-  final
-  LocationRegistry registry;
+//  final
+//  LocationRegistry registry;
+  final HashRegistry registry;
   final
   Vertx vertx;
 
@@ -42,7 +42,7 @@ public class KafakaRecordConsumerVerticleFactory implements VerticleFactory<Kafk
       Instance<OrderedInvocationHandlerVerticle> orderedInvokerVerticleInstance,
       Instance<LockingRecordHandlerVerticle> lockingInvokerVerticleInstance,
       InvokerConfig config, ObjectRepoManager objectRepoManager,
-      LocationRegistry registry, Vertx vertx) {
+      HashRegistry registry, Vertx vertx) {
         this.orderedInvokerVerticleInstance = orderedInvokerVerticleInstance;
         this.lockingInvokerVerticleInstance = lockingInvokerVerticleInstance;
         this.config = config;

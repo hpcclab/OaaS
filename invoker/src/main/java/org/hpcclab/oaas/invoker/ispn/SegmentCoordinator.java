@@ -5,7 +5,7 @@ import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.ispn.lookup.LocationRegistry;
+import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -27,7 +27,7 @@ public class SegmentCoordinator {
   final int partitions;
   final OClass cls;
   final KafkaConsumer<?, ?> consumer;
-  final LocationRegistry registry;
+  final HashRegistry registry;
   final SegmentObserver segmentObserver;
   final ObjectRepoManager objectRepoManager;
   AdvancedCache<?, ?> cache;
@@ -35,7 +35,7 @@ public class SegmentCoordinator {
   public SegmentCoordinator(OClass cls,
                             ObjectRepoManager objectRepoManager,
                             KafkaConsumer<?, ?> consumer,
-                            LocationRegistry registry,
+                            HashRegistry registry,
                             InvokerConfig config) {
     this.cls = cls;
     this.consumer = consumer;
@@ -84,9 +84,8 @@ public class SegmentCoordinator {
         }
         return Uni.createFrom().nullItem();
       })
-//      .call(__ -> consumer.partitionsFor(topic).invoke(p -> logger.info("parts {}", p)))
-      .invoke(__ ->
-        registry.update(cls.getKey(), cache, registry.getLocalhost(), port));
+      .invoke(__ -> registry.initLocal(cache.getCacheManager()))
+      .call(__ ->registry.updateLocal(cls.getKey(), cache, port));
   }
 
   @Listener

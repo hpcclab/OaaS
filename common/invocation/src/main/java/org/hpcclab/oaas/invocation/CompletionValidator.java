@@ -11,12 +11,12 @@ import org.hpcclab.oaas.repository.EntityRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
+
 public class CompletionValidator {
   EntityRepository<String, OClass> clsRepo;
   EntityRepository<String, OFunction> funcRepo;
 
-  @Inject
+
   public CompletionValidator(EntityRepository<String, OClass> clsRepo,
                              EntityRepository<String, OFunction> funcRepo) {
     this.clsRepo = clsRepo;

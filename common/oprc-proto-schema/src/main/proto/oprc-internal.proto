@@ -16,8 +16,11 @@ service DeploymentStatusUpdater {
   rpc updateFn(OFunctionStatusUpdate) returns (OprcResponse) {};
   rpc updateFnAll(OFunctionStatusUpdates) returns (OprcResponse) {};
 }
-service CrStateUpdater{
-  rpc updateOrbit(ProtoCr) returns (OprcResponse) {};
+service InternalCrStateService{
+  rpc updateCr(ProtoCr) returns (OprcResponse) {};
+  rpc updateHash(ProtoCrHash) returns (ProtoCrHash) {};
+  rpc getHash(SingleKeyQuery) returns (ProtoCrHash) {};
+  rpc listHash(PaginateQuery) returns (stream ProtoCrHash) {};
 }
 
 service CrManager{
@@ -62,6 +65,23 @@ message OFunctionStatusUpdate {
 }
 message OFunctionStatusUpdates {
   repeated OFunctionStatusUpdate updateList = 1;
+}
+
+message ProtoCrHash {
+  string cls = 1;
+  int32 numSegment = 2;
+  repeated ProtoApiAddress segmentAddr = 3;
+//  ProtoHashTopology hashTopology = 4;
+}
+
+message ProtoHashTopology {
+  int32 numSegment = 1;
+  repeated ProtoApiAddress segmentAddr = 2;
+}
+
+message ProtoApiAddress {
+  string host = 1;
+  int32 port = 2;
 }
 
 

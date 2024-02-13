@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
 public class UnifiedFunctionRouter implements FunctionApplier{
   private static final Logger LOGGER = LoggerFactory.getLogger(UnifiedFunctionRouter.class);
 
@@ -22,8 +21,8 @@ public class UnifiedFunctionRouter implements FunctionApplier{
   MacroFunctionApplier macroFunctionApplier;
   TaskFunctionApplier taskFunctionApplier;
   ContextLoader contextLoader;
-  @Inject
-  public UnifiedFunctionRouter(LogicalFunctionApplier logicalFunctionHandler,
+
+    public UnifiedFunctionRouter(LogicalFunctionApplier logicalFunctionHandler,
                                MacroFunctionApplier macroFunctionHandler,
                                TaskFunctionApplier taskFunctionHandler,
                                ContextLoader contextLoader) {

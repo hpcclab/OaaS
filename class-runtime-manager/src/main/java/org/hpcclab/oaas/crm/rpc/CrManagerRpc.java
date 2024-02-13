@@ -31,11 +31,11 @@ public class CrManagerRpc implements CrManager {
   @RunOnVirtualThread
   public Uni<CrOperationResponse> deploy(DeploymentUnit deploymentUnit) {
     try {
-      long orbitId = deploymentUnit.getCls()
-        .getStatus().getOrbitId();
+      long crId = deploymentUnit.getCls()
+        .getStatus().getCrId();
       var env = environmentManager.getEnvironment();
-      if (orbitId > 0) {
-        var controller = controllerManager.getOrLoad(orbitId, env);
+      if (crId > 0) {
+        var controller = controllerManager.getOrLoad(crId, env);
         var plan = controller.createDeploymentPlan(deploymentUnit);
         var operation = controller.createUpdateOperation(plan, deploymentUnit);
         return operationExecutor.applyOrRollback(controller, operation, env);

@@ -168,7 +168,8 @@ public class K8SCrController implements CrController {
         .formatted(prefix, namespace),
       "OPRC_CRID", Tsid.from(id).toLowerCase(),
       "OPRC_INVOKER_PMHOST", envConfig.classManagerHost(),
-      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort()
+      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort(),
+      "OPRC_LOG", envConfig.logLevel()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()

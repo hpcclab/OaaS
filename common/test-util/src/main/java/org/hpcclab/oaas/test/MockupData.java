@@ -178,6 +178,7 @@ public class MockupData {
     return Lists.fixedSize.of(
         FUNC_NEW.copy(),
         FUNC_1.copy(),
+        FUNC_2.copy(),
         MACRO_FUNC_1.copy(),
         ATOMIC_MACRO_FUNC.copy()
       )

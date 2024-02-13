@@ -9,13 +9,13 @@ import org.hpcclab.oaas.invocation.OObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ApplicationScoped
+
 public class TaskFunctionApplier implements FunctionApplier {
   private static final Logger logger = LoggerFactory.getLogger(TaskFunctionApplier.class);
 
   OObjectFactory objectFactory;
 
-  @Inject
+
   public TaskFunctionApplier(OObjectFactory objectFactory) {
     this.objectFactory = objectFactory;
   }

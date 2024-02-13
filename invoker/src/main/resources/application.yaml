@@ -11,6 +11,8 @@
     log: TRACE
     invoker:
       kafka: localhost:9092
+      loadMode: disabled
+    crid: "placeholer"
 
 "%dev":
   quarkus:
@@ -63,6 +65,11 @@ oprc:
     OPRC_DB_INV_HOST=localhost
     OPRC_DB_INV_PORT=8529
     OPRC_DB_INV_USER=root
+    OPRC_DB_S3DEFAULT_URL=http://localhost:9000
+    OPRC_DB_S3DEFAULT_BUCKET=oaas-bkt
+    OPRC_DB_S3DEFAULT_PUBLICURL=http://localhost:9000
+    OPRC_DB_S3DEFAULT_USER=minio_access_key
+    OPRC_DB_S3DEFAULT_PASS=minio_secret_key
 
 quarkus:
   grpc:

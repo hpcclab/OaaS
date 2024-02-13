@@ -12,12 +12,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
   nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CrMapper {
-  OrbitHash map(ProtoCrHash crHashed);
+  CrHash fromProto(ProtoCrHash crHashed);
 
-  OprcCr map(ProtoCr clsRuntime);
+  OprcCr fromProto(ProtoCr clsRuntime);
 
 
-  ProtoCrHash map(OrbitHash crHash);
+  ProtoCrHash toProto(CrHash crHash);
 
-  ProtoCr map(OprcCr clsRuntime);
+  ProtoCr toProto(OprcCr clsRuntime);
 }

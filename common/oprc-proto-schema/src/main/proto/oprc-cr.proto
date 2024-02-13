@@ -17,19 +17,3 @@ message ProtoCr {
 message ProtoCrState{
   string jsonDump = 1;
 }
-
-message ProtoCrHash {
-  int64 id = 1;
-  repeated string assignedCls = 2;
-  map<string, ProtoHashTopology> hashTopologies = 3;
-}
-
-message ProtoHashTopology {
-  int32 numSegment = 1;
-  repeated ProtoApiAddress segmentAddr = 2;
-}
-
-message ProtoApiAddress {
-  string host = 1;
-  int32 port = 2;
-}

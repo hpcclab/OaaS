@@ -1,19 +1,19 @@
-package org.hpcclab.oaas.invoker.ispn.lookup;
+package org.hpcclab.oaas.invoker.lookup;
 
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.proto.ProtoApiAddress;
 
 public class LookupManager {
-  int defaultSegmentSize = 64;
   ConcurrentMutableMap<String, ObjectLocationFinder> map = new ConcurrentHashMap<>();
-  final LocationRegistry registry;
+  final HashRegistry registry;
 
-  public LookupManager(LocationRegistry registry) {
+  public LookupManager(HashRegistry registry) {
     this.registry = registry;
   }
 
-  public LocationRegistry getRegistry() {
+  public HashRegistry getRegistry() {
     return registry;
   }
 
@@ -24,7 +24,7 @@ public class LookupManager {
     );
   }
 
-  public boolean isLocal(ApiAddress address) {
-    return address.host().equals(registry.getLocalhost());
+  public boolean isLocal(ProtoApiAddress address) {
+    return address.getHost().equals(registry.getLocalAdvertiseAddress());
   }
 }
