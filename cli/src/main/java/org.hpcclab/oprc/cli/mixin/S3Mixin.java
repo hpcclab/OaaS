@@ -1,4 +1,4 @@
-package pawissanutt.oprc.cli.mixin;
+package org.hpcclab.oprc.cli.mixin;
 
 import lombok.Data;
 import picocli.CommandLine;

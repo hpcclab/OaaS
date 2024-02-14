@@ -6,14 +6,14 @@ metadata:
     nginx.ingress.kubernetes.io/enable-cors: "true"
 spec:
   rules:
-    - host: "oc.oaas.127.0.0.1.nip.io"
+    - host: "pm.oaas.127.0.0.1.nip.io"
       http:
         paths:
           - pathType: Prefix
             path: /
             backend:
               service:
-                name: object-controller
+                name: package-manager
                 port:
                   number: 80
     - host: "inv.oaas.127.0.0.1.nip.io"
@@ -24,15 +24,5 @@ spec:
             backend:
               service:
                 name: invoker
-                port:
-                  number: 80
-    - host: "cds.127.0.0.1.nip.io"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: content-delivery-service
                 port:
                   number: 80

@@ -9,11 +9,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
+import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.DefaultQoSOptimizer;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
@@ -25,39 +27,49 @@ import java.util.Objects;
 @ApplicationScoped
 @Startup
 public class CrTemplateManager {
-  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
   final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
+  final CrmConfig crmConfig;
+  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
                            @GrpcClient("package-manager")
-                           DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
+                           DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
+                           CrmConfig crmConfig) {
     this.kubernetesClient = kubernetesClient;
+    this.crmConfig = crmConfig;
     Objects.requireNonNull(deploymentStatusUpdater);
     this.deploymentStatusUpdater = deploymentStatusUpdater;
-    loadTemplate();
+      try {
+          loadTemplate();
+      } catch (IOException e) {
+          throw new StdOaasException("Load template error",e);
+      }
   }
 
-  public void loadTemplate() {
+  public void loadTemplate() throws IOException {
+    CrtMappingConfig conf;
     var file = "/crts.yaml";
     var is = getClass().getResourceAsStream(file);
-    try {
-      var conf = yamlMapper.readValue(is, CrtMappingConfig.class);
-      if (conf.templates()==null || conf.templates().isEmpty()) {
-        return;
-      }
-      var m = new HashMap<String, ClassRuntimeTemplate>();
-      for (var configEntry : conf.templates().entrySet()) {
-        var template = createCrt(configEntry.getValue());
-        template.init();
-        m.put(configEntry.getKey(), template);
-      }
-      templateMap = Maps.immutable.ofMap(m);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    conf = yamlMapper.readValue(is, CrtMappingConfig.class);
+    if (conf.templates()==null || conf.templates().isEmpty()) {
+      return;
     }
+    var op = crmConfig.templateOverride();
+    if (op.isPresent()) {
+      String templateOverrideString = op.get();
+      var override =yamlMapper.readValue(templateOverrideString, CrtMappingConfig.class);
+      conf.templates().putAll(override.templates());
+    }
+    var m = new HashMap<String, ClassRuntimeTemplate>();
+    for (var configEntry : conf.templates().entrySet()) {
+      var template = createCrt(configEntry.getValue());
+      template.init();
+      m.put(configEntry.getKey(), template);
+    }
+    templateMap = Maps.immutable.ofMap(m);
   }
 
   private ClassRuntimeTemplate createCrt(CrtMappingConfig.CrtConfig config) {

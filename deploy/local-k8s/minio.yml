@@ -26,7 +26,7 @@ spec:
         app: minio
     spec:
       containers:
-        - name: object-controller
+        - name: minio
           env:
             - name: MINIO_ROOT_USER
               value: minio_access_key

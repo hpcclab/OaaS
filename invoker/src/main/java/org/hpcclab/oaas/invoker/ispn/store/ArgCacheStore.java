@@ -251,14 +251,14 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
     );
   }
 
-  <T> Multi<T> toMulti(Supplier<CompletionStage<ArangoCursorAsync<T>>> supplier) {
+  <D> Multi<D> toMulti(Supplier<CompletionStage<ArangoCursorAsync<D>>> supplier) {
     return Multi.createFrom().emitter(emitter -> pipe(supplier.get(), emitter));
   }
 
-  <T> void pipe(CompletionStage<ArangoCursorAsync<T>> stage, MultiEmitter<? super T> emitter) {
+  <D> void pipe(CompletionStage<ArangoCursorAsync<D>> stage, MultiEmitter<? super D> emitter) {
     stage.whenComplete((cursorAsync, throwable) -> {
       if (throwable!=null) emitter.fail(throwable);
-      for (T t : cursorAsync.getResult()) {
+      for (D t : cursorAsync.getResult()) {
         emitter.emit(t);
       }
       if (Boolean.TRUE.equals(cursorAsync.hasMore())) {
