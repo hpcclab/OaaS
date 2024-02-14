@@ -53,6 +53,8 @@ public interface InvokerConfig {
   LoadAssignMode loadMode();
   @WithDefault("none")
   List<String> initClass();
+  @WithDefault("true")
+  boolean warmHashCache();
 
   interface Url{
     String url();

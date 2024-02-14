@@ -68,8 +68,8 @@ public class InvokerInitializer {
       registry.updateFunction(fn);
     });
     clsListener.start().await().indefinitely();
-
-    hashRegistry.warmCache().await().indefinitely();
+    if (config.warmHashCache())
+      hashRegistry.warmCache().await().indefinitely();
     hashListener.setHandler(hash -> hashRegistry.getMap().put(hash.getCls(), hash));
     hashListener.start().await().indefinitely();
   }

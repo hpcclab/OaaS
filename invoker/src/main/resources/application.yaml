@@ -12,6 +12,7 @@
     invoker:
       kafka: localhost:9092
       loadMode: disabled
+      warmHashCache: false
     crid: "placeholer"
 
 "%dev":
@@ -34,6 +35,7 @@
         secretKey: minio_access_key
       useSa: false
       clusterLock: true
+      warmHashCache: false
       loadMode: disabled
 
 oprc:
