@@ -7,11 +7,13 @@
     kafka:
       devservices:
         port: 9092
-  oaas:
+  oprc:
     log: TRACE
     invoker:
       kafka: localhost:9092
-      storageAdapterUrl: "http://localhost:8000"
+      loadMode: disabled
+      warmHashCache: false
+    crid: "placeholer"
 
 "%dev":
   quarkus:
@@ -19,11 +21,12 @@
       port: 8089
     devservices:
       enabled: false
-  oaas:
+  oprc:
     log: DEBUG
     invoker:
       kafka: PLAINTEXT://localhost:19092
-      storageAdapterUrl: http://localhost:8090
+      sa:
+        url: http://localhost:8090
       s3:
         url: http://localhost:9000
         publicUrl: http://localhost:9000
@@ -32,18 +35,17 @@
         secretKey: minio_access_key
       useSa: false
       clusterLock: true
-    ispn:
-      argConnection:
-        host: localhost
-        port: 8529
-        user: root
-        pass: changeme
-        db: oaas
+      warmHashCache: false
+      loadMode: disabled
 
-
-oaas:
+oprc:
   log: INFO
   name: invoker
+  invoker:
+    sa:
+      url: http://localhost:8090
+    pmHost: localhost
+    pmPort: 8088
   ispn:
     objStore:
       maxCount: 1000000
@@ -55,16 +57,38 @@ oaas:
     fnStore:
       maxCount: 10000
       storageType: HEAP
-
+  env: |
+    OPRC_DB_PKG_HOST=localhost
+    OPRC_DB_PKG_PORT=8529
+    OPRC_DB_PKG_USER=root
+    OPRC_DB_DEFAULT_HOST=localhost
+    OPRC_DB_DEFAULT_PORT=8529
+    OPRC_DB_DEFAULT_USER=root
+    OPRC_DB_INV_HOST=localhost
+    OPRC_DB_INV_PORT=8529
+    OPRC_DB_INV_USER=root
+    OPRC_DB_S3DEFAULT_URL=http://localhost:9000
+    OPRC_DB_S3DEFAULT_BUCKET=oaas-bkt
+    OPRC_DB_S3DEFAULT_PUBLICURL=http://localhost:9000
+    OPRC_DB_S3DEFAULT_USER=minio_access_key
+    OPRC_DB_S3DEFAULT_PASS=minio_secret_key
 
 quarkus:
+  grpc:
+    server:
+      use-separate-server: false
+    clients:
+      package-manager:
+        host: ${oprc.invoker.pmHost}
+        port: ${oprc.invoker.pmPort}
+
   s3:
     devservices:
       enabled: false
   naming:
     enable-jndi: true
   console:
-    color: true
+    color: false
   http:
     access-log:
       enabled: true
@@ -76,12 +100,9 @@ quarkus:
   log:
     category:
       "org.hpcclab.oaas":
-        level: ${oaas.log}
+        level: ${oprc.log}
   container-image:
-    image: ${ci.registry.image:oaas}/${oaas.name}${tag:}
-  jib:
-    base-jvm-image: eclipse-temurin:17-jre-ubi9-minimal
-    jvm-arguments: -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+    image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
   micrometer:
     export:
       json:

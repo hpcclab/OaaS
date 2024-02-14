@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.model.exception;
 
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.object.OObject;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -9,10 +8,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InvocationException extends StdOaasException {
-
-  TaskCompletion taskCompletion;
+  String invId;
   boolean retryable = true;
   boolean connErr = false;
+
   public InvocationException(String message, Throwable cause) {
     super(message, cause, true, 500);
   }
@@ -29,9 +28,9 @@ public class InvocationException extends StdOaasException {
     super(message, cause, true, code);
   }
 
-  public InvocationException(Throwable cause, TaskCompletion taskCompletion) {
+  public InvocationException(Throwable cause, String invId) {
     super(null, cause);
-    this.taskCompletion = taskCompletion;
+    this.invId = invId;
   }
 
   public static InvocationException detectConcurrent(Throwable e) {
@@ -39,32 +38,27 @@ public class InvocationException extends StdOaasException {
       HttpURLConnection.HTTP_CONFLICT);
   }
 
-  public static InvocationException notReady(List<Map.Entry<OaasObject, OaasObject>> waiting,
-                                             List<OaasObject> failed) {
+  public static InvocationException notReady(List<Map.Entry<OObject, OObject>> waiting,
+                                             List<OObject> failed) {
     return new InvocationException("Dependencies are not ready. {waiting:[%s], failed:[%s]}"
       .formatted(
         waiting.stream()
           .map(entry -> entry.getKey().getId() + ">>" + entry.getValue().getId())
           .collect(Collectors.joining(", ")),
         failed.stream()
-          .map(OaasObject::getId)
+          .map(OObject::getId)
           .collect(Collectors.joining(", "))),
       409);
   }
 
   public static InvocationException connectionErr(Throwable e) {
-    var ex =  new InvocationException("Connection Error", e, HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
+    var ex = new InvocationException("Connection Error", e, HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
     ex.connErr = true;
     return ex;
   }
 
-  public TaskCompletion getTaskCompletion() {
-    return taskCompletion;
-  }
-
-  public InvocationException setTaskCompletion(TaskCompletion taskCompletion) {
-    this.taskCompletion = taskCompletion;
-    return this;
+  public static StdOaasException notFoundFnInCls(String fb, String cls) {
+    return new StdOaasException("Not found FunctionBinding(" + fb + ") in Class(" + cls + ")", 400);
   }
 
   public boolean isRetryable() {
@@ -79,4 +73,7 @@ public class InvocationException extends StdOaasException {
     return connErr;
   }
 
+  public String getInvId() {
+    return invId;
+  }
 }

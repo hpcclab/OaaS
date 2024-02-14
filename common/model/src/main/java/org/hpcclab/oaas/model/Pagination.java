@@ -15,8 +15,8 @@ public class Pagination <T>{
   long itemCount = -1;
   List<T> items;
 
-  public Pagination(long total, long start, long itemCount, List<T> items) {
-    this.total = total;
+  public Pagination(Number total, long start, long itemCount, List<T> items) {
+    this.total = total == null? -1: total.longValue();
     this.offset = start;
     this.itemCount = itemCount;
     this.items = items;

@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
 public class OneShotDataflowInvoker implements DataflowInvoker {
   private static final Logger logger = LoggerFactory.getLogger( OneShotDataflowInvoker.class );
   OffLoader offLoader;
@@ -24,7 +23,6 @@ public class OneShotDataflowInvoker implements DataflowInvoker {
   CompletedStateUpdater completedStateUpdater;
   GraphStateManager graphStateManager;
 
-  @Inject
   public OneShotDataflowInvoker(OffLoader offLoader,
                                 TaskFactory taskFactory,
                                 CompletedStateUpdater completedStateUpdater,

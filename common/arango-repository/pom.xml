@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>oaas-common</artifactId>
+    <artifactId>oprc-common</artifactId>
     <groupId>org.hpcclab.oaas</groupId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
@@ -12,6 +12,7 @@
   <artifactId>arango-repository</artifactId>
 
   <properties>
+    <arango.version>7.5.1</arango.version>
   </properties>
 
   <dependencyManagement>
@@ -40,17 +41,17 @@
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>
-      <version>6.25.0</version>
+      <version>${arango.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.apache.camel.quarkus</groupId>-->
-<!--      <artifactId>camel-quarkus-arangodb</artifactId>-->
-<!--      <version>2.16.0</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>com.arangodb</groupId>
-      <artifactId>jackson-dataformat-velocypack</artifactId>
-      <version>4.1.0</version>
+      <artifactId>vst-protocol</artifactId>
+      <version>${arango.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>jackson-serde-vpack</artifactId>
+      <version>${arango.version}</version>
     </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
@@ -68,7 +69,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
+      <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -86,19 +87,6 @@
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.smallrye</groupId>
-        <artifactId>jandex-maven-plugin</artifactId>
-        <version>3.1.5</version>
-        <executions>
-          <execution>
-            <id>make-index</id>
-            <goals>
-              <goal>jandex</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

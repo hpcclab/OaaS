@@ -9,13 +9,12 @@ import org.hpcclab.oaas.invocation.applier.MacroFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.TaskFunctionApplier;
 import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
 import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
-import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.RouterInvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invocation.validate.DefaultInvocationValidator;
-import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.*;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
@@ -27,19 +26,19 @@ public class MockInvocationEngine {
 
   public boolean debug = true;
   public final UnifiedFunctionRouter router;
-  public final EntityRepository<String, OaasObject> objectRepo;
-  public final EntityRepository<String, InvocationNode> invRepo;
+  public final ObjectRepoManager objectRepoManager;
+  public final InvRepoManager invRepoManager;
   public final GraphStateManager graphStateManager;
   public final MockInvocationQueueSender invocationQueueSender;
   public final MockOffLoader syncInvoker;
   public final InvocationExecutor invocationExecutor;
-  public final MutableMap<String, OaasObject> objectMap;
+  public final MutableMap<String, OObject> objectMap;
   public final OneShotDataflowInvoker dataflowInvoker;
   public final CompletedStateUpdater completedStateUpdater;
   public final TaskFactory taskFactory;
   public final RepoContextLoader loader;
   public final IdGenerator idGen;
-  public final InvocationReqHandler invocationHandlerService;
+  public final RouterInvocationReqHandler invocationHandlerService;
 
   public MockInvocationEngine() {
     var objects = MockupData.testObjects();
@@ -47,22 +46,22 @@ public class MockInvocationEngine {
     var functions = MockupData.testFunctions();
     var nodes = MockupData.testNodes();
     objectMap = Lists.mutable.ofAll(objects)
-      .groupByUniqueKey(OaasObject::getId);
+      .groupByUniqueKey(OObject::getId);
     var invNodeMap = Lists.mutable.ofAll(nodes)
       .groupByUniqueKey(InvocationNode::getKey);
     loader = MockupData.mockContextLoader(objectMap, classes, functions, invNodeMap);
-    objectRepo = loader.getObjectRepo();
-    invRepo = loader.getInvNodeRepo();
+    objectRepoManager = loader.getObjManager();
+    invRepoManager = loader.getInvRepoManager();
     idGen = new TsidGenerator();
-    var objectFactory = new OaasObjectFactory(idGen);
+    var objectFactory = new OObjectFactory(idGen);
     var logicalApplier = new LogicalFunctionApplier(idGen);
     var taskApplier = new TaskFunctionApplier(objectFactory);
     var macroApplier = new MacroFunctionApplier(loader, objectFactory);
     router = new UnifiedFunctionRouter(logicalApplier, macroApplier, taskApplier, loader);
 
-    graphStateManager = new GraphStateManager(invRepo, objectRepo);
+    graphStateManager = new GraphStateManager(invRepoManager, objectRepoManager);
     var contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8080");
-    taskFactory = new TaskFactory(contentUrlGenerator, new TsidGenerator());
+    taskFactory = new TaskFactory(contentUrlGenerator);
     invocationQueueSender = new MockInvocationQueueSender(taskFactory);
     syncInvoker = new MockOffLoader();
     completedStateUpdater = new CompletedStateUpdater(new CompletionValidator(loader.getClsRepo(), loader.getFuncRepo()));
@@ -81,11 +80,11 @@ public class MockInvocationEngine {
       graphStateManager
     );
     var invValidator = new DefaultInvocationValidator(
-      objectRepo,
+      objectRepoManager,
       loader.getFuncRepo(),
       loader.getClsRepo()
     );
-    invocationHandlerService = new InvocationReqHandler(
+    invocationHandlerService = new RouterInvocationReqHandler(
       router,
       invocationExecutor,
       invocationQueueSender,
@@ -94,11 +93,9 @@ public class MockInvocationEngine {
     );
   }
 
-  public void printDebug(InvocationContext ctx) {
+  public void printDebug() {
     if (debug && logger.isDebugEnabled()) {
       logger.debug("TASK MAP: {}", Json.encodePrettily(invocationQueueSender.multimap.toMap()));
-      logger.debug("NODES: {}", Json.encodePrettily(
-        ((MapEntityRepository<String, InvocationNode>)invRepo).getMap()));
       int i = 0;
       for (var o : objectMap) {
         logger.debug("REPO OBJ {}: {}", i, Json.encode(o));

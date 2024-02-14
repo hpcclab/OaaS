@@ -29,8 +29,8 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
 
 
   public ArgCacheStoreConfig(AttributeSet attributes, AsyncStoreConfiguration async) {
-//    super(Element.STORE, attributes, async);
-    super(attributes, async);
+    super(Element.STORE, attributes, async);
+//    super(attributes, async);
   }
 
   public static AttributeSet attributeDefinitionSet() {

@@ -9,17 +9,14 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.model.oal.OalResponse;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
-import org.hpcclab.oaas.model.task.TaskDetail;
-import org.hpcclab.oaas.model.task.TaskStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -28,39 +25,38 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString(
-  callSuper = true,
   exclude = {"parent", "dataflowGraph"}
 )
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class InvocationContext implements TaskDetail {
+public class InvocationContext implements RoutableTaskMeta {
   @JsonIgnore
   InvocationContext parent;
-  OaasObject output;
-  OaasObject main;
-  Map<String, OaasObject> mainRefs;
-  OaasFunction function;
-  List<OaasObject> inputs = List.of();
+  OObject output;
+  OObject main;
+  Map<String, OObject> mainRefs;
+  OFunction function;
+  List<OObject> inputs = List.of();
   Map<String, String> args = Map.of();
   boolean immutable;
   InvocationNode node;
-  OaasClass mainCls;
-  OaasClass outputCls;
-  List<OaasObject> subOutputs = Lists.mutable.empty();
+  OClass mainCls;
+  OClass outputCls;
+  List<OObject> subOutputs = Lists.mutable.empty();
   FunctionBinding fb;
-  Map<String, OaasObject> workflowMap = Maps.mutable.empty();
+  Map<String, OObject> workflowMap = Maps.mutable.empty();
   List<InvocationContext> subContexts = Lists.mutable.empty();
   TaskCompletion completion;
   InvocationRequest request;
   @JsonIgnore
   DataflowGraph dataflowGraph;
-  Map<String, OaasClass> clsMap = Map.of();
+  Map<String, OClass> clsMap = Map.of();
   ObjectNode respBody;
 
   long mqOffset = -1;
 
 
-  public void addTaskOutput(OaasObject object) {
+  public void addTaskOutput(OObject object) {
     if (object==null) return;
     subOutputs.add(object);
     if (parent!=null) {
@@ -93,18 +89,19 @@ public class InvocationContext implements TaskDetail {
     return false;
   }
 
-  public OaasObject resolveDataflowRef(String ref) {
+  public OObject resolveDataflowRef(String ref) {
     if (ref.equals("$")) {
       return getMain();
     }
     if (ref.startsWith("$.")) {
-      var res = getMain().findReference(ref.substring(2));
-      if (res.isPresent()) {
-        var obj = getMainRefs().get(res.get().getName());
+      var refName = ref.substring(2);
+      if (getMain().getRefs().containsKey(refName)) {
+        var obj = getMainRefs().get(refName);
         if (obj!=null)
           return obj;
         else
-          throw FunctionValidationException.cannotResolveMacro(ref, "object not found");
+          throw FunctionValidationException.cannotResolveMacro(ref,
+            "object not found");
       }
     }
     if (ref.startsWith("#")) {
@@ -124,23 +121,24 @@ public class InvocationContext implements TaskDetail {
     throw FunctionValidationException.cannotResolveMacro(ref, null);
   }
 
+
+
   public InvocationNode initNode() {
-    var node = getNode();
     if (node!=null)
       return node;
     node = new InvocationNode();
     if (request!=null) {
       node.setKey(request.invId());
-      node.setOutId(request.outId());
+      node.setOutId(output != null? output.getId(): null);
       node.setInputs(request.inputs());
     } else {
       node.setKey(getOutput().getId());
       node.setOutId(getOutput().getId());
-      node.setInputs(getInputs().stream().map(OaasObject::getId).toList());
+      node.setInputs(getInputs().stream().map(OObject::getId).toList());
     }
     node.setFb(getFbName());
-    node.setArgs(KvPair.fromMap(getArgs()));
-    node.setMain(getMain().getId());
+    node.setArgs(DSMap.copy(getArgs()));
+    node.setMain(getMain().getKey());
     node.setCls(getMainCls().getKey());
     setNode(node);
     return node;
@@ -149,7 +147,7 @@ public class InvocationContext implements TaskDetail {
   public InvocationRequest.InvocationRequestBuilder toRequest() {
     return initNode()
       .toReq()
-      .macro(function.getType() == FunctionType.MACRO)
+      .macro(function.getType()==FunctionType.MACRO)
       .immutable(getFb().isForceImmutable());
   }
 
@@ -172,14 +170,14 @@ public class InvocationContext implements TaskDetail {
     return function.getKey();
   }
 
-  public OalResponse.OalResponseBuilder createResponse() {
-    return OalResponse.builder()
+  public InvocationResponse.InvocationResponseBuilder createResponse() {
+    return InvocationResponse.builder()
       .invId(request.invId())
       .main(getMain())
       .output(getOutput())
       .fb(getFbName())
-      .status(node == null? null : node.getStatus())
+      .status(node==null ? null:node.getStatus())
       .body(respBody)
-      .stats(node == null? null : node.extractStats());
+      .stats(node==null ? null:node.extractStats());
   }
 }

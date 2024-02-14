@@ -3,10 +3,8 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.state.KeySpecification;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -14,37 +12,31 @@ import java.util.Map;
 public class DataAllocateRequest {
   String oid;
   String vid;
-  List<KeySpecification> keys;
-  String defaultProvider;
+  List<String> keys;
+  String provider;
   boolean publicUrl = false;
 
   public DataAllocateRequest() {
   }
 
-  public DataAllocateRequest(String oid, List<KeySpecification> keys, boolean publicUrl) {
-    this.oid = oid;
-    this.vid = oid;
-    this.keys = keys;
-    this.publicUrl = publicUrl;
-  }
 
-  public DataAllocateRequest(String oid, List<KeySpecification> keys, String defaultProvider, boolean publicUrl) {
+  public DataAllocateRequest(String oid, List<String> keys, String provider, boolean publicUrl) {
     this.oid = oid;
     this.vid = oid;
     this.keys = keys;
-    this.defaultProvider = defaultProvider;
+    this.provider = provider;
     this.publicUrl = publicUrl;
   }
 
   public DataAllocateRequest(String oid,
                              String vid,
-                             List<KeySpecification> keys,
-                             String defaultProvider,
+                             List<String> keys,
+                             String provider,
                              boolean publicUrl) {
     this.oid = oid;
     this.vid = vid;
     this.keys = keys;
-    this.defaultProvider = defaultProvider;
+    this.provider = provider;
     this.publicUrl = publicUrl;
   }
 }

@@ -1,0 +1,88 @@
+syntax = "proto3";
+import "oprc-package.proto";
+import "oprc-class.proto";
+import "oprc-function.proto";
+import "oprc-cr.proto";
+import "oprc-common.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service DeploymentStatusUpdater {
+  rpc updateCls(OClassStatusUpdate) returns (OprcResponse) {};
+  rpc updateClsAll(OClassStatusUpdates) returns (OprcResponse) {};
+  rpc updateFn(OFunctionStatusUpdate) returns (OprcResponse) {};
+  rpc updateFnAll(OFunctionStatusUpdates) returns (OprcResponse) {};
+}
+service InternalCrStateService{
+  rpc updateCr(ProtoCr) returns (OprcResponse) {};
+  rpc updateHash(ProtoCrHash) returns (ProtoCrHash) {};
+  rpc getHash(SingleKeyQuery) returns (ProtoCrHash) {};
+  rpc listHash(PaginateQuery) returns (stream ProtoCrHash) {};
+}
+
+service CrManager{
+  rpc deploy(DeploymentUnit) returns (CrOperationResponse) {};
+  rpc update(CrUpdateRequest) returns (CrOperationResponse) {};
+  rpc destroy(ProtoCr) returns (OprcResponse) {};
+  rpc detach(DetachCrRequest) returns (CrOperationResponse) {};
+}
+
+message CrUpdateRequest{
+  ProtoCr orbit = 1;
+  DeploymentUnit unit = 2;
+}
+
+message DetachCrRequest{
+  ProtoCr orbit = 1;
+  ProtoOClass cls = 2;
+}
+
+message DeploymentUnit{
+  ProtoOClass cls = 1;
+  repeated ProtoOFunction fnList = 2;
+}
+
+message CrOperationResponse{
+  ProtoCr cr = 1;
+  repeated OClassStatusUpdate clsUpdates = 2;
+  repeated OFunctionStatusUpdate fnUpdates = 3;
+}
+
+message OClassStatusUpdate {
+  string key = 1;
+  ProtoOClassDeploymentStatus status = 2;
+}
+message OClassStatusUpdates {
+  repeated OClassStatusUpdate updateList = 1;
+}
+
+message OFunctionStatusUpdate {
+  string key = 1;
+  ProtoOFunctionDeploymentStatus status = 2;
+}
+message OFunctionStatusUpdates {
+  repeated OFunctionStatusUpdate updateList = 1;
+}
+
+message ProtoCrHash {
+  string cls = 1;
+  int32 numSegment = 2;
+  repeated ProtoApiAddress segmentAddr = 3;
+//  ProtoHashTopology hashTopology = 4;
+}
+
+message ProtoHashTopology {
+  int32 numSegment = 1;
+  repeated ProtoApiAddress segmentAddr = 2;
+}
+
+message ProtoApiAddress {
+  string host = 1;
+  int32 port = 2;
+}
+
+
+

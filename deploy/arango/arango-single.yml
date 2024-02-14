@@ -25,10 +25,12 @@ spec:
     spec:
       containers:
         - name: arangodb
-          image: arangodb:3.10
+          image: arangodb:3.11
           env:
-            - name: ARANGO_ROOT_PASSWORD
-              value: changeme
+#            - name: ARANGO_ROOT_PASSWORD
+#              value: changeme
+            - name: ARANGO_NO_AUTH
+              value: "1"
           ports:
             - containerPort: 8529
           volumeMounts:

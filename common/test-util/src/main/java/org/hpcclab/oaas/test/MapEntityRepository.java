@@ -1,23 +1,25 @@
 package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.repository.AtomicOperationService;
-import org.hpcclab.oaas.repository.DefaultAtomicOperationService;
-import org.hpcclab.oaas.repository.EntityRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.invocation.InvocationNode;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class MapEntityRepository<K, V extends HasKey<K>> implements EntityRepository<K, V > {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MapEntityRepository.class);
+public class MapEntityRepository<K, V extends HasKey<K>> implements EntityRepository<K, V>
+  , AsyncEntityRepository<K, V> {
   MutableMap<K, V> map;
   Function<V, K> keyExtractor;
 
@@ -36,6 +38,11 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   }
 
   @Override
+  public AsyncEntityRepository<K, V> async() {
+    return this;
+  }
+
+  @Override
   public Uni<V> getAsync(K key) {
     return Uni.createFrom().item(get(key));
   }
@@ -50,6 +57,11 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     return Uni.createFrom().item(list(keys));
   }
 
+  @Override
+  public Uni<List<V>> orderedListAsync(Collection<K> keys) {
+    return AsyncEntityRepository.super.orderedListAsync(keys);
+  }
+
 
   @Override
   public V remove(K key) {
@@ -59,6 +71,11 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   @Override
   public Uni<V> removeAsync(K key) {
     return Uni.createFrom().item(map.remove(key));
+  }
+
+  @Override
+  public Uni<Void> deleteAsync(K key) {
+    return AsyncEntityRepository.super.deleteAsync(key);
   }
 
   @Override
@@ -73,25 +90,27 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     return Uni.createFrom().item(put(key, value));
   }
 
-  //  @Override
-  public Uni<Void> putAllAsync(Map<K, V> m) {
-    m.forEach(this::put);
-    return Uni.createFrom().voidItem();
+  @Override
+  public V persist(V v) {
+    return put(v.getKey(), v);
   }
-
 
   @Override
   public Uni<V> persistAsync(V v) {
-    LOGGER.debug("persistAsync {}", v);
-    return putAsync(keyExtractor.apply(v), v);
+    return Uni.createFrom().item(persist(v));
   }
 
   @Override
   public Uni<Void> persistAsync(Collection<V> collection) {
-    LOGGER.debug("persistAsync {}", collection);
-    var m = Lists.fixedSize.ofAll(collection)
-      .groupByUniqueKey(keyExtractor::apply);
-    return putAllAsync(m);
+    var map = collection.stream().collect(Collectors.toMap(HasKey::getKey, Function.identity()));
+    return putAllAsync(map);
+  }
+
+
+  //  @Override
+  public Uni<Void> putAllAsync(Map<K, V> m) {
+    m.forEach(this::put);
+    return Uni.createFrom().voidItem();
   }
 
   @Override
@@ -117,5 +136,90 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   @Override
   public AtomicOperationService<K, V> atomic() {
     return new DefaultAtomicOperationService<>(this);
+  }
+
+  @Override
+  public QueryService<K, V> getQueryService() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static class MapObjectRepository extends MapEntityRepository<String, OObject> implements ObjectRepository {
+    public MapObjectRepository(MutableMap<String, OObject> map) {
+      super(map, OObject::getKey);
+    }
+  }
+
+  public static class MapInvRepository extends MapEntityRepository<String, InvocationNode> implements InvNodeRepository {
+    public MapInvRepository(MutableMap<String, InvocationNode> map) {
+      super(map, InvocationNode::getKey);
+    }
+  }
+
+  public static class MapClsRepository extends MapEntityRepository<String, OClass> implements ClassRepository {
+    public MapClsRepository(MutableMap<String, OClass> map) {
+      super(map, OClass::getKey);
+    }
+  }
+
+  public static class MapFnRepository extends MapEntityRepository<String, OFunction> implements FunctionRepository {
+    public MapFnRepository(MutableMap<String, OFunction> map) {
+      super(map, OFunction::getKey);
+    }
+  }
+
+  public static class MapObjectRepoManager extends ObjectRepoManager {
+
+    MutableMap<String, OClass> clsMap;
+
+    public MapObjectRepoManager(MutableMap<String, OObject> map,
+                                MutableMap<String, OClass> clsMap
+    ) {
+      var bagMultimap = map.groupBy(OObject::getCls);
+      bagMultimap.keyMultiValuePairsView()
+        .forEach(pair -> {
+          MutableMap<String, OObject> objs = pair.getTwo()
+            .toMap(OObject::getId, o -> o);
+          repoMap.put(pair.getOne(), new MapObjectRepository(objs));
+        });
+      this.clsMap = clsMap;
+    }
+
+    @Override
+    public ObjectRepository createRepo(OClass cls) {
+      return new MapObjectRepository(Maps.mutable.empty());
+    }
+
+    @Override
+    protected OClass load(String clsKey) {
+      return clsMap.get(clsKey);
+    }
+  }
+
+  public static class MapInvRepoManager extends InvRepoManager {
+
+    MutableMap<String, OClass> clsMap;
+
+    public MapInvRepoManager(MutableMap<String, InvocationNode> map,
+                             MutableMap<String, OClass> clsMap
+    ) {
+      var bagMultimap = map.groupBy(InvocationNode::getCls);
+      bagMultimap.keyMultiValuePairsView()
+        .forEach(pair -> {
+          MutableMap<String, InvocationNode> invs = pair.getTwo()
+            .toMap(InvocationNode::getKey, o -> o);
+          repoMap.put(pair.getOne(), new MapInvRepository(invs));
+        });
+      this.clsMap = clsMap;
+    }
+
+    @Override
+    public InvNodeRepository createRepo(OClass cls) {
+      return new MapInvRepository(Maps.mutable.empty());
+    }
+
+    @Override
+    protected OClass load(String clsKey) {
+      return clsMap.get(clsKey);
+    }
   }
 }

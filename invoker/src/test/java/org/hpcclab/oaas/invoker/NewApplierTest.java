@@ -6,11 +6,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.ObjectConstructRequest;
+import org.hpcclab.oaas.invocation.applier.logical.ObjectConstructRequest;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.ObjectRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.test.MockupData;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,18 +29,16 @@ public class NewApplierTest {
   private static final Logger logger = LoggerFactory.getLogger( NewApplierTest.class );
 
   @Inject
-  ObjectRepository objectRepo;
-  @Inject
-  ClassRepository clsRepo;
-  @Inject
-  FunctionRepository fnRepo;
-  @Inject
   ObjectMapper mapper;
-
+  @Inject
+  ClassControllerRegistry registry;
 
   @BeforeEach
   void setup() {
-    MockupData.persistMock(objectRepo, clsRepo, fnRepo);
+    registry.registerOrUpdate(MockupData.CLS_1)
+      .await().indefinitely();
+    registry.registerOrUpdate(MockupData.CLS_2)
+      .await().indefinitely();
   }
 
   @Test
@@ -52,9 +51,9 @@ public class NewApplierTest {
       null,
       MockupData.CLS_1_KEY,
       "new",
+      mapper.valueToTree(req),
       null,
-      null,
-      mapper.valueToTree(req)
+      null
     );
     logger.info("oal {}", oal);
     given()

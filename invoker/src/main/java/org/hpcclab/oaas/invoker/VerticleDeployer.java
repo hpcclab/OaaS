@@ -1,184 +1,145 @@
 package org.hpcclab.oaas.invoker;
 
-import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.kafka.admin.NewTopic;
 import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.kafka.admin.KafkaAdminClient;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.hpcclab.oaas.invoker.verticle.VerticleFactory;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.function.FunctionState;
-import org.hpcclab.oaas.model.function.FunctionType;
-import org.hpcclab.oaas.model.function.OaasFunction;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.proto.ProtoOClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
-@RegisterForReflection(
-  targets = {
-    OaasFunction.class
-  },
-  registerFullHierarchy = true
-)
 public class VerticleDeployer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(VerticleDeployer.class);
-  @Inject
-  FunctionRepository funcRepo;
-  @Inject
-  FunctionListener functionListener;
-  @Inject
-  ClassRepository clsRepo;
-  @Inject
-  ClassListener clsListener;
-  @Inject
-  VerticleFactory<?> verticleFactory;
-  @Inject
-  Vertx vertx;
-  @Inject
-  InvokerConfig config;
-
+  private static final Logger logger = LoggerFactory.getLogger(VerticleDeployer.class);
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
 
-  void init(@Observes StartupEvent event) {
-    deployPerCls();
-  }
+  VerticleFactory<?> verticleFactory;
+  Vertx vertx;
+  InvokerConfig config;
+  KafkaAdminClient adminClient;
+  final ProtoMapper protoMapper = new ProtoMapperImpl();
 
-  void deployPerFunc() {
-    var funcList = funcRepo.values()
-      .select().first(1000)
-      .collect().asList().await().indefinitely();
-
-    functionListener.setHandler(func -> {
-      LOGGER.info("receive func[{}] update event", func.getKey());
-      funcRepo.delete(func.getKey());
-      handleFunc(func);
-    });
-    functionListener.start().await().indefinitely();
-
-    for (var func : funcList) {
-      handleFunc(func);
-    }
-  }
-
-  void deployPerCls() {
-    var clsList = clsRepo.values()
-      .select().first(1000)
-      .collect().asList().await().indefinitely();
-
-    clsListener.setHandler(cls -> {
-      LOGGER.info("receive cls[{}] update event", cls.getKey());
-      clsRepo.delete(cls.getKey());
-      handleCls(cls);
-    });
-    clsListener.start().await().indefinitely();
-
-    for (var cls : clsList) {
-      handleCls(cls);
-    }
+  public VerticleDeployer(VerticleFactory<?> verticleFactory,
+                          Vertx vertx,
+                          InvokerConfig config,
+                          KafkaAdminClient adminClient) {
+    this.verticleFactory = verticleFactory;
+    this.vertx = vertx;
+    this.config = config;
+    this.adminClient = adminClient;
   }
 
 
-  void handleFunc(OaasFunction func) {
-    if (func.getType()==FunctionType.LOGICAL)
-      return;
-    if (func.getState()==FunctionState.ENABLED) {
-      deployVerticleIfNew(func.getKey())
-        .subscribe().with(
-          __ -> {},
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", func.getKey(), e)
-        );
-    } else if (func.getState()==FunctionState.REMOVING || func.getState()==FunctionState.DISABLED) {
-      deleteVerticle(func.getKey())
-        .subscribe().with(
-          __ -> { },
-          e -> LOGGER.error("Cannot delete verticle for [{}]", func.getKey(), e)
-        );
-    }
+  void handleCls(ProtoOClass cls) {
+    createTopic(cls)
+      .flatMap(v -> deployVerticleIfNew(cls))
+      .subscribe().with(
+        v -> {
+        },
+        e -> logger.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
+      );
   }
 
-  void handleCls(OaasClass cls) {
-    if (!cls.isMarkForRemoval()) {
-      deployVerticleIfNew(cls.getKey())
-        .subscribe().with(
-          __ -> {},
-          e -> LOGGER.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
-        );
-    } else {
-      LOGGER.info("deleting {}", cls.getKey());
-      deleteVerticle(cls.getKey())
-        .subscribe().with(
-          __ -> {},
-          e -> LOGGER.error("Cannot delete verticle for [{}]", cls.getKey(), e)
-        );
-    }
+  Uni<Void> createTopic(OClass cls) {
+    var topicName = config.invokeTopicPrefix() + cls.getKey();
+    return adminClient.listTopics()
+      .flatMap(topics -> {
+        var topicExist = topics.contains(topicName);
+        if (!topicExist) {
+          var conf = cls.getConfig();
+          return adminClient.createTopics(List.of(
+            new NewTopic(topicName,
+              conf==null ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
+              (short) 1)
+          ));
+        }
+        return Uni.createFrom().nullItem();
+      });
   }
 
-  void cleanup(@Observes ShutdownEvent event) {
-    Multi.createFrom().iterable(verticleMap.values())
-      .flatMap(set -> Multi.createFrom().iterable(set))
-      .call(vert -> vertx.undeploy(vert.deploymentID()))
-      .collect()
-      .asList()
-      .replaceWithVoid()
-      .await().indefinitely();
+  Uni<Void> createTopic(ProtoOClass cls) {
+    var topicName = config.invokeTopicPrefix() + cls.getKey();
+    return adminClient.listTopics()
+      .flatMap(topics -> {
+        var topicExist = topics.contains(topicName);
+        if (!topicExist) {
+          var conf = cls.getConfig();
+          return adminClient.createTopics(List.of(
+            new NewTopic(topicName,
+              conf.getPartitions() <= 0 ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
+              (short) 1)
+          ));
+        }
+        return Uni.createFrom().nullItem();
+      });
   }
 
-  public Uni<Void> deployVerticleIfNew(String function) {
-    if (verticleMap.containsKey(function) && !verticleMap.get(function).isEmpty()) {
+
+  public Uni<Void> deployVerticleIfNew(OClass cls) {
+    if (verticleMap.containsKey(cls.getKey()) && !verticleMap.get(cls.getKey()).isEmpty()) {
       return Uni.createFrom().nullItem();
     }
     int size = config.numOfVerticle();
     var options = new DeploymentOptions();
 
-    return deployVerticle(function, options, size);
+    return deployVerticle(cls, options, size);
   }
 
-  protected Uni<Void> deployVerticle(String suffix,
+  public Uni<Void> deployVerticleIfNew(ProtoOClass protoOClass) {
+    if (verticleMap.containsKey(protoOClass.getKey()) && !verticleMap.get(protoOClass.getKey()).isEmpty()) {
+      return Uni.createFrom().nullItem();
+    }
+    int size = config.numOfVerticle();
+    var options = new DeploymentOptions();
+    var cls = protoMapper.fromProto(protoOClass);
+    return deployVerticle(cls, options, size);
+  }
+
+  protected Uni<Void> deployVerticle(OClass cls,
                                      DeploymentOptions options,
                                      int size) {
     return vertx
       .deployVerticle(() -> {
-          AbstractVerticle vert = (AbstractVerticle) verticleFactory.createVerticle(suffix);
-          verticleMap.computeIfAbsent(suffix, key -> new HashSet<>())
+          AbstractVerticle vert = (AbstractVerticle) verticleFactory.createVerticle(cls);
+          verticleMap.computeIfAbsent(cls.getKey(), key -> new HashSet<>())
             .add(vert);
           return vert;
         },
         options)
       .onFailure().retry().withBackOff(Duration.ofMillis(100)).atMost(3)
       .repeat().atMost(size)
-      .invoke(id -> {
-        LOGGER.info("deploy verticle[id={}] for {} successfully",
-          id, suffix);
-      })
+      .invoke(id -> logger.info("deploy verticle[id={}] for [{}] successfully",
+        id, cls.getKey()))
       .collect()
       .last()
       .replaceWithVoid();
   }
 
-  public Uni<Void> deleteVerticle(String function) {
-    var verticleSet = verticleMap.get(function);
+  public Uni<Void> deleteVerticle(OClass cls) {
+    var verticleSet = verticleMap.get(cls.getKey());
     if (verticleSet!=null) {
       return Multi.createFrom().iterable(verticleSet)
         .call(vert -> vertx.undeploy(vert.deploymentID()))
-        .invoke(id -> LOGGER.info("Undeploy verticle[id={}] for func {} successfully", id, function))
+        .invoke(id -> logger.info("Undeploy verticle[id={}] for [{}] successfully", id, cls.getKey()))
         .collect().last()
         .replaceWithVoid()
-        .invoke(() -> verticleMap.remove(function));
+        .invoke(() -> verticleMap.remove(cls.getKey()));
     }
     return Uni.createFrom().nullItem();
   }

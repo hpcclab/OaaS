@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: class-runtime-manager
+  labels:
+    app: class-runtime-manager
+    platform: oaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: class-runtime-manager
+      platform: oaas
+  template:
+    metadata:
+      labels:
+        app: class-runtime-manager
+        platform: oaas
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: class-runtime-manager-sa
+      containers:
+        - name: class-runtime-manager
+          envFrom:
+            - configMapRef:
+                name: oaas-env
+            - secretRef:
+                name: oaas-data
+          image: ghcr.io/hpcclab/oaas/class-runtime-manager
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: '0.5'
+              memory: 1G
+            requests:
+              cpu: '0.1'
+              memory: 256M
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: class-runtime-manager
+spec:
+  selector:
+    app: class-runtime-manager
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

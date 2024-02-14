@@ -133,8 +133,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
               return getAsyncCollection().replaceDocument(key, newDoc, replaceOptions())
                 .thenApply(__ -> newDoc);
             });
-        }
-      )
+        })
       .onFailure(ArangoDBException.class)
       .retry().atMost(5)
       .invoke(val -> cache().put(key, val));
@@ -171,6 +170,11 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   @Override
   public void invalidate(String key) {
     cache().invalidate(key);
+  }
+
+  @Override
+  public void invalidate(Collection<String> keys) {
+    cache().invalidateAll(keys);
   }
 
 }

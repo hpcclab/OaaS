@@ -11,8 +11,8 @@ public enum KeyAccessModifier {
   /**
    * Allow any function if it was invoked as the dependency(e.g., input, reference)
    */
-  @ProtoEnumValue(value = 2, name = "KEY_DEP")
-  DEP,
+  @ProtoEnumValue(value = 2, name = "KEY_DEPENDENT")
+  DEPENDENT,
   /**
    * Allow only function in the same package
    */

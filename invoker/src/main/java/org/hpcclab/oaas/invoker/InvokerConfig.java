@@ -4,21 +4,27 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 import org.hpcclab.oaas.storage.S3ConnConf;
 
+import java.util.List;
+
 @ConfigMapping(
-  prefix = "oaas.invoker",
+  prefix = "oprc.invoker",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface InvokerConfig {
   String kafka();
+  String pmHost();
+  String pmPort();
   @WithDefault("oaas-invoker")
   String kafkaGroup();
   @WithDefault("oaas-fn")
   String fnProvisionTopic();
   @WithDefault("oaas-cls")
   String clsProvisionTopic();
-  @WithDefault("oaas-invoke-")
+  @WithDefault("oaas-cr-hash")
+  String crHashTopic();
+  @WithDefault("oaas-invoker-")
   String invokeTopicPrefix();
-  String storageAdapterUrl();
+  Url sa();
   @WithDefault("100")
   int connectionPoolMaxSize();
   @WithDefault("10")
@@ -42,4 +48,19 @@ public interface InvokerConfig {
 
   @WithDefault("false")
   boolean clusterLock();
+
+  @WithDefault("FETCH")
+  LoadAssignMode loadMode();
+  @WithDefault("none")
+  List<String> initClass();
+  @WithDefault("true")
+  boolean warmHashCache();
+
+  interface Url{
+    String url();
+  }
+
+  enum LoadAssignMode{
+    FETCH, ENV, DISABLED
+  }
 }

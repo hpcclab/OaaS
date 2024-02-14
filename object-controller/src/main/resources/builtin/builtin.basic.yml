@@ -1,9 +1,0 @@
-name: builtin.basic
-classes:
-  - name: file
-    stateType: FILES
-    objectType: SIMPLE
-    functions: []
-    stateSpec:
-      keySpecs:
-        - name: file

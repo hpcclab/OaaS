@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -21,10 +20,8 @@ public class FunctionBinding {
   String function;
   @ProtoField(3)
   String name;
-  @ProtoField(4)
-  Set<String> forwardRecords;
-  @ProtoField(value = 5, javaType = HashMap.class)
-  Map<String, String> defaultArgs;
+  @ProtoField(value = 5)
+  DSMap defaultArgs;
   @ProtoField(6)
   String description;
   @ProtoField(7)
@@ -32,44 +29,26 @@ public class FunctionBinding {
   @ProtoField(value = 8, defaultValue = "false")
   boolean forceImmutable = false;
   @ProtoField(value = 9, defaultValue = "false")
-  boolean allowNoMain;
+  boolean noMain;
+  @ProtoField(10)
+  List<String> inputTypes;
 
 
   public FunctionBinding() {
   }
 
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls,
-                         boolean forceImmutable, boolean allowNoMain) {
-    this.access = access;
-    this.function = function;
-    this.name = name;
-    this.forwardRecords = forwardRecords;
-    this.defaultArgs = defaultArgs;
-    this.description = description;
-    this.outputCls = outputCls;
-    this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
-  }
-
   @ProtoFactory
-  public FunctionBinding(FunctionAccessModifier access,
-                         String function,
-                         String name,
-                         Set<String> forwardRecords,
-                         HashMap<String, String> defaultArgs,
-                         String description,
-                         String outputCls,
-                         boolean forceImmutable,
-                         boolean allowNoMain) {
+
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, DSMap defaultArgs, String description, String outputCls, boolean forceImmutable, boolean noMain, List<String> inputTypes) {
     this.access = access;
     this.function = function;
     this.name = name;
-    this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
     this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
+    this.noMain = noMain;
+    this.inputTypes = inputTypes;
   }
 
   public void validate() {
@@ -83,7 +62,7 @@ public class FunctionBinding {
     }
   }
 
-  public void validate(OaasFunction oaasFunction) {
+  public void validate(OFunction oaasFunction) {
     if (outputCls==null) {
       outputCls = oaasFunction.getOutputCls();
     } else if (outputCls.equalsIgnoreCase("none") ||

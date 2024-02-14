@@ -1,0 +1,57 @@
+syntax = "proto3";
+import "oprc-object.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service InvocationService {
+  rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
+}
+
+message ProtoInvocationRequest {
+  optional string main = 1;
+  optional string cls = 2;
+  optional string fb = 3;
+  map<string, string> args = 4;
+  repeated string inputs = 5;
+  bool immutable = 6;
+  bool macro = 7;
+  repeated ProtoOObject inputObjects = 8;
+  optional string invId = 9;
+  optional string outId = 10;
+  map<string, string> macroIds = 11;
+  bool preloadingNode = 12;
+  int64 queTs = 13;
+  bytes body = 14;
+}
+
+message ProtoInvocationResponse {
+  optional ProtoOObject main = 1;
+  optional ProtoOObject output = 2;
+  optional string invId = 3;
+  optional string fb = 4;
+  map<string, string> macroIds = 5;
+  ProtoInvocationStatus status = 6;
+  ProtoInvocationStats stats = 7;
+  bool async = 8;
+  bytes body = 9;
+}
+
+message ProtoInvocationStats{
+  int64 queTs = 1;
+  int64 smtTs = 2;
+  int64 cptTs = 3;
+}
+
+enum ProtoInvocationStatus {
+  PROTO_INVOCATION_STATUS_UNSPECIFIED = 0;
+  PROTO_INVOCATION_STATUS_QUEUE = 1;
+  PROTO_INVOCATION_STATUS_DOING = 2;
+  PROTO_INVOCATION_STATUS_SUCCEEDED = 3;
+  PROTO_INVOCATION_STATUS_FAILED = 4;
+  PROTO_INVOCATION_STATUS_DEPENDENCY_FAILED = 5;
+  PROTO_INVOCATION_STATUS_READY = 6;
+}
+

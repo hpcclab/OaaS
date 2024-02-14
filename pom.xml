@@ -9,20 +9,21 @@
   <modules>
     <module>common</module>
     <module>invoker</module>
-    <module>kube-provisioner</module>
-    <module>object-controller</module>
+    <module>class-runtime-manager</module>
+    <module>package-manager</module>
     <module>storage-adapter</module>
+<!--    <module>cli</module>-->
   </modules>
   <properties>
-    <compiler-plugin.version>3.11.0</compiler-plugin.version>
+    <compiler-plugin.version>3.12.1</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.3.3</quarkus.platform.version>
-    <surefire-plugin.version>3.1.2</surefire-plugin.version>
+    <quarkus.platform.version>3.7.2</quarkus.platform.version>
+    <surefire-plugin.version>3.2.2</surefire-plugin.version>
     <org.projectlombok.version>1.18.30</org.projectlombok.version>
     <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     <eclipse.collections.version>11.1.0</eclipse.collections.version>

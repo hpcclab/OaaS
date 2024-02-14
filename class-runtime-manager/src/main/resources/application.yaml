@@ -1,0 +1,75 @@
+
+"%dev":
+  quarkus:
+    http:
+      port: 8091
+    log:
+      category:
+        "org.hpcclab.oaas":
+          level: DEBUG
+    kubernetes-client:
+      namespace: oaas
+  oprc:
+    env: |
+      OPRC_DB_PKG_HOST=arango-cluster
+      OPRC_DB_PKG_PORT=8529
+      OPRC_DB_PKG_USER=root
+      OPRC_DB_PKG_DB=oaas
+      OPRC_DB_DEFAULT_HOST=arango-cluster
+      OPRC_DB_DEFAULT_PORT=8529
+      OPRC_DB_DEFAULT_DB=oaas
+      OPRC_DB_DEFAULT_USER=root
+      OPRC_DB_S3DEFAULT_URL=http://minio.oaas.svc.cluster.local
+      OPRC_DB_S3DEFAULT_BUCKET=oaas-bkt
+      OPRC_DB_S3DEFAULT_PUBLICURL=http://s3.127.0.0.1.nip.io:9090
+      OPRC_DB_S3DEFAULT_USER=minio_access_key
+      OPRC_DB_S3DEFAULT_PASS=minio_secret_key
+    envconf:
+      kafka: "oaas-kafka-bootstrap:9092"
+      pmHost: host.docker.internal
+      pmPort: 8088
+
+oprc:
+  crm:
+    exposeKnative: false
+    pmHost: localhost
+    pmPort: 8088
+    promUrl: localhost:9090
+  log: INFO
+  name: class-runtime-manager
+
+
+quarkus:
+  log:
+    category:
+      "org.hpcclab.oaas":
+        level: ${oprc.log}
+  http:
+    access-log:
+      enabled: true
+      exclude-pattern: /q/.*
+  native:
+    resources:
+      includes:
+        - crts.yaml
+        - crts/**
+  vertx:
+    prefer-native-transport: true
+  container-image:
+    image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
+  console:
+    color: true
+  kafka:
+    devservices:
+      enabled: false
+
+  grpc:
+    clients:
+      package-manager:
+        use-quarkus-grpc-client: true
+        host: ${oprc.crm.pmHost}
+        port: ${oprc.crm.pmPort}
+
+    server:
+      enable-reflection-service: true
+      use-separate-server: false

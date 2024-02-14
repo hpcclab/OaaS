@@ -5,13 +5,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@ApplicationScoped
 public class CompletedStateUpdater {
+  private static final Logger logger = LoggerFactory.getLogger( CompletedStateUpdater.class );
 
   CompletionValidator validator;
 
-  @Inject
   public CompletedStateUpdater(CompletionValidator validator) {
     this.validator = validator;
   }
@@ -31,18 +32,21 @@ public class CompletedStateUpdater {
     if (main!=null) {
       if (completion.getMain()!=null) {
         completion.getMain().update(main, context.initNode().getKey());
-        if (out==null && completion.isSuccess())
-          main.getStatus().set(completion);
+        logger.debug("updated main {}", main);
       }
-      main.getStatus().setUpdatedOffset(context.getMqOffset());
+      main.setLastOffset(context.getMqOffset());
+      if (completion.isSuccess()) {
+        main.setLastInv(completion.getId());
+      }
     }
 
     if (out!=null) {
-      out.getStatus().set(completion);
       if (completion.getOutput()!=null)
         completion.getOutput().update(out, completion
-          .getId().iid());
-      out.getStatus().setUpdatedOffset(context.getMqOffset());
+          .getId());
+      if (completion.isSuccess()) {
+        out.setLastInv(completion.getId());
+      }
     }
 
     context.setRespBody(completion.getBody());

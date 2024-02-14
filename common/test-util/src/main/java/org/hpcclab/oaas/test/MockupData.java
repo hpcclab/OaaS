@@ -1,16 +1,15 @@
 package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.RepoContextLoader;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.invocation.InvocationNode;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectStatus;
-import org.hpcclab.oaas.model.object.ObjectType;
-import org.hpcclab.oaas.model.proto.KvPair;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.OObjectType;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -18,33 +17,34 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.List;
-import java.util.Map;
 
 public class MockupData {
 
-  public static final OaasFunction FUNC_NEW = new OaasFunction()
+  private MockupData(){}
+  public static final OFunction FUNC_NEW = new OFunction()
     .setName("new")
     .setPkg("builtin.logical")
     .setType(FunctionType.LOGICAL);
-  public static final OaasFunction FUNC_1 = new OaasFunction()
+
+  public static final OFunction FUNC_1 = new OFunction()
     .setName("func1")
     .setPkg("ex")
     .setType(FunctionType.TASK)
-    .setDeploymentStatus(new FunctionDeploymentStatus()
+    .setStatus(new OFunctionDeploymentStatus()
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
 
-  public static final OaasFunction FUNC_2 = new OaasFunction()
+  public static final OFunction FUNC_2 = new OFunction()
     .setName("im-fn")
     .setPkg("ex")
     .setType(FunctionType.IM_TASK)
-    .setDeploymentStatus(new FunctionDeploymentStatus()
+    .setStatus(new OFunctionDeploymentStatus()
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
 
-  public static final OaasFunction MACRO_FUNC_1 = new OaasFunction()
+  public static final OFunction MACRO_FUNC_1 = new OFunction()
     .setName("macroFunc1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
@@ -53,24 +53,24 @@ public class MockupData {
         new DataflowStep()
           .setFunction("f1")
           .setTarget("$")
-          .setArgRefs(Map.of("key1", "arg1"))
+          .setArgRefs(DSMap.of("key1", "arg1"))
           .setAs("tmp1")
-          .setArgs(Map.of("STEP", "1")),
+          .setArgs(DSMap.of("STEP", "1")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp1")
           .setAs("tmp2")
-          .setArgs(Map.of("STEP", "2")),
+          .setArgs(DSMap.of("STEP", "2")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp2")
           .setAs("tmp3")
-          .setArgs(Map.of("STEP", "3"))
+          .setArgs(DSMap.of("STEP", "3"))
       ))
       .setExport("tmp3")
     );
 
-  public static final OaasFunction ATOMIC_MACRO_FUNC = new OaasFunction()
+  public static final OFunction ATOMIC_MACRO_FUNC = new OFunction()
     .setName("atomic-macro")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
@@ -80,34 +80,34 @@ public class MockupData {
           .setFunction("f3")
           .setTarget("$")
           .setAs("tmp1")
-          .setArgs(Map.of("STEP", "1.1")),
+          .setArgs(DSMap.of("STEP", "1.1")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("$")
           .setAs("tmp2")
-          .setArgs(Map.of("STEP", "1.2")),
+          .setArgs(DSMap.of("STEP", "1.2")),
         new DataflowStep()
           .setFunction("f3")
           .setTarget("tmp1")
           .setInputRefs(List.of("tmp2"))
           .setAs("tmp3")
-          .setArgs(Map.of("STEP", "2"))
+          .setArgs(DSMap.of("STEP", "2"))
       ))
       .setExport("tmp3")
     );
 
   public static final String CLS_1_KEY = "ex.cls1";
-  public static final OaasClass CLS_1 = new OaasClass()
+  public static final OClass CLS_1 = new OClass()
     .setName("cls1")
     .setPkg("ex")
-    .setObjectType(ObjectType.SIMPLE)
+    .setObjectType(OObjectType.SIMPLE)
+    .setConfig(new OClassConfig())
     .setStateSpec(new StateSpecification()
       .setKeySpecs(
         List.of(
           new KeySpecification()
             .setName("k1")
             .setAccess(KeyAccessModifier.PUBLIC)
-            .setProvider("s3")
         )
       ))
     .setFunctions(List.of(
@@ -115,13 +115,13 @@ public class MockupData {
         .setName("new")
         .setFunction("builtin.logical.new")
         .setOutputCls(CLS_1_KEY)
-        .setAllowNoMain(true)
+        .setNoMain(true)
       ,
       new FunctionBinding()
         .setName("f1")
         .setFunction(FUNC_1.getKey())
         .setOutputCls(CLS_1_KEY)
-        .setDefaultArgs(Map.of("aa", "aa", "aaa", "aaa")),
+        .setDefaultArgs(DSMap.of("aa", "aa", "aaa", "aaa")),
       new FunctionBinding()
         .setName("func2")
         .setFunction(FUNC_1.getKey())
@@ -130,6 +130,7 @@ public class MockupData {
         .setName("f3")
         .setFunction(FUNC_1.getKey())
         .setForceImmutable(true)
+        .setInputTypes(List.of(CLS_1_KEY))
         .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
         .setName(FUNC_2.getName())
@@ -145,51 +146,46 @@ public class MockupData {
         .setOutputCls(CLS_1_KEY)
     ));
 
-  public static final OaasClass CLS_2 = new OaasClass()
+  public static final OClass CLS_2 = new OClass()
     .setName("cls2")
     .setPkg("ex")
-    .setObjectType(ObjectType.SIMPLE)
+    .setConfig(new OClassConfig())
+    .setObjectType(OObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
 
-  public final static OaasObject OBJ_1 = OaasObject.createFromClasses(CLS_1)
+  public static final OObject OBJ_1 = OObject.createFromClasses(CLS_1)
     .setId("o1")
-//    .setOrigin(new ObjectOrigin())
-    .setStatus(new ObjectStatus())
     .setState(new OaasObjectState()
-      .setVerIds(Sets.mutable.of(new KvPair("k1", "kkkk")))
+      .setVerIds(DSMap.of("k1", "kkkk"))
     );
 
-  public final static OaasObject OBJ_2 = OaasObject.createFromClasses(CLS_1)
-    .setId("o2")
-//    .setOrigin(new ObjectOrigin()
-//      .setParentId(OBJ_1.getId())
-//    .setFbName("f1")
-//    )
-    .setStatus(new ObjectStatus());
+  public static final OObject OBJ_2 = OObject.createFromClasses(CLS_1)
+    .setId("o2");
 
-  public static MutableMap<String, OaasClass> testClasses() {
-    var clsResolver = new ClassResolver();
+  public static MutableMap<String, OClass> testClasses() {
+    var clsResolver = new ClassResolver(null);
     var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
     var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
     return Lists.fixedSize.of(
         cls1,
         cls2
       )
-      .groupByUniqueKey(OaasClass::getKey);
+      .groupByUniqueKey(OClass::getKey);
   }
 
-  public static MutableMap<String, OaasFunction> testFunctions() {
+  public static MutableMap<String, OFunction> testFunctions() {
     return Lists.fixedSize.of(
         FUNC_NEW.copy(),
         FUNC_1.copy(),
+        FUNC_2.copy(),
         MACRO_FUNC_1.copy(),
         ATOMIC_MACRO_FUNC.copy()
       )
-      .groupByUniqueKey(OaasFunction::getKey);
+      .groupByUniqueKey(OFunction::getKey);
   }
 
-  public static List<OaasObject> testObjects() {
-    var l = Lists.mutable.<OaasObject>empty();
+  public static List<OObject> testObjects() {
+    var l = Lists.mutable.<OObject>empty();
     l.add(OBJ_1.copy());
     l.add(OBJ_2.copy());
     return l;
@@ -200,43 +196,32 @@ public class MockupData {
   }
 
 
-  public static RepoContextLoader mockContextLoader(MutableMap<String, OaasObject> objects,
-                                                    MutableMap<String, OaasClass> classes,
-                                                    MutableMap<String, OaasFunction> functions,
+  public static RepoContextLoader mockContextLoader(MutableMap<String, OObject> objects,
+                                                    MutableMap<String, OClass> classes,
+                                                    MutableMap<String, OFunction> functions,
                                                     MutableMap<String, InvocationNode> nodes) {
-    var objRepo = mockObjectRepo(objects);
-    var clsRepo = mockClsRepo(classes);
-    var funcRepo = mockFuncRepo(functions);
-    var nodeRepo = mockInvRepo(nodes);
-    return new RepoContextLoader(objRepo, funcRepo, clsRepo, nodeRepo);
+
+    var clsRepo =  new MapEntityRepository.MapClsRepository(classes);
+    var funcRepo = new MapEntityRepository.MapFnRepository(functions);
+    var nodeRepoManager = new MapEntityRepository.MapInvRepoManager(nodes, classes);
+    var objectRepoManager =  new MapEntityRepository.MapObjectRepoManager(objects ,classes);
+    return new RepoContextLoader(objectRepoManager, funcRepo, clsRepo, nodeRepoManager);
   }
-
-  public static EntityRepository<String, OaasObject> mockObjectRepo(MutableMap<String, OaasObject> objects) {
-    return new MapEntityRepository<>(objects, OaasObject::getId);
-  }
-
-
-  public static EntityRepository<String, OaasClass> mockClsRepo(MutableMap<String, OaasClass> classes) {
-    return new MapEntityRepository<>(classes, OaasClass::getKey);
-  }
-
-  public static EntityRepository<String, OaasFunction> mockFuncRepo(MutableMap<String, OaasFunction> functions) {
-    return new MapEntityRepository<>(functions, OaasFunction::getKey);
-  }
-
-  public static EntityRepository<String, InvocationNode> mockInvRepo(MutableMap<String, InvocationNode> functions) {
-    return new MapEntityRepository<>(functions, InvocationNode::getKey);
-  }
-
-  public static void persistMock(ObjectRepository objectRepo,
+  public static void persistMock(ObjectRepoManager objectRepoManager,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {
-    objectRepo.persistAsync(testObjects())
-      .await().indefinitely();
-    clsRepo.persistAsync(testClasses().values())
-      .await().indefinitely();
-    fnRepo.persistAsync(testFunctions().values())
-      .await().indefinitely();
+    for (OClass cls : testClasses()) {
+      cls.validate();
+      clsRepo.persist(cls);
+    }
+    for (OFunction func : testFunctions()) {
+      func.validate(true);
+      fnRepo.persist(func);
+    }
+    for (OObject testObject : testObjects()) {
+      objectRepoManager.persistAsync(testObject)
+        .await().indefinitely();
+    }
   }
 
 }

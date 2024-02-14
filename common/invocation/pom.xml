@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>oaas-common</artifactId>
+    <artifactId>oprc-common</artifactId>
     <groupId>org.hpcclab.oaas</groupId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
@@ -35,6 +35,11 @@
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
       <artifactId>repository</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -73,9 +78,15 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
+      <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.hpcclab.oaas</groupId>
+          <artifactId>oprc-proto-schema</artifactId>
+          <version>0.2.0-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 
 
@@ -101,7 +112,7 @@
       <plugin>
         <groupId>io.smallrye</groupId>
         <artifactId>jandex-maven-plugin</artifactId>
-        <version>3.1.5</version>
+        <version>3.1.6</version>
         <executions>
           <execution>
             <id>make-index</id>

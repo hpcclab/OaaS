@@ -5,10 +5,9 @@ import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.object.OaasObject;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.state.StateType;
-import org.hpcclab.oaas.model.task.OaasTask;
-import org.hpcclab.oaas.model.task.TaskIdentity;
+import org.hpcclab.oaas.model.task.OTask;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,22 +21,17 @@ public class TaskFactory {
   private static final Logger logger = LoggerFactory.getLogger(TaskFactory.class);
   private final ContentUrlGenerator contentUrlGenerator;
 
-
-  private final IdGenerator idGenerator;
-
   @Inject
-  public TaskFactory(ContentUrlGenerator contentUrlGenerator,
-                     IdGenerator idGenerator) {
+  public TaskFactory(ContentUrlGenerator contentUrlGenerator) {
     this.contentUrlGenerator = contentUrlGenerator;
-    this.idGenerator = idGenerator;
   }
 
-  public OaasTask genTask(InvocationContext ctx) {
+  public OTask genTask(InvocationContext ctx) {
     var verId = ctx.initNode().getKey();
     var mainCls = ctx.getMainCls();
 
-    var task = new OaasTask();
-    task.setId(new TaskIdentity(ctx));
+    var task = new OTask();
+    task.setId(ctx.initNode().getKey());
     task.setPartKey(ctx.getMain().getId());
     task.setFbName(ctx.getFbName());
     task.setMain(ctx.getMain());
@@ -82,8 +76,8 @@ public class TaskFactory {
   }
 
 
-  public Map<String, String> genUrls(OaasObject obj,
-                                     Map<String, OaasObject> refs,
+  public Map<String, String> genUrls(OObject obj,
+                                     Map<String, OObject> refs,
                                      AccessLevel level) {
     Map<String, String> m = new HashMap<>();
     generateUrls(m, obj, refs, "", level);
@@ -91,16 +85,16 @@ public class TaskFactory {
   }
 
   private void generateUrls(Map<String, String> map,
-                            OaasObject obj,
-                            Map<String, OaasObject> refs,
+                            OObject obj,
+                            Map<String, OObject> refs,
                             String prefix,
                             AccessLevel level) {
 
     var verIds = obj.getState().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
-      for (var vidEntry : verIds) {
+      for (var vidEntry : verIds.entrySet()) {
         var dac = DataAccessContext.generate(obj, level,
-          vidEntry.getVal());
+          vidEntry.getValue());
         var url =
           contentUrlGenerator.generateUrl(obj, dac, vidEntry.getKey());
         map.put(prefix + vidEntry.getKey(), url);
@@ -109,7 +103,7 @@ public class TaskFactory {
 
     if (obj.getState().getOverrideUrls()!=null) {
       obj.getState().getOverrideUrls()
-        .forEach(e -> map.put(prefix + e.getKey(), e.getVal()));
+        .forEachKeyValue((k, v) -> map.put(prefix + k, v));
     }
     if (refs!=null) {
       for (var entry : refs.entrySet()) {

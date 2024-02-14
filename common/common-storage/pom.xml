@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
-    <artifactId>oaas-common</artifactId>
+    <artifactId>oprc-common</artifactId>
     <version>0.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>common-storage</artifactId>
@@ -20,7 +20,7 @@
       <dependency>
         <groupId>io.quarkus.platform</groupId>
         <artifactId>quarkus-amazon-services-bom</artifactId>
-        <version>3.4.1</version>
+        <version>${quarkus.platform.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -33,6 +33,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>repository</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>mutiny</artifactId>
     </dependency>
@@ -40,11 +45,6 @@
       <groupId>io.quarkiverse.amazonservices</groupId>
       <artifactId>quarkus-amazon-s3</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.amazonaws</groupId>-->
-<!--      <artifactId>aws-java-sdk</artifactId>-->
-<!--      <version>1.12.461</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -64,7 +64,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
+      <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
 
@@ -96,7 +96,7 @@
       <plugin>
         <groupId>io.smallrye</groupId>
         <artifactId>jandex-maven-plugin</artifactId>
-        <version>3.1.5</version>
+        <version>3.1.6</version>
         <executions>
           <execution>
             <id>make-index</id>

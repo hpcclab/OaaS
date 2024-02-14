@@ -16,19 +16,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+
 public class LogicalFunctionApplier implements FunctionApplier {
 
   private static final Logger LOGGER = LoggerFactory.getLogger( LogicalFunctionApplier.class );
   IdGenerator idGenerator;
-  @Inject
+
   Instance<LogicalSubApplier> applierInstance;
   Map<String, LogicalSubApplier> appliers = Map.of();
 
-  @Inject
+
   public LogicalFunctionApplier(IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
   }
+
   @PostConstruct
   public void setup() {
     appliers = applierInstance.stream()

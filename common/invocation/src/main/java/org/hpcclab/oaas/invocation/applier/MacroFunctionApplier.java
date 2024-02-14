@@ -10,11 +10,12 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.MacroSpec;
+import org.hpcclab.oaas.model.function.WorkflowExport;
 import org.hpcclab.oaas.model.invocation.DataflowGraph;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.object.ObjectReference;
-import org.hpcclab.oaas.invocation.OaasObjectFactory;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.invocation.OObjectFactory;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,20 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-@ApplicationScoped
+
 public class MacroFunctionApplier implements FunctionApplier {
   private static final Logger logger = LoggerFactory.getLogger(MacroFunctionApplier.class);
 
   ContextLoader contextLoader;
-  OaasObjectFactory objectFactory;
+  OObjectFactory objectFactory;
 
   Function<InvocationContext, Uni<InvocationContext>> subFunctionApplier;
 
-  @Inject
+
   public MacroFunctionApplier(ContextLoader contextLoader,
-                              OaasObjectFactory objectFactory) {
+                              OObjectFactory objectFactory) {
     this.contextLoader = contextLoader;
     this.objectFactory = objectFactory;
   }
@@ -50,7 +50,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   }
 
   private void setupMap(InvocationContext ctx) {
-    Map<String, OaasObject> map = new HashMap<>();
+    Map<String, OObject> map = new HashMap<>();
     ctx.setWorkflowMap(map);
     map.put("$self", ctx.getMain());
     for (int i = 0; i < ctx.getInputs().size(); i++) {
@@ -71,21 +71,19 @@ public class MacroFunctionApplier implements FunctionApplier {
       });
   }
 
-  private OaasObject export(InvocationContext ctx,
-                            MacroSpec dataflow) {
+  private OObject export(InvocationContext ctx,
+                         MacroSpec dataflow) {
     if (dataflow.getExport()!=null) {
       return ctx.getWorkflowMap()
         .get(dataflow.getExport());
     } else {
       var output = objectFactory.createOutput(ctx);
-      var mem = dataflow.getExports()
-        .stream()
-        .map(export -> new ObjectReference()
-          .setName(export.getAs())
-          .setObjId(ctx.getWorkflowMap()
-            .get(export.getFrom()).getId()))
-        .collect(Collectors.toUnmodifiableSet());
-      output.setRefs(mem);
+      var refs = new DSMap();
+      for (WorkflowExport export : dataflow.getExports()) {
+        refs.put(export.getAs(), ctx.getWorkflowMap()
+          .get(export.getFrom()).getId());
+      }
+      output.setRefs(refs);
       return output;
     }
   }
@@ -93,7 +91,7 @@ public class MacroFunctionApplier implements FunctionApplier {
   private Uni<List<InvocationContext>> applyDataflow(InvocationContext context,
                                                      MacroSpec workflow) {
     var request = context.getRequest();
-    var macroIds = request==null || request.macroIds()==null ? Map.of():request.macroIds();
+    var macroIds = makeMacroIds(context, workflow);
     return Multi.createFrom().iterable(workflow.getSteps())
       .onItem().transformToUniAndConcatenate(step ->
         loadSubContext(context, step)
@@ -102,7 +100,7 @@ public class MacroFunctionApplier implements FunctionApplier {
             if (newCtx.getOutput()!=null
               && step.getAs()!=null
               && macroIds.containsKey(step.getAs())) {
-              newCtx.getOutput().setId(request.macroIds().get(step.getAs()));
+              newCtx.getOutput().setId(macroIds.get(step.getAs()));
             }
 
             context.getWorkflowMap().put(step.getAs(), newCtx.getOutput());
@@ -114,6 +112,21 @@ public class MacroFunctionApplier implements FunctionApplier {
           context.addTaskOutput(ctx.getOutput());
         }
       });
+  }
+
+  private DSMap makeMacroIds(InvocationContext ctx,
+                             MacroSpec dataflow) {
+    var request = ctx.getRequest();
+    var macroIds = request.macroIds();
+    if (macroIds == null) {
+      macroIds = DSMap.mutable();
+      for (DataflowStep step : dataflow.getSteps()) {
+        if (step.getAs()==null)
+          continue;
+        macroIds.put(step.getAs(), objectFactory.newId(ctx));
+      }
+    }
+    return macroIds;
   }
 
 

@@ -7,7 +7,7 @@ public class PresignGeneratorPool {
   Map<String, PresignGenerator> generatorMap = new ConcurrentHashMap<>();
   Map<String, PresignGenerator> pubGeneratorMap = new ConcurrentHashMap<>();
 
-  public static final String DEFAULT = "default";
+  public static final String DEFAULT = "S3DEFAULT";
 
   public PresignGenerator getGenerator(){
     return generatorMap.get(DEFAULT);

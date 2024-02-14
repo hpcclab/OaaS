@@ -10,8 +10,9 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-<!--    <infinispan.version>15.0.0.Dev02</infinispan.version>-->
-    <infinispan.version>14.0.17.Final</infinispan.version>
+<!--    <infinispan.version>14.0.21.Final</infinispan.version>-->
+    <infinispan.version>15.0.0.Dev08</infinispan.version>
+    <arangodb.version>7.5.1</arangodb.version>
   </properties>
 
   <dependencyManagement>
@@ -40,14 +41,32 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.arangodb</groupId>
-      <artifactId>arangodb-java-driver</artifactId>
-      <version>6.25.0</version>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
-      <artifactId>jackson-dataformat-velocypack</artifactId>
-      <version>4.1.0</version>
+      <artifactId>arangodb-java-driver</artifactId>
+      <version>${arangodb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>vst-protocol</artifactId>
+      <version>${arangodb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>jackson-serde-vpack</artifactId>
+      <version>${arangodb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
@@ -90,7 +109,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-jib</artifactId>
+      <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
@@ -100,16 +119,15 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-kafka-client</artifactId>
     </dependency>
-    <!--    <dependency>-->
-    <!--      <groupId>io.netty</groupId>-->
-    <!--      <artifactId>netty-transport-native-epoll</artifactId>-->
-    <!--      <classifier>linux-x86_64</classifier>-->
-    <!--    </dependency>-->
     <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.22.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
+      <version>0.0.24.Final</version>
       <classifier>linux-x86_64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-quarkus-embedded</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -117,26 +135,30 @@
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-core-jakarta</artifactId>
+      <artifactId>infinispan-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-query-jakarta</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-server-hotrod-jakarta</artifactId>
-      <version>${infinispan.version}</version>
+      <artifactId>infinispan-query</artifactId>
     </dependency>
 <!--    <dependency>-->
 <!--      <groupId>org.infinispan</groupId>-->
-<!--      <artifactId>infinispan-server-rest</artifactId>-->
+<!--      <artifactId>infinispan-server-hotrod</artifactId>-->
 <!--      <version>${infinispan.version}</version>-->
 <!--    </dependency>-->
     <dependency>
+      <groupId>org.infinispan.protostream</groupId>
+      <artifactId>protostream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.infinispan.protostream</groupId>
+      <artifactId>protostream-processor</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jgroups</groupId>
       <artifactId>jgroups-raft</artifactId>
-      <version>1.0.11.Final</version>
+      <version>1.0.12.Final</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -166,6 +188,11 @@
       <version>0.2.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus.junit5</groupId>-->
+<!--      <artifactId>junit5-virtual-threads</artifactId>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
   </dependencies>
   <build>
     <plugins>
