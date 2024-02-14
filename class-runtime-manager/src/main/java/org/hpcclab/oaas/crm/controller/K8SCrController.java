@@ -191,6 +191,7 @@ public class K8SCrController implements CrController {
     var deployment = createDeployment(
       "/crts/invoker-dep.yml",
       prefix + NAME_INVOKER,
+      template.getConfig().images().get(NAME_INVOKER),
       labels);
     deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER));
     attachSecret(deployment, prefix + NAME_SECRET);
@@ -230,6 +231,7 @@ public class K8SCrController implements CrController {
     var deployment = createDeployment(
       "/crts/storage-adapter-dep.yml",
       prefix + NAME_SA,
+      template.getConfig().images().get(NAME_SA),
       labels);
     deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER));
     attachSecret(deployment, prefix + NAME_SECRET);
@@ -348,10 +350,17 @@ public class K8SCrController implements CrController {
 
   protected Deployment createDeployment(String filePath,
                                         String name,
+                                        String image,
                                         Map<String, String> labels) {
     var is = getClass().getResourceAsStream(filePath);
     var deployment = kubernetesClient.getKubernetesSerialization()
       .unmarshal(is, Deployment.class);
+    deployment.getSpec()
+        .getTemplate()
+          .getSpec()
+            .getContainers()
+              .getFirst()
+                .setImage(image);
     rename(deployment, name);
     attachLabels(deployment, labels);
     return deployment;

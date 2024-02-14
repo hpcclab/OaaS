@@ -2,8 +2,8 @@ templates:
   default:
     type: "default"
     images:
-      invokerImage: ghcr.io/hpcclab/oaas/invoker
-      storageAdapterImage: ghcr.io/hpcclab/oaas/storage-adapter
+      invoker: ghcr.io/hpcclab/oaas/invoker
+      storage-adapter: ghcr.io/hpcclab/oaas/storage-adapter
     additionalEnv:
       invoker:
         OAAS_INVOKER_NUMOFVERTICLE: "1"
