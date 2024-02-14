@@ -39,7 +39,7 @@ class DataAllocateResourceTest {
     testCls.setStateType(StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(
-        new KeySpecification("test", "s3")
+        new KeySpecification("test")
       ))
     );
     clsRepo.put("test", testCls);

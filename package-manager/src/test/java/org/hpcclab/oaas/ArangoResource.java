@@ -14,7 +14,7 @@ public class ArangoResource implements
   public Map<String, String> start() {
     var env = ConfigProvider.getConfig().getValue("oprc.env", String.class);
     container.start();
-    env = env.replaceAll("PORT=8529\\n", "PORT="+container.getPort() + "\n");
+    env = env.replaceAll("OPRC_DB_PKG_PORT=[0-9]+\\n", "OPRC_DB_PKG_PORT="+container.getPort() + "\n");
     return Map.of(
       "oprc.env", env
     );

@@ -50,7 +50,6 @@ public class TestUtils {
         stateSpec:
           keySpecs:
             - name: test
-              provider: s3
         functions:
         - access: PUBLIC
           function: test.dummy.task

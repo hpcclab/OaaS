@@ -86,7 +86,8 @@ public class NewFunctionController extends AbstractFunctionController
     ));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
-      .select(k -> construct.getKeys().contains(k.getName()));
+      .select(k -> construct.getKeys().contains(k.getName()))
+      .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
       ctx.setRespBody(mapper.createObjectNode());
       return Uni.createFrom()

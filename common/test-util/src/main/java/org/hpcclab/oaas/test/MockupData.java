@@ -108,7 +108,6 @@ public class MockupData {
           new KeySpecification()
             .setName("k1")
             .setAccess(KeyAccessModifier.PUBLIC)
-            .setProvider("s3")
         )
       ))
     .setFunctions(List.of(

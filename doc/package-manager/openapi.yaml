@@ -2920,16 +2920,12 @@ components:
       properties:
         name:
           type: string
-        provider:
-          type: string
         access:
           $ref: '#/components/schemas/KeyAccessModifier'
     KeySpecification_Public:
       type: object
       properties:
         name:
-          type: string
-        provider:
           type: string
         access:
           $ref: '#/components/schemas/KeyAccessModifier_Public'

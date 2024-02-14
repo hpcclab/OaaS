@@ -6,7 +6,6 @@ import org.hpcclab.oaas.storage.S3ConnConf;
 
 @ConfigMapping(prefix = "oprc.sa", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface SaConfig {
-//  S3ConnConf s3();
   @WithDefault("false")
   boolean relay();
 }

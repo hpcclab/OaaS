@@ -13,8 +13,6 @@ public class KeySpecification {
   @ProtoField(1)
   String name;
   @ProtoField(2)
-  String provider;
-  @ProtoField(3)
   KeyAccessModifier access = KeyAccessModifier.PUBLIC;
 
   public KeySpecification() {
@@ -24,15 +22,10 @@ public class KeySpecification {
     this.name = name;
   }
 
-  public KeySpecification(String name, String provider) {
-    this.name = name;
-    this.provider = provider;
-  }
 
   @ProtoFactory
-  public KeySpecification(String name, String provider, KeyAccessModifier access) {
+  public KeySpecification(String name,  KeyAccessModifier access) {
     this.name = name;
-    this.provider = provider;
     this.access = access;
   }
 }

@@ -27,8 +27,6 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 class DataAccessResourceTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessResourceTest.class);
-
   @Inject
   ClassRepository clsRepo;
 
@@ -40,7 +38,7 @@ class DataAccessResourceTest {
     testCls.setStateType(StateType.FILES);
     testCls.setStateSpec(new StateSpecification()
       .setKeySpecs(List.of(
-        new KeySpecification("test", "s3")
+        new KeySpecification("test")
       ))
     );
     clsRepo.put("test", testCls);

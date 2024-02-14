@@ -15,6 +15,7 @@ import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationContext;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -89,7 +90,8 @@ public class NewSubApplier implements LogicalSubApplier {
       .map(ignore -> new ObjectConstructResponse(obj, Map.of()));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
-      .select(k -> construction.getKeys().contains(k.getName()));
+      .select(k -> construction.getKeys().contains(k.getName()))
+      .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
       return objRepoManager.persistAsync(obj)
         .map(ignored -> new ObjectConstructResponse(obj, Map.of()));

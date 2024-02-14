@@ -4065,9 +4065,6 @@
           "name" : {
             "type" : "string"
           },
-          "provider" : {
-            "type" : "string"
-          },
           "access" : {
             "$ref" : "#/components/schemas/KeyAccessModifier"
           }
@@ -4077,9 +4074,6 @@
         "type" : "object",
         "properties" : {
           "name" : {
-            "type" : "string"
-          },
-          "provider" : {
             "type" : "string"
           },
           "access" : {

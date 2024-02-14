@@ -1,18 +1,20 @@
-package org.hpcclab.oaas.sa.cdi;
+package org.hpcclab.oaas.invoker.cdi;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
-import org.hpcclab.oaas.storage.S3Adapter;
 import org.hpcclab.oaas.storage.PresignGenerator;
 import org.hpcclab.oaas.storage.PresignGeneratorPool;
+import org.hpcclab.oaas.storage.S3Adapter;
 import org.hpcclab.oaas.storage.S3ClientBuilderUtil;
 
 import java.util.Map;
 
-
-public class S3ClientProducer {
+/**
+ * @author Pawissanutt
+ */
+public class StorageAdapterProducer {
   @Produces
   @ApplicationScoped
   public PresignGeneratorPool presignGenerator() {
