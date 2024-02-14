@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.controller.service;
 
+import com.arangodb.ArangoDBException;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -64,10 +65,15 @@ public class CrStateManager {
 
   public Uni<ProtoCrHash> updateCrHash(ProtoCrHash protoCrHash) {
     var crHash = crMapper.fromProto(protoCrHash);
-    return hashRepo.computeAsync(crHash.getKey(), (key, entity) -> {
+    return hashRepo.async().getAsync(crHash.getKey())
+      .onFailure(e -> e instanceof ArangoDBException arangoDBException
+        && arangoDBException.getResponseCode() == 404)
+      .recoverWithNull()
+      .map(entity -> {
         if (entity==null) return crHash;
         return CrHash.merge(entity, crHash);
       })
+      .call(h -> hashRepo.persistAsync(h))
       .call(hash -> crHashEmitter.send(Record.of(
         hash.getKey(),
         Buffer.buffer(crMapper.toProto(hash).toByteArray()))

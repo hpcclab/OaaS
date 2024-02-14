@@ -2,10 +2,7 @@ package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.*;
 import com.arangodb.entity.DocumentDeleteEntity;
-import com.arangodb.model.DocumentCreateOptions;
-import com.arangodb.model.DocumentDeleteOptions;
-import com.arangodb.model.DocumentReplaceOptions;
-import com.arangodb.model.OverwriteMode;
+import com.arangodb.model.*;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
@@ -107,7 +104,7 @@ public abstract class AbstractArgRepository<V>
     if (LOGGER.isDebugEnabled())
       LOGGER.debug("getAsync[{}] {}", getCollection().name(), key);
     return createUni(() -> getAsyncCollection()
-      .getDocument(key, getValueCls()));
+      .getDocument(key, getValueCls(), new DocumentReadOptions()));
   }
 
   @Override
