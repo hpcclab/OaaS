@@ -3710,6 +3710,8 @@ components:
           type: string
         hashAwareSync:
           type: boolean
+        crTemplate:
+          type: string
     OClassConfig_Public:
       type: object
       properties:
@@ -3729,6 +3731,8 @@ components:
           type: string
         hashAwareSync:
           type: boolean
+        crTemplate:
+          type: string
     OClassDeploymentStatus:
       type: object
       properties:

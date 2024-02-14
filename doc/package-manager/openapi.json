@@ -5204,6 +5204,9 @@
           },
           "hashAwareSync" : {
             "type" : "boolean"
+          },
+          "crTemplate" : {
+            "type" : "string"
           }
         }
       },
@@ -5232,6 +5235,9 @@
           },
           "hashAwareSync" : {
             "type" : "boolean"
+          },
+          "crTemplate" : {
+            "type" : "string"
           }
         }
       },

@@ -32,7 +32,7 @@ public class CrTemplateManager {
   final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   final CrmConfig crmConfig;
   ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
-
+  public static final String DEFAULT = "default";
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
                            @GrpcClient("package-manager")
@@ -73,7 +73,7 @@ public class CrTemplateManager {
   }
 
   private ClassRuntimeTemplate createCrt(CrtMappingConfig.CrtConfig config) {
-    if (config.type().equals("default")) {
+    if (config.type().equals(DEFAULT)) {
       return new DefaultCrTemplate(
         kubernetesClient,
         selectOptimizer(config),
@@ -81,7 +81,7 @@ public class CrTemplateManager {
         deploymentStatusUpdater
       );
     } else {
-      throw new RuntimeException("No available CR template with type " + config.type());
+      throw new StdOaasException("No available CR template with type " + config.type());
     }
   }
 
@@ -91,13 +91,15 @@ public class CrTemplateManager {
 
   public ClassRuntimeTemplate selectTemplate(OprcEnvironment env,
                                              DeploymentUnit deploymentUnit) {
-    // TODO PLACEHOLDER
-    return templateMap.valuesView().getAny();
+    var template = deploymentUnit.getCls().getConfig().getCrTemplate();
+    if (template.isEmpty()) template = DEFAULT;
+    return templateMap.get(template);
   }
 
-  public ClassRuntimeTemplate selectTemplate(ProtoCr orbit) {
-    // TODO PLACEHOLDER
-    return templateMap.valuesView().getAny();
+  public ClassRuntimeTemplate selectTemplate(ProtoCr protoCr) {
+    var template = protoCr.getType();
+    if (template.isEmpty()) template = DEFAULT;
+    return templateMap.get(template);
   }
 
   public CrController load(OprcEnvironment env, ProtoCr orbit) {

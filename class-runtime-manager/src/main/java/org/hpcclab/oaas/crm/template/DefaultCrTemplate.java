@@ -29,6 +29,11 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   }
 
   @Override
+  public CrtConfig getConfig() {
+    return config;
+  }
+
+  @Override
   public CrController create(OprcEnvironment env, DeploymentUnit deploymentUnit) {
     return new K8SCrController(
       this, k8sClient, env.config(), tsidFactory.create()
