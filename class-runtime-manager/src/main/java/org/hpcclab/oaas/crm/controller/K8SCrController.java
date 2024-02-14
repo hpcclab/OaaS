@@ -168,8 +168,7 @@ public class K8SCrController implements CrController {
         .formatted(prefix, namespace),
       "OPRC_CRID", Tsid.from(id).toLowerCase(),
       "OPRC_INVOKER_PMHOST", envConfig.classManagerHost(),
-      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort(),
-      "OPRC_LOG", envConfig.logLevel()
+      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()
@@ -191,7 +190,7 @@ public class K8SCrController implements CrController {
     var deployment = createDeployment(
       "/crts/invoker-dep.yml",
       prefix + NAME_INVOKER,
-      template.getConfig().images().get(NAME_INVOKER),
+      NAME_INVOKER,
       labels);
     deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER));
     attachSecret(deployment, prefix + NAME_SECRET);
@@ -209,6 +208,7 @@ public class K8SCrController implements CrController {
     addEnv(container, "ISPN_DNS_PING",
       invokerSvcPing.getMetadata().getName() + "." + namespace + ".svc.cluster.local");
     addEnv(container, "KUBERNETES_NAMESPACE", namespace);
+
     container.getEnv()
       .add(new EnvVar(
         "ISPN_POD_NAME",
@@ -231,7 +231,7 @@ public class K8SCrController implements CrController {
     var deployment = createDeployment(
       "/crts/storage-adapter-dep.yml",
       prefix + NAME_SA,
-      template.getConfig().images().get(NAME_SA),
+      NAME_SA,
       labels);
     deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER));
     attachSecret(deployment, prefix + NAME_SECRET);
@@ -350,17 +350,23 @@ public class K8SCrController implements CrController {
 
   protected Deployment createDeployment(String filePath,
                                         String name,
-                                        String image,
+                                        String configName,
                                         Map<String, String> labels) {
     var is = getClass().getResourceAsStream(filePath);
+    var crtConfig = template.getConfig();
+    var image = crtConfig.images().get(configName);
     var deployment = kubernetesClient.getKubernetesSerialization()
       .unmarshal(is, Deployment.class);
-    deployment.getSpec()
-        .getTemplate()
-          .getSpec()
-            .getContainers()
-              .getFirst()
-                .setImage(image);
+    Container container = deployment.getSpec()
+      .getTemplate()
+      .getSpec()
+      .getContainers()
+      .getFirst();
+    container.setImage(image);
+    var additionalEnv = template.getConfig().additionalEnv().get(configName);
+    for (Map.Entry<String, String> entry : additionalEnv.entrySet()) {
+      addEnv(container, entry.getKey(), entry.getValue());
+    }
     rename(deployment, name);
     attachLabels(deployment, labels);
     return deployment;
