@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
@@ -33,8 +32,8 @@ public class K8SCrController implements CrController {
   final ClassRuntimeTemplate template;
   final KubernetesClient kubernetesClient;
   final OprcEnvironment.Config envConfig;
-  Set<String> attachedCls = Sets.mutable.empty();
-  Set<String> attachedFn = Sets.mutable.empty();
+  Map<String, ProtoOClass> attachedCls = Maps.mutable.empty();
+  Map<String, ProtoOFunction> attachedFn = Maps.mutable.empty();
   Map<String, Long> versions = Maps.mutable.empty();
   List<HasMetadata> k8sResources = Lists.mutable.empty();
   DeploymentFnController deploymentFnController;
@@ -70,8 +69,12 @@ public class K8SCrController implements CrController {
                          OprcEnvironment.Config envConfig,
                          ProtoCr protoCr) {
     this(template, client, envConfig, Tsid.from(protoCr.getId()));
-    attachedCls.addAll(protoCr.getAttachedClsList());
-    attachedFn.addAll(protoCr.getAttachedFnList());
+    for (ProtoOClass protoOClass : protoCr.getAttachedClsList()) {
+      attachedCls.put(protoOClass.getKey(), protoOClass);
+    }
+    for (ProtoOFunction protoOFunction : protoCr.getAttachedFnList()) {
+      attachedFn.put(protoOFunction.getKey(), protoOFunction);
+    }
     var jsonDump = protoCr.getState().getJsonDump();
     if (!jsonDump.isEmpty()) {
       currentPlan = Json.decodeValue(jsonDump, CrDeploymentPlan.class);
@@ -84,12 +87,12 @@ public class K8SCrController implements CrController {
   }
 
   @Override
-  public Set<String> getAttachedCls() {
+  public Map<String, ProtoOClass> getAttachedCls() {
     return attachedCls;
   }
 
   @Override
-  public Set<String> getAttachedFn() {
+  public Map<String, ProtoOFunction> getAttachedFn() {
     return attachedFn;
   }
 
@@ -98,7 +101,7 @@ public class K8SCrController implements CrController {
     List<HasMetadata> resources = Lists.mutable.empty();
     ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resources, () -> {
       for (var f : unit.getFnListList()) {
-        attachedFn.add(f.getKey());
+        attachedFn.put(f.getKey(), f);
       }
       k8sResources.addAll(resources);
       currentPlan = plan;
@@ -128,9 +131,9 @@ public class K8SCrController implements CrController {
     List<HasMetadata> resourceList = Lists.mutable.empty();
     ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resourceList,
       () -> {
-        attachedCls.add(unit.getCls().getKey());
-        for (ProtoOFunction fn : unit.getFnListList()) {
-          attachedFn.add(fn.getKey());
+        attachedCls.put(unit.getCls().getKey(), unit.getCls());
+        for (ProtoOFunction protoOFunction : unit.getFnListList()) {
+          attachedFn.put(protoOFunction.getKey(), protoOFunction);
         }
         k8sResources.addAll(resourceList);
         currentPlan = plan;
@@ -267,7 +270,7 @@ public class K8SCrController implements CrController {
   @Override
   public CrOperation createDetachOperation(ProtoOClass cls) throws CrUpdateException {
     // TODO send signal
-    if (attachedCls.size()==1 && attachedCls.contains(cls.getKey())) {
+    if (attachedCls.size()==1 && attachedCls.containsKey(cls.getKey())) {
       return createDestroyOperation();
     }
     List<HasMetadata> resourceList = Lists.mutable.empty();
@@ -379,8 +382,8 @@ public class K8SCrController implements CrController {
       .setId(id)
       .setType(template.type())
       .setNamespace(namespace)
-      .addAllAttachedCls(attachedCls)
-      .addAllAttachedFn(attachedFn)
+      .addAllAttachedCls(attachedCls.values())
+      .addAllAttachedFn(attachedFn.values())
       .setState(ProtoCrState.newBuilder().setJsonDump(str).build())
       .build();
   }

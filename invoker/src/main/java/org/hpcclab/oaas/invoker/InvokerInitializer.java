@@ -11,11 +11,7 @@ import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
 import org.hpcclab.oaas.invoker.mq.CrHashListener;
 import org.hpcclab.oaas.invoker.mq.FunctionListener;
-import org.hpcclab.oaas.proto.ClassService;
-import org.hpcclab.oaas.proto.CrStateService;
-import org.hpcclab.oaas.proto.SingleKeyQuery;
-import org.hpcclab.oaas.repository.ObjectRepoManager;
-import org.infinispan.manager.EmbeddedCacheManager;
+import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +45,8 @@ public class InvokerInitializer {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
-      this.hashListener = hashListener;
-      this.verticleDeployer = verticleDeployer;
+    this.hashListener = hashListener;
+    this.verticleDeployer = verticleDeployer;
     this.registry = registry;
     this.hashRegistry = hashRegistry;
   }
@@ -75,7 +71,7 @@ public class InvokerInitializer {
   }
 
   public void loadAssignedCls() {
-    List<String> clsList = List.of();
+    List<ProtoOClass> clsList = List.of();
     if (config.loadMode()==InvokerConfig.LoadAssignMode.FETCH) {
       var crId = ConfigProvider.getConfig()
         .getValue("oprc.crid", String.class);
@@ -85,14 +81,16 @@ public class InvokerInitializer {
       logger.info("handle CR [id={}, cls={}, fn={}]",
         orbit.getId(), orbit.getAttachedClsList(), orbit.getAttachedFnList());
       clsList = orbit.getAttachedClsList();
-
     } else if (config.loadMode()==InvokerConfig.LoadAssignMode.ENV) {
-      clsList = config.initClass();
-      if (clsList.getFirst().equals("none")) clsList = List.of();
+      var clsKeyList = config.initClass();
+      if (clsKeyList.getFirst().equals("none")) {
+        clsList = List.of();
+      } else {
+        clsList = classService.select(MultiKeyQuery.newBuilder().addAllKey(clsKeyList).build())
+          .collect().asList().await().indefinitely();
+      }
     }
-    for (var clsKey : clsList) {
-      var cls = classService.get(SingleKeyQuery.newBuilder().setKey(clsKey).build())
-        .await().indefinitely();
+    for (var cls : clsList) {
       registry.registerOrUpdate(cls)
         .await().indefinitely();
       verticleDeployer.handleCls(cls);

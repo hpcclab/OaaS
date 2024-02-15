@@ -15,8 +15,6 @@ public interface CrMapper {
   CrHash fromProto(ProtoCrHash crHashed);
 
   OprcCr fromProto(ProtoCr clsRuntime);
-
-
   ProtoCrHash toProto(CrHash crHash);
 
   ProtoCr toProto(OprcCr clsRuntime);

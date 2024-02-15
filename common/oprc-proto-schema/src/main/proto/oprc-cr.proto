@@ -2,14 +2,16 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "org.hpcclab.oaas.proto";
+import "oprc-class.proto";
+import "oprc-function.proto";
 
 package oprc;
 
 message ProtoCr {
   int64 id = 1;
   string type = 2;
-  repeated string attachedCls = 3;
-  repeated string attachedFn = 4;
+  repeated ProtoOClass attachedCls = 3;
+  repeated ProtoOFunction attachedFn = 4;
   string namespace = 5;
   ProtoCrState state = 6;
 }

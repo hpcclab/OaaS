@@ -6,15 +6,15 @@ import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 import org.hpcclab.oaas.proto.ProtoOClass;
+import org.hpcclab.oaas.proto.ProtoOFunction;
 
-import java.util.Set;
+import java.util.Map;
 
 public interface CrController {
   long getId();
 
-  Set<String> getAttachedCls();
-
-  Set<String> getAttachedFn();
+  Map<String, ProtoOClass> getAttachedCls();
+  Map<String,ProtoOFunction> getAttachedFn();
 
   CrDeploymentPlan createDeploymentPlan(DeploymentUnit unit);
   CrDeploymentPlan currentPlan();

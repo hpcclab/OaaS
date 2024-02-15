@@ -17,6 +17,7 @@ import org.hpcclab.oaas.controller.model.CrMapper;
 import org.hpcclab.oaas.controller.model.CrMapperImpl;
 import org.hpcclab.oaas.controller.model.OprcCr;
 import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.*;
@@ -29,10 +30,9 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class CrStateManager {
   private static final Logger logger = LoggerFactory.getLogger(CrStateManager.class);
-  @Inject
-  CrMapper crMapper;
-  @Inject
-  ProtoMapper protoMapper;
+
+  CrMapper crMapper =new CrMapperImpl();
+  ProtoMapper protoMapper = new ProtoMapperImpl();
   GenericArgRepository<OprcCr> crRepo;
   GenericArgRepository<CrHash> hashRepo;
   @GrpcClient("orbit-manager")
@@ -48,7 +48,6 @@ public class CrStateManager {
     crRepo.createIfNotExist();
     hashRepo = fac.createGenericRepo(CrHash.class, CrHash::getKey, "crHash");
     hashRepo.createIfNotExist();
-    crMapper = new CrMapperImpl();
   }
 
   public GenericArgRepository<OprcCr> getCrRepo() {
