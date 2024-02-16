@@ -4,12 +4,15 @@ import org.hpcclab.oaas.proto.ProtoApiAddress;
 import org.infinispan.commons.hash.Hash;
 import org.infinispan.commons.hash.MurmurHash3;
 
+import java.util.Random;
+
 public class ObjectLocationFinder {
   final int segments;
   final int size;
   final Hash hashFunction = MurmurHash3.getInstance();
-  String cls;
-  HashRegistry registry;
+  final String cls;
+  final HashRegistry registry;
+  int count = 0;
 
   public ObjectLocationFinder(int segments,
                               String cls,
@@ -25,5 +28,9 @@ public class ObjectLocationFinder {
     return registry.get(cls, seg);
   }
 
-
+  public ProtoApiAddress getAny() {
+    // pseudo RR
+    int i = (count++) % (segments);
+    return registry.get(cls, i);
+  }
 }

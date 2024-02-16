@@ -78,6 +78,11 @@ public class ApplyK8SCrOperation implements CrOperation {
       Objects.equals(r1.getMetadata().getNamespace(), r2.getMetadata().getNamespace());
   }
 
+  @Override
+  public StateUpdateOperation stateUpdates() {
+    return new StateUpdateOperation(fnUpdates, clsUpdates);
+  }
+
   public List<OFunctionStatusUpdate> getFnUpdates() {
     return fnUpdates;
   }

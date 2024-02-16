@@ -27,41 +27,40 @@ public class InvokerInitializer {
   final ClassListener clsListener;
   final FunctionListener functionListener;
   final CrHashListener hashListener;
-  final VerticleDeployer verticleDeployer;
-  final ClassControllerRegistry registry;
   final HashRegistry hashRegistry;
+  final InvokerManager invokerManager;
   @GrpcClient("package-manager")
   CrStateService crStateService;
   @GrpcClient("package-manager")
   ClassService classService;
 
+
+
   @Inject
   public InvokerInitializer(InvokerConfig config,
                             ClassListener clsListener,
                             FunctionListener functionListener, CrHashListener hashListener,
-                            VerticleDeployer verticleDeployer,
-                            ClassControllerRegistry registry,
-                            HashRegistry hashRegistry) {
+                            HashRegistry hashRegistry, InvokerManager invokerManager) {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
     this.hashListener = hashListener;
-    this.verticleDeployer = verticleDeployer;
-    this.registry = registry;
     this.hashRegistry = hashRegistry;
+      this.invokerManager = invokerManager;
   }
 
   void init(@Observes StartupEvent event) {
     loadAssignedCls();
     clsListener.setHandler(cls -> {
       logger.info("receive cls[{}] update event", cls.getKey());
-      registry.registerOrUpdate(cls)
-        .await().indefinitely();
+      invokerManager.update(cls)
+        .subscribe().with(v->{});
     });
     clsListener.start().await().indefinitely();
     functionListener.setHandler(fn -> {
       logger.info("receive fn[{}] update event", fn.getKey());
-      registry.updateFunction(fn);
+      invokerManager.update(fn)
+        .subscribe().with(v->{});
     });
     clsListener.start().await().indefinitely();
     if (config.warmHashCache())
@@ -91,11 +90,10 @@ public class InvokerInitializer {
       }
     }
     for (var cls : clsList) {
-      registry.registerOrUpdate(cls)
-        .await().indefinitely();
-      verticleDeployer.handleCls(cls);
+      invokerManager.registerManaged(cls).await().indefinitely();
     }
     if (logger.isInfoEnabled())
-      logger.info("setup class controller registry:\n{}", registry.printStructure());
+      logger.info("setup class controller registry:\n{}",
+        invokerManager.registry.printStructure());
   }
 }

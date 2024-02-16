@@ -28,7 +28,7 @@ public class DeploymentFnController implements FnController {
 
   @Override
   public FnResourcePlan deployFunction(CrDeploymentPlan plan,
-                                          ProtoOFunction function) {
+                                       ProtoOFunction function) {
 
     var instance = plan.fnInstances()
       .getOrDefault(function.getKey(), 0);
@@ -116,14 +116,15 @@ public class DeploymentFnController implements FnController {
       .build();
     return new FnResourcePlan(List.of(deployment, svc),
       List.of(OFunctionStatusUpdate.newBuilder()
-          .setKey(function.getKey())
-          .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
-            .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
-            .setInvocationUrl("http://" +  svc.getMetadata().getName() + "."+ controller.namespace + ".svc.cluster.local")
-            .build())
+        .setKey(function.getKey())
+        .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
+          .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
+          .setInvocationUrl("http://" + svc.getMetadata().getName() + "." + controller.namespace + ".svc.cluster.local")
+          .build())
         .build())
     );
   }
+
   @Override
   public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
     List<HasMetadata> resource = Lists.mutable.empty();
@@ -134,7 +135,7 @@ public class DeploymentFnController implements FnController {
         .inNamespace(controller.namespace)
         .withName(createName(fnKey))
         .get();
-      if (deployment == null) continue;
+      if (deployment==null) continue;
       deployment.getSpec()
         .setReplicas(entry.getValue());
       resource.add(deployment);
@@ -146,7 +147,7 @@ public class DeploymentFnController implements FnController {
   }
 
   private String createName(String fnKey) {
-    return controller.prefix + "fn-"+ fnKey.toLowerCase().replaceAll("[\\._]", "-");
+    return controller.prefix + "fn-" + fnKey.toLowerCase().replaceAll("[\\._]", "-");
 
   }
 

@@ -17,6 +17,7 @@ import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
@@ -112,25 +113,6 @@ public class InvocationEngineProducer {
   }
 
 
-  @Produces
-  @ApplicationScoped
-  HashAwareInvocationHandler hashAwareInvocationHandler(
-    LookupManager lookupManager,
-    ClassControllerRegistry registry,
-    Vertx vertx,
-    ProtoObjectMapper mapper,
-    InvocationReqHandler invocationReqHandler,
-    IdGenerator idGenerator
-  ) {
-    return new HashAwareInvocationHandler(
-      lookupManager,
-      registry,
-      vertx.getDelegate(),
-      mapper,
-      invocationReqHandler,
-      idGenerator
-    );
-  }
 
   @Produces
   @ApplicationScoped

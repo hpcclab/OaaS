@@ -57,9 +57,7 @@ public class OalResource {
   @JsonView(Views.Public.class)
   public Uni<InvocationResponse> getObjectWithPost(ObjectAccessLanguage oal,
                                                    @QueryParam("async") Boolean async) {
-    if (oal==null)
-      return Uni.createFrom().failure(BadRequestException::new);
-    if (oal.getCls()==null)
+    if (oal==null || oal.getCls()==null)
       return Uni.createFrom().failure(BadRequestException::new);
 
     if (oal.getFb()!=null) {

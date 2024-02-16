@@ -28,12 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VerticleDeployer {
   private static final Logger logger = LoggerFactory.getLogger(VerticleDeployer.class);
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
-
+  final ProtoMapper protoMapper = new ProtoMapperImpl();
   VerticleFactory<?> verticleFactory;
   Vertx vertx;
   InvokerConfig config;
   KafkaAdminClient adminClient;
-  final ProtoMapper protoMapper = new ProtoMapperImpl();
 
   public VerticleDeployer(VerticleFactory<?> verticleFactory,
                           Vertx vertx,
@@ -46,14 +45,9 @@ public class VerticleDeployer {
   }
 
 
-  void handleCls(ProtoOClass cls) {
-    createTopic(cls)
-      .flatMap(v -> deployVerticleIfNew(cls))
-      .subscribe().with(
-        v -> {
-        },
-        e -> logger.error("Cannot deploy verticle for [{}]", cls.getKey(), e)
-      );
+  public Uni<Void> handleCls(ProtoOClass cls) {
+    return createTopic(cls)
+      .flatMap(v -> deployVerticleIfNew(cls));
   }
 
   Uni<Void> createTopic(OClass cls) {

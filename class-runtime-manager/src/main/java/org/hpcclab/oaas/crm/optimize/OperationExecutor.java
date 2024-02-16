@@ -31,10 +31,13 @@ public class OperationExecutor {
     try {
       operation.apply();
       var cr = crController.dump();
+      var updates = operation.stateUpdates();
+      logger.debug("apply with clsUpdate[{}] fnUpdate[{}]",
+        updates.clsUpdates().size(), updates.fnUpdates().size());
       CrOperationResponse response = CrOperationResponse.newBuilder()
         .setCr(cr)
-        .addAllClsUpdates(operation.stateUpdates().clsUpdates())
-        .addAllFnUpdates(operation.stateUpdates().fnUpdates())
+        .addAllClsUpdates(updates.clsUpdates())
+        .addAllFnUpdates(updates.fnUpdates())
         .build();
       return Uni
         .createFrom().item(response);

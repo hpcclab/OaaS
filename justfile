@@ -24,7 +24,7 @@ k3d-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 
 k3d-deploy: k8s-deploy-deps
-  kubectl apply -n oaas -k deploy/oaas/dcr
+  kubectl apply -n oaas -k deploy/oaas/base
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
 
 k3d-reload: k3d-build-image
@@ -57,7 +57,7 @@ k8s-deploy-deps:
 
 k8s-clean:
   kubectl delete -n oaas ksvc -l oaas.function
-  kubectl delete -n oaas -k deploy/oaas/dcr
+  kubectl delete -n oaas -k deploy/oaas/base
   kubectl delete -n oaas -f deploy/local-k8s/oaas-ingress.yml
 
   kubectl delete -n oaas -f deploy/arango/arango-single.yml

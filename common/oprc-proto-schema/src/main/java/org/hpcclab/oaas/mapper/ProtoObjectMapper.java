@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
+import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.CollectionMappingStrategy;
@@ -21,16 +22,27 @@ import java.io.IOException;
   nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class ProtoObjectMapper {
-  public abstract ProtoOObject toProto(OObject object);
-  public abstract ProtoInvocationRequest toProto(InvocationRequest req);
-  public abstract ProtoInvocationResponse toProto(InvocationResponse req);
-  public  abstract OObject fromProto(ProtoOObject object);
-  public  abstract InvocationRequest fromProto(ProtoInvocationRequest object);
-  public abstract InvocationResponse fromProto(ProtoInvocationResponse resp);
-  public abstract ProtoInvocationStatus convert(InvocationStatus status);
-  public abstract InvocationStatus convert(ProtoInvocationStatus status);
-
   ObjectMapper mapper;
+
+  public abstract ProtoOObject toProto(OObject object);
+
+  public abstract ProtoInvocationRequest toProto(InvocationRequest req);
+
+  public abstract ProtoInvocationResponse toProto(InvocationResponse req);
+
+  public abstract ProtoObjectAccessLanguage toProto(ObjectAccessLanguage oal);
+
+  public abstract ObjectAccessLanguage fromProto(ProtoObjectAccessLanguage oal);
+
+  public abstract OObject fromProto(ProtoOObject object);
+
+  public abstract InvocationRequest fromProto(ProtoInvocationRequest object);
+
+  public abstract InvocationResponse fromProto(ProtoInvocationResponse resp);
+
+  public abstract ProtoInvocationStatus convert(InvocationStatus status);
+
+  public abstract InvocationStatus convert(ProtoInvocationStatus status);
 
   public void setMapper(ObjectMapper mapper) {
     this.mapper = mapper;
@@ -38,19 +50,20 @@ public abstract class ProtoObjectMapper {
 
   public ByteString convert(ObjectNode objectNode) {
     try {
-      if (objectNode == null) return ByteString.EMPTY;
+      if (objectNode==null) return ByteString.EMPTY;
       return ByteString.copyFrom(mapper.writeValueAsBytes(objectNode));
     } catch (JsonProcessingException e) {
-      throw new InvocationException("Json parsing error:"+e.getMessage(),e);
+      throw new InvocationException("Json parsing error:" + e.getMessage(), e);
     }
   }
+
   public ObjectNode convert(ByteString bytes) {
     try {
       var b = bytes.toByteArray();
-      if (b.length == 0) return null;
+      if (b.length==0) return null;
       return mapper.readValue(b, ObjectNode.class);
     } catch (IOException e) {
-      throw new InvocationException("Json parsing error:"+e.getMessage(),e);
+      throw new InvocationException("Json parsing error:" + e.getMessage(), e);
     }
   }
 }

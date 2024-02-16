@@ -4145,11 +4145,11 @@ components:
         attachedCls:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/OClass'
         attachedFn:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/OFunction'
         namespace:
           type: string
         state:

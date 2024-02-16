@@ -160,7 +160,7 @@ public class PackageResource {
         .values());
       var protoFnList = fnList.stream()
         .map(protoMapper::toProto)
-        .collect(Collectors.toList());
+        .toList();
       logger.info("deploy [cls={}, fnList={}]", cls.getKey(), resolvedFnList);
       var unit = DeploymentUnit.newBuilder()
         .setCls(protoMapper.toProto(cls))
@@ -189,7 +189,8 @@ public class PackageResource {
   }
 
   void updateState(OPackage pkg, CrOperationResponse response) {
-    var cr = response.getCr();
+//    var cr = response.getCr();
+//    logger.debug("updateState {}", response);
     for (OClassStatusUpdate statusUpdate : response.getClsUpdatesList()) {
       var classOptional = pkg.getClasses().stream()
         .filter(c -> c.getKey().equals(statusUpdate.getKey()))
@@ -206,14 +207,14 @@ public class PackageResource {
       var fn = functionOptional.get();
       fn.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
     }
-    for (var clsKey : cr.getAttachedClsList()) {
-      var classOptional = pkg.getClasses().stream()
-        .filter(c -> c.getKey().equals(clsKey))
-        .findAny();
-      if (classOptional.isEmpty()) continue;
-      var cls = classOptional.get();
-      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
-      cls.getStatus().setCrId(cr.getId());
-    }
+//    for (var attachCls : cr.getAttachedClsList()) {
+//      var classOptional = pkg.getClasses().stream()
+//        .filter(c -> c.getKey().equals(attachCls.getKey()))
+//        .findAny();
+//      if (classOptional.isEmpty()) continue;
+//      var cls = classOptional.get();
+//      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
+//      cls.getStatus().setCrId(cr.getId());
+//    }
   }
 }

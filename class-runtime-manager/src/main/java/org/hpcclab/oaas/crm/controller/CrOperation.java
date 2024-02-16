@@ -13,11 +13,11 @@ public interface CrOperation {
   default void rollback() throws CrDeployException {
     throw new CrDeployException("Operation cannot rollback");
   }
-  default FnStateUpdateOperation stateUpdates() {
+  default StateUpdateOperation stateUpdates() {
     return EMPTY;
   }
-  FnStateUpdateOperation EMPTY = new FnStateUpdateOperation(List.of(), List.of());
-  record FnStateUpdateOperation(
+  StateUpdateOperation EMPTY = new StateUpdateOperation(List.of(), List.of());
+  record StateUpdateOperation(
     List<OFunctionStatusUpdate> fnUpdates,
     List<OClassStatusUpdate> clsUpdates
   ){
