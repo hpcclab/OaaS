@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
@@ -53,7 +51,7 @@ public class ControllerInvocationReqHandler implements InvocationReqHandler {
       .map(v -> InvocationResponse.builder()
         .invId(ctx.request().invId())
         .output(new OObject().setId(ctx.request().outId()))
-        .fb(ctx.fnBind().getName())
+        .fb(ctx.fb() != null? ctx.fb().getName() : "")
         .macroIds(ctx.request().macroIds())
         .status(InvocationStatus.QUEUE)
         .async(true)

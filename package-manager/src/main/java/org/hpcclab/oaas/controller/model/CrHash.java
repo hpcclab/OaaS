@@ -17,7 +17,7 @@ public record CrHash(String cls, int numSegment, List<ApiAddress> segmentAddr){
     for (int i = 0; i < h2.segmentAddr().size(); i++) {
       var addr = h2.segmentAddr.get(i);
       if (addr == null || addr.port < 0) continue;
-      if (i >= addrList.size()) {
+      if (i < addrList.size()) {
         addrList.set(i, addr);
       } else {
         addrList.add(addr);

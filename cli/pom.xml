@@ -30,6 +30,15 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+    <dependency>
       <groupId>tech.tablesaw</groupId>
       <artifactId>tablesaw-core</artifactId>
       <version>0.43.1</version>

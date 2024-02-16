@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
@@ -9,7 +10,6 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.ProtoOClass;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,14 +17,15 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class InvokerManager {
-  final ClassControllerRegistry registry;
-  final VerticleDeployer verticleDeployer;
-  final Set<String> managedCls = Sets.mutable.empty();
+  private final ClassControllerRegistry registry;
+  private final VerticleDeployer verticleDeployer;
+  private final Set<String> managedCls = Sets.mutable.empty();
 
+  @Inject
   public InvokerManager(ClassControllerRegistry registry,
                         VerticleDeployer verticleDeployer) {
     this.registry = registry;
-      this.verticleDeployer = verticleDeployer;
+    this.verticleDeployer = verticleDeployer;
   }
 
   Uni<ClassController> registerManaged(ProtoOClass cls) {
@@ -37,6 +38,7 @@ public class InvokerManager {
     return registry.registerOrUpdate(cls)
       .replaceWithVoid();
   }
+
   Uni<Void> update(OFunction fn) {
     registry.updateFunction(fn);
     return Uni.createFrom().nullItem();

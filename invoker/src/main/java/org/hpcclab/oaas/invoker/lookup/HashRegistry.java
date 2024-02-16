@@ -30,6 +30,7 @@ public class HashRegistry {
   }
 
   public Uni<ProtoCrHash> push(String cls, int totalSegment, IntSet segments, ProtoApiAddress address) {
+    var current = cacheMap.getOrDefault(cls, ProtoCrHash.getDefaultInstance());
     var builder = ProtoCrHash.newBuilder()
       .setCls(cls)
       .setNumSegment(totalSegment);
@@ -39,7 +40,8 @@ public class HashRegistry {
         builder
           .addSegmentAddr(address);
       } else {
-        builder.addSegmentAddr(nullAddress);
+        var old = i < current.getSegmentAddrCount() ? current.getSegmentAddr(i):nullAddress;
+        builder.addSegmentAddr(old);
       }
     }
     ProtoCrHash protoCrHash = builder.build();
@@ -60,6 +62,7 @@ public class HashRegistry {
     if (protoCrHash==null) return null;
     return protoCrHash.getSegmentAddr(segment);
   }
+
   public Uni<Void> updateLocal(String cls, AdvancedCache<?, ?> cache, int port) {
     var topology = cache.getAdvancedCache()
       .getDistributionManager()
@@ -70,6 +73,7 @@ public class HashRegistry {
       ProtoApiAddress.newBuilder().setPort(port).setHost(localAdvertiseAddress).build())
       .replaceWithVoid();
   }
+
   public Map<String, ProtoCrHash> getMap() {
     return cacheMap;
   }

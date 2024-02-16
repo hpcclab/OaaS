@@ -15,6 +15,8 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -22,6 +24,7 @@ import java.io.IOException;
   nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class ProtoObjectMapper {
+  private static final Logger logger = LoggerFactory.getLogger( ProtoObjectMapper.class );
   ObjectMapper mapper;
 
   public abstract ProtoOObject toProto(OObject object);
@@ -51,18 +54,21 @@ public abstract class ProtoObjectMapper {
   public ByteString convert(ObjectNode objectNode) {
     try {
       if (objectNode==null) return ByteString.EMPTY;
-      return ByteString.copyFrom(mapper.writeValueAsBytes(objectNode));
+      var b = mapper.writeValueAsBytes(objectNode);
+      return ByteString.copyFrom(b);
     } catch (JsonProcessingException e) {
-      throw new InvocationException("Json parsing error:" + e.getMessage(), e);
+      throw new InvocationException("Json writing error:" + e.getMessage(), e);
     }
   }
 
   public ObjectNode convert(ByteString bytes) {
+    var b = bytes.toByteArray();
     try {
-      var b = bytes.toByteArray();
-      if (b.length==0) return null;
+      if (b.length == 0) return null;
       return mapper.readValue(b, ObjectNode.class);
     } catch (IOException e) {
+      if (logger.isDebugEnabled())
+        logger.debug("parse error '{}'", bytes.toStringUtf8());
       throw new InvocationException("Json parsing error:" + e.getMessage(), e);
     }
   }

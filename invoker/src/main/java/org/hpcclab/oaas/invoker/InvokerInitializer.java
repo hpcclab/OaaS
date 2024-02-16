@@ -6,7 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
 import org.hpcclab.oaas.invoker.mq.CrHashListener;
@@ -35,18 +34,19 @@ public class InvokerInitializer {
   ClassService classService;
 
 
-
   @Inject
   public InvokerInitializer(InvokerConfig config,
                             ClassListener clsListener,
-                            FunctionListener functionListener, CrHashListener hashListener,
-                            HashRegistry hashRegistry, InvokerManager invokerManager) {
+                            FunctionListener functionListener,
+                            CrHashListener hashListener,
+                            HashRegistry hashRegistry,
+                            InvokerManager invokerManager) {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
     this.hashListener = hashListener;
     this.hashRegistry = hashRegistry;
-      this.invokerManager = invokerManager;
+    this.invokerManager = invokerManager;
   }
 
   void init(@Observes StartupEvent event) {
@@ -54,13 +54,15 @@ public class InvokerInitializer {
     clsListener.setHandler(cls -> {
       logger.info("receive cls[{}] update event", cls.getKey());
       invokerManager.update(cls)
-        .subscribe().with(v->{});
+        .subscribe().with(v -> {
+        });
     });
     clsListener.start().await().indefinitely();
     functionListener.setHandler(fn -> {
       logger.info("receive fn[{}] update event", fn.getKey());
       invokerManager.update(fn)
-        .subscribe().with(v->{});
+        .subscribe().with(v -> {
+        });
     });
     clsListener.start().await().indefinitely();
     if (config.warmHashCache())
@@ -94,6 +96,6 @@ public class InvokerInitializer {
     }
     if (logger.isInfoEnabled())
       logger.info("setup class controller registry:\n{}",
-        invokerManager.registry.printStructure());
+        invokerManager.getRegistry().printStructure());
   }
 }

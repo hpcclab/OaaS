@@ -4,6 +4,7 @@ metadata:
   name: oaas-ingress
   annotations:
     nginx.ingress.kubernetes.io/enable-cors: "true"
+    traefik.ingress.kubernetes.io/service.serversscheme: "h2c"
 spec:
   rules:
     - host: "pm.oaas.127.0.0.1.nip.io"

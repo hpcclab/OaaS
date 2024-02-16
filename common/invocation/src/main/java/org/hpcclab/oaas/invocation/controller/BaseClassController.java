@@ -43,6 +43,8 @@ public class BaseClassController implements ClassController {
   @Override
   public Uni<InvocationCtx> invoke(InvocationCtx context) {
     var req = context.getRequest();
+    if (req.fb() == null || req.fb().isEmpty())
+      return Uni.createFrom().item(context);
     var fn = functionMap.get(req.fb());
     if (fn==null)
       return Uni.createFrom().failure(InvocationException.notFoundFnInCls(req.fb(), cls.getKey()));
@@ -53,22 +55,25 @@ public class BaseClassController implements ClassController {
 
   @Override
   public MinimalValidationContext validate(ObjectAccessLanguage oal) {
-    var fn = functionMap.get(oal.getFb());
-    if (fn==null) throw InvocationException.notFoundFnInCls(oal.getFb(), cls.getKey());
-    var req = oal.toRequest()
-      .immutable(fn.getFunctionBinding().isForceImmutable());
-    if (fn.getFunction().getType()==FunctionType.MACRO) {
-      req.macro(true);
-      var dataflow = fn.getFunction().getMacro();
-      var map = Lists.fixedSize.ofAll(dataflow.getSteps())
-        .select(step -> step.getAs()!=null)
-        .collect(step -> Map.entry(step.getAs(), idGenerator.generate()))
-        .toMap(Map.Entry::getKey, Map.Entry::getValue);
-      req.macroIds(DSMap.wrap(map));
-      if (dataflow.getExport()!=null)
-        req.outId(map.get(dataflow.getExport()));
+    if (!oal.getFb().isEmpty()) {
+      var fn = functionMap.get(oal.getFb());
+      if (fn==null) throw InvocationException.notFoundFnInCls(oal.getFb(), cls.getKey());
+      var req = oal.toRequest()
+        .immutable(fn.getFunctionBinding().isForceImmutable());
+      if (fn.getFunction().getType()==FunctionType.MACRO) {
+        req.macro(true);
+        var dataflow = fn.getFunction().getMacro();
+        var map = Lists.fixedSize.ofAll(dataflow.getSteps())
+          .select(step -> step.getAs()!=null)
+          .collect(step -> Map.entry(step.getAs(), idGenerator.generate()))
+          .toMap(Map.Entry::getKey, Map.Entry::getValue);
+        req.macroIds(DSMap.wrap(map));
+        if (dataflow.getExport()!=null)
+          req.outId(map.get(dataflow.getExport()));
+      }
+      return new MinimalValidationContext(req.build(), cls, fn.getFunction(), fn.getFunctionBinding());
     }
-    return new MinimalValidationContext(req.build(), cls, fn.getFunction(), fn.getFunctionBinding());
+    return new MinimalValidationContext(oal.toRequest().build(), cls, null, null);
   }
 
   @Override

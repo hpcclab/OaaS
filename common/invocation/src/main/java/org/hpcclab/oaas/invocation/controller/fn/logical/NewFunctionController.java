@@ -89,7 +89,7 @@ public class NewFunctionController extends AbstractFunctionController
       .select(k -> construct.getKeys().contains(k.getName()))
       .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
-      ctx.setRespBody(mapper.createObjectNode());
+      ctx.setRespBody(null);
       return Uni.createFrom()
         .item(ctx);
     } else {

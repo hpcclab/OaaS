@@ -13,6 +13,20 @@ data:
   OPRC_ENVCONF_PMHOST: "package-manager"
   OPRC_ENVCONF_PMPORT: "80"
   OPRC_ENVCONF_KAFKA: "oaas-kafka-bootstrap:9092"
+  OPRC_CRM_TEMPLATEOVERRIDE: |
+    templates:
+      default:
+        type: "default"
+        images:
+          invoker: ghcr.io/hpcclab/oaas/invoker
+          storage-adapter: ghcr.io/hpcclab/oaas/storage-adapter
+        additionalEnv:
+          invoker:
+            OPRC_INVOKER_NUMOFVERTICLE: "1"
+            OPRC_LOG: "DEBUG"
+          storage-adapter:
+            OPRC_LOG: "DEBUG"
+
 
 kind: ConfigMap
 metadata:

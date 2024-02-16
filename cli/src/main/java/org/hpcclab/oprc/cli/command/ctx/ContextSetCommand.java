@@ -49,7 +49,7 @@ public class ContextSetCommand implements Callable<Integer> {
   @Override
   public Integer call() throws Exception {
     var conf = fileManager.getOrCreate();
-    if (ctx==null) ctx = conf.getCurrentContext();
+    if (ctx==null || ctx.isEmpty()) ctx = conf.getCurrentContext();
     var ctxConf = conf.getContexts().get(ctx);
     if (ctxConf==null) ctxConf = conf.current().toBuilder().build();
     if (proxy!=null) {
@@ -62,6 +62,7 @@ public class ContextSetCommand implements Callable<Integer> {
       ctxConf.setPmUrl(pmUrl);
     }
     conf.getContexts().put(ctx, ctxConf);
+    System.out.printf("ctx:'%s', conf: %s%n", ctx, ctxConf);
     fileManager.update(conf);
     formatter.printObject(commonOutputMixin.getOutputFormat(), conf);
     return 0;

@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.proto.InvocationService;
 import org.hpcclab.oaas.proto.ProtoInvocationRequest;
@@ -51,8 +52,13 @@ public class InvocationServiceImpl implements InvocationService {
 
   @Override
   public Uni<ProtoInvocationResponse> invokeOal(ProtoObjectAccessLanguage request) {
-    return hashAwareInvocationHandler.invoke(request)
-      .onFailure()
-      .invoke(e -> logger.error("invokeOal error", e));
+    try {
+      return hashAwareInvocationHandler.invoke(request)
+        .onFailure()
+        .invoke(e -> logger.error("invokeOal error", e));
+    } catch (StdOaasException e) {
+      logger.error("invokeOal error", e);
+      throw e;
+    }
   }
 }

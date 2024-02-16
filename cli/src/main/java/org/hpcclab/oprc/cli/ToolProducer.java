@@ -3,6 +3,7 @@ package org.hpcclab.oprc.cli;
 import io.vertx.core.net.ProxyOptions;
 import io.vertx.core.net.ProxyType;
 import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.grpc.client.GrpcClient;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,4 +55,11 @@ public class ToolProducer {
       webClientOptions
     );
   }
+
+  @Produces
+  @ApplicationScoped
+  GrpcClient grpcClient(Vertx vertx) throws IOException {
+    return GrpcClient.client(vertx.getDelegate());
+  }
+
 }

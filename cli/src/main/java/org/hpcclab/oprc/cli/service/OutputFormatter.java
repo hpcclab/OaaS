@@ -3,6 +3,7 @@ package org.hpcclab.oprc.cli.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -27,6 +28,7 @@ public class OutputFormatter {
       .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
       .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
     );
+    yamlMapper.registerModule(new ProtobufModule());
   }
 
   @SneakyThrows

@@ -16,6 +16,4 @@ public class ObjectConstructRequest {
   Set<String> keys = Set.of();
   DSMap overrideUrls;
   DSMap refs;
-  List<ObjectConstructRequest> streamConstructs;
-
 }

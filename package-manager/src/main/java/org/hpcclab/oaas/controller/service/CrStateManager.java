@@ -116,6 +116,7 @@ public class CrStateManager {
     var newCr = response.getCr();
     if (response.getCr().getAttachedClsList().isEmpty()) {
       crRepo.remove(OprcCr.toKey(newCr.getId()));
+      hashRepo.remove(cls.getKey());
     } else {
       crRepo.persistAsync(crMapper.fromProto(newCr));
     }

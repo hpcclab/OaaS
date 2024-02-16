@@ -60,11 +60,12 @@ public class HashAwareInvocationHandler {
     }
     ProtoApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}:{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
+      logger.debug("invoke local {}~{}/{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
       return invocationReqHandler.syncInvoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}:{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
+      logger.debug("invoke remote {}~{}/{} to {}", protOal.getCls(), protOal.getMain(),
+        protOal.getFb(), addr);
       return send(addr, protOal);
     }
   }

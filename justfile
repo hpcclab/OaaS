@@ -1,6 +1,7 @@
 mvn := "mvnd"
 #mvn := "./mvnw"
 export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
+export QUARKUS_DOCKER_EXECUTABLE_NAME := "docker"
 
 build options="":
   ./mvnw  package {{options}}
@@ -17,20 +18,23 @@ build-native-window:
 
 build-image : (build-no-test '"-Dquarkus.container-image.build=true"')
 
-kind-build-image: build-image
-  docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | xargs kind load docker-image -n 1node-cluster
+build-image-docker : build-no-test
+  docker compose build
 
 k3d-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 
-k3d-deploy: k8s-deploy-deps
+k8s-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/base
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -f deploy/local-k8s/invoker-np.yml
 
 k3d-reload: k3d-build-image
-  kubectl -n oaas delete pod -l platform=oaas
+  kubectl -n oaas rollout restart deployment -l platform=oaas
+  kubectl -n oaas rollout restart deployment -l cr-part=invoker
+  kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
-rd-reload: build-image
+rd-reload: build-image-docker
   kubectl -n oaas rollout restart deployment -l platform=oaas
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
