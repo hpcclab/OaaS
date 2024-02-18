@@ -32,7 +32,7 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var status = mapper.fromProto(update.getStatus());
     return clsRepo.async()
       .getAsync(update.getKey())
-      .onItem().ifNotNull()
+      .onItem().ifNull()
       .failWith(() -> StdOaasException.notFoundCls(update.getKey(), 404))
       .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
@@ -47,7 +47,7 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var status = mapper.fromProto(update.getStatus());
     return fnRepo.async()
       .getAsync(update.getKey())
-      .onItem().ifNotNull()
+      .onItem().ifNull()
       .failWith(() -> StdOaasException.notFoundFunc(update.getKey(), 404))
       .onFailure(StdOaasException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
