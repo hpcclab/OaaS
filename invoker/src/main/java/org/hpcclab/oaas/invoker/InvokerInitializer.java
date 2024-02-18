@@ -95,10 +95,13 @@ public class InvokerInitializer {
     Multi.createFrom().iterable(clsList)
       .call(invokerManager::registerManaged)
       .collect().last()
-      .call(() -> classService.list(PaginateQuery.newBuilder().setLimit(1000).build())
-        .call(invokerManager::update)
-        .collect().last())
       .await().indefinitely();
+    if (config.loadMode() == InvokerConfig.LoadAssignMode.FETCH){
+      classService.list(PaginateQuery.newBuilder().setLimit(1000).build())
+        .call(invokerManager::update)
+        .collect().last()
+        .await().indefinitely();
+    }
     if (logger.isInfoEnabled())
       logger.info("setup class controller registry:\n{}",
         invokerManager.getRegistry().printStructure());
