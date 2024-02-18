@@ -39,27 +39,27 @@ public class DefaultQoSOptimizer implements QosOptimizer {
         null,
         -1,
         0.5f,
-        256,
+        256L*1024*1024,
         2f,
-        1024
+        1024L*1024*1024
       ),
       OprcComponent.INVOKER, new CrInstanceSpec(
         1, -1,
         null,
         -1,
         0.5f,
-        512,
+        512L*1024*1024,
         2f,
-        2048
+        2048L*1024*1024
       ),
       OprcComponent.STORAGE_ADAPTER, new CrInstanceSpec(
         1, -1,
         null,
         -1,
         0.2f,
-        256,
+        256L*1024*1024,
         2f,
-        1024
+        1024L*1024*1024
       )
     );
     var fnInstances = unit.getFnListList()

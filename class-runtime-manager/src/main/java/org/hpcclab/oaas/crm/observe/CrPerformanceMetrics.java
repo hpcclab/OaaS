@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.crm.observe;
 
+import lombok.Builder;
 import org.eclipse.collections.api.factory.primitive.LongDoubleMaps;
 import org.hpcclab.oaas.crm.OprcComponent;
 
@@ -52,6 +53,7 @@ public record CrPerformanceMetrics(
       .toSortedList();
   }
 
+  @Builder(toBuilder = true)
   public record SvcPerformanceMetrics(
     List<DataPoint> cpu,
     List<DataPoint> mem,
