@@ -27,12 +27,13 @@ import java.util.Objects;
 @ApplicationScoped
 @Startup
 public class CrTemplateManager {
+  public static final String DEFAULT = "default";
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
   final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   final CrmConfig crmConfig;
   ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
-  public static final String DEFAULT = "default";
+
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
                            @GrpcClient("package-manager")
@@ -42,34 +43,33 @@ public class CrTemplateManager {
     this.crmConfig = crmConfig;
     Objects.requireNonNull(deploymentStatusUpdater);
     this.deploymentStatusUpdater = deploymentStatusUpdater;
-      try {
-          loadTemplate();
-      } catch (IOException e) {
-          throw new StdOaasException("Load template error",e);
-      }
   }
 
-  public void loadTemplate() throws IOException {
-    CrtMappingConfig conf;
-    var file = "/crts.yaml";
-    var is = getClass().getResourceAsStream(file);
-    conf = yamlMapper.readValue(is, CrtMappingConfig.class);
-    if (conf.templates()==null || conf.templates().isEmpty()) {
-      return;
+  public void loadTemplate() {
+    try {
+      CrtMappingConfig conf;
+      var file = "/crts.yaml";
+      var is = getClass().getResourceAsStream(file);
+      conf = yamlMapper.readValue(is, CrtMappingConfig.class);
+      if (conf.templates()==null || conf.templates().isEmpty()) {
+        return;
+      }
+      var op = crmConfig.templateOverride();
+      if (op.isPresent()) {
+        String templateOverrideString = op.get();
+        var override = yamlMapper.readValue(templateOverrideString, CrtMappingConfig.class);
+        conf.templates().putAll(override.templates());
+      }
+      var m = new HashMap<String, ClassRuntimeTemplate>();
+      for (var configEntry : conf.templates().entrySet()) {
+        var template = createCrt(configEntry.getValue());
+        template.init();
+        m.put(configEntry.getKey(), template);
+      }
+      templateMap = Maps.immutable.ofMap(m);
+    } catch (IOException e) {
+      throw new StdOaasException("Load template error", e);
     }
-    var op = crmConfig.templateOverride();
-    if (op.isPresent()) {
-      String templateOverrideString = op.get();
-      var override =yamlMapper.readValue(templateOverrideString, CrtMappingConfig.class);
-      conf.templates().putAll(override.templates());
-    }
-    var m = new HashMap<String, ClassRuntimeTemplate>();
-    for (var configEntry : conf.templates().entrySet()) {
-      var template = createCrt(configEntry.getValue());
-      template.init();
-      m.put(configEntry.getKey(), template);
-    }
-    templateMap = Maps.immutable.ofMap(m);
   }
 
   private ClassRuntimeTemplate createCrt(CrtMappingConfig.CrtConfig config) {

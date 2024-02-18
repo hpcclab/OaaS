@@ -24,7 +24,8 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public void init() {
-    FnEventManager fnEventManager = new FnEventManager(new DefaultKnativeClient(k8sClient), statusUpdater);
+    FnEventManager fnEventManager = new FnEventManager(new DefaultKnativeClient(k8sClient),
+      statusUpdater);
     fnEventManager.start(K8SCrController.CR_FN_KEY);
   }
 
