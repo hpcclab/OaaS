@@ -26,7 +26,7 @@ public class BuiltInLoader {
   FunctionRepository fnRepo;
 
   public void setup() throws IOException {
-    var fn = fnRepo.get(" builtin.logical.new");
+    var fn = fnRepo.get("builtin.logical.new");
     if (fn != null) return;
 
     mapper = new ObjectMapper(new YAMLFactory());
