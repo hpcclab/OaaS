@@ -5,12 +5,14 @@ import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import org.hpcclab.oaas.controller.service.PackagePublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
+import java.time.Duration;
 import java.util.List;
 
 @GrpcService
@@ -28,7 +30,12 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
   public Uni<OprcResponse> updateCls(OClassStatusUpdate update) {
     var status = mapper.fromProto(update.getStatus());
     return clsRepo.async()
-      .computeAsync(update.getKey(), (k,cls) -> cls.setStatus(status))
+      .getAsync(update.getKey())
+      .onItem().ifNotNull().failWith(NotFoundException::new)
+      .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
+      .atMost(3)
+      .flatMap(f -> clsRepo.async().computeAsync(update.getKey(), (k,cls) -> cls.setStatus(status))
+      )
       .call(cls -> packagePublisher.submitNewCls(cls))
       .map(__ -> OprcResponse.newBuilder().setSuccess(true).build());
   }
@@ -37,7 +44,12 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
   public Uni<OprcResponse> updateFn(OFunctionStatusUpdate update) {
     var status = mapper.fromProto(update.getStatus());
     return fnRepo.async()
-      .computeAsync(update.getKey(), (k,fn) -> fn.setStatus(status))
+      .getAsync(update.getKey())
+      .onItem().ifNotNull().failWith(NotFoundException::new)
+      .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
+      .atMost(3)
+      .flatMap(f -> fnRepo.async().computeAsync(update.getKey(), (k,fn) -> fn.setStatus(status))
+      )
       .call(fn -> packagePublisher.submitNewFunction(fn))
       .map(__ -> OprcResponse.newBuilder().setSuccess(true).build());
   }
