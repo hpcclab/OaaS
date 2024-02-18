@@ -11,3 +11,6 @@ templates:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         env:
           OPRC_LOG: "INFO"
+    optimizerConf:
+      defaultRequestCpu: 500m
+      defaultRequestMem: 256Mi

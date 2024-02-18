@@ -2,10 +2,14 @@ package org.hpcclab.oaas.controller.service;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.Builder;
 import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
@@ -13,8 +17,6 @@ import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,15 +25,12 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PackageValidator {
-  private static final Logger LOGGER = LoggerFactory.getLogger( PackageValidator.class );
+  private static final Logger LOGGER = LoggerFactory.getLogger(PackageValidator.class);
   @Inject
   FunctionRepository functionRepo;
 
+
   public Uni<OPackage> validate(OPackage pkg) {
-    return validate(pkg, new ValidationOptions(false));
-  }
-  public Uni<OPackage> validate(OPackage pkg,
-                                ValidationOptions options) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
@@ -39,7 +38,7 @@ public class PackageValidator {
       .collect(Collectors.toMap(OFunction::getKey, Function.identity()));
     for (OFunction function : functions) {
       function.setPkg(pkg.getName());
-      function.validate(options.overrideDeploymentStatus);
+      function.validate();
     }
     for (OClass cls : classes) {
       cls.setPkg(pkg.getName());
@@ -68,14 +67,22 @@ public class PackageValidator {
 
   public Uni<Void> validateFunctionBinding(OClass cls,
                                            Map<String, OFunction> functionMap) {
-    return Multi.createFrom().iterable(cls.getFunctions())
+
+
+    return Multi.createFrom()
+      .iterable(cls.getFunctions())
       .map(binding -> binding.replaceRelative(cls.getPkg()))
+      .invoke(Unchecked.consumer(fb -> {
+        if (fb.getFunction()==null) {
+          throw new OaasValidationException("The 'functions[].function' in class must not be null.");
+        }
+      }))
       .call(binding -> Uni.createFrom()
         .item(functionMap.get(binding.getFunction()))
         .onItem().ifNull()
         .switchTo(() -> functionRepo.async().getAsync(binding.getFunction()))
-        .onItem().ifNull().failWith(() -> new FunctionValidationException("Can not find function [%s]".formatted(binding.getFunction())))
-        .invoke(func -> binding.validate(func)))
+        .onItem().ifNull().failWith(() -> FunctionValidationException.format("Can not find function [%s]", binding.getFunction()))
+        .invoke(binding::validate))
       .collect().last()
       .replaceWithVoid();
   }
@@ -88,7 +95,7 @@ public class PackageValidator {
     for (var step : steps) {
       i++;
       var target = step.getTarget();
-      if (step.getFunction() == null)
+      if (step.getFunction()==null)
         throw new FunctionValidationException(
           "Function '%s', step[%d]: Detected null function value."
             .formatted(function.getKey(), i));
@@ -122,10 +129,4 @@ public class PackageValidator {
         );
     }
   }
-
-
-  @Builder(toBuilder = true)
-  public record ValidationOptions(
-    boolean overrideDeploymentStatus
-  ){}
 }

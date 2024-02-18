@@ -45,7 +45,7 @@ public class BuiltInLoader {
         .map(OClass::getKey)
         .toList();
       LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
-      pkgService.create(true, false, pkg);
+      pkgService.create(pkg);
     }
 
   }

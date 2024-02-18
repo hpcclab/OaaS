@@ -18,13 +18,13 @@ import org.jboss.resteasy.reactive.RestQuery;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class OrbitResource {
+public class CrResource {
   CrStateManager stateManager;
   CrManagerGrpc.CrManagerBlockingStub orbitManager;
 
   @Inject
-  public OrbitResource(CrStateManager stateManager,
-                       @GrpcClient("orbit-manager") CrManagerGrpc.CrManagerBlockingStub orbitManager) {
+  public CrResource(CrStateManager stateManager,
+                    @GrpcClient("orbit-manager") CrManagerGrpc.CrManagerBlockingStub orbitManager) {
     this.stateManager = stateManager;
     this.orbitManager = orbitManager;
   }

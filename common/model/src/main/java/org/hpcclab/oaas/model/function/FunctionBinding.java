@@ -51,18 +51,14 @@ public class FunctionBinding {
     this.inputTypes = inputTypes;
   }
 
-  public void validate() {
-    if (function==null) {
-      throw new OaasValidationException("The 'functions[].function' in class must not be null.");
-    }
+
+  public void validate(OFunction oaasFunction) {
     if (name==null) {
       var i = function.lastIndexOf('.');
       if (i < 0) name = function;
       else name = function.substring(i + 1);
     }
-  }
 
-  public void validate(OFunction oaasFunction) {
     if (outputCls==null) {
       outputCls = oaasFunction.getOutputCls();
     } else if (outputCls.equalsIgnoreCase("none") ||

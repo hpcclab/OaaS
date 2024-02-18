@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
+import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.*;
 
@@ -26,6 +27,8 @@ public interface ProtoMapper {
   OClassDeploymentStatus fromProto(ProtoOClassDeploymentStatus status);
   OFunction fromProto(ProtoOFunction fn);
   OFunctionDeploymentStatus fromProto(ProtoOFunctionDeploymentStatus status);
+  ProvisionConfig fromProto(ProtoProvisionConfig config);
+  ProtoProvisionConfig toProto(ProvisionConfig config);
   OPackage fromProto(ProtoOPackage pkg);
 
 

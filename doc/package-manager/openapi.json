@@ -14,7 +14,7 @@
   "paths" : {
     "/api/class-runtimes" : {
       "get" : {
-        "tags" : [ "Orbit Resource" ],
+        "tags" : [ "Cr Resource" ],
         "parameters" : [ {
           "name" : "limit",
           "in" : "query",
@@ -46,7 +46,7 @@
     },
     "/api/class-runtimes/{id}" : {
       "delete" : {
-        "tags" : [ "Orbit Resource" ],
+        "tags" : [ "Cr Resource" ],
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -258,20 +258,6 @@
     "/api/packages" : {
       "post" : {
         "tags" : [ "Package Resource" ],
-        "parameters" : [ {
-          "name" : "overrideDeploy",
-          "in" : "query",
-          "schema" : {
-            "default" : "false",
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "update",
-          "in" : "query",
-          "schema" : {
-            "type" : "boolean"
-          }
-        } ],
         "requestBody" : {
           "content" : {
             "text/x-yaml" : {

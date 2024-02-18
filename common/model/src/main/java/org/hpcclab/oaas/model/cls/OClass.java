@@ -123,9 +123,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       stateSpec.setDefaultProvider("s3");
     }
     if (functions==null) functions = List.of();
-    for (FunctionBinding binding : functions) {
-      binding.validate();
-    }
     if (config==null) {
       config = new OClassConfig();
     }

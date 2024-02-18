@@ -9,7 +9,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 @Data
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProvisionConfig {
   @ProtoField(1)
   KnativeProvision knative;

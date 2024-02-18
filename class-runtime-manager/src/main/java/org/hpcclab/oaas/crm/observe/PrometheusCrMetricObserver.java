@@ -11,14 +11,19 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.factory.primitive.LongDoubleMaps;
+import org.eclipse.collections.api.map.primitive.LongDoubleMap;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.DataPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.addingMerge;
 
 @ApplicationScoped
 public class PrometheusCrMetricObserver implements CrMetricObserver {
@@ -108,14 +113,23 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
       switch (splitKey[2]) {
         case "fn" -> {
           var fnKey = extractFnName(splitKey);
-          currentCpuFn.put(fnKey, entry.getValue());
+          currentCpuFn.compute(fnKey, (k,v) -> {
+            if (v == null) return entry.getValue();
+            return addingMerge(v, entry.getValue());
+          });
         }
-        case "invoker" -> currentCpuCore.put(OprcComponent.INVOKER, entry.getValue());
-        case "storage" -> currentCpuCore.put(OprcComponent.STORAGE_ADAPTER, entry.getValue());
+        case "invoker" -> currentCpuCore.compute(OprcComponent.INVOKER, (k, v) -> {
+          if (v == null) return entry.getValue();
+          return addingMerge(v, entry.getValue());
+        });
+        case "storage" -> currentCpuCore.compute(OprcComponent.STORAGE_ADAPTER, (k, v) -> {
+            if (v == null) return entry.getValue();
+            return addingMerge(v, entry.getValue());
+          });
       }
-      // TODO merge datapoint
     }
   }
+
 
   private String extractFnName(String[] splitKey) {
     StringBuilder name = new StringBuilder(splitKey[3]);

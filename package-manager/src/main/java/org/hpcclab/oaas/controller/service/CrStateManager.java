@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.controller.service;
 
 import com.arangodb.ArangoDBException;
+import com.github.f4b6a3.tsid.Tsid;
 import io.quarkus.grpc.GrpcClient;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -36,7 +37,7 @@ public class CrStateManager {
   GenericArgRepository<OprcCr> crRepo;
   GenericArgRepository<CrHash> hashRepo;
   @GrpcClient("orbit-manager")
-  CrManagerGrpc.CrManagerBlockingStub orbitManager;
+  CrManagerGrpc.CrManagerBlockingStub crManager;
   @Channel("crHashs")
   MutinyEmitter<Record<String, Buffer>> crHashEmitter;
 
@@ -109,7 +110,7 @@ public class CrStateManager {
     var cr = getCrRepo().get(OprcCr.toKey(cls.getStatus().getCrId()));
     if (cr==null)
       throw new StdOaasException("No matched CR for give class");
-    var response = orbitManager.detach(DetachCrRequest.newBuilder()
+    var response = crManager.detach(DetachCrRequest.newBuilder()
       .setOrbit(crMapper.toProto(cr))
       .setCls(protoMapper.toProto(cls))
       .build());
@@ -121,5 +122,28 @@ public class CrStateManager {
       crRepo.persistAsync(crMapper.fromProto(newCr));
     }
     cls.getStatus().setCrId(0);
+  }
+
+  public CrOperationResponse deploy(DeploymentUnit unit) {
+    var cls = unit.getCls();
+    var orbitId = cls.getStatus().getCrId();
+    if (orbitId==0) {
+      logger.info("deploy a new orbit for cls [{}]", cls.getKey());
+      var response = crManager.deploy(unit);
+      updateCr(response.getCr()).await().indefinitely();
+      return response;
+    } else {
+      logger.info("update orbit [{}] for cls [{}]", orbitId, cls.getKey());
+      var orbit = get(Tsid.from(orbitId).toLowerCase())
+        .await().indefinitely();
+      var req = CrUpdateRequest.newBuilder()
+        .setOrbit(orbit)
+        .setUnit(unit)
+        .build();
+      var response = crManager.update(req);
+      updateCr(response.getCr())
+        .await().indefinitely();
+      return response;
+    }
   }
 }

@@ -27,6 +27,8 @@ import java.util.Map;
 
 import static org.hpcclab.oaas.crm.CrmConfig.LABEL_KEY;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
+import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeAnnotation;
+import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
 
 @RegisterForReflection(
   targets = {
@@ -38,8 +40,6 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
   }
 )
 public class KnativeFnController implements FnController {
-  public static final CrInstanceSpec DEFAULT = new CrInstanceSpec(
-    0, -1, "",-1);
   private static final Logger logger = LoggerFactory.getLogger(KnativeFnController.class);
   KubernetesClient kubernetesClient;
   KnativeClient knativeClient;
@@ -55,48 +55,14 @@ public class KnativeFnController implements FnController {
     this.envConfig = envConfig;
   }
 
-  private static Map<String, String> makeAnnotation(Map<String, String> annotation,
-                                                    KnativeProvision knConf) {
-    if (knConf.getMinScale() >= 0)
-      annotation.put("autoscaling.knative.dev/minScale",
-        String.valueOf(knConf.getMinScale()));
-    if (knConf.getMaxScale() >= 0)
-      annotation.put("autoscaling.knative.dev/maxScale",
-        String.valueOf(knConf.getMaxScale()));
-    if (!knConf.getScaleDownDelay().isEmpty())
-      annotation.put("autoscaling.knative.dev/scale-down-delay",
-        knConf.getScaleDownDelay());
-    if (knConf.getTargetConcurrency() > 0)
-      annotation.put("autoscaling.knative.dev/target",
-        String.valueOf(knConf.getTargetConcurrency()));
-    return annotation;
-  }
-
-  private static Map<String, String> makeAnnotation(Map<String, String> annotation,
-                                                    CrInstanceSpec instance) {
-
-    if (instance.minInstance() >= 0)
-      annotation.put("autoscaling.knative.dev/minScale",
-        String.valueOf(instance.minInstance()));
-    if (instance.maxInstance() >= 0)
-      annotation.put("autoscaling.knative.dev/maxScale",
-        String.valueOf(instance.maxInstance()));
-    if (instance.scaleDownDelay()!=null && !instance.scaleDownDelay().isEmpty())
-      annotation.put("autoscaling.knative.dev/scale-down-delay",
-        instance.scaleDownDelay());
-    if (instance.targetConcurrency() > 0)
-      annotation.put("autoscaling.knative.dev/target",
-        String.valueOf(instance.targetConcurrency()));
-    return annotation;
-  }
 
   @Override
   public FnResourcePlan deployFunction(CrDeploymentPlan plan, ProtoOFunction function)
     throws CrDeployException {
     var instanceSpec = plan.fnInstances()
-      .getOrDefault(function.getKey(), DEFAULT);
+      .get(function.getKey());
     var knConf = function.getProvision()
-      .getKnative();
+      .getKnative().toBuilder();
     var labels = Maps.mutable.of(
       CR_LABEL_KEY, String.valueOf(controller.id),
       CR_COMPONENT_LABEL_KEY, "function",
@@ -109,20 +75,6 @@ public class KnativeFnController implements FnController {
     knConf.getImage();
     if (knConf.getImage().isEmpty())
       return FnResourcePlan.EMPTY;
-    Map<String, Quantity> requests = new HashMap<>();
-    if (!knConf.getRequestsCpu().isEmpty()) {
-      requests.put("cpu", Quantity.parse(knConf.getRequestsCpu()));
-    }
-    if (!knConf.getRequestsMemory().isEmpty()) {
-      requests.put("memory", Quantity.parse(knConf.getRequestsMemory()));
-    }
-    Map<String, Quantity> limits = new HashMap<>();
-    if (!knConf.getLimitsCpu().isEmpty()) {
-      limits.put("cpu", Quantity.parse(knConf.getLimitsCpu()));
-    }
-    if (!knConf.getLimitsMemory().isEmpty()) {
-      limits.put("memory", Quantity.parse(knConf.getLimitsMemory()));
-    }
     var containerBuilder = new ContainerBuilder()
       .withName("fn")
       .withImage(knConf.getImage())
@@ -130,11 +82,7 @@ public class KnativeFnController implements FnController {
         .entrySet().stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
         .toList()
       )
-      .withResources(new ResourceRequirementsBuilder()
-        .withRequests(requests)
-        .withLimits(limits)
-        .build()
-      );
+      .withResources(makeResourceRequirements(instanceSpec));
 
     if (knConf.getPort() > 0) {
       containerBuilder.withPorts(new ContainerPortBuilder()
@@ -165,8 +113,7 @@ public class KnativeFnController implements FnController {
       .withContainers(containerBuilder.build())
       .endSpec()
       .endTemplate()
-      .endSpec()
-    ;
+      .endSpec();
     return new FnResourcePlan(
       List.of(serviceBuilder.build()),
       List.of(OFunctionStatusUpdate.newBuilder()
@@ -174,6 +121,7 @@ public class KnativeFnController implements FnController {
         .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
           .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING)
           .build())
+        .setProvision(function.getProvision())
         .build())
     );
   }

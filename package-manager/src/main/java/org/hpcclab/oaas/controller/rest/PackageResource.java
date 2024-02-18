@@ -62,8 +62,6 @@ public class PackageResource {
   ProtoMapper protoMapper;
   @Inject
   CrStateManager crStateManager;
-  @GrpcClient("orbit-manager")
-  CrManagerGrpc.CrManagerBlockingStub crManager;
 
   ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -71,12 +69,8 @@ public class PackageResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @JsonView(Views.Public.class)
   @RunOnVirtualThread
-  public OPackage create(@RestQuery Boolean update,
-                         @RestQuery @DefaultValue("false") Boolean overrideDeploy,
-                         OPackage packageContainer) {
-    var options = PackageValidator.ValidationOptions.builder()
-      .overrideDeploymentStatus(overrideDeploy).build();
-    var pkg = validator.validate(packageContainer, options).await().indefinitely();
+  public OPackage create(OPackage packageContainer) {
+    var pkg = validator.validate(packageContainer).await().indefinitely();
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var clsMap = classes.stream()
@@ -130,12 +124,10 @@ public class PackageResource {
   @POST
   @Consumes("text/x-yaml")
   @RunOnVirtualThread
-  public OPackage createByYaml(@RestQuery Boolean update,
-                               @RestQuery @DefaultValue("false") Boolean overrideDeploy,
-                               String body) {
+  public OPackage createByYaml(String body) {
     try {
       var pkg = yamlMapper.readValue(body, OPackage.class);
-      return create(update, overrideDeploy, pkg);
+      return create(pkg);
     } catch (JsonProcessingException e) {
       throw new StdOaasException(e.getMessage(), 400);
     }
@@ -166,31 +158,12 @@ public class PackageResource {
         .setCls(protoMapper.toProto(cls))
         .addAllFnList(protoFnList)
         .build();
-      var orbitId = cls.getStatus()==null ? 0:cls.getStatus().getCrId();
-      if (orbitId==0) {
-        logger.info("deploy a new orbit for cls [{}]", cls.getKey());
-        var response = crManager.deploy(unit);
-        crStateManager.updateCr(response.getCr()).await().indefinitely();
-        updateState(pkg, response);
-      } else {
-        logger.info("update orbit [{}] for cls [{}]", orbitId, cls.getKey());
-        var orbit = crStateManager.get(Tsid.from(orbitId).toLowerCase())
-          .await().indefinitely();
-        var req = CrUpdateRequest.newBuilder()
-          .setOrbit(orbit)
-          .setUnit(unit)
-          .build();
-        var response = crManager.update(req);
-        crStateManager.updateCr(response.getCr())
-          .await().indefinitely();
-        updateState(pkg, response);
-      }
+      var response = crStateManager.deploy(unit);
+      updateState(pkg, response);
     }
   }
 
   void updateState(OPackage pkg, CrOperationResponse response) {
-//    var cr = response.getCr();
-//    logger.debug("updateState {}", response);
     for (OClassStatusUpdate statusUpdate : response.getClsUpdatesList()) {
       var classOptional = pkg.getClasses().stream()
         .filter(c -> c.getKey().equals(statusUpdate.getKey()))
@@ -205,16 +178,8 @@ public class PackageResource {
         .findAny();
       if (functionOptional.isEmpty()) continue;
       var fn = functionOptional.get();
+      fn.setProvision(protoMapper.fromProto(statusUpdate.getProvision()));
       fn.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
     }
-//    for (var attachCls : cr.getAttachedClsList()) {
-//      var classOptional = pkg.getClasses().stream()
-//        .filter(c -> c.getKey().equals(attachCls.getKey()))
-//        .findAny();
-//      if (classOptional.isEmpty()) continue;
-//      var cls = classOptional.get();
-//      if (cls.getStatus()==null) cls.setStatus(new OClassDeploymentStatus());
-//      cls.getStatus().setCrId(cr.getId());
-//    }
   }
 }

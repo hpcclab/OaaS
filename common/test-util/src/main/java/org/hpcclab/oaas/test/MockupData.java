@@ -195,7 +195,7 @@ public class MockupData {
       clsRepo.persist(cls);
     }
     for (OFunction func : testFunctions()) {
-      func.validate(true);
+      func.validate();
       fnRepo.persist(func);
     }
     for (OObject testObject : testObjects()) {

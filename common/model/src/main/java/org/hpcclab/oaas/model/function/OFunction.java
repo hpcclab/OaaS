@@ -88,7 +88,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     updateKey();
   }
 
-  public void validate(boolean ignoreDeploy) {
+  public void validate() {
     if (name == null)
       throw new FunctionValidationException("Function's name can not be null");
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
@@ -105,14 +105,12 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
         );
       }
     }
-    if (!ignoreDeploy) {
-      if (status==null)
-        status = new OFunctionDeploymentStatus();
-      if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
-        status.setCondition(DeploymentCondition.RUNNING);
-      } else {
-        status.setCondition(DeploymentCondition.PENDING);
-      }
+    if (status==null)
+      status = new OFunctionDeploymentStatus();
+    if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
+      status.setCondition(DeploymentCondition.RUNNING);
+    } else {
+      status.setCondition(DeploymentCondition.PENDING);
     }
 
     if (outputCls != null &&

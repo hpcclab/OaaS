@@ -12,15 +12,13 @@ import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
+import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
 
 public class DeploymentFnController implements FnController {
-  public static final CrInstanceSpec DEFAULT = new CrInstanceSpec(
-    1, -1, "",-1);
   KubernetesClient kubernetesClient;
   K8SCrController controller;
 
@@ -34,7 +32,7 @@ public class DeploymentFnController implements FnController {
                                        ProtoOFunction function) {
 
     var instance = plan.fnInstances()
-      .getOrDefault(function.getKey(), DEFAULT);
+      .get(function.getKey());
     var labels = Map.of(
       CR_LABEL_KEY, String.valueOf(controller.id),
       CR_COMPONENT_LABEL_KEY, "function",
@@ -45,20 +43,6 @@ public class DeploymentFnController implements FnController {
     deployConf.getImage();
     if (deployConf.getImage().isEmpty())
       return FnResourcePlan.EMPTY;
-    Map<String, Quantity> requests = new HashMap<>();
-    if (!deployConf.getRequestsCpu().isEmpty()) {
-      requests.put("cpu", Quantity.parse(deployConf.getRequestsCpu()));
-    }
-    if (!deployConf.getRequestsMemory().isEmpty()) {
-      requests.put("memory", Quantity.parse(deployConf.getRequestsMemory()));
-    }
-    Map<String, Quantity> limits = new HashMap<>();
-    if (!deployConf.getLimitsCpu().isEmpty()) {
-      limits.put("cpu", Quantity.parse(deployConf.getLimitsCpu()));
-    }
-    if (!deployConf.getLimitsMemory().isEmpty()) {
-      limits.put("memory", Quantity.parse(deployConf.getLimitsMemory()));
-    }
     var container = new ContainerBuilder()
       .withName("fn")
       .withImage(deployConf.getImage())
@@ -72,11 +56,7 @@ public class DeploymentFnController implements FnController {
         .withContainerPort(deployConf.getPort() <= 0 ? 8080:deployConf.getPort())
         .build()
       )
-      .withResources(new ResourceRequirementsBuilder()
-        .withRequests(requests)
-        .withLimits(limits)
-        .build()
-      )
+      .withResources(makeResourceRequirements(instance))
       .build();
     var fnName = createName(function.getKey());
     var deploymentBuilder = new DeploymentBuilder()
@@ -124,6 +104,7 @@ public class DeploymentFnController implements FnController {
           .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
           .setInvocationUrl("http://" + svc.getMetadata().getName() + "." + controller.namespace + ".svc.cluster.local")
           .build())
+        .setProvision(function.getProvision())
         .build())
     );
   }

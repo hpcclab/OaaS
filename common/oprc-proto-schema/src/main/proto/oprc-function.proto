@@ -14,7 +14,7 @@ message ProtoOFunction{
   optional ProtoFunctionType type = 5;
   optional string outputCls = 6;
   optional ProtoMacroSpec macro = 7;
-  optional ProvisionConfig provision = 8;
+  optional ProtoProvisionConfig provision = 8;
   repeated VariableDescription variableDescriptions = 9;
   optional ProtoOFunctionDeploymentStatus status = 10;
   optional ProtoFunctionState state = 11;
@@ -29,7 +29,7 @@ message ProtoMacroSpec {
   bool atomic = 4;
 }
 
-message ProvisionConfig {
+message ProtoProvisionConfig {
   optional KnativeProvision knative = 1;
   optional KDeploymentProvision deployment = 2;
   optional StaticUrlProvision staticUrl = 3;

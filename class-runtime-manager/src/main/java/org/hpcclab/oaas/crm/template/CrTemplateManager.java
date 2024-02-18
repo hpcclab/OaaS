@@ -86,7 +86,7 @@ public class CrTemplateManager {
   }
 
   public QosOptimizer selectOptimizer(CrtMappingConfig.CrtConfig config) {
-    return new DefaultQoSOptimizer();
+    return new DefaultQoSOptimizer(config);
   }
 
   public ClassRuntimeTemplate selectTemplate(OprcEnvironment env,

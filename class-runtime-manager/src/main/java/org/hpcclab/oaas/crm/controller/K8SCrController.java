@@ -13,6 +13,7 @@ import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
+import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
 import org.hpcclab.oaas.proto.*;
@@ -22,9 +23,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class K8SCrController implements CrController {
+  public static final String CR_LABEL_KEY = "cr-id";
+  public static final String CR_COMPONENT_LABEL_KEY = "cr-part";
+  public static final String CR_FN_KEY = "cr-fn";
+  public static final String NAME_INVOKER = "invoker";
+  public static final String NAME_SA = "storage-adapter";
+  public static final String NAME_SECRET = "secret";
+  public static final String NAME_CONFIGMAP = "cm";
   private static final Logger logger = LoggerFactory.getLogger(K8SCrController.class);
   final long id;
   final String prefix;
@@ -40,15 +47,6 @@ public class K8SCrController implements CrController {
   KnativeFnController knativeFnController;
   CrDeploymentPlan currentPlan;
   boolean isDeleted = false;
-
-
-  public static final String CR_LABEL_KEY = "cr-id";
-  public static final String CR_COMPONENT_LABEL_KEY = "cr-part";
-  public static final String CR_FN_KEY = "cr-fn";
-  public static final String NAME_INVOKER = "invoker";
-  public static final String NAME_SA = "storage-adapter";
-  public static final String NAME_SECRET = "secret";
-  public static final String NAME_CONFIGMAP = "cm";
 
   public K8SCrController(ClassRuntimeTemplate template,
                          KubernetesClient client,
@@ -107,10 +105,10 @@ public class K8SCrController implements CrController {
       currentPlan = plan;
     });
     crOperation.getClsUpdates().add(OClassStatusUpdate.newBuilder()
-        .setKey(unit.getCls().getKey())
-        .setStatus(ProtoOClassDeploymentStatus.newBuilder()
-          .setCrId(getId())
-          .build())
+      .setKey(unit.getCls().getKey())
+      .setStatus(ProtoOClassDeploymentStatus.newBuilder()
+        .setCrId(getId())
+        .build())
       .build());
 
     for (var f : unit.getFnListList()) {
@@ -206,8 +204,9 @@ public class K8SCrController implements CrController {
       "/crts/invoker-dep.yml",
       prefix + NAME_INVOKER,
       NAME_INVOKER,
-      labels);
-    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER).minInstance());
+      labels,
+      plan.coreInstances().get(OprcComponent.INVOKER)
+    );
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
@@ -247,8 +246,9 @@ public class K8SCrController implements CrController {
       "/crts/storage-adapter-dep.yml",
       prefix + NAME_SA,
       NAME_SA,
-      labels);
-    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER).minInstance());
+      labels,
+      plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER)
+    );
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var svc = createSvc(
@@ -366,19 +366,23 @@ public class K8SCrController implements CrController {
   protected Deployment createDeployment(String filePath,
                                         String name,
                                         String configName,
-                                        Map<String, String> labels) {
+                                        Map<String, String> labels,
+                                        CrInstanceSpec spec) {
     var is = getClass().getResourceAsStream(filePath);
     var crtConfig = template.getConfig();
     var svc = crtConfig.services().get(configName);
     var image = svc.image();
     var deployment = kubernetesClient.getKubernetesSerialization()
       .unmarshal(is, Deployment.class);
+    deployment.getSpec()
+      .setReplicas(spec.minInstance());
     Container container = deployment.getSpec()
       .getTemplate()
       .getSpec()
       .getContainers()
       .getFirst();
     container.setImage(image);
+    container.setResources(K8sResourceUtil.makeResourceRequirements(spec));
     for (Map.Entry<String, String> entry : svc.env().entrySet()) {
       addEnv(container, entry.getKey(), entry.getValue());
     }
