@@ -17,15 +17,16 @@ data:
     templates:
       default:
         type: "default"
-        images:
-          invoker: ghcr.io/hpcclab/oaas/invoker
-          storage-adapter: ghcr.io/hpcclab/oaas/storage-adapter
-        additionalEnv:
+        services:
           invoker:
-            OPRC_INVOKER_NUMOFVERTICLE: "1"
-            OPRC_LOG: "DEBUG"
+            image: ghcr.io/hpcclab/oaas/invoker
+            env:
+              OPRC_INVOKER_NUMOFVERTICLE: "1"
+              OPRC_LOG: "DEBUG"
           storage-adapter:
-            OPRC_LOG: "DEBUG"
+            image: ghcr.io/hpcclab/oaas/storage-adapter
+            env:
+              OPRC_LOG: "DEBUG"
 
 
 kind: ConfigMap

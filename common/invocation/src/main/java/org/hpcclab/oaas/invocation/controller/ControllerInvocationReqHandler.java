@@ -52,7 +52,6 @@ public class ControllerInvocationReqHandler implements InvocationReqHandler {
         .invId(ctx.request().invId())
         .output(new OObject().setId(ctx.request().outId()))
         .fb(ctx.fb() != null? ctx.fb().getName() : "")
-        .macroIds(ctx.request().macroIds())
         .status(InvocationStatus.QUEUE)
         .async(true)
         .build());

@@ -38,7 +38,7 @@ spec:
               name: ping
           resources:
             limits:
-              memory: 4G
+              memory: 2G
               cpu: '2'
             requests:
               cpu: '0.5'

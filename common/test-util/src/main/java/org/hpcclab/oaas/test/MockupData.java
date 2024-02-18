@@ -2,11 +2,9 @@ package org.hpcclab.oaas.test;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.invocation.RepoContextLoader;
-import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.function.*;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
@@ -14,18 +12,19 @@ import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
-import org.hpcclab.oaas.repository.*;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.ClassResolver;
+import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 import java.util.List;
 
 public class MockupData {
 
-  private MockupData(){}
   public static final OFunction FUNC_NEW = new OFunction()
     .setName("new")
     .setPkg("builtin.logical")
     .setType(FunctionType.LOGICAL);
-
   public static final OFunction FUNC_1 = new OFunction()
     .setName("func1")
     .setPkg("ex")
@@ -34,7 +33,6 @@ public class MockupData {
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
-
   public static final OFunction FUNC_2 = new OFunction()
     .setName("im-fn")
     .setPkg("ex")
@@ -43,7 +41,6 @@ public class MockupData {
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
-
   public static final OFunction MACRO_FUNC_1 = new OFunction()
     .setName("macroFunc1")
     .setPkg("ex")
@@ -69,7 +66,6 @@ public class MockupData {
       ))
       .setExport("tmp3")
     );
-
   public static final OFunction ATOMIC_MACRO_FUNC = new OFunction()
     .setName("atomic-macro")
     .setPkg("ex")
@@ -95,7 +91,6 @@ public class MockupData {
       ))
       .setExport("tmp3")
     );
-
   public static final String CLS_1_KEY = "ex.cls1";
   public static final OClass CLS_1 = new OClass()
     .setName("cls1")
@@ -145,22 +140,22 @@ public class MockupData {
         .setFunction(ATOMIC_MACRO_FUNC.getKey())
         .setOutputCls(CLS_1_KEY)
     ));
-
   public static final OClass CLS_2 = new OClass()
     .setName("cls2")
     .setPkg("ex")
     .setConfig(new OClassConfig())
     .setObjectType(OObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
-
   public static final OObject OBJ_1 = OObject.createFromClasses(CLS_1)
     .setId("o1")
     .setState(new OaasObjectState()
       .setVerIds(DSMap.of("k1", "kkkk"))
     );
-
   public static final OObject OBJ_2 = OObject.createFromClasses(CLS_1)
     .setId("o2");
+
+  private MockupData() {
+  }
 
   public static MutableMap<String, OClass> testClasses() {
     var clsResolver = new ClassResolver(null);
@@ -191,22 +186,7 @@ public class MockupData {
     return l;
   }
 
-  public static List<InvocationNode> testNodes() {
-    return List.of();
-  }
 
-
-  public static RepoContextLoader mockContextLoader(MutableMap<String, OObject> objects,
-                                                    MutableMap<String, OClass> classes,
-                                                    MutableMap<String, OFunction> functions,
-                                                    MutableMap<String, InvocationNode> nodes) {
-
-    var clsRepo =  new MapEntityRepository.MapClsRepository(classes);
-    var funcRepo = new MapEntityRepository.MapFnRepository(functions);
-    var nodeRepoManager = new MapEntityRepository.MapInvRepoManager(nodes, classes);
-    var objectRepoManager =  new MapEntityRepository.MapObjectRepoManager(objects ,classes);
-    return new RepoContextLoader(objectRepoManager, funcRepo, clsRepo, nodeRepoManager);
-  }
   public static void persistMock(ObjectRepoManager objectRepoManager,
                                  ClassRepository clsRepo,
                                  FunctionRepository fnRepo) {

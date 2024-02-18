@@ -6,8 +6,8 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import java.util.Map;
 
 public record CrDeploymentPlan(
-  Map<OprcComponent, Integer> coreInstances,
-  Map<String, Integer> fnInstances
+  Map<OprcComponent, CrInstanceSpec> coreInstances,
+  Map<String, CrInstanceSpec> fnInstances
 ) {
 
   public CrDeploymentPlan update(CrAdjustmentPlan adjustmentPlan) {

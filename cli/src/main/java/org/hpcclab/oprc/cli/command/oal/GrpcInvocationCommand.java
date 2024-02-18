@@ -3,17 +3,18 @@ package org.hpcclab.oprc.cli.command.oal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.protobuf.ByteString;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.client.GrpcClientChannel;
-import io.vertx.mutiny.ext.web.client.WebClient;
-import io.vertx.mutiny.uritemplate.UriTemplate;
-import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.mapper.ProtoMapper;
-import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
+import org.hpcclab.oaas.model.invocation.InvocationResponse;
+import org.hpcclab.oaas.model.invocation.InvocationStats;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.proto.DSMap;
+import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
 import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
@@ -25,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.io.ObjectOutput;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +35,15 @@ import java.util.concurrent.Callable;
   name = "grpc-invoke",
   aliases = {"ginv", "gi"},
   mixinStandardHelpOptions = true
+)
+@RegisterForReflection(
+  targets = {
+    InvocationResponse.class,
+    OObject.class,
+    OaasObjectState.class,
+    DSMap.class,
+    InvocationStats.class
+  }
 )
 public class GrpcInvocationCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(GrpcInvocationCommand.class);
@@ -64,14 +73,14 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   @CommandLine.Option(names = {"-a", "--async"}, defaultValue = "false")
   boolean async;
   MessagePackMapper msgPackMapper = new MessagePackMapper();
-  ProtoObjectMapper protoMapper =new ProtoObjectMapperImpl();
+  ProtoObjectMapper protoMapper = new ProtoObjectMapperImpl();
 
   @Override
   public Integer call() throws Exception {
     protoMapper.setMapper(msgPackMapper);
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();
-    if (cls == null) cls = conf.getDefaultClass();
+    if (cls==null) cls = conf.getDefaultClass();
     GrpcClientChannel channel = new GrpcClientChannel(grpcClient, SocketAddress.inetSocketAddress(
       uri.getPort() < 0 ? uri.getDefaultPort():uri.getPort(), uri.getHost()));
     InvocationServiceGrpc.InvocationServiceBlockingStub service =
@@ -81,20 +90,20 @@ public class GrpcInvocationCommand implements Callable<Integer> {
       .setCls(cls)
       .setMain(main)
       .setFb(fb);
-    if (args != null)
+    if (args!=null)
       oalBuilder.putAllArgs(args);
-    if (pipeBody){
+    if (pipeBody) {
       var body = System.in.readAllBytes();
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
       oalBuilder.setBody(ByteString.copyFrom(msgPackMapper.writeValueAsBytes(objectNode)));
     }
-    if (inputs != null){
+    if (inputs!=null) {
       oalBuilder.addAllInputs(inputs);
     }
     var protoOal = oalBuilder.build();
     ProtoInvocationResponse response = service.invokeOal(protoOal);
-    outputFormatter.printObject(commonOutputMixin.getOutputFormat(),protoMapper.fromProto(response));
+    outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
     return 0;
   }
 }

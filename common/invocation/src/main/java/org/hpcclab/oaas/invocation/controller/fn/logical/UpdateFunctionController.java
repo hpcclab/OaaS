@@ -16,11 +16,9 @@ import java.util.List;
 /**
  * @author Pawissanutt
  */
-@Dependent
 public class UpdateFunctionController extends AbstractFunctionController
 implements LogicalFunctionController {
 
-  @Inject
   public UpdateFunctionController(IdGenerator idGenerator,
                                   ObjectMapper mapper) {
     super(idGenerator, mapper);

@@ -207,7 +207,7 @@ public class K8SCrController implements CrController {
       prefix + NAME_INVOKER,
       NAME_INVOKER,
       labels);
-    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER));
+    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.INVOKER).minInstance());
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
@@ -248,7 +248,7 @@ public class K8SCrController implements CrController {
       prefix + NAME_SA,
       NAME_SA,
       labels);
-    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER));
+    deployment.getSpec().setReplicas(plan.coreInstances().get(OprcComponent.STORAGE_ADAPTER).minInstance());
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var svc = createSvc(
@@ -345,7 +345,7 @@ public class K8SCrController implements CrController {
         .inNamespace(namespace)
         .withName(name).get();
       if (deployment==null) continue;
-      deployment.getSpec().setReplicas(entry.getValue());
+      deployment.getSpec().setReplicas(entry.getValue().minInstance());
       resource.add(deployment);
     }
     var crOperation = new ApplyK8SCrOperation(
@@ -369,7 +369,8 @@ public class K8SCrController implements CrController {
                                         Map<String, String> labels) {
     var is = getClass().getResourceAsStream(filePath);
     var crtConfig = template.getConfig();
-    var image = crtConfig.images().get(configName);
+    var svc = crtConfig.services().get(configName);
+    var image = svc.image();
     var deployment = kubernetesClient.getKubernetesSerialization()
       .unmarshal(is, Deployment.class);
     Container container = deployment.getSpec()
@@ -378,8 +379,7 @@ public class K8SCrController implements CrController {
       .getContainers()
       .getFirst();
     container.setImage(image);
-    var additionalEnv = template.getConfig().additionalEnv().get(configName);
-    for (Map.Entry<String, String> entry : additionalEnv.entrySet()) {
+    for (Map.Entry<String, String> entry : svc.env().entrySet()) {
       addEnv(container, entry.getKey(), entry.getValue());
     }
     rename(deployment, name);

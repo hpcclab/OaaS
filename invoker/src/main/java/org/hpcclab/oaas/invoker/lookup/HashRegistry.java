@@ -51,9 +51,7 @@ public class HashRegistry {
 
   public Uni<Void> warmCache() {
     return crStateService.listHash(PaginateQuery.newBuilder().setLimit(1000).setOffset(0).build())
-      .invoke(hash -> {
-        cacheMap.put(hash.getCls(), hash);
-      })
+      .invoke(hash -> cacheMap.put(hash.getCls(), hash))
       .collect().last().replaceWithVoid();
   }
 
@@ -83,7 +81,7 @@ public class HashRegistry {
     if (localAdvertiseAddress==null) {
       var registry = InternalCacheManager.of(cacheManager);
       var transport = registry.getComponent(Transport.class);
-      JGroupsAddress address = (JGroupsAddress) transport.getPhysicalAddresses().get(0);
+      JGroupsAddress address = (JGroupsAddress) transport.getPhysicalAddresses().getFirst();
       IpAddress ipAddress = (IpAddress) address.getJGroupsAddress();
       localAdvertiseAddress = ipAddress.getIpAddress().getHostAddress();
     }

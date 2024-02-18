@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker;
 
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.runtime.StartupEvent;
+import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -91,9 +92,13 @@ public class InvokerInitializer {
           .collect().asList().await().indefinitely();
       }
     }
-    for (var cls : clsList) {
-      invokerManager.registerManaged(cls).await().indefinitely();
-    }
+    Multi.createFrom().iterable(clsList)
+      .call(invokerManager::registerManaged)
+      .collect().last()
+      .call(() -> classService.list(PaginateQuery.newBuilder().setLimit(1000).build())
+        .call(invokerManager::update)
+        .collect().last())
+      .await().indefinitely();
     if (logger.isInfoEnabled())
       logger.info("setup class controller registry:\n{}",
         invokerManager.getRegistry().printStructure());

@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
+import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
 import org.hpcclab.oaas.proto.ProtoOFunction;
@@ -18,6 +19,8 @@ import java.util.Map;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 
 public class DeploymentFnController implements FnController {
+  public static final CrInstanceSpec DEFAULT = new CrInstanceSpec(
+    1, -1, "",-1);
   KubernetesClient kubernetesClient;
   K8SCrController controller;
 
@@ -31,7 +34,7 @@ public class DeploymentFnController implements FnController {
                                        ProtoOFunction function) {
 
     var instance = plan.fnInstances()
-      .getOrDefault(function.getKey(), 0);
+      .getOrDefault(function.getKey(), DEFAULT);
     var labels = Map.of(
       CR_LABEL_KEY, String.valueOf(controller.id),
       CR_COMPONENT_LABEL_KEY, "function",
@@ -83,7 +86,7 @@ public class DeploymentFnController implements FnController {
       .endMetadata();
     deploymentBuilder
       .withNewSpec()
-      .withReplicas(instance)
+      .withReplicas(instance.minInstance())
       .withNewSelector()
       .addToMatchLabels(labels)
       .endSelector()
@@ -128,7 +131,7 @@ public class DeploymentFnController implements FnController {
   @Override
   public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
     List<HasMetadata> resource = Lists.mutable.empty();
-    for (Map.Entry<String, Integer> entry : plan.fnInstances().entrySet()) {
+    for (Map.Entry<String, CrInstanceSpec> entry : plan.fnInstances().entrySet()) {
       var fnKey = entry.getKey();
       var deployment = kubernetesClient.apps()
         .deployments()
@@ -137,7 +140,7 @@ public class DeploymentFnController implements FnController {
         .get();
       if (deployment==null) continue;
       deployment.getSpec()
-        .setReplicas(entry.getValue());
+        .setReplicas(entry.getValue().minInstance());
       resource.add(deployment);
     }
     return new FnResourcePlan(
@@ -147,7 +150,7 @@ public class DeploymentFnController implements FnController {
   }
 
   private String createName(String fnKey) {
-    return controller.prefix + "fn-" + fnKey.toLowerCase().replaceAll("[\\._]", "-");
+    return controller.prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-");
 
   }
 

@@ -5,8 +5,8 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import java.util.Map;
 
 public record CrAdjustmentPlan(
-  Map<OprcComponent, Integer> coreInstances,
-  Map<String, Integer> fnInstances,
+  Map<OprcComponent, CrInstanceSpec> coreInstances,
+  Map<String, CrInstanceSpec> fnInstances,
   boolean needAction
 ) {
 }

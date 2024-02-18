@@ -7,7 +7,6 @@ import org.hpcclab.oaas.repository.ObjectRepoManager;
 /**
  * @author Pawissanutt
  */
-@ApplicationScoped
 public class RepoStateManager implements StateManager {
   final ObjectRepoManager repoManager;
 

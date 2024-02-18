@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * @author Pawissanutt
  */
-@Dependent
 public class CopyFunctionController
   extends AbstractFunctionController
   implements LogicalFunctionController {

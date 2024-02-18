@@ -9,14 +9,11 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.invocation.applier.logical.ObjectConstructRequest;
 import org.hpcclab.oaas.proto.InvocationService;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.test.MockupData;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,9 +50,9 @@ public class NewApplierTest {
 
   @Test
   void _1createSimple() {
-    var req = new ObjectConstructRequest()
-      .setData(mapper.createObjectNode().put("n", 1))
-      ;
+    var req = NewFunctionController.ObjectConstructRequest.of(
+      mapper.createObjectNode().put("n", 1)
+    );
 
     var oal = new ObjectAccessLanguage(
       null,
@@ -79,8 +76,10 @@ public class NewApplierTest {
   }
   @Test
   void _2createSimpleGrpc() {
-    var req = new ObjectConstructRequest()
-      .setData(mapper.createObjectNode().put("n", 1));
+    var req = NewFunctionController.ObjectConstructRequest.of(
+      mapper.createObjectNode().put("n", 1)
+    );
+
     var oal = new ObjectAccessLanguage(
       null,
       MockupData.CLS_1_KEY,

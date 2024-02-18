@@ -6,10 +6,8 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.proto.*;
-import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.test.MapEntityRepository;
-import org.hpcclab.oaas.test.MockInvocationEngine;
 import org.hpcclab.oaas.test.MockupData;
 
 /**

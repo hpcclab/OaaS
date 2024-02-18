@@ -8,14 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
-import org.hpcclab.oaas.invocation.*;
+import org.hpcclab.oaas.invocation.HttpOffLoader;
+import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
-import org.hpcclab.oaas.invocation.controller.ControllerInvocationReqHandler;
-import org.hpcclab.oaas.invocation.controller.CtxLoader;
+import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
-import org.hpcclab.oaas.invocation.task.TaskFactory;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
@@ -33,30 +31,6 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
-
-//  @Produces
-//  InvocationExecutor invocationGraphExecutor(
-//    InvocationQueueProducer sender,
-//    GraphStateManager graphStateManager,
-//    RepoContextLoader contextLoader,
-//    OffLoader offLoader,
-//    TaskFactory taskFactory,
-//    CompletedStateUpdater completionHandler) {
-//    return new InvocationExecutor(sender,
-//      graphStateManager,
-//      contextLoader,
-//      offLoader,
-//      taskFactory,
-//      completionHandler);
-//  }
-
-
-//  @Produces
-//  GraphStateManager graphStateManager(InvRepoManager invRepoManager,
-//                                      ObjectRepoManager objectRepoManager) {
-//    return new GraphStateManager(invRepoManager, objectRepoManager);
-//  }
-
 
   @Produces
   @ApplicationScoped
@@ -108,7 +82,6 @@ public class InvocationEngineProducer {
   }
 
 
-
   @Produces
   @ApplicationScoped
   ContentUrlGenerator contentUrlGenerator(InvokerConfig config) {
@@ -133,5 +106,19 @@ public class InvocationEngineProducer {
     var protoObjectMapper = new ProtoObjectMapperImpl();
     protoObjectMapper.setMapper(new MessagePackMapper());
     return protoObjectMapper;
+  }
+
+  @ApplicationScoped
+  @Produces
+  RepoStateManager repoStateManager(ObjectRepoManager repoManager) {
+    return new RepoStateManager(repoManager);
+  }
+
+  @ApplicationScoped
+  @Produces
+  RepoCtxLoader repoCtxLoader(ObjectRepoManager objManager,
+                              ClassControllerRegistry registry,
+                              ProtoObjectMapper protoObjectMapper) {
+    return new RepoCtxLoader(objManager, registry, protoObjectMapper);
   }
 }

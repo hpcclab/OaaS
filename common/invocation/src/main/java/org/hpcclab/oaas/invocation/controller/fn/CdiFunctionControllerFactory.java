@@ -9,13 +9,11 @@ import org.hpcclab.oaas.model.function.OFunction;
 /**
  * @author Pawissanutt
  */
-@ApplicationScoped
 public class CdiFunctionControllerFactory implements FunctionControllerFactory {
   Instance<TaskFunctionController> taskFunctionControllerInstance;
   Instance<MacroFunctionController> macroFunctionControllerInstance;
   Instance<LogicalFunctionController> logicalFunctionControllers;
 
-  @Inject
   public CdiFunctionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                       Instance<MacroFunctionController> macroFunctionControllerInstance,
                                       Instance<LogicalFunctionController> logicalFunctionControllers) {

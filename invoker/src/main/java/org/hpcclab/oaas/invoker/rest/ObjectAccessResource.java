@@ -3,15 +3,12 @@ package org.hpcclab.oaas.invoker.rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.http.HttpServerRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
@@ -20,9 +17,12 @@ import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Pawissanutt
@@ -79,17 +79,25 @@ public class ObjectAccessResource {
       });
   }
 
-//  @GET
-//  @Path("invokes/{fb}")
-//  public Uni<Response> invoke(String cls,
-//                              String objId,
-//                              String fb,
-//                              @Context HttpServerRequest request) {
-//    boolean managed = invokerManager.getManagedCls().contains(cls);
-//    if (managed) {
-//
-//    } else {
-//
-//    }
-//  }
+  @GET
+  @Path("invokes/{fb}")
+  public Uni<InvocationResponse> invoke(String cls,
+                                        String objId,
+                                        String fb,
+                                        @Context UriInfo uriInfo) {
+    MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+    DSMap args = DSMap.mutable();
+    for (Map.Entry<String, List<String>> entry : queryParameters.entrySet()) {
+      if (!entry.getKey().startsWith("_"))
+        args.put(entry.getKey(), entry.getValue().getFirst());
+    }
+    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
+    return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
+      .cls(cls)
+      .main(objId)
+      .fb(fb)
+      .args(args)
+      .inputs(inputs)
+      .build());
+  }
 }

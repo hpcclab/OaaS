@@ -83,10 +83,9 @@ public class ControllerInvocationRecordHandler implements InvocationRecordHandle
     var cache = ((EIspnObjectRepository) repo).getCache();
     var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
 
-    logger.debug("record[{},{},{}]: Kafka latency {} ms, locality[{}={}]",
+    logger.debug("record[{},{}]: Kafka latency {} ms, locality[{}={}]",
       kafkaRecord.key(),
       request.invId(),
-      request.macro(),
       System.currentTimeMillis() - submittedTs,
       kafkaRecord.partition(),
       local

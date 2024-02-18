@@ -10,9 +10,17 @@ public record CrtMappingConfig(
 ) {
   public record CrtConfig(
     String type,
-    Map<String, String> images,
-    Map<String, Map<String, String>> additionalEnv,
+    Map<String, SvcConfig> services,
     String optimizer,
     Map<String, String> optimizerConf
+  ){}
+
+  public record SvcConfig(
+    String image,
+    Map<String, String> env,
+    String cpuLimit,
+    String cpuRequest,
+    String memLimit,
+    String memRequest
   ){}
 }

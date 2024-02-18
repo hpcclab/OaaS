@@ -16,10 +16,8 @@ import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
-import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
-import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
-import org.hpcclab.oaas.proto.ProtoOFunction;
-import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
+import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
+import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +38,8 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
   }
 )
 public class KnativeFnController implements FnController {
+  public static final CrInstanceSpec DEFAULT = new CrInstanceSpec(
+    0, -1, "",-1);
   private static final Logger logger = LoggerFactory.getLogger(KnativeFnController.class);
   KubernetesClient kubernetesClient;
   KnativeClient knativeClient;
@@ -55,11 +55,46 @@ public class KnativeFnController implements FnController {
     this.envConfig = envConfig;
   }
 
+  private static Map<String, String> makeAnnotation(Map<String, String> annotation,
+                                                    KnativeProvision knConf) {
+    if (knConf.getMinScale() >= 0)
+      annotation.put("autoscaling.knative.dev/minScale",
+        String.valueOf(knConf.getMinScale()));
+    if (knConf.getMaxScale() >= 0)
+      annotation.put("autoscaling.knative.dev/maxScale",
+        String.valueOf(knConf.getMaxScale()));
+    if (!knConf.getScaleDownDelay().isEmpty())
+      annotation.put("autoscaling.knative.dev/scale-down-delay",
+        knConf.getScaleDownDelay());
+    if (knConf.getTargetConcurrency() > 0)
+      annotation.put("autoscaling.knative.dev/target",
+        String.valueOf(knConf.getTargetConcurrency()));
+    return annotation;
+  }
+
+  private static Map<String, String> makeAnnotation(Map<String, String> annotation,
+                                                    CrInstanceSpec instance) {
+
+    if (instance.minInstance() >= 0)
+      annotation.put("autoscaling.knative.dev/minScale",
+        String.valueOf(instance.minInstance()));
+    if (instance.maxInstance() >= 0)
+      annotation.put("autoscaling.knative.dev/maxScale",
+        String.valueOf(instance.maxInstance()));
+    if (instance.scaleDownDelay()!=null && !instance.scaleDownDelay().isEmpty())
+      annotation.put("autoscaling.knative.dev/scale-down-delay",
+        instance.scaleDownDelay());
+    if (instance.targetConcurrency() > 0)
+      annotation.put("autoscaling.knative.dev/target",
+        String.valueOf(instance.targetConcurrency()));
+    return annotation;
+  }
+
   @Override
   public FnResourcePlan deployFunction(CrDeploymentPlan plan, ProtoOFunction function)
     throws CrDeployException {
-    var instance = plan.fnInstances()
-      .getOrDefault(function.getKey(), 0);
+    var instanceSpec = plan.fnInstances()
+      .getOrDefault(function.getKey(), DEFAULT);
     var knConf = function.getProvision()
       .getKnative();
     var labels = Maps.mutable.of(
@@ -110,19 +145,8 @@ public class KnativeFnController implements FnController {
     }
 
     var fnName = createName(function.getKey());
-    var annotation = new HashMap<String, String>();
-    if (instance >= 0)
-      annotation.put("autoscaling.knative.dev/minScale",
-        String.valueOf(instance));
-    if (knConf.getMaxScale() >= 0)
-      annotation.put("autoscaling.knative.dev/maxScale",
-        String.valueOf(knConf.getMaxScale()));
-    if (!knConf.getScaleDownDelay().isEmpty())
-      annotation.put("autoscaling.knative.dev/scale-down-delay",
-        knConf.getScaleDownDelay());
-    if (knConf.getTargetConcurrency() > 0)
-      annotation.put("autoscaling.knative.dev/target",
-        String.valueOf(knConf.getTargetConcurrency()));
+    var annotation = makeAnnotation(Maps.mutable.empty(), knConf);
+    makeAnnotation(annotation, instanceSpec);
     var serviceBuilder = new ServiceBuilder()
       .withNewMetadata()
       .withName(fnName)
@@ -156,24 +180,23 @@ public class KnativeFnController implements FnController {
 
   private String createName(String key) {
     return controller.prefix + "fn-" + key
-      .replaceAll("[\\._]", "-");
+      .replaceAll("[._]", "-");
   }
 
   @Override
   public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
     List<HasMetadata> resource = Lists.mutable.empty();
-    for (Map.Entry<String, Integer> entry : plan.fnInstances().entrySet()) {
+    for (Map.Entry<String, CrInstanceSpec> entry : plan.fnInstances().entrySet()) {
       var fnKey = entry.getKey();
       var svc = knativeClient.services()
         .inNamespace(controller.namespace)
         .withName(createName(fnKey))
         .get();
-      if (svc == null) continue;
-      svc.getSpec()
+      if (svc==null) continue;
+      makeAnnotation(svc.getSpec()
         .getTemplate()
         .getMetadata()
-        .getAnnotations()
-        .put("autoscaling.knative.dev/minScale", String.valueOf(entry.getValue()));
+        .getAnnotations(), entry.getValue());
       resource.add(svc);
     }
     return new FnResourcePlan(

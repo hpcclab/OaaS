@@ -38,6 +38,10 @@ public class InvokerManager {
     return registry.registerOrUpdate(cls)
       .replaceWithVoid();
   }
+  Uni<Void> update(ProtoOClass cls) {
+    return registry.registerOrUpdate(cls)
+      .replaceWithVoid();
+  }
 
   Uni<Void> update(OFunction fn) {
     registry.updateFunction(fn);

@@ -28,9 +28,17 @@ public class SimpleStateOperation implements StateOperation{
                                                 OClass createCls){
     return new SimpleStateOperation(createObjs, createCls, List.of(), null);
   }
+  public static SimpleStateOperation createObjs(OObject createObj,
+                                                OClass createCls){
+    return new SimpleStateOperation(List.of(createObj), createCls, List.of(), null);
+  }
   public static SimpleStateOperation updateObjs(List<OObject> updateObjs,
                                                 OClass updateCls){
     return new SimpleStateOperation(List.of(), null, updateObjs, updateCls);
+  }
+  public static SimpleStateOperation updateObjs(OObject updateObj,
+                                                OClass updateCls){
+    return new SimpleStateOperation(List.of(), null, List.of(updateObj), updateCls);
   }
 
   public List<OObject> getCreateObjs() {

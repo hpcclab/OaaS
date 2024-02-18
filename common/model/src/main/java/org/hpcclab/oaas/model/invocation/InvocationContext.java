@@ -147,7 +147,6 @@ public class InvocationContext implements RoutableTaskMeta {
   public InvocationRequest.InvocationRequestBuilder toRequest() {
     return initNode()
       .toReq()
-      .macro(function.getType()==FunctionType.MACRO)
       .immutable(getFb().isForceImmutable());
   }
 

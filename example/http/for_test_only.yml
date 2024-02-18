@@ -3,14 +3,20 @@ functions:
   - name: record.random
     type: TASK
     provision:
-      staticUrl:
-        url: "http://json-update-fn:8080/"
+      knative:
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+        requestsCpu: "0.5"
+        requestsMemory: "256M"
+        limitsCpu: "1"
+        limitsMemory: "512M"
 
   - name: record.merge
     type: TASK
     provision:
-      staticUrl:
-        url: "http://json-update-fn:8080/"
+      knative:
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+        requestsCpu: "0.5"
+        requestsMemory: "256M"
 
   - name: record.chain-update
     type: MACRO
@@ -36,14 +42,6 @@ functions:
           args:
             INPLACE: "false"
       export: record3
-  - name: concat
-    type: TASK
-    provision:
-      staticUrl:
-        url: "http://concat-fn:8080/"
-    variableDescriptions:
-      - name: append
-
   - name: record.chain-update-atomic
     type: MACRO
     macro:
@@ -69,24 +67,12 @@ functions:
           args:
             INPLACE: "false"
       export: record3
-
-  - name: video.transcode
-    type: TASK
-    outputCls: .video
-    provision:
-      staticUrl:
-        url: "http://transcode-fn:8080/"
-    variableDescriptions:
-      - name: RESOLUTION
-      - name: VCODEC
-      - name: FORMAT
-
 classes:
   - name: record
     stateType: FILES
     objectType: SIMPLE
     stateSpec:
-      keySpecs: [ ]
+      keySpecs: []
     functions:
       - access: PUBLIC
         name: random-inplace
@@ -97,6 +83,13 @@ classes:
       - access: PUBLIC
         name: random
         function: .record.random
+        outputCls: .record
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: merge
+        function: .record.merge
         outputCls: .record
         defaultArgs:
           INPLACE: "false"
@@ -113,32 +106,41 @@ classes:
         name: new
         function: builtin.logical.new
         outputCls: .record
-  - name: text
+  - name: record2
     stateType: FILES
     objectType: SIMPLE
     stateSpec:
-      keySpecs:
-        - name: text
+      keySpecs: []
     functions:
       - access: PUBLIC
-        function: .concat
-        outputCls: .text
-      - access: PUBLIC
-        function: .concat
-        name: concat-inplace
-        outputCls: void
+        name: random-inplace
+        function: .record.random
+        outputCls: none
         defaultArgs:
           INPLACE: "true"
       - access: PUBLIC
+        name: random
+        function: .record.random
+        outputCls: .record2
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: merge
+        function: .record.merge
+        outputCls: .record2
+        defaultArgs:
+          INPLACE: "false"
+        forceImmutable: true
+      - access: PUBLIC
+        name: chain
+        function: .record.chain-update
+        outputCls: .record2
+      - access: PUBLIC
+        name: chain-atomic
+        function: .record.chain-update-atomic
+        outputCls: .record2
+      - access: PUBLIC
         name: new
         function: builtin.logical.new
-        outputCls: .text
-  - name: video
-    stateType: FILES
-    objectType: SIMPLE
-    stateSpec:
-      keySpecs:
-        - name: video
-    functions:
-      - access: PUBLIC
-        function: .video.transcode
+        outputCls: .record2

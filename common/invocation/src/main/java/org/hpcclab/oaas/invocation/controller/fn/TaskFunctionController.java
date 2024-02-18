@@ -28,7 +28,6 @@ import java.util.Map;
 /**
  * @author Pawissanutt
  */
-@Dependent
 public class TaskFunctionController extends AbstractFunctionController {
   private static final Logger logger = LoggerFactory.getLogger(TaskFunctionController.class);
   final OffLoader offLoader;

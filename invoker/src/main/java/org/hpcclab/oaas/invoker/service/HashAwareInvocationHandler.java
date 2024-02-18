@@ -64,8 +64,8 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.syncInvoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}/{} to {}", protOal.getCls(), protOal.getMain(),
-        protOal.getFb(), addr);
+      logger.debug("invoke remote {}~{}/{} to {}:{}", protOal.getCls(), protOal.getMain(),
+        protOal.getFb(), addr.getHost(), addr.getPort());
       return send(addr, protOal);
     }
   }
@@ -81,7 +81,8 @@ public class HashAwareInvocationHandler {
       logger.debug("invoke local {}~{}:{}", oal.getCls(), oal.getMain(), oal.getFb());
       return invocationReqHandler.syncInvoke(oal);
     } else {
-      logger.debug("invoke remote {}~{}:{}", oal.getCls(), oal.getMain(), oal.getFb());
+      logger.debug("invoke remote {}~{}:{} to {}:{}",
+        oal.getCls(), oal.getMain(), oal.getFb(),addr.getHost(), addr.getPort());
       return send(addr, mapper.toProto(oal))
         .map(mapper::fromProto);
     }
@@ -99,7 +100,8 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.syncInvoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
+      logger.debug("invoke remote {}~{}:{} to {}:{}",
+        request.getCls(), request.getMain(), request.getFb(), addr.getHost(), addr.getPort());
       return send(addr, request);
     }
   }

@@ -61,13 +61,11 @@ public class BaseClassController implements ClassController {
       var req = oal.toRequest()
         .immutable(fn.getFunctionBinding().isForceImmutable());
       if (fn.getFunction().getType()==FunctionType.MACRO) {
-        req.macro(true);
         var dataflow = fn.getFunction().getMacro();
         var map = Lists.fixedSize.ofAll(dataflow.getSteps())
           .select(step -> step.getAs()!=null)
           .collect(step -> Map.entry(step.getAs(), idGenerator.generate()))
           .toMap(Map.Entry::getKey, Map.Entry::getValue);
-        req.macroIds(DSMap.wrap(map));
         if (dataflow.getExport()!=null)
           req.outId(map.get(dataflow.getExport()));
       }
@@ -101,7 +99,6 @@ public class BaseClassController implements ClassController {
         .onItem().transformToUniAndConcatenate(op -> handleStateOperation(op)
           .replaceWith(context))
         .collect().last();
-
     }
   }
 

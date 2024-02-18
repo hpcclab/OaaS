@@ -96,7 +96,7 @@ public class ClassControllerRegistry {
     }
   }
 
-  FunctionController buildFnController(FunctionBinding functionBinding,
+  private FunctionController buildFnController(FunctionBinding functionBinding,
                                        Map<String, OFunction> functionMap,
                                        OClass cls,
                                        Map<String, OClass> ctxClsMap) {
@@ -106,7 +106,7 @@ public class ClassControllerRegistry {
     return buildFnController(functionBinding, function, cls, outputCls);
   }
 
-  FunctionController buildFnController(FunctionBinding functionBinding,
+  private FunctionController buildFnController(FunctionBinding functionBinding,
                                        OFunction function,
                                        OClass cls,
                                        OClass outputCls) {
@@ -124,7 +124,6 @@ public class ClassControllerRegistry {
                         Map<String, OClass> ctxClsMap,
                         Map<String, OFunction> fnMap,
                         StateManager stateManager) {
-    logger.info("building class controller[{}]", cls.getKey());
     Map<String, FunctionController> fbToFnMap = cls.getFunctions()
       .stream()
       .map(fb -> Map.entry(fb.getName(), buildFnController(fb, fnMap, cls, ctxClsMap)))

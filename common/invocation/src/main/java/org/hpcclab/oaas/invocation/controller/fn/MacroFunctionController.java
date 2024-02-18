@@ -11,17 +11,15 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
 /**
  * @author Pawissanutt
  */
-@Dependent
 public class MacroFunctionController extends AbstractFunctionController {
   DataflowSemantic semantic;
-  @Inject
-  protected MacroFunctionController(IdGenerator idGenerator, ObjectMapper mapper) {
+  public MacroFunctionController(IdGenerator idGenerator, ObjectMapper mapper) {
     super(idGenerator, mapper);
   }
 
   @Override
   protected void afterBind() {
-    //TODO
+    semantic = DataflowSemantic.construct(getFunction().getMacro());
   }
 
   @Override
@@ -31,7 +29,7 @@ public class MacroFunctionController extends AbstractFunctionController {
 
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
-    //TODO
+    //TODO generate list of requests
     return null;
   }
 }

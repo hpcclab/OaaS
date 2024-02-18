@@ -2,13 +2,10 @@ package org.hpcclab.oaas.invocation.controller.fn.logical;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
-import org.hpcclab.oaas.invocation.applier.logical.ObjectConstructRequest;
-import org.hpcclab.oaas.invocation.applier.logical.ObjectConstructResponse;
 import org.hpcclab.oaas.invocation.controller.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
@@ -23,11 +20,12 @@ import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Pawissanutt
  */
-@Dependent
 public class NewFunctionController extends AbstractFunctionController
   implements LogicalFunctionController {
   DataUrlAllocator allocator;
@@ -49,7 +47,7 @@ public class NewFunctionController extends AbstractFunctionController
     var body = ctx.getRequest().body();
     ObjectConstructRequest req;
     if (body==null) {
-      req = new ObjectConstructRequest();
+      req = new ObjectConstructRequest(null, Set.of(), DSMap.of(),DSMap.of());
     } else {
       try {
         req = mapper.treeToValue(body, ObjectConstructRequest.class);
@@ -57,8 +55,6 @@ public class NewFunctionController extends AbstractFunctionController
         throw new FunctionValidationException("Cannot decode body to 'ObjectConstructRequest'", e);
       }
     }
-    if (ctx.getRequest().cls()!=null)
-      req.setCls(ctx.getRequest().cls());
     return construct(ctx, req);
   }
 
@@ -68,25 +64,25 @@ public class NewFunctionController extends AbstractFunctionController
     var obj = new OObject();
     var id = idGenerator.generate();
     obj.setId(idGenerator.generate());
-    obj.setData(construct.getData());
+    obj.setData(construct.data());
     var state = new OaasObjectState();
     if (cls.getStateType()!=StateType.COLLECTION) {
       var verIds = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
         .toMap(KeySpecification::getName, __ -> id);
       state.setVerIds(DSMap.wrap(verIds));
     }
-    state.setOverrideUrls(construct.getOverrideUrls());
+    state.setOverrideUrls(construct.overrideUrls());
 
     obj.setState(state);
     obj.setRevision(1);
-    obj.setRefs(construct.getRefs());
+    obj.setRefs(construct.refs());
     ctx.setOutput(obj);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.createObjs(List.of(obj), cls)
     ));
 
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
-      .select(k -> construct.getKeys().contains(k.getName()))
+      .select(k -> construct.keys().contains(k.getName()))
       .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
       ctx.setRespBody(null);
@@ -107,4 +103,22 @@ public class NewFunctionController extends AbstractFunctionController
   public String getFnKey() {
     return "builtin.logical.new";
   }
+
+  public record ObjectConstructRequest(
+    ObjectNode data,
+    Set<String> keys,
+    DSMap overrideUrls,
+    DSMap refs
+  ) {
+    public static ObjectConstructRequest of(ObjectNode data) {
+      return new ObjectConstructRequest(data, Set.of(), DSMap.of(), DSMap.of());
+    }
+  }
+
+  public record ObjectConstructResponse(
+    OObject object,
+    Map<String, String> uploadUrls) {
+  }
+
+
 }
