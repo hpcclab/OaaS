@@ -89,6 +89,8 @@ quarkus:
     enable-jndi: true
   console:
     color: false
+  swagger-ui:
+    always-include: true
   http:
     access-log:
       enabled: true

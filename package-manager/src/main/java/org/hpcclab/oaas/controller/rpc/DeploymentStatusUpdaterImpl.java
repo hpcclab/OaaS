@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import org.hpcclab.oaas.controller.service.PackagePublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -31,7 +32,8 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var status = mapper.fromProto(update.getStatus());
     return clsRepo.async()
       .getAsync(update.getKey())
-      .onItem().ifNotNull().failWith(NotFoundException::new)
+      .onItem().ifNotNull()
+      .failWith(() -> StdOaasException.notFoundCls(update.getKey(), 404))
       .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
       .flatMap(f -> clsRepo.async().computeAsync(update.getKey(), (k,cls) -> cls.setStatus(status))
@@ -45,8 +47,9 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var status = mapper.fromProto(update.getStatus());
     return fnRepo.async()
       .getAsync(update.getKey())
-      .onItem().ifNotNull().failWith(NotFoundException::new)
-      .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
+      .onItem().ifNotNull()
+      .failWith(() -> StdOaasException.notFoundFunc(update.getKey(), 404))
+      .onFailure(StdOaasException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
       .flatMap(f -> fnRepo.async().computeAsync(update.getKey(), (k,fn) -> fn.setStatus(status))
       )
