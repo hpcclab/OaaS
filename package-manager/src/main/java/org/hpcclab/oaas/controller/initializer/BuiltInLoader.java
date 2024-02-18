@@ -6,6 +6,7 @@ import org.hpcclab.oaas.controller.rest.PackageResource;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +22,13 @@ public class BuiltInLoader {
   ObjectMapper mapper;
   @Inject
   PackageResource pkgService;
+  @Inject
+  FunctionRepository fnRepo;
 
   public void setup() throws IOException {
+    var fn = fnRepo.get(" builtin.logical.new");
+    if (fn != null) return;
+
     mapper = new ObjectMapper(new YAMLFactory());
 
     var files = List.of(
