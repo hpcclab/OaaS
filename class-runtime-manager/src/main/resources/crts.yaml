@@ -4,11 +4,13 @@ templates:
     services:
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
+        imagePullPolicy: IfNotPresent
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
           OPRC_LOG: "INFO"
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
+        imagePullPolicy: IfNotPresent
         env:
           OPRC_LOG: "INFO"
     optimizerConf:

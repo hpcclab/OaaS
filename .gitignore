@@ -40,7 +40,7 @@ nb-configuration.xml
 
 /deploy/oaas/dev/
 /deploy/oaas/dev2/
-example/http/http-client.env.json
+example/pkg/http-client.env.json
 *.bkp
 doc/diagrams/*.pdf
 doc/diagrams/**/*.pdf

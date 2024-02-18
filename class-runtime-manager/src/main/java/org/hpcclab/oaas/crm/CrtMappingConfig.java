@@ -18,9 +18,6 @@ public record CrtMappingConfig(
   public record SvcConfig(
     String image,
     Map<String, String> env,
-    String cpuLimit,
-    String cpuRequest,
-    String memLimit,
-    String memRequest
+    String imagePullPolicy
   ){}
 }

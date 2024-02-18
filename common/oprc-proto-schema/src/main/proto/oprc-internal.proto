@@ -61,7 +61,7 @@ message OClassStatusUpdates {
 
 message OFunctionStatusUpdate {
   string key = 1;
-  ProtoOFunctionDeploymentStatus status = 2;
+  optional ProtoOFunctionDeploymentStatus status = 2;
   optional ProtoProvisionConfig provision = 3;
 }
 message OFunctionStatusUpdates {

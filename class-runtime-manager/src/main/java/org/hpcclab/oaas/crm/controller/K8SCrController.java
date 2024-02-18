@@ -382,6 +382,8 @@ public class K8SCrController implements CrController {
       .getContainers()
       .getFirst();
     container.setImage(image);
+    if (svc.imagePullPolicy() != null && !svc.imagePullPolicy().isEmpty())
+      container.setImagePullPolicy(svc.imagePullPolicy());
     container.setResources(K8sResourceUtil.makeResourceRequirements(spec));
     for (Map.Entry<String, String> entry : svc.env().entrySet()) {
       addEnv(container, entry.getKey(), entry.getValue());
