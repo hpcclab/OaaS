@@ -17,13 +17,11 @@ import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.DefaultQoSOptimizer;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Objects;
 
 @ApplicationScoped
 @Startup
@@ -36,7 +34,6 @@ public class CrTemplateManager {
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
-                           @GrpcClient("package-manager")
                            CrmConfig crmConfig) {
     this.kubernetesClient = kubernetesClient;
     this.crmConfig = crmConfig;

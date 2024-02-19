@@ -10,7 +10,6 @@ public interface CrmConfig {
   String pmHost();
   int pmPort();
   String promUrl();
-
   Optional<String> templateOverride();
   String LABEL_KEY = "oaas.function";
 }
