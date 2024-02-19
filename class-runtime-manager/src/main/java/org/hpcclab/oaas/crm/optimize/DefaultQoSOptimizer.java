@@ -131,12 +131,12 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     CrDeploymentPlan currentPlan = controller.currentPlan();
     ProtoQosRequirement qos = fn.getQos();
     CrInstanceSpec instanceSpec = currentPlan.fnInstances().get(fn.getKey());
-    int throughput = qos.getThroughput();
+    int targetRps = qos.getThroughput();
     var meanRps = harmonicMean(metrics.rps());
     var meanCpu = mean(metrics.cpu());
-    var cpuPerRps = meanRps==0 ? 0:meanCpu / meanRps;
-    double expectedCpu = throughput <= 0 ? 0: cpuPerRps / throughput;
-    int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu());
+    var cpuPerRps = meanRps < 1 ? 0: meanCpu / meanRps; // < 1 is too little. Preventing result explode
+    double expectedCpu = targetRps <= 0 ? 0: cpuPerRps * targetRps;
+    int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
     var changed = expectedCpu==instanceSpec.minInstance();
     logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}",
