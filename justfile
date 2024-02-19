@@ -1,7 +1,8 @@
 mvn := "mvnd"
 #mvn := "./mvnw"
-export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
-export QUARKUS_DOCKER_EXECUTABLE_NAME := "docker"
+#export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
+export CI_REGISTRY_IMAGE := "ghcr.io/pawissanutt/oaas"
+#export QUARKUS_DOCKER_EXECUTABLE_NAME := "docker"
 
 build options="":
   ./mvnw  package {{options}}
@@ -17,6 +18,8 @@ build-native-window:
 
 
 build-image : (build-no-test '"-Dquarkus.container-image.build=true"')
+
+build-image-push : (build-no-test '"-Dquarkus.container-image.build=true" "-Dquarkus.container-image.push=true"')
 
 build-image-docker : build-no-test
   docker compose build

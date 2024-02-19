@@ -87,10 +87,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-rest-client-reactive-jackson</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
@@ -139,8 +139,12 @@
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-query</artifactId>
+      <artifactId>infinispan-clustered-lock</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.infinispan</groupId>-->
+<!--      <artifactId>infinispan-query</artifactId>-->
+<!--    </dependency>-->
 <!--    <dependency>-->
 <!--      <groupId>org.infinispan</groupId>-->
 <!--      <artifactId>infinispan-server-hotrod</artifactId>-->
