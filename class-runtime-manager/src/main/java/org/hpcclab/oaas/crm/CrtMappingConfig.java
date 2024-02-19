@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.crm;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public record CrtMappingConfig(
   public record SvcConfig(
     String image,
     Map<String, String> env,
-    String imagePullPolicy
+    String imagePullPolicy,
+    CrInstanceSpec defaultSpec
   ){}
 }

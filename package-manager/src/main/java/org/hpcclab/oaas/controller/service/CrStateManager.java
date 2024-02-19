@@ -21,18 +21,25 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.FunctionRepository;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped
 public class CrStateManager {
   private static final Logger logger = LoggerFactory.getLogger(CrStateManager.class);
-
-  CrMapper crMapper =new CrMapperImpl();
+  final ClassRepository clsRepo;
+  final FunctionRepository fnRepo;
+  CrMapper crMapper = new CrMapperImpl();
   ProtoMapper protoMapper = new ProtoMapperImpl();
   GenericArgRepository<OprcCr> crRepo;
   GenericArgRepository<CrHash> hashRepo;
@@ -42,7 +49,9 @@ public class CrStateManager {
   MutinyEmitter<Record<String, Buffer>> crHashEmitter;
 
   @Inject
-  public CrStateManager() {
+  public CrStateManager(ClassRepository clsRepo, FunctionRepository fnRepo) {
+    this.clsRepo = clsRepo;
+    this.fnRepo = fnRepo;
     DatastoreConfRegistry registry = DatastoreConfRegistry.getDefault();
     var fac = new RepoFactory(registry.getConfMap().get("PKG"));
     crRepo = fac.createGenericRepo(OprcCr.class, OprcCr::getKey, "cr");
@@ -67,7 +76,7 @@ public class CrStateManager {
     var crHash = crMapper.fromProto(protoCrHash);
     return hashRepo.async().getAsync(crHash.getKey())
       .onFailure(e -> e instanceof ArangoDBException arangoDBException
-        && arangoDBException.getResponseCode() == 404)
+        && arangoDBException.getResponseCode()==404)
       .recoverWithNull()
       .map(entity -> {
         if (entity==null) return crHash;
@@ -82,8 +91,18 @@ public class CrStateManager {
   }
 
   public Uni<ProtoCr> get(String id) {
-    return crRepo.getAsync(id)
-      .map(doc -> crMapper.toProto(doc));
+    return crRepo.async().getAsync(id)
+      .flatMap(this::refreshFn)
+      .map(crMapper::toProto);
+  }
+
+  public Uni<OprcCr> refreshFn(OprcCr cr) {
+    Set<String> fnKeys = cr.attachedFn().stream().map(OFunction::getKey)
+      .collect(Collectors.toSet());
+    return fnRepo.async().listAsync(fnKeys)
+      .map(map -> cr.toBuilder()
+        .attachedFn(List.copyOf(map.values()))
+        .build());
   }
 
   public Uni<ProtoCrHash> getHash(String id) {
@@ -91,13 +110,15 @@ public class CrStateManager {
       .map(doc -> crMapper.toProto(doc));
   }
 
-  public Multi<ProtoCr> listOrbit(PaginateQuery request) {
+  public Multi<ProtoCr> listCr(PaginateQuery request) {
     return crRepo.getQueryService()
       .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
       .flatMap(p -> Multi.createFrom().iterable(p.getItems()))
+      .onItem().transformToUniAndConcatenate(this::refreshFn)
       .map(doc -> crMapper.toProto(doc));
   }
+
   public Multi<ProtoCrHash> listHash(PaginateQuery request) {
     return hashRepo.getQueryService()
       .paginationAsync(request.getOffset(), request.getLimit())

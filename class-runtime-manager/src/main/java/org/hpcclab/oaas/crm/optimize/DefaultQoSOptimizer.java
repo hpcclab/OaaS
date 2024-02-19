@@ -138,8 +138,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     double expectedCpu = targetRps <= 0 ? 0: cpuPerRps * targetRps;
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
-    logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}",
-      controller.getId(), fn.getKey(), meanRps, meanCpu, cpuPerRps);
+    logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, expectedInstance {}",
+      controller.getId(), fn.getKey(), meanRps, meanCpu, cpuPerRps, expectedInstance);
     var changed = !instanceSpec.equals(adjust);
     logger.debug("compute adjust on {} : {} : ({}) {}",
       controller.getId(), fn.getKey(), changed, adjust);

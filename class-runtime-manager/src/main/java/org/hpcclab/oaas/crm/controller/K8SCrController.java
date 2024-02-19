@@ -163,7 +163,7 @@ public class K8SCrController implements CrController {
 
   public List<HasMetadata> deployShared(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(id)
+      CR_LABEL_KEY, getTsidString()
     );
     var datastoreMap = DatastoreConfRegistry.getDefault().dump();
     var sec = new SecretBuilder()
@@ -197,7 +197,7 @@ public class K8SCrController implements CrController {
 
   public List<HasMetadata> deployObjectModule(CrDeploymentPlan plan, DeploymentUnit unit) {
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(id),
+      CR_LABEL_KEY, getTsidString(),
       CR_COMPONENT_LABEL_KEY, NAME_INVOKER
     );
     var deployment = createDeployment(
@@ -239,7 +239,7 @@ public class K8SCrController implements CrController {
 
   public List<HasMetadata> deployDataModule(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(id),
+      CR_LABEL_KEY, getTsidString(),
       CR_COMPONENT_LABEL_KEY, NAME_SA
     );
     var deployment = createDeployment(
@@ -302,22 +302,22 @@ public class K8SCrController implements CrController {
   public CrOperation createDestroyOperation() throws CrUpdateException {
     if (k8sResources.isEmpty()) {
       var depList = kubernetesClient.apps().deployments()
-        .withLabel(CR_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, getTsidString())
         .list()
         .getItems();
       k8sResources.addAll(depList);
       var svcList = kubernetesClient.services()
-        .withLabel(CR_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, getTsidString())
         .list()
         .getItems();
       k8sResources.addAll(svcList);
       var sec = kubernetesClient.secrets()
-        .withLabel(CR_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, getTsidString())
         .list()
         .getItems();
       k8sResources.addAll(sec);
       var configMaps = kubernetesClient.configMaps()
-        .withLabel(CR_LABEL_KEY, String.valueOf(id))
+        .withLabel(CR_LABEL_KEY, getTsidString())
         .list()
         .getItems();
       k8sResources.addAll(configMaps);
@@ -382,7 +382,7 @@ public class K8SCrController implements CrController {
       .getContainers()
       .getFirst();
     container.setImage(image);
-    if (svc.imagePullPolicy() != null && !svc.imagePullPolicy().isEmpty())
+    if (svc.imagePullPolicy()!=null && !svc.imagePullPolicy().isEmpty())
       container.setImagePullPolicy(svc.imagePullPolicy());
     container.setResources(K8sResourceUtil.makeResourceRequirements(spec));
     for (Map.Entry<String, String> entry : svc.env().entrySet()) {
@@ -495,4 +495,5 @@ public class K8SCrController implements CrController {
   public boolean isDeleted() {
     return isDeleted;
   }
+
 }

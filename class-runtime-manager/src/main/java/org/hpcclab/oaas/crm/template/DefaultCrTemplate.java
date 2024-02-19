@@ -6,8 +6,8 @@ import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.controller.K8SCrController;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
+import org.hpcclab.oaas.crm.observe.FnEventObserver;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdater;
 import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
@@ -24,9 +24,9 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public void init() {
-    FnEventManager fnEventManager = new FnEventManager(new DefaultKnativeClient(k8sClient),
+    FnEventObserver fnEventObserver = new FnEventObserver(new DefaultKnativeClient(k8sClient),
       statusUpdater);
-    fnEventManager.start(K8SCrController.CR_FN_KEY);
+    fnEventObserver.start(K8SCrController.CR_FN_KEY);
   }
 
   @Override

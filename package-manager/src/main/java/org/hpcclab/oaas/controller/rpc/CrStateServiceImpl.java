@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.controller.rpc;
 
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -16,13 +17,14 @@ public class CrStateServiceImpl implements InternalCrStateService, CrStateServic
   }
 
   @Override
+  @RunOnVirtualThread
   public Uni<ProtoCr> get(SingleKeyQuery request) {
     return stateManager.get(request.getKey());
   }
 
   @Override
   public Multi<ProtoCr> list(PaginateQuery request) {
-    return stateManager.listOrbit(request);
+    return stateManager.listCr(request);
   }
 
   @Override
