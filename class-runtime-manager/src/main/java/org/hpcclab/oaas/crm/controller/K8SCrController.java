@@ -327,6 +327,8 @@ public class K8SCrController implements CrController {
     return new DeleteK8SCrOperation(kubernetesClient, k8sResources,
       () -> {
         k8sResources.clear();
+        attachedCls.clear();
+        attachedFn.clear();
         isDeleted = true;
       });
   }
