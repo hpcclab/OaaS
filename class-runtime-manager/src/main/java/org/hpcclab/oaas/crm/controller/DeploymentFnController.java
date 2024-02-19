@@ -34,7 +34,7 @@ public class DeploymentFnController implements FnController {
     var instance = plan.fnInstances()
       .get(function.getKey());
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_LABEL_KEY, controller.getTsidString(),
       CR_COMPONENT_LABEL_KEY, "function",
       CR_FN_KEY, function.getKey()
     );
@@ -139,7 +139,7 @@ public class DeploymentFnController implements FnController {
   public List<HasMetadata> removeFunction(String fnKey) {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_LABEL_KEY, controller.getTsidString(),
       CR_FN_KEY, fnKey
     );
     var deployments = kubernetesClient.apps()

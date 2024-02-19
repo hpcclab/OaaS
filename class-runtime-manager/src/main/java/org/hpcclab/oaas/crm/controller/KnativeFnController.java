@@ -63,7 +63,7 @@ public class KnativeFnController implements FnController {
     var knConf = function.getProvision()
       .getKnative().toBuilder();
     var labels = Maps.mutable.of(
-      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_LABEL_KEY, controller.getTsidString(),
       CR_COMPONENT_LABEL_KEY, "function",
       CR_FN_KEY, function.getKey()
     );
@@ -156,7 +156,7 @@ public class KnativeFnController implements FnController {
   public List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(controller.id),
+      CR_LABEL_KEY, controller.getTsidString(),
       CR_FN_KEY, fnKey
     );
     var services = knativeClient.services()
@@ -171,7 +171,7 @@ public class KnativeFnController implements FnController {
   public List<HasMetadata> removeAllFunction() {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, String.valueOf(controller.id)
+      CR_LABEL_KEY, controller.getTsidString()
     );
     var services = knativeClient.services()
       .withLabels(labels)
