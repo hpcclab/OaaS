@@ -28,8 +28,8 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NewApplierTest {
-  private static final Logger logger = LoggerFactory.getLogger( NewApplierTest.class );
+public class NewFunctionControllerTest {
+  private static final Logger logger = LoggerFactory.getLogger( NewFunctionControllerTest.class );
 
   @Inject
   ObjectMapper mapper;
