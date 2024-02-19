@@ -18,15 +18,15 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   public DefaultCrTemplate(KubernetesClient k8sClient,
                            QosOptimizer qosOptimizer,
-                           CrtConfig config,
-                           DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub statusUpdater) {
-    super(k8sClient, config, qosOptimizer, statusUpdater);
+                           CrtConfig config) {
+    super(k8sClient, config, qosOptimizer);
   }
 
   @Override
   public void init(CrControllerManager crControllerManager) {
-    FnEventObserver fnEventObserver = new FnEventObserver(new DefaultKnativeClient(k8sClient),
-      statusUpdater, crControllerManager);
+    FnEventObserver fnEventObserver = new FnEventObserver(
+      new DefaultKnativeClient(k8sClient),
+      crControllerManager);
     fnEventObserver.start(K8SCrController.CR_FN_KEY);
   }
 

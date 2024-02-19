@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.crm.observe;
 
-import com.github.f4b6a3.tsid.Tsid;
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.internal.pkg.apis.Condition;
 import io.fabric8.knative.serving.v1.Service;
@@ -10,15 +9,11 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.controller.K8SCrController;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
-import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
-import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.hpcclab.oaas.proto.ProtoDeploymentCondition.*;
@@ -28,23 +23,20 @@ public class FnEventObserver {
   private static final Logger logger = LoggerFactory.getLogger(FnEventObserver.class);
 
   final KnativeClient knativeClient;
-  final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   final CrControllerManager controllerManager;
   Watch watch;
 
   public FnEventObserver(KnativeClient knativeClient,
-                         DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater, CrControllerManager controllerManager) {
+                         CrControllerManager controllerManager) {
     this.knativeClient = knativeClient;
-      this.controllerManager = controllerManager;
-      Objects.requireNonNull(deploymentStatusUpdater);
-    this.deploymentStatusUpdater = deploymentStatusUpdater;
+    this.controllerManager = controllerManager;
   }
 
   public void start(String label) {
     logger.info("start kn function watcher");
     watch = knativeClient.services()
       .withLabel(label)
-      .watch(new FnEventWatcher(deploymentStatusUpdater, controllerManager));
+      .watch(new FnEventWatcher(controllerManager));
   }
 
   public void stop() {
@@ -53,15 +45,10 @@ public class FnEventObserver {
 
 
   public static class FnEventWatcher implements Watcher<Service> {
-
-    final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
     final CrControllerManager controllerManager;
 
     public FnEventWatcher(
-      DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
       CrControllerManager controllerManager) {
-      Objects.requireNonNull(deploymentStatusUpdater);
-      this.deploymentStatusUpdater = deploymentStatusUpdater;
       this.controllerManager = controllerManager;
     }
 
@@ -73,6 +60,11 @@ public class FnEventObserver {
         .flatMap(Collection::stream)
         .filter(c -> c.getType().equals("Ready"))
         .findAny();
+    }
+
+    @Override
+    public boolean reconnecting() {
+      return true;
     }
 
     @Override
@@ -116,7 +108,7 @@ public class FnEventObserver {
         .setErrorMsg("")
         .setInvocationUrl(svc.getStatus().getAddress().getUrl())
         .build();
-      update(crId, fnKey, status);
+      controllerManager.update(crId, fnKey, status);
     }
 
 
@@ -134,7 +126,7 @@ public class FnEventObserver {
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
         .setErrorMsg(msg==null ? "":msg)
         .build();
-      update(crId, fnKey, status);
+      controllerManager.update(crId, fnKey, status);
     }
 
     public void updateToDelete(Service svc) {
@@ -153,23 +145,10 @@ public class FnEventObserver {
         .setErrorMsg("")
         .build();
 
-      update(crId, fnKey, status);
+      controllerManager.update(crId, fnKey, status);
     }
 
-    private void update(String crId, String fnKey, ProtoOFunctionDeploymentStatus status) {
-      var id = Tsid.from(crId).toLong();
-      var controller = controllerManager.get(id);
-      ProtoOFunction func = controller.getAttachedFn().get(fnKey);
-      ProtoOFunction newFunc = func.toBuilder()
-        .setStatus(status)
-        .build();
-      controller.getAttachedFn().put(fnKey, func);
-      deploymentStatusUpdater.updateFn(OFunctionStatusUpdate.newBuilder()
-        .setKey(fnKey)
-        .setStatus(status)
-        .setProvision(newFunc.getProvision())
-        .build());
-    }
+
     @Override
     public void onClose(WatcherException cause) {
       logger.error("watcher is closed", cause);

@@ -31,19 +31,15 @@ public class CrTemplateManager {
   public static final String DEFAULT = "default";
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
-  final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   final CrmConfig crmConfig;
   ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
                            @GrpcClient("package-manager")
-                           DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
                            CrmConfig crmConfig) {
     this.kubernetesClient = kubernetesClient;
     this.crmConfig = crmConfig;
-    Objects.requireNonNull(deploymentStatusUpdater);
-    this.deploymentStatusUpdater = deploymentStatusUpdater;
   }
 
   public void loadTemplate(CrControllerManager controllerManager) {
@@ -78,8 +74,7 @@ public class CrTemplateManager {
       return new DefaultCrTemplate(
         kubernetesClient,
         selectOptimizer(config),
-        config,
-        deploymentStatusUpdater
+        config
       );
     } else {
       throw new StdOaasException("No available CR template with type " + config.type());

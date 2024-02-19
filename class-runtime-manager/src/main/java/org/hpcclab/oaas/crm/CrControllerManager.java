@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm;
 
 import com.github.f4b6a3.tsid.Tsid;
 import io.quarkus.grpc.GrpcClient;
+import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
@@ -9,8 +10,9 @@ import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.template.CrTemplateManager;
-import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.proto.CrStateServiceGrpc.CrStateServiceBlockingStub;
+import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub;
+import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.proto.InternalCrStateServiceGrpc.InternalCrStateServiceBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,21 +24,25 @@ public class CrControllerManager {
   private static final Logger logger = LoggerFactory.getLogger(CrControllerManager.class);
   final InternalCrStateServiceBlockingStub crStateUpdater;
   final CrStateServiceBlockingStub crStateService;
+  final DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
   final CrTemplateManager templateManager;
   final EnvironmentManager environmentManager;
+  final Vertx vertx;
   Map<Long, CrController> controllerMap = ConcurrentHashMap.newMap();
 
   @Inject
   public CrControllerManager(
     @GrpcClient("package-manager") InternalCrStateServiceBlockingStub crStateUpdater,
-    @GrpcClient("package-manager") CrStateServiceBlockingStub crStateService,
+    @GrpcClient("package-manager") CrStateServiceBlockingStub crStateService, DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
     CrTemplateManager templateManager,
-    EnvironmentManager environmentManager) {
+    EnvironmentManager environmentManager, Vertx vertx) {
 
     this.crStateUpdater = crStateUpdater;
     this.crStateService = crStateService;
+    this.deploymentStatusUpdater = deploymentStatusUpdater;
     this.templateManager = templateManager;
     this.environmentManager = environmentManager;
+    this.vertx = vertx;
   }
 
   public void loadAllToLocal() {
@@ -68,6 +74,7 @@ public class CrControllerManager {
     }
     return orbit;
   }
+
   public CrController getOrLoad(ProtoCr protoCr, OprcEnvironment env) {
     var orbit = controllerMap.get(protoCr.getId());
     if (orbit==null) {
@@ -89,6 +96,7 @@ public class CrControllerManager {
   public void saveToLocal(CrController orbit) {
     controllerMap.put(orbit.getId(), orbit);
   }
+
   public void saveToRemote(CrController orbit) {
     saveToLocal(orbit);
     crStateUpdater.updateCr(orbit.dump());
@@ -96,5 +104,33 @@ public class CrControllerManager {
 
   public void deleteFromLocal(CrController controller) {
     controllerMap.remove(controller.getId());
+  }
+
+  public void update(String crId,
+                     String fnKey,
+                     ProtoOFunctionDeploymentStatus status){
+    update(crId,fnKey,status, 3);
+  }
+  public void update(String crId,
+                     String fnKey,
+                     ProtoOFunctionDeploymentStatus status,
+                     int count) {
+    if (count == 0) return;
+    var id = Tsid.from(crId).toLong();
+    var controller = get(id);
+    if (controller.doneInitialize()) {
+      ProtoOFunction func = controller.getAttachedFn().get(fnKey);
+      ProtoOFunction newFunc = func.toBuilder()
+        .setStatus(status)
+        .build();
+      controller.getAttachedFn().put(fnKey, func);
+      deploymentStatusUpdater.updateFn(OFunctionStatusUpdate.newBuilder()
+        .setKey(fnKey)
+        .setStatus(status)
+        .setProvision(newFunc.getProvision())
+        .build());
+    } else {
+      vertx.setTimer(500, l -> update(crId, fnKey, status, count -1));
+    }
   }
 }

@@ -47,6 +47,7 @@ public class K8SCrController implements CrController {
   KnativeFnController knativeFnController;
   CrDeploymentPlan currentPlan;
   boolean isDeleted = false;
+  boolean doneInitialize = false;
 
   public K8SCrController(ClassRuntimeTemplate template,
                          KubernetesClient client,
@@ -77,6 +78,7 @@ public class K8SCrController implements CrController {
     if (!jsonDump.isEmpty()) {
       currentPlan = Json.decodeValue(jsonDump, CrDeploymentPlan.class);
     }
+    doneInitialize = true;
   }
 
   @Override
@@ -141,6 +143,7 @@ public class K8SCrController implements CrController {
         }
         k8sResources.addAll(resourceList);
         currentPlan = plan;
+        doneInitialize = true;
       });
     resourceList.addAll(deployShared(plan));
     resourceList.addAll(deployDataModule(plan));
@@ -498,4 +501,8 @@ public class K8SCrController implements CrController {
     return isDeleted;
   }
 
+  @Override
+  public boolean doneInitialize() {
+    return doneInitialize;
+  }
 }
