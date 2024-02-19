@@ -29,12 +29,14 @@ public class FnEventObserver {
 
   final KnativeClient knativeClient;
   final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
+  final CrControllerManager controllerManager;
   Watch watch;
 
   public FnEventObserver(KnativeClient knativeClient,
-                         DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
+                         DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater, CrControllerManager controllerManager) {
     this.knativeClient = knativeClient;
-    Objects.requireNonNull(deploymentStatusUpdater);
+      this.controllerManager = controllerManager;
+      Objects.requireNonNull(deploymentStatusUpdater);
     this.deploymentStatusUpdater = deploymentStatusUpdater;
   }
 
@@ -42,7 +44,7 @@ public class FnEventObserver {
     logger.info("start kn function watcher");
     watch = knativeClient.services()
       .withLabel(label)
-      .watch(new FnEventWatcher(deploymentStatusUpdater));
+      .watch(new FnEventWatcher(deploymentStatusUpdater, controllerManager));
   }
 
   public void stop() {
@@ -52,13 +54,15 @@ public class FnEventObserver {
 
   public static class FnEventWatcher implements Watcher<Service> {
 
-    DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
-    CrControllerManager controllerManager;
+    final DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater;
+    final CrControllerManager controllerManager;
 
     public FnEventWatcher(
-      DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater) {
+      DeploymentStatusUpdaterGrpc.DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
+      CrControllerManager controllerManager) {
       Objects.requireNonNull(deploymentStatusUpdater);
       this.deploymentStatusUpdater = deploymentStatusUpdater;
+      this.controllerManager = controllerManager;
     }
 
     public static Optional<Condition> extractReadyCondition(Service service) {

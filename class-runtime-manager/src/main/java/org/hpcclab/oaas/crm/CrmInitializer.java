@@ -31,7 +31,7 @@ public class CrmInitializer {
 
   public void onStart(@Observes StartupEvent event) {
     vertx.executeBlockingAndAwait(() -> {
-        templateManager.loadTemplate();
+        templateManager.loadTemplate(controllerManager);
         controllerManager.loadAllToLocal();
         runner.setup();
         return 0;

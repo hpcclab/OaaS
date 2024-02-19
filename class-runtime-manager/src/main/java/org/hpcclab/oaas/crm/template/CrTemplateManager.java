@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
+import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.controller.CrController;
@@ -45,7 +46,7 @@ public class CrTemplateManager {
     this.deploymentStatusUpdater = deploymentStatusUpdater;
   }
 
-  public void loadTemplate() {
+  public void loadTemplate(CrControllerManager controllerManager) {
     try {
       CrtMappingConfig conf;
       var file = "/crts.yaml";
@@ -63,7 +64,7 @@ public class CrTemplateManager {
       var m = new HashMap<String, ClassRuntimeTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
         var template = createCrt(configEntry.getValue());
-        template.init();
+        template.init(controllerManager);
         m.put(configEntry.getKey(), template);
       }
       templateMap = Maps.immutable.ofMap(m);

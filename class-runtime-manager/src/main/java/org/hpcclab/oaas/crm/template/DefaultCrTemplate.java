@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.template;
 
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.controller.K8SCrController;
@@ -23,9 +24,9 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   }
 
   @Override
-  public void init() {
+  public void init(CrControllerManager crControllerManager) {
     FnEventObserver fnEventObserver = new FnEventObserver(new DefaultKnativeClient(k8sClient),
-      statusUpdater);
+      statusUpdater, crControllerManager);
     fnEventObserver.start(K8SCrController.CR_FN_KEY);
   }
 
