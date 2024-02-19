@@ -19,7 +19,7 @@ import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.harmonicMean;
 import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.mean;
 
 public class DefaultQoSOptimizer implements QosOptimizer {
-  private static final Logger logger = LoggerFactory.getLogger( DefaultQoSOptimizer.class );
+  private static final Logger logger = LoggerFactory.getLogger(DefaultQoSOptimizer.class);
 
   final String defaultRequestCpu;
   final String defaultRequestMem;
@@ -39,27 +39,27 @@ public class DefaultQoSOptimizer implements QosOptimizer {
         null,
         -1,
         0.5f,
-        256L*1024*1024,
+        256L * 1024 * 1024,
         2f,
-        1024L*1024*1024
+        1024L * 1024 * 1024
       ),
       OprcComponent.INVOKER, new CrInstanceSpec(
         1, -1,
         null,
         -1,
         0.5f,
-        512L*1024*1024,
+        512L * 1024 * 1024,
         2f,
-        2048L*1024*1024
+        2048L * 1024 * 1024
       ),
       OprcComponent.STORAGE_ADAPTER, new CrInstanceSpec(
         1, -1,
         null,
         -1,
         0.2f,
-        256L*1024*1024,
+        256L * 1024 * 1024,
         2f,
-        1024L*1024*1024
+        1024L * 1024 * 1024
       )
     );
     var fnInstances = unit.getFnListList()
@@ -134,12 +134,15 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int throughput = qos.getThroughput();
     var meanRps = harmonicMean(metrics.rps());
     var meanCpu = mean(metrics.cpu());
-    var cpuPerRps = meanRps==0 ? 0: meanCpu / meanRps;
-    double expectedCpu = cpuPerRps / throughput;
+    var cpuPerRps = meanRps==0 ? 0:meanCpu / meanRps;
+    double expectedCpu = throughput <= 0 ? 0: cpuPerRps / throughput;
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu());
     var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
-    var changed = expectedCpu == instanceSpec.minInstance();
-    logger.debug("compute adjust on {} : {} : ({}) {}", controller.getId(), fn.getKey(), changed, adjust);
+    var changed = expectedCpu==instanceSpec.minInstance();
+    logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}",
+      controller.getId(), fn.getKey(), meanRps, meanCpu, cpuPerRps);
+    logger.debug("compute adjust on {} : {} : ({}) {}",
+      controller.getId(), fn.getKey(), changed, adjust);
     return new AdjustComponent(
       changed,
       adjust
