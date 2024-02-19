@@ -33,7 +33,8 @@ public class CrControllerManager {
   @Inject
   public CrControllerManager(
     @GrpcClient("package-manager") InternalCrStateServiceBlockingStub crStateUpdater,
-    @GrpcClient("package-manager") CrStateServiceBlockingStub crStateService, DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
+    @GrpcClient("package-manager") CrStateServiceBlockingStub crStateService,
+    @GrpcClient("package-manager") DeploymentStatusUpdaterBlockingStub deploymentStatusUpdater,
     CrTemplateManager templateManager,
     EnvironmentManager environmentManager, Vertx vertx) {
 
