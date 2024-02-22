@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker.ispn.repo;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.repository.*;
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
@@ -16,10 +15,11 @@ import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public abstract class AbsEIspnRepository<V extends HasKey<String>> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
+public abstract class AbsEIspnRepository<V> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
 
   protected EIspnAtomicOperationService<V> atomicService;
 
+  abstract String extractKey(V v);
 
   public abstract AdvancedCache<String, V> getCache();
 
@@ -94,7 +94,7 @@ public abstract class AbsEIspnRepository<V extends HasKey<String>> implements En
 
   @Override
   public V persist(V v) {
-    return put(v.getKey(), v);
+    return put(extractKey(v), v);
   }
 
   @Override
@@ -104,13 +104,13 @@ public abstract class AbsEIspnRepository<V extends HasKey<String>> implements En
 
   @Override
   public Uni<V> persistAsync(V v) {
-    return putAsync(v.getKey(),v);
+    return putAsync(extractKey(v),v);
   }
 
   @Override
   public Uni<Void> persistAsync(Collection<V> collection) {
     var map = collection.stream()
-      .collect(Collectors.toMap(HasKey::getKey, Function.identity()));
+      .collect(Collectors.toMap(this::extractKey, Function.identity()));
 
     return toUni(getCache().putAllAsync(map));
   }

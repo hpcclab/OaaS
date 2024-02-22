@@ -13,6 +13,7 @@ import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
+import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -30,7 +31,8 @@ public class FunctionControllerProducer {
   }
 
   @Produces
-  MacroFunctionController macroFunctionController(IdGenerator idGenerator, ObjectMapper mapper) {
+  MacroFunctionController macroFunctionController(IdGenerator idGenerator,
+                                                  ObjectMapper mapper) {
     return new MacroFunctionController(idGenerator, mapper);
   }
 
@@ -53,9 +55,10 @@ public class FunctionControllerProducer {
                                                     ObjectMapper mapper) {
     return new UpdateFunctionController(idGenerator, mapper);
   }
+
   @Produces
   FanInFunctionController fanInFunctionController(IdGenerator idGenerator,
-                                                   ObjectMapper mapper) {
+                                                  ObjectMapper mapper) {
     return new FanInFunctionController(idGenerator, mapper);
   }
 

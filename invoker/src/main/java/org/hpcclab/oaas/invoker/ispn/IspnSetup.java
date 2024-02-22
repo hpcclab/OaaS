@@ -7,6 +7,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.proto.ProtoOObject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
@@ -49,6 +50,9 @@ public class IspnSetup {
     }
     globalConfigurationBuilder.transport().nodeName(podName)
       .raftMembers();
+    globalConfigurationBuilder.serialization()
+        .marshaller(new ProtoOObjectMarshaller())
+          .allowList().addClass(ProtoOObject.class.getName());
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());

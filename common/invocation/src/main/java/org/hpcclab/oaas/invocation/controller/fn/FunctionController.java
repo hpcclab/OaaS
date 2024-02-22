@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invocation.controller.fn;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.controller.InvocationCtx;
+import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
@@ -11,7 +12,8 @@ import org.hpcclab.oaas.model.function.OFunction;
  */
 public interface FunctionController {
   Uni<InvocationCtx> invoke(InvocationCtx context);
-  void bind(FunctionBinding functionBinding,
+  void bind(MetricFactory metricFactory,
+            FunctionBinding functionBinding,
             OFunction function,
             OClass cls,
             OClass outputCls);

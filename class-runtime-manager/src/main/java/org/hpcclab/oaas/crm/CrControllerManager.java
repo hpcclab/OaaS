@@ -119,17 +119,20 @@ public class CrControllerManager {
     if (count == 0) return;
     var id = Tsid.from(crId).toLong();
     var controller = get(id);
-    if (controller.doneInitialize()) {
-      ProtoOFunction func = controller.getAttachedFn().get(fnKey);
-      ProtoOFunction newFunc = func.toBuilder()
-        .setStatus(status)
-        .build();
-      controller.getAttachedFn().put(fnKey, func);
-      deploymentStatusUpdater.updateFn(OFunctionStatusUpdate.newBuilder()
-        .setKey(fnKey)
-        .setStatus(status)
-        .setProvision(newFunc.getProvision())
-        .build());
+    if (controller.isInitialized()) {
+      vertx.executeBlockingAndForget(() -> {
+        ProtoOFunction func = controller.getAttachedFn().get(fnKey);
+        ProtoOFunction newFunc = func.toBuilder()
+          .setStatus(status)
+          .build();
+        controller.getAttachedFn().put(fnKey, func);
+        deploymentStatusUpdater.updateFn(OFunctionStatusUpdate.newBuilder()
+          .setKey(fnKey)
+          .setStatus(status)
+          .setProvision(newFunc.getProvision())
+          .build());
+        return 0;
+      });
     } else {
       vertx.setTimer(500, l -> update(crId, fnKey, status, count -1));
     }

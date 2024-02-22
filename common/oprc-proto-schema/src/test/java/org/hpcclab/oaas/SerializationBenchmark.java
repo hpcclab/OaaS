@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@BenchmarkMode({Mode.Throughput})
-@OutputTimeUnit(TimeUnit.SECONDS)
+@BenchmarkMode({Mode.AverageTime})
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
 public class SerializationBenchmark {
 
@@ -49,6 +49,8 @@ public class SerializationBenchmark {
   public static void main(String[] args) throws RunnerException {
 
     Options opt = new OptionsBuilder()
+      .mode(Mode.AverageTime)
+      .timeUnit(TimeUnit.MICROSECONDS)
       .include(SerializationBenchmark.class.getSimpleName())
       .forks(1)
       .warmupIterations(2)

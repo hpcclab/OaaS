@@ -34,7 +34,7 @@ public interface CrController {
   ProtoCr dump();
   QosOptimizer getOptimizer();
 
-  boolean doneInitialize();
+  boolean isInitialized();
   boolean isDeleted();
 
 //  void updateStatus(String fnKey, ProtoOFunctionDeploymentStatus status);

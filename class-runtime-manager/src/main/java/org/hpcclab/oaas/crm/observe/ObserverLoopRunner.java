@@ -47,16 +47,12 @@ public class ObserverLoopRunner {
   public void optimizationLoopExecute() {
     try {
       var metricsMap = metricObserver.observe();
-      if (logger.isDebugEnabled())
+      if (logger.isDebugEnabled() && !metricsMap.isEmpty())
         logger.debug("metrics {}", Json.encode(metricsMap));
       for (var entry : metricsMap.entrySet()) {
         var id = Tsid.from(entry.getKey());
         var controller = controllerManager.get(id.toLong());
-        if (controller==null) {
-          logger.warn("receive metrics for CR[id={}] but not controller found in the system", entry.getKey());
-          continue;
-        }
-        if (controller.isDeleted())
+        if (controller==null || controller.isDeleted())
           continue;
         var plan = controller.getOptimizer().adjust(controller, entry.getValue());
         if (plan.needAction()) {

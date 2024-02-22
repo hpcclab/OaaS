@@ -7,7 +7,10 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics;
 import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.SvcPerformanceMetrics;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.ProtoOClass;
+import org.hpcclab.oaas.proto.ProtoOFunction;
+import org.hpcclab.oaas.proto.ProtoQosRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     Map<String, String> treeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    treeMap.putAll(crtConfig.optimizerConf());
+    if (crtConfig.optimizerConf() != null)
+      treeMap.putAll(crtConfig.optimizerConf());
     defaultRequestCpu = treeMap.getOrDefault("defaultRequestCpu", "0.5");
     defaultRequestMem = treeMap.getOrDefault("defaultRequestMem", "256Mi");
   }
@@ -64,7 +68,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     );
     var fnInstances = unit.getFnListList()
       .stream()
-      .map(f -> Map.entry(f.getKey(), convert(f.getProvision())))
+      .map(f -> Map.entry(f.getKey(), convert(f)))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return new CrDeploymentPlan(
       instances, fnInstances
@@ -72,12 +76,16 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
 
-  CrInstanceSpec convert(ProtoProvisionConfig provision) {
+  CrInstanceSpec convert(ProtoOFunction fn) {
+    var provision = fn.getProvision();
+    var qos = fn.getQos();
     var kn = provision.getKnative();
+    int minScale = kn.getMinScale();
+    if (minScale < 0) minScale = qos.getThroughput() > 0 ? 1:0;
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
     return new CrInstanceSpec(
-      kn.getMinScale(),
+      minScale,
       kn.getMaxScale(),
       kn.getScaleDownDelay(),
       kn.getTargetConcurrency(),
@@ -117,6 +125,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       var cls = entry.getValue();
       coreInstance = computeCls(controller, cls, metrics);
     }
+
     if (currentPlan==null)
       return new CrAdjustmentPlan(Map.of(), Map.of(), false);
     return new CrAdjustmentPlan(
@@ -135,7 +144,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var meanRps = harmonicMean(metrics.rps());
     var meanCpu = mean(metrics.cpu());
     var cpuPerRps = meanRps < 1 ? 0: meanCpu / meanRps; // < 1 is too little. Preventing result explode
-    double expectedCpu = targetRps <= 0 ? 0: cpuPerRps * targetRps;
+    double expectedCpu = targetRps <= 0 ? 0:cpuPerRps * targetRps;
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
     logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, expectedInstance {}",

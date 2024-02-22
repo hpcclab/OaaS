@@ -46,8 +46,8 @@ public class K8SCrController implements CrController {
   DeploymentFnController deploymentFnController;
   KnativeFnController knativeFnController;
   CrDeploymentPlan currentPlan;
-  boolean isDeleted = false;
-  boolean doneInitialize = false;
+  boolean deleted = false;
+  boolean initialized = false;
 
   public K8SCrController(ClassRuntimeTemplate template,
                          KubernetesClient client,
@@ -78,7 +78,7 @@ public class K8SCrController implements CrController {
     if (!jsonDump.isEmpty()) {
       currentPlan = Json.decodeValue(jsonDump, CrDeploymentPlan.class);
     }
-    doneInitialize = true;
+    initialized = true;
   }
 
   @Override
@@ -143,7 +143,7 @@ public class K8SCrController implements CrController {
         }
         k8sResources.addAll(resourceList);
         currentPlan = plan;
-        doneInitialize = true;
+        initialized = true;
       });
     resourceList.addAll(deployShared(plan));
     resourceList.addAll(deployDataModule(plan));
@@ -210,6 +210,9 @@ public class K8SCrController implements CrController {
       labels,
       plan.coreInstances().get(OprcComponent.INVOKER)
     );
+    var podMonitor = K8sResourceUtil
+      .createPodMonitor(prefix + NAME_INVOKER, namespace, labels);
+    logger.debug("podmonitor {}", podMonitor);
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
@@ -232,7 +235,7 @@ public class K8SCrController implements CrController {
         null,
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
       );
-    return List.of(deployment, invokerSvc, invokerSvcPing);
+    return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
   }
 
   public List<HasMetadata> deployExecutionModule(CrDeploymentPlan plan) {
@@ -304,35 +307,41 @@ public class K8SCrController implements CrController {
   @Override
   public CrOperation createDestroyOperation() throws CrUpdateException {
     if (k8sResources.isEmpty()) {
+      String tsidString = getTsidString();
       var depList = kubernetesClient.apps().deployments()
-        .withLabel(CR_LABEL_KEY, getTsidString())
+        .withLabel(CR_LABEL_KEY, tsidString)
         .list()
         .getItems();
       k8sResources.addAll(depList);
       var svcList = kubernetesClient.services()
-        .withLabel(CR_LABEL_KEY, getTsidString())
+        .withLabel(CR_LABEL_KEY, tsidString)
         .list()
         .getItems();
       k8sResources.addAll(svcList);
       var sec = kubernetesClient.secrets()
-        .withLabel(CR_LABEL_KEY, getTsidString())
+        .withLabel(CR_LABEL_KEY, tsidString)
         .list()
         .getItems();
       k8sResources.addAll(sec);
       var configMaps = kubernetesClient.configMaps()
-        .withLabel(CR_LABEL_KEY, getTsidString())
+        .withLabel(CR_LABEL_KEY, tsidString)
         .list()
         .getItems();
       k8sResources.addAll(configMaps);
       var ksvc = knativeFnController.removeAllFunction();
       k8sResources.addAll(ksvc);
+      var podMonitor = kubernetesClient.genericKubernetesResources("monitoring.coreos.com/v1", "PodMonitor")
+        .withLabel(CR_LABEL_KEY, tsidString)
+        .list()
+        .getItems();
+      k8sResources.addAll(podMonitor);
     }
     return new DeleteK8SCrOperation(kubernetesClient, k8sResources,
       () -> {
         k8sResources.clear();
         attachedCls.clear();
         attachedFn.clear();
-        isDeleted = true;
+        deleted = true;
       });
   }
 
@@ -408,6 +417,7 @@ public class K8SCrController implements CrController {
       .addAllAttachedCls(attachedCls.values())
       .addAllAttachedFn(attachedFn.values())
       .setState(ProtoCrState.newBuilder().setJsonDump(str).build())
+      .setDeleted(deleted)
       .build();
   }
 
@@ -498,11 +508,11 @@ public class K8SCrController implements CrController {
 
   @Override
   public boolean isDeleted() {
-    return isDeleted;
+    return deleted;
   }
 
   @Override
-  public boolean doneInitialize() {
-    return doneInitialize;
+  public boolean isInitialized() {
+    return initialized;
   }
 }

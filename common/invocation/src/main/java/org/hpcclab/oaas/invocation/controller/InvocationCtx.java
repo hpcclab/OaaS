@@ -42,6 +42,7 @@ public class InvocationCtx {
   InvocationLog log;
   List<InvocationRequest> reqToProduce = List.of();
   long mqOffset = -1;
+  long initTime = -1;
 
   public InvocationLog initLog() {
     if (log!=null)

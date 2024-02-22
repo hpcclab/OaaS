@@ -7,6 +7,7 @@ import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.StateManager;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
+import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.proto.ClassService;
 import org.hpcclab.oaas.proto.FunctionService;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -23,13 +24,16 @@ public class ClsRegistryProducer {
                                    FunctionControllerFactory functionControllerFactory,
                                    StateManager stateManager,
                                    IdGenerator idGenerator,
-                                   InvocationQueueProducer invocationQueueProducer) {
+                                   InvocationQueueProducer invocationQueueProducer,
+                                   MetricFactory metricFactory) {
     return new ClassControllerRegistry(
       classService,
       functionService,
       functionControllerFactory,
       stateManager,
       idGenerator,
-      invocationQueueProducer);
+      invocationQueueProducer,
+      metricFactory
+    );
   }
 }

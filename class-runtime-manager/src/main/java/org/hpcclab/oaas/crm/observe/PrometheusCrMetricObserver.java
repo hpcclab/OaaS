@@ -148,7 +148,7 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   public JsonObject loadCPU(Scope scope) {
     return query("""
-      sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~"cr-.*"}[2m]))\
+      sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~"cr-.*"}[1m]))\
       """, scope);
   }
 
@@ -160,13 +160,24 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   public JsonObject loadRpsForRevision(Scope scope) {
     return query("""
-      rate(activator_request_count{revision_name=~"cr-.*"}[2m])\
+      rate(activator_request_count{revision_name=~"cr-.*"}[1m])\
+      """, scope);
+  }
+  public JsonObject loadRpsForInvoker(Scope scope) {
+    return query("""
+      sum by (crId) (rate(oprc_invocation_seconds_count[1m]))\
       """, scope);
   }
 
   public JsonObject loadLatencyForRevision(Scope scope) {
     return query("""
-      histogram_quantile(0.99, sum by (revision_name, le) (rate(activator_request_latencies_bucket{revision_name=~"cr-.*"}[2m])))\
+      histogram_quantile(0.99, sum by (revision_name, le) (rate(activator_request_latencies_bucket{revision_name=~"cr-.*"}[1m])))\
+      """, scope);
+  }
+
+  public JsonObject loadLatencyForInvoker(Scope scope) {
+    return query("""
+      histogram_quantile(0.99, sum by (crId, le) (rate(oprc_invocation_seconds_bucket[1m])))\
       """, scope);
   }
 

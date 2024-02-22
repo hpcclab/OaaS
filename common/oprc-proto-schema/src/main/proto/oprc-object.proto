@@ -6,7 +6,7 @@ option java_package = "org.hpcclab.oaas.proto";
 package oprc;
 
 message ProtoOObject {
-  optional string key = 1;
+  optional string id = 1;
   int64 revision = 2;
   optional string cls = 3;
   optional OOState state = 4;

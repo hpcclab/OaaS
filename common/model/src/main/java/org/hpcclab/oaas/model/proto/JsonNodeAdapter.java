@@ -12,7 +12,6 @@ import java.io.IOException;
 
 @ProtoAdapter(ObjectNode.class)
 public class JsonNodeAdapter {
-  //  ObjectMapper objectMapper = new ObjectMapper();
   ObjectMapper objectMapper = new MessagePackMapper();
 
   @ProtoFactory

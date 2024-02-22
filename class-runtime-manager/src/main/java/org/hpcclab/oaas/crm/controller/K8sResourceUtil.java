@@ -1,14 +1,15 @@
 package org.hpcclab.oaas.crm.controller;
 
 
-import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.ResourceRequirements;
-import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
+import io.fabric8.kubernetes.api.model.*;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.KnativeProvisionOrBuilder;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +47,7 @@ public class K8sResourceUtil {
 
 
   public static Map<String, String> makeAnnotation(Map<String, String> annotation,
-                                                    KnativeProvisionOrBuilder knConf) {
+                                                   KnativeProvisionOrBuilder knConf) {
     if (knConf.getMinScale() >= 0)
       annotation.put("autoscaling.knative.dev/minScale",
         String.valueOf(knConf.getMinScale()));
@@ -63,7 +64,7 @@ public class K8sResourceUtil {
   }
 
   public static Map<String, String> makeAnnotation(Map<String, String> annotation,
-                                                    CrInstanceSpec instance) {
+                                                   CrInstanceSpec instance) {
 
     if (instance.minInstance() >= 0)
       annotation.put("autoscaling.knative.dev/minScale",
@@ -79,4 +80,68 @@ public class K8sResourceUtil {
         String.valueOf(instance.targetConcurrency()));
     return annotation;
   }
+
+  public static GenericKubernetesResource createPodMonitor(String name,
+                                                           String namespace,
+                                                           Map<String, String> labels) {
+
+    var spec = new HashMap<>();
+    spec.put("selector", Map.of("matchLabels", labels)
+    );
+    spec.put("podMetricsEndpoints", List.of(
+      Map.of(
+        "port", "http",
+        "path", "/q/metrics")
+      )
+    );
+
+    return new GenericKubernetesResourceBuilder()
+      .withKind("PodMonitor")
+      .withApiVersion("monitoring.coreos.com/v1")
+      .withNewMetadata()
+      .withName(name)
+      .withNamespace(namespace)
+      .withLabels(labels)
+      .endMetadata()
+      .withAdditionalProperties(Map.of("spec", spec))
+      .build();
+  }
+
+
+  public static PodMonitor createPodMonitor2(String name,
+                                             String namespace,
+                                             Map<String, String> labels) {
+    PodMonitor podMonitor = new PodMonitor();
+    ObjectMeta metadata = podMonitor
+      .getMetadata();
+    metadata.setName(name);
+    metadata.setNamespace(namespace);
+    podMonitor
+      .getSpec()
+      .setSelector(new PodMonitor.Selector(labels));
+    podMonitor
+      .getSpec()
+      .setPodMetricsEndpoints(List.of(
+        new PodMonitor.Endpoint("http", "/q/metrics")
+      ));
+    return podMonitor;
+  }
+//
+//  public static PodMonitor createPodMonitor3(KubernetesClient client,
+//                                             String name,
+//                                             String namespace,
+//                                             Map<String, String> labels){
+//
+//    ResourceDefinitionContext context = new ResourceDefinitionContext.Builder()
+//      .withGroup("monitoring.coreos.com")
+//      .withKind("PodMonitor")
+//      .withPlural("podmonitors")
+//      .withNamespaced(true)
+//      .withVersion("v1")
+//      .build();
+//    Resource<GenericKubernetesResource> podmonitor = client.genericKubernetesResources(context)
+//      .load(K8sResourceUtil.class.getResourceAsStream("/crts/podmonitor.yaml"));
+//    podmonitor.item()
+//      ;
+//  }
 }

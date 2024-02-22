@@ -33,6 +33,7 @@ public class RepoCtxLoader implements CtxLoader {
     ctx.setArgs(request.args());
     ctx.setRequest(request);
     ctx.setInputs(request.inputObjects());
+    ctx.setInitTime(System.currentTimeMillis());
     Uni<InvocationCtx> uni = Uni.createFrom().item(ctx);
     var classController = registry.getClassController(request.cls());
     if (classController==null)

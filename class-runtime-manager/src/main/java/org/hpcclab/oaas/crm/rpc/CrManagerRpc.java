@@ -45,7 +45,7 @@ public class CrManagerRpc implements CrManager {
         var operation = controller.createDeployOperation(plan, deploymentUnit);
         return operationExecutor.applyOrRollback(controller, operation, env);
       }
-    } catch (Throwable e) {
+    } catch (Exception e) {
       logger.error("orbit deploying error", e);
       return Uni.createFrom().failure(e);
     }
@@ -60,7 +60,7 @@ public class CrManagerRpc implements CrManager {
       var plan = orbitStructure.createDeploymentPlan(request.getUnit());
       var operation = orbitStructure.createUpdateOperation(plan, request.getUnit());
       return operationExecutor.applyOrRollback(orbitStructure, operation, env);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       logger.error("orbit deploying error", e);
       return Uni.createFrom().failure(e);
     }
@@ -76,7 +76,7 @@ public class CrManagerRpc implements CrManager {
       operation.apply();
       controllerManager.deleteFromLocal(controller);
       return Uni.createFrom().item(OprcResponse.newBuilder().setSuccess(true).build());
-    } catch (Throwable e) {
+    } catch (Exception e) {
       return Uni.createFrom().failure(e);
     }
   }
@@ -89,8 +89,9 @@ public class CrManagerRpc implements CrManager {
     var operation = crController.createDetachOperation(request.getCls());
     try {
       operation.apply();
-      return operationExecutor.applyOrRollback(crController, operation, env);
-    } catch (Throwable e) {
+      var uni = operationExecutor.applyOrRollback(crController, operation, env);
+      return uni;
+    } catch (Exception e) {
       return Uni.createFrom().failure(e);
     }
   }

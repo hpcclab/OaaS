@@ -13,6 +13,11 @@ public class EIspnObjectRepository extends AbsEIspnRepository<OObject>
   }
 
   @Override
+  String extractKey(OObject oObject) {
+    return oObject.getKey();
+  }
+
+  @Override
   public AdvancedCache<String, OObject> getCache() {
     return cache;
   }

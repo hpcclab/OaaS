@@ -87,7 +87,6 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setInputs(ctx.getInputs());
     task.setImmutable(ctx.isImmutable());
     task.setArgs(resolveArgs(ctx));
-    logger.info("function status: {}", function.getStatus());
 
     if (ctx.getOutput()!=null) {
       task.setOutput(ctx.getOutput());
@@ -178,7 +177,7 @@ public class TaskFunctionController extends AbstractFunctionController {
   public InvocationCtx handleComplete(InvocationCtx context, TaskCompletion completion) {
     validateCompletion(context, completion);
     updateState(context, completion);
-    List<OObject> updateList = completion.getMain()!=null ?
+    List<OObject> updateList = completion.getMain()!=null && !functionBinding.isForceImmutable()?
       Lists.mutable.of(context.getMain()):
       List.of();
     List<OObject> createList = completion.getOutput()!=null ?

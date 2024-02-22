@@ -6,12 +6,12 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
+import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.Map;
@@ -26,24 +26,27 @@ public class BaseClassController implements ClassController {
   final StateManager stateManager;
   final InvocationQueueProducer producer;
   final IdGenerator idGenerator;
+  final MetricFactory metricFactory;
   Map<String, FunctionController> functionMap;
 
   public BaseClassController(OClass cls,
                              Map<String, FunctionController> functionMap,
                              StateManager stateManager,
                              IdGenerator idGenerator,
-                             InvocationQueueProducer producer) {
+                             InvocationQueueProducer producer,
+                             MetricFactory metricFactory) {
     this.cls = cls;
+    this.functionMap = functionMap;
     this.stateManager = stateManager;
     this.idGenerator = idGenerator;
     this.producer = producer;
-    this.functionMap = functionMap;
+    this.metricFactory = metricFactory;
   }
 
   @Override
   public Uni<InvocationCtx> invoke(InvocationCtx context) {
     var req = context.getRequest();
-    if (req.fb() == null || req.fb().isEmpty())
+    if (req.fb()==null || req.fb().isEmpty())
       return Uni.createFrom().item(context);
     var fn = functionMap.get(req.fb());
     if (fn==null)

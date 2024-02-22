@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker.ispn.repo;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
-import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.repository.AtomicOperationService;
@@ -15,7 +14,7 @@ import java.util.function.BinaryOperator;
 
 import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 
-public class EIspnAtomicOperationService<V extends HasKey<String>> implements AtomicOperationService<String, V> {
+public class EIspnAtomicOperationService<V> implements AtomicOperationService<String, V> {
   private static final Logger logger = LoggerFactory.getLogger(EIspnAtomicOperationService.class);
   AbsEIspnRepository<V> repo;
   Random random = new Random();
@@ -30,7 +29,7 @@ public class EIspnAtomicOperationService<V extends HasKey<String>> implements At
     if (!(value instanceof HasRev)) throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);
     var expectRev = Math.abs(((HasRev) value).getRevision() + addRev);
-    String key = value.getKey();
+    String key = repo.extractKey(value);
     return toUni(repo.getCache().computeAsync(key, (k, oldValue) -> {
       if (oldValue==null) {
         ((HasRev) value).setRevision(expectRev);
@@ -55,7 +54,7 @@ public class EIspnAtomicOperationService<V extends HasKey<String>> implements At
     if (!(value instanceof HasRev)) throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);
     var expectRev = Math.abs(((HasRev) value).getRevision() + addRev);
-    String key = value.getKey();
+    String key = repo.extractKey(value);
     return toUni(repo.getCache().computeAsync(key, (k, oldValue) -> {
       if (oldValue==null) {
         ((HasRev) value).setRevision(expectRev);

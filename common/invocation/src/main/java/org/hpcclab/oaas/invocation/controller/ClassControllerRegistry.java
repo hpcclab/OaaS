@@ -5,6 +5,7 @@ import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
+import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -34,6 +35,7 @@ public class ClassControllerRegistry {
   final StateManager stateManager;
   final IdGenerator idGenerator;
   final InvocationQueueProducer invocationQueueProducer;
+  final MetricFactory metricFactory;
 
   ProtoMapper protoMapper = new ProtoMapperImpl();
   Map<String, ClassController> classControllerMap;
@@ -43,14 +45,15 @@ public class ClassControllerRegistry {
                                  FunctionControllerFactory functionControllerFactory,
                                  StateManager stateManager,
                                  IdGenerator idGenerator,
-                                 InvocationQueueProducer invocationQueueProducer) {
+                                 InvocationQueueProducer invocationQueueProducer, MetricFactory metricFactory) {
     this.classService = classService;
     this.functionService = functionService;
     this.functionControllerFactory = functionControllerFactory;
     this.stateManager = stateManager;
     this.idGenerator = idGenerator;
     this.invocationQueueProducer = invocationQueueProducer;
-    this.classControllerMap = new ConcurrentHashMap<>();
+      this.metricFactory = metricFactory;
+      this.classControllerMap = new ConcurrentHashMap<>();
   }
 
   public Uni<ClassController> registerOrUpdate(ProtoOClass cls) {
@@ -115,7 +118,7 @@ public class ClassControllerRegistry {
         functionBinding.getFunction(),
         cls.getKey());
     var controller = functionControllerFactory.create(function);
-    controller.bind(functionBinding, function, cls, outputCls);
+    controller.bind(metricFactory, functionBinding, function, cls, outputCls);
     return controller;
   }
 
@@ -128,7 +131,14 @@ public class ClassControllerRegistry {
       .stream()
       .map(fb -> Map.entry(fb.getName(), buildFnController(fb, fnMap, cls, ctxClsMap)))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return new BaseClassController(cls, fbToFnMap, stateManager, idGenerator, invocationQueueProducer);
+    return new BaseClassController(
+      cls,
+      fbToFnMap,
+      stateManager,
+      idGenerator,
+      invocationQueueProducer,
+      metricFactory
+    );
   }
 
   public ClassController getClassController(String clsKey) {
