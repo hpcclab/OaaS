@@ -97,7 +97,9 @@ public class CrStateManager {
   }
 
   public Uni<OprcCr> refreshFn(OprcCr cr) {
-    Set<String> fnKeys = cr.attachedFn().stream().map(OFunction::getKey)
+    if (cr == null) return Uni.createFrom().nullItem();
+    Set<String> fnKeys = cr.attachedFn() == null ? Set.of(): cr.attachedFn()
+      .stream().map(OFunction::getKey)
       .collect(Collectors.toSet());
     return fnRepo.async().listAsync(fnKeys)
       .map(map -> cr.toBuilder()

@@ -48,6 +48,7 @@ public class K8SCrController implements CrController {
   CrDeploymentPlan currentPlan;
   boolean deleted = false;
   boolean initialized = false;
+  long stabilizationTime = 0;
 
   public K8SCrController(ClassRuntimeTemplate template,
                          KubernetesClient client,
@@ -78,6 +79,7 @@ public class K8SCrController implements CrController {
     if (!jsonDump.isEmpty()) {
       currentPlan = Json.decodeValue(jsonDump, CrDeploymentPlan.class);
     }
+    deleted = protoCr.getDeleted();
     initialized = true;
   }
 
@@ -143,6 +145,7 @@ public class K8SCrController implements CrController {
         }
         k8sResources.addAll(resourceList);
         currentPlan = plan;
+        stabilizationTime = System.currentTimeMillis() + envConfig.stabilizationWindow();
         initialized = true;
       });
     resourceList.addAll(deployShared(plan));
@@ -164,7 +167,7 @@ public class K8SCrController implements CrController {
   }
 
 
-  public List<HasMetadata> deployShared(CrDeploymentPlan plan) throws CrDeployException {
+  protected List<HasMetadata> deployShared(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
       CR_LABEL_KEY, getTsidString()
     );
@@ -198,7 +201,7 @@ public class K8SCrController implements CrController {
     return List.of(confMap, sec);
   }
 
-  public List<HasMetadata> deployObjectModule(CrDeploymentPlan plan, DeploymentUnit unit) {
+  protected List<HasMetadata> deployObjectModule(CrDeploymentPlan plan, DeploymentUnit unit) {
     var labels = Map.of(
       CR_LABEL_KEY, getTsidString(),
       CR_COMPONENT_LABEL_KEY, NAME_INVOKER
@@ -238,12 +241,12 @@ public class K8SCrController implements CrController {
     return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
   }
 
-  public List<HasMetadata> deployExecutionModule(CrDeploymentPlan plan) {
+  protected List<HasMetadata> deployExecutionModule(CrDeploymentPlan plan) {
     // no needed
     return List.of();
   }
 
-  public List<HasMetadata> deployDataModule(CrDeploymentPlan plan) throws CrDeployException {
+  protected List<HasMetadata> deployDataModule(CrDeploymentPlan plan) throws CrDeployException {
     var labels = Map.of(
       CR_LABEL_KEY, getTsidString(),
       CR_COMPONENT_LABEL_KEY, NAME_SA
@@ -264,8 +267,8 @@ public class K8SCrController implements CrController {
     return List.of(deployment, svc);
   }
 
-  public FnResourcePlan deployFunction(CrDeploymentPlan plan,
-                                       ProtoOFunction function) throws CrDeployException {
+  protected FnResourcePlan deployFunction(CrDeploymentPlan plan,
+                                          ProtoOFunction function) throws CrDeployException {
     if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_MACRO)
       return FnResourcePlan.EMPTY;
     if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_LOGICAL)
@@ -278,7 +281,7 @@ public class K8SCrController implements CrController {
     throw new CrDeployException("Can not find suitable function controller for function:\n" + function);
   }
 
-  public List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
+  protected List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
     List<HasMetadata> resourceList = Lists.mutable.empty();
     resourceList.addAll(deploymentFnController.removeFunction(fnKey));
     resourceList.addAll(knativeFnController.removeFunction(fnKey));
@@ -362,16 +365,16 @@ public class K8SCrController implements CrController {
       deployment.getSpec().setReplicas(entry.getValue().minInstance());
       resource.add(deployment);
     }
-    var crOperation = new ApplyK8SCrOperation(
+    var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
+    resource.addAll(fnResourcePlan.resources());
+    var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
+    resource.addAll(fnResourcePlan2.resources());
+    var crOperation = new AdjustmentCrOperation(
       kubernetesClient,
       resource,
       () -> currentPlan = currentPlan.update(adjustmentPlan)
     );
-    var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
-    resource.addAll(fnResourcePlan.resources());
     crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
-    var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
-    resource.addAll(fnResourcePlan2.resources());
     crOperation.getFnUpdates().addAll(fnResourcePlan2.fnUpdates());
 
     return crOperation;
@@ -509,6 +512,11 @@ public class K8SCrController implements CrController {
   @Override
   public boolean isDeleted() {
     return deleted;
+  }
+
+  @Override
+  public long getStabilizationWindow() {
+    return stabilizationTime;
   }
 
   @Override

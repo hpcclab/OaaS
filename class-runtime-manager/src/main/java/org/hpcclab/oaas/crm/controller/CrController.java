@@ -10,17 +10,13 @@ import java.util.Map;
 
 public interface CrController {
   long getId();
-
   default String getTsidString() {
     return Tsid.from(getId()).toLowerCase();
   }
-
   Map<String, ProtoOClass> getAttachedCls();
   Map<String,ProtoOFunction> getAttachedFn();
-
   CrDeploymentPlan createDeploymentPlan(DeploymentUnit unit);
   CrDeploymentPlan currentPlan();
-
   CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
 
   CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit);
@@ -30,12 +26,9 @@ public interface CrController {
   CrOperation createDestroyOperation();
 
   CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan);
-
   ProtoCr dump();
   QosOptimizer getOptimizer();
-
   boolean isInitialized();
   boolean isDeleted();
-
-//  void updateStatus(String fnKey, ProtoOFunctionDeploymentStatus status);
+  long getStabilizationWindow();
 }

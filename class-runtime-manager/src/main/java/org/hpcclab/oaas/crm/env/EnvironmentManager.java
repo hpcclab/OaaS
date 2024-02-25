@@ -36,19 +36,17 @@ public class EnvironmentManager {
       .getValue("oprc.envconf.pmHost", String.class);
     var pmPort = configProvider
       .getValue("oprc.envconf.pmPort", String.class);
-    envConf = new OprcEnvironment.Config(
-      kafka,
-      pmHost,
-      pmPort,
-      conf.exposeKnative(),
-      configProvider.getValue("oprc.log", String.class)
-    );
-    environment = new OprcEnvironment(
-      envConf,
-      null,
-      null,
-      null
-    );
+    envConf = OprcEnvironment.Config.builder()
+      .kafkaBootstrap(kafka)
+      .classManagerHost(pmHost)
+      .classManagerPort(pmPort)
+      .exposeKnative(conf.exposeKnative())
+      .stabilizationWindow(conf.stabilizationWindow())
+      .logLevel(configProvider.getValue("oprc.log", String.class))
+      .build();
+    environment = OprcEnvironment.builder()
+      .config(envConf)
+      .build();
   }
 
   public OprcEnvironment getEnvironment() {

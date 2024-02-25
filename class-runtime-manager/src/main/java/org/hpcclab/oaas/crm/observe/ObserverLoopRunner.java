@@ -47,8 +47,8 @@ public class ObserverLoopRunner {
   public void optimizationLoopExecute() {
     try {
       var metricsMap = metricObserver.observe();
-      if (logger.isDebugEnabled() && !metricsMap.isEmpty())
-        logger.debug("metrics {}", Json.encode(metricsMap));
+//      if (logger.isDebugEnabled() && !metricsMap.isEmpty())
+//        logger.debug("metrics {}", Json.encode(metricsMap));
       for (var entry : metricsMap.entrySet()) {
         var id = Tsid.from(entry.getKey());
         var controller = controllerManager.get(id.toLong());

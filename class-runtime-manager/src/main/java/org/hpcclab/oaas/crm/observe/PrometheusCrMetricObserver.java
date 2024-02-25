@@ -11,17 +11,16 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.eclipse.collections.api.factory.primitive.LongDoubleMaps;
-import org.eclipse.collections.api.map.primitive.LongDoubleMap;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.DataPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.addingMerge;
 
@@ -45,10 +44,10 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
     var cpuMetricMap = parseResp(cpuJson, "pod");
     var memJson = loadMem(scope);
     var memMetricMap = parseResp(memJson, "pod");
-    var rpsJson = loadRpsForRevision(scope);
-    var rpsMetricMap = parseResp(rpsJson, "revision_name");
-    var latencyJson = loadLatencyForRevision(scope);
-    var latencyMetricMap = parseResp(latencyJson, "revision_name");
+    var rpsJson = loadRpsForInvoker(scope);
+    var rpsMetricMap = parseResp(rpsJson);
+    var latencyJson = loadLatencyForInvoker(scope);
+    var latencyMetricMap = parseResp(latencyJson);
     Map<String, Map<OprcComponent, List<DataPoint>>> cpuCore = Maps.mutable.empty();
     Map<String, Map<String, List<DataPoint>>> cpuFn = Maps.mutable.empty();
     extract(cpuMetricMap, cpuCore, cpuFn);
@@ -57,10 +56,10 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
     extract(memMetricMap, memCore, memFn);
     Map<String, Map<OprcComponent, List<DataPoint>>> rpsCore = Maps.mutable.empty();
     Map<String, Map<String, List<DataPoint>>> rpsFn = Maps.mutable.empty();
-    extract(rpsMetricMap, rpsCore, rpsFn);
+    extractWithMetricKey(rpsMetricMap, rpsCore, rpsFn);
     Map<String, Map<OprcComponent, List<DataPoint>>> latencyCore = Maps.mutable.empty();
     Map<String, Map<String, List<DataPoint>>> latencyFn = Maps.mutable.empty();
-    extract(latencyMetricMap, latencyCore, latencyFn);
+    extractWithMetricKey(latencyMetricMap, latencyCore, latencyFn);
 
     Map<String, CrPerformanceMetrics> mergeMetrics = Maps.mutable.empty();
     for (String key : cpuCore.keySet()) {
@@ -113,21 +112,46 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
       switch (splitKey[2]) {
         case "fn" -> {
           var fnKey = extractFnName(splitKey);
-          currentCpuFn.compute(fnKey, (k,v) -> {
-            if (v == null) return entry.getValue();
+          currentCpuFn.compute(fnKey, (k, v) -> {
+            if (v==null) return entry.getValue();
             return addingMerge(v, entry.getValue());
           });
         }
         case "invoker" -> currentCpuCore.compute(OprcComponent.INVOKER, (k, v) -> {
-          if (v == null) return entry.getValue();
+          if (v==null) return entry.getValue();
           return addingMerge(v, entry.getValue());
         });
         case "storage" -> currentCpuCore.compute(OprcComponent.STORAGE_ADAPTER, (k, v) -> {
-            if (v == null) return entry.getValue();
-            return addingMerge(v, entry.getValue());
-          });
+          if (v==null) return entry.getValue();
+          return addingMerge(v, entry.getValue());
+        });
       }
     }
+  }
+
+  private void extractWithMetricKey(Map<MetricKey, List<DataPoint>> metricMap,
+                                    Map<String, Map<OprcComponent, List<DataPoint>>> groupByCrCoreMap,
+                                    Map<String, Map<String, List<DataPoint>>> groupByCrFnMap) {
+    for (var entry : metricMap.entrySet()) {
+      var crid = entry.getKey().crId();
+      var currentCpuFn = groupByCrFnMap.computeIfAbsent(crid, k -> Maps.mutable.empty());
+      currentCpuFn.compute(entry.getKey().func(), (k, v) -> {
+        if (v==null) return entry.getValue();
+        return addingMerge(v, entry.getValue());
+      });
+    }
+    Map<String, List<Map.Entry<MetricKey, List<DataPoint>>>> collect = metricMap.entrySet()
+      .stream()
+      .collect(Collectors.groupingBy(e -> e.getKey().crId));
+    for (var entry : collect.entrySet()) {
+      var currentCpuCore = groupByCrCoreMap.computeIfAbsent(entry.getKey(), k -> Maps.mutable.empty());
+      Optional<List<DataPoint>> crDataPoints = entry.getValue()
+        .stream()
+        .map(Map.Entry::getValue)
+        .reduce(CrPerformanceMetrics::addingMerge);
+      currentCpuCore.put(OprcComponent.INVOKER, crDataPoints.orElse(List.of()));
+    }
+
   }
 
 
@@ -163,9 +187,10 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
       rate(activator_request_count{revision_name=~"cr-.*"}[1m])\
       """, scope);
   }
+
   public JsonObject loadRpsForInvoker(Scope scope) {
     return query("""
-      sum by (crId) (rate(oprc_invocation_seconds_count[1m]))\
+      sum by (crId, func) (rate(oprc_invocation_seconds_count[1m]))\
       """, scope);
   }
 
@@ -177,7 +202,7 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   public JsonObject loadLatencyForInvoker(Scope scope) {
     return query("""
-      histogram_quantile(0.99, sum by (crId, le) (rate(oprc_invocation_seconds_bucket[1m])))\
+      histogram_quantile(0.95, sum by (crId, le) (rate(oprc_invocation_seconds_bucket[1m])))\
       """, scope);
   }
 
@@ -200,13 +225,6 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
     return resp.bodyAsJsonObject();
   }
-
-  public record Scope(
-    long start,
-    long end,
-    int step) {
-  }
-
 
   Map<String, List<DataPoint>> parseResp(JsonObject resp, String keyName) {
     var data = resp.getJsonObject("data");
@@ -231,5 +249,36 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
     }
     return map;
   }
+  Map<MetricKey, List<DataPoint>> parseResp(JsonObject resp) {
+    var data = resp.getJsonObject("data");
+    var results = data.getJsonArray("result");
+    Map<MetricKey, List<DataPoint>> map = Maps.mutable.empty();
+    for (int i = 0; i < results.size(); i++) {
+      var result = results.getJsonObject(i);
+      var metric = result.getJsonObject("metric");
+      JsonArray values = result.getJsonArray("values");
+      List<DataPoint> dataPoints = Lists.mutable.empty();
+      for (int j = 0; j < values.size(); j++) {
+        var pair = values.getJsonArray(j);
+        dataPoints.add(
+          new DataPoint(
+            (long) (pair.getDouble(0) * 1000),
+            Double.parseDouble(pair.getString(1))
+          )
+        );
+      }
+      var key = new MetricKey(metric.getString("crId"), metric.getString("func"));
+      map.put(key, dataPoints);
+    }
+    return map;
+  }
 
+  public record Scope(
+    long start,
+    long end,
+    int step) {
+  }
+
+  record MetricKey(String crId, String func) {
+  }
 }

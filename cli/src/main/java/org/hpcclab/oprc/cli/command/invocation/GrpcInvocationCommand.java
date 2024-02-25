@@ -1,4 +1,4 @@
-package org.hpcclab.oprc.cli.command.oal;
+package org.hpcclab.oprc.cli.command.invocation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,8 +49,10 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(GrpcInvocationCommand.class);
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
+
   @CommandLine.Option(names = "-c")
   String cls;
+
   @CommandLine.Parameters(index = "0", defaultValue = "")
   String main;
   @CommandLine.Parameters(index = "1", defaultValue = "")

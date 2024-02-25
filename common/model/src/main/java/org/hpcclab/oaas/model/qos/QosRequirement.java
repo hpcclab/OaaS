@@ -20,6 +20,9 @@ public class QosRequirement {
   @ProtoField(3)
   float availability;
 
+  public QosRequirement() {
+  }
+
   @ProtoFactory
   public QosRequirement(int latency, int throughput, float availability) {
     this.latency = latency;

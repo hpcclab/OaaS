@@ -26,6 +26,9 @@ public class QosConstraint {
   @ProtoField(5)
   List<String> runtimeRequirements;
 
+  public QosConstraint() {
+  }
+
   @ProtoFactory
   public QosConstraint(int budget,
                        ConsistencyModel consistency,

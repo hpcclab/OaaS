@@ -4,8 +4,9 @@ import io.quarkus.picocli.runtime.annotations.TopCommand;
 import org.hpcclab.oprc.cli.command.cls.ClsEntryCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextEntryCommand;
 import org.hpcclab.oprc.cli.command.fn.FnEntryCommand;
-import org.hpcclab.oprc.cli.command.oal.GrpcInvocationCommand;
-import org.hpcclab.oprc.cli.command.oal.InvocationCommand;
+import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
+import org.hpcclab.oprc.cli.command.invocation.InvocationCommand;
+import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
 import org.hpcclab.oprc.cli.command.obj.ObjectEntryCommand;
 import org.hpcclab.oprc.cli.command.orbit.CrEntryCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageEntryCommand;
@@ -20,6 +21,7 @@ import picocli.CommandLine.Command;
     CrEntryCommand.class,
     FnEntryCommand.class,
     InvocationCommand.class,
+    V2InvocationCommand.class,
     GrpcInvocationCommand.class,
     PackageEntryCommand.class,
     ContextEntryCommand.class

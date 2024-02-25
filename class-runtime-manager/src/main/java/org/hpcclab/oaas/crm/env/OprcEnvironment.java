@@ -1,20 +1,24 @@
 package org.hpcclab.oaas.crm.env;
 
 import io.fabric8.kubernetes.api.model.Quantity;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
+@Builder(toBuilder = true)
 public record OprcEnvironment (
   Config config,
   EnvResource total,
   EnvResource usable,
   EnvResource request
 ){
+  @Builder(toBuilder = true)
   public record Config (String kafkaBootstrap,
                         String classManagerHost,
                         String classManagerPort,
                         boolean exposeKnative,
+                        int stabilizationWindow,
                         String logLevel) {}
   public record EnvResource(double cpu,
                             long mem){

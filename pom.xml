@@ -12,7 +12,7 @@
     <module>class-runtime-manager</module>
     <module>package-manager</module>
     <module>storage-adapter</module>
-<!--    <module>cli</module>-->
+    <module>cli</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>

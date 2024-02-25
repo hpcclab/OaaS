@@ -54,7 +54,8 @@ public class MicrometerMetricFactory implements MetricFactory {
       .tag("fb", fb)
       .tag("func", func)
       .publishPercentileHistogram(true)
-      .publishPercentiles(0.50, 0.95, 0.99);
+//      .publishPercentiles(0.50, 0.95, 0.99)
+      ;
     if (crId.isPresent()) timerBuilder.tag("crId", crId.get());
     return new MmTimer(timerBuilder.register(registry));
   }

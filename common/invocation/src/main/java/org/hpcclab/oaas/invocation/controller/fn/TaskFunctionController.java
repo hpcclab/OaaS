@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invocation.controller.fn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
@@ -61,9 +60,9 @@ public class TaskFunctionController extends AbstractFunctionController {
   }
 
   public OObject createOutput(InvocationCtx ctx) {
-    var source = ctx.getMain();
+//    var source = ctx.getMain();
     var obj = OObject.createFromClasses(outputCls);
-    obj.setData(source.getData());
+//    obj.setData(source.getData());
     obj.setRevision(0);
     var req = ctx.getRequest();
     var outId = req!=null ? req.outId():null;
@@ -79,7 +78,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     var verId = ctx.getRequest().invId();
     var task = new OTask();
     task.setId(verId);
-    task.setPartKey(ctx.getMain().getId());
+    task.setPartKey(ctx.getRequest().main());
     task.setFbName(functionBinding.getName());
     task.setMain(ctx.getMain());
     task.setFuncKey(function.getKey());
@@ -97,7 +96,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       }
     }
 
-    if (function.getType().isMutable()) {
+    if (function.getType().isMutable() && task.getMain()!=null) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }
@@ -177,7 +176,7 @@ public class TaskFunctionController extends AbstractFunctionController {
   public InvocationCtx handleComplete(InvocationCtx context, TaskCompletion completion) {
     validateCompletion(context, completion);
     updateState(context, completion);
-    List<OObject> updateList = completion.getMain()!=null && !functionBinding.isForceImmutable()?
+    List<OObject> updateList = completion.getMain()!=null && !functionBinding.isForceImmutable() ?
       Lists.mutable.of(context.getMain()):
       List.of();
     List<OObject> createList = completion.getOutput()!=null ?

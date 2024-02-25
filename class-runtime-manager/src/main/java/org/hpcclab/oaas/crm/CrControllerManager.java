@@ -122,6 +122,7 @@ public class CrControllerManager {
     if (controller.isInitialized()) {
       vertx.executeBlockingAndForget(() -> {
         ProtoOFunction func = controller.getAttachedFn().get(fnKey);
+        if (func == null) return 0;
         ProtoOFunction newFunc = func.toBuilder()
           .setStatus(status)
           .build();

@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.crm;
 
 import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
 
 import java.util.Optional;
 
@@ -11,5 +12,7 @@ public interface CrmConfig {
   int pmPort();
   String promUrl();
   Optional<String> templateOverride();
+  @WithDefault("10000")
+  int stabilizationWindow();
   String LABEL_KEY = "oaas.function";
 }

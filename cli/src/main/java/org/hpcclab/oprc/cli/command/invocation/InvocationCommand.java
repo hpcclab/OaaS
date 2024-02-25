@@ -1,4 +1,4 @@
-package org.hpcclab.oprc.cli.command.oal;
+package org.hpcclab.oprc.cli.command.invocation;
 
 import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.uritemplate.UriTemplate;

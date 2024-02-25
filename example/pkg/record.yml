@@ -90,7 +90,6 @@ classes:
         outputCls: .record
         defaultArgs:
           INPLACE: "false"
-        forceImmutable: true
       - access: PUBLIC
         name: merge
         function: .record.merge
@@ -109,4 +108,8 @@ classes:
       - access: PUBLIC
         name: new
         function: builtin.logical.new
+        outputCls: .record
+      - access: PUBLIC
+        name: copy
+        function: builtin.logical.copy
         outputCls: .record

@@ -1,5 +1,6 @@
 package org.hpcclab.oprc.cli;
 
+import io.vertx.core.http.HttpVersion;
 import io.vertx.core.net.ProxyOptions;
 import io.vertx.core.net.ProxyType;
 import io.vertx.ext.web.client.WebClientOptions;
@@ -23,7 +24,8 @@ public class ToolProducer {
   WebClient webClient(Vertx vertx, ConfigFileManager fileManager) throws IOException {
     String proxyString = fileManager.current().getProxy();
 
-    WebClientOptions webClientOptions = new WebClientOptions();
+    WebClientOptions webClientOptions = new WebClientOptions()
+      .setProtocolVersion(HttpVersion.HTTP_2);
     if (proxyString!=null) {
       var proxy = URI.create(proxyString);
       if (!proxy.isAbsolute()) {

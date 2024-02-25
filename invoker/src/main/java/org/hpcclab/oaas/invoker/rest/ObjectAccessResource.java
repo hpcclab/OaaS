@@ -1,13 +1,11 @@
 package org.hpcclab.oaas.invoker.rest;
 
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -98,6 +96,30 @@ public class ObjectAccessResource {
       .fb(fb)
       .args(args)
       .inputs(inputs)
+      .build());
+  }
+
+  @POST
+  @Path("invokes/{fb}")
+  public Uni<InvocationResponse> invokeWithBody(String cls,
+                                                String objId,
+                                                String fb,
+                                                @Context UriInfo uriInfo,
+                                                ObjectNode body) {
+    MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+    DSMap args = DSMap.mutable();
+    for (Map.Entry<String, List<String>> entry : queryParameters.entrySet()) {
+      if (!entry.getKey().startsWith("_"))
+        args.put(entry.getKey(), entry.getValue().getFirst());
+    }
+    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
+    return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
+      .cls(cls)
+      .main(objId)
+      .fb(fb)
+      .args(args)
+      .inputs(inputs)
+      .body(body)
       .build());
   }
 }

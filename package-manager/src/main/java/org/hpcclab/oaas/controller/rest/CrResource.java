@@ -41,9 +41,9 @@ public class CrResource {
   @DELETE
   @RunOnVirtualThread
   public OprcResponse delete(String id) {
-    var orbit = stateManager.get(id).await().indefinitely();
-    if (orbit!=null) {
-      var res = orbitManager.destroy(orbit);
+    var cr = stateManager.get(id).await().indefinitely();
+    if (cr!=null) {
+      var res = orbitManager.destroy(cr);
       stateManager.getCrRepo().delete(id);
       return res;
     }

@@ -29,7 +29,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     Map<String, String> treeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    if (crtConfig.optimizerConf() != null)
+    if (crtConfig.optimizerConf()!=null)
       treeMap.putAll(crtConfig.optimizerConf());
     defaultRequestCpu = treeMap.getOrDefault("defaultRequestCpu", "0.5");
     defaultRequestMem = treeMap.getOrDefault("defaultRequestMem", "256Mi");
@@ -76,6 +76,29 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
 
+  @Override
+  public CrAdjustmentPlan adjust(CrController controller, CrPerformanceMetrics metrics) {
+    Map<String, CrInstanceSpec> fnInstance = Maps.mutable.empty();
+    var currentPlan = controller.currentPlan();
+    for (var entry : controller.getAttachedFn().entrySet()) {
+      var fnKey = entry.getKey();
+      var fn = entry.getValue();
+      var fnMetrics = metrics.fnMetrics().get(fnKey);
+      if (fnMetrics==null) continue;
+      var adj = computeFunc(controller, fn, fnMetrics);
+      if (adj.change()) fnInstance.put(fnKey, adj.spec());
+    }
+    Map<OprcComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
+
+    if (currentPlan==null)
+      return new CrAdjustmentPlan(Map.of(), Map.of(), false);
+    return new CrAdjustmentPlan(
+      coreInstance,
+      fnInstance,
+      !coreInstance.isEmpty() || !fnInstance.isEmpty());
+  }
+
+
   CrInstanceSpec convert(ProtoOFunction fn) {
     var provision = fn.getProvision();
     var qos = fn.getQos();
@@ -108,42 +131,16 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     return Quantity.parse(val).getNumericalAmount().longValue();
   }
 
-  @Override
-  public CrAdjustmentPlan adjust(CrController controller, CrPerformanceMetrics metrics) {
-    Map<OprcComponent, CrInstanceSpec> coreInstance = Map.of();
-    Map<String, CrInstanceSpec> fnInstance = Maps.mutable.empty();
-    var currentPlan = controller.currentPlan();
-    for (var entry : controller.getAttachedFn().entrySet()) {
-      var fnKey = entry.getKey();
-      var fn = entry.getValue();
-      var fnMetrics = metrics.fnMetrics().get(fnKey);
-      if (fnMetrics==null) continue;
-      var adj = computeFunc(controller, fn, fnMetrics);
-      if (adj.change()) fnInstance.put(fnKey, adj.spec());
-    }
-    for (var entry : controller.getAttachedCls().entrySet()) {
-      var cls = entry.getValue();
-      coreInstance = computeCls(controller, cls, metrics);
-    }
-
-    if (currentPlan==null)
-      return new CrAdjustmentPlan(Map.of(), Map.of(), false);
-    return new CrAdjustmentPlan(
-      coreInstance,
-      fnInstance,
-      false);
-  }
-
-  AdjustComponent computeFunc(CrController controller,
-                              ProtoOFunction fn,
-                              SvcPerformanceMetrics metrics) {
+  private AdjustComponent computeFunc(CrController controller,
+                                      ProtoOFunction fn,
+                                      SvcPerformanceMetrics metrics) {
     CrDeploymentPlan currentPlan = controller.currentPlan();
     ProtoQosRequirement qos = fn.getQos();
     CrInstanceSpec instanceSpec = currentPlan.fnInstances().get(fn.getKey());
     int targetRps = qos.getThroughput();
     var meanRps = harmonicMean(metrics.rps());
     var meanCpu = mean(metrics.cpu());
-    var cpuPerRps = meanRps < 1 ? 0: meanCpu / meanRps; // < 1 is too little. Preventing result explode
+    var cpuPerRps = meanRps < 1 ? 0:meanCpu / meanRps; // < 1 is too little. Preventing result explode
     double expectedCpu = targetRps <= 0 ? 0:cpuPerRps * targetRps;
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
@@ -158,13 +155,41 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     );
   }
 
-  Map<OprcComponent, CrInstanceSpec> computeCls(CrController controller,
-                                                ProtoOClass cls,
-                                                CrPerformanceMetrics metrics) {
-    return Map.of();
+  private Map<OprcComponent, CrInstanceSpec> computeCls(CrController controller,
+                                                        CrPerformanceMetrics metrics) {
+    Map<OprcComponent, CrInstanceSpec> adjustPlanMap = Maps.mutable.empty();
+    var cls = controller.getAttachedCls().values().iterator().next();
+    var adjust = computeInvoker(controller, cls, metrics.coreMetrics().get(OprcComponent.INVOKER));
+    if (adjust.change)
+      adjustPlanMap.put(OprcComponent.INVOKER, adjust.spec);
+    return adjustPlanMap;
   }
 
+  private AdjustComponent computeInvoker(CrController controller,
+                                         ProtoOClass cls,
+                                         SvcPerformanceMetrics metrics) {
+    CrDeploymentPlan currentPlan = controller.currentPlan();
+    ProtoQosRequirement qos = cls.getQos();
+    CrInstanceSpec instanceSpec = currentPlan.coreInstances().get(OprcComponent.INVOKER);
+    int targetRps = qos.getThroughput();
+    var meanRps = harmonicMean(metrics.rps());
+    var meanCpu = mean(metrics.cpu());
+    var cpuPerRps = meanRps < 1 ? 0:meanCpu / meanRps; // < 1 is too little. Preventing result explode
+    double expectedCpu = targetRps <= 0 ? 1:cpuPerRps * targetRps;
+    int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
+    if (expectedInstance <= 0) expectedInstance = 1;
+    var adjust = instanceSpec.toBuilder().minInstance(expectedInstance).build();
+    logger.debug("compute adjust on {} : INVOKER : meanRps {}, meanCpu {}, cpuPerRps {}, expectedInstance {}",
+      controller.getId(), meanRps, meanCpu, cpuPerRps, expectedInstance);
+    var changed = !instanceSpec.equals(adjust);
+    logger.debug("compute adjust on {} : INVOKER : ({}) {}",
+      controller.getId(), changed, adjust);
+    return new AdjustComponent(
+      changed,
+      adjust
+    );
+  }
 
-  record AdjustComponent(boolean change, CrInstanceSpec spec) {
+  public record AdjustComponent(boolean change, CrInstanceSpec spec) {
   }
 }

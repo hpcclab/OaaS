@@ -9,6 +9,8 @@ functions:
         requestsMemory: "256M"
         limitsCpu: "1"
         limitsMemory: "512M"
+    qos:
+      throughput: 200
 
   - name: record.merge
     type: TASK
@@ -73,6 +75,8 @@ classes:
     objectType: SIMPLE
     stateSpec:
       keySpecs: []
+    qos:
+      throughput: 500
     functions:
       - access: PUBLIC
         name: random-inplace
@@ -106,41 +110,41 @@ classes:
         name: new
         function: builtin.logical.new
         outputCls: .record
-  - name: record2
-    stateType: FILES
-    objectType: SIMPLE
-    stateSpec:
-      keySpecs: []
-    functions:
-      - access: PUBLIC
-        name: random-inplace
-        function: .record.random
-        outputCls: none
-        defaultArgs:
-          INPLACE: "true"
-      - access: PUBLIC
-        name: random
-        function: .record.random
-        outputCls: .record2
-        defaultArgs:
-          INPLACE: "false"
-        forceImmutable: true
-      - access: PUBLIC
-        name: merge
-        function: .record.merge
-        outputCls: .record2
-        defaultArgs:
-          INPLACE: "false"
-        forceImmutable: true
-      - access: PUBLIC
-        name: chain
-        function: .record.chain-update
-        outputCls: .record2
-      - access: PUBLIC
-        name: chain-atomic
-        function: .record.chain-update-atomic
-        outputCls: .record2
-      - access: PUBLIC
-        name: new
-        function: builtin.logical.new
-        outputCls: .record2
+#  - name: record2
+#    stateType: FILES
+#    objectType: SIMPLE
+#    stateSpec:
+#      keySpecs: []
+#    functions:
+#      - access: PUBLIC
+#        name: random-inplace
+#        function: .record.random
+#        outputCls: none
+#        defaultArgs:
+#          INPLACE: "true"
+#      - access: PUBLIC
+#        name: random
+#        function: .record.random
+#        outputCls: .record2
+#        defaultArgs:
+#          INPLACE: "false"
+#        forceImmutable: true
+#      - access: PUBLIC
+#        name: merge
+#        function: .record.merge
+#        outputCls: .record2
+#        defaultArgs:
+#          INPLACE: "false"
+#        forceImmutable: true
+#      - access: PUBLIC
+#        name: chain
+#        function: .record.chain-update
+#        outputCls: .record2
+#      - access: PUBLIC
+#        name: chain-atomic
+#        function: .record.chain-update-atomic
+#        outputCls: .record2
+#      - access: PUBLIC
+#        name: new
+#        function: builtin.logical.new
+#        outputCls: .record2

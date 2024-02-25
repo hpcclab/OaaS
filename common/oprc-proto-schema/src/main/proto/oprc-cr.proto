@@ -15,6 +15,7 @@ message ProtoCr {
   string namespace = 5;
   ProtoCrState state = 6;
   bool deleted = 7;
+  int64 stabilizationTime = 8;
 }
 
 message ProtoCrState{
