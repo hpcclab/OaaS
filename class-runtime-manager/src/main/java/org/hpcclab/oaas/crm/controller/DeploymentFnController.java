@@ -35,7 +35,7 @@ public class DeploymentFnController implements FnController {
       .get(function.getKey());
     var labels = Map.of(
       CR_LABEL_KEY, controller.getTsidString(),
-      CR_COMPONENT_LABEL_KEY, "function",
+      CR_COMPONENT_LABEL_KEY, "functions",
       CR_FN_KEY, function.getKey()
     );
     var deployConf = function.getProvision()

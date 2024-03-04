@@ -4,6 +4,7 @@ import com.github.f4b6a3.tsid.Tsid;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
+import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
 import org.hpcclab.oaas.proto.*;
 
 import java.util.Map;
@@ -13,9 +14,9 @@ public interface CrController {
   default String getTsidString() {
     return Tsid.from(getId()).toLowerCase();
   }
+  ClassRuntimeTemplate getTemplate();
   Map<String, ProtoOClass> getAttachedCls();
   Map<String,ProtoOFunction> getAttachedFn();
-  CrDeploymentPlan createDeploymentPlan(DeploymentUnit unit);
   CrDeploymentPlan currentPlan();
   CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
 
@@ -27,8 +28,6 @@ public interface CrController {
 
   CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan);
   ProtoCr dump();
-  QosOptimizer getOptimizer();
   boolean isInitialized();
   boolean isDeleted();
-  long getStabilizationWindow();
 }

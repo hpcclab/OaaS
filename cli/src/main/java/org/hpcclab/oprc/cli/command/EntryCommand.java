@@ -10,6 +10,7 @@ import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
 import org.hpcclab.oprc.cli.command.obj.ObjectEntryCommand;
 import org.hpcclab.oprc.cli.command.orbit.CrEntryCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageEntryCommand;
+import picocli.AutoComplete;
 import picocli.CommandLine.Command;
 
 @TopCommand
@@ -24,7 +25,8 @@ import picocli.CommandLine.Command;
     V2InvocationCommand.class,
     GrpcInvocationCommand.class,
     PackageEntryCommand.class,
-    ContextEntryCommand.class
+    ContextEntryCommand.class,
+    AutoComplete.GenerateCompletion.class
   },
   description = """
     The CLI of Oparaca platform (aka OaaS).

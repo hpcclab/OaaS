@@ -25,3 +25,10 @@ secretGenerator:
       - OPRC_DB_S3DEFAULT_PASS="minio_secret_key"
     options:
       disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: oaas-cr-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - OPRC_CRM_TEMPLATEOVERRIDE=oaas-crts.yml

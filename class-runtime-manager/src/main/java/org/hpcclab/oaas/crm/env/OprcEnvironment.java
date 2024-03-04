@@ -11,14 +11,14 @@ public record OprcEnvironment (
   Config config,
   EnvResource total,
   EnvResource usable,
-  EnvResource request
+  EnvResource request,
+  AvailabilityInfo availability
 ){
   @Builder(toBuilder = true)
   public record Config (String kafkaBootstrap,
                         String classManagerHost,
                         String classManagerPort,
                         boolean exposeKnative,
-                        int stabilizationWindow,
                         String logLevel) {}
   public record EnvResource(double cpu,
                             long mem){
@@ -51,4 +51,7 @@ public record OprcEnvironment (
       return cpu > estimate.cpu && mem > estimate.mem;
     }
   }
+
+  @Builder(toBuilder = true)
+  public record AvailabilityInfo(double uptimePercentage) {}
 }

@@ -166,8 +166,8 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   Scope createScope() {
     var now = System.currentTimeMillis() / 1000;
-    var offset = 180;
-    return new Scope(now - offset, now, 20);
+    var offset = 60;
+    return new Scope(now - offset, now, 10);
   }
 
   public JsonObject loadCPU(Scope scope) {

@@ -28,5 +28,6 @@ public class FileCliConfig {
     String invUrl;
     String proxy;
     String defaultClass;
+    String defaultObject;
   }
 }

@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.crm.observe;
 
 import com.github.f4b6a3.tsid.Tsid;
-import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,14 +46,14 @@ public class ObserverLoopRunner {
   public void optimizationLoopExecute() {
     try {
       var metricsMap = metricObserver.observe();
-//      if (logger.isDebugEnabled() && !metricsMap.isEmpty())
-//        logger.debug("metrics {}", Json.encode(metricsMap));
+      logger.debug("metrics: {}", metricsMap);
       for (var entry : metricsMap.entrySet()) {
         var id = Tsid.from(entry.getKey());
         var controller = controllerManager.get(id.toLong());
         if (controller==null || controller.isDeleted())
           continue;
-        var plan = controller.getOptimizer().adjust(controller, entry.getValue());
+        var plan = controller.getTemplate().getQosOptimizer()
+          .adjust(controller, entry.getValue());
         if (plan.needAction()) {
           var operation = controller.createAdjustmentOperation(plan);
           var env = environmentManager.getEnvironment();

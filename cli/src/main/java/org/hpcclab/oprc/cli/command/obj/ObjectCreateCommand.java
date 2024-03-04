@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 )
 public class ObjectCreateCommand implements Callable<Integer> {
 
-  @CommandLine.Parameters(defaultValue = "example.record")
+  @CommandLine.Parameters(defaultValue = "")
   String cls;
 
   @CommandLine.Mixin
@@ -33,9 +33,12 @@ public class ObjectCreateCommand implements Callable<Integer> {
 
   @CommandLine.Option(names = "--fb", defaultValue = "new")
   String fb;
+
+  @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
+  boolean save;
+
   @Inject
   ConfigFileManager fileManager;
-
   @Inject
   OaasObjectCreator oaasObjectCreator;
   @Inject
@@ -45,8 +48,15 @@ public class ObjectCreateCommand implements Callable<Integer> {
   public Integer call() throws Exception {
     FileCliConfig.FileCliContext current = fileManager.current();
     oaasObjectCreator.setConf(current);
+    if (cls.isBlank())
+      cls = current.getDefaultClass();
     var res = oaasObjectCreator.createObject(cls, data!=null ? new JsonObject(data):null, fb, files);
     outputFormatter.print(commonOutputMixin.getOutputFormat(), res);
+    if (save) {
+      var id = res.getJsonObject("output").getString("id");
+      current.setDefaultObject(id);
+      fileManager.update(current);
+    }
     return 0;
   }
 }

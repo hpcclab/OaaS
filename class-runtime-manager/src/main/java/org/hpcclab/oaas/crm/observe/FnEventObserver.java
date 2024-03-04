@@ -33,7 +33,7 @@ public class FnEventObserver {
   }
 
   public void start(String label) {
-    logger.info("start kn function watcher");
+    logger.info("start kn functions watcher");
     watch = knativeClient.services()
       .withLabel(label)
       .watch(new FnEventWatcher(controllerManager));

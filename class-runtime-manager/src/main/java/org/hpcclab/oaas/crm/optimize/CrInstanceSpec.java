@@ -15,6 +15,7 @@ public record CrInstanceSpec(
   float requestsCpu,
   long requestsMemory,
   float limitsCpu,
-  long limitsMemory
+  long limitsMemory,
+  int minAvail
 ) {
 }

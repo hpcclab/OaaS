@@ -12,7 +12,7 @@ public interface CrmConfig {
   int pmPort();
   String promUrl();
   Optional<String> templateOverride();
-  @WithDefault("10000")
-  int stabilizationWindow();
-  String LABEL_KEY = "oaas.function";
+  String LABEL_KEY = "oaas.functions";
+  @WithDefault("0.99")
+  double uptimePercentage();
 }

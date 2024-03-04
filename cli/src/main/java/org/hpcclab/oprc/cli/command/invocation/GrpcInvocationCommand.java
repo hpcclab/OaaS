@@ -74,11 +74,11 @@ public class GrpcInvocationCommand implements Callable<Integer> {
 
   @CommandLine.Option(names = {"-a", "--async"}, defaultValue = "false")
   boolean async;
-  MessagePackMapper msgPackMapper = new MessagePackMapper();
-  ProtoObjectMapper protoMapper = new ProtoObjectMapperImpl();
 
   @Override
   public Integer call() throws Exception {
+    MessagePackMapper msgPackMapper = new MessagePackMapper();
+    ProtoObjectMapper protoMapper = new ProtoObjectMapperImpl();
     protoMapper.setMapper(msgPackMapper);
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();

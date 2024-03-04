@@ -12,6 +12,7 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.data.AccessLevel;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
@@ -53,13 +54,15 @@ public class ObjectAccessResource {
     boolean contains = invokerManager.getManagedCls().contains(cls);
     if (contains) {
       return objectRepoManager.getOrCreate(cls).async()
-        .getAsync(cls);
+        .getAsync(objId)
+        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404));
     } else {
       return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
           .cls(cls)
           .main(objId)
           .build())
-        .map(InvocationResponse::main);
+        .map(InvocationResponse::main)
+        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404));
     }
   }
 

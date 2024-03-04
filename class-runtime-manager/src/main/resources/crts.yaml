@@ -1,18 +1,31 @@
 templates:
   default:
-    type: "default"
+    type: default
     services:
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
+        stabilizationWindow: 60000
+        maxScaleDiff: 2
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
-          OPRC_LOG: "INFO"
+          OPRC_LOG: INFO
+        requestCpu: '1'
+        requestMemory: 1Gi
+        limitCpu: '2'
+        limitMemory: 2Gi
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
+        stabilizationWindow: 30000
+        maxScaleDiff: 2
         env:
-          OPRC_LOG: "INFO"
-    optimizerConf:
+          OPRC_LOG: INFO
+        requestCpu: 500m
+        requestMemory: 256Mi
+        limitCpu: '2'
+        limitMemory: 1Gi
+    functions:
+      stabilizationWindow: 30000
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi

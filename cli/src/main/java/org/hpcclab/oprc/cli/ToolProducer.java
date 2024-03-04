@@ -9,7 +9,6 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 
@@ -21,7 +20,8 @@ public class ToolProducer {
 
   @Produces
   @ApplicationScoped
-  WebClient webClient(Vertx vertx, ConfigFileManager fileManager) throws IOException {
+  WebClient webClient(Vertx vertx,
+                      ConfigFileManager fileManager) throws IOException {
     String proxyString = fileManager.current().getProxy();
 
     WebClientOptions webClientOptions = new WebClientOptions()
@@ -64,4 +64,9 @@ public class ToolProducer {
     return GrpcClient.client(vertx.getDelegate());
   }
 
+//  @Produces
+//  @Singleton
+//  Vertx vertx() {
+//    return Vertx.vertx();
+//  }
 }

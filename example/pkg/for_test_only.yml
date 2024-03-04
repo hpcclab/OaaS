@@ -76,7 +76,8 @@ classes:
     stateSpec:
       keySpecs: []
     qos:
-      throughput: 500
+      throughput: 800
+#      availability: 0.999999
     functions:
       - access: PUBLIC
         name: random-inplace

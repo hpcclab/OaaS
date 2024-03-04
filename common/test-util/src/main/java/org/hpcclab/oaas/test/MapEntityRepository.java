@@ -149,12 +149,6 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     }
   }
 
-  public static class MapInvRepository extends MapEntityRepository<String, InvocationNode> implements InvNodeRepository {
-    public MapInvRepository(MutableMap<String, InvocationNode> map) {
-      super(map, InvocationNode::getKey);
-    }
-  }
-
   public static class MapClsRepository extends MapEntityRepository<String, OClass> implements ClassRepository {
     public MapClsRepository(MutableMap<String, OClass> map) {
       super(map, OClass::getKey);
@@ -187,34 +181,6 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     @Override
     public ObjectRepository createRepo(OClass cls) {
       return new MapObjectRepository(Maps.mutable.empty());
-    }
-
-    @Override
-    protected OClass load(String clsKey) {
-      return clsMap.get(clsKey);
-    }
-  }
-
-  public static class MapInvRepoManager extends InvRepoManager {
-
-    MutableMap<String, OClass> clsMap;
-
-    public MapInvRepoManager(MutableMap<String, InvocationNode> map,
-                             MutableMap<String, OClass> clsMap
-    ) {
-      var bagMultimap = map.groupBy(InvocationNode::getCls);
-      bagMultimap.keyMultiValuePairsView()
-        .forEach(pair -> {
-          MutableMap<String, InvocationNode> invs = pair.getTwo()
-            .toMap(InvocationNode::getKey, o -> o);
-          repoMap.put(pair.getOne(), new MapInvRepository(invs));
-        });
-      this.clsMap = clsMap;
-    }
-
-    @Override
-    public InvNodeRepository createRepo(OClass cls) {
-      return new MapInvRepository(Maps.mutable.empty());
     }
 
     @Override

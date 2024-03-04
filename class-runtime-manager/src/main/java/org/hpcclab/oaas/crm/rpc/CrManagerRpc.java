@@ -36,12 +36,14 @@ public class CrManagerRpc implements CrManager {
       var env = environmentManager.getEnvironment();
       if (crId > 0) {
         var controller = controllerManager.getOrLoad(crId, env);
-        var plan = controller.createDeploymentPlan(deploymentUnit);
+        var plan = controller.getTemplate().getQosOptimizer()
+          .resolve(deploymentUnit, env);
         var operation = controller.createUpdateOperation(plan, deploymentUnit);
         return operationExecutor.applyOrRollback(controller, operation, env);
       } else {
         var controller = controllerManager.create(env, deploymentUnit);
-        var plan = controller.createDeploymentPlan(deploymentUnit);
+        var plan = controller.getTemplate().getQosOptimizer()
+          .resolve(deploymentUnit, env);
         var operation = controller.createDeployOperation(plan, deploymentUnit);
         return operationExecutor.applyOrRollback(controller, operation, env);
       }
@@ -57,7 +59,8 @@ public class CrManagerRpc implements CrManager {
     try {
       var env = environmentManager.getEnvironment();
       var orbitStructure = controllerManager.getOrLoad(request.getOrbit(), env);
-      var plan = orbitStructure.createDeploymentPlan(request.getUnit());
+      var plan = orbitStructure.getTemplate().getQosOptimizer()
+        .resolve(request.getUnit(), env);
       var operation = orbitStructure.createUpdateOperation(plan, request.getUnit());
       return operationExecutor.applyOrRollback(orbitStructure, operation, env);
     } catch (Exception e) {

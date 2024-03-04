@@ -1,7 +1,7 @@
 mvn := "mvnd"
 #mvn := "./mvnw"
-#export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
-export CI_REGISTRY_IMAGE := "ghcr.io/pawissanutt/oaas"
+export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
+#export CI_REGISTRY_IMAGE := "ghcr.io/pawissanutt/oaas"
 #export QUARKUS_DOCKER_EXECUTABLE_NAME := "docker"
 
 build options="":
@@ -30,19 +30,19 @@ k3d-build-image: build-image
 k8s-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/base
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
-  kubectl apply -n oaas -f deploy/local-k8s/invoker-np.yml
+  kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
 
 k3d-reload: k3d-build-image
   kubectl -n oaas rollout restart deployment -l platform=oaas
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
-rd-reload: build-image-docker
+rd-reload: build-image
   kubectl -n oaas rollout restart deployment -l platform=oaas
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
-k8s-deploy-preq kn-version="v1.12.3" kourier-version="v1.12.3":
+k8s-deploy-preq kn-version="v1.13.1" kourier-version="v1.13.0":
   kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-crds.yaml
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-core.yaml

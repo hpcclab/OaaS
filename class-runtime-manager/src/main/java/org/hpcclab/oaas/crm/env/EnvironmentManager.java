@@ -23,7 +23,6 @@ public class EnvironmentManager {
   private static final Logger logger = LoggerFactory.getLogger(EnvironmentManager.class);
   final KubernetesClient client;
   OprcEnvironment environment;
-  OprcEnvironment.Config envConf;
 
   @Inject
   public EnvironmentManager(KubernetesClient client,
@@ -36,16 +35,18 @@ public class EnvironmentManager {
       .getValue("oprc.envconf.pmHost", String.class);
     var pmPort = configProvider
       .getValue("oprc.envconf.pmPort", String.class);
-    envConf = OprcEnvironment.Config.builder()
+    var envConf = OprcEnvironment.Config.builder()
       .kafkaBootstrap(kafka)
       .classManagerHost(pmHost)
       .classManagerPort(pmPort)
       .exposeKnative(conf.exposeKnative())
-      .stabilizationWindow(conf.stabilizationWindow())
       .logLevel(configProvider.getValue("oprc.log", String.class))
       .build();
     environment = OprcEnvironment.builder()
       .config(envConf)
+      .availability(
+        new OprcEnvironment.AvailabilityInfo(conf.uptimePercentage())
+      )
       .build();
   }
 
@@ -72,12 +73,11 @@ public class EnvironmentManager {
     EnvResource requests = calculateRequest();
     EnvResource remaining = total.subtract(requests);
     logger.info("current resources: total {}, usage {}, remaining {}", total, usage, remaining);
-    environment = new OprcEnvironment(
-      envConf,
-      total,
-      remaining,
-      requests
-    );
+    environment = environment.toBuilder()
+      .total(total)
+      .usable(remaining)
+      .request(requests)
+      .build();
   }
 
   public EnvResource calculateRequest() {
@@ -101,7 +101,4 @@ public class EnvironmentManager {
     }
     return new EnvResource(totalCPURequests, totalMemoryRequests);
   }
-
-
-
 }

@@ -35,17 +35,14 @@ public record CrPerformanceMetrics(
 
   public static List<DataPoint> addingMerge(List<DataPoint> list1, List<DataPoint> list2) {
     var map = LongDoubleMaps.mutable.empty();
-
     // Add values from list1 to the map
     for (DataPoint dp : list1) {
-      map.updateValue(dp.timestamp(), dp.value(),
-        val -> dp.value() + val);
+      map.addToValue(dp.timestamp(), dp.value());
     }
 
     // Add values from list2 to the map
     for (DataPoint dp : list2) {
-      map.updateValue(dp.timestamp(), dp.value(),
-        val -> dp.value() + val);
+      map.addToValue(dp.timestamp(), dp.value());
     }
 
     return map.keyValuesView()

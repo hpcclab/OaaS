@@ -17,6 +17,7 @@ import java.util.Map;
 public class ConfigFileManager {
   final CliConfig cliConfig;
   ObjectMapper objectMapper;
+  FileCliConfig fileCliConfig;
 
   public ConfigFileManager(CliConfig cliConfig,
                            ObjectMapper mapper) {
@@ -32,12 +33,11 @@ public class ConfigFileManager {
   }
 
   public FileCliConfig getDefault() {
-    var fileCliConfig = new FileCliConfig.FileCliContext(
-      "http://pm.oaas.127.0.0.1.nip.io",
-      "http://inv.oaas.127.0.0.1.nip.io",
-      null,
-      "builtin.example.record"
-    );
+    var fileCliConfig = FileCliConfig.FileCliContext.builder()
+      .pmUrl("http://pm.oaas.127.0.0.1.nip.io")
+      .invUrl("http://inv.oaas.127.0.0.1.nip.io")
+      .defaultClass("example.record")
+      .build();
     return new FileCliConfig(
       Map.of("default", fileCliConfig),
       "default"
@@ -45,17 +45,18 @@ public class ConfigFileManager {
   }
 
   public FileCliConfig getOrCreate() throws IOException {
+    if (fileCliConfig != null) return fileCliConfig;
     String homeDir = System.getProperty("user.home");
     Path configFilePath = Path.of(homeDir).resolve(cliConfig.configPath());
     var file = configFilePath.toFile();
     if (file.exists()) {
-      return objectMapper.readValue(file, FileCliConfig.class);
+      fileCliConfig = objectMapper.readValue(file, FileCliConfig.class);
     } else {
       file.getParentFile().mkdirs();
-      var conf = getDefault();
-      objectMapper.writeValue(file, conf);
-      return conf;
+      fileCliConfig = getDefault();
+      objectMapper.writeValue(file, fileCliConfig);
     }
+    return fileCliConfig;
   }
 
   public void update(FileCliConfig config) throws IOException {
@@ -68,5 +69,14 @@ public class ConfigFileManager {
       file.getParentFile().mkdirs();
       objectMapper.writeValue(file, config);
     }
+  }
+
+  public void update(FileCliConfig.FileCliContext ctx) throws IOException {
+    String homeDir = System.getProperty("user.home");
+    Path configFilePath = Path.of(homeDir).resolve(cliConfig.configPath());
+    var file = configFilePath.toFile();
+    var conf = getOrCreate();
+    conf.getContexts().put(conf.getCurrentContext(), ctx);
+    objectMapper.writeValue(file, conf);
   }
 }
