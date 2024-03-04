@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.observe;
 
 import io.fabric8.knative.client.KnativeClient;
 import io.fabric8.knative.internal.pkg.apis.Condition;
+import io.fabric8.knative.internal.pkg.apis.duck.v1.Addressable;
 import io.fabric8.knative.serving.v1.Service;
 import io.fabric8.knative.serving.v1.ServiceStatus;
 import io.fabric8.kubernetes.client.Watch;
@@ -122,9 +123,14 @@ public class FnEventObserver {
         return;
       if (fnKey==null)
         return;
+      String url = Optional.of(svc.getStatus())
+        .map(ServiceStatus::getAddress)
+        .map(Addressable::getUrl)
+        .orElse("");
       ProtoOFunctionDeploymentStatus status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
-        .setErrorMsg(msg==null ? "":msg)
+        .setErrorMsg(msg==null ? "": msg)
+        .setInvocationUrl(url)
         .build();
       controllerManager.update(crId, fnKey, status);
     }
