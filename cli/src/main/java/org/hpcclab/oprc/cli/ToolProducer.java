@@ -19,6 +19,12 @@ import java.net.URI;
 public class ToolProducer {
 
   @Produces
+  @Singleton
+  Vertx vertx(){
+    return Vertx.vertx();
+  }
+
+  @Produces
   @ApplicationScoped
   WebClient webClient(Vertx vertx,
                       ConfigFileManager fileManager) throws IOException {
