@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +26,8 @@ public class FileCliConfig {
     String pmUrl;
     String invUrl;
     String proxy;
+    String pmVirtualHost;
+    String invVirtualHost;
     String defaultClass;
     String defaultObject;
   }

@@ -4,6 +4,7 @@ import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
+import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.WebRequester;
 import org.slf4j.Logger;
@@ -24,19 +25,15 @@ public class ClsDeleteCommand implements Callable<Integer> {
   CommonOutputMixin commonOutputMixin;
   @Inject
   WebRequester webRequester;
-  @Inject
-  ConfigFileManager fileManager;
 
   @CommandLine.Parameters(defaultValue = "")
   String cls;
 
   @Override
   public Integer call() throws Exception {
-    var oc = fileManager.current().getPmUrl();
-    return webRequester.deleteAndPrint(
-      UriTemplate.of("{+oc}/api/classes/{+cls}")
+    return webRequester.pmDeleteAndPrint(
+      UriTemplate.of("/api/classes/{+cls}")
         .expandToString(Variables.variables()
-          .set("oc", oc)
           .set("cls", cls)
         ),
       commonOutputMixin.getOutputFormat()

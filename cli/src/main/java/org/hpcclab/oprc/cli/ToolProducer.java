@@ -14,9 +14,16 @@ import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 @Singleton
 public class ToolProducer {
+
+//  @Produces
+//  @Singleton
+//  Vertx vertx(){
+//    return Vertx.vertx();
+//  }
 
   @Produces
   @ApplicationScoped
@@ -25,7 +32,8 @@ public class ToolProducer {
     String proxyString = fileManager.current().getProxy();
 
     WebClientOptions webClientOptions = new WebClientOptions()
-      .setProtocolVersion(HttpVersion.HTTP_2);
+      .setAlpnVersions(List.of(HttpVersion.HTTP_2, HttpVersion.HTTP_1_1))
+      ;
     if (proxyString!=null) {
       var proxy = URI.create(proxyString);
       if (!proxy.isAbsolute()) {

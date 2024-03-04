@@ -24,19 +24,15 @@ public class CrDeleteCommand implements Callable<Integer> {
   CommonOutputMixin commonOutputMixin;
   @Inject
   WebRequester webRequester;
-  @Inject
-  ConfigFileManager fileManager;
 
   @CommandLine.Parameters(defaultValue = "")
   String crId;
 
   @Override
   public Integer call() throws Exception {
-    var oc = fileManager.current().getPmUrl();
-    return webRequester.deleteAndPrint(
-      UriTemplate.of("{+oc}/api/class-runtimes/{+crId}")
+    return webRequester.pmDeleteAndPrint(
+      UriTemplate.of("/api/class-runtimes/{+crId}")
         .expandToString(Variables.variables()
-          .set("oc", oc)
           .set("crId", crId)
         ),
       commonOutputMixin.getOutputFormat()

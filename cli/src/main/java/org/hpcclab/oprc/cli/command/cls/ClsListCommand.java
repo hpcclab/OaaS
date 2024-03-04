@@ -4,6 +4,7 @@ import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
+import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.WebRequester;
 import org.slf4j.Logger;
@@ -32,13 +33,15 @@ public class ClsListCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    var oc = fileManager.current().getPmUrl();
+    FileCliConfig.FileCliContext fileCliContext = fileManager.current();
+    var pm = fileCliContext.getPmUrl();
     return webRequester.getAndPrint(
-      UriTemplate.of("{+oc}/api/classes/{+cls}")
+      UriTemplate.of("{+pm}/api/classes/{+cls}")
         .expandToString(Variables.variables()
-          .set("oc", oc)
+          .set("pm", pm)
           .set("cls", cls)
         ),
+      fileCliContext.getPmVirtualHost(),
       commonOutputMixin.getOutputFormat()
     );
   }
