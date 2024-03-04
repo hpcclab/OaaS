@@ -19,12 +19,6 @@ import java.util.List;
 @Singleton
 public class ToolProducer {
 
-//  @Produces
-//  @Singleton
-//  Vertx vertx(){
-//    return Vertx.vertx();
-//  }
-
   @Produces
   @ApplicationScoped
   WebClient webClient(Vertx vertx,

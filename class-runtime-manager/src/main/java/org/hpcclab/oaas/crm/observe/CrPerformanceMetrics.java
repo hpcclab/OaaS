@@ -71,6 +71,11 @@ public record CrPerformanceMetrics(
         return Double.compare(this.value(), other.value());
       }
     }
+
+    @Override
+    public String toString() {
+      return "[" + timestamp() + ", " + value() + "]";
+    }
   }
 
 }
