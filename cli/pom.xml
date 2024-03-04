@@ -15,7 +15,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipITs>true</skipITs>
     <maven.compiler.release>17</maven.compiler.release>
-    <tsid-creator.version>5.2.5</tsid-creator.version>
+    <tsid-creator.version>5.2.6</tsid-creator.version>
   </properties>
   <dependencyManagement>
     <dependencies>
