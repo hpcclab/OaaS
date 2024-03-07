@@ -14,7 +14,7 @@ In the example usages, we provide the example scripts to show how to deploy the 
 * link:pkg/video.yml[Video class specification example]
 ** link:functions/transcode-fn-py/[Transcode function source code]
 
-NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/oc/openapi.json[link].
+NOTE: Object Controller has an auto-generated link:../doc/package-manager/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/package-manager/openapi.json[link].
 
 == Text Object
 This section will explain how to use OaaS via using the text object as an example. The text object only have a single function that is string concatenation. Each text object represents a single text file.
@@ -24,57 +24,10 @@ This section will explain how to use OaaS via using the text object as an exampl
 
 [source,http request]
 ----
-POST http://<object_controller>/api/modules
+POST http://<package_manager>/api/packages
 Content-Type: text/x-yaml
 
-name: example
-functions:
-  - name: concat
-    type: TASK
-    outputCls: example.text
-    validation: {}
-    provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
-    variableDescriptions:
-      - name: append
-  - name: chain-concat
-    type: MACRO
-    macro:
-      steps:
-        - target: $
-          as: record1
-          function: concat
-          args:
-            INPLACE: "false"
-        - target: record1
-          as: record2
-          function: json-update
-          args:
-            INPLACE: "false"
-        - target: record2
-          as: record3
-          function: concat
-          args:
-            INPLACE: "false"
-      export: record3
-classes:
-  - name: text
-    stateType: FILES
-    objectType: SIMPLE
-    stateSpec:
-      keySpecs:
-        - name: text
-    functions:
-      - access: PUBLIC
-        function: example.concat
-        forceImmutable: true
-      - access: PUBLIC
-        function: example.concat
-        name: concat-inplace
-        outputCls: void
-        defaultArgs:
-          INPLACE: "true"
+include::pkg/text.yml[]
 ----
 
 === Creating an object
@@ -84,12 +37,11 @@ classes:
 +
 [source,http request]
 ----
-POST http://<object_controller>/api/object-construct
+POST http://<invoker>/api/classes/example.text/invokes/new
 Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "example.text",
   "keys": ["text"],
 }
 ----
@@ -99,12 +51,14 @@ Object Controller will reply with the detail of a new object and the URL to uplo
 [source,json]
 ----
 {
-  "object": {
+  "output": {
     "id": "fc110a1f-0d9c-407a-8c64-36bf6d0870c9",
     "cls": "example.text"
   },
-  "uploadUrls": {
-    "text": "http://s3.10.131.36.40.nip.io/msc-bkt/fc110a1f-0d9c-407a-8c64-36bf6d0870c9/text?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XYV0GB00VOPBNFKOIHSP%2F20220412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220412T002046Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7c05dfdd8279cfd9cf5a2a941c408a24db0f13d310849de7997ed8a8b2f4d195"
+  "body": {
+    "uploadUrls": {
+      "text": "http://s3.10.131.36.40.nip.io/msc-bkt/fc110a1f-0d9c-407a-8c64-36bf6d0870c9/text?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XYV0GB00VOPBNFKOIHSP%2F20220412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220412T002046Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7c05dfdd8279cfd9cf5a2a941c408a24db0f13d310849de7997ed8a8b2f4d195"
+    }
   }
 }
 ----
@@ -125,16 +79,16 @@ You can request the state data of any object via requesting to Content Delivery 
 //Content Delivery Service will reply with the object state data of given object ID.
 [source,http request]
 ----
-GET http://<content_delivery_service>/oal/<object_id>/text
+GET http://<invoker>/api/classes/example.text/<object_id>/files/text
 ----
 
 === Invoking a function
 
-With the Object Access Interface, we can also request the function invocation and wait for the state data of the output object.
+With the Object Access Interface, we can also request the function invocation.
 
 [source,http request]
 ----
-GET http://<content_delivery_service>/oal/<object_id>:concat()(APPEND=NEW_TEXT)/text
+GET http://<invoker>/api/classes/example.text/<object_id>/invokes/concat?APPEND=NEW_TEXT
 ----
 
 

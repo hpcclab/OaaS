@@ -14,12 +14,17 @@ image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/Oa
 
 OaaS is a shortened word for Object as a Service, a new serverless paradigm. OaaS utilizes the notion of Object to incorporate state management into the Serverless platform.
 
-image:doc/diagrams/oaas_concept_all_v1.dio.png[
-concept,480]
+.FaaS
+image::doc/diagrams/faas_concept_v4s.dio.png[faas_concept,480]
+.OaaS
+image::doc/diagrams/oaas_concept_v5.dio.png[ oaas_concept,480]
 
 
 == Architecture
-image:doc/diagrams/oaas_architecture_v10.dio.png[ architecture,480]
+.Overall Architecture
+image::doc/diagrams/qos_oaas_architecture_v15_1.dio.png[architecture1,480]
+.Class Runtime Architecture
+image::doc/diagrams/oaas_architecture_v14_2.dio.png[architecture2,480]
 
 == Try it via k3d
 
