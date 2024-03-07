@@ -76,18 +76,13 @@ kubectl apply -n oaas -k deploy/oaas/local
 ----
 kubectl get pod -n oaas -w
 ----
-. Access OaaS
+. Access OaaS via link:../../cli/README.adoc[CLI]
 +
 [source,bash]
 ----
-# For bash
-export OPRC_CDS=http://cds.127.0.0.1.nip.io:9090
-# For powershell
-$ENV:OPRC_CDS="http://cds.127.0.0.1.nip.io:9090"
-
+ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io:9090 --pm=http://pm.oaas.127.0.0.1.nip.io:9090
 ----
-.. Object controller: `http://oc.oaas.127.0.0.1.nip.io:9090`
-.. Content Delivery Service: `http://cds.127.0.0.1.nip.io:9090`
+.. package manager: `http://pm.oaas.127.0.0.1.nip.io:9090`
 .. Invoker: `http://inv.oaas.127.0.0.1.nip.io:9090`
 
 

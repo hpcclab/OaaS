@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "invoke",
   aliases = {"inv", "i"},
+  description = "Deprecated please use i2 command instead",
   mixinStandardHelpOptions = true
 )
 public class InvocationCommand implements Callable<Integer> {

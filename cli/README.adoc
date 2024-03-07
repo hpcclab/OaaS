@@ -8,6 +8,11 @@ The native image is more preferable than the jar file because it has a much fast
 
 [source,bash]
 ----
+# FIRST BUILD MAIN PROJECT
+./mvnw install -DskipTests
+cd cli
+
+# BUILD NATIVE IMAGE
 just build-native
 # OR
 ./mvnw install -Pnative -DskipTests
@@ -17,14 +22,28 @@ cp target/oprc-cli-0.2.0-SNAPSHOT-runner $HOME/.local/bin/ocli
 ----
 
 
-// === Jar file via JBang
-// You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
-//
-// [source,bash]
-// ----
-// jbang app install --name ocli --force --fresh ocli@pawissanutt/oprc-cli
-// ----
+=== Jar file via JBang
+You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
+
+[source,bash]
+----
+./mvnw package -DskipTests
+cd cli
+jbang app install --name=ocli --force target/oprc-cli-1.0-SNAPSHOT-runner.jar
+----
 
 == Usage
 You can check the usage instruction by running `ocli -h`.
 
+EXAMPLE
+[source,bash]
+----
+# CONFIG THE CONNECTION
+ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io:9090 --pm=http://pm.oaas.127.0.0.1.nip.io:9090
+# DEPLOY PACKAGE
+ocli p a example/pkg/record.yml
+# CREATE OBJECT AND SAVE OBJECT ID FOR LATER USE (SAVE TO LOCAL CONFIG FILE)
+ocli o c example.record -s
+# INVOKE FUNCTION to a saved object
+ocli i2 random
+----
