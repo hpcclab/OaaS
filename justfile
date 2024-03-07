@@ -51,6 +51,10 @@ k8s-deploy-preq kn-version="v1.13.1" kourier-version="v1.13.0":
     --namespace knative-serving \
     --type merge \
     --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
+  kubectl patch configmap/config-domain \
+        --namespace knative-serving \
+        --type merge \
+        --patch '{"data":{"127.0.0.1.nip.io":""}}'
 
   kubectl apply -f 'https://strimzi.io/install/latest?namespace=oaas' -n oaas
 

@@ -11,6 +11,7 @@ data:
   OPRC_CRM_PMPORT: "80"
   OPRC_CRM_PROMURL: "http://prometheus-kube-prometheus-prometheus:9090"
   OPRC_CRM_UPTIMEPERCENTAGE: "0.99"
+  OPRC_CRM_EXPOSEKNATIVE: "false"
   OPRC_ENVCONF_PMHOST: "package-manager"
   OPRC_ENVCONF_PMPORT: "80"
   OPRC_ENVCONF_KAFKA: "oaas-kafka-bootstrap:9092"

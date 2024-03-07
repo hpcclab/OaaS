@@ -8,22 +8,22 @@ The native image is more preferable than the jar file because it has a much fast
 
 [source,bash]
 ----
-VERSION="v0.1.10"
-curl -Lo ocli https://github.com/pawissanutt/oprc-cli/releases/download/$VERSION/oprc-cli-$VERSION-runner
-sudo chmod +x ocli
-cp ocli $HOME/.local/bin
-# or
-# sudo cp ocli /usr/local/bin
+just build-native
+# OR
+./mvnw install -Pnative -DskipTests
+
+# THEN COPY TO LOCAL BIN
+cp target/oprc-cli-0.2.0-SNAPSHOT-runner $HOME/.local/bin/ocli
 ----
 
 
-=== Jar file via JBang
-You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
-
-[source,bash]
-----
-jbang app install --name ocli --force --fresh ocli@pawissanutt/oprc-cli
-----
+// === Jar file via JBang
+// You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
+//
+// [source,bash]
+// ----
+// jbang app install --name ocli --force --fresh ocli@pawissanutt/oprc-cli
+// ----
 
 == Usage
 You can check the usage instruction by running `ocli -h`.
