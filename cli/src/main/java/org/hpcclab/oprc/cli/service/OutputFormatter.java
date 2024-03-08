@@ -9,11 +9,12 @@ import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
+import org.hpcclab.oprc.cli.conf.OutputFormat;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 
 import java.util.Collection;
 
-import static org.hpcclab.oprc.cli.mixin.CommonOutputMixin.OutputFormat.NDJSON;
+import static org.hpcclab.oprc.cli.conf.OutputFormat.NDJSON;
 
 
 @ApplicationScoped
@@ -31,7 +32,7 @@ public class OutputFormatter {
   }
 
   @SneakyThrows
-  public void print(CommonOutputMixin.OutputFormat format, JsonObject jsonObject) {
+  public void print(OutputFormat format, JsonObject jsonObject) {
     if (jsonObject.containsKey("items")
       && jsonObject.containsKey("total")
       && format==NDJSON) {
@@ -46,16 +47,16 @@ public class OutputFormatter {
   }
 
   @SneakyThrows
-  public void printObject(CommonOutputMixin.OutputFormat format, Object val) {
+  public void printObject(OutputFormat format, Object val) {
     print(format, JsonObject.mapFrom(val));
   }
   @SneakyThrows
-  public void printArray(CommonOutputMixin.OutputFormat format, Collection<Object> val) {
+  public void printArray(OutputFormat format, Collection<Object> val) {
     print(format, JsonArray.of(val.toArray()));
   }
 
   @SneakyThrows
-  public void print(CommonOutputMixin.OutputFormat format, JsonArray jsonArray) {
+  public void print(OutputFormat format, JsonArray jsonArray) {
     switch (format) {
       case JSON -> System.out.println(jsonArray);
       case NDJSON -> {

@@ -1,10 +1,7 @@
 package org.hpcclab.oprc.cli.command.cls;
 
-import io.vertx.mutiny.uritemplate.UriTemplate;
-import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
-import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.WebRequester;
 import org.slf4j.Logger;
@@ -17,6 +14,7 @@ import java.util.concurrent.Callable;
 @Command(
   name = "list",
   aliases = {"l"},
+  description = "List classes",
   mixinStandardHelpOptions = true
 )
 public class ClsListCommand implements Callable<Integer> {
@@ -25,23 +23,14 @@ public class ClsListCommand implements Callable<Integer> {
   CommonOutputMixin commonOutputMixin;
   @Inject
   WebRequester webRequester;
-  @Inject
-  ConfigFileManager fileManager;
 
   @CommandLine.Parameters(defaultValue = "")
   String cls;
 
   @Override
   public Integer call() throws Exception {
-    FileCliConfig.FileCliContext fileCliContext = fileManager.current();
-    var pm = fileCliContext.getPmUrl();
-    return webRequester.getAndPrint(
-      UriTemplate.of("{+pm}/api/classes/{+cls}")
-        .expandToString(Variables.variables()
-          .set("pm", pm)
-          .set("cls", cls)
-        ),
-      fileCliContext.getPmVirtualHost(),
+    return webRequester.pmGetAndPrint(
+      "/api/classes/" + cls,
       commonOutputMixin.getOutputFormat()
     );
   }

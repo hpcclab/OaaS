@@ -3,12 +3,13 @@ package org.hpcclab.oprc.cli.command.fn;
 import picocli.CommandLine.Command;
 
 @Command(
-        name = "function",
-        aliases = {"fn", "f"},
-        mixinStandardHelpOptions = true,
-        subcommands = {
-                FnListCommand.class
-        }
+  name = "function",
+  aliases = {"fn", "f"},
+  description = "Manage functions",
+  mixinStandardHelpOptions = true,
+  subcommands = {
+    FnListCommand.class
+  }
 )
 public class FnEntryCommand {
 

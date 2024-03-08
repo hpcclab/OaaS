@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "get",
   aliases = "g",
+  description = "Get current configuration",
   mixinStandardHelpOptions = true
 )
 public class ContextGetCommand  implements Callable<Integer> {

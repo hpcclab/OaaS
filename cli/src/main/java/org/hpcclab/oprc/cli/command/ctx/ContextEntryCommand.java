@@ -7,6 +7,7 @@ import picocli.CommandLine.Command;
 @Command(
   name = "context",
   aliases = {"ctx"},
+  description = "Manage contexts",
   mixinStandardHelpOptions = true,
   subcommands = {
     ContextGetCommand.class,

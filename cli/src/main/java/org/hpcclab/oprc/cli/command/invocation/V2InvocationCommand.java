@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "invoke2",
   aliases = {"inv2", "i2"},
+  description = "Invoke a function with REST API",
   mixinStandardHelpOptions = true
 )
 public class V2InvocationCommand implements Callable<Integer> {

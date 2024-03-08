@@ -5,6 +5,7 @@ import picocli.CommandLine.Command;
 @Command(
   name = "class",
   aliases = {"cls", "c"},
+  description = "Manage classes",
   mixinStandardHelpOptions = true,
   subcommands = {
     ClsListCommand.class,

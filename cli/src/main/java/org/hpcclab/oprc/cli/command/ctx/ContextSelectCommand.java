@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 @Command(
   name = "select",
   aliases = {"use", "u"},
+  description = "Select a context",
   mixinStandardHelpOptions = true
 )
 public class ContextSelectCommand implements Callable<Integer> {

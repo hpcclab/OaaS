@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
-import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
+import org.hpcclab.oprc.cli.conf.OutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class WebRequester {
 
   public int getAndPrint(String url,
                          String overrideHost,
-                         CommonOutputMixin.OutputFormat format) {
+                         OutputFormat format) {
     var jsonObject = request(HttpMethod.GET, url, overrideHost);
     if (jsonObject==null)
       return 1;
@@ -56,7 +56,7 @@ public class WebRequester {
   }
 
   public int pmGetAndPrint(String path,
-                           CommonOutputMixin.OutputFormat format) throws IOException {
+                           OutputFormat format) throws IOException {
     FileCliConfig.FileCliContext fileCliContext = configFileManager.current();
     String pmUrl = fileCliContext.getPmUrl();
     var jsonObject = request(HttpMethod.GET, pmUrl + path, fileCliContext.getPmVirtualHost());
@@ -67,7 +67,7 @@ public class WebRequester {
   }
 
   public int pmDeleteAndPrint(String path,
-                              CommonOutputMixin.OutputFormat format) throws IOException {
+                              OutputFormat format) throws IOException {
     FileCliConfig.FileCliContext fileCliContext = configFileManager.current();
     String pmUrl = fileCliContext.getPmUrl();
     var jsonObject = request(HttpMethod.DELETE, pmUrl + path, fileCliContext.getPmVirtualHost());

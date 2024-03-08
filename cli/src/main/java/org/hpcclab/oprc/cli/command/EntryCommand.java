@@ -8,7 +8,7 @@ import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
 import org.hpcclab.oprc.cli.command.invocation.InvocationCommand;
 import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
 import org.hpcclab.oprc.cli.command.obj.ObjectEntryCommand;
-import org.hpcclab.oprc.cli.command.orbit.CrEntryCommand;
+import org.hpcclab.oprc.cli.command.cr.CrEntryCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageEntryCommand;
 import picocli.AutoComplete;
 import picocli.CommandLine.Command;

@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "create",
   aliases = "c",
+  description = "create an object",
   mixinStandardHelpOptions = true
 )
 public class ObjectCreateCommand implements Callable<Integer> {

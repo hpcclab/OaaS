@@ -1,4 +1,4 @@
-package org.hpcclab.oprc.cli.command.orbit;
+package org.hpcclab.oprc.cli.command.cr;
 
 import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
@@ -25,23 +25,14 @@ public class CrListCommand implements Callable<Integer> {
   CommonOutputMixin commonOutputMixin;
   @Inject
   WebRequester webRequester;
-  @Inject
-  ConfigFileManager fileManager;
 
   @CommandLine.Parameters(defaultValue = "")
   String crId;
 
   @Override
   public Integer call() throws Exception {
-    FileCliConfig.FileCliContext fileCliContext = fileManager.current();
-    var pm = fileCliContext.getPmUrl();
-    return webRequester.getAndPrint(
-      UriTemplate.of("{+pm}/api/class-runtimes/{+crId}")
-        .expandToString(Variables.variables()
-          .set("pm", pm)
-          .set("crId", crId)
-        ),
-      fileCliContext.getPmVirtualHost(),
+    return webRequester.pmGetAndPrint(
+      "/api/class-runtimes/" + crId,
       commonOutputMixin.getOutputFormat()
     );
   }

@@ -1,9 +1,8 @@
-package org.hpcclab.oprc.cli.command.orbit;
+package org.hpcclab.oprc.cli.command.cr;
 
 import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
-import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.WebRequester;
 import org.slf4j.Logger;

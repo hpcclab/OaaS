@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 @Command(
   name = "delete",
   aliases = {"d", "rm", "remove"},
+  description = "Delete a classes",
   mixinStandardHelpOptions = true
 )
 public class ClsDeleteCommand implements Callable<Integer> {

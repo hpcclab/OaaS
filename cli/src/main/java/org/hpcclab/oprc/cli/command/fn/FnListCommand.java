@@ -25,23 +25,13 @@ public class FnListCommand implements Callable<Integer> {
   CommonOutputMixin commonOutputMixin;
   @Inject
   WebRequester webRequester;
-  @Inject
-  ConfigFileManager fileManager;
   @CommandLine.Parameters(defaultValue = "")
   String fn;
 
-
   @Override
   public Integer call() throws Exception {
-    FileCliConfig.FileCliContext fileCliContext = fileManager.current();
-    var pm = fileCliContext.getPmUrl();
-    return webRequester.getAndPrint(
-      UriTemplate.of("{+pm}/api/functions/{+fn}")
-        .expandToString(Variables.variables()
-          .set("pm", pm)
-          .set("fn", fn)
-        ),
-      fileCliContext.getPmVirtualHost(),
+    return webRequester.pmGetAndPrint(
+      "/api/functions/" + fn,
       commonOutputMixin.getOutputFormat()
     );
   }

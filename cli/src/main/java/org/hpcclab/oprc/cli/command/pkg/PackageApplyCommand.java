@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "apply",
   aliases = {"a", "create", "c"},
+  description = "Apply a package",
   mixinStandardHelpOptions = true
 )
 public class PackageApplyCommand implements Callable<Integer> {

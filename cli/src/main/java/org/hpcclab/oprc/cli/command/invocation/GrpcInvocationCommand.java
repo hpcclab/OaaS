@@ -34,6 +34,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "grpc-invoke",
   aliases = {"ginv", "gi"},
+  description = "Invoke a function with gRPC",
   mixinStandardHelpOptions = true
 )
 @RegisterForReflection(
