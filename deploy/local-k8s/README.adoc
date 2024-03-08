@@ -11,6 +11,9 @@ This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d
 
 == OaaS Installation
 === Prerequisites
+
+* JDK21 (if you want to build the project)
+
 * https://github.com/casey/just[*just*]
 
 * Clone this project.
@@ -22,6 +25,7 @@ cd OaaS
 ----
 
 * Kubernetes
+** Container runtime (Docker or Podman)
 ** Create via k3d
 +
 [source,bash]
@@ -36,6 +40,24 @@ just k3d-create
 ** *helm*
 
 
+
+
+=== Build images
+To ensure that you use the images of current project, you may have to build the container images yourself.
+
+Use `mvnw` command to build the project and container images.
+
+[source,bash]
+----
+./mvnw package -DskipTests "-Dquarkus.container-image.build=true"
+# OR using just if you have mvnd
+just build-image
+----
+Load images to k3d runtime.
+[source,bash]
+----
+docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
+----
 
 === Install dependencies
 

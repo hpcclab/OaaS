@@ -1,0 +1,302 @@
+---
+openapi: 3.0.3
+info:
+  title: invoker API
+  version: 0.2.0-SNAPSHOT
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
+paths:
+  /api/classes/{cls}/invokes/{fb}:
+    get:
+      tags:
+      - Class Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fb
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvocationResponse'
+    post:
+      tags:
+      - Class Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fb
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectNode'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvocationResponse'
+  /api/classes/{cls}/objects/{objId}:
+    get:
+      tags:
+      - Object Access Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: objId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OObject'
+  /api/classes/{cls}/objects/{objId}/files/{file}:
+    get:
+      tags:
+      - Object Access Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: file
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: objId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json: {}
+  /api/classes/{cls}/objects/{objId}/invokes/{fb}:
+    get:
+      tags:
+      - Object Access Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fb
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: objId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvocationResponse'
+    post:
+      tags:
+      - Object Access Resource
+      parameters:
+      - name: cls
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fb
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: objId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectNode'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvocationResponse'
+components:
+  schemas:
+    DSMap:
+      type: array
+      items:
+        type: string
+    InvocationResponse:
+      type: object
+      properties:
+        cptTs:
+          format: int64
+          type: integer
+        smtTs:
+          format: int64
+          type: integer
+        queTs:
+          format: int64
+          type: integer
+        main:
+          $ref: '#/components/schemas/OObject'
+        output:
+          $ref: '#/components/schemas/OObject'
+        invId:
+          type: string
+        fb:
+          type: string
+        macroIds:
+          type: object
+          additionalProperties:
+            type: string
+        status:
+          $ref: '#/components/schemas/InvocationStatus'
+        async:
+          type: boolean
+        body:
+          $ref: '#/components/schemas/ObjectNode'
+    InvocationStatus:
+      enum:
+      - QUEUE
+      - DOING
+      - SUCCEEDED
+      - FAILED
+      - DEPENDENCY_FAILED
+      - READY
+      type: string
+    JsonNode:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        valueNode:
+          type: boolean
+        containerNode:
+          type: boolean
+        missingNode:
+          type: boolean
+        array:
+          type: boolean
+        object:
+          type: boolean
+        nodeType:
+          $ref: '#/components/schemas/JsonNodeType'
+        pojo:
+          type: boolean
+        number:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        float:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+        boolean:
+          type: boolean
+        "null":
+          type: boolean
+        binary:
+          type: boolean
+    JsonNodeType:
+      enum:
+      - ARRAY
+      - BINARY
+      - BOOLEAN
+      - MISSING
+      - "NULL"
+      - NUMBER
+      - OBJECT
+      - POJO
+      - STRING
+      type: string
+    OObject:
+      type: object
+      properties:
+        _key:
+          type: string
+        id:
+          type: string
+        revision:
+          format: int64
+          type: integer
+        cls:
+          type: string
+        state:
+          $ref: '#/components/schemas/OaasObjectState'
+        refs:
+          $ref: '#/components/schemas/DSMap'
+        data:
+          $ref: '#/components/schemas/ObjectNode'
+        lastOffset:
+          format: int64
+          type: integer
+        lastInv:
+          type: string
+    OaasObjectState:
+      type: object
+      properties:
+        overrideUrls:
+          $ref: '#/components/schemas/DSMap'
+        verIds:
+          $ref: '#/components/schemas/DSMap'
+    ObjectNode:
+      type: array
+      items:
+        $ref: '#/components/schemas/JsonNode'
