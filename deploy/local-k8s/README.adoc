@@ -91,7 +91,7 @@ This command will do the following steps:
 ** Open the web console at `http://minio.127.0.0.1.nip.io:9090` and login with `minio_access_key` as a user and `minio_secret_key` as a password.
 
 . ArangoDB
-** Open the web console at `http://arg.127.0.0.1.nip.io:9090` and login with `root` as a user and `changeme` as a password.
+** Open the web console at `http://arg.127.0.0.1.nip.io:9090` and login with `root` as a user and no password.
 
 === Install and Access OaaS
 . Install OaaS
