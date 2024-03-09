@@ -65,7 +65,15 @@ Use `just` command to install dependencies
 
 [source,bash]
 ----
+# deploy Knative and Strimzi
 just k8s-deploy-preq
+
+# deploy Prometheus stack
+cd deploy
+just helm-prom
+cd ..
+
+# deploy Kafka and ArangoDB
 just k8s-deploy-deps
 ----
 
@@ -90,7 +98,7 @@ This command will do the following steps:
 +
 [source,bash]
 ----
-kubectl apply -n oaas -k deploy/oaas/local
+just k8s-deploy
 ----
 . Wait until all pod is ready
 +
@@ -104,8 +112,10 @@ kubectl get pod -n oaas -w
 ----
 ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io:9090 --pm=http://pm.oaas.127.0.0.1.nip.io:9090
 ----
-.. package manager: `http://pm.oaas.127.0.0.1.nip.io:9090`
-.. Invoker: `http://inv.oaas.127.0.0.1.nip.io:9090`
+The URLs of platform are accessible via:
+
+* package manager: `http://pm.oaas.127.0.0.1.nip.io:9090`
+* Invoker: `http://inv.oaas.127.0.0.1.nip.io:9090`
 
 
 == Troubleshooting
