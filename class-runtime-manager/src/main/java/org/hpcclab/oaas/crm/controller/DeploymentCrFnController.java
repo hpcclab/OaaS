@@ -1,10 +1,10 @@
 package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
+import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
@@ -18,13 +18,10 @@ import java.util.Map;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
 
-public class DeploymentFnController implements FnController {
-  KubernetesClient kubernetesClient;
-  K8SCrController controller;
+public class DeploymentCrFnController extends AbstractCrFnController {
 
-  public DeploymentFnController(KubernetesClient kubernetesClient, K8SCrController controller) {
-    this.kubernetesClient = kubernetesClient;
-    this.controller = controller;
+  public DeploymentCrFnController(CrtMappingConfig.FnConfig fnConfig) {
+    super(fnConfig);
   }
 
   @Override
@@ -34,8 +31,8 @@ public class DeploymentFnController implements FnController {
     var instance = plan.fnInstances()
       .get(function.getKey());
     var labels = Map.of(
-      CR_LABEL_KEY, controller.getTsidString(),
-      CR_COMPONENT_LABEL_KEY, "functions",
+      CR_LABEL_KEY, parent.getTsidString(),
+      CR_COMPONENT_LABEL_KEY, NAME_FUNCTION,
       CR_FN_KEY, function.getKey()
     );
     var deployConf = function.getProvision()
@@ -102,7 +99,7 @@ public class DeploymentFnController implements FnController {
         .setKey(function.getKey())
         .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
           .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
-          .setInvocationUrl("http://" + svc.getMetadata().getName() + "." + controller.namespace + ".svc.cluster.local")
+          .setInvocationUrl("http://" + svc.getMetadata().getName() + "." + namespace + ".svc.cluster.local")
           .build())
         .setProvision(function.getProvision())
         .build())
@@ -110,28 +107,20 @@ public class DeploymentFnController implements FnController {
   }
 
   @Override
-  public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
-    List<HasMetadata> resource = Lists.mutable.empty();
-    for (Map.Entry<String, CrInstanceSpec> entry : plan.fnInstances().entrySet()) {
-      var fnKey = entry.getKey();
-      var deployment = kubernetesClient.apps()
-        .deployments()
-        .inNamespace(controller.namespace)
-        .withName(createName(fnKey))
-        .get();
-      if (deployment==null) continue;
-      deployment.getSpec()
-        .setReplicas(entry.getValue().minInstance());
-      resource.add(deployment);
-    }
-    return new FnResourcePlan(
-      resource,
-      List.of()
-    );
+  protected List<HasMetadata> doApplyAdjustment(String fnKey, CrInstanceSpec spec) {
+    var deployment = kubernetesClient.apps()
+      .deployments()
+      .inNamespace(namespace)
+      .withName(createName(fnKey))
+      .get();
+    if (deployment==null) return List.of();
+    deployment.getSpec()
+      .setReplicas(spec.minInstance());
+    return List.of(deployment);
   }
 
   private String createName(String fnKey) {
-    return controller.prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-");
+    return prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-");
 
   }
 
@@ -139,7 +128,7 @@ public class DeploymentFnController implements FnController {
   public List<HasMetadata> removeFunction(String fnKey) {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, controller.getTsidString(),
+      CR_LABEL_KEY, parent.getTsidString(),
       CR_FN_KEY, fnKey
     );
     var deployments = kubernetesClient.apps()
@@ -156,6 +145,19 @@ public class DeploymentFnController implements FnController {
 
   @Override
   public List<HasMetadata> removeAllFunction() {
-    return List.of();
+    List<HasMetadata> resourceList = Lists.mutable.empty();
+    var labels = Map.of(
+      CR_LABEL_KEY, parent.getTsidString(),
+      CR_COMPONENT_LABEL_KEY, NAME_FUNCTION
+    );
+    List<Deployment> deployments = kubernetesClient.apps().deployments()
+      .withLabels(labels)
+      .list().getItems();
+    resourceList.addAll(deployments);
+    List<Service> services = kubernetesClient.services()
+      .withLabels(labels)
+      .list().getItems();
+    resourceList.addAll(services);
+    return resourceList;
   }
 }

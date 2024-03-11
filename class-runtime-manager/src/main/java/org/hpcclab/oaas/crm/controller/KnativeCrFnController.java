@@ -7,14 +7,13 @@ import io.fabric8.knative.serving.v1.RevisionTemplateSpec;
 import io.fabric8.knative.serving.v1.Service;
 import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
-import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.*;
@@ -38,22 +37,23 @@ import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequir
     ServiceStatus.class
   }
 )
-public class KnativeFnController implements FnController {
-  private static final Logger logger = LoggerFactory.getLogger(KnativeFnController.class);
-  KubernetesClient kubernetesClient;
+public class KnativeCrFnController extends AbstractCrFnController {
+  private static final Logger logger = LoggerFactory.getLogger(KnativeCrFnController.class);
+
   KnativeClient knativeClient;
-  K8SCrController controller;
   OprcEnvironment.Config envConfig;
 
-  public KnativeFnController(KubernetesClient kubernetesClient,
-                             K8SCrController controller,
-                             OprcEnvironment.Config envConfig) {
-    this.kubernetesClient = kubernetesClient;
-    this.knativeClient = new DefaultKnativeClient(kubernetesClient);
-    this.controller = controller;
+  public KnativeCrFnController(CrtMappingConfig.FnConfig fnConfig,
+                               OprcEnvironment.Config envConfig) {
+    super(fnConfig);
     this.envConfig = envConfig;
   }
 
+  @Override
+  public void init(CrController parentController) {
+    super.init(parentController);
+    this.knativeClient = new DefaultKnativeClient(kubernetesClient);
+  }
 
   @Override
   public FnResourcePlan deployFunction(CrDeploymentPlan plan, ProtoOFunction function)
@@ -63,8 +63,8 @@ public class KnativeFnController implements FnController {
     var knConf = function.getProvision()
       .getKnative().toBuilder();
     var labels = Maps.mutable.of(
-      CR_LABEL_KEY, controller.getTsidString(),
-      CR_COMPONENT_LABEL_KEY, "functions",
+      CR_LABEL_KEY, parent.getTsidString(),
+      CR_COMPONENT_LABEL_KEY, NAME_FUNCTION,
       CR_FN_KEY, function.getKey()
     );
 
@@ -126,37 +126,29 @@ public class KnativeFnController implements FnController {
   }
 
   private String createName(String key) {
-    return controller.prefix + "fn-" + key
+    return prefix + "fn-" + key
       .replaceAll("[._]", "-");
   }
 
   @Override
-  public FnResourcePlan applyAdjustment(CrAdjustmentPlan plan) {
-    List<HasMetadata> resource = Lists.mutable.empty();
-    for (Map.Entry<String, CrInstanceSpec> entry : plan.fnInstances().entrySet()) {
-      var fnKey = entry.getKey();
-      var svc = knativeClient.services()
-        .inNamespace(controller.namespace)
-        .withName(createName(fnKey))
-        .get();
-      if (svc==null) continue;
-      makeAnnotation(svc.getSpec()
-        .getTemplate()
-        .getMetadata()
-        .getAnnotations(), entry.getValue());
-      resource.add(svc);
-    }
-    return new FnResourcePlan(
-      resource,
-      List.of()
-    );
+  protected List<HasMetadata> doApplyAdjustment(String fnKey, CrInstanceSpec spec) {
+    var svc = knativeClient.services()
+      .inNamespace(namespace)
+      .withName(createName(fnKey))
+      .get();
+    if (svc==null) return List.of();
+    makeAnnotation(svc.getSpec()
+      .getTemplate()
+      .getMetadata()
+      .getAnnotations(), spec);
+    return List.of(svc);
   }
 
   @Override
   public List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, controller.getTsidString(),
+      CR_LABEL_KEY, parent.getTsidString(),
       CR_FN_KEY, fnKey
     );
     var services = knativeClient.services()
@@ -171,7 +163,7 @@ public class KnativeFnController implements FnController {
   public List<HasMetadata> removeAllFunction() {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, controller.getTsidString()
+      CR_LABEL_KEY, parent.getTsidString()
     );
     var services = knativeClient.services()
       .withLabels(labels)

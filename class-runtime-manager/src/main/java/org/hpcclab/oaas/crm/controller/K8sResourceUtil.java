@@ -51,7 +51,7 @@ public class K8sResourceUtil {
     if (knConf.getMinScale() >= 0)
       annotation.put("autoscaling.knative.dev/minScale",
         String.valueOf(knConf.getMinScale()));
-    if (knConf.getMaxScale() >= 0)
+    if (knConf.getMaxScale() > 0)
       annotation.put("autoscaling.knative.dev/maxScale",
         String.valueOf(knConf.getMaxScale()));
     if (!knConf.getScaleDownDelay().isEmpty())
@@ -106,42 +106,4 @@ public class K8sResourceUtil {
       .withAdditionalProperties(Map.of("spec", spec))
       .build();
   }
-
-
-  public static PodMonitor createPodMonitor2(String name,
-                                             String namespace,
-                                             Map<String, String> labels) {
-    PodMonitor podMonitor = new PodMonitor();
-    ObjectMeta metadata = podMonitor
-      .getMetadata();
-    metadata.setName(name);
-    metadata.setNamespace(namespace);
-    podMonitor
-      .getSpec()
-      .setSelector(new PodMonitor.Selector(labels));
-    podMonitor
-      .getSpec()
-      .setPodMetricsEndpoints(List.of(
-        new PodMonitor.Endpoint("http", "/q/metrics")
-      ));
-    return podMonitor;
-  }
-//
-//  public static PodMonitor createPodMonitor3(KubernetesClient client,
-//                                             String name,
-//                                             String namespace,
-//                                             Map<String, String> labels){
-//
-//    ResourceDefinitionContext context = new ResourceDefinitionContext.Builder()
-//      .withGroup("monitoring.coreos.com")
-//      .withKind("PodMonitor")
-//      .withPlural("podmonitors")
-//      .withNamespaced(true)
-//      .withVersion("v1")
-//      .build();
-//    Resource<GenericKubernetesResource> podmonitor = client.genericKubernetesResources(context)
-//      .load(K8sResourceUtil.class.getResourceAsStream("/crts/podmonitor.yaml"));
-//    podmonitor.item()
-//      ;
-//  }
 }

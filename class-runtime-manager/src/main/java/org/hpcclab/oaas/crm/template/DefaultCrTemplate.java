@@ -4,12 +4,11 @@ import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
-import org.hpcclab.oaas.crm.controller.CrController;
-import org.hpcclab.oaas.crm.controller.K8SCrController;
+import org.hpcclab.oaas.crm.OprcComponent;
+import org.hpcclab.oaas.crm.controller.*;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.observe.FnEventObserver;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 
@@ -37,14 +36,39 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public CrController create(OprcEnvironment env, DeploymentUnit deploymentUnit) {
+    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
+    var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
+    var conf = new ConfigK8sCrComponentController(null);
+    var kn = new KnativeCrFnController(config.functions(), env.config());
+    var dep = new DeploymentCrFnController(config.functions());
     return new K8SCrController(
-      this, k8sClient, env.config(), tsidFactory.create()
+      this,
+      k8sClient,
+      invoker,
+      sa,
+      conf,
+      kn,
+      dep,
+      env.config(),
+      tsidFactory.create()
     );
   }
 
   @Override
   public CrController load(OprcEnvironment env, ProtoCr cr) {
-    return new K8SCrController(this, k8sClient, env.config(), cr);
+    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
+    var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
+    var conf = new ConfigK8sCrComponentController(null);
+    var kn = new KnativeCrFnController(config.functions(), env.config());
+    var dep = new DeploymentCrFnController(config.functions());
+    return new K8SCrController(this, k8sClient,
+      invoker,
+      sa,
+      conf,
+      kn,
+      dep,
+      env.config(),
+      cr);
   }
 
   @Override

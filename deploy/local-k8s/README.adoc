@@ -69,9 +69,7 @@ Use `just` command to install dependencies
 just k8s-deploy-preq
 
 # deploy Prometheus stack
-cd deploy
-just helm-prom
-cd ..
+just deploy/helm-prom
 
 # deploy Kafka and ArangoDB
 just k8s-deploy-deps

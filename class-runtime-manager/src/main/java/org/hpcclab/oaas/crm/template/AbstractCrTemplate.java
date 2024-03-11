@@ -4,6 +4,7 @@ import com.github.f4b6a3.tsid.TsidFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
+import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 
@@ -60,5 +61,4 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
       .optimizer(optimizer)
       .build();
   }
-
 }

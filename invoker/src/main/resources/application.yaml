@@ -91,6 +91,9 @@ quarkus:
     color: false
   swagger-ui:
     always-include: true
+  smallrye-openapi:
+    store-schema-directory: ../doc/invoker
+    enable: true
   http:
     access-log:
       enabled: true

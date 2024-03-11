@@ -6,9 +6,9 @@ import java.time.Duration;
  * @author Pawissanutt
  */
 public interface MetricFactory {
-  MetricCounter createInvocationCounter(String cls,
-                                        String fb,
-                                        String func);
+  MetricCounter createRequestCounter(String cls,
+                                     String fb,
+                                     String func);
 
   MetricTimer createInvocationTimer(String cls,
                                     String fb,

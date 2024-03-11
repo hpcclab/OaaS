@@ -7,9 +7,11 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
+import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -33,19 +35,26 @@ import java.util.Map;
 public class ObjectAccessResource {
   final InvokerManager invokerManager;
   final HashAwareInvocationHandler hashAwareInvocationHandler;
+  final InvocationReqHandler invocationHandlerService;
   final ObjectRepoManager objectRepoManager;
   final ContentUrlGenerator generator;
   final InvokerConfig conf;
+  final RequestCounterMap requestCounterMap;
 
   public ObjectAccessResource(InvokerManager invokerManager,
                               HashAwareInvocationHandler hashAwareInvocationHandler,
-                              ObjectRepoManager objectRepoManager, ContentUrlGenerator generator,
-                              InvokerConfig conf) {
+                              InvocationReqHandler invocationHandlerService,
+                              ObjectRepoManager objectRepoManager,
+                              ContentUrlGenerator generator,
+                              InvokerConfig conf,
+                              RequestCounterMap requestCounterMap) {
     this.invokerManager = invokerManager;
     this.hashAwareInvocationHandler = hashAwareInvocationHandler;
+    this.invocationHandlerService = invocationHandlerService;
     this.objectRepoManager = objectRepoManager;
     this.generator = generator;
     this.conf = conf;
+    this.requestCounterMap = requestCounterMap;
   }
 
   @GET
@@ -85,6 +94,7 @@ public class ObjectAccessResource {
   public Uni<InvocationResponse> invoke(String cls,
                                         String objId,
                                         String fb,
+                                        @QueryParam("_async") @DefaultValue("false") boolean async,
                                         @Context UriInfo uriInfo) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -93,13 +103,18 @@ public class ObjectAccessResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
+    var oal = ObjectAccessLanguage.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
       .args(args)
       .inputs(inputs)
-      .build());
+      .build();
+    requestCounterMap.increase(cls, fb);
+    if (async) {
+      return invocationHandlerService.asyncInvoke(oal);
+    }
+    return hashAwareInvocationHandler.invoke(oal);
   }
 
   @POST
@@ -108,6 +123,7 @@ public class ObjectAccessResource {
                                                 String objId,
                                                 String fb,
                                                 @Context UriInfo uriInfo,
+                                                @QueryParam("_async") @DefaultValue("false") boolean async,
                                                 ObjectNode body) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -116,13 +132,18 @@ public class ObjectAccessResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
+    ObjectAccessLanguage oal = ObjectAccessLanguage.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
       .args(args)
       .inputs(inputs)
       .body(body)
-      .build());
+      .build();
+    requestCounterMap.increase(cls, fb);
+    if (async) {
+      return invocationHandlerService.asyncInvoke(oal);
+    }
+    return hashAwareInvocationHandler.invoke(oal);
   }
 }

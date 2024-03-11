@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -55,6 +56,7 @@ public class OalResource {
 
   @POST
   @JsonView(Views.Public.class)
+  @Operation(hidden = true)
   public Uni<InvocationResponse> getObjectWithPost(ObjectAccessLanguage oal,
                                                    @QueryParam("async") Boolean async) {
     if (oal==null || oal.getCls()==null)
@@ -76,6 +78,7 @@ public class OalResource {
   @GET
   @Path("{oal:.+}")
   @JsonView(Views.Public.class)
+  @Operation(hidden = true)
   public Uni<InvocationResponse> getObject(@PathParam("oal") String oal,
                                            @QueryParam("async") Boolean async) {
     var oaeObj = ObjectAccessLanguage.parse(oal);
@@ -86,6 +89,7 @@ public class OalResource {
   @POST
   @Path("-/{filePath::\\w+}")
   @JsonView(Views.Public.class)
+  @Operation(hidden = true)
   public Uni<Response> execAndGetContentPost(@PathParam("filePath") String filePath,
                                              @QueryParam("async") Boolean async,
                                              ObjectAccessLanguage oal) {
@@ -110,6 +114,7 @@ public class OalResource {
   @GET
   @JsonView(Views.Public.class)
   @Path("{oal:.+}/{filePath:\\w+}")
+  @Operation(hidden = true)
   public Uni<Response> execAndGetContent(@PathParam("oal") String oal,
                                          @PathParam("filePath") String filePath,
                                          @QueryParam("async") Boolean async) {

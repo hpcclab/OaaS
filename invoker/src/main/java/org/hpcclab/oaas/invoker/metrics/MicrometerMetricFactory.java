@@ -26,9 +26,9 @@ public class MicrometerMetricFactory implements MetricFactory {
   }
 
   @Override
-  public MetricCounter createInvocationCounter(String cls,
-                                               String fb,
-                                               String func) {
+  public MetricCounter createRequestCounter(String cls,
+                                            String fb,
+                                            String func) {
     var crId = ConfigProvider.getConfig()
       .getOptionalValue("oprc.crid", String.class);
     List<Tag> tags = Lists.mutable.of(
@@ -37,7 +37,7 @@ public class MicrometerMetricFactory implements MetricFactory {
       Tag.of("func", func)
     );
     if (crId.isPresent()) tags.add(Tag.of("crId", crId.get()));
-    Counter counter = Counter.builder("oprc.invocation")
+    Counter counter = Counter.builder("oprc.request")
       .tags(tags)
       .register(registry);
     return new MmCounter(counter);
@@ -54,7 +54,6 @@ public class MicrometerMetricFactory implements MetricFactory {
       .tag("fb", fb)
       .tag("func", func)
       .publishPercentileHistogram(true)
-//      .publishPercentiles(0.50, 0.95, 0.99)
       ;
     if (crId.isPresent()) timerBuilder.tag("crId", crId.get());
     return new MmTimer(timerBuilder.register(registry));

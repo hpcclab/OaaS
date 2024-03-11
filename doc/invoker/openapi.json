@@ -29,6 +29,13 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "_async",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -58,6 +65,13 @@
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "name" : "_async",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
           }
         } ],
         "requestBody" : {
@@ -174,6 +188,13 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "_async",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -210,6 +231,13 @@
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "name" : "_async",
+          "in" : "query",
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
           }
         } ],
         "requestBody" : {

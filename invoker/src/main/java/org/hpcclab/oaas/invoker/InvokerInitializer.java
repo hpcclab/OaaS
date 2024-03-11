@@ -29,10 +29,8 @@ public class InvokerInitializer {
   final CrHashListener hashListener;
   final HashRegistry hashRegistry;
   final InvokerManager invokerManager;
-  @GrpcClient("package-manager")
-  CrStateService crStateService;
-  @GrpcClient("package-manager")
-  ClassService classService;
+  final CrStateService crStateService;
+  final ClassService classService;
 
 
   @Inject
@@ -41,13 +39,19 @@ public class InvokerInitializer {
                             FunctionListener functionListener,
                             CrHashListener hashListener,
                             HashRegistry hashRegistry,
-                            InvokerManager invokerManager) {
+                            InvokerManager invokerManager,
+                            @GrpcClient("package-manager")
+                            CrStateService crStateService,
+                            @GrpcClient("package-manager")
+                            ClassService classService) {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
     this.hashListener = hashListener;
     this.hashRegistry = hashRegistry;
     this.invokerManager = invokerManager;
+    this.crStateService = crStateService;
+    this.classService = classService;
   }
 
   void init(@Observes StartupEvent event) {
