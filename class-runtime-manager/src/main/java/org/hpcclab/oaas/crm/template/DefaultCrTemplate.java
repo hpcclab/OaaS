@@ -47,8 +47,8 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
       invoker,
       sa,
       conf,
-      kn,
       dep,
+      kn,
       env.config(),
       tsidFactory.create()
     );
@@ -65,8 +65,8 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
       invoker,
       sa,
       conf,
-      kn,
       dep,
+      kn,
       env.config(),
       cr);
   }

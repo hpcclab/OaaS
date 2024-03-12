@@ -47,7 +47,6 @@ public class K8SCrController implements CrController {
   final Map<String, ProtoOFunction> attachedFn = Maps.mutable.empty();
   final CrFnController<HasMetadata> deploymentFnController;
   final CrFnController<HasMetadata> knativeFnController;
-  final Map<String, Long> stabilizationTimeMap = Maps.mutable.empty();
   CrDeploymentPlan currentPlan;
   CrDataSpec dataSpec;
   boolean deleted = false;
@@ -233,48 +232,19 @@ public class K8SCrController implements CrController {
       });
   }
 
-  protected CrAdjustmentPlan filterNonStable(CrAdjustmentPlan adjustmentPlan) {
-    long currentTimeMillis = System.currentTimeMillis();
-
-    Map<String, CrInstanceSpec> fnInstanceMap = adjustmentPlan.fnInstances()
-      .entrySet()
-      .stream()
-      .filter(e -> stabilizationTimeMap.getOrDefault(e.getKey(), 0L) < currentTimeMillis)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    Map<OprcComponent, CrInstanceSpec> coreInstanceMap = adjustmentPlan.coreInstances()
-      .entrySet()
-      .stream()
-      .filter(e -> stabilizationTimeMap.getOrDefault(e.getKey().getSvc(), 0L) < currentTimeMillis)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return adjustmentPlan
-      .toBuilder()
-      .fnInstances(fnInstanceMap)
-      .coreInstances(coreInstanceMap)
-      .build();
-  }
-
   @Override
   public CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan) {
-    CrAdjustmentPlan filtered = filterNonStable(adjustmentPlan);
-    logger.debug("filter {} to {}", adjustmentPlan, filtered);
-    logger.debug("stabilization time {}", stabilizationTimeMap);
     List<HasMetadata> resource = Lists.mutable.empty();
-    resource.addAll(invokerController.createAdjustOperation(filtered.coreInstances().get(INVOKER)));
-    resource.addAll(saController.createAdjustOperation(filtered.coreInstances().get(STORAGE_ADAPTER)));
-    var fnResourcePlan = knativeFnController.applyAdjustment(filtered);
+    resource.addAll(invokerController.createAdjustOperation(adjustmentPlan.coreInstances().get(INVOKER)));
+    resource.addAll(saController.createAdjustOperation(adjustmentPlan.coreInstances().get(STORAGE_ADAPTER)));
+    var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
     resource.addAll(fnResourcePlan.resources());
-    var fnResourcePlan2 = deploymentFnController.applyAdjustment(filtered);
+    var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
     resource.addAll(fnResourcePlan2.resources());
     var crOperation = new AdjustmentCrOperation(
       kubernetesClient,
       resource,
-      () -> {
-        currentPlan = currentPlan.update(filtered);
-        filtered.coreInstances().keySet()
-          .forEach(this::updateStabilizationTime);
-        filtered.fnInstances().keySet()
-          .forEach(this::updateStabilizationTime);
-      }
+      () -> currentPlan = currentPlan.update(adjustmentPlan)
     );
     crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
     crOperation.getFnUpdates().addAll(fnResourcePlan2.fnUpdates());
@@ -326,19 +296,6 @@ public class K8SCrController implements CrController {
   public boolean isDeleted() {
     return deleted;
   }
-
-
-  protected void updateStabilizationTime(OprcComponent component) {
-    updateStabilizationTime(component.getSvc());
-  }
-
-  protected void updateStabilizationTime(String fnKey) {
-    logger.debug("updateStabilizationTime of {}", fnKey);
-    stabilizationTimeMap.put(fnKey,
-      System.currentTimeMillis() + template.getConfig().functions().stabilizationWindow()
-    );
-  }
-
   @Override
   public boolean isInitialized() {
     return initialized;

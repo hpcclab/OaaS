@@ -45,6 +45,7 @@ public class CrManagerRpc implements CrManager {
         var plan = controller.getTemplate().getQosOptimizer()
           .resolve(deploymentUnit, env);
         var operation = controller.createDeployOperation(plan, deploymentUnit);
+        logger.info("deploy CR({}) for cls({})", controller.getTsidString(), deploymentUnit.getCls().getKey());
         return operationExecutor.applyOrRollback(controller, operation, env);
       }
     } catch (Exception e) {

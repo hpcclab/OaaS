@@ -45,7 +45,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
 
 
-  public static int capChange(int currentValue, int targetValue, int maxChange) {
+  public static int limitChange(int currentValue, int targetValue, int maxChange) {
     int change = targetValue - currentValue;
     if (Math.abs(change) > maxChange) {
       return change > 0 ? currentValue + maxChange : currentValue - maxChange;
@@ -172,7 +172,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       nextInstance = expectedInstance;
     }
 
-    int capChanged = capChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleDiff());
+    int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleDiff());
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, nextInstance {}, capChanged {}",

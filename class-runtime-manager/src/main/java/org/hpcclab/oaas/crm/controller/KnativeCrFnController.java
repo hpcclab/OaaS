@@ -58,6 +58,7 @@ public class KnativeCrFnController extends AbstractCrFnController {
   @Override
   public FnResourcePlan deployFunction(CrDeploymentPlan plan, ProtoOFunction function)
     throws CrDeployException {
+    logger.debug("deploy function {} with Knative", function.getKey());
     var instanceSpec = plan.fnInstances()
       .get(function.getKey());
     var knConf = function.getProvision()

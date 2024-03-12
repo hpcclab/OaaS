@@ -37,7 +37,7 @@ k3d-reload: k3d-build-image
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
-rd-reload: build-image
+rd-reload: build-image-docker
   kubectl -n oaas rollout restart deployment -l platform=oaas
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter

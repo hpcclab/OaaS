@@ -55,6 +55,7 @@ public abstract class AbstractCrFnController implements CrFnController<HasMetada
       }
       resources.addAll(doApplyAdjustment(entry.getKey(), entry.getValue()));
       currentSpecs.put(entry.getKey(), entry.getValue());
+      stabilizationTimeMap.put(entry.getKey(), currentTimeMillis + fnConfig.stabilizationWindow());
     }
     return new FnResourcePlan(
       resources,

@@ -11,6 +11,8 @@ import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
 
 public class DeploymentCrFnController extends AbstractCrFnController {
+  private static final Logger logger = LoggerFactory.getLogger(DeploymentCrFnController.class);
 
   public DeploymentCrFnController(CrtMappingConfig.FnConfig fnConfig) {
     super(fnConfig);
@@ -28,6 +31,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
   public FnResourcePlan deployFunction(CrDeploymentPlan plan,
                                        ProtoOFunction function) {
 
+    logger.debug("deploy function {} with Deployment", function.getKey());
     var instance = plan.fnInstances()
       .get(function.getKey());
     var labels = Map.of(
