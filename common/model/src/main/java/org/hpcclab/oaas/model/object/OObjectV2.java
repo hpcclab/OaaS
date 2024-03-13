@@ -13,6 +13,8 @@ import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.Map;
+
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -75,18 +77,18 @@ public class OObjectV2 implements Copyable<OObjectV2>, HasKey<String>, HasRev {
     @ProtoField(3)
     String cls;
     @ProtoField(4)
-    DSMap overrideUrls;
+    Map<String,String> overrideUrls;
     @ProtoField(5)
-    DSMap verIds;
+    Map<String,String> verIds;
     @ProtoField(6)
-    DSMap refs;
+    Map<String,String> refs;
     @ProtoField(value = 7, defaultValue = "-1")
     long lastOffset = -1;
     @ProtoField(8)
     String lastInv;
 
     @ProtoFactory
-    public Meta(String id, long revision, String cls, DSMap overrideUrls, DSMap verIds, DSMap refs, long lastOffset, String lastInv) {
+    public Meta(String id, long revision, String cls, Map<String,String> overrideUrls, Map<String,String> verIds, Map<String,String> refs, long lastOffset, String lastInv) {
       this.id = id;
       this.revision = revision;
       this.cls = cls;
@@ -108,9 +110,9 @@ public class OObjectV2 implements Copyable<OObjectV2>, HasKey<String>, HasRev {
     public Meta copy() {
       return new Meta(
         id, revision, cls,
-        DSMap.copy(overrideUrls),
-        DSMap.copy(verIds),
-        DSMap.copy(refs),
+        Map.copyOf(overrideUrls),
+        Map.copyOf(verIds),
+        Map.copyOf(refs),
         lastOffset,
         lastInv
       );

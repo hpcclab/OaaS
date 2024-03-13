@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker.ispn;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -27,12 +28,16 @@ import static org.infinispan.commons.dataconversion.MediaType.*;
 @ApplicationScoped
 public class IspnCacheCreator {
   private static final Logger logger = LoggerFactory.getLogger(IspnCacheCreator.class);
+  final InvokerConfig invokerConfig;
   final IspnConfig ispnConfig;
   final EmbeddedCacheManager cacheManager;
   DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
 
   @Inject
-  public IspnCacheCreator(IspnConfig ispnConfig, EmbeddedCacheManager cacheManager) {
+  public IspnCacheCreator(InvokerConfig invokerConfig,
+                          IspnConfig ispnConfig,
+                          EmbeddedCacheManager cacheManager) {
+    this.invokerConfig = invokerConfig;
     this.ispnConfig = ispnConfig;
     this.cacheManager = cacheManager;
   }
@@ -56,24 +61,6 @@ public class IspnCacheCreator {
     }
   }
 
-  public Cache<String, InvocationNode> getInvCache(OClass cls) {
-    var name = cls.getKey() + ".InvNode";
-    if (cacheManager.cacheExists(name)) {
-      return cacheManager.getCache(name);
-    } else {
-      DatastoreConf datastoreConf = confRegistry
-        .getOrDefault(Optional.ofNullable(cls.getConfig())
-          .map(OClassConfig::getLogStore)
-          .orElse(DatastoreConfRegistry.DEFAULT));
-      var config = getCacheDistConfig(cls,
-        ispnConfig.invStore(),
-        datastoreConf,
-        InvocationNode.class,
-        true);
-      return cacheManager.createCache(name, config);
-    }
-  }
-
   public Configuration getCacheDistConfig(OClass cls,
                                           IspnConfig.CacheStore cacheStore,
                                           DatastoreConf datastoreConf,
@@ -86,7 +73,7 @@ public class IspnCacheCreator {
     builder
       .clustering()
       .cacheMode(CacheMode.DIST_SYNC)
-      .hash().numOwners(conf.getReplicas())
+      .hash().numOwners(ispnConfig.objStore().owner())
       .numSegments(conf.getPartitions())
       .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
       .encoding()

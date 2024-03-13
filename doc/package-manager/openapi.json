@@ -803,10 +803,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "replicas" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "structStore" : {
             "type" : "string"
           },
@@ -831,10 +827,6 @@
             "$ref" : "#/components/schemas/DSMap_Public"
           },
           "partitions" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "replicas" : {
             "format" : "int32",
             "type" : "integer"
           },

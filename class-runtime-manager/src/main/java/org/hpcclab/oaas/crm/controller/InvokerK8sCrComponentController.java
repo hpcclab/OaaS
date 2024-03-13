@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec) {
+  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, INVOKER.getSvc()
@@ -52,6 +53,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
     addEnv(container, "ISPN_DNS_PING",
       invokerSvcPing.getMetadata().getName() + "." + namespace + ".svc.cluster.local");
     addEnv(container, "KUBERNETES_NAMESPACE", namespace);
+    addEnv(container, "OPRC_ISPN_OBJSTORE_OWNER", String.valueOf(dataSpec.replication()));
 
     container.getEnv()
       .add(new EnvVar(

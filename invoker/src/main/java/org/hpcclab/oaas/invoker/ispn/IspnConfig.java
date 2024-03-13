@@ -11,9 +11,6 @@ import org.infinispan.configuration.cache.StorageType;
 )
 public interface IspnConfig {
   CacheStore objStore();
-  CacheStore invStore();
-  CacheStore clsStore();
-  CacheStore fnStore();
   @WithDefault("-1")
   int hotRodPort();
   interface CacheStore{

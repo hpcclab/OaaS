@@ -17,8 +17,6 @@ public class OClassConfig {
   DSMap options;
   @ProtoField(value = 2, defaultValue = "12")
   int partitions = DEFAULT_PARTITIONS;
-  @ProtoField(value = 3, defaultValue = "1")
-  int replicas = 1;
   @ProtoField(4)
   String structStore;
   @ProtoField(5)
@@ -34,14 +32,13 @@ public class OClassConfig {
   }
 
   @ProtoFactory
-  public OClassConfig(DSMap options, int partitions, int replicas, String structStore, String unstructStore,
+  public OClassConfig(DSMap options, int partitions, String structStore, String unstructStore,
                       String logStore,
                       boolean hashAwareSync,
                       String crTemplate
                       ) {
     this.options = options;
     this.partitions = partitions;
-    this.replicas = replicas;
     this.structStore = structStore;
     this.unstructStore = unstructStore;
     this.logStore = logStore;
@@ -52,9 +49,6 @@ public class OClassConfig {
   void validate() {
     if (partitions < 1) {
       partitions = 1;
-    }
-    if (replicas < 1) {
-      replicas = 1;
     }
     if (crTemplate == null) crTemplate = "default";
   }

@@ -51,12 +51,6 @@ oprc:
       maxCount: 1000000
       queueSize: 1000000
       storageType: OFF_HEAP
-    clsStore:
-      maxCount: 10000
-      storageType: HEAP
-    fnStore:
-      maxCount: 10000
-      storageType: HEAP
   env: |
     OPRC_DB_PKG_HOST=localhost
     OPRC_DB_PKG_PORT=8529

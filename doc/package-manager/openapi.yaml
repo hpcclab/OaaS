@@ -598,9 +598,6 @@ components:
         partitions:
           format: int32
           type: integer
-        replicas:
-          format: int32
-          type: integer
         structStore:
           type: string
         unstructStore:
@@ -617,9 +614,6 @@ components:
         options:
           $ref: '#/components/schemas/DSMap_Public'
         partitions:
-          format: int32
-          type: integer
-        replicas:
           format: int32
           type: integer
         structStore:

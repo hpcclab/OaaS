@@ -184,10 +184,6 @@ paths:
                 $ref: '#/components/schemas/InvocationResponse'
 components:
   schemas:
-    DSMap:
-      type: array
-      items:
-        type: string
     InvocationResponse:
       type: object
       properties:
@@ -301,7 +297,9 @@ components:
         state:
           $ref: '#/components/schemas/OaasObjectState'
         refs:
-          $ref: '#/components/schemas/DSMap'
+          type: object
+          additionalProperties:
+            type: string
         data:
           $ref: '#/components/schemas/ObjectNode'
         lastOffset:
@@ -313,9 +311,13 @@ components:
       type: object
       properties:
         overrideUrls:
-          $ref: '#/components/schemas/DSMap'
+          type: object
+          additionalProperties:
+            type: string
         verIds:
-          $ref: '#/components/schemas/DSMap'
+          type: object
+          additionalProperties:
+            type: string
     ObjectNode:
       type: array
       items:

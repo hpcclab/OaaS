@@ -266,12 +266,6 @@
   },
   "components" : {
     "schemas" : {
-      "DSMap" : {
-        "type" : "array",
-        "items" : {
-          "type" : "string"
-        }
-      },
       "InvocationResponse" : {
         "type" : "object",
         "properties" : {
@@ -415,7 +409,10 @@
             "$ref" : "#/components/schemas/OaasObjectState"
           },
           "refs" : {
-            "$ref" : "#/components/schemas/DSMap"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
           "data" : {
             "$ref" : "#/components/schemas/ObjectNode"
@@ -433,10 +430,16 @@
         "type" : "object",
         "properties" : {
           "overrideUrls" : {
-            "$ref" : "#/components/schemas/DSMap"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
           "verIds" : {
-            "$ref" : "#/components/schemas/DSMap"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },

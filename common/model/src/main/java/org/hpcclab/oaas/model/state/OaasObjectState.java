@@ -8,31 +8,32 @@ import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OaasObjectState {
   @ProtoField(number = 2)
-  DSMap overrideUrls;
+  Map<String, String> overrideUrls;
 
   @ProtoField(number = 3)
-  DSMap verIds;
+  Map<String, String> verIds;
 
 
   public OaasObjectState() {
   }
 
   @ProtoFactory
-  public OaasObjectState(DSMap overrideUrls, DSMap verIds) {
+  public OaasObjectState(Map<String, String> overrideUrls, Map<String, String> verIds) {
     this.overrideUrls = overrideUrls;
     this.verIds = verIds;
   }
 
   public OaasObjectState copy() {
     return new OaasObjectState(
-      overrideUrls==null ? null:overrideUrls.copy(),
-      verIds==null ? null:verIds.copy()
+      overrideUrls==null ? null: Map.copyOf(overrideUrls),
+      verIds==null ? null:Map.copyOf(verIds)
     );
   }
 

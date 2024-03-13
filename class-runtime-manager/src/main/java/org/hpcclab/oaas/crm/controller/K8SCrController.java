@@ -6,14 +6,12 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.json.Json;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
-import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
 import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.hpcclab.oaas.crm.OprcComponent.INVOKER;
 import static org.hpcclab.oaas.crm.OprcComponent.STORAGE_ADAPTER;
@@ -151,9 +148,12 @@ public class K8SCrController implements CrController {
           .forEach(knativeFnController::updateStabilizationTime);
         initialized = true;
       });
-    resourceList.addAll(configController.createDeployOperation(null));
-    resourceList.addAll(saController.createDeployOperation(plan.coreInstances().get(STORAGE_ADAPTER)));
-    resourceList.addAll(invokerController.createDeployOperation(plan.coreInstances().get(INVOKER)));
+    resourceList.addAll(configController.createDeployOperation(null,
+      plan.dataSpec()));
+    resourceList.addAll(saController.createDeployOperation(plan.coreInstances().get(STORAGE_ADAPTER),
+      plan.dataSpec()));
+    resourceList.addAll(invokerController.createDeployOperation(plan.coreInstances().get(INVOKER),
+      plan.dataSpec()));
     crOperation.getClsUpdates().add(OClassStatusUpdate.newBuilder()
       .setKey(unit.getCls().getKey())
       .setStatus(ProtoOClassDeploymentStatus.newBuilder()
@@ -235,8 +235,10 @@ public class K8SCrController implements CrController {
   @Override
   public CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan) {
     List<HasMetadata> resource = Lists.mutable.empty();
-    resource.addAll(invokerController.createAdjustOperation(adjustmentPlan.coreInstances().get(INVOKER)));
-    resource.addAll(saController.createAdjustOperation(adjustmentPlan.coreInstances().get(STORAGE_ADAPTER)));
+    resource.addAll(invokerController.createAdjustOperation(adjustmentPlan.coreInstances().get(INVOKER),
+      adjustmentPlan.dataSpec()));
+    resource.addAll(saController.createAdjustOperation(adjustmentPlan.coreInstances().get(STORAGE_ADAPTER),
+      adjustmentPlan.dataSpec()));
     var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
     resource.addAll(fnResourcePlan.resources());
     var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
@@ -296,6 +298,7 @@ public class K8SCrController implements CrController {
   public boolean isDeleted() {
     return deleted;
   }
+
   @Override
   public boolean isInitialized() {
     return initialized;

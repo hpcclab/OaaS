@@ -3,10 +3,13 @@ package org.hpcclab.oaas.model.proto;
 import org.hpcclab.oaas.model.invocation.InvocationRef;
 import org.infinispan.protostream.GeneratedSchema;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
+import org.infinispan.protostream.annotations.ProtoSchema;
+import org.infinispan.protostream.annotations.ProtoSyntax;
 
 import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
 
-@AutoProtoSchemaBuilder(
+@ProtoSchema(
+  syntax = ProtoSyntax.PROTO3,
   schemaPackageName = PACKAGE_NAME,
   schemaFileName = "oaas.proto",
   schemaFilePath = "/protostream",
@@ -19,7 +22,7 @@ import static org.hpcclab.oaas.model.proto.OaasSchema.PACKAGE_NAME;
     "org.hpcclab.oaas.model.state",
 //    "org.hpcclab.oaas.model.task",
     "org.hpcclab.oaas.model.proto",
-    "org.hpcclab.oaas.model.invocation",
+//    "org.hpcclab.oaas.model.invocation",
   }
 )
 public

@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   }
 
   @Override
-  public List<HasMetadata> createAdjustOperation(CrInstanceSpec instanceSpec) {
+  public List<HasMetadata> createAdjustOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
     if (instanceSpec == null) return List.of();
     if (stabilizationTime > System.currentTimeMillis()) {
       return List.of();

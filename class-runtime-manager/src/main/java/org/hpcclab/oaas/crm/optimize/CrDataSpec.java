@@ -7,4 +7,5 @@ import lombok.Builder;
  */
 @Builder(toBuilder = true)
 public record CrDataSpec(int replication) {
+  public static final CrDataSpec DEFAULT = new CrDataSpec(2);
 }

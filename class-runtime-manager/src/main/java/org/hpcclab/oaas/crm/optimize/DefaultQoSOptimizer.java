@@ -135,11 +135,13 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     Map<OprcComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
 
     if (currentPlan==null)
-      return new CrAdjustmentPlan(Map.of(), Map.of(), false);
+      return CrAdjustmentPlan.DEFAULT;
     return new CrAdjustmentPlan(
       coreInstance,
       fnInstance,
-      !coreInstance.isEmpty() || !fnInstance.isEmpty());
+      CrDataSpec.DEFAULT,
+      !coreInstance.isEmpty() || !fnInstance.isEmpty()
+    );
   }
 
   private AdjustComponent adjustComponent(CrController controller,

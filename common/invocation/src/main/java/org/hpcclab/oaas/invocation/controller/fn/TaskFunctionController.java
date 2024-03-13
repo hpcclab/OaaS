@@ -145,7 +145,7 @@ public class TaskFunctionController extends AbstractFunctionController {
 
     if (obj.getState().getOverrideUrls()!=null) {
       obj.getState().getOverrideUrls()
-        .forEachKeyValue((k, v) -> map.put(prefix + k, v));
+        .forEach((k, v) -> map.put(prefix + k, v));
     }
     if (refs!=null) {
       for (var entry : refs.entrySet()) {

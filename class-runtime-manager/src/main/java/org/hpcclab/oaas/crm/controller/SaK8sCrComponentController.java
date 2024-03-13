@@ -3,6 +3,7 @@ package org.hpcclab.oaas.crm.controller;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec) {
+  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, STORAGE_ADAPTER.getSvc()

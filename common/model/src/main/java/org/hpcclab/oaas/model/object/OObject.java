@@ -14,6 +14,8 @@ import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.Map;
+
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -31,7 +33,7 @@ public class OObject implements Copyable<OObject>, HasKey<String>, HasRev {
   @ProtoField(6)
   OaasObjectState state;
   @ProtoField(7)
-  DSMap refs;
+  Map<String,String> refs;
   @ProtoField(value = 8, javaType = ObjectNode.class)
   ObjectNode data;
   @ProtoField(value = 9, defaultValue = "-1")
@@ -42,7 +44,7 @@ public class OObject implements Copyable<OObject>, HasKey<String>, HasRev {
   public OObject() {}
 
   @ProtoFactory
-  public OObject(String id, long revision, String cls, OaasObjectState state, DSMap refs, ObjectNode data, long lastOffset, String lastInv) {
+  public OObject(String id, long revision, String cls, OaasObjectState state, Map<String,String> refs, ObjectNode data, long lastOffset, String lastInv) {
     this.id = id;
     this.key = id;
     this.revision = revision;
@@ -67,7 +69,7 @@ public class OObject implements Copyable<OObject>, HasKey<String>, HasRev {
       revision,
       cls,
       state.copy(),
-      refs==null ? null:DSMap.copy(refs),
+      refs==null ? null:Map.copyOf(refs),
       data != null? data.deepCopy(): null,
       lastOffset,
       lastInv
