@@ -72,7 +72,6 @@ message ProtoDatastoreLink{
 message ProtoOClassConfig {
   map<string, string> options = 1;
   int32 partitions = 2;
-  int32 replicas = 3;
   string structStore = 4;
   string unstructStore = 5;
   string logStore = 6;

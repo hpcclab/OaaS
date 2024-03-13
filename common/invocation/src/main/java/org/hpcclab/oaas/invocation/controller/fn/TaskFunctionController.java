@@ -30,10 +30,11 @@ import java.util.Map;
  */
 public class TaskFunctionController extends AbstractFunctionController {
   private static final Logger logger = LoggerFactory.getLogger(TaskFunctionController.class);
+
   final OffLoader offLoader;
   final ContentUrlGenerator contentUrlGenerator;
 
-  @Inject
+
   public TaskFunctionController(IdGenerator idGenerator,
                                 ObjectMapper mapper,
                                 OffLoader offLoader,
@@ -62,9 +63,7 @@ public class TaskFunctionController extends AbstractFunctionController {
   }
 
   public OObject createOutput(InvocationCtx ctx) {
-//    var source = ctx.getMain();
     var obj = OObject.createFromClasses(outputCls);
-//    obj.setData(source.getData());
     obj.setRevision(0);
     var req = ctx.getRequest();
     var outId = req!=null ? req.outId():null;

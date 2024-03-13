@@ -30,7 +30,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   protected Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
   protected String name = "unknown";
 
-  public AbstractOrderedRecordVerticle(int maxConcurrent) {
+  protected AbstractOrderedRecordVerticle(int maxConcurrent) {
     this.maxConcurrent = maxConcurrent;
     this.incomingQueue = new ConcurrentLinkedQueue<>();
     this.waitingQueue = new ConcurrentLinkedQueue<>();
