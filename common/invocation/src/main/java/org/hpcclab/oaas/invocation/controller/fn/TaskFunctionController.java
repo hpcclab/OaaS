@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.invocation.InvokingDetail;
 import org.hpcclab.oaas.invocation.OffLoader;
 import org.hpcclab.oaas.invocation.controller.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
@@ -54,7 +55,8 @@ public class TaskFunctionController extends AbstractFunctionController {
       ctx.setOutput(output);
     }
     OTask task = genTask(ctx);
-    var uni = offLoader.offload(task);
+    InvokingDetail<OTask> invokingDetail = InvokingDetail.of(task, getFunction());
+    var uni = offLoader.offload(invokingDetail);
     return uni
       .map(tc -> handleComplete(ctx, tc));
   }
@@ -82,7 +84,6 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setFbName(functionBinding.getName());
     task.setMain(ctx.getMain());
     task.setFuncKey(function.getKey());
-    task.setFunction(function);
     task.setInputs(ctx.getInputs());
     task.setImmutable(ctx.isImmutable());
     task.setArgs(resolveArgs(ctx));

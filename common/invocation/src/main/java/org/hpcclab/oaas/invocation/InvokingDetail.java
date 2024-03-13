@@ -21,14 +21,11 @@ public class InvokingDetail<V> {
   V content;
   long smtTs = -1;
 
-  public static InvokingDetail<OTask> of(OTask task) {
+  public static InvokingDetail<OTask> of(OTask task, OFunction function) {
     return new InvokingDetail<>(
       task.getId(),
       task.getFuncKey(),
-      Optional.of(task.getFunction())
-        .map(OFunction::getStatus)
-        .map(OFunctionDeploymentStatus::getInvocationUrl)
-        .orElse(null),
+      function.getStatus().getInvocationUrl(),
       task,
       task.getTs()
     );

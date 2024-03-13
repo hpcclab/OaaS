@@ -8,7 +8,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.model.invocation.InvocationNode;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.OObject;
@@ -51,14 +50,14 @@ public class InvocationCtx {
     log = new InvocationLog();
     if (request!=null) {
       log.setKey(request.invId());
-      log.setOutId(output != null? output.getId(): null);
+      log.setOutId(output!=null ? output.getId():null);
       log.setInputs(request.inputs());
     } else {
       log.setKey(getOutput().getId());
       log.setOutId(getOutput().getId());
       log.setInputs(getInputs().stream().map(OObject::getId).toList());
     }
-    log.setFb(request != null? request.fb() : null);
+    log.setFb(request!=null ? request.fb():null);
     log.setArgs(DSMap.copy(getArgs()));
     log.setMain(getMain().getKey());
     log.setCls(request.cls());
