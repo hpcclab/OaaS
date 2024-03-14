@@ -57,28 +57,28 @@ public class InvokerInitializer {
   void init(@Observes StartupEvent event) {
     loadAssignedCls();
     clsListener.setHandler(cls -> {
-      logger.info("receive cls[{}] update event", cls.getKey());
-      invokerManager.update(cls)
-        .subscribe().with(v -> {
-        });
-    });
-    clsListener.start().await().indefinitely();
+        logger.info("receive cls[{}] update event", cls.getKey());
+        invokerManager.update(cls)
+          .subscribe().with(v -> {
+          });
+      })
+      .start().await().indefinitely();
     functionListener.setHandler(fn -> {
-      logger.info("receive fn[{}] update event", fn.getKey());
-      invokerManager.update(fn)
-        .subscribe().with(v -> {
-        });
-    });
-    clsListener.start().await().indefinitely();
+        logger.info("receive fn[{}] update event", fn.getKey());
+        invokerManager.update(fn)
+          .subscribe().with(v -> {
+          });
+      })
+      .start().await().indefinitely();
     if (config.warmHashCache())
       hashRegistry.warmCache().await().indefinitely();
-    hashListener.setHandler(hashRegistry::updateLocal);
-    hashListener.start().await().indefinitely();
+    hashListener.setHandler(hashRegistry::updateLocal)
+      .start().await().indefinitely();
   }
 
   public void loadAssignedCls() {
     List<ProtoOClass> clsList = List.of();
-    if (config.loadMode()==InvokerConfig.LoadAssignMode.FETCH) {
+    if (config.loadMode() == InvokerConfig.LoadAssignMode.FETCH) {
       var crId = ConfigProvider.getConfig()
         .getValue("oprc.crid", String.class);
       logger.info("loading CR [id={}]", crId);
@@ -87,7 +87,7 @@ public class InvokerInitializer {
       logger.info("handle CR [id={}, cls={}, fn={}]",
         orbit.getId(), orbit.getAttachedClsList(), orbit.getAttachedFnList());
       clsList = orbit.getAttachedClsList();
-    } else if (config.loadMode()==InvokerConfig.LoadAssignMode.ENV) {
+    } else if (config.loadMode() == InvokerConfig.LoadAssignMode.ENV) {
       var clsKeyList = config.initClass();
       if (clsKeyList.getFirst().equals("none")) {
         clsList = List.of();
@@ -100,7 +100,7 @@ public class InvokerInitializer {
       .call(invokerManager::registerManaged)
       .collect().last()
       .await().indefinitely();
-    if (config.loadMode() == InvokerConfig.LoadAssignMode.FETCH){
+    if (config.loadMode() == InvokerConfig.LoadAssignMode.FETCH) {
       classService.list(PaginateQuery.newBuilder().setLimit(1000).build())
         .call(invokerManager::update)
         .collect().last()

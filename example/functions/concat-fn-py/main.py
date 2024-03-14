@@ -65,7 +65,7 @@ async def handle(request: Request):
     resp = await router.handle_task(body)
     logging.debug("completion %s", resp)
     if resp is None:
-        logging.warm(f"No handler matched {body['funcKey']}")
+        logging.warning("No handler matched '%s'", body['funcKey'])
         raise HTTPException(status_code=404, detail="No handler matched")
     return resp
 

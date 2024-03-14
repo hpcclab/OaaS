@@ -63,7 +63,7 @@ public class NewFunctionController extends AbstractFunctionController
                                        ObjectConstructRequest construct) {
     var obj = new OObject();
     var id = idGenerator.generate();
-    obj.setId(idGenerator.generate());
+    obj.setId(id);
     obj.setCls(cls.getKey());
     obj.setData(construct.data());
     var state = new OaasObjectState();

@@ -57,7 +57,8 @@ public abstract class NoGroupKafkaConsumer<T> {
       });
   }
 
-  public void setHandler(Consumer<T> consumer) {
+  public NoGroupKafkaConsumer<T> setHandler(Consumer<T> consumer) {
     client.handler(kafkaRecord -> consumer.accept(deserialize(kafkaRecord.value())));
+    return this;
   }
 }
