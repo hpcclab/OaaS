@@ -12,34 +12,51 @@ import java.util.List;
 )
 public interface InvokerConfig {
   String kafka();
+
   String pmHost();
+
   String pmPort();
+
   @WithDefault("oaas-invoker")
   String kafkaGroup();
+
   @WithDefault("oaas-fn")
   String fnProvisionTopic();
+
   @WithDefault("oaas-cls")
   String clsProvisionTopic();
+
   @WithDefault("oaas-cr-hash")
   String crHashTopic();
+
   @WithDefault("oaas-invoker-")
   String invokeTopicPrefix();
+
   Url sa();
+
   @WithDefault("100")
   int connectionPoolMaxSize();
+
   @WithDefault("10")
   int h2ConnectionPoolMaxSize();
+
   @WithDefault("1")
   int numOfVerticle();
+
   @WithDefault("2")
   int numOfInvokerVerticle();
+
   @WithDefault("600000")
   int invokeTimeout();
+
   @WithDefault("64")
   int invokeConcurrency();
+
   @WithDefault("500")
   int maxInflight();
+
   S3ConnConf s3();
+
   @WithDefault("false")
   boolean useSa();
 
@@ -51,16 +68,18 @@ public interface InvokerConfig {
 
   @WithDefault("FETCH")
   LoadAssignMode loadMode();
+
   @WithDefault("none")
   List<String> initClass();
+
   @WithDefault("true")
   boolean warmHashCache();
 
-  interface Url{
-    String url();
+  enum LoadAssignMode {
+    FETCH, ENV, DISABLED
   }
 
-  enum LoadAssignMode{
-    FETCH, ENV, DISABLED
+  interface Url {
+    String url();
   }
 }

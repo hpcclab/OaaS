@@ -8,28 +8,25 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InvocationException extends StdOaasException {
-  String invId;
-  boolean retryable = true;
-  boolean connErr = false;
-
-  public InvocationException(String message, Throwable cause) {
-    super(message, cause, true, 500);
-  }
+  final String invId;
 
   public InvocationException(String message) {
-    super(message, null, true, 500);
+    this(message, null, 500, null);
+  }
+
+  public InvocationException(String message, Throwable cause) {
+    this(message, cause, 500, null);
   }
 
   public InvocationException(String message, int code) {
-    super(message, code);
+    this(message, null, code, null);
   }
 
   public InvocationException(String message, Throwable cause, int code) {
-    super(message, cause, true, code);
+    this(message, cause, code, null);
   }
-
-  public InvocationException(Throwable cause, String invId) {
-    super(null, cause);
+  public InvocationException(String message, Throwable cause, int code, String invId) {
+    super(message, cause, true, code);
     this.invId = invId;
   }
 
@@ -52,26 +49,14 @@ public class InvocationException extends StdOaasException {
   }
 
   public static InvocationException connectionErr(Throwable e) {
-    var ex = new InvocationException("Connection Error", e, HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
-    ex.connErr = true;
-    return ex;
+    return new InvocationException("Connection Error", e,
+      HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
   }
 
   public static StdOaasException notFoundFnInCls(String fb, String cls) {
     return new StdOaasException("Not found FunctionBinding(" + fb + ") in Class(" + cls + ")", 400);
   }
 
-  public boolean isRetryable() {
-    return retryable;
-  }
-
-  public void setRetryable(boolean retryable) {
-    this.retryable = retryable;
-  }
-
-  public boolean isConnErr() {
-    return connErr;
-  }
 
   public String getInvId() {
     return invId;

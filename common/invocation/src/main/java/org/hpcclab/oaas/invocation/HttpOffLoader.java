@@ -52,13 +52,18 @@ public class HttpOffLoader implements OffLoader {
   }
 
   protected MultiMap createHeader(InvokingDetail<?> detail) {
-    return MultiMap.caseInsensitiveMultiMap()
-      .add("ce-type", config.getCeType())
-      .add("ce-func", detail.getFuncName())
-      .add("ce-id", detail.getId())
-      .add("ce-source", config.getAppName())
-      .add("ce-specversion", "1.0")
-      .add("content-type", "application/json");
+    if (config.isEnabledCeHeader()) {
+      return MultiMap.caseInsensitiveMultiMap()
+        .add("ce-type", config.getCeType())
+        .add("ce-func", detail.getFuncName())
+        .add("ce-id", detail.getId())
+        .add("ce-source", config.getAppName())
+        .add("ce-specversion", "1.0")
+        .add("content-type", "application/json");
+    } else {
+      return MultiMap.caseInsensitiveMultiMap()
+        .add("content-type", "application/json");
+    }
   }
 
   TaskCompletion handleResp(InvokingDetail<?> detail, HttpResponse<Buffer> resp) {

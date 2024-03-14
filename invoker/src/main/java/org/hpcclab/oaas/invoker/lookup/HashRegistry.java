@@ -13,6 +13,8 @@ import org.infinispan.manager.impl.InternalCacheManager;
 import org.infinispan.remoting.transport.Transport;
 import org.infinispan.remoting.transport.jgroups.JGroupsAddress;
 import org.jgroups.stack.IpAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -20,9 +22,9 @@ import java.util.Map;
  * @author Pawissanutt
  */
 public class HashRegistry {
-
-  InternalCrStateService crStateService;
-  Map<String, ProtoCrHash> cacheMap = new ConcurrentHashMap<>();
+  private static final Logger logger = LoggerFactory.getLogger( HashRegistry.class );
+  final InternalCrStateService crStateService;
+  final Map<String, ProtoCrHash> cacheMap = new ConcurrentHashMap<>();
   String localAdvertiseAddress;
 
   public HashRegistry(InternalCrStateService crStateService) {
@@ -72,8 +74,9 @@ public class HashRegistry {
       .replaceWithVoid();
   }
 
-  public Map<String, ProtoCrHash> getMap() {
-    return cacheMap;
+  public void updateLocal(ProtoCrHash protoCrHash) {
+    logger.info("update local hash registry {}", protoCrHash.getCls());
+    cacheMap.put(protoCrHash.getCls(), protoCrHash);
   }
 
 

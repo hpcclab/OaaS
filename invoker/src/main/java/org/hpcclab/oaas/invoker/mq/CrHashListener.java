@@ -14,7 +14,7 @@ public class CrHashListener extends NoGroupKafkaConsumer<ProtoCrHash> {
   @Inject
   public CrHashListener(Vertx vertx,
                         InvokerConfig config) {
-    super(vertx, config, config.clsProvisionTopic());
+    super(vertx, config, config.crHashTopic());
   }
 
   @Override

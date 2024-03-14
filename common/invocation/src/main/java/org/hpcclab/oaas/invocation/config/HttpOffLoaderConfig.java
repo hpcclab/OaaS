@@ -10,4 +10,6 @@ public class HttpOffLoaderConfig {
   String ceType = "oaas.task";
   @Builder.Default
   int timout = 10*60*1000;
+  @Builder.Default
+  boolean enabledCeHeader = true;
 }

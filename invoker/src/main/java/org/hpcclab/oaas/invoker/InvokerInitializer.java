@@ -72,7 +72,7 @@ public class InvokerInitializer {
     clsListener.start().await().indefinitely();
     if (config.warmHashCache())
       hashRegistry.warmCache().await().indefinitely();
-    hashListener.setHandler(hash -> hashRegistry.getMap().put(hash.getCls(), hash));
+    hashListener.setHandler(hashRegistry::updateLocal);
     hashListener.start().await().indefinitely();
   }
 
