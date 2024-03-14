@@ -41,6 +41,9 @@ public class EnvironmentManager {
       .classManagerPort(pmPort)
       .exposeKnative(conf.exposeKnative())
       .logLevel(configProvider.getValue("oprc.log", String.class))
+      .clsTopic(conf.clsProvisionTopic())
+      .fnTopic(conf.fnProvisionTopic())
+      .crHashTopic(conf.crHashTopic())
       .build();
     environment = OprcEnvironment.builder()
       .config(envConf)

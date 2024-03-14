@@ -55,7 +55,7 @@ class ConcatHandler(oaas.Handler):
 
 app = FastAPI()
 router = oaas.Router()
-router.register("example.concat", ConcatHandler())
+router.register("example.text.concat", ConcatHandler())
 
 
 @app.post('/')
@@ -65,6 +65,7 @@ async def handle(request: Request):
     resp = await router.handle_task(body)
     logging.debug("completion %s", resp)
     if resp is None:
+        logging.warm(f"No handler matched {body['funcKey']}")
         raise HTTPException(status_code=404, detail="No handler matched")
     return resp
 

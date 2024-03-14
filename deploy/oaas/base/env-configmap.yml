@@ -15,7 +15,6 @@ data:
   OPRC_ENVCONF_PMHOST: "package-manager"
   OPRC_ENVCONF_PMPORT: "80"
   OPRC_ENVCONF_KAFKA: "oaas-kafka-bootstrap:9092"
-  OPRC_CRM_TEMPLATEOVERRIDE: |
 
 
 kind: ConfigMap

@@ -18,6 +18,9 @@ public record OprcEnvironment (
   public record Config (String kafkaBootstrap,
                         String classManagerHost,
                         String classManagerPort,
+                        String fnTopic,
+                        String clsTopic,
+                        String crHashTopic,
                         boolean exposeKnative,
                         String logLevel) {}
   public record EnvResource(double cpu,

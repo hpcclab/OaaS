@@ -44,7 +44,10 @@ public class ConfigK8sCrComponentController extends AbstractK8sCrComponentContro
         .formatted(prefix, namespace),
       "OPRC_CRID", parentController.getTsidString(),
       "OPRC_INVOKER_PMHOST", envConfig.classManagerHost(),
-      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort()
+      "OPRC_INVOKER_PMPORT", envConfig.classManagerPort(),
+      "OPRC_INVOKER_CLSPROVISIONTOPIC", envConfig.clsTopic(),
+      "OPRC_INVOKER_FNPROVISIONTOPIC", envConfig.fnTopic(),
+      "OPRC_INVOKER_CRHASHTOPIC", envConfig.crHashTopic()
     );
     var confMap = new ConfigMapBuilder()
       .withNewMetadata()

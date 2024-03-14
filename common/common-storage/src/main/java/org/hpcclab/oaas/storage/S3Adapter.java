@@ -17,7 +17,8 @@ public class S3Adapter implements StorageAdapter {
     var datastoreConf = DatastoreConfRegistry.getDefault()
       .getOrDefault("S3DEFAULT");
     bkt = datastoreConf.options().get("BUCKET");
-    prefix = datastoreConf.options().get("PREFIXPATH");
+    String prefixTemp = datastoreConf.options().get("PREFIXPATH");
+    prefix = prefixTemp == null? "" : prefixTemp;
   }
 
 

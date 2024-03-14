@@ -10,8 +10,6 @@ functions:
         limitsCpu: "1"
         limitsMemory: "512M"
 #        targetConcurrency: 16
-#        minScale: -1
-#        maxScale: -1
 #        scaleDownDelay: 30s
 
   - name: record.merge

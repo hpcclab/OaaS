@@ -88,7 +88,7 @@ public class InvocationEngineProducer {
     if (config.useSa()) {
       return new SaContentUrlGenerator(config.sa().url());
     } else {
-      return new S3ContentUrlGenerator(DatastoreConfRegistry.getDefault()
+      return new S3ContentUrlGenerator(config.sa().url(), DatastoreConfRegistry.getDefault()
         .getOrDefault("S3DEFAULT"));
     }
   }

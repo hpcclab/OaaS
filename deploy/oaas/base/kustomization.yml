@@ -23,6 +23,7 @@ secretGenerator:
       - OPRC_DB_S3DEFAULT_PUBLICURL="http://s3.127.0.0.1.nip.io"
       - OPRC_DB_S3DEFAULT_USER="minio_access_key"
       - OPRC_DB_S3DEFAULT_PASS="minio_secret_key"
+      - OPRC_DB_S3DEFAULT_PREFIXPATH="oaas-"
     options:
       disableNameSuffixHash: true
 
