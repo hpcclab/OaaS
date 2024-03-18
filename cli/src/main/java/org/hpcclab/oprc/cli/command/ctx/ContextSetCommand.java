@@ -43,6 +43,11 @@ public class ContextSetCommand implements Callable<Integer> {
     defaultValue = "${env:OCLI_PROXY}"
   )
   String proxy;
+
+  @CommandLine.Option(
+    names = {"--cls"}
+  )
+  String defaultCls;
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
 
@@ -60,6 +65,9 @@ public class ContextSetCommand implements Callable<Integer> {
     }
     if (pmUrl!=null) {
       ctxConf.setPmUrl(pmUrl);
+    }
+    if (defaultCls!=null) {
+      ctxConf.setDefaultClass(defaultCls);
     }
     conf.getContexts().put(ctx, ctxConf);
     System.out.printf("ctx:'%s', conf: %s%n", ctx, ctxConf);

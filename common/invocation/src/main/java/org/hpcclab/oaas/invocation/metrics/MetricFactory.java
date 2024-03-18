@@ -14,6 +14,17 @@ public interface MetricFactory {
                                     String fb,
                                     String func);
 
+  class NoOpMetricFactory implements MetricFactory {
+    @Override
+    public MetricCounter createRequestCounter(String cls, String fb, String func) {
+      return () -> {};
+    }
+
+    @Override
+    public MetricTimer createInvocationTimer(String cls, String fb, String func) {
+      return duration -> {};
+    }
+  }
 
   interface MetricCounter {
     void increase();

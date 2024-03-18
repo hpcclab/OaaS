@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarSource;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
@@ -62,6 +63,44 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
       );
     return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
+  }
+
+  public HorizontalPodAutoscaler createHpa(CrInstanceSpec spec) {
+    HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
+      .withNewScaleDown()
+
+      .endScaleDown()
+      .withNewScaleUp()
+      .withStabilizationWindowSeconds(10)
+      .endScaleUp()
+      .build();
+    MetricSpec metricSpec = new MetricSpecBuilder()
+      .withType("resource")
+      .withNewResource()
+      .withName("cpu")
+      .withNewTarget()
+      .withType("Utilization")
+      .withAverageUtilization(100)
+      .endTarget()
+      .endResource()
+      .build();
+    return new HorizontalPodAutoscalerBuilder()
+      .withNewMetadata()
+      .withName(prefix+INVOKER.getSvc())
+      .withNamespace(namespace)
+      .endMetadata()
+      .withNewSpec()
+      .withNewScaleTargetRef()
+      .withKind("Deployment")
+      .withApiVersion("apps/v1")
+      .withName(prefix+INVOKER.getSvc())
+      .endScaleTargetRef()
+      .withMinReplicas(spec.minInstance())
+      .withMaxReplicas(spec.maxInstance())
+      .withBehavior(behavior)
+      .withMetrics(metricSpec)
+      .endSpec()
+      .build();
   }
 
   @Override

@@ -7,7 +7,7 @@ import org.eclipse.collections.impl.factory.Multimaps;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 
-public class MockInvocationQueueSender implements InvocationQueueProducer {
+public class MockInvocationQueueProducer implements InvocationQueueProducer {
 
 
   public MutableMultimap<String, InvocationRequest> multimap = Multimaps.mutable.list.empty();

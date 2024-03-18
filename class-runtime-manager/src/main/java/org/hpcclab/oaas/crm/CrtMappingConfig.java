@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Builder;
+import org.hpcclab.oaas.crm.condition.Condition;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ public record CrtMappingConfig(
 ) {
   public interface ScalingConfig {
     int stabilizationWindow();
+
     int maxScaleDiff();
   }
 
@@ -23,7 +25,9 @@ public record CrtMappingConfig(
     FnConfig functions,
     String optimizer,
     Map<String, String> optimizerConf,
-    int stabilizationWindow
+    int stabilizationWindow,
+    Condition condition,
+    int priority
   ) {
   }
 
@@ -39,7 +43,7 @@ public record CrtMappingConfig(
     String limitMemory,
     int stabilizationWindow,
     int maxScaleDiff
-  ) implements ScalingConfig{
+  ) implements ScalingConfig {
   }
 
   @Builder(toBuilder = true)
@@ -48,6 +52,6 @@ public record CrtMappingConfig(
     int maxScaleDiff,
     String defaultRequestCpu,
     String defaultRequestMem
-  ) implements ScalingConfig{
+  ) implements ScalingConfig {
   }
 }

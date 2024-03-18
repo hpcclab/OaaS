@@ -6,5 +6,5 @@ import org.hpcclab.oaas.model.function.OFunction;
  * @author Pawissanutt
  */
 public interface FunctionControllerFactory {
-  FunctionController create(OFunction function) ;
+  FunctionController create(OFunction function);
 }

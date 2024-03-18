@@ -64,7 +64,7 @@ public class InvocationEngineProducer {
 
 
   @Produces
-  @Dependent
+  @ApplicationScoped
   ControllerInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
                                                                 CtxLoader ctxLoader,
                                                                 IdGenerator idGenerator) {
@@ -74,7 +74,7 @@ public class InvocationEngineProducer {
   }
 
   @Produces
-  @Dependent
+  @ApplicationScoped
   InvocationRecordHandler invocationRecordHandler(ObjectRepoManager objectRepoManager,
                                                   ClassControllerRegistry classControllerRegistry,
                                                   CtxLoader ctxLoader) {
@@ -117,8 +117,7 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   @Produces
   RepoCtxLoader repoCtxLoader(ObjectRepoManager objManager,
-                              ClassControllerRegistry registry,
-                              ProtoObjectMapper protoObjectMapper) {
-    return new RepoCtxLoader(objManager, registry, protoObjectMapper);
+                              ClassControllerRegistry registry) {
+    return new RepoCtxLoader(objManager, registry);
   }
 }

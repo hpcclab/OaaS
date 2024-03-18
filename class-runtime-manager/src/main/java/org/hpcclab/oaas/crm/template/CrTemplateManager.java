@@ -3,7 +3,6 @@ package org.hpcclab.oaas.crm.template;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.quarkus.grpc.GrpcClient;
 import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,15 +11,19 @@ import org.eclipse.collections.api.map.ImmutableMap;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.condition.ConditionProcessor;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.DefaultQoSOptimizer;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 
 @ApplicationScoped
@@ -31,12 +34,15 @@ public class CrTemplateManager {
   final KubernetesClient kubernetesClient;
   final CrmConfig crmConfig;
   ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
+  ProtoMapper protoMapper = new ProtoMapperImpl();
+  final ConditionProcessor conditionProcessor;
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
-                           CrmConfig crmConfig) {
+                           CrmConfig crmConfig, ConditionProcessor conditionProcessor) {
     this.kubernetesClient = kubernetesClient;
     this.crmConfig = crmConfig;
+    this.conditionProcessor = conditionProcessor;
   }
 
   public void loadTemplate(CrControllerManager controllerManager) {
@@ -85,8 +91,16 @@ public class CrTemplateManager {
   public ClassRuntimeTemplate selectTemplate(OprcEnvironment env,
                                              DeploymentUnit deploymentUnit) {
     var template = deploymentUnit.getCls().getConfig().getCrTemplate();
-    if (template.isEmpty()) template = DEFAULT;
-    return templateMap.get(template);
+    if (!template.isEmpty())
+      return templateMap.get(template);
+    var cls = deploymentUnit.getCls();
+    return templateMap.valuesView()
+      .select(tem -> conditionProcessor.matches(tem.getConfig().condition(),
+        protoMapper.fromProto(cls)
+      ))
+      .toSortedList(Comparator.comparing(tem -> tem.getConfig().priority()))
+      .getLastOptional()
+      .orElseThrow();
   }
 
   public ClassRuntimeTemplate selectTemplate(ProtoCr protoCr) {

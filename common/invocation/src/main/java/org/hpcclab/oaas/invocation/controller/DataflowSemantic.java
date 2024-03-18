@@ -8,6 +8,7 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.MacroSpec;
+import org.hpcclab.oaas.model.function.WorkflowExport;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,9 @@ public class DataflowSemantic {
     for (int i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
       DataflowNode targetNode = resolve(stateMap, step.getTarget());
-      List<DataflowNode> inputNodes = step.getInputRefs().stream()
+      List<String> inputRefs = step.getInputRefs();
+      if (inputRefs==null) inputRefs = List.of();
+      List<DataflowNode> inputNodes = inputRefs.stream()
         .map(ref -> resolve(stateMap, ref))
         .toList();
       MutableSet<DataflowNode> require = Sets.mutable.empty();
@@ -47,7 +50,7 @@ public class DataflowSemantic {
       require.addAll(inputNodes);
       var node = new DataflowNode(i, step, require, Sets.mutable.empty());
       df.allNode.add(node);
-      if (step.getAs() != null && !step.getAs().isEmpty()) {
+      if (step.getAs()!=null && !step.getAs().isEmpty()) {
         stateMap.put(step.getAs(), node);
       }
     }
@@ -59,7 +62,9 @@ public class DataflowSemantic {
       }
     }
     df.exportNode = resolve(stateMap, spec.getExport());
-    df.exportNodes = spec.getExports().stream()
+    Set<WorkflowExport> exports = spec.getExports();
+    if (exports ==null) exports = Set.of();
+    df.exportNodes = exports.stream()
       .map(ex -> Map.entry(ex.getAs(), resolve(stateMap, ex.getFrom())))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return df;
@@ -68,13 +73,17 @@ public class DataflowSemantic {
   static DataflowNode resolve(Map<String, DataflowNode> stateMap, String ref) {
     var target = extractTargetInFlow(ref);
     var node = stateMap.get(target);
-    if (node==null) throw new DataflowParseException("Cannot resolve ref("+ref+")", 500);
+    if (node==null) throw new DataflowParseException("Cannot resolve ref(" + ref + ")", 500);
     return node;
   }
 
   static String extractTargetInFlow(String exp) {
     String[] split = exp.split("\\.");
     return split[0];
+  }
+
+  public DataflowNode getRootNode() {
+    return rootNode;
   }
 
   public static class DataflowNode {
@@ -100,7 +109,7 @@ public class DataflowSemantic {
 
     Set<DataflowNode> simplifyRequire() {
       if (require.isEmpty()) return Set.of();
-      if (require.size() == 1) return require.getOnly().simplifyRequire();
+      if (require.size()==1) return require.getOnly().simplifyRequire();
       Set<DataflowNode> transRequireNodes = require
         .stream()
         .flatMap(node -> node.simplifyRequire().stream())
@@ -111,7 +120,7 @@ public class DataflowSemantic {
     }
 
     void markNext(DataflowNode parent) {
-      if (parent != null) next.add(parent);
+      if (parent!=null) next.add(parent);
       if (require.isEmpty()) return;
       for (DataflowNode node : require) {
         node.markNext(this);
@@ -129,6 +138,18 @@ public class DataflowSemantic {
       if (obj instanceof DataflowNode node)
         return Objects.equal(stepIndex, node.stepIndex);
       return false;
+    }
+
+    public DataflowStep getStep() {
+      return step;
+    }
+
+    public MutableSet<DataflowNode> getRequire() {
+      return require;
+    }
+
+    public MutableSet<DataflowNode> getNext() {
+      return next;
     }
   }
 }

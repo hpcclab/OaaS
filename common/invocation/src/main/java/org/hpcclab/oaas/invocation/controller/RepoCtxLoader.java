@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -16,14 +17,11 @@ public class RepoCtxLoader implements CtxLoader {
 
   final ObjectRepoManager objManager;
   final ClassControllerRegistry registry;
-  final ProtoObjectMapper protoObjectMapper;
 
   public RepoCtxLoader(ObjectRepoManager objManager,
-                       ClassControllerRegistry registry,
-                       ProtoObjectMapper protoObjectMapper) {
+                       ClassControllerRegistry registry) {
     this.objManager = objManager;
     this.registry = registry;
-    this.protoObjectMapper = protoObjectMapper;
   }
 
 
@@ -37,7 +35,7 @@ public class RepoCtxLoader implements CtxLoader {
     Uni<InvocationCtx> uni = Uni.createFrom().item(ctx);
     var classController = registry.getClassController(request.cls());
     if (classController==null)
-      throw InvocationException.notFoundCls400(request.cls());
+      throw StdOaasException.notFoundCls400(request.cls());
     var cls = classController.getCls();
     if (request.main()!=null && !request.main().isEmpty()) {
       var repo = objManager.getOrCreate(cls);
@@ -46,10 +44,5 @@ public class RepoCtxLoader implements CtxLoader {
       );
     }
     return uni;
-  }
-
-  @Override
-  public Uni<InvocationCtx> load(ProtoInvocationRequest request) {
-    return load(protoObjectMapper.fromProto(request));
   }
 }

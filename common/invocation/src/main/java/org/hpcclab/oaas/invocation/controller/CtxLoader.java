@@ -10,5 +10,5 @@ import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 public interface CtxLoader {
 
   Uni<InvocationCtx> load(InvocationRequest request);
-  Uni<InvocationCtx> load(ProtoInvocationRequest request);
+//  Uni<InvocationCtx> load(ProtoInvocationRequest request);
 }

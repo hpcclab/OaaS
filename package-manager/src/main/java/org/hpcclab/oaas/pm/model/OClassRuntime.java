@@ -15,7 +15,9 @@ public record OClassRuntime(
   List<OClass> attachedCls,
   List<OFunction> attachedFn,
   String namespace,
-  OrbitState state
+  OrbitState state,
+  boolean deleted,
+  long stabilizationTime
 ) {
   public static String toKey(long id) {
     return Tsid.from(id).toLowerCase();

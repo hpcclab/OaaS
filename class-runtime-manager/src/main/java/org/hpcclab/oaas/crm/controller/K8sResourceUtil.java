@@ -2,6 +2,9 @@ package org.hpcclab.oaas.crm.controller;
 
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HPAScalingRules;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscalerBuilder;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
@@ -106,4 +109,6 @@ public class K8sResourceUtil {
       .withAdditionalProperties(Map.of("spec", spec))
       .build();
   }
+
+
 }

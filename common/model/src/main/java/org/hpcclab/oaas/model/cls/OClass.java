@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -17,8 +18,6 @@ import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.qos.QosRequirement;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +26,7 @@ import java.util.Optional;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Builder(toBuilder = true)
 public class OClass implements Copyable<OClass>, HasKey<String> {
 
   @JsonProperty("_key")
@@ -34,37 +34,21 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   @JsonProperty("_rev")
   @JsonView(Views.Internal.class)
   String rev;
-  @ProtoField(1)
   String name;
-  @ProtoField(2)
   String pkg;
-  @ProtoField(3)
   String genericType;
-  @ProtoField(4)
   OObjectType objectType;
-  @ProtoField(5)
   StateType stateType;
-  @ProtoField(6)
   List<FunctionBinding> functions = List.of();
-  @ProtoField(7)
   StateSpecification stateSpec;
-  @ProtoField(8)
   List<ReferenceSpecification> refSpec = List.of();
-  @ProtoField(9)
   List<String> parents = List.of();
-  @ProtoField(10)
   String description;
-  @ProtoField(value = 11, defaultValue = "false")
   boolean markForRemoval;
-  @ProtoField(12)
   DatastoreLink store;
-  @ProtoField(13)
   OClassConfig config;
-  @ProtoField(14)
   OClassDeploymentStatus status;
-  @ProtoField(15)
   QosRequirement qos;
-  @ProtoField(16)
   QosConstraint constraint;
 
   ResolvedMember resolved;
@@ -72,8 +56,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
 
   public OClass() {
   }
-
-  @ProtoFactory
 
   public OClass(String name,
                 String pkg,
@@ -107,6 +89,29 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.status = status;
     this.qos = qos;
     this.constraint = constraint;
+    updateKey();
+  }
+
+  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType, List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents, String description, boolean markForRemoval, DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos, QosConstraint constraint, ResolvedMember resolved) {
+    this.key = key;
+    this.rev = rev;
+    this.name = name;
+    this.pkg = pkg;
+    this.genericType = genericType;
+    this.objectType = objectType;
+    this.stateType = stateType;
+    this.functions = functions;
+    this.stateSpec = stateSpec;
+    this.refSpec = refSpec;
+    this.parents = parents;
+    this.description = description;
+    this.markForRemoval = markForRemoval;
+    this.store = store;
+    this.config = config;
+    this.status = status;
+    this.qos = qos;
+    this.constraint = constraint;
+    this.resolved = resolved;
     updateKey();
   }
 

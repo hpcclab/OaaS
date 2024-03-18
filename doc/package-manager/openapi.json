@@ -893,6 +893,13 @@
           "state" : {
             "$ref" : "#/components/schemas/OrbitState"
           },
+          "deleted" : {
+            "type" : "boolean"
+          },
+          "stabilizationTime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "key" : {
             "type" : "string"
           }

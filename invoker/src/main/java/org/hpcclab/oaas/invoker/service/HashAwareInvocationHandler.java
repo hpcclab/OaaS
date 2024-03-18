@@ -8,14 +8,15 @@ import io.vertx.grpc.client.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.proto.*;
-import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,8 +107,10 @@ public class HashAwareInvocationHandler {
     }
   }
 
-  private ProtoApiAddress resolveAddr(String protOal, String obj) {
-    var cls = registry.getClassController(protOal).getCls();
+  private ProtoApiAddress resolveAddr(String clsKey, String obj) {
+    ClassController classController = registry.getClassController(clsKey);
+    if (classController == null) throw StdOaasException.notFoundCls400(clsKey);
+    var cls = classController.getCls();
     var lookup = lookupManager.getOrInit(cls);
     ProtoApiAddress addr;
     if (obj==null || obj.isEmpty()) {
