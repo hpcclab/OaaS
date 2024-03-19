@@ -56,13 +56,13 @@ public class HashAwareInvocationHandler {
   public Uni<ProtoInvocationResponse> invoke(ProtoObjectAccessLanguage protOal) {
     boolean managed = invokerManager.getManagedCls().contains(protOal.getCls());
     if (managed && (protOal.getMain().isEmpty())) {
-      return invocationReqHandler.syncInvoke(mapper.fromProto(protOal))
+      return invocationReqHandler.invoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     }
     ProtoApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}/{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
-      return invocationReqHandler.syncInvoke(mapper.fromProto(protOal))
+      return invocationReqHandler.invoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     } else {
       logger.debug("invoke remote {}~{}/{} to {}:{}", protOal.getCls(), protOal.getMain(),
@@ -75,15 +75,15 @@ public class HashAwareInvocationHandler {
   public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
     boolean managed = invokerManager.getManagedCls().contains(oal.getCls());
     if (managed && (oal.getMain()==null || oal.getMain().isEmpty())) {
-      return invocationReqHandler.syncInvoke(oal);
+      return invocationReqHandler.invoke(oal);
     }
     ProtoApiAddress addr = resolveAddr(oal.getCls(), oal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", oal.getCls(), oal.getMain(), oal.getFb());
-      return invocationReqHandler.syncInvoke(oal);
+      return invocationReqHandler.invoke(oal);
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
-        oal.getCls(), oal.getMain(), oal.getFb(),addr.getHost(), addr.getPort());
+        oal.getCls(), oal.getMain(), oal.getFb(), addr.getHost(), addr.getPort());
       return send(addr, mapper.toProto(oal))
         .map(mapper::fromProto);
     }
@@ -92,13 +92,13 @@ public class HashAwareInvocationHandler {
   public Uni<ProtoInvocationResponse> invoke(ProtoInvocationRequest request) {
     boolean managed = invokerManager.getManagedCls().contains(request.getCls());
     if (managed && request.getMain().isEmpty()) {
-      return invocationReqHandler.syncInvoke(mapper.fromProto(request))
+      return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     }
     ProtoApiAddress addr = resolveAddr(request.getCls(), request.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
-      return invocationReqHandler.syncInvoke(mapper.fromProto(request))
+      return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
@@ -109,7 +109,7 @@ public class HashAwareInvocationHandler {
 
   private ProtoApiAddress resolveAddr(String clsKey, String obj) {
     ClassController classController = registry.getClassController(clsKey);
-    if (classController == null) throw StdOaasException.notFoundCls400(clsKey);
+    if (classController==null) throw StdOaasException.notFoundCls400(clsKey);
     var cls = classController.getCls();
     var lookup = lookupManager.getOrInit(cls);
     ProtoApiAddress addr;

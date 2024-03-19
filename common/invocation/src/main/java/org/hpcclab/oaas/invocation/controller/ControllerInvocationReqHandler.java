@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
@@ -13,9 +14,9 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
  * @author Pawissanutt
  */
 public class ControllerInvocationReqHandler implements InvocationReqHandler {
-  final ClassControllerRegistry classControllerRegistry;
-  final CtxLoader ctxLoader;
-  final IdGenerator idGenerator;
+  protected final ClassControllerRegistry classControllerRegistry;
+  protected final CtxLoader ctxLoader;
+  protected final IdGenerator idGenerator;
 
   public ControllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
                                         CtxLoader ctxLoader,
@@ -26,16 +27,17 @@ public class ControllerInvocationReqHandler implements InvocationReqHandler {
   }
 
   @Override
-  public Uni<InvocationResponse> syncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
     var req = toRequest(oal).build();
-    return syncInvoke(req);
+    return invoke(req);
   }
 
   @Override
-  public Uni<InvocationResponse> syncInvoke(InvocationRequest request) {
+  public Uni<InvocationResponse> invoke(InvocationRequest request) {
     return ctxLoader.load(request)
       .flatMap(ctx -> {
         var con = classControllerRegistry.getClassController(request.cls());
+        if (con == null) throw StdOaasException.notFoundCls400(request.cls());
         return con.invoke(ctx);
       })
       .map(ctx -> ctx.createResponse()
@@ -44,8 +46,9 @@ public class ControllerInvocationReqHandler implements InvocationReqHandler {
   }
 
   @Override
-  public Uni<InvocationResponse> asyncInvoke(ObjectAccessLanguage oal) {
+  public Uni<InvocationResponse> enqueue(ObjectAccessLanguage oal) {
     var con = classControllerRegistry.getClassController(oal.getCls());
+    if (con == null) throw StdOaasException.notFoundCls400(oal.getCls());
     var ctx = con.validate(oal);
     return con.enqueue(ctx.request())
       .map(v -> InvocationResponse.builder()

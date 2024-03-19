@@ -125,7 +125,7 @@ public class OalResource {
 
   public Uni<InvocationResponse> selectAndInvoke(ObjectAccessLanguage oal, Boolean async) {
     if (async!=null && async) {
-      return invocationHandlerService.asyncInvoke(oal);
+      return invocationHandlerService.enqueue(oal);
     } else {
       return hashAwareInvocationHandler.invoke(oal);
     }

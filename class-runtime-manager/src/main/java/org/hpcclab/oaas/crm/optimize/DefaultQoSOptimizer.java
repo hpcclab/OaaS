@@ -11,6 +11,7 @@ import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.SvcPerformanceMetrics;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoQosRequirement;
+import org.hpcclab.oaas.proto.ProtoStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,31 +74,38 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       dataSpec = new CrDataSpec(replicaN);
       minAvail = replicaN;
     }
-    CrtMappingConfig.SvcConfig invoker = crtConfig.services().get(OprcComponent.INVOKER.getSvc());
-    CrtMappingConfig.SvcConfig sa = crtConfig.services().get(OprcComponent.STORAGE_ADAPTER.getSvc());
+    CrtMappingConfig.SvcConfig invoker = crtConfig.services()
+      .get(OprcComponent.INVOKER.getSvc());
+    CrtMappingConfig.SvcConfig sa = crtConfig.services()
+      .get(OprcComponent.STORAGE_ADAPTER.getSvc());
+    CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
+      .minInstance(minInstance)
+      .maxInstance(invoker.maxReplicas())
+      .scaleDownDelay(null)
+      .targetConcurrency(-1)
+      .requestsCpu(parseCpu(invoker.requestCpu()))
+      .requestsMemory(parseMem(invoker.requestMemory()))
+      .limitsCpu(parseCpu(invoker.limitCpu()))
+      .limitsMemory(parseMem(invoker.limitMemory()))
+      .minAvail(minAvail)
+      .build();
+    CrInstanceSpec saSpec = CrInstanceSpec.builder()
+      .minInstance(1)
+      .maxInstance(sa.maxReplicas())
+      .scaleDownDelay(null)
+      .targetConcurrency(-1)
+      .requestsCpu(parseCpu(sa.requestCpu()))
+      .requestsMemory(parseMem(sa.requestMemory()))
+      .limitsCpu(parseCpu(sa.limitCpu()))
+      .limitsMemory(parseMem(sa.limitMemory()))
+      .minAvail(minAvail)
+      .disable(unit.getCls().getStateSpec().getKeySpecsCount() == 0
+        && unit.getCls().getStateType() != ProtoStateType.PROTO_STATE_TYPE_COLLECTION
+      )
+      .build();
     var instances = Map.of(
-      OprcComponent.INVOKER, CrInstanceSpec.builder()
-        .minInstance(minInstance)
-        .maxInstance(-1)
-        .scaleDownDelay(null)
-        .targetConcurrency(-1)
-        .requestsCpu(parseCpu(invoker.requestCpu()))
-        .requestsMemory(parseMem(invoker.requestMemory()))
-        .limitsCpu(parseCpu(invoker.limitCpu()))
-        .limitsMemory(parseMem(invoker.limitMemory()))
-        .minAvail(minAvail)
-        .build(),
-      OprcComponent.STORAGE_ADAPTER, CrInstanceSpec.builder()
-        .minInstance(1)
-        .maxInstance(-1)
-        .scaleDownDelay(null)
-        .targetConcurrency(-1)
-        .requestsCpu(parseCpu(sa.requestCpu()))
-        .requestsMemory(parseMem(sa.requestMemory()))
-        .limitsCpu(parseCpu(sa.limitCpu()))
-        .limitsMemory(parseMem(sa.limitMemory()))
-        .minAvail(minAvail)
-        .build()
+      OprcComponent.INVOKER, invokerSpec,
+      OprcComponent.STORAGE_ADAPTER, saSpec
     );
     var fnInstances = unit.getFnListList()
       .stream()
@@ -174,7 +182,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       nextInstance = expectedInstance;
     }
 
-    int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleDiff());
+    int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, nextInstance {}, capChanged {}",

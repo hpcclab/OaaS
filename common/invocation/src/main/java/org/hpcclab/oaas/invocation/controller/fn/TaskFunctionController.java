@@ -2,12 +2,11 @@ package org.hpcclab.oaas.invocation.controller.fn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.invocation.InvokingDetail;
-import org.hpcclab.oaas.invocation.OffLoader;
-import org.hpcclab.oaas.invocation.controller.InvocationCtx;
+import org.hpcclab.oaas.invocation.task.InvokingDetail;
+import org.hpcclab.oaas.invocation.task.OffLoader;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.model.data.AccessLevel;

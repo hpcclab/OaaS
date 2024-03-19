@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
-import org.hpcclab.oaas.invocation.OffLoader;
+import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.controller.fn.CdiFunctionControllerFactory;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.MacroFunctionController;
@@ -13,7 +13,6 @@ import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
-import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 

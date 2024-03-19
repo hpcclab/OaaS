@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
@@ -23,13 +24,15 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
 
   @Override
   public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
+    if (instanceSpec.disable()) return List.of();
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, STORAGE_ADAPTER.getSvc()
     );
+    String name = prefix + STORAGE_ADAPTER.getSvc();
     var deployment = createDeployment(
       "/crts/storage-adapter-dep.yml",
-      prefix + STORAGE_ADAPTER.getSvc(),
+      name,
       labels,
       instanceSpec
     );
@@ -37,38 +40,42 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var svc = createSvc(
       "/crts/storage-adapter-svc.yml",
-      prefix + STORAGE_ADAPTER.getSvc(),
+      name,
       labels);
-    return List.of(deployment, svc);
+
+    var hpa = createHpa(instanceSpec, labels, name, name);
+    return List.of(deployment, svc, hpa);
   }
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
     String name = prefix + STORAGE_ADAPTER.getSvc();
-    var deployment = kubernetesClient.apps().deployments()
-      .inNamespace(namespace)
-      .withName(name).get();
-    if (deployment==null) return List.of();
-    deployment.getSpec().setReplicas(instanceSpec.minInstance());
-    return List.of(deployment);
+    HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
+    return hpa == null? List.of(): List.of(hpa);
   }
 
   @Override
   public List<HasMetadata> createDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     String tsidString = parentController.getTsidString();
+    Map<String, String> labels = Map.of(
+      CR_LABEL_KEY, tsidString,
+      CR_COMPONENT_LABEL_KEY, STORAGE_ADAPTER.getSvc()
+    );
     var depList = kubernetesClient.apps().deployments()
-      .withLabel(CR_LABEL_KEY, tsidString)
-      .withLabel(CR_COMPONENT_LABEL_KEY, STORAGE_ADAPTER.getSvc())
+      .withLabels(labels)
       .list()
       .getItems();
     toDeleteResource.addAll(depList);
     var svcList = kubernetesClient.services()
-      .withLabel(CR_LABEL_KEY, tsidString)
-      .withLabel(CR_COMPONENT_LABEL_KEY, INVOKER.getSvc())
+      .withLabels(labels)
       .list()
       .getItems();
     toDeleteResource.addAll(svcList);
+    var hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
+      .withLabels(labels)
+      .list().getItems();
+    toDeleteResource.addAll(hpa);
     return toDeleteResource;
   }
 }

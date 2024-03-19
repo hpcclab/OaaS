@@ -6,14 +6,12 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducer;
 import io.vertx.mutiny.kafka.client.producer.KafkaProducerRecord;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.lookup.HashUtil;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.repository.ClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +37,7 @@ public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
       .getConfig();
     var partition = HashUtil.getHashed(
       request.partKey(),
-      conf==null ? OClassConfig.DEFAULT_PARTITIONS: conf.getPartitions()
+      conf==null ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions()
     );
     KafkaProducerRecord<String, Buffer> kafkaRecord = KafkaProducerRecord.create(
       topic,

@@ -67,7 +67,7 @@ public class ClassResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.asyncInvoke(oal);
+      return invocationHandlerService.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }
@@ -95,7 +95,7 @@ public class ClassResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.asyncInvoke(oal);
+      return invocationHandlerService.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }

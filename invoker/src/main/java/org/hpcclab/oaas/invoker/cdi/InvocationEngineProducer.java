@@ -5,11 +5,10 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
-import org.hpcclab.oaas.invocation.HttpOffLoader;
-import org.hpcclab.oaas.invocation.OffLoader;
+import org.hpcclab.oaas.invocation.task.HttpOffLoader;
+import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
@@ -65,7 +64,7 @@ public class InvocationEngineProducer {
 
   @Produces
   @ApplicationScoped
-  ControllerInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
+  ControllerInvocationReqHandler controllerInvocationReqHandler(GrpcClassControllerRegistry classControllerRegistry,
                                                                 CtxLoader ctxLoader,
                                                                 IdGenerator idGenerator) {
     return new ControllerInvocationReqHandler(classControllerRegistry,
@@ -76,7 +75,7 @@ public class InvocationEngineProducer {
   @Produces
   @ApplicationScoped
   InvocationRecordHandler invocationRecordHandler(ObjectRepoManager objectRepoManager,
-                                                  ClassControllerRegistry classControllerRegistry,
+                                                  GrpcClassControllerRegistry classControllerRegistry,
                                                   CtxLoader ctxLoader) {
     return new ControllerInvocationRecordHandler(objectRepoManager, classControllerRegistry, ctxLoader);
   }
@@ -117,7 +116,7 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   @Produces
   RepoCtxLoader repoCtxLoader(ObjectRepoManager objManager,
-                              ClassControllerRegistry registry) {
+                              GrpcClassControllerRegistry registry) {
     return new RepoCtxLoader(objManager, registry);
   }
 }

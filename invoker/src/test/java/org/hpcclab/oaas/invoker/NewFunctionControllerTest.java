@@ -28,8 +28,8 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NewFunctionControllerTest {
-  private static final Logger logger = LoggerFactory.getLogger( NewFunctionControllerTest.class );
+class NewFunctionControllerTest {
+  private static final Logger logger = LoggerFactory.getLogger(NewFunctionControllerTest.class);
 
   @Inject
   ObjectMapper mapper;
@@ -37,7 +37,7 @@ public class NewFunctionControllerTest {
   ClassControllerRegistry registry;
   @GrpcClient
   InvocationService invocationService;
-  ProtoObjectMapper protoObjectMapper =new ProtoObjectMapperImpl();
+  ProtoObjectMapper protoObjectMapper = new ProtoObjectMapperImpl();
 
   @BeforeEach
   void setup() {
@@ -72,8 +72,9 @@ public class NewFunctionControllerTest {
       .log().ifValidationFails()
       .statusCode(200)
       .body("output.data.n", Matchers.equalTo(1))
-      ;
+    ;
   }
+
   @Test
   void _2createSimpleGrpc() {
     var req = NewFunctionController.ObjectConstructRequest.of(

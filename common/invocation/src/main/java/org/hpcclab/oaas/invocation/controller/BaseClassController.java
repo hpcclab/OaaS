@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
@@ -53,7 +54,7 @@ public class BaseClassController implements ClassController {
       return Uni.createFrom().failure(InvocationException.notFoundFnInCls(req.fb(), cls.getKey()));
     return fn.invoke(context)
       .flatMap(this::handleStateOperations)
-      .call(ctx -> producer.offer(ctx.reqToProduce));
+      .call(ctx -> producer.offer(ctx.getReqToProduce()));
   }
 
   @Override

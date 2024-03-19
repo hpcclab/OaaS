@@ -5,10 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.invocation.controller.InvocationCtx;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -26,8 +27,8 @@ public class FanInFunctionController extends AbstractFunctionController {
 
   @Override
   protected void validate(InvocationCtx ctx) {
-    if (ctx.getMain()==null) throw InvocationException.format("main cannot be null");
-    if (ctx.getRequest().body()==null) throw InvocationException.format("body cannot be null");
+    if (ctx.getMain()==null) throw StdOaasException.format("main cannot be null");
+    if (ctx.getRequest().body()==null) throw StdOaasException.format("body cannot be null");
   }
 
   @Override

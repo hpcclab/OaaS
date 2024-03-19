@@ -2,7 +2,7 @@ package org.hpcclab.oaas.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
-import org.hpcclab.oaas.invocation.OffLoader;
+import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.controller.fn.*;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;

@@ -1,13 +1,9 @@
 package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.hpcclab.oaas.mapper.ProtoObjectMapper;
-import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 /**

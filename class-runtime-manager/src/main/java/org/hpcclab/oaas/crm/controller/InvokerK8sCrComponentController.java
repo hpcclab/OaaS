@@ -27,23 +27,25 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
 
   @Override
   public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
+    if (instanceSpec.disable()) return List.of();
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, INVOKER.getSvc()
     );
+    String name = prefix + INVOKER.getSvc();
     var deployment = createDeployment(
       "/crts/invoker-dep.yml",
-      prefix + INVOKER.getSvc(),
+      name,
       labels,
       instanceSpec
     );
     var podMonitor = K8sResourceUtil
-      .createPodMonitor(prefix + INVOKER.getSvc(), namespace, labels);
+      .createPodMonitor(name, namespace, labels);
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
       "/crts/invoker-svc.yml",
-      prefix + INVOKER.getSvc(),
+      name,
       labels);
     var invokerSvcPing = createSvc(
       "/crts/invoker-svc-ping.yml",
@@ -62,71 +64,33 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
         null,
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
       );
-    return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
+    var hpa = createHpa(instanceSpec, labels, name, name);
+    return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing, hpa);
   }
 
-  public HorizontalPodAutoscaler createHpa(CrInstanceSpec spec) {
-    HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
-      .withNewScaleDown()
-
-      .endScaleDown()
-      .withNewScaleUp()
-      .withStabilizationWindowSeconds(10)
-      .endScaleUp()
-      .build();
-    MetricSpec metricSpec = new MetricSpecBuilder()
-      .withType("resource")
-      .withNewResource()
-      .withName("cpu")
-      .withNewTarget()
-      .withType("Utilization")
-      .withAverageUtilization(100)
-      .endTarget()
-      .endResource()
-      .build();
-    return new HorizontalPodAutoscalerBuilder()
-      .withNewMetadata()
-      .withName(prefix+INVOKER.getSvc())
-      .withNamespace(namespace)
-      .endMetadata()
-      .withNewSpec()
-      .withNewScaleTargetRef()
-      .withKind("Deployment")
-      .withApiVersion("apps/v1")
-      .withName(prefix+INVOKER.getSvc())
-      .endScaleTargetRef()
-      .withMinReplicas(spec.minInstance())
-      .withMaxReplicas(spec.maxInstance())
-      .withBehavior(behavior)
-      .withMetrics(metricSpec)
-      .endSpec()
-      .build();
-  }
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
     String name = prefix + INVOKER.getSvc();
-    var deployment = kubernetesClient.apps().deployments()
-      .inNamespace(namespace)
-      .withName(name).get();
-    if (deployment==null) return List.of();
-    deployment.getSpec().setReplicas(instanceSpec.minInstance());
-    return List.of(deployment);
+    HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
+    return hpa == null? List.of(): List.of(hpa);
   }
 
   @Override
   public List<HasMetadata> createDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     String tsidString = parentController.getTsidString();
+    Map<String, String> labels = Map.of(
+      CR_LABEL_KEY, tsidString,
+      CR_COMPONENT_LABEL_KEY, INVOKER.getSvc()
+    );
     var depList = kubernetesClient.apps().deployments()
-      .withLabel(CR_LABEL_KEY, tsidString)
-      .withLabel(CR_COMPONENT_LABEL_KEY, INVOKER.getSvc())
+      .withLabels(labels)
       .list()
       .getItems();
     toDeleteResource.addAll(depList);
     var svcList = kubernetesClient.services()
-      .withLabel(CR_LABEL_KEY, tsidString)
-      .withLabel(CR_COMPONENT_LABEL_KEY, INVOKER.getSvc())
+      .withLabels(labels)
       .list()
       .getItems();
     toDeleteResource.addAll(svcList);
@@ -135,6 +99,10 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       .list()
       .getItems();
     toDeleteResource.addAll(podMonitor);
+    var hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
+      .withLabels(labels)
+      .list().getItems();
+    toDeleteResource.addAll(hpa);
     return toDeleteResource;
   }
 }

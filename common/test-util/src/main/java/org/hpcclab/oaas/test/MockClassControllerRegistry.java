@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.AbsClassControllerRegistry;
@@ -20,15 +19,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class MockClassControllerRegistry extends AbsClassControllerRegistry {
-  private static final Logger logger = LoggerFactory.getLogger( MockClassControllerRegistry.class );
+  private static final Logger logger = LoggerFactory.getLogger(MockClassControllerRegistry.class);
   MutableMap<String, OClass> clsMap;
   MutableMap<String, OFunction> fnMap;
 
-  public static MockClassControllerRegistry mock() {
+  public static MockClassControllerRegistry mock(MapEntityRepository.MapObjectRepoManager objectRepoManager) {
     MutableMap<String, OClass> clsMap = MockupData.testClasses();
     MockClassControllerRegistry registry = new MockClassControllerRegistry(
       new MockFunctionControllerFactory(),
-      new RepoStateManager(new MapEntityRepository.MapObjectRepoManager(Maps.mutable.empty(), clsMap)),
+      new RepoStateManager(objectRepoManager),
       new TsidGenerator(), new MockInvocationQueueProducer(),
       new MetricFactory.NoOpMetricFactory()
     );

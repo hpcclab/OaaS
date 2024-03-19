@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
@@ -39,7 +40,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
 
   @Override
   public List<HasMetadata> createAdjustOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
-    if (instanceSpec == null) return List.of();
+    if (instanceSpec==null) return List.of();
     if (stabilizationTime > System.currentTimeMillis()) {
       return List.of();
     }
@@ -90,7 +91,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   }
 
   protected void attachLabels(Service service,
-                                     Map<String, String> labels) {
+                              Map<String, String> labels) {
     var meta = service
       .getMetadata();
     meta.getLabels().putAll(labels);
@@ -103,6 +104,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   protected void addEnv(Container container, String key, String val) {
     container.getEnv().add(new EnvVar(key, val, null));
   }
+
   protected void attachLabels(Deployment deployment,
                               Map<String, String> labels) {
     var meta = deployment
@@ -127,6 +129,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       }
     }
   }
+
   protected Service createSvc(String filePath,
                               String name,
                               Map<String, String> labels) {
@@ -159,6 +162,80 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       container.getEnvFrom()
         .add(new EnvFromSource(new ConfigMapEnvSource(confName, false), null, null));
     }
+  }
+
+
+  protected HorizontalPodAutoscaler createHpa(CrInstanceSpec spec,
+                                              Map<String, String> labels,
+                                              String name,
+                                              String deployName) {
+    HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
+      .withNewScaleDown()
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Pods")
+        .withValue(1)
+        .withPeriodSeconds(30)
+        .build()
+      )
+      .endScaleDown()
+      .withNewScaleUp()
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Percent")
+        .withValue(10)
+        .withPeriodSeconds(15)
+        .build()
+      )
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Pods")
+        .withValue(2)
+        .withPeriodSeconds(15)
+        .build()
+      )
+      .withSelectPolicy("Max")
+      .withStabilizationWindowSeconds(10)
+      .endScaleUp()
+      .build();
+    MetricSpec metricSpec = new MetricSpecBuilder()
+      .withType("Resource")
+      .withNewResource()
+      .withName("cpu")
+      .withNewTarget()
+      .withType("Utilization")
+      .withAverageUtilization(100)
+      .endTarget()
+      .endResource()
+      .build();
+    return new HorizontalPodAutoscalerBuilder()
+      .withNewMetadata()
+      .withName(name)
+      .withNamespace(namespace)
+      .withLabels(labels)
+      .endMetadata()
+      .withNewSpec()
+      .withNewScaleTargetRef()
+      .withKind("Deployment")
+      .withApiVersion("apps/v1")
+      .withName(deployName)
+      .endScaleTargetRef()
+      .withMinReplicas(spec.minInstance())
+      .withMaxReplicas(spec.maxInstance())
+      .withBehavior(behavior)
+      .withMetrics(metricSpec)
+      .endSpec()
+      .build();
+  }
+
+  protected HorizontalPodAutoscaler editHpa(CrInstanceSpec spec,
+                                            String name) {
+    HorizontalPodAutoscaler hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
+      .inNamespace(namespace)
+      .withName(name).get();
+    if (hpa==null) return null;
+    hpa.getSpec()
+      .setMinReplicas(spec.minInstance());
+    hpa.getSpec()
+      .setMaxReplicas(spec.maxInstance());
+    return hpa;
   }
 }
 

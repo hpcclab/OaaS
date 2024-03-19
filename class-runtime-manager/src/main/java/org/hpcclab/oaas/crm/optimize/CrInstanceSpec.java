@@ -16,6 +16,7 @@ public record CrInstanceSpec(
   long requestsMemory,
   float limitsCpu,
   long limitsMemory,
-  int minAvail
+  int minAvail,
+  boolean disable
 ) {
 }

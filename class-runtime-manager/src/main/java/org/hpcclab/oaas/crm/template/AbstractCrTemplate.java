@@ -4,9 +4,7 @@ import com.github.f4b6a3.tsid.TsidFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
-import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
-import org.hpcclab.oaas.proto.DeploymentStatusUpdaterGrpc;
 
 import java.util.Map;
 import java.util.Objects;
@@ -37,20 +35,21 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
 
   protected static CrtMappingConfig.CrtConfig validate(CrtMappingConfig.CrtConfig crtConfig) {
     var func = crtConfig.functions();
-    if (func == null) {
+    if (func==null) {
       func = CrtMappingConfig.FnConfig.builder()
         .stabilizationWindow(20000)
         .build();
     }
     String optimizer = crtConfig.optimizer();
-    if (optimizer == null) optimizer = "default";
+    if (optimizer==null) optimizer = "default";
     Map<String, CrtMappingConfig.SvcConfig> services = crtConfig.services();
     for (var comp : OprcComponent.values()) {
       CrtMappingConfig.SvcConfig svcConfig = services.get(comp.getSvc());
-      if (svcConfig == null) {
+      if (svcConfig==null) {
         svcConfig = CrtMappingConfig.SvcConfig.builder()
           .stabilizationWindow(30000)
-          .maxScaleDiff(2)
+          .maxScaleStep(2)
+          .maxReplicas(20)
           .build();
         services.put(comp.getSvc(), svcConfig);
       }

@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invocation.controller.GrpcClassControllerRegistry;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;

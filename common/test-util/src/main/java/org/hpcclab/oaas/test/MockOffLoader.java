@@ -1,8 +1,8 @@
 package org.hpcclab.oaas.test;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.InvokingDetail;
-import org.hpcclab.oaas.invocation.OffLoader;
+import org.hpcclab.oaas.invocation.task.InvokingDetail;
+import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

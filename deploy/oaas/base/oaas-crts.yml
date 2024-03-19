@@ -6,7 +6,7 @@ templates:
         image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 60000
-        maxScaleDiff: 2
+        maxScaleStep: 2
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
           OPRC_LOG: "DEBUG"
@@ -14,19 +14,23 @@ templates:
         requestMemory: 1Gi
         limitCpu: '2'
         limitMemory: 2Gi
+        maxReplicas: 20
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
-        maxScaleDiff: 2
+        maxScaleStep: 2
         env:
           OPRC_LOG: "DEBUG"
         requestCpu: 500m
         requestMemory: 256Mi
         limitCpu: '2'
         limitMemory: 1Gi
+        maxReplicas: 20
     functions:
       stabilizationWindow: 30000
-      maxScaleDiff: 3
+      maxScaleStep: 3
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
+    condition: {}
+    priority: 0

@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invocation.controller;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
@@ -13,9 +12,6 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.proto.ClassService;
-import org.hpcclab.oaas.proto.FunctionService;
-import org.hpcclab.oaas.proto.MultiKeyQuery;
 import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
@@ -29,15 +25,15 @@ import java.util.stream.Collectors;
 /**
  * @author Pawissanutt
  */
-public abstract class AbsClassControllerRegistry {
+public abstract class AbsClassControllerRegistry implements ClassControllerRegistry {
   private static final Logger logger = LoggerFactory.getLogger(AbsClassControllerRegistry.class);
   protected final FunctionControllerFactory functionControllerFactory;
   protected final StateManager stateManager;
   protected final IdGenerator idGenerator;
   protected final InvocationQueueProducer invocationQueueProducer;
   protected final MetricFactory metricFactory;
-  protected final ProtoMapper protoMapper;
-  protected final Map<String, ClassController> classControllerMap;
+  protected final ProtoMapper protoMapper = new ProtoMapperImpl();
+  protected final Map<String, ClassController> classControllerMap = new ConcurrentHashMap<>();
 
 
   protected AbsClassControllerRegistry() {
@@ -46,8 +42,6 @@ public abstract class AbsClassControllerRegistry {
     this.idGenerator = null;
     this.invocationQueueProducer = null;
     this.metricFactory = null;
-    this.protoMapper = new ProtoMapperImpl();
-    this.classControllerMap = new ConcurrentHashMap<>();
   }
 
   protected AbsClassControllerRegistry(FunctionControllerFactory functionControllerFactory,
@@ -60,8 +54,6 @@ public abstract class AbsClassControllerRegistry {
     this.idGenerator = idGenerator;
     this.invocationQueueProducer = invocationQueueProducer;
     this.metricFactory = metricFactory;
-    this.protoMapper = new ProtoMapperImpl();
-    this.classControllerMap = new ConcurrentHashMap<>();
   }
 
   public Uni<ClassController> registerOrUpdate(ProtoOClass cls) {
@@ -90,9 +82,26 @@ public abstract class AbsClassControllerRegistry {
       .invoke(classController -> classControllerMap.put(classController.getCls().getKey(), classController));
   }
 
-  protected abstract Uni<Map<String, OClass>> listCls(Set<String> keys);
+  public ClassController getClassController(String clsKey) {
+    return classControllerMap.get(clsKey);
+  }
 
-  protected abstract Uni<Map<String, OFunction>> listFn(Set<String> keys);
+  public String printStructure() {
+    StringBuilder builder = new StringBuilder();
+    for (ClassController classController : classControllerMap.values()) {
+      builder.append("- ")
+        .append(classController.getCls().getKey())
+        .append(": [");
+      for (var functionController : classController.getFunctionControllers().values()) {
+        builder.append(functionController.getFunctionBinding().getName())
+          .append(":")
+          .append(functionController.getFunction().getKey())
+          .append(",");
+      }
+      builder.append("]\n");
+    }
+    return builder.toString();
+  }
 
   public void updateFunction(OFunction function) {
     for (ClassController controller : classControllerMap.values()) {
@@ -105,6 +114,11 @@ public abstract class AbsClassControllerRegistry {
         ));
     }
   }
+
+  protected abstract Uni<Map<String, OClass>> listCls(Set<String> keys);
+
+  protected abstract Uni<Map<String, OFunction>> listFn(Set<String> keys);
+
 
   private FunctionController buildFnController(FunctionBinding functionBinding,
                                                Map<String, OFunction> functionMap,
@@ -149,24 +163,5 @@ public abstract class AbsClassControllerRegistry {
     );
   }
 
-  public ClassController getClassController(String clsKey) {
-    return classControllerMap.get(clsKey);
-  }
 
-  public String printStructure() {
-    StringBuilder builder = new StringBuilder();
-    for (ClassController classController : classControllerMap.values()) {
-      builder.append("- ")
-        .append(classController.getCls().getKey())
-        .append(": [");
-      for (var functionController : classController.getFunctionControllers().values()) {
-        builder.append(functionController.getFunctionBinding().getName())
-          .append(":")
-          .append(functionController.getFunction().getKey())
-          .append(",");
-      }
-      builder.append("]\n");
-    }
-    return builder.toString();
-  }
 }

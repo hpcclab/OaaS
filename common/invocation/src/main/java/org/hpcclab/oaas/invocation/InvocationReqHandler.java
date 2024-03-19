@@ -9,7 +9,7 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
  * @author Pawissanutt
  */
 public interface InvocationReqHandler {
-  Uni<InvocationResponse> syncInvoke(ObjectAccessLanguage oal);
-  Uni<InvocationResponse> syncInvoke(InvocationRequest request);
-  Uni<InvocationResponse> asyncInvoke(ObjectAccessLanguage oal);
+  Uni<InvocationResponse> invoke(ObjectAccessLanguage oal);
+  Uni<InvocationResponse> invoke(InvocationRequest request);
+  Uni<InvocationResponse> enqueue(ObjectAccessLanguage oal);
 }

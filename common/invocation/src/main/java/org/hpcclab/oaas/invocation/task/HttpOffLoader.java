@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation;
+package org.hpcclab.oaas.invocation.task;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
@@ -7,7 +7,6 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
-import org.hpcclab.oaas.invocation.task.TaskDecoder;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.task.TaskCompletion;

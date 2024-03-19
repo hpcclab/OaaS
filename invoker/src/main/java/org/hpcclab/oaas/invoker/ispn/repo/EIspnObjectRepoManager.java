@@ -3,7 +3,6 @@ package org.hpcclab.oaas.invoker.ispn.repo;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 

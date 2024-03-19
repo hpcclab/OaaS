@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Sets;
 import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invocation.controller.GrpcClassControllerRegistry;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.ProtoOClass;

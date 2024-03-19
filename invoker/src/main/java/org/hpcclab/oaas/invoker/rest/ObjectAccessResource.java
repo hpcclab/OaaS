@@ -112,7 +112,7 @@ public class ObjectAccessResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.asyncInvoke(oal);
+      return invocationHandlerService.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }
@@ -142,7 +142,7 @@ public class ObjectAccessResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.asyncInvoke(oal);
+      return invocationHandlerService.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }

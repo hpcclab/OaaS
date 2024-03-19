@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.invocation.controller.fn;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.controller.InvocationCtx;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.FunctionBinding;

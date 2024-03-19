@@ -2,12 +2,9 @@ package org.hpcclab.oaas.invocation.controller.fn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.eclipse.collections.api.set.MutableSet;
 import org.hpcclab.oaas.invocation.controller.DataflowSemantic;
-import org.hpcclab.oaas.invocation.controller.InvocationCtx;
-import org.hpcclab.oaas.invocation.metrics.MetricFactory;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -39,7 +36,7 @@ public class MacroFunctionController extends AbstractFunctionController {
     }
     return Uni.createFrom().item(ctx);
   }
-  
+
   InvocationRequest createRequest(DataflowSemantic.DataflowNode node) {
     //TODO generate list of requests
     return InvocationRequest.builder().build();

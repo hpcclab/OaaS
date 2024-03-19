@@ -1,13 +1,11 @@
 package org.hpcclab.oaas.invoker.metrics;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.exception.StdOaasException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +32,7 @@ public class RequestCounterMap {
     MetricFactory.MetricCounter counter = timerMap.computeIfAbsent(clsFnPair,
       k -> {
         FunctionController fnController = clsController.getFunctionController(fb);
-        if (fnController == null) throw InvocationException.notFoundFnInCls(fb, cls);
+        if (fnController==null) throw InvocationException.notFoundFnInCls(fb, cls);
         String fnKey = fnController.getFunction().getKey();
         return factory.createRequestCounter(cls, fb, fnKey);
       });

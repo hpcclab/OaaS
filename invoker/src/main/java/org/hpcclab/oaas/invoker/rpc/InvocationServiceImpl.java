@@ -36,7 +36,7 @@ public class InvocationServiceImpl implements InvocationService {
   public Uni<ProtoInvocationResponse> invokeLocal(ProtoInvocationRequest protoInvocationRequest
   ) {
     InvocationRequest req = mapper.fromProto(protoInvocationRequest);
-    return invocationReqHandler.syncInvoke(req)
+    return invocationReqHandler.invoke(req)
       .map(mapper::toProto)
       .onFailure()
       .invoke(e -> logger.error("invokeLocal error", e));

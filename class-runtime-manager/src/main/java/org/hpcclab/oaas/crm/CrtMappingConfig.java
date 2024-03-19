@@ -15,7 +15,7 @@ public record CrtMappingConfig(
   public interface ScalingConfig {
     int stabilizationWindow();
 
-    int maxScaleDiff();
+    int maxScaleStep();
   }
 
   @Builder(toBuilder = true)
@@ -42,14 +42,15 @@ public record CrtMappingConfig(
     String limitCpu,
     String limitMemory,
     int stabilizationWindow,
-    int maxScaleDiff
+    int maxScaleStep,
+    int maxReplicas
   ) implements ScalingConfig {
   }
 
   @Builder(toBuilder = true)
   public record FnConfig(
     int stabilizationWindow,
-    int maxScaleDiff,
+    int maxScaleStep,
     String defaultRequestCpu,
     String defaultRequestMem
   ) implements ScalingConfig {

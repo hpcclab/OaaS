@@ -2,10 +2,7 @@ package org.hpcclab.oaas.invocation.controller.fn.logical;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.JsonObject;
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-import org.hpcclab.oaas.invocation.controller.InvocationCtx;
+import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
