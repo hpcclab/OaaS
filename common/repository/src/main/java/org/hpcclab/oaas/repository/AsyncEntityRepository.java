@@ -11,10 +11,6 @@ import java.util.function.BiFunction;
 
 public interface AsyncEntityRepository<K, V> {
 
-  default Multi<V> values(){
-    throw new UnsupportedOperationException();
-  }
-
   Uni<V> getAsync(K key);
 
   Uni<Map<K, V>> listAsync(Collection<K> keys);

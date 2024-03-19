@@ -81,24 +81,6 @@ public abstract class AbstractArgRepository<V>
   }
 
   @Override
-  @Deprecated(forRemoval = true)
-  public Multi<V> values() {
-    var queryString = """
-      FOR doc IN @@col
-        RETURN doc
-      """;
-    Map<String, Object> params = Map.of(
-      "@col",
-      getCollection().name()
-    );
-    return MutinyUtils.toMulti(() -> getAsyncCollection()
-      .db()
-      .query(queryString, getValueCls(), params, queryOptions())
-    );
-  }
-
-
-  @Override
   public Uni<V> getAsync(String key) {
     Objects.requireNonNull(key);
     if (LOGGER.isDebugEnabled())

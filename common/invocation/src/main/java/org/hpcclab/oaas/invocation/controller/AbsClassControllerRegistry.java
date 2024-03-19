@@ -36,14 +36,6 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
   protected final Map<String, ClassController> classControllerMap = new ConcurrentHashMap<>();
 
 
-  protected AbsClassControllerRegistry() {
-    this.functionControllerFactory = null;
-    this.stateManager = null;
-    this.idGenerator = null;
-    this.invocationQueueProducer = null;
-    this.metricFactory = null;
-  }
-
   protected AbsClassControllerRegistry(FunctionControllerFactory functionControllerFactory,
                                        StateManager stateManager,
                                        IdGenerator idGenerator,
@@ -162,6 +154,4 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
       metricFactory
     );
   }
-
-
 }

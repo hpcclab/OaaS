@@ -4,6 +4,7 @@ import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.GrpcClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.StateManager;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
@@ -20,13 +21,13 @@ public class ClsRegistryProducer {
 
   @Produces
   @ApplicationScoped
-  GrpcClassControllerRegistry registry(@GrpcClient("package-manager") ClassService classService,
-                                       @GrpcClient("package-manager") FunctionService functionService,
-                                       FunctionControllerFactory functionControllerFactory,
-                                       StateManager stateManager,
-                                       IdGenerator idGenerator,
-                                       InvocationQueueProducer invocationQueueProducer,
-                                       MetricFactory metricFactory) {
+  ClassControllerRegistry registry(@GrpcClient("package-manager") ClassService classService,
+                                   @GrpcClient("package-manager") FunctionService functionService,
+                                   FunctionControllerFactory functionControllerFactory,
+                                   StateManager stateManager,
+                                   IdGenerator idGenerator,
+                                   InvocationQueueProducer invocationQueueProducer,
+                                   MetricFactory metricFactory) {
     return new GrpcClassControllerRegistry(
       classService,
       functionService,

@@ -5,7 +5,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
-import org.hpcclab.oaas.invocation.controller.GrpcClassControllerRegistry;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -18,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hpcclab.oaas.test.MockupData.*;
+import static org.hpcclab.oaas.test.MockupData.CLS_1;
+import static org.hpcclab.oaas.test.MockupData.OBJ_1;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)

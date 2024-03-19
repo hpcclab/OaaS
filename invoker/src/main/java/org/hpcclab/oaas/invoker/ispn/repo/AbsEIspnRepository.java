@@ -45,10 +45,6 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
     return getCache().get(key);
   }
 
-  @Override
-  public Multi<V> values() {
-    return Multi.createFrom().items(getCache().values().stream());
-  }
 
   @Override
   public Uni<V> getAsync(String key) {

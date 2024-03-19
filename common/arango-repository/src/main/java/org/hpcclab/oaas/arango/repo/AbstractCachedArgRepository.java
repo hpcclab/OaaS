@@ -120,8 +120,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    LOGGER.debug("computeAsync(cache)[{}] {}",
-      getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("computeAsync(cache)[{}] {}", getCollection().name(), key);
     cache().invalidate(key);
     var uni = Uni.createFrom()
       .completionStage(() -> {
