@@ -18,6 +18,8 @@ jobs:
             dir_path: example/functions/json-update-fn-py
           - func_name: concat-fn-py
             dir_path: example/functions/concat-fn-py
+          - func_name: img-resize-fn-py
+            dir_path: example/functions/img-resize-fn-py
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
