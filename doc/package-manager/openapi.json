@@ -812,9 +812,6 @@
           "logStore" : {
             "type" : "string"
           },
-          "hashAwareSync" : {
-            "type" : "boolean"
-          },
           "crTemplate" : {
             "type" : "string"
           }
@@ -838,9 +835,6 @@
           },
           "logStore" : {
             "type" : "string"
-          },
-          "hashAwareSync" : {
-            "type" : "boolean"
           },
           "crTemplate" : {
             "type" : "string"

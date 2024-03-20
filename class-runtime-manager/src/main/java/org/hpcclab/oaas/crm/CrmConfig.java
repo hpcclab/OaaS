@@ -30,4 +30,7 @@ public interface CrmConfig {
 
   @WithDefault("oaas-cr-hash")
   String crHashTopic();
+
+  @WithDefault("false")
+  boolean monitorDisable();
 }

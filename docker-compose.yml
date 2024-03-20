@@ -225,6 +225,15 @@ services:
     environment:
       LOG_LEVEL: DEBUG
 
+  img-resize-fn:
+    build:
+      context: example/functions/img-resize-fn-py
+    image: ghcr.io/hpcclab/oaas/img-resize-fn-py
+    ports:
+      - 10004:8080
+    environment:
+      LOG_LEVEL: DEBUG
+
 volumes:
   minio-data:
   arango-data:

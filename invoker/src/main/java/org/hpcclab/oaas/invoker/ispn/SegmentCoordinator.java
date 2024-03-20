@@ -24,7 +24,6 @@ public class SegmentCoordinator {
   private static final Logger logger = LoggerFactory.getLogger( SegmentCoordinator.class );
   final String topic;
   final int port;
-  final int partitions;
   final OClass cls;
   final KafkaConsumer<?, ?> consumer;
   final HashRegistry registry;
@@ -42,7 +41,6 @@ public class SegmentCoordinator {
     this.registry = registry;
     this.objectRepoManager = objectRepoManager;
     topic = config.invokeTopicPrefix() + cls.getKey();
-    partitions = cls.getConfig() != null?cls.getConfig().getPartitions() : OClassConfig.DEFAULT_PARTITIONS;
     port = ConfigProvider.getConfig().getValue("quarkus.http.port", Integer.class);
     segmentObserver = new SegmentObserver();
   }

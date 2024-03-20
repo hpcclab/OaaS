@@ -604,8 +604,6 @@ components:
           type: string
         logStore:
           type: string
-        hashAwareSync:
-          type: boolean
         crTemplate:
           type: string
     OClassConfig_Public:
@@ -622,8 +620,6 @@ components:
           type: string
         logStore:
           type: string
-        hashAwareSync:
-          type: boolean
         crTemplate:
           type: string
     OClassDeploymentStatus:

@@ -7,7 +7,6 @@ functions:
       knative:
         image: ghcr.io/pawissanutt/oaas/concat-fn-py:latest
         targetConcurrency: 32
-        minScale: 0
         requestsCpu: '0.25'
         limitsCpu: '2'
         env:

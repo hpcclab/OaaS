@@ -29,71 +29,19 @@ public class VerticleDeployer {
   private static final Logger logger = LoggerFactory.getLogger(VerticleDeployer.class);
   final ConcurrentHashMap<String, Set<AbstractVerticle>> verticleMap = new ConcurrentHashMap<>();
   final ProtoMapper protoMapper = new ProtoMapperImpl();
-  VerticleFactory<?> verticleFactory;
-  Vertx vertx;
-  InvokerConfig config;
-  KafkaAdminClient adminClient;
+  final VerticleFactory<?> verticleFactory;
+  final Vertx vertx;
+  final InvokerConfig config;
 
   public VerticleDeployer(VerticleFactory<?> verticleFactory,
                           Vertx vertx,
-                          InvokerConfig config,
-                          KafkaAdminClient adminClient) {
+                          InvokerConfig config) {
     this.verticleFactory = verticleFactory;
     this.vertx = vertx;
     this.config = config;
-    this.adminClient = adminClient;
   }
 
 
-  public Uni<Void> handleCls(ProtoOClass cls) {
-    return createTopic(cls)
-      .flatMap(v -> deployVerticleIfNew(cls));
-  }
-
-  Uni<Void> createTopic(OClass cls) {
-    var topicName = config.invokeTopicPrefix() + cls.getKey();
-    return adminClient.listTopics()
-      .flatMap(topics -> {
-        var topicExist = topics.contains(topicName);
-        if (!topicExist) {
-          var conf = cls.getConfig();
-          return adminClient.createTopics(List.of(
-            new NewTopic(topicName,
-              conf==null ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
-              (short) 1)
-          ));
-        }
-        return Uni.createFrom().nullItem();
-      });
-  }
-
-  Uni<Void> createTopic(ProtoOClass cls) {
-    var topicName = config.invokeTopicPrefix() + cls.getKey();
-    return adminClient.listTopics()
-      .flatMap(topics -> {
-        var topicExist = topics.contains(topicName);
-        if (!topicExist) {
-          var conf = cls.getConfig();
-          return adminClient.createTopics(List.of(
-            new NewTopic(topicName,
-              conf.getPartitions() <= 0 ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions(),
-              (short) 1)
-          ));
-        }
-        return Uni.createFrom().nullItem();
-      });
-  }
-
-
-  public Uni<Void> deployVerticleIfNew(OClass cls) {
-    if (verticleMap.containsKey(cls.getKey()) && !verticleMap.get(cls.getKey()).isEmpty()) {
-      return Uni.createFrom().nullItem();
-    }
-    int size = config.numOfVerticle();
-    var options = new DeploymentOptions();
-
-    return deployVerticle(cls, options, size);
-  }
 
   public Uni<Void> deployVerticleIfNew(ProtoOClass protoOClass) {
     if (verticleMap.containsKey(protoOClass.getKey()) && !verticleMap.get(protoOClass.getKey()).isEmpty()) {
@@ -123,22 +71,5 @@ public class VerticleDeployer {
       .collect()
       .last()
       .replaceWithVoid();
-  }
-
-  public Uni<Void> deleteVerticle(OClass cls) {
-    var verticleSet = verticleMap.get(cls.getKey());
-    if (verticleSet!=null) {
-      return Multi.createFrom().iterable(verticleSet)
-        .call(vert -> vertx.undeploy(vert.deploymentID()))
-        .invoke(id -> logger.info("Undeploy verticle[id={}] for [{}] successfully", id, cls.getKey()))
-        .collect().last()
-        .replaceWithVoid()
-        .invoke(() -> verticleMap.remove(cls.getKey()));
-    }
-    return Uni.createFrom().nullItem();
-  }
-
-  public Map<String, Set<AbstractVerticle>> getVerticleIds() {
-    return verticleMap;
   }
 }

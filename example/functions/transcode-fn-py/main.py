@@ -4,13 +4,11 @@ import os
 import time
 import uuid
 
-import aiofiles
 import aiohttp
 import oaas_sdk_py
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
-import os
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(LOG_LEVEL)
@@ -83,7 +81,6 @@ class TranscodeHandler(oaas_sdk_py.Handler):
         os.remove(tmp_in)
     record['ts'] = round(time.time() * 1000)
     ctx.task.output_obj.data = record
-
 
 
 app = FastAPI()

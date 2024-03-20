@@ -1,0 +1,36 @@
+name: example
+functions:
+  - name: text.resize
+    type: TASK
+    outputCls: .image
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/img-resize-fn-py:latest
+        targetConcurrency: 32
+        requestsCpu: '0.25'
+        limitsCpu: '2'
+        env:
+          LOG_LEVEL: DEBUG
+    variableDescriptions:
+      - name: size
+      - name: ratio
+classes:
+  - name: image
+    stateSpec:
+      keySpecs:
+        - name: image
+    functions:
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .text
+      - access: PUBLIC
+        function: .image.resize
+        outputCls: .image
+        forceImmutable: true
+      - access: PUBLIC
+        function: .image.resize
+        name: resize-inplace
+        outputCls: void
+
+

@@ -23,8 +23,6 @@ public class OClassConfig {
   String unstructStore;
   @ProtoField(6)
   String logStore;
-  @ProtoField(value = 7, defaultValue = "true")
-  boolean hashAwareSync;
   @ProtoField(value = 8)
   String crTemplate;
 
@@ -34,7 +32,6 @@ public class OClassConfig {
   @ProtoFactory
   public OClassConfig(DSMap options, int partitions, String structStore, String unstructStore,
                       String logStore,
-                      boolean hashAwareSync,
                       String crTemplate
                       ) {
     this.options = options;
@@ -42,7 +39,6 @@ public class OClassConfig {
     this.structStore = structStore;
     this.unstructStore = unstructStore;
     this.logStore = logStore;
-    this.hashAwareSync = hashAwareSync;
     this.crTemplate = crTemplate;
   }
 
