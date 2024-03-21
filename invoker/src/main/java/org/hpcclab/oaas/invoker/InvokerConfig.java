@@ -60,7 +60,7 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean useSa();
 
-  @WithDefault("false")
+  @WithDefault("true")
   boolean respPubS3();
 
   @WithDefault("false")

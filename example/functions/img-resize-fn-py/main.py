@@ -52,7 +52,7 @@ class ResizeHandler(oaas.Handler):
 
     async def handle(self, ctx: OaasInvocationCtx):
         size = ctx.args.get('size', '')
-        ratio = ctx.args.get('ratio', '')
+        ratio = float(ctx.args.get('ratio', '1'))
         optimize = ctx.args.get('optimize', 'true').lower() in ('y', 'yes', 'true', 't', '1')
         inplace = ctx.task.output_obj is None or ctx.task.output_obj.id is None
         req_ts = int(ctx.args.get('reqts', '0'))

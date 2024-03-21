@@ -8,7 +8,8 @@ import picocli.CommandLine.Command;
   description = "Manage packages",
   mixinStandardHelpOptions = true,
   subcommands = {
-    PackageApplyCommand.class
+    PackageApplyCommand.class,
+    PackageDeleteCommand.class
   }
 )
 public class PackageEntryCommand {

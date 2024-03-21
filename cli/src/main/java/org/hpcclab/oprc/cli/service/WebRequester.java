@@ -68,12 +68,16 @@ public class WebRequester {
 
   public int pmDeleteAndPrint(String path,
                               OutputFormat format) throws IOException {
-    FileCliConfig.FileCliContext fileCliContext = configFileManager.current();
-    String pmUrl = fileCliContext.getPmUrl();
-    var jsonObject = request(HttpMethod.DELETE, pmUrl + path, fileCliContext.getPmVirtualHost());
+    var jsonObject = pmDelete(path);
     if (jsonObject==null)
       return 1;
     outputFormatter.print(format, jsonObject);
     return 0;
+  }
+
+  public JsonObject pmDelete(String path) throws IOException {
+    FileCliConfig.FileCliContext fileCliContext = configFileManager.current();
+    String pmUrl = fileCliContext.getPmUrl();
+    return request(HttpMethod.DELETE, pmUrl + path, fileCliContext.getPmVirtualHost());
   }
 }
