@@ -1,6 +1,6 @@
 name: example
 functions:
-  - name: text.resize
+  - name: image.resize
     type: TASK
     outputCls: .image
     provision:

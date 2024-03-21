@@ -392,6 +392,8 @@ components:
         port:
           format: int32
           type: integer
+        pullPolicy:
+          type: string
     KDeploymentProvision_Public:
       type: object
       properties:
@@ -415,6 +417,8 @@ components:
         port:
           format: int32
           type: integer
+        pullPolicy:
+          type: string
     KeyAccessModifier:
       enum:
       - PUBLIC

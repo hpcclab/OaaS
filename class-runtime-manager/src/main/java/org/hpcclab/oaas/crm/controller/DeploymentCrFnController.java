@@ -57,6 +57,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
         .withContainerPort(deployConf.getPort() <= 0 ? 8080:deployConf.getPort())
         .build()
       )
+      .withImagePullPolicy(deployConf.getPullPolicy().isEmpty() ? null: deployConf.getPullPolicy())
       .withResources(makeResourceRequirements(instance))
       .build();
     var fnName = createName(function.getKey());

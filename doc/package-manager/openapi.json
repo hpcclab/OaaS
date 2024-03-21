@@ -509,6 +509,9 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "pullPolicy" : {
+            "type" : "string"
           }
         }
       },
@@ -543,6 +546,9 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "pullPolicy" : {
+            "type" : "string"
           }
         }
       },

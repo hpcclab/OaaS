@@ -33,13 +33,13 @@ public class ConfigFileManager {
   }
 
   public FileCliConfig getDefault() {
-    var fileCliConfig = FileCliConfig.FileCliContext.builder()
+    var defaultCtx = FileCliConfig.FileCliContext.builder()
       .pmUrl("http://pm.oaas.127.0.0.1.nip.io")
       .invUrl("http://inv.oaas.127.0.0.1.nip.io")
       .defaultClass("example.record")
       .build();
     return new FileCliConfig(
-      Map.of("default", fileCliConfig),
+      Map.of("default", defaultCtx),
       "default"
     );
   }

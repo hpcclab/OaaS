@@ -11,30 +11,21 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class KDeploymentProvision {
-  @ProtoField(1)
   String image;
-  @ProtoField(value = 2, defaultValue = "1")
   int replicas = 1;
-  @ProtoField(7)
   String requestsCpu;
-  @ProtoField(8)
   String requestsMemory;
-  @ProtoField(9)
   String limitsCpu;
-  @ProtoField(10)
   String limitsMemory;
-  @ProtoField(value = 11)
   DSMap env;
-  @ProtoField(12)
   String apiPath;
-  @ProtoField(value = 13, defaultValue = "8080")
   int port;
+  String pullPolicy;
 
   public KDeploymentProvision() {
   }
 
-  @ProtoFactory
-  public KDeploymentProvision(String image, int replicas, String requestsCpu, String requestsMemory, String limitsCpu, String limitsMemory, DSMap env, String apiPath, int port) {
+  public KDeploymentProvision(String image, int replicas, String requestsCpu, String requestsMemory, String limitsCpu, String limitsMemory, DSMap env, String apiPath, int port, String pullPolicy) {
     this.image = image;
     this.replicas = replicas;
     this.requestsCpu = requestsCpu;
@@ -44,5 +35,6 @@ public class KDeploymentProvision {
     this.env = env;
     this.apiPath = apiPath;
     this.port = port;
+    this.pullPolicy = pullPolicy;
   }
 }

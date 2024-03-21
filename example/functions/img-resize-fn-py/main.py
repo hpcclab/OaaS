@@ -48,7 +48,7 @@ def resize_image(input_image, output_image, size=None, ratio=None, optimize=True
     return img.size
 
 
-class ConcatHandler(oaas.Handler):
+class ResizeHandler(oaas.Handler):
 
     async def handle(self, ctx: OaasInvocationCtx):
         size = ctx.args.get('size', '')
@@ -90,7 +90,7 @@ class ConcatHandler(oaas.Handler):
 
 app = FastAPI()
 router = oaas.Router()
-router.register("example.text.concat", ConcatHandler())
+router.register("example.image.resize", ResizeHandler())
 
 
 @app.post('/')

@@ -60,6 +60,7 @@ message KDeploymentProvision{
   map<string, string> env = 7;
   optional string apiPath = 8;
   int32 port = 9;
+  string pullPolicy = 10;
 }
 message StaticUrlProvision{
   string url = 1;

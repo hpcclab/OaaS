@@ -8,7 +8,8 @@ import picocli.CommandLine.Command;
   description = "Manage objects",
   mixinStandardHelpOptions = true,
   subcommands = {
-    ObjectCreateCommand.class
+    ObjectCreateCommand.class,
+    ObjectFileCommand.class
   }
 )
 public class ObjectEntryCommand {
