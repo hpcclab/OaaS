@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarSource;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
@@ -75,12 +76,19 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
-    if (instanceSpec.disableHpa()) {
-      return List.of();
-    }
     String name = prefix + INVOKER.getSvc();
-    HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
-    return hpa==null ? List.of():List.of(hpa);
+    if (instanceSpec.disableHpa()) {
+      Deployment deployment = kubernetesClient.apps().deployments()
+        .inNamespace(name)
+        .withName(name)
+        .get();
+      deployment.getSpec()
+        .setReplicas(instanceSpec.minInstance());
+      return List.of(deployment);
+    } else {
+      HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
+      return hpa==null ? List.of():List.of(hpa);
+    }
   }
 
   @Override
