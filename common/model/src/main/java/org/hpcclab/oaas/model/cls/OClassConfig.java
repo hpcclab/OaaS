@@ -12,25 +12,23 @@ import org.infinispan.protostream.annotations.ProtoField;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OClassConfig {
   public static final int DEFAULT_PARTITIONS = 12;
-
-  @ProtoField(1)
   DSMap options;
-  @ProtoField(value = 2, defaultValue = "12")
   int partitions = DEFAULT_PARTITIONS;
-  @ProtoField(4)
   String structStore;
-  @ProtoField(5)
   String unstructStore;
-  @ProtoField(6)
   String logStore;
-  @ProtoField(value = 8)
   String crTemplate;
+  boolean disableHpa = false;
+
 
   public OClassConfig() {
   }
 
   @ProtoFactory
-  public OClassConfig(DSMap options, int partitions, String structStore, String unstructStore,
+  public OClassConfig(DSMap options,
+                      int partitions,
+                      String structStore,
+                      String unstructStore,
                       String logStore,
                       String crTemplate
                       ) {
@@ -44,7 +42,7 @@ public class OClassConfig {
 
   void validate() {
     if (partitions < 1) {
-      partitions = 1;
+      partitions = DEFAULT_PARTITIONS;
     }
     if (crTemplate == null) crTemplate = "default";
   }

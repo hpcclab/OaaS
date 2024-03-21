@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarSource;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
-import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
@@ -64,16 +64,23 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
         null,
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
       );
-    var hpa = createHpa(instanceSpec, labels, name, name);
-    return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing, hpa);
+    if (!instanceSpec.disableHpa()) {
+      var hpa = createHpa(instanceSpec, labels, name, name);
+      return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing, hpa);
+    } else {
+      return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
+    }
   }
 
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
+    if (instanceSpec.disableHpa()) {
+      return List.of();
+    }
     String name = prefix + INVOKER.getSvc();
     HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
-    return hpa == null? List.of(): List.of(hpa);
+    return hpa==null ? List.of():List.of(hpa);
   }
 
   @Override

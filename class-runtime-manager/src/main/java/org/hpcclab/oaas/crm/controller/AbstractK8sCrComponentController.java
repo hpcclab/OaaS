@@ -20,7 +20,6 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   protected KubernetesClient kubernetesClient;
   protected String prefix;
   protected String namespace;
-  String svcName;
   long stabilizationTime;
 
   protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
