@@ -59,3 +59,26 @@ jobs:
 #      run: export CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE,,}";export tag=":native-${GITHUB_REF##*/}";mvn -B install --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dnative -Dquarkus.native.container-build=true -DskipTests
 #      env:
 #        CI_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+
+  build-cli:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build project (platforms)
+        run: mvn -B install -DskipTests
+      - name: Build CLI native
+        working-directory: cli
+        run: ./mvnw -B package -Pnative -DskipTests
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.os }}
+          path: cli/target/oprc-cli-*-runner*
