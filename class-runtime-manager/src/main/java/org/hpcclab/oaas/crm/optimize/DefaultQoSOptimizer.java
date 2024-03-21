@@ -109,7 +109,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     );
     var fnInstances = unit.getFnListList()
       .stream()
-      .map(f -> Map.entry(f.getKey(), convert(f)))
+      .map(f -> Map.entry(f.getKey(), resolve(f)))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     return CrDeploymentPlan.builder()
@@ -196,7 +196,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     );
   }
 
-  private CrInstanceSpec convert(ProtoOFunction fn) {
+  private CrInstanceSpec resolve(ProtoOFunction fn) {
     var provision = fn.getProvision();
     var qos = fn.getQos();
     var kn = provision.getKnative();
@@ -205,7 +205,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
     return CrInstanceSpec.builder()
-      .maxInstance(minScale)
+      .minInstance(minScale)
       .maxInstance(kn.getMaxScale())
       .scaleDownDelay(kn.getScaleDownDelay())
       .targetConcurrency(kn.getTargetConcurrency())
