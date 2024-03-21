@@ -76,7 +76,7 @@ jobs:
         run: mvn -B install -DskipTests
       - name: Build CLI native
         working-directory: cli
-        run: ./mvnw -B package -Pnative -DskipTests
+        run: mvn -B package -Pnative -DskipTests
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
