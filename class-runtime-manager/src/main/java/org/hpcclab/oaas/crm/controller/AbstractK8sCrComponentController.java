@@ -192,7 +192,10 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
         .build()
       )
       .withSelectPolicy("Max")
-      .withStabilizationWindowSeconds(10)
+      .withStabilizationWindowSeconds(
+        svcConfig.stabilizationWindow()>0?
+        svcConfig.stabilizationWindow(): 15
+      )
       .endScaleUp()
       .build();
     MetricSpec metricSpec = new MetricSpecBuilder()

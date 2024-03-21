@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oprc.cli.CliConfig;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class ConfigFileManager {
       .defaultClass("example.record")
       .build();
     return new FileCliConfig(
-      Map.of("default", defaultCtx),
+      Maps.mutable.of("default", defaultCtx),
       "default"
     );
   }

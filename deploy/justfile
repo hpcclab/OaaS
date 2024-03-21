@@ -4,10 +4,11 @@ helm-prom:
   helm repo update
   helm install prometheus prometheus-community/kube-prometheus-stack -n oaas -f prom/values.yml
   kubectl apply -n oaas -f local-k8s/prom-ingress.yml
+  kubectl apply -n oaas -k oaas/dashbard
 
 helm-prom-clean:
   helm uninstall -n oaas prometheus
   kubectl delete  -n oaas -f local-k8s/prom-ingress.yml
 
-kn-prom:
+kn-add-monitor:
   kubectl apply -f https://raw.githubusercontent.com/knative-extensions/monitoring/main/servicemonitor.yaml
