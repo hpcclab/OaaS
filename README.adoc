@@ -33,7 +33,8 @@ Check on link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on loca
 == OaaS Usage
 
 * link:example/README.adoc[The example usage guide]
-* link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].
+// * link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].
+* link:cli/README.adoc[Command Line Interface]
 * Demo
 +
 image::https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx.svg[link=https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx]

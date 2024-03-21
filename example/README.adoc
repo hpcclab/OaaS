@@ -92,5 +92,5 @@ GET http://<invoker>/api/classes/example.text/<object_id>/invokes/concat?APPEND=
 ----
 
 
-== Object Access Interface
-More information of Object Access Interface (OAI) at  link:../OAI.adoc[the OAI document].
+// == Object Access Interface
+// More information of Object Access Interface (OAI) at  link:../OAI.adoc[the OAI document].
