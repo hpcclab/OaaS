@@ -9,5 +9,6 @@ COPY main.py config.py ./
 EXPOSE 8080
 
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["gunicorn -c config.py -k uvicorn.workers.UvicornWorker main:app"]
+# WORK AROUND SIGTERM
+CMD ["/bin/bash -c \"gunicorn -c config.py -k uvicorn.workers.UvicornWorker main:app\""]
 

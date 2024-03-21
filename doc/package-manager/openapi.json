@@ -820,6 +820,9 @@
           },
           "crTemplate" : {
             "type" : "string"
+          },
+          "disableHpa" : {
+            "type" : "boolean"
           }
         }
       },
@@ -844,6 +847,9 @@
           },
           "crTemplate" : {
             "type" : "string"
+          },
+          "disableHpa" : {
+            "type" : "boolean"
           }
         }
       },

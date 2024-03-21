@@ -610,6 +610,8 @@ components:
           type: string
         crTemplate:
           type: string
+        disableHpa:
+          type: boolean
     OClassConfig_Public:
       type: object
       properties:
@@ -626,6 +628,8 @@ components:
           type: string
         crTemplate:
           type: string
+        disableHpa:
+          type: boolean
     OClassDeploymentStatus:
       type: object
       properties:

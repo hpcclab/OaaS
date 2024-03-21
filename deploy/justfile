@@ -4,7 +4,7 @@ helm-prom:
   helm repo update
   helm install prometheus prometheus-community/kube-prometheus-stack -n oaas -f prom/values.yml
   kubectl apply -n oaas -f local-k8s/prom-ingress.yml
-  kubectl apply -n oaas -k oaas/dashbard
+  kubectl apply -n oaas -k oaas/dashboard
 
 helm-prom-clean:
   helm uninstall -n oaas prometheus

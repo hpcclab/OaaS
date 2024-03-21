@@ -9,8 +9,8 @@ functions:
         targetConcurrency: 32
         requestsCpu: '0.25'
         limitsCpu: '2'
-        env:
-          LOG_LEVEL: DEBUG
+#        env:
+#          LOG_LEVEL: DEBUG
     variableDescriptions:
       - name: size
       - name: ratio

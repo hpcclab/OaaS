@@ -9,8 +9,9 @@ functions:
         targetConcurrency: 32
         requestsCpu: '0.25'
         limitsCpu: '2'
-        env:
-          LOG_LEVEL: DEBUG
+        minScale: -1
+#        env:
+#          LOG_LEVEL: DEBUG
     variableDescriptions:
       - name: append
   - name: chain-concat
