@@ -194,7 +194,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       .withSelectPolicy("Max")
       .withStabilizationWindowSeconds(
         svcConfig.stabilizationWindow()>0?
-        svcConfig.stabilizationWindow(): 15
+        svcConfig.stabilizationWindow()/1000: 15
       )
       .endScaleUp()
       .build();
