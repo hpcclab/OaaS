@@ -25,7 +25,6 @@ public record CrtMappingConfig(
     FnConfig functions,
     String optimizer,
     Map<String, String> optimizerConf,
-    int stabilizationWindow,
     Condition condition,
     int priority
   ) {

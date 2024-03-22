@@ -24,9 +24,11 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public void init(CrControllerManager crControllerManager) {
-    FnEventObserver fnEventObserver = new FnEventObserver(
+    FnEventObserver fnEventObserver = FnEventObserver.getOrCreate(
+      type(),
       new DefaultKnativeClient(k8sClient),
-      crControllerManager);
+      crControllerManager
+    );
     fnEventObserver.start(K8SCrController.CR_FN_KEY);
   }
 

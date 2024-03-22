@@ -15,18 +15,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hpcclab.oaas.proto.ProtoDeploymentCondition.*;
 
 
 public class FnEventObserver {
   private static final Logger logger = LoggerFactory.getLogger(FnEventObserver.class);
-
   final KnativeClient knativeClient;
   final CrControllerManager controllerManager;
+  static Map<String, FnEventObserver> observers = new ConcurrentHashMap<>();
+
   Watch watch;
 
+  public static FnEventObserver getOrCreate(String name,
+                                            KnativeClient knativeClient,
+                                            CrControllerManager controllerManager) {
+    return observers.computeIfAbsent(name, n -> new FnEventObserver(knativeClient, controllerManager));
+  }
   public FnEventObserver(KnativeClient knativeClient,
                          CrControllerManager controllerManager) {
     this.knativeClient = knativeClient;
@@ -35,13 +43,15 @@ public class FnEventObserver {
 
   public void start(String label) {
     logger.info("start kn functions watcher");
-    watch = knativeClient.services()
-      .withLabel(label)
-      .watch(new FnEventWatcher(controllerManager));
+    if (watch == null)
+      watch = knativeClient.services()
+        .withLabel(label)
+        .watch(new FnEventWatcher(controllerManager));
   }
 
   public void stop() {
-    watch.close();
+    if (watch != null)
+      watch.close();
   }
 
 
