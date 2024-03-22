@@ -59,6 +59,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
     var up = environment.availability().uptimePercentage();
     float targetAvail = unit.getCls().getQos().getAvailability();
+    var qos = unit.getCls().getQos();
     int minInstance;
     int minAvail;
     CrDataSpec dataSpec;
@@ -77,8 +78,9 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .get(OprcComponent.INVOKER.getSvc());
     CrtMappingConfig.SvcConfig sa = crtConfig.services()
       .get(OprcComponent.STORAGE_ADAPTER.getSvc());
+    var startReplica = invoker.startReplicas() + qos.getThroughput() * invoker.startReplicasToTpRatio();
     CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
-      .minInstance(minInstance)
+      .minInstance(Math.round(Math.max(minInstance, startReplica)))
       .maxInstance(invoker.maxReplicas())
       .scaleDownDelay(null)
       .targetConcurrency(-1)
@@ -90,7 +92,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .disableHpa(unit.getCls().getConfig().getDisableHpa())
       .build();
     CrInstanceSpec saSpec = CrInstanceSpec.builder()
-      .minInstance(1)
+      .minInstance(Math.max(1,sa.startReplicas()))
       .maxInstance(sa.maxReplicas())
       .scaleDownDelay(null)
       .targetConcurrency(-1)

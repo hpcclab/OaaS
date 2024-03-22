@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hpcclab.oaas.crm.condition.ConditionOperation.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConditionProcessorTest {
   ConditionProcessor processor;
@@ -69,7 +70,7 @@ class ConditionProcessorTest {
       .val("100")
       .build();
     var res = processor.matches(con, cls);
-    assert res;
+    assertTrue(res);
 
     con = Condition.builder()
       .path("$.qos.throughput")
@@ -77,14 +78,14 @@ class ConditionProcessorTest {
       .build();
     res = processor.matches(con, cls);
 
-    assert res;
+    assertTrue(res);
     con = Condition.builder()
       .path("$.qos.throughput")
       .op(GTE)
       .val("100")
       .build();
     res = processor.matches(con, cls);
-    assert res;
+    assertTrue(res);
   }
 
   @Test

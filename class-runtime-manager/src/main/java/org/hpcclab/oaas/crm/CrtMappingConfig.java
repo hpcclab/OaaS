@@ -42,7 +42,9 @@ public record CrtMappingConfig(
     String limitMemory,
     int stabilizationWindow,
     int maxScaleStep,
-    int maxReplicas
+    int maxReplicas,
+    int startReplicas,
+    float startReplicasToTpRatio
   ) implements ScalingConfig {
   }
 
