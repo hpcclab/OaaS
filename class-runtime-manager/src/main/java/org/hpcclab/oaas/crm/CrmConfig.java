@@ -14,6 +14,8 @@ public interface CrmConfig {
   int pmPort();
 
   String promUrl();
+  @WithDefault("180")
+  int observeOffsetDuration();
 
   Optional<String> templateOverride();
 

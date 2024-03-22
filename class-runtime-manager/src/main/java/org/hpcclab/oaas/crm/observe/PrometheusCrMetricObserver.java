@@ -27,14 +27,16 @@ import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.addingMerge;
 @ApplicationScoped
 public class PrometheusCrMetricObserver implements CrMetricObserver {
   private static final Logger logger = LoggerFactory.getLogger(PrometheusCrMetricObserver.class);
-  WebClient webClient;
-  String prometheusUrl;
+  final WebClient webClient;
+  final String prometheusUrl;
+  final int offsetDuration;
 
   @Inject
   public PrometheusCrMetricObserver(WebClient webClient,
                                     CrmConfig config) {
     this.webClient = webClient;
     prometheusUrl = config.promUrl();
+    offsetDuration = config.observeOffsetDuration();
   }
 
   @Override
@@ -166,7 +168,7 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   Scope createScope() {
     var now = System.currentTimeMillis() / 1000;
-    var offset = 60;
+    var offset = offsetDuration;
     return new Scope(now - offset, now, 10);
   }
 
