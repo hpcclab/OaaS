@@ -1,10 +1,7 @@
 package org.hpcclab.oaas.crm.template;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.crm.CrControllerManager;
-import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOClass;
 import org.hpcclab.oaas.proto.ProtoQosRequirement;

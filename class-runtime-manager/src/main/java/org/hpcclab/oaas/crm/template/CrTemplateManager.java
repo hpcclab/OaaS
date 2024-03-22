@@ -22,6 +22,8 @@ import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -30,6 +32,7 @@ import java.util.HashMap;
 @ApplicationScoped
 @Startup
 public class CrTemplateManager {
+  private static final Logger logger = LoggerFactory.getLogger(CrTemplateManager.class);
   public static final String DEFAULT = "default";
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
@@ -49,8 +52,7 @@ public class CrTemplateManager {
   public void loadTemplate() {
     try {
       CrtMappingConfig conf;
-      var file = "/crts.yaml";
-      var is = getClass().getResourceAsStream(file);
+      var is = getClass().getResourceAsStream("/crts.yaml");
       conf = yamlMapper.readValue(is, CrtMappingConfig.class);
       if (conf.templates()==null || conf.templates().isEmpty()) {
         return;
@@ -105,6 +107,9 @@ public class CrTemplateManager {
         protoMapper.fromProto(cls)
       ))
       .toSortedList(Comparator.comparing(tem -> tem.getConfig().priority()));
+    if (logger.isInfoEnabled())
+      logger.info("template candidates for class '{}' are [{}]",
+        cls, sortedList.collect(crt -> crt.name() + ":" + crt.getConfig().priority()));
     return sortedList
       .getLastOptional()
       .orElseThrow();
