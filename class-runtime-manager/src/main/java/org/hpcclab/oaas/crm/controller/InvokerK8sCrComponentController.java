@@ -79,7 +79,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
     String name = prefix + INVOKER.getSvc();
     if (instanceSpec.disableHpa()) {
       Deployment deployment = kubernetesClient.apps().deployments()
-        .inNamespace(name)
+        .inNamespace(namespace)
         .withName(name)
         .get();
       deployment.getSpec()
