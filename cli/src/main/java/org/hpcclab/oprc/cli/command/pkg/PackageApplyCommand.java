@@ -1,6 +1,7 @@
 package org.hpcclab.oprc.cli.command.pkg;
 
-import io.vertx.mutiny.core.buffer.Buffer;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
@@ -14,6 +15,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
@@ -29,34 +31,32 @@ public class PackageApplyCommand implements Callable<Integer> {
 
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
+  @CommandLine.Option(names = {"--override-package", "-p"})
+  String overridePackageName;
 
   @Inject
   ConfigFileManager fileManager;
   @Inject
   OutputFormatter outputFormatter;
-  @CommandLine.Option(
-    names = {"--override-deploy"},
-    defaultValue = "false"
-  )
-  boolean overrideDeploy;
 
   @Inject
   WebClient webClient;
 
   @Override
   public Integer call() throws Exception {
-
+    var yamlMapper = YAMLMapper.builder().build();
     var pkg = Files.readString(pkgFile.toPath());
+    var json = new JsonObject(yamlMapper.readValue(pkg, Map.class));
+    if (overridePackageName!=null && !overridePackageName.isEmpty())
+      json.put("name",overridePackageName);
     var res = webClient.postAbs(UriTemplate.of("{+oc}/api/packages")
         .expandToString(Variables.variables()
           .set("oc", fileManager.current().getPmUrl())))
-      .addQueryParam("overrideDeploy", String.valueOf(overrideDeploy))
-      .putHeader("content-type", "text/x-yaml")
-      .sendBuffer(Buffer.buffer(pkg))
+      .sendJsonObject(json)
       .await().indefinitely();
     if (res.statusCode()!=200) {
-      logger.error("Can not apply package: code={} body={}",
-        res.statusCode(), res.bodyAsString());
+      if (logger.isErrorEnabled())
+        logger.error("Can not apply package: code={} body={}", res.statusCode(), res.bodyAsString());
       return res.statusCode();
     }
 

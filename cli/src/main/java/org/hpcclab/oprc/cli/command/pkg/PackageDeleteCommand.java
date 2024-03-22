@@ -29,6 +29,8 @@ public class PackageDeleteCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(PackageDeleteCommand.class);
   @CommandLine.Parameters()
   File pkgFile;
+  @CommandLine.Option(names = {"--override-package", "-p"})
+  String overridePackageName;
   @Inject
   WebRequester webRequester;
 
@@ -40,7 +42,13 @@ public class PackageDeleteCommand implements Callable<Integer> {
     var map = yamlMapper.readValue(pkg, Map.class);
     JsonObject pkgJson = new JsonObject(map);
 
-    String pkgName = pkgJson.getString("name");
+    String pkgName;
+    if (overridePackageName!=null && !overridePackageName.isEmpty()) {
+      pkgName = overridePackageName;
+    }
+    else {
+      pkgName = pkgJson.getString("name");
+    }
     List<String> clsNameList = new ArrayList<>();
     JsonArray classes = pkgJson.getJsonArray("classes");
     for (int i = 0; i < classes.size(); i++) {
@@ -51,7 +59,7 @@ public class PackageDeleteCommand implements Callable<Integer> {
       String clsKey = pkgName + '.' + cls;
       System.out.print("deleting class '" + clsKey + "'...");
       var js = deleteCls(clsKey);
-      if (js != null)
+      if (js!=null)
         System.out.println("succeed");
       else
         System.out.println("failed");

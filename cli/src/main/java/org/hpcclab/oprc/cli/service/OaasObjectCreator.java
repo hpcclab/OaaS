@@ -42,16 +42,14 @@ public class OaasObjectCreator {
     if (files!=null) {
       constructBody.put("keys", files.keySet());
     }
-    var body = JsonObject.of(
-      "cls", cls,
-      "fb", fb,
-      "body", constructBody
-    );
-    logger.debug("submitting {}", body);
-    var res = webClient.postAbs(UriTemplate.of("{+invoker}/oal")
+    var res = webClient.postAbs(UriTemplate.of("{+invoker}/api/classes/{cls}/invokes/{fb}")
         .expandToString(Variables.variables()
-          .set("invoker", invUrl)))
-      .sendJsonObject(body)
+          .set("invoker", invUrl)
+          .set("cls", cls)
+          .set("fb", fb)
+        )
+      )
+      .sendJsonObject(constructBody)
       .await().indefinitely();
 
     if (res.statusCode()!=200) {
