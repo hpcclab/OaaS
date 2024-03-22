@@ -68,7 +68,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
       .endMetadata();
     deploymentBuilder
       .withNewSpec()
-      .withReplicas(instance.minInstance())
+      .withReplicas(instance.minInstance() > 0? instance.minInstance(): 1)
       .withNewSelector()
       .addToMatchLabels(labels)
       .endSelector()
