@@ -4,7 +4,7 @@ functions:
     type: TASK
     provision:
       deployment:
-        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:latest
         port: 8080
         requestsCpu: "0.5"
         requestsMemory: "256m"
@@ -13,7 +13,7 @@ functions:
     type: TASK
     provision:
       deployment:
-        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:dev
+        image: ghcr.io/pawissanutt/oaas/json-update-fn-py:latest
         port: 8080
         requestsCpu: "0.5"
         requestsMemory: "256M"

@@ -13,7 +13,4 @@ RUN pip3 install -r requirements.txt
 COPY main.py config.py ./
 
 EXPOSE 8080
-
-ENTRYPOINT ["/bin/sh", "-c"]
-# WORK AROUND SIGTERM
-CMD ["/bin/bash -c \"gunicorn -c config.py -k uvicorn.workers.UvicornWorker main:app\""]
+CMD ["gunicorn", "-c" , "config.py", "-k",  "uvicorn.workers.UvicornWorker" ,"main:app"]
