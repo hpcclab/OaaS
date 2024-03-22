@@ -125,7 +125,8 @@ public class DeploymentCrFnController extends AbstractCrFnController {
   }
 
   private String createName(String fnKey) {
-    return prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-");
+    return prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-")
+      + "-00001";
 
   }
 
