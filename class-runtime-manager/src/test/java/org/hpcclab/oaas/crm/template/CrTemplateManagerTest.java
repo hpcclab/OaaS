@@ -17,12 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CrTemplateManagerTest {
   @Inject
   CrTemplateManager manager;
-  @Inject
-  CrControllerManager controllerManager;
 
   @BeforeEach
   void setUp() {
-    manager.loadTemplate(controllerManager);
+    manager.loadTemplate();
   }
 
   @Test

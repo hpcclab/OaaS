@@ -46,7 +46,7 @@ public class CrTemplateManager {
     this.conditionProcessor = conditionProcessor;
   }
 
-  public void loadTemplate(CrControllerManager controllerManager) {
+  public void loadTemplate() {
     try {
       CrtMappingConfig conf;
       var file = "/crts.yaml";
@@ -64,12 +64,17 @@ public class CrTemplateManager {
       var m = new HashMap<String, ClassRuntimeTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
         var template = createCrt(configEntry.getKey(), configEntry.getValue());
-        template.init(controllerManager);
         m.put(configEntry.getKey(), template);
       }
       templateMap = Maps.immutable.ofMap(m);
     } catch (IOException e) {
       throw new StdOaasException("Load template error", e);
+    }
+  }
+
+  public void initTemplates(CrControllerManager controllerManager) {
+    for (ClassRuntimeTemplate template : templateMap) {
+      template.init(controllerManager);
     }
   }
 
