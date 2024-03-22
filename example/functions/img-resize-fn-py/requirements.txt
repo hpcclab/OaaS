@@ -2,6 +2,7 @@
 fastapi
 aiohttp
 uvicorn
-gunicorn
+#gunicorn
+hypercorn
 oaas-sdk-py==0.2.1
 pillow

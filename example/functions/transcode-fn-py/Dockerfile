@@ -13,4 +13,4 @@ RUN pip3 install -r requirements.txt
 COPY main.py config.py ./
 
 EXPOSE 8080
-CMD ["gunicorn", "-c" , "config.py", "-k",  "uvicorn.workers.UvicornWorker" ,"main:app"]
+CMD ["hypercorn", "-c" , "file:config.py","main:app"]
