@@ -206,11 +206,12 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
   private CrInstanceSpec resolve(ProtoOFunction fn) {
+    CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
     var provision = fn.getProvision();
-    var qos = fn.getQos();
     var kn = provision.getKnative();
     int minScale = kn.getMinScale();
-    if (minScale < 0) minScale = qos.getThroughput() > 0 ? 1:0;
+    if (minScale < 0)
+      minScale = Math.max(1, fnConfig.startReplicas());
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
     return CrInstanceSpec.builder()
