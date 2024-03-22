@@ -1,35 +1,34 @@
 package org.hpcclab.oaas.pm.initializer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.hpcclab.oaas.pm.rest.PackageResource;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
-import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.pm.rest.PackageResource;
 import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
 @ApplicationScoped
 public class BuiltInLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInLoader.class);
+  final PackageResource pkgService;
+  final FunctionRepository fnRepo;
 
-  ObjectMapper mapper;
-  @Inject
-  PackageResource pkgService;
-  @Inject
-  FunctionRepository fnRepo;
+  public BuiltInLoader(PackageResource pkgService, FunctionRepository fnRepo) {
+    this.pkgService = pkgService;
+    this.fnRepo = fnRepo;
+  }
 
   public void setup() throws IOException {
     var fn = fnRepo.get("builtin.logical.new");
-    if (fn != null) return;
+    if (fn!=null) return;
 
-    mapper = new ObjectMapper(new YAMLFactory());
+    var mapper = new YAMLMapper();
 
     var files = List.of(
       "/builtin/builtin.logical.yml"

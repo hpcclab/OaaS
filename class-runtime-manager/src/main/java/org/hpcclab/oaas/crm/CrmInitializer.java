@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.crm;
 
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.VertxContextSupport;
 import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -31,16 +32,17 @@ public class CrmInitializer {
     this.config = config;
   }
 
-  public void onStart(@Observes StartupEvent event) {
+  public void onStart(@Observes StartupEvent event) throws Throwable {
     if (config.loadTemplateOnStart()) {
-      vertx.executeBlockingAndAwait(() -> {
-          templateManager.loadTemplate();
-          templateManager.initTemplates(controllerManager);
-          controllerManager.loadAllToLocal();
-          runner.setup();
-          return 0;
-        }
-      );
+      VertxContextSupport.subscribeAndAwait(() ->
+        vertx.executeBlocking(() -> {
+            templateManager.loadTemplate();
+            templateManager.initTemplates(controllerManager);
+            controllerManager.loadAllToLocal();
+            runner.setup();
+            return 0;
+          }
+        ));
     }
   }
 }
