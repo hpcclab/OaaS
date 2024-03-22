@@ -185,9 +185,10 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
 
-    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < thresholdLower)
-      || (cpuPercentage > rpsFulfilPercentage && cpuPercentage > thresholdUpper)) {
-      nextInstance = expectedInstance;
+    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < thresholdLower)) {
+      nextInstance = Math.min(expectedInstance, nextInstance);
+    } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > thresholdUpper) {
+      nextInstance = Math.max(expectedInstance, nextInstance);
     }
 
     int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());

@@ -15,7 +15,7 @@ public record CrPerformanceMetrics(
   public static Double harmonicMean(List<CrPerformanceMetrics.DataPoint> points) {
     var nonZeroNumbers = points.stream()
       .mapToDouble(DataPoint::value)
-      .filter(v -> v!=0)
+      .filter(v -> v!=0 && !Double.isNaN(v))
       .toArray();
     if (nonZeroNumbers.length==0) {
       return 0d; // Handle division by zero
@@ -29,6 +29,7 @@ public record CrPerformanceMetrics(
   public static Double mean(List<CrPerformanceMetrics.DataPoint> points) {
     return points.stream()
       .mapToDouble(DataPoint::value)
+      .filter(v -> !Double.isNaN(v))
       .average()
       .orElse(0);
   }
@@ -37,12 +38,14 @@ public record CrPerformanceMetrics(
     var map = LongDoubleMaps.mutable.empty();
     // Add values from list1 to the map
     for (DataPoint dp : list1) {
-      map.addToValue(dp.timestamp(), dp.value());
+      if (!Double.isNaN(dp.value))
+        map.addToValue(dp.timestamp(), dp.value());
     }
 
     // Add values from list2 to the map
     for (DataPoint dp : list2) {
-      map.addToValue(dp.timestamp(), dp.value());
+      if (!Double.isNaN(dp.value))
+        map.addToValue(dp.timestamp(), dp.value());
     }
 
     return map.keyValuesView()
