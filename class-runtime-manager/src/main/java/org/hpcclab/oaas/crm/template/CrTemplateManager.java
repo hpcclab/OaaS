@@ -70,7 +70,7 @@ public class CrTemplateManager {
       }
       templateMap = Maps.immutable.ofMap(m);
       if (logger.isInfoEnabled())
-        logger.info("done loading templates {}", templateMap.keysView());
+        logger.info("Loaded templates {}", templateMap.keysView());
     } catch (IOException e) {
       throw new StdOaasException("Load template error", e);
     }

@@ -44,6 +44,5 @@ public class OClassConfig {
     if (partitions < 1) {
       partitions = DEFAULT_PARTITIONS;
     }
-    if (crTemplate == null) crTemplate = "default";
   }
 }
