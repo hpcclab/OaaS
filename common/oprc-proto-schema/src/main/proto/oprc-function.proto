@@ -49,6 +49,7 @@ message KnativeProvision{
   map<string, string> env = 11;
   optional string apiPath = 12;
   int32 port = 13;
+  bool h2c= 14;
 }
 message KDeploymentProvision{
   string image = 1;

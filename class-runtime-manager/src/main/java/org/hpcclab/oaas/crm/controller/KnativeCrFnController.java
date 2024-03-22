@@ -16,7 +16,10 @@ import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
+import org.hpcclab.oaas.proto.ProtoDeploymentCondition;
+import org.hpcclab.oaas.proto.ProtoOFunction;
+import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,10 +88,12 @@ public class KnativeCrFnController extends AbstractCrFnController {
       .withResources(makeResourceRequirements(instanceSpec));
 
     if (knConf.getPort() > 0) {
-      containerBuilder.withPorts(new ContainerPortBuilder()
+      ContainerPortBuilder port = new ContainerPortBuilder()
         .withProtocol("TCP")
-        .withContainerPort(knConf.getPort() <= 0 ? 8080:knConf.getPort())
-        .build()
+        .withContainerPort(knConf.getPort() <= 0 ? 8080:knConf.getPort());
+      if (knConf.getH2C())
+        port.withName("h2c");
+      containerBuilder.withPorts(port.build()
       );
     }
 
