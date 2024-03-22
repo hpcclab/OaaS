@@ -69,6 +69,8 @@ public class CrTemplateManager {
         m.put(configEntry.getKey(), template);
       }
       templateMap = Maps.immutable.ofMap(m);
+      if (logger.isInfoEnabled())
+        logger.info("done loading templates {}", templateMap.keysView());
     } catch (IOException e) {
       throw new StdOaasException("Load template error", e);
     }
