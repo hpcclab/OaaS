@@ -41,7 +41,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     thresholdUpper = Double.parseDouble(conf
       .getOrDefault("thresholdUpper", "0.9"));
     thresholdLower = Double.parseDouble(conf
-      .getOrDefault("thresholdLower", "0.7"));
+      .getOrDefault("thresholdLower", "0.5"));
   }
 
 
@@ -177,13 +177,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     if (expectedInstance < hardMinInstance) expectedInstance = hardMinInstance;
     var cpuPercentage = meanCpu / totalRequestCpu;
-    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {}",
-      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage);
+    var rpsFulfilPercentage = meanRps / targetRps;
+    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
+      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage, thresholdLower, thresholdUpper, rpsFulfilPercentage);
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
 
-    if ((meanRps / targetRps > cpuPercentage && cpuPercentage < thresholdLower)
-      || (meanRps / targetRps < cpuPercentage && cpuPercentage > thresholdUpper)) {
+    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < thresholdLower)
+      || (cpuPercentage > rpsFulfilPercentage && cpuPercentage > thresholdUpper)) {
       nextInstance = expectedInstance;
     }
 

@@ -27,6 +27,9 @@ templates:
         limitCpu: '2'
         limitMemory: 1Gi
         maxReplicas: 20
+    optimizerConf:
+      thresholdUpper: 0.9
+      thresholdLower: 0.5
     functions:
       stabilizationWindow: 30000
       defaultRequestCpu: 500m
@@ -50,7 +53,7 @@ templates:
           OPRC_INVOKER_NUMOFVERTICLE: "2"
           OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
           OPRC_LOG: "INFO"
-        requestCpu: '2'
+        requestCpu: '3'
         requestMemory: 2Gi
         limitCpu: '4'
         limitMemory: 4Gi
@@ -67,6 +70,9 @@ templates:
         limitCpu: '2'
         limitMemory: 2Gi
         maxReplicas: 20
+    optimizerConf:
+      thresholdUpper: 0.8
+      thresholdLower: 0.5
     functions:
       stabilizationWindow: 30000
       maxScaleStep: 3

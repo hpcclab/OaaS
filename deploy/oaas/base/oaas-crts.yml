@@ -29,6 +29,9 @@ templates:
         limitCpu: '2'
         limitMemory: 1Gi
         maxReplicas: 20
+    optimizerConf:
+      thresholdUpper: 0.95
+      thresholdLower: 0.5
     functions:
       stabilizationWindow: 30000
       maxScaleStep: 3
@@ -69,9 +72,12 @@ templates:
         limitCpu: '2'
         limitMemory: 2Gi
         maxReplicas: 20
+    optimizerConf:
+      thresholdUpper: 0.8
+      thresholdLower: 0.5
     functions:
       stabilizationWindow: 30000
-      maxScaleStep: 3
+      maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
     priority: 10
