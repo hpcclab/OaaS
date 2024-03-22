@@ -88,7 +88,8 @@ public class CrControllerManager {
 
   public CrController create(OprcEnvironment env,
                              DeploymentUnit deploymentUnit) {
-    var template = templateManager.selectTemplate(env, deploymentUnit);
+    var template = templateManager.selectTemplate(deploymentUnit);
+    logger.info("select template '{}' for class '{}'", template.name(), deploymentUnit.getCls().getKey());
     var controller = template.create(env, deploymentUnit);
     saveToLocal(controller);
     return controller;
@@ -109,20 +110,21 @@ public class CrControllerManager {
 
   public void update(String crId,
                      String fnKey,
-                     ProtoOFunctionDeploymentStatus status){
-    update(crId,fnKey,status, 3);
+                     ProtoOFunctionDeploymentStatus status) {
+    update(crId, fnKey, status, 3);
   }
+
   public void update(String crId,
                      String fnKey,
                      ProtoOFunctionDeploymentStatus status,
                      int count) {
-    if (count == 0) return;
+    if (count==0) return;
     var id = Tsid.from(crId).toLong();
     var controller = get(id);
     if (controller.isInitialized()) {
       vertx.executeBlockingAndForget(() -> {
         ProtoOFunction func = controller.getAttachedFn().get(fnKey);
-        if (func == null) return 0;
+        if (func==null) return 0;
         ProtoOFunction newFunc = func.toBuilder()
           .setStatus(status)
           .build();
@@ -135,7 +137,7 @@ public class CrControllerManager {
         return 0;
       });
     } else {
-      vertx.setTimer(500, l -> update(crId, fnKey, status, count -1));
+      vertx.setTimer(500, l -> update(crId, fnKey, status, count - 1));
     }
   }
 }

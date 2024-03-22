@@ -12,6 +12,7 @@ import org.hpcclab.oaas.proto.ProtoCr;
 public interface ClassRuntimeTemplate {
   CrController create(OprcEnvironment env, DeploymentUnit deploymentUnit);
   CrController load(OprcEnvironment env, ProtoCr orbit);
+  String name();
   String type();
   void init(CrControllerManager crControllerManager);
   QosOptimizer getQosOptimizer();

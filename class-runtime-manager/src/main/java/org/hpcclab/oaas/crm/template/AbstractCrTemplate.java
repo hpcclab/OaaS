@@ -14,11 +14,14 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
   protected final KubernetesClient k8sClient;
   protected final CrtMappingConfig.CrtConfig config;
   protected final QosOptimizer qosOptimizer;
+  protected final String name;
 
-  protected AbstractCrTemplate(KubernetesClient k8sClient,
+  protected AbstractCrTemplate(String name,
+                               KubernetesClient k8sClient,
                                CrtMappingConfig.CrtConfig config,
                                QosOptimizer qosOptimizer) {
 
+    this.name = name;
     Objects.requireNonNull(k8sClient);
     this.k8sClient = k8sClient;
     Objects.requireNonNull(config);
@@ -26,6 +29,7 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
     Objects.requireNonNull(qosOptimizer);
     this.qosOptimizer = qosOptimizer;
     this.tsidFactory = TsidFactory.newInstance1024();
+
   }
 
   @Override
@@ -59,5 +63,10 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
       .functions(func)
       .optimizer(optimizer)
       .build();
+  }
+
+  @Override
+  public String name() {
+    return name;
   }
 }

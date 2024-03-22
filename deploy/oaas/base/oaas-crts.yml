@@ -2,6 +2,7 @@ templates:
   default:
     type: "default"
     services:
+      condition: { }
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
@@ -9,6 +10,7 @@ templates:
         maxScaleStep: 2
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
+          OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
           OPRC_LOG: "DEBUG"
         requestCpu: '1'
         requestMemory: 1Gi
@@ -32,5 +34,44 @@ templates:
       maxScaleStep: 3
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
-    condition: {}
     priority: 0
+  ######################################################
+  high-load:
+    condition:
+      path: "$.qos.throughput"
+      op: GT
+      val: "1000"
+    type: "default"
+    services:
+      invoker:
+        image: ghcr.io/hpcclab/oaas/invoker
+        imagePullPolicy: IfNotPresent
+        stabilizationWindow: 60000
+        maxScaleStep: 1
+        env:
+          OPRC_INVOKER_NUMOFVERTICLE: "2"
+          OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
+          OPRC_LOG: "WARN"
+        requestCpu: '4'
+        requestMemory: 2Gi
+        limitCpu: '4'
+        limitMemory: 4Gi
+        maxReplicas: 20
+      storage-adapter:
+        image: ghcr.io/hpcclab/oaas/storage-adapter
+        imagePullPolicy: IfNotPresent
+        stabilizationWindow: 30000
+        maxScaleStep: 1
+        env:
+          OPRC_LOG: "DEBUG"
+        requestCpu: '2'
+        requestMemory: 512Mi
+        limitCpu: '2'
+        limitMemory: 2Gi
+        maxReplicas: 20
+    functions:
+      stabilizationWindow: 30000
+      maxScaleStep: 3
+      defaultRequestCpu: 500m
+      defaultRequestMem: 256Mi
+    priority: 10

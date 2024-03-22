@@ -16,26 +16,30 @@ public class CrmInitializer {
   final ObserverLoopRunner runner;
   final CrTemplateManager templateManager;
   final Vertx vertx;
+  final CrmConfig config;
 
   @Inject
   public CrmInitializer(CrControllerManager controllerManager,
                         CrMetricObserver observer,
                         ObserverLoopRunner runner,
-                        CrTemplateManager templateManager, Vertx vertx) {
+                        CrTemplateManager templateManager, Vertx vertx, CrmConfig config) {
     this.controllerManager = controllerManager;
     this.observer = observer;
     this.runner = runner;
     this.templateManager = templateManager;
     this.vertx = vertx;
+    this.config = config;
   }
 
   public void onStart(@Observes StartupEvent event) {
-    vertx.executeBlockingAndAwait(() -> {
-        templateManager.loadTemplate(controllerManager);
-        controllerManager.loadAllToLocal();
-        runner.setup();
-        return 0;
-      }
-    );
+    if (config.loadTemplateOnStart()) {
+      vertx.executeBlockingAndAwait(() -> {
+          templateManager.loadTemplate(controllerManager);
+          controllerManager.loadAllToLocal();
+          runner.setup();
+          return 0;
+        }
+      );
+    }
   }
 }

@@ -188,10 +188,10 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, nextInstance {}, capChanged {}",
-      controller.getId(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, nextInstance, capChanged);
+      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, nextInstance, capChanged);
     var changed = !instanceSpec.equals(adjust);
     logger.debug("got adjustment {} : {} : ({}) {}",
-      controller.getId(), name, changed, adjust);
+      controller.getTsidString(), name, changed, adjust);
     return new AdjustComponent(
       changed,
       adjust

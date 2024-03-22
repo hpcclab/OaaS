@@ -28,6 +28,10 @@
       kafka: "oaas-kafka-bootstrap:9092"
       pmHost: host.docker.internal
       pmPort: 8088
+"%test":
+  oprc:
+    crm:
+      loadTemplateOnStart: false
 
 oprc:
   crm:
@@ -37,6 +41,10 @@ oprc:
     promUrl: localhost:9090
   log: INFO
   name: class-runtime-manager
+  envconf:
+    kafka: "localhost:9092"
+    pmHost: ${oprc.crm.pmHost}
+    pmPort: ${oprc.crm.pmPort}
 
 
 quarkus:

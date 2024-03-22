@@ -15,10 +15,11 @@ import org.hpcclab.oaas.proto.ProtoCr;
 public class DefaultCrTemplate extends AbstractCrTemplate {
 
 
-  public DefaultCrTemplate(KubernetesClient k8sClient,
+  public DefaultCrTemplate(String name,
+                           KubernetesClient k8sClient,
                            QosOptimizer qosOptimizer,
                            CrtConfig config) {
-    super(k8sClient, config, qosOptimizer);
+    super(name, k8sClient, config, qosOptimizer);
   }
 
   @Override

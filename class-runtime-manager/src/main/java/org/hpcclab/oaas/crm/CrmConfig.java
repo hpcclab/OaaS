@@ -33,4 +33,7 @@ public interface CrmConfig {
 
   @WithDefault("false")
   boolean monitorDisable();
+
+  @WithDefault("true")
+  boolean loadTemplateOnStart();
 }

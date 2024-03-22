@@ -7,6 +7,7 @@ import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrmConfig;
@@ -62,7 +63,7 @@ public class CrTemplateManager {
       }
       var m = new HashMap<String, ClassRuntimeTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
-        var template = createCrt(configEntry.getValue());
+        var template = createCrt(configEntry.getKey(), configEntry.getValue());
         template.init(controllerManager);
         m.put(configEntry.getKey(), template);
       }
@@ -72,9 +73,10 @@ public class CrTemplateManager {
     }
   }
 
-  private ClassRuntimeTemplate createCrt(CrtMappingConfig.CrtConfig config) {
+  private ClassRuntimeTemplate createCrt(String name, CrtMappingConfig.CrtConfig config) {
     if (config.type().equals(DEFAULT)) {
       return new DefaultCrTemplate(
+        name,
         kubernetesClient,
         selectOptimizer(config),
         config
@@ -88,17 +90,17 @@ public class CrTemplateManager {
     return new DefaultQoSOptimizer(config);
   }
 
-  public ClassRuntimeTemplate selectTemplate(OprcEnvironment env,
-                                             DeploymentUnit deploymentUnit) {
+  public ClassRuntimeTemplate selectTemplate(DeploymentUnit deploymentUnit) {
     var template = deploymentUnit.getCls().getConfig().getCrTemplate();
     if (!template.isEmpty())
       return templateMap.get(template);
     var cls = deploymentUnit.getCls();
-    return templateMap.valuesView()
+    MutableList<ClassRuntimeTemplate> sortedList = templateMap.valuesView()
       .select(tem -> conditionProcessor.matches(tem.getConfig().condition(),
         protoMapper.fromProto(cls)
       ))
-      .toSortedList(Comparator.comparing(tem -> tem.getConfig().priority()))
+      .toSortedList(Comparator.comparing(tem -> tem.getConfig().priority()));
+    return sortedList
       .getLastOptional()
       .orElseThrow();
   }
