@@ -15,7 +15,7 @@ public interface CrmConfig {
 
   String promUrl();
   @WithDefault("180")
-  int observeOffsetDuration();
+  int observeRange();
 
   Optional<String> templateOverride();
 

@@ -29,14 +29,14 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
   private static final Logger logger = LoggerFactory.getLogger(PrometheusCrMetricObserver.class);
   final WebClient webClient;
   final String prometheusUrl;
-  final int offsetDuration;
+  final int observeRange;
 
   @Inject
   public PrometheusCrMetricObserver(WebClient webClient,
                                     CrmConfig config) {
     this.webClient = webClient;
     prometheusUrl = config.promUrl();
-    offsetDuration = config.observeOffsetDuration();
+    observeRange = config.observeRange();
   }
 
   @Override
@@ -168,8 +168,7 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
 
   Scope createScope() {
     var now = System.currentTimeMillis() / 1000;
-    var offset = offsetDuration;
-    return new Scope(now - offset, now, 10);
+    return new Scope(now - observeRange, now, 10);
   }
 
   public JsonObject loadCPU(Scope scope) {

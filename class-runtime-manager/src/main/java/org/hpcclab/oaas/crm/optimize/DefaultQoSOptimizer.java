@@ -37,7 +37,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     defaultRequestCpu = Objects.requireNonNullElse(fnConfig.defaultRequestCpu(), "0.5");
     defaultRequestMem = Objects.requireNonNullElse(fnConfig.defaultRequestMem(), "256Mi");
     Map<String, String> conf = crtConfig.optimizerConf();
-    if (conf == null) conf = Map.of();
+    if (conf==null) conf = Map.of();
     thresholdUpper = Double.parseDouble(conf
       .getOrDefault("thresholdUpper", "0.9"));
     thresholdLower = Double.parseDouble(conf
@@ -45,11 +45,10 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
 
-
   public static int limitChange(int currentValue, int targetValue, int maxChange) {
     int change = targetValue - currentValue;
     if (Math.abs(change) > maxChange) {
-      return change > 0 ? currentValue + maxChange : currentValue - maxChange;
+      return change > 0 ? currentValue + maxChange:currentValue - maxChange;
     } else {
       return targetValue; // No need to cap change
     }
@@ -101,8 +100,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .limitsMemory(parseMem(sa.limitMemory()))
       .minAvail(minAvail)
       .disableHpa(unit.getCls().getConfig().getDisableHpa())
-      .disable(unit.getCls().getStateSpec().getKeySpecsCount() == 0
-        && unit.getCls().getStateType() != ProtoStateType.PROTO_STATE_TYPE_COLLECTION
+      .disable(unit.getCls().getStateSpec().getKeySpecsCount()==0
+        && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION
       )
       .build();
     var instances = Map.of(
@@ -155,12 +154,12 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
   private AdjustComponent adjustComponent(CrController controller,
-                                                 CrInstanceSpec instanceSpec,
-                                                 CrtMappingConfig.ScalingConfig svcConfig,
-                                                 ProtoQosRequirement qos,
-                                                 SvcPerformanceMetrics metrics,
-                                                 String name,
-                                                 int hardMinInstance) {
+                                          CrInstanceSpec instanceSpec,
+                                          CrtMappingConfig.ScalingConfig svcConfig,
+                                          ProtoQosRequirement qos,
+                                          SvcPerformanceMetrics metrics,
+                                          String name,
+                                          int hardMinInstance) {
     if (metrics==null)
       return AdjustComponent.NONE;
     int targetRps = qos.getThroughput();
@@ -174,26 +173,31 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var totalRequestCpu = instanceSpec.minInstance() * instanceSpec.requestsCpu();
     var cpuPerRps = meanCpu / meanRps;
     double expectedCpu = Math.max(0, cpuPerRps * targetRps);
+
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     if (expectedInstance < hardMinInstance) expectedInstance = hardMinInstance;
     var cpuPercentage = meanCpu / totalRequestCpu;
-    var nextInstance = instanceSpec.minInstance();
+    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {}",
+      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage);
+    var prevInstance = instanceSpec.minInstance();
+    var nextInstance = prevInstance;
 
     if ((meanRps / targetRps > cpuPercentage && cpuPercentage < thresholdLower)
-        || (meanRps / targetRps < cpuPercentage && cpuPercentage > thresholdUpper)) {
+      || (meanRps / targetRps < cpuPercentage && cpuPercentage > thresholdUpper)) {
       nextInstance = expectedInstance;
     }
 
     int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
-    logger.debug("compute adjust on {} : {} : meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, nextInstance {}, capChanged {}",
-      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, nextInstance, capChanged);
-    var changed = !instanceSpec.equals(adjust);
-    logger.debug("got adjustment {} : {} : ({}) {}",
-      controller.getTsidString(), name, changed, adjust);
+    var needChange = !instanceSpec.equals(adjust);
+    logger.debug("compute adjust[2] on ({} : {}), expectedInstance {}, prevInstance {}, capChanged {}, needChange {}",
+      controller.getTsidString(), name, expectedInstance, prevInstance, capChanged, needChange);
+
+    if (needChange)
+      logger.debug("next adjustment ({} : {}) : {}", controller.getTsidString(), name, adjust);
     return new AdjustComponent(
-      changed,
+      needChange,
       adjust
     );
   }
