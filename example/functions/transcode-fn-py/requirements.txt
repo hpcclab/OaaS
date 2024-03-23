@@ -2,7 +2,6 @@
 fastapi
 aiohttp
 uvicorn
-#gunicorn
-hypercorn
+gunicorn
 oaas-sdk-py==0.2.1
 aiofiles

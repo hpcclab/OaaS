@@ -1,8 +1,7 @@
-import math
-import os
+import multiprocessing
+from os import environ
 
-bind = '0.0.0.0:' + os.environ.get('PORT', '8080')
-workers = int(os.environ.get('WORKERS', '4'))
-access_log_format = '%(h)s "%(r)s" %(s)s %(b)s "%(f)s" %(D)s µs'
+bind = '0.0.0.0:' + environ.get('PORT', '8080')
+workers = int(environ.get('WORKERS', '4'))
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s ms'
 accesslog = '-'
-keep_alive_max_requests = math.inf
