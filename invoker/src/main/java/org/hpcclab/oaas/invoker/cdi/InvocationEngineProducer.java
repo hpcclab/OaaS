@@ -41,7 +41,6 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
-      .setHttp2ClearTextUpgrade(false)
       .setShared(true)
       ;
     if (LOGGER.isDebugEnabled()) {

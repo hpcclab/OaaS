@@ -34,10 +34,10 @@ public interface InvokerConfig {
 
   Url sa();
 
-  @WithDefault("100")
+  @WithDefault("200")
   int connectionPoolMaxSize();
 
-  @WithDefault("10")
+  @WithDefault("100")
   int h2ConnectionPoolMaxSize();
 
   @WithDefault("1")
