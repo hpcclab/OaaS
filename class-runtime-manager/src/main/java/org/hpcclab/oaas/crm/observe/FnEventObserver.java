@@ -35,6 +35,7 @@ public class FnEventObserver {
                                             CrControllerManager controllerManager) {
     return observers.computeIfAbsent(name, n -> new FnEventObserver(knativeClient, controllerManager));
   }
+
   public FnEventObserver(KnativeClient knativeClient,
                          CrControllerManager controllerManager) {
     this.knativeClient = knativeClient;
@@ -42,15 +43,16 @@ public class FnEventObserver {
   }
 
   public void start(String label) {
-    logger.info("start kn functions watcher");
-    if (watch == null)
+    if (watch==null) {
+      logger.info("start kn functions watcher");
       watch = knativeClient.services()
         .withLabel(label)
         .watch(new FnEventWatcher(controllerManager));
+    }
   }
 
   public void stop() {
-    if (watch != null)
+    if (watch!=null)
       watch.close();
   }
 
@@ -139,7 +141,7 @@ public class FnEventObserver {
         .orElse("");
       ProtoOFunctionDeploymentStatus status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
-        .setErrorMsg(msg==null ? "": msg)
+        .setErrorMsg(msg==null ? "":msg)
         .setInvocationUrl(url)
         .build();
       controllerManager.update(crId, fnKey, status);

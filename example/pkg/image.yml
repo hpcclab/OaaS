@@ -9,6 +9,7 @@ functions:
         targetConcurrency: 32
         requestsCpu: '0.25'
         limitsCpu: '2'
+        http2: true
 #        env:
 #          LOG_LEVEL: DEBUG
     variableDescriptions:
