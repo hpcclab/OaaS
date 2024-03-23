@@ -628,6 +628,9 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "http2" : {
+            "type" : "boolean"
           }
         }
       },
@@ -677,6 +680,9 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "http2" : {
+            "type" : "boolean"
           }
         }
       },

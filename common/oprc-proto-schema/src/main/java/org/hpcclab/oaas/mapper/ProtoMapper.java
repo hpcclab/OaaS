@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
+import org.hpcclab.oaas.model.provision.KnativeProvision;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.*;

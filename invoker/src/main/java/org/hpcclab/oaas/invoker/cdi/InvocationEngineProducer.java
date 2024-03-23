@@ -27,6 +27,8 @@ import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 @ApplicationScoped
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
@@ -39,7 +41,9 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
-      .setShared(true);
+      .setHttp2ClearTextUpgrade(false)
+      .setShared(true)
+      ;
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Creating WebClient with options {}", options.toJson());
     }
@@ -48,10 +52,11 @@ public class InvocationEngineProducer {
 
   @Produces
   @ApplicationScoped
-  HttpOffLoaderConfig invokerConfig(InvokerConfig config) {
+  HttpOffLoaderConfig httpOffLoaderConfig(InvokerConfig config) {
     return HttpOffLoaderConfig.builder()
       .appName("oaas/invoker")
       .timout(config.invokeTimeout())
+      .enabledCeHeader(config.enableCeHeaderOffload())
       .build();
   }
 

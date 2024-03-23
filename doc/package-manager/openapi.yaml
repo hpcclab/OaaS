@@ -481,6 +481,8 @@ components:
         port:
           format: int32
           type: integer
+        http2:
+          type: boolean
     KnativeProvision_Public:
       type: object
       properties:
@@ -515,6 +517,8 @@ components:
         port:
           format: int32
           type: integer
+        http2:
+          type: boolean
     MacroSpec:
       type: object
       properties:

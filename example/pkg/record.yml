@@ -9,8 +9,10 @@ functions:
         requestsMemory: "256M"
         limitsCpu: "1"
         limitsMemory: "512M"
-#        targetConcurrency: 16
-#        scaleDownDelay: 30s
+        port: 8080
+        http2: true
+  #        targetConcurrency: 16
+  #        scaleDownDelay: 30s
 
   - name: record.merge
     type: TASK
@@ -19,6 +21,10 @@ functions:
         image: ghcr.io/pawissanutt/oaas/json-update-fn-py:latest
         requestsCpu: "0.5"
         requestsMemory: "256M"
+        limitsCpu: "1"
+        limitsMemory: "512M"
+        port: 8080
+        http2: true
 
   - name: record.chain-update
     type: MACRO

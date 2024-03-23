@@ -75,6 +75,9 @@ public interface InvokerConfig {
   @WithDefault("true")
   boolean warmHashCache();
 
+  @WithDefault("false")
+  boolean enableCeHeaderOffload();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }
