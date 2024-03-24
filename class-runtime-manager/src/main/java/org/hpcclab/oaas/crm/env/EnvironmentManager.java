@@ -14,9 +14,7 @@ import org.hpcclab.oaas.crm.env.OprcEnvironment.EnvResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class EnvironmentManager {
@@ -75,7 +73,8 @@ public class EnvironmentManager {
       .reduce(EnvResource.ZERO, EnvResource::sum);
     EnvResource requests = calculateRequest();
     EnvResource remaining = total.subtract(requests);
-    logger.info("current resources: total {}, usage {}, remaining {}", total, usage, remaining);
+    logger.info("current resources: total {}, usage {}, remaining {}",
+      total, usage, remaining);
     environment = environment.toBuilder()
       .total(total)
       .usable(remaining)
@@ -92,13 +91,13 @@ public class EnvironmentManager {
     // Iterate through each pod and accumulate resource requests by node
     for (Pod pod : podList.getItems()) {
       for (Container container : pod.getSpec().getContainers()) {
-        if (container.getResources() == null) continue;
-        if (container.getResources().getRequests() != null) continue;
+        if (container.getResources()==null ||
+          container.getResources().getRequests()==null) continue;
         var cpu = container.getResources().getRequests().get("cpu");
         var mem = container.getResources().getRequests().get("memory");
-        if (cpu != null)
+        if (cpu!=null)
           totalCPURequests += cpu.getNumericalAmount().doubleValue();
-        if (mem != null)
+        if (mem!=null)
           totalMemoryRequests += mem.getNumericalAmount().longValue();
       }
     }

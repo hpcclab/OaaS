@@ -1,8 +1,8 @@
 templates:
   default:
     type: "default"
+    condition: { }
     services:
-      condition: { }
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
