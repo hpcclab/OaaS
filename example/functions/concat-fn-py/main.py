@@ -55,7 +55,6 @@ class ConcatHandler(oaas.Handler):
 app = FastAPI()
 router = oaas.Router()
 router.register(ConcatHandler())
-router.register("example.text.concat", ConcatHandler())
 
 
 @app.post('/')

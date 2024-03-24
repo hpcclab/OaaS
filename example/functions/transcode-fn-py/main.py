@@ -86,7 +86,6 @@ class TranscodeHandler(oaas_sdk_py.Handler):
 app = FastAPI()
 router = oaas_sdk_py.Router()
 router.register(TranscodeHandler())
-router.register("example.video.transcode", TranscodeHandler())
 
 
 @app.post('/')

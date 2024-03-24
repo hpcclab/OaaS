@@ -66,8 +66,8 @@ class MergeHandler(oaas.Handler):
 app = FastAPI()
 router = oaas.Router()
 router.register(RandomHandler())
-router.register("example.record.random", RandomHandler())
-router.register("example.record.merge", MergeHandler())
+router.register(RandomHandler(), "example.record.random")
+router.register(MergeHandler(), "example.record.merge")
 
 
 @app.post('/')
