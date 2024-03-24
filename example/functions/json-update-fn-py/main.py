@@ -65,6 +65,7 @@ class MergeHandler(oaas.Handler):
 
 app = FastAPI()
 router = oaas.Router()
+router.register(RandomHandler())
 router.register("example.record.random", RandomHandler())
 router.register("example.record.merge", MergeHandler())
 

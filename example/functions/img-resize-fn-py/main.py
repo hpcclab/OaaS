@@ -90,6 +90,7 @@ class ResizeHandler(oaas.Handler):
 
 app = FastAPI()
 router = oaas.Router()
+router.register(ResizeHandler())
 router.register("example.image.resize", ResizeHandler())
 
 
