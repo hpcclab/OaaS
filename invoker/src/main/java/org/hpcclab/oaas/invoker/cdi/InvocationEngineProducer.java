@@ -41,6 +41,7 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
+      .setName("httpOffLoader")
       .setShared(true);
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Creating WebClient with options {}", options.toJson());
@@ -132,6 +133,7 @@ public class InvocationEngineProducer {
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)
       .setShared(true)
+      .setName("grpc")
     );
   }
 }
