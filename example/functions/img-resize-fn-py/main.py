@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import time
@@ -21,31 +22,72 @@ async def write_to_file(resp, file_path):
             f.write(chunk)
 
 
-def resize_image(input_image, output_image, size=None, ratio=None, optimize=True):
+def get_image_size(image_path):
     """
-    Resize the input image based on either size or ratio.
+    Get the size of the image.
+
+    Parameters:
+    image_path (str): File path of the image.
+
+    Returns:
+    tuple: Size of the image in the format (width, height).
+    """
+    with Image.open(image_path) as img:
+        width, height = img.size
+        return width, height
+
+
+async def resize_image(input_image, output_image, method='ffmpeg', size=None, ratio=None):
+    """
+    Resize the input image based on either size or ratio using either PIL or ffmpeg.
 
     Parameters:
     input_image (str): File path of the input image.
     output_image (str): File path of the output resized image.
-    size (str): Desired size in the format "width,height" (e.g., "300,200").
+    method (str): Method to use for resizing. Either 'ffmpeg' or 'PIL'.
+    size (str): Desired size in the format "width,height" (e.g., "300x200").
                 If None, ratio will be used for resizing.
     ratio (float): Desired resizing ratio (e.g., 0.5 for 50% smaller).
                    If None, size will be used for resizing.
     """
-    img = Image.open(input_image)
+    if method == 'ffmpeg':
+        if size:
+            scale_option = f"scale={size}"
+        elif ratio:
+            scale_option = f"scale=iw*{ratio}:ih*{ratio}"
+        else:
+            raise ValueError("Either size or ratio must be provided.")
 
-    if size:
-        width, height = map(int, size.split(','))
-        img = img.resize((width, height))
-    elif ratio:
-        width, height = img.size
-        new_width = int(width * ratio)
-        new_height = int(height * ratio)
-        img = img.resize((new_width, new_height))
+        # Execute ffmpeg command
+        proc = await asyncio.create_subprocess_exec(
+            'ffmpeg',
+            "-hide_banner",
+            "-loglevel", "warning",
+            '-i', input_image,
+            '-vf', scale_option,
+            output_image
+        )
+        await proc.wait()
+        if size:
+            width, height = map(int, size.split('x'))
+            return width, height
+        return get_image_size(output_image)
+    elif method == 'PIL':
+        img = Image.open(input_image)
 
-    img.save(output_image, optimize=optimize)
-    return img.size
+        if size:
+            width, height = map(int, size.split('x'))
+            img = img.resize((width, height))
+        elif ratio:
+            width, height = img.size
+            new_width = int(width * ratio)
+            new_height = int(height * ratio)
+            img = img.resize((new_width, new_height))
+
+        img.save(output_image)
+        return img.size
+    else:
+        raise ValueError("Invalid method. Choose either 'ffmpeg' or 'PIL'.")
 
 
 class ResizeHandler(oaas.Handler):
@@ -54,6 +96,7 @@ class ResizeHandler(oaas.Handler):
         size = ctx.args.get('size', '')
         ratio = float(ctx.args.get('ratio', '1'))
         optimize = ctx.args.get('optimize', 'true').lower() in ('y', 'yes', 'true', 't', '1')
+        method = ctx.args.get("method", "ffmpeg")
         inplace = ctx.task.output_obj is None or ctx.task.output_obj.id is None
         req_ts = int(ctx.args.get('reqts', '0'))
         fmt = ctx.task.main_obj.data.get('format', 'png')
@@ -72,7 +115,10 @@ class ResizeHandler(oaas.Handler):
                 loading_time = time.time() - start_ts
                 logging.debug(f"load data in {loading_time} s")
 
-                (width, height) = resize_image(tmp_in, tmp_out, size, ratio, optimize)
+                (width, height) = await resize_image(tmp_in, tmp_out,
+                                                     method=method,
+                                                     size=size,
+                                                     ratio=ratio)
                 start_ts = time.time()
                 await ctx.upload_file(session, "image", tmp_out)
                 uploading_time = time.time() - start_ts
