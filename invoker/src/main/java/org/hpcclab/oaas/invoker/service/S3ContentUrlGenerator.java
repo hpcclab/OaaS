@@ -28,7 +28,7 @@ public class S3ContentUrlGenerator extends SaContentUrlGenerator {
   public S3ContentUrlGenerator(String saUrl, DatastoreConf datastoreConf) {
     super(saUrl);
     bucket = datastoreConf.options().get("BUCKET");
-    prefixPath = datastoreConf.options().get("PREFIXPATH");
+    prefixPath = datastoreConf.options().getOrDefault("PREFIXPATH", "");
     presignGenerator = new PresignGenerator(createPresigner(datastoreConf, false));
     pubPresignGenerator = new PresignGenerator(createPresigner(datastoreConf, true));
   }
