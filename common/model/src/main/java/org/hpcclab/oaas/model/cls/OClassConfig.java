@@ -19,25 +19,28 @@ public class OClassConfig {
   String logStore;
   String crTemplate;
   boolean disableHpa = false;
-
+  boolean disableHashAware = false;
 
   public OClassConfig() {
   }
 
-  @ProtoFactory
+
   public OClassConfig(DSMap options,
                       int partitions,
                       String structStore,
                       String unstructStore,
                       String logStore,
-                      String crTemplate
-                      ) {
+                      String crTemplate,
+                      boolean disableHpa,
+                      boolean disableHashAware) {
     this.options = options;
     this.partitions = partitions;
     this.structStore = structStore;
     this.unstructStore = unstructStore;
     this.logStore = logStore;
     this.crTemplate = crTemplate;
+    this.disableHpa = disableHpa;
+    this.disableHashAware = disableHashAware;
   }
 
   void validate() {

@@ -59,6 +59,11 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     }
+
+    if (managed && registry.getClassController(protOal.getCls()).getCls().getConfig().isDisableHashAware()) {
+      return invocationReqHandler.invoke(mapper.fromProto(protOal))
+        .map(mapper::toProto);
+    }
     ProtoApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}/{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
@@ -75,6 +80,9 @@ public class HashAwareInvocationHandler {
   public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
     boolean managed = invokerManager.getManagedCls().contains(oal.getCls());
     if (managed && (oal.getMain()==null || oal.getMain().isEmpty())) {
+      return invocationReqHandler.invoke(oal);
+    }
+    if (managed && registry.getClassController(oal.getCls()).getCls().getConfig().isDisableHashAware()) {
       return invocationReqHandler.invoke(oal);
     }
     ProtoApiAddress addr = resolveAddr(oal.getCls(), oal.getMain());

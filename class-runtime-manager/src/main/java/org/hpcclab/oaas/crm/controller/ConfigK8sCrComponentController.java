@@ -70,9 +70,11 @@ public class ConfigK8sCrComponentController extends AbstractK8sCrComponentContro
   public List<HasMetadata> createDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     var confMap = kubernetesClient.configMaps()
+      .inNamespace(namespace)
       .withName(prefix + NAME_CONFIGMAP).get();
     if (confMap!=null) toDeleteResource.add(confMap);
-    var sec = kubernetesClient.configMaps()
+    var sec = kubernetesClient.secrets()
+      .inNamespace(namespace)
       .withName(prefix + NAME_SECRET).get();
     if (sec!=null) toDeleteResource.add(sec);
     return toDeleteResource;

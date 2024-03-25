@@ -78,6 +78,7 @@ message ProtoOClassConfig {
   bool hashAwareSync = 7;
   string crTemplate = 8;
   bool disableHpa = 9;
+  bool disableHashAware = 10;
 }
 
 message ProtoOClassDeploymentStatus{
