@@ -1,14 +1,9 @@
 package org.hpcclab.oaas.invocation.task;
 
-import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.OObject;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public interface ContentUrlGenerator {
   default String generateUrl(OObject obj,
@@ -27,6 +22,10 @@ public interface ContentUrlGenerator {
   String generateUrl(OObject obj,
                      DataAccessContext dac,
                      String file);
+
+  String generatePutUrl(OObject obj,
+                        DataAccessContext dac,
+                        String file);
 
 
   String generateAllocateUrl(OObject obj, DataAccessContext dac);

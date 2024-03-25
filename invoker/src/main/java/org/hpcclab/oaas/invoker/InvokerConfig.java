@@ -58,7 +58,7 @@ public interface InvokerConfig {
   S3ConnConf s3();
 
   @WithDefault("false")
-  boolean useSa();
+  boolean useSaOnly();
 
   @WithDefault("true")
   boolean respPubS3();

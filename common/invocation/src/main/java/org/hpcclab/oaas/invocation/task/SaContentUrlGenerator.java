@@ -17,6 +17,11 @@ public class SaContentUrlGenerator implements ContentUrlGenerator {
     return generateUrl(obj.getId(), dac.getVid(), file, dac.encode());
   }
 
+  @Override
+  public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
   private String generateUrl(String oid,
                              String vid,
                              String file,

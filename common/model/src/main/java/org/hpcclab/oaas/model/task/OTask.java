@@ -22,6 +22,7 @@ public class OTask {
   String allocMainUrl;
   String allocOutputUrl;
   Map<String,String> mainKeys;
+  Map<String,String> outputKeys;
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
   String fbName;

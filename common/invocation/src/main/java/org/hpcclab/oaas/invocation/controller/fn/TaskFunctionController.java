@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.invocation.task.InvokingDetail;
-import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.InvokingDetail;
+import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OObject;
@@ -86,20 +86,21 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setImmutable(ctx.isImmutable());
     task.setArgs(resolveArgs(ctx));
 
+    task.setMainKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
     if (ctx.getOutput()!=null) {
       task.setOutput(ctx.getOutput());
-      if (outputCls.getStateType()==StateType.COLLECTION ||
-        !outputCls.getStateSpec().getKeySpecs().isEmpty()) {
+      if (outputCls.getStateType()==StateType.COLLECTION) {
         var dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId);
         task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(ctx.getOutput(), dac));
+      } else {
+        task.setOutputKeys(generatePutUrls(ctx.getOutput(), AccessLevel.ALL));
       }
     }
 
-    if (function.getType().isMutable() && task.getMain()!=null) {
+    if (function.getType().isMutable() && task.getMain() !=null) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }
-    task.setMainKeys(genUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
 
     var inputContextKeys = new ArrayList<String>();
     if (ctx.getInputs()==null) ctx.setInputs(List.of());
@@ -117,12 +118,28 @@ public class TaskFunctionController extends AbstractFunctionController {
   }
 
 
-  public Map<String, String> genUrls(OObject obj,
-                                     Map<String, OObject> refs,
-                                     AccessLevel level) {
+  public Map<String, String> generateUrls(OObject obj,
+                                          Map<String, OObject> refs,
+                                          AccessLevel level) {
     Map<String, String> m = new HashMap<>();
     generateUrls(m, obj, refs, "", level);
     return m;
+  }
+
+  public Map<String, String> generatePutUrls(OObject obj,
+                                             AccessLevel level) {
+    if (obj==null) return Map.of();
+    Map<String, String> map = new HashMap<>();
+    var verIds = obj.getState().getVerIds();
+    if (verIds!=null && !verIds.isEmpty()) {
+      for (var vidEntry : verIds.entrySet()) {
+        var dac = DataAccessContext.generate(obj, level,
+          vidEntry.getValue());
+        var url = contentUrlGenerator.generatePutUrl(obj, dac, vidEntry.getKey());
+        map.put(vidEntry.getKey(), url);
+      }
+    }
+    return map;
   }
 
   private void generateUrls(Map<String, String> map,
@@ -136,8 +153,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       for (var vidEntry : verIds.entrySet()) {
         var dac = DataAccessContext.generate(obj, level,
           vidEntry.getValue());
-        var url =
-          contentUrlGenerator.generateUrl(obj, dac, vidEntry.getKey());
+        var url = contentUrlGenerator.generateUrl(obj, dac, vidEntry.getKey());
         map.put(prefix + vidEntry.getKey(), url);
       }
     }

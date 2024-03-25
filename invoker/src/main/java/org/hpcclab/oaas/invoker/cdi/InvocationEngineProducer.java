@@ -18,7 +18,7 @@ import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
-import org.hpcclab.oaas.invoker.service.S3ContentUrlGenerator;
+import org.hpcclab.oaas.invoker.service.UnifyContentUrlGenerator;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -88,10 +88,11 @@ public class InvocationEngineProducer {
   @Produces
   @ApplicationScoped
   ContentUrlGenerator contentUrlGenerator(InvokerConfig config) {
-    if (config.useSa()) {
+    if (config.useSaOnly()) {
       return new SaContentUrlGenerator(config.sa().url());
     } else {
-      return new S3ContentUrlGenerator(config.sa().url(), DatastoreConfRegistry.getDefault()
+      return new UnifyContentUrlGenerator(config.sa().url(),
+        DatastoreConfRegistry.getDefault()
         .getOrDefault("S3DEFAULT"));
     }
   }
