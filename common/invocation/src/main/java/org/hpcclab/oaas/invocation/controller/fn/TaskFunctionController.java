@@ -9,9 +9,11 @@ import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.InvokingDetail;
 import org.hpcclab.oaas.invocation.task.OffLoader;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -93,7 +95,8 @@ public class TaskFunctionController extends AbstractFunctionController {
         var dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId);
         task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(ctx.getOutput(), dac));
       } else {
-        task.setOutputKeys(generatePutUrls(ctx.getOutput(), AccessLevel.ALL));
+        task.setOutputKeys(generatePutUrls(ctx.getOutput(),
+          outputCls, verId, AccessLevel.ALL));
       }
     }
 
@@ -127,17 +130,16 @@ public class TaskFunctionController extends AbstractFunctionController {
   }
 
   public Map<String, String> generatePutUrls(OObject obj,
+                                             OClass cls,
+                                             String verId,
                                              AccessLevel level) {
     if (obj==null) return Map.of();
+    List<KeySpecification> keySpecs = cls.getStateSpec().getKeySpecs();
     Map<String, String> map = new HashMap<>();
-    var verIds = obj.getState().getVerIds();
-    if (verIds!=null && !verIds.isEmpty()) {
-      for (var vidEntry : verIds.entrySet()) {
-        var dac = DataAccessContext.generate(obj, level,
-          vidEntry.getValue());
-        var url = contentUrlGenerator.generatePutUrl(obj, dac, vidEntry.getKey());
-        map.put(vidEntry.getKey(), url);
-      }
+    for (KeySpecification keySpec : keySpecs) {
+      var dac = DataAccessContext.generate(obj, level, verId);
+        var url = contentUrlGenerator.generatePutUrl(obj, dac, keySpec.getName());
+        map.put(keySpec.getName(), url);
     }
     return map;
   }
