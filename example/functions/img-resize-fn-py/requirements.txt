@@ -1,7 +1,10 @@
 # requests
-fastapi
-aiohttp
-uvicorn
+fastapi~=0.110.0
+aiohttp~=3.9.3
+uvicorn~=0.28.1
 gunicorn
 oaas-sdk-py==0.2.3
-pillow
+pillow~=10.2.0
+
+aiofiles~=23.2.1
+oaas_sdk_py~=0.2.3

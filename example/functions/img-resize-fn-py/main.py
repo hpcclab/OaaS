@@ -4,6 +4,7 @@ import os
 import time
 import uuid
 
+import aiofiles.os
 import aiohttp
 import oaas_sdk_py as oaas
 import uvicorn
@@ -86,6 +87,9 @@ async def resize_image(input_image, output_image, method='ffmpeg', size=None, ra
 
         img.save(output_image)
         return img.size
+    elif method == "none":
+        await aiofiles.os.rename(input_image, output_image)
+        return 0, 0
     else:
         raise ValueError("Invalid method. Choose either 'ffmpeg' or 'PIL'.")
 
@@ -95,7 +99,6 @@ class ResizeHandler(oaas.Handler):
     async def handle(self, ctx: OaasInvocationCtx):
         size = ctx.args.get('size', '')
         ratio = float(ctx.args.get('ratio', '1'))
-        optimize = ctx.args.get('optimize', 'true').lower() in ('y', 'yes', 'true', 't', '1')
         method = ctx.args.get("method", "ffmpeg")
         inplace = ctx.task.output_obj is None or ctx.task.output_obj.id is None
         req_ts = int(ctx.args.get('reqts', '0'))
