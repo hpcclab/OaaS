@@ -54,6 +54,7 @@ public record CrtMappingConfig(
     int maxScaleStep,
     String defaultRequestCpu,
     String defaultRequestMem,
+    String defaultScaleDawnDelay,
     int startReplicas
   ) implements ScalingConfig {
   }

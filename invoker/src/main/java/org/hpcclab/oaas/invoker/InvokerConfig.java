@@ -37,7 +37,7 @@ public interface InvokerConfig {
   @WithDefault("200")
   int connectionPoolMaxSize();
 
-  @WithDefault("100")
+  @WithDefault("50")
   int h2ConnectionPoolMaxSize();
 
   @WithDefault("1")

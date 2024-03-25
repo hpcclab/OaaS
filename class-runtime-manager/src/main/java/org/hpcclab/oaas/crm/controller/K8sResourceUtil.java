@@ -2,11 +2,7 @@ package org.hpcclab.oaas.crm.controller;
 
 
 import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.api.model.autoscaling.v2.HPAScalingRules;
-import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
-import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscalerBuilder;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.KnativeProvisionOrBuilder;
 
@@ -50,7 +46,8 @@ public class K8sResourceUtil {
 
 
   public static Map<String, String> makeAnnotation(Map<String, String> annotation,
-                                                   KnativeProvisionOrBuilder knConf) {
+                                                   KnativeProvisionOrBuilder knConf,
+                                                   CrtMappingConfig.FnConfig fnConfig) {
     if (knConf.getMinScale() >= 0)
       annotation.put("autoscaling.knative.dev/minScale",
         String.valueOf(knConf.getMinScale()));
@@ -60,6 +57,10 @@ public class K8sResourceUtil {
     if (!knConf.getScaleDownDelay().isEmpty())
       annotation.put("autoscaling.knative.dev/scale-down-delay",
         knConf.getScaleDownDelay());
+    else if (fnConfig.defaultScaleDawnDelay()!=null && !fnConfig.defaultScaleDawnDelay().isEmpty()) {
+      annotation.put("autoscaling.knative.dev/scale-down-delay",
+        fnConfig.defaultScaleDawnDelay());
+    }
     if (knConf.getTargetConcurrency() > 0)
       annotation.put("autoscaling.knative.dev/target",
         String.valueOf(knConf.getTargetConcurrency()));
@@ -92,9 +93,11 @@ public class K8sResourceUtil {
     spec.put("selector", Map.of("matchLabels", labels)
     );
     spec.put("podMetricsEndpoints", List.of(
-      Map.of(
-        "port", "http",
-        "path", "/q/metrics")
+        Map.of(
+          "port", "http",
+          "path", "/q/metrics",
+          "interval", "20s"
+        )
       )
     );
 

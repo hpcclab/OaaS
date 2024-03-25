@@ -99,7 +99,7 @@ public class KnativeCrFnController extends AbstractCrFnController {
     }
 
     var fnName = createName(function.getKey());
-    var annotation = makeAnnotation(Maps.mutable.empty(), knConf);
+    var annotation = makeAnnotation(Maps.mutable.empty(), knConf, fnConfig);
     makeAnnotation(annotation, instanceSpec);
     var serviceBuilder = new ServiceBuilder()
       .withNewMetadata()
