@@ -48,7 +48,7 @@ public class CrControllerManager {
 
   public void loadAllToLocal() {
     var crs = crStateService.list(PaginateQuery.newBuilder().setLimit(1000).build());
-    var env = environmentManager.getEnvironment();
+    var env = environmentManager.getEnvironmentConfig();
     while (crs.hasNext()) {
       var protoCr = crs.next();
       var controller = templateManager.load(env, protoCr);
@@ -70,7 +70,7 @@ public class CrControllerManager {
     if (orbit==null) {
       var protoCr = crStateService.get(SingleKeyQuery.newBuilder().setKey(Tsid.from(id).toLowerCase()).build());
       if (protoCr.getId()==0) return null;
-      orbit = templateManager.load(env, protoCr);
+      orbit = templateManager.load(env.config(), protoCr);
       controllerMap.put(id, orbit);
     }
     return orbit;
@@ -80,7 +80,7 @@ public class CrControllerManager {
     var orbit = controllerMap.get(protoCr.getId());
     if (orbit==null) {
       if (protoCr.getId()==0) return null;
-      orbit = templateManager.load(env, protoCr);
+      orbit = templateManager.load(env.config(), protoCr);
       controllerMap.put(protoCr.getId(), orbit);
     }
     return orbit;
@@ -89,8 +89,9 @@ public class CrControllerManager {
   public CrController create(OprcEnvironment env,
                              DeploymentUnit deploymentUnit) {
     var template = templateManager.selectTemplate(deploymentUnit);
-    logger.info("select template '{}' for class '{}'", template.name(), deploymentUnit.getCls().getKey());
-    var controller = template.create(env, deploymentUnit);
+    logger.info("select template '{}' for class '{}'",
+      template.name(), deploymentUnit.getCls().getKey());
+    var controller = template.create(env.config(), deploymentUnit);
     saveToLocal(controller);
     return controller;
   }

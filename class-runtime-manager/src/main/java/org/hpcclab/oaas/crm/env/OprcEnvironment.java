@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.env;
 
 import io.fabric8.kubernetes.api.model.Quantity;
 import lombok.Builder;
+import org.snakeyaml.engine.v2.env.EnvConfig;
 
 import java.math.BigDecimal;
 import java.util.Map;

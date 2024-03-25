@@ -56,6 +56,10 @@ public class EnvironmentManager {
     return environment;
   }
 
+  public OprcEnvironment.Config getEnvironmentConfig() {
+    return environment.config();
+  }
+
   public void refresh() {
     var nodeMetricsList = client.top().nodes()
       .metrics().getItems();

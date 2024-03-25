@@ -829,6 +829,9 @@
           },
           "disableHpa" : {
             "type" : "boolean"
+          },
+          "disableHashAware" : {
+            "type" : "boolean"
           }
         }
       },
@@ -855,6 +858,9 @@
             "type" : "string"
           },
           "disableHpa" : {
+            "type" : "boolean"
+          },
+          "disableHashAware" : {
             "type" : "boolean"
           }
         }

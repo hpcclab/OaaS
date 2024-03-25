@@ -38,11 +38,11 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   }
 
   @Override
-  public CrController create(OprcEnvironment env, DeploymentUnit deploymentUnit) {
+  public CrController create(OprcEnvironment.Config envConf, DeploymentUnit deploymentUnit) {
     var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
     var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
     var conf = new ConfigK8sCrComponentController(null);
-    var kn = new KnativeCrFnController(config.functions(), env.config());
+    var kn = new KnativeCrFnController(config.functions(), envConf);
     var dep = new DeploymentCrFnController(config.functions());
     return new K8SCrController(
       this,
@@ -52,17 +52,17 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
       conf,
       dep,
       kn,
-      env.config(),
+      envConf,
       tsidFactory.create()
     );
   }
 
   @Override
-  public CrController load(OprcEnvironment env, ProtoCr cr) {
+  public CrController load(OprcEnvironment.Config env, ProtoCr cr) {
     var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
     var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
     var conf = new ConfigK8sCrComponentController(null);
-    var kn = new KnativeCrFnController(config.functions(), env.config());
+    var kn = new KnativeCrFnController(config.functions(), env);
     var dep = new DeploymentCrFnController(config.functions());
     return new K8SCrController(this, k8sClient,
       invoker,
@@ -70,7 +70,7 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
       conf,
       dep,
       kn,
-      env.config(),
+      env,
       cr);
   }
 

@@ -616,6 +616,8 @@ components:
           type: string
         disableHpa:
           type: boolean
+        disableHashAware:
+          type: boolean
     OClassConfig_Public:
       type: object
       properties:
@@ -633,6 +635,8 @@ components:
         crTemplate:
           type: string
         disableHpa:
+          type: boolean
+        disableHashAware:
           type: boolean
     OClassDeploymentStatus:
       type: object

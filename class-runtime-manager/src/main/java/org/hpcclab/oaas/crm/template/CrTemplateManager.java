@@ -123,7 +123,7 @@ public class CrTemplateManager {
     return templateMap.get(template);
   }
 
-  public CrController load(OprcEnvironment env, ProtoCr orbit) {
+  public CrController load(OprcEnvironment.Config env, ProtoCr orbit) {
     return selectTemplate(orbit)
       .load(env, orbit);
   }
