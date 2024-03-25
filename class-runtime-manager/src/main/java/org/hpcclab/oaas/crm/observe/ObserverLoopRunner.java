@@ -50,7 +50,7 @@ public class ObserverLoopRunner {
   public void optimizationLoopExecute() {
     try {
       var metricsMap = metricObserver.observe();
-      logger.debug("metrics: {}", metricsMap);
+      logger.trace("metrics: {}", metricsMap);
       for (var entry : metricsMap.entrySet()) {
         var id = Tsid.from(entry.getKey());
         var controller = controllerManager.get(id.toLong());
