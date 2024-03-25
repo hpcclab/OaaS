@@ -185,13 +185,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var cpuPercentage = meanCpu / totalRequestCpu;
     var rpsFulfilPercentage = meanRps / targetRps;
+    var lower = isFunc? fnThresholdLower: thresholdLower;
+    var upper = isFunc? fnThresholdUpper: thresholdUpper;
     logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
-      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage, thresholdLower, thresholdUpper, rpsFulfilPercentage);
+      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage,
+      lower, upper, rpsFulfilPercentage);
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
 
-    var lower = isFunc? fnThresholdLower: thresholdLower;
-    var upper = isFunc? fnThresholdUpper: thresholdUpper;
     if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < lower)) {
       nextInstance = Math.min(expectedInstance, nextInstance);
     } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > upper) {
