@@ -1,7 +1,9 @@
 package org.hpcclab.oaas.invoker.cdi;
 
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.grpc.client.GrpcClient;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,8 +29,6 @@ import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 @ApplicationScoped
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
@@ -41,8 +41,7 @@ public class InvocationEngineProducer {
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
-      .setShared(true)
-      ;
+      .setShared(true);
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Creating WebClient with options {}", options.toJson());
     }
@@ -122,5 +121,17 @@ public class InvocationEngineProducer {
   RepoCtxLoader repoCtxLoader(ObjectRepoManager objManager,
                               ClassControllerRegistry registry) {
     return new RepoCtxLoader(objManager, registry);
+  }
+
+  @Produces
+  @ApplicationScoped
+  GrpcClient grpcClient(Vertx vertx, InvokerConfig config) {
+    return GrpcClient.client(vertx.getDelegate(), new HttpClientOptions()
+      .setMaxPoolSize(config.connectionPoolMaxSize())
+      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
+      .setProtocolVersion(HttpVersion.HTTP_2)
+      .setHttp2ClearTextUpgrade(false)
+      .setShared(true)
+    );
   }
 }

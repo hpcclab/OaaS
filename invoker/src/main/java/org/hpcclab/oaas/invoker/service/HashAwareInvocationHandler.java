@@ -36,15 +36,15 @@ public class HashAwareInvocationHandler {
   @Inject
   public HashAwareInvocationHandler(LookupManager lookupManager,
                                     ClassControllerRegistry registry,
-                                    Vertx vertx,
                                     ProtoObjectMapper mapper,
+                                    GrpcClient grpcClient,
                                     InvocationReqHandler invocationReqHandler,
                                     InvokerManager invokerManager) {
     this.lookupManager = lookupManager;
     this.registry = registry;
     this.mapper = mapper;
+    this.grpcClient = grpcClient;
     this.invocationReqHandler = invocationReqHandler;
-    this.grpcClient = GrpcClient.client(vertx);
     this.invokerManager = invokerManager;
   }
 
