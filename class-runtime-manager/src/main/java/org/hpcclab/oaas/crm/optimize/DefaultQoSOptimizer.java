@@ -30,6 +30,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final CrtMappingConfig.CrtConfig crtConfig;
   final double thresholdUpper;
   final double thresholdLower;
+  final double fnThresholdUpper;
+  final double fnThresholdLower;
 
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
@@ -39,9 +41,13 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     Map<String, String> conf = crtConfig.optimizerConf();
     if (conf==null) conf = Map.of();
     thresholdUpper = Double.parseDouble(conf
-      .getOrDefault("thresholdUpper", "0.9"));
+      .getOrDefault("thresholdUpper", "0.85"));
     thresholdLower = Double.parseDouble(conf
       .getOrDefault("thresholdLower", "0.5"));
+    fnThresholdUpper = Double.parseDouble(conf
+      .getOrDefault("fnThresholdUpper", "0.85"));
+    fnThresholdLower = Double.parseDouble(conf
+      .getOrDefault("fnThresholdLower", "0.5"));
   }
 
 
@@ -66,7 +72,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     if (targetAvail <= 0) {
       dataSpec = new CrDataSpec(2);
       minInstance = 1;
-      minAvail = 0;
+      minAvail = 1;
     } else {
       var replica = Math.log(1 - targetAvail) / Math.log(1 - up);
       var replicaN = (int) Math.max(2, Math.ceil(replica));
@@ -139,7 +145,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
         fn.getQos(),
         fnMetrics,
         fnKey,
-        0
+        true
       );
       if (adjust.change()) fnInstance.put(fnKey, adjust.spec());
     }
@@ -161,7 +167,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
                                           ProtoQosRequirement qos,
                                           SvcPerformanceMetrics metrics,
                                           String name,
-                                          int hardMinInstance) {
+                                          boolean isFunc) {
     if (metrics==null)
       return AdjustComponent.NONE;
     int targetRps = qos.getThroughput();
@@ -177,7 +183,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     double expectedCpu = Math.max(0, cpuPerRps * targetRps);
 
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
-    if (expectedInstance < hardMinInstance) expectedInstance = hardMinInstance;
     var cpuPercentage = meanCpu / totalRequestCpu;
     var rpsFulfilPercentage = meanRps / targetRps;
     logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
@@ -185,9 +190,11 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
 
-    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < thresholdLower)) {
+    var lower = isFunc? fnThresholdLower: thresholdLower;
+    var upper = isFunc? fnThresholdUpper: thresholdUpper;
+    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < lower)) {
       nextInstance = Math.min(expectedInstance, nextInstance);
-    } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > thresholdUpper) {
+    } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > upper) {
       nextInstance = Math.max(expectedInstance, nextInstance);
     }
 
@@ -253,7 +260,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       cls.getQos(),
       metrics.coreMetrics().get(OprcComponent.INVOKER),
       OprcComponent.INVOKER.name(),
-      1);
+      false);
     if (adjust.change)
       adjustPlanMap.put(OprcComponent.INVOKER, adjust.spec);
     return adjustPlanMap;
