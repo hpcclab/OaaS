@@ -10,6 +10,8 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.controller.K8SCrController;
+import org.hpcclab.oaas.crm.env.EnvironmentManager;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.proto.ProtoOFunctionDeploymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,22 +26,28 @@ import static org.hpcclab.oaas.proto.ProtoDeploymentCondition.*;
 
 public class FnEventObserver {
   private static final Logger logger = LoggerFactory.getLogger(FnEventObserver.class);
+
+  static Map<String, FnEventObserver> observers = new ConcurrentHashMap<>();
   final KnativeClient knativeClient;
   final CrControllerManager controllerManager;
-  static Map<String, FnEventObserver> observers = new ConcurrentHashMap<>();
+  final EnvironmentManager environmentManager;
 
   Watch watch;
 
-  public static FnEventObserver getOrCreate(String name,
-                                            KnativeClient knativeClient,
-                                            CrControllerManager controllerManager) {
-    return observers.computeIfAbsent(name, n -> new FnEventObserver(knativeClient, controllerManager));
-  }
-
   public FnEventObserver(KnativeClient knativeClient,
-                         CrControllerManager controllerManager) {
+                         CrControllerManager controllerManager,
+                         EnvironmentManager environmentManager) {
     this.knativeClient = knativeClient;
     this.controllerManager = controllerManager;
+    this.environmentManager = environmentManager;
+  }
+
+  public static FnEventObserver getOrCreate(String name,
+                                            KnativeClient knativeClient,
+                                            CrControllerManager controllerManager,
+                                            EnvironmentManager environmentManager
+  ) {
+    return observers.computeIfAbsent(name, n -> new FnEventObserver(knativeClient, controllerManager, environmentManager));
   }
 
   public void start(String label) {
@@ -47,7 +55,7 @@ public class FnEventObserver {
       logger.info("start kn functions watcher");
       watch = knativeClient.services()
         .withLabel(label)
-        .watch(new FnEventWatcher(controllerManager));
+        .watch(new FnEventWatcher(controllerManager, environmentManager));
     }
   }
 
@@ -59,10 +67,12 @@ public class FnEventObserver {
 
   public static class FnEventWatcher implements Watcher<Service> {
     final CrControllerManager controllerManager;
+    final EnvironmentManager environmentManager;
 
     public FnEventWatcher(
-      CrControllerManager controllerManager) {
+      CrControllerManager controllerManager, EnvironmentManager environmentManager) {
       this.controllerManager = controllerManager;
+      this.environmentManager = environmentManager;
     }
 
     public static Optional<Condition> extractReadyCondition(Service service) {
@@ -116,10 +126,14 @@ public class FnEventObserver {
       if (fnKey==null)
         return;
 
+      OprcEnvironment.Config environmentConfig = environmentManager.getEnvironmentConfig();
+      var url = environmentConfig.useKnativeLb() ?
+        svc.getStatus().getUrl():
+        svc.getStatus().getAddress().getUrl();
       var status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_RUNNING)
         .setErrorMsg("")
-        .setInvocationUrl(svc.getStatus().getAddress().getUrl())
+        .setInvocationUrl(url)
         .build();
       controllerManager.update(crId, fnKey, status);
     }
@@ -135,14 +149,17 @@ public class FnEventObserver {
         return;
       if (fnKey==null)
         return;
-      String url = Optional.of(svc.getStatus())
-        .map(ServiceStatus::getAddress)
-        .map(Addressable::getUrl)
-        .orElse("");
+
+
+      OprcEnvironment.Config environmentConfig = environmentManager.getEnvironmentConfig();
+      Optional<ServiceStatus> svcStatus = Optional.of(svc.getStatus());
+      Optional<String> urlOptional = environmentConfig.useKnativeLb() ?
+        svcStatus.map(ServiceStatus::getUrl):
+        svcStatus.map(ServiceStatus::getAddress).map(Addressable::getUrl);
       ProtoOFunctionDeploymentStatus status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
         .setErrorMsg(msg==null ? "":msg)
-        .setInvocationUrl(url)
+        .setInvocationUrl(urlOptional.orElse(""))
         .build();
       controllerManager.update(crId, fnKey, status);
     }

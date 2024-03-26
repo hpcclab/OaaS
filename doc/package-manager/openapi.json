@@ -890,7 +890,7 @@
             "format" : "int64",
             "type" : "integer"
           },
-          "type" : {
+          "template" : {
             "type" : "string"
           },
           "attachedCls" : {

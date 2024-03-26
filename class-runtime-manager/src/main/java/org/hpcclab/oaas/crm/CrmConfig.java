@@ -7,7 +7,10 @@ import java.util.Optional;
 
 @ConfigMapping(prefix = "oprc.crm", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
 public interface CrmConfig {
+  @WithDefault("false")
   boolean exposeKnative();
+  @WithDefault("false")
+  boolean useKnativeLb();
 
   String pmHost();
 

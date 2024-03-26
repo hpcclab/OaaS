@@ -14,6 +14,7 @@ import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.condition.ConditionProcessor;
 import org.hpcclab.oaas.crm.controller.CrController;
+import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.DefaultQoSOptimizer;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
@@ -37,16 +38,19 @@ public class CrTemplateManager {
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
   final KubernetesClient kubernetesClient;
   final CrmConfig crmConfig;
-  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
-  ProtoMapper protoMapper = new ProtoMapperImpl();
+  final ProtoMapper protoMapper = new ProtoMapperImpl();
   final ConditionProcessor conditionProcessor;
+  final EnvironmentManager environmentManager;
+  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immuLtable.empty();
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
-                           CrmConfig crmConfig, ConditionProcessor conditionProcessor) {
+                           CrmConfig crmConfig,
+                           ConditionProcessor conditionProcessor, EnvironmentManager environmentManager) {
     this.kubernetesClient = kubernetesClient;
     this.crmConfig = crmConfig;
     this.conditionProcessor = conditionProcessor;
+    this.environmentManager = environmentManager;
   }
 
   public void loadTemplate() {
@@ -78,7 +82,7 @@ public class CrTemplateManager {
 
   public void initTemplates(CrControllerManager controllerManager) {
     for (ClassRuntimeTemplate template : templateMap) {
-      template.init(controllerManager);
+      template.init(controllerManager, environmentManager);
     }
   }
 

@@ -38,6 +38,7 @@ public class EnvironmentManager {
       .classManagerHost(pmHost)
       .classManagerPort(pmPort)
       .exposeKnative(conf.exposeKnative())
+      .useKnativeLb(conf.useKnativeLb())
       .logLevel(configProvider.getValue("oprc.log", String.class))
       .clsTopic(conf.clsProvisionTopic())
       .fnTopic(conf.fnProvisionTopic())

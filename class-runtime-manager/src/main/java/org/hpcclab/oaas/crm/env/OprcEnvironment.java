@@ -23,6 +23,7 @@ public record OprcEnvironment (
                         String clsTopic,
                         String crHashTopic,
                         boolean exposeKnative,
+                        boolean useKnativeLb,
                         String logLevel) {}
   public record EnvResource(double cpu,
                             long mem){

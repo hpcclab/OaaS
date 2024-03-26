@@ -6,6 +6,7 @@ import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.controller.*;
+import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.observe.FnEventObserver;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
@@ -23,11 +24,12 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   }
 
   @Override
-  public void init(CrControllerManager crControllerManager) {
+  public void init(CrControllerManager crControllerManager, EnvironmentManager environmentManager) {
     FnEventObserver fnEventObserver = FnEventObserver.getOrCreate(
       type(),
       new DefaultKnativeClient(k8sClient),
-      crControllerManager
+      crControllerManager,
+      environmentManager
     );
     fnEventObserver.start(K8SCrController.CR_FN_KEY);
   }
