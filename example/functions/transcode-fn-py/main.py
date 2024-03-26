@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+VIDEO_KEY = os.getenv("VIDEO_KEY", "video")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
@@ -18,8 +19,6 @@ if os.name == 'nt':
   SHELL = 'pwsh'
 else:
   SHELL = 'sh'
-
-KEY_NAME = "video"
 
 
 async def run_ffmpeg(args,
@@ -62,14 +61,14 @@ class TranscodeHandler(oaas_sdk_py.Handler):
     try:
       async with aiohttp.ClientSession() as session:
         ts = time.time()
-        resp = await ctx.load_main_file(session, "video")
+        resp = await ctx.load_main_file(session, VIDEO_KEY)
         with open(tmp_in, "wb") as f:
           async for chunk in resp.content.iter_chunked(1024):
             f.write(chunk)
         logging.debug(f"done loading in {time.time() - ts} s")
         await run_ffmpeg(ctx.args, tmp_in, tmp_out)
         ts = time.time()
-        await ctx.upload_file(session, "video", tmp_out)
+        await ctx.upload_file(session, VIDEO_KEY, tmp_out)
         logging.debug(f"done uploading in {time.time() - ts} s")
     except Exception as e:
       ctx.success = False

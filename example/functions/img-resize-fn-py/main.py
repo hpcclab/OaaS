@@ -13,6 +13,7 @@ from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+IMAGE_KEY = os.getenv("IMAGE_KEY", "image")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
@@ -113,7 +114,7 @@ class ResizeHandler(oaas.Handler):
 
         start_ts = time.time()
         async with aiohttp.ClientSession() as session:
-            async with await ctx.load_main_file(session, "image") as resp:
+            async with await ctx.load_main_file(session, IMAGE_KEY) as resp:
                 await write_to_file(resp, tmp_in)
                 loading_time = time.time() - start_ts
                 logging.debug(f"load data in {loading_time} s")
@@ -123,7 +124,7 @@ class ResizeHandler(oaas.Handler):
                                                      size=size,
                                                      ratio=ratio)
                 start_ts = time.time()
-                await ctx.upload_file(session, "image", tmp_out)
+                await ctx.upload_file(session, IMAGE_KEY, tmp_out)
                 uploading_time = time.time() - start_ts
                 logging.debug(f"upload data in {uploading_time} s")
                 record['ts'] = round(time.time() * 1000)

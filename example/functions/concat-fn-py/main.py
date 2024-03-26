@@ -9,6 +9,7 @@ from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+TEXT_KEY = os.getenv("TEXT_KEY", "text")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
@@ -26,7 +27,7 @@ class ConcatHandler(oaas.Handler):
 
         start_ts = time.time()
         async with aiohttp.ClientSession() as session:
-            async with await ctx.load_main_file(session, "text") as resp:
+            async with await ctx.load_main_file(session, TEXT_KEY) as resp:
                 old_text = await resp.read()
                 loading_time = time.time() - start_ts
                 logging.debug(f"load data in {loading_time} s")
@@ -35,12 +36,12 @@ class ConcatHandler(oaas.Handler):
                 b_text = bytes(text, 'utf-8')
                 start_ts = time.time()
                 if inplace:
-                    await ctx.upload_main_byte_data(session, "text", b_text)
+                    await ctx.upload_main_byte_data(session, TEXT_KEY, b_text)
                 else:
                     await ctx.allocate_file(session)
                     logging.debug(f"allocate url in {time.time() - start_ts} s")
                     start_ts = time.time()
-                    await ctx.upload_byte_data(session, "text", b_text)
+                    await ctx.upload_byte_data(session, TEXT_KEY, b_text)
                 uploading_time = time.time() - start_ts
                 logging.debug(f"upload data in {uploading_time} s")
                 record['ts'] = round(time.time() * 1000)
