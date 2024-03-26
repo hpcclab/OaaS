@@ -41,7 +41,7 @@ public class CrTemplateManager {
   final ProtoMapper protoMapper = new ProtoMapperImpl();
   final ConditionProcessor conditionProcessor;
   final EnvironmentManager environmentManager;
-  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immuLtable.empty();
+  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
