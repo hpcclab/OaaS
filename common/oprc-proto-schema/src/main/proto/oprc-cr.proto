@@ -9,7 +9,7 @@ package oprc;
 
 message ProtoCr {
   int64 id = 1;
-  string type = 2;
+  string template = 2;
   repeated ProtoOClass attachedCls = 3;
   repeated ProtoOFunction attachedFn = 4;
   string namespace = 5;

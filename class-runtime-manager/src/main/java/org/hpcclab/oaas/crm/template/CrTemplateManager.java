@@ -118,9 +118,9 @@ public class CrTemplateManager {
   }
 
   public ClassRuntimeTemplate selectTemplate(ProtoCr protoCr) {
-    var template = protoCr.getType();
-    if (template.isEmpty()) template = DEFAULT;
-    return templateMap.get(template);
+    var templateName = protoCr.getTemplate();
+    if (templateName.isEmpty()) templateName = DEFAULT;
+    return templateMap.get(templateName);
   }
 
   public CrController load(OprcEnvironment.Config env, ProtoCr orbit) {

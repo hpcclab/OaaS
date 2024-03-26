@@ -285,7 +285,7 @@ public class K8SCrController implements CrController {
     var str = Json.encode(currentPlan);
     return ProtoCr.newBuilder()
       .setId(id)
-      .setType(template.type())
+      .setTemplate(template.name())
       .setNamespace(namespace)
       .addAllAttachedCls(attachedCls.values())
       .addAllAttachedFn(attachedFn.values())

@@ -11,7 +11,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 public record OClassRuntime(
   long id,
-  String type,
+  String template,
   List<OClass> attachedCls,
   List<OFunction> attachedFn,
   String namespace,

@@ -7,7 +7,7 @@ functions:
       knative:
         image: ghcr.io/pawissanutt/oaas/transcode-fn-py:latest
         minScale: 1
-        http2: true
+        targetConcurrency: 3
 #        maxScale: 12
 #        concurrency: 1
 #        requestsCpu: '1'
