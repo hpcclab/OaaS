@@ -111,7 +111,7 @@ public class CrTemplateManager {
       .toSortedList(Comparator.comparing(tem -> tem.getConfig().priority()));
     if (logger.isInfoEnabled())
       logger.info("template candidates for class '{}' are [{}]",
-        cls, sortedList.collect(crt -> crt.name() + ":" + crt.getConfig().priority()));
+        cls.getKey(), sortedList.collect(crt -> crt.name() + ":" + crt.getConfig().priority()));
     return sortedList
       .getLastOptional()
       .orElseThrow();
