@@ -122,7 +122,7 @@ public class CrControllerManager {
     if (count==0) return;
     var id = Tsid.from(crId).toLong();
     var controller = get(id);
-    if (controller.isInitialized()) {
+    if (controller != null && controller.isInitialized()) {
       vertx.executeBlockingAndForget(() -> {
         ProtoOFunction func = controller.getAttachedFn().get(fnKey);
         if (func==null) return 0;
