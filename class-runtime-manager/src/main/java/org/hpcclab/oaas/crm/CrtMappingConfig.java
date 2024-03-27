@@ -5,6 +5,7 @@ import lombok.Builder;
 import org.hpcclab.oaas.crm.condition.Condition;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
+import java.util.List;
 import java.util.Map;
 
 @RegisterForReflection(ignoreNested = false)
@@ -44,7 +45,8 @@ public record CrtMappingConfig(
     int maxScaleStep,
     int maxReplicas,
     int startReplicas,
-    float startReplicasToTpRatio
+    float startReplicasToTpRatio,
+    List<Toleration> tolerations
   ) implements ScalingConfig {
   }
 
@@ -57,5 +59,14 @@ public record CrtMappingConfig(
     String defaultScaleDawnDelay,
     int startReplicas
   ) implements ScalingConfig {
+  }
+
+  public record Toleration(
+    String key,
+    String value,
+    String operator,
+    String effect
+  ){
+
   }
 }

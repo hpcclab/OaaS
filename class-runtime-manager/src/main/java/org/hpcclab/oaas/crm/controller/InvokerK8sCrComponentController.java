@@ -55,10 +55,16 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       invokerSvcPing.getMetadata().getName() + "." + namespace + ".svc.cluster.local");
     addEnv(container, "KUBERNETES_NAMESPACE", namespace);
     addEnv(container, "OPRC_ISPN_OBJSTORE_OWNER", String.valueOf(dataSpec.replication()));
-//    deployment.getSpec()
-//        .getTemplate()
-//          .getSpec().getTolerations()
-//        .add(new Toleration())
+    List<CrtMappingConfig.Toleration> tolerations = svcConfig.tolerations();
+    if (tolerations!=null && !tolerations.isEmpty()) {
+      List<Toleration> list = tolerations.stream()
+        .map(t -> new Toleration(t.effect(), t.key(), t.operator(), null, t.value()))
+        .toList();
+      deployment.getSpec()
+        .getTemplate()
+        .getSpec().getTolerations()
+        .addAll(list);
+    }
     container.getEnv()
       .add(new EnvVar(
         "ISPN_POD_NAME",
