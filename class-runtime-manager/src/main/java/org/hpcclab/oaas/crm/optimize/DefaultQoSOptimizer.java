@@ -85,8 +85,10 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     CrtMappingConfig.SvcConfig sa = crtConfig.services()
       .get(OprcComponent.STORAGE_ADAPTER.getSvc());
     var startReplica = invoker.startReplicas() + qos.getThroughput() * invoker.startReplicasToTpRatio();
+    startReplica = Math.max(minInstance, startReplica);
+    startReplica = Math.min(startReplica, invoker.maxReplicas());
     CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
-      .minInstance(Math.round(Math.max(minInstance, startReplica)))
+      .minInstance(Math.round(startReplica))
       .maxInstance(invoker.maxReplicas())
       .scaleDownDelay(null)
       .targetConcurrency(-1)
