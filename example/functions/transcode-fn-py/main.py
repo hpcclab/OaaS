@@ -41,12 +41,11 @@ def _run_ffmpeg(resolution,
         codec += ' -vcodec ' + vcodec
 
     cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_out}'
-    full_cmd = f'sh -c "{cmd}"'
     ts = time.time()
-    logging.info(f'full_cmd = {full_cmd}')
+    logging.debug(f'use thread_pool for cmd = "{cmd}"')
     proc = subprocess.Popen(cmd.split())
     proc.wait()
-    logging.info(f"done ffmpeg in {time.time() - ts} s")
+    logging.debug(f"done ffmpeg in {time.time() - ts} s")
     if proc.returncode != 0:
         raise Exception(f"Fail to execute {cmd}")
 
@@ -81,10 +80,9 @@ async def run_ffmpeg(args,
     if vcodec != '':
         codec += ' -vcodec ' + vcodec
     cmd = f'ffmpeg -hide_banner -f mp4 -loglevel warning -y -i {tmp_in} {resolution_cmd} {codec} {tmp_out}'
-    full_cmd = f'{SHELL} -c "{cmd}"'
     ts = time.time()
-    logging.debug(f'full_cmd = {full_cmd}')
-    process = await asyncio.create_subprocess_exec(SHELL, "-c", cmd)
+    logging.debug(f'use asyncio for cmd = "{cmd}"')
+    process = await asyncio.create_subprocess_exec(*cmd.split())
     await process.wait()
     logging.debug(f"done ffmpeg in {time.time() - ts} s")
     if process.returncode != 0:
