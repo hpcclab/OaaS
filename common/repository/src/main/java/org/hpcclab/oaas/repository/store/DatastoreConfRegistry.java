@@ -99,7 +99,7 @@ public class DatastoreConfRegistry {
   public DatastoreConf getOrDefault(String name) {
     if (name == null)
       return confMap.get(DEFAULT);
-    if (name.equals(NONE))
+    if (name.equalsIgnoreCase(NONE))
       return null;
     if (confMap.containsKey(name))
       return confMap.get(name);
