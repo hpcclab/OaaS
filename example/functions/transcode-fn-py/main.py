@@ -15,7 +15,7 @@ from starlette.concurrency import run_in_threadpool
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 VIDEO_KEY = os.getenv("VIDEO_KEY", "video")
-USE_THREAD_POOL = os.getenv("THREAD_POOL", "true") == "true"
+USE_THREAD_POOL = os.getenv("THREAD_POOL", "false") == "true"
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
@@ -119,10 +119,10 @@ class TranscodeHandler(oaas_sdk_py.Handler):
             ctx.success = False
             ctx.error = str(e)
         finally:
-            if aiofiles.os.path.isfile(tmp_out):
-                await aiofiles.os.remove(tmp_out)
-            if aiofiles.os.path.isfile(tmp_in):
-                await aiofiles.os.remove(tmp_in)
+            if os.path.isfile(tmp_out):
+                os.remove(tmp_out)
+            if os.path.isfile(tmp_in):
+                os.remove(tmp_in)
         record['ts'] = round(time.time() * 1000)
         ctx.task.output_obj.data = record
 
