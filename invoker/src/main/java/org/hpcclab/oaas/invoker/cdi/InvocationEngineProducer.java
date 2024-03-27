@@ -37,6 +37,7 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   WebClient webClient(Vertx vertx, InvokerConfig config) {
     WebClientOptions options = new WebClientOptions()
+      .setTcpQuickAck(true)
       .setFollowRedirects(false)
       .setMaxPoolSize(config.connectionPoolMaxSize())
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
@@ -130,6 +131,7 @@ public class InvocationEngineProducer {
   GrpcClient grpcClient(Vertx vertx, InvokerConfig config) {
     return GrpcClient.client(vertx.getDelegate(), new HttpClientOptions()
       .setMaxPoolSize(config.connectionPoolMaxSize())
+      .setTcpQuickAck(true)
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)
