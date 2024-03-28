@@ -17,14 +17,12 @@ public record CrHash(String cls, int numSegment, List<ApiAddress> segmentAddr, l
     var older = h1.ts > h2.ts ? h2 : h1;
     var addrList = Lists.mutable.ofAll(newer.segmentAddr);
     for (int i = 0; i < h2.segmentAddr().size(); i++) {
-      var newAddr = newer.segmentAddr.get(i);
+      var newAddr = addrList.get(i);
+      if (older.segmentAddr.size() <= i) continue;
       var oldAddr = older.segmentAddr.get(i);
       if (oldAddr.ts > newAddr.ts) {
         addrList.set(i, oldAddr);
       }
-//      else {
-//        addrList.set(i, newAddr);
-//      }
     }
     return new CrHash(newer.cls, addrList.size(), addrList, newer.ts);
   }

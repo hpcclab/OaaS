@@ -56,7 +56,7 @@ public class HashRegistry {
   }
 
   public Uni<Void> warmCache() {
-    return crStateService.listHash(PaginateQuery.newBuilder().setLimit(1000).setOffset(0).build())
+    return crStateService.listHash(PaginateQuery.newBuilder().setLimit(100000).setOffset(0).build())
       .invoke(this::updateManaged)
       .collect().last().replaceWithVoid();
   }
@@ -82,7 +82,7 @@ public class HashRegistry {
   }
 
   public void updateManaged(ProtoCrHash protoCrHash) {
-    logger.debug("update local hash registry '{}'", protoCrHash.getCls());
+    logger.info("update local hash registry '{}'", protoCrHash.getCls());
     cacheMap.compute(protoCrHash.getCls(), (k, v) -> {
       if (v==null) return protoCrHash;
       return merge(v, protoCrHash);
@@ -90,17 +90,16 @@ public class HashRegistry {
   }
 
   static ProtoCrHash merge (ProtoCrHash hash1, ProtoCrHash hash2) {
-    var count = hash1.getTs() > hash2.getTs() ? hash1.getNumSegment(): hash2.getNumSegment();
-    List<ProtoApiAddress> list = new ArrayList<>(count);
-    List<ProtoApiAddress> h1List = hash1.getSegmentAddrList();
-    List<ProtoApiAddress> h2List = hash2.getSegmentAddrList();
+    var newer = hash1.getTs() > hash2.getTs() ? hash1: hash2;
+    var older = hash1.getTs() > hash2.getTs() ? hash2: hash1;
+    var count = newer.getNumSegment();
+    List<ProtoApiAddress> list = new ArrayList<>(newer.getSegmentAddrList());
     for (int i = 0; i < count; i++) {
-      ProtoApiAddress addr1 = h1List.get(i);
-      ProtoApiAddress addr2 = h2List.get(i);
-      if (addr1.getTs() > addr2.getTs())
-        list.add(addr1);
-      else
-        list.add(addr2);
+      if (older.getSegmentAddrCount() <= i) continue;
+      ProtoApiAddress newerAddr = newer.getSegmentAddr(i);
+      ProtoApiAddress olderAddr = older.getSegmentAddr(i);
+      if (olderAddr.getTs() > newerAddr.getTs())
+        list.set(i, olderAddr);
     }
     return ProtoCrHash.newBuilder()
       .setTs(Math.max(hash1.getTs(), hash2.getTs()))
