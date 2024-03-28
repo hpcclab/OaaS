@@ -36,18 +36,17 @@ public class HttpOffLoaderFactory implements OffLoaderFactory {
     OFunctionConfig config = function.getConfig();
     if (config == null) config = new OFunctionConfig();
     var type = config.isHttp2() ? "http2" : "http1.1";
-    return create(type, config.getOffloadingConfig());
+    return create(function.getKey(), type, config.getOffloadingConfig());
   }
 
-  @Override
-  public OffLoader create(String type, Map<String, String> config) {
+  public OffLoader create(String name, String type, Map<String, String> config) {
     if (config == null) config = Map.of();
     if (type.equalsIgnoreCase("http1.1")) {
       WebClientOptions options = new WebClientOptions()
         .setMaxPoolSize(invokerConfig.connectionPoolMaxSize())
         .setHttp2MaxPoolSize(invokerConfig.h2ConnectionPoolMaxSize())
         .setShared(true)
-        .setName("HttpOffLoader")
+        .setName(name)
         .setKeepAlive(config.getOrDefault("keepAlive", "true")
           .equalsIgnoreCase("true"))
         ;

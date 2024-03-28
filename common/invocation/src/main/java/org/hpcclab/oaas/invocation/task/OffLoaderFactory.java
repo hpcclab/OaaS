@@ -9,5 +9,5 @@ import java.util.Map;
  */
 public interface OffLoaderFactory {
   OffLoader create(OFunction function);
-  OffLoader create(String type, Map<String,String> config);
+//  OffLoader create(String type, Map<String,String> config);
 }

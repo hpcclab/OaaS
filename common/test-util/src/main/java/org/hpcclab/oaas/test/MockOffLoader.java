@@ -44,10 +44,5 @@ public class MockOffLoader implements OffLoader {
     public OffLoader create(OFunction function) {
       return new MockOffLoader();
     }
-
-    @Override
-    public OffLoader create(String type, Map<String, String> config) {
-      return new MockOffLoader();
-    }
   }
 }

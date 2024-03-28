@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
+import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
 import org.hpcclab.oaas.model.object.OOUpdate;
@@ -27,47 +28,6 @@ public class MockProducer {
   @Inject
   ObjectMapper objectMapper;
 
-  @Produces
-  @Mock
-  MockOffLoader invoker() {
-    var mockSyncInvoker = new MockOffLoader();
-    mockSyncInvoker.setMapper(detail -> {
-      OTask task = (OTask) detail.getContent();
-      OOUpdate mainUpdate = null;
-      OOUpdate outUpdate = null;
-      var n = Optional.ofNullable(task.getMain())
-        .map(OObject::getData)
-        .map(on -> on.get("n").asInt())
-        .orElse(0);
-      if (task.getInputs()!=null && !task.getInputs().isEmpty()) {
-        for (OObject input : task.getInputs()) {
-          var ni = Optional.ofNullable(input)
-            .map(OObject::getData)
-            .map(on -> on.get("n").asInt())
-            .orElse(0);
-          n += ni;
-        }
-      }
-      var add = Integer.parseInt(task.getArgs().getOrDefault("ADD", "1"));
-
-      var data = objectMapper.createObjectNode()
-        .put("n", n + add);
-      if (!task.isImmutable()) {
-        mainUpdate = new OOUpdate(data);
-      }
-      if (task.getOutput()!=null) {
-        outUpdate = new OOUpdate(data);
-      }
-
-      return new TaskCompletion()
-        .setId(detail.getId())
-        .setMain(mainUpdate)
-        .setOutput(outUpdate)
-        .setSuccess(true);
-    });
-    return mockSyncInvoker;
-  }
-
   @Mock
   @Produces
   DataUrlAllocator mockDataAllocation() {
@@ -81,6 +41,49 @@ public class MockProducer {
           });
         return Uni.createFrom().item(resList);
       }
+    };
+  }
+
+  @Mock
+  @Produces
+  OffLoaderFactory offLoaderFactory(){
+    return f -> {
+      var mockSyncInvoker = new MockOffLoader();
+      mockSyncInvoker.setMapper(detail -> {
+        OTask task = (OTask) detail.getContent();
+        OOUpdate mainUpdate = null;
+        OOUpdate outUpdate = null;
+        int n = Optional.ofNullable(task.getMain())
+          .map(OObject::getData)
+          .map(on -> on.get("n").asInt())
+          .orElse(0);
+        if (task.getInputs()!=null && !task.getInputs().isEmpty()) {
+          for (OObject input : task.getInputs()) {
+            var ni = Optional.ofNullable(input)
+              .map(OObject::getData)
+              .map(on -> on.get("n").asInt())
+              .orElse(0);
+            n += ni;
+          }
+        }
+        var add = Integer.parseInt(task.getArgs().getOrDefault("ADD", "1"));
+
+        var data = objectMapper.createObjectNode()
+          .put("n", n + add);
+        if (!task.isImmutable()) {
+          mainUpdate = new OOUpdate(data);
+        }
+        if (task.getOutput()!=null) {
+          outUpdate = new OOUpdate(data);
+        }
+
+        return new TaskCompletion()
+          .setId(detail.getId())
+          .setMain(mainUpdate)
+          .setOutput(outUpdate)
+          .setSuccess(true);
+      });
+      return mockSyncInvoker;
     };
   }
 }
