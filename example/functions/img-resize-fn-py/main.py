@@ -75,19 +75,18 @@ async def resize_image(input_image, output_image, method='ffmpeg', size=None, ra
             return width, height
         return get_image_size(output_image)
     elif method == 'PIL':
-        img = Image.open(input_image)
+        with Image.open(input_image) as img:
+            if size:
+                width, height = map(int, size.split('x'))
+                img = img.resize((width, height))
+            elif ratio:
+                width, height = img.size
+                new_width = int(width * ratio)
+                new_height = int(height * ratio)
+                img = img.resize((new_width, new_height))
 
-        if size:
-            width, height = map(int, size.split('x'))
-            img = img.resize((width, height))
-        elif ratio:
-            width, height = img.size
-            new_width = int(width * ratio)
-            new_height = int(height * ratio)
-            img = img.resize((new_width, new_height))
-
-        img.save(output_image)
-        return img.size
+            img.save(output_image)
+            return img.size
     elif method == "none":
         await aiofiles.os.rename(input_image, output_image)
         return 0, 0
