@@ -41,6 +41,7 @@ public class HttpOffLoaderFactory implements OffLoaderFactory {
 
   @Override
   public OffLoader create(String type, Map<String, String> config) {
+    if (config == null) config = Map.of();
     if (type.equalsIgnoreCase("http1.1")) {
       WebClientOptions options = new WebClientOptions()
         .setMaxPoolSize(invokerConfig.connectionPoolMaxSize())
