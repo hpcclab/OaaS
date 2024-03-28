@@ -59,16 +59,6 @@ public class InvokerInitializer {
   void init(@Observes StartupEvent event) throws Throwable {
     VertxContextSupport.subscribeAndAwait(() ->
       Vertx.currentContext().executeBlocking(() -> {
-        hashListener.setHandler(hashRegistry::updateManaged)
-          .start().await().indefinitely();
-        loadAssignedCls();
-        clsListener.setHandler(cls -> {
-            logger.info("receive cls[{}] update event", cls.getKey());
-            invokerManager.update(cls)
-              .subscribe().with(v -> {
-              });
-          })
-          .start().await().indefinitely();
         functionListener.setHandler(fn -> {
             logger.info("receive fn[{}] update event", fn.getKey());
             invokerManager.update(fn)
@@ -76,6 +66,16 @@ public class InvokerInitializer {
               });
           })
           .start().await().indefinitely();
+        clsListener.setHandler(cls -> {
+            logger.info("receive cls[{}] update event", cls.getKey());
+            invokerManager.update(cls)
+              .subscribe().with(v -> {
+              });
+          })
+          .start().await().indefinitely();
+        hashListener.setHandler(hashRegistry::updateManaged)
+          .start().await().indefinitely();
+        loadAssignedCls();
         if (config.warmHashCache())
           hashRegistry.warmCache().await().indefinitely();
         return null;

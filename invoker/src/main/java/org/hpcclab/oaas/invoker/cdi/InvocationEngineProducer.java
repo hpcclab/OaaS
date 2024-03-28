@@ -33,38 +33,37 @@ import org.slf4j.LoggerFactory;
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
 
-  @Produces
-  @ApplicationScoped
-  WebClient webClient(Vertx vertx, InvokerConfig config) {
-    WebClientOptions options = new WebClientOptions()
-      .setTcpQuickAck(true)
-      .setFollowRedirects(false)
-      .setMaxPoolSize(config.connectionPoolMaxSize())
-      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
-      .setProtocolVersion(HttpVersion.HTTP_2)
-      .setName("httpOffLoader")
-      .setShared(true);
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Creating WebClient with options {}", options.toJson());
-    }
-    return WebClient.create(vertx, options);
-  }
+//  @Produces
+//  @ApplicationScoped
+//  WebClient webClient(Vertx vertx, InvokerConfig config) {
+//    WebClientOptions options = new WebClientOptions()
+//      .setTcpQuickAck(true)
+//      .setFollowRedirects(false)
+//      .setMaxPoolSize(config.connectionPoolMaxSize())
+//      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
+//      .setProtocolVersion(HttpVersion.HTTP_2)
+//      ;
+//    if (LOGGER.isDebugEnabled()) {
+//      LOGGER.debug("Creating WebClient with options {}", options.toJson());
+//    }
+//    return WebClient.create(vertx, options);
+//  }
+//
+//  @Produces
+//  @ApplicationScoped
+//  HttpOffLoaderConfig httpOffLoaderConfig(InvokerConfig config) {
+//    return HttpOffLoaderConfig.builder()
+//      .appName("oaas/invoker")
+//      .timout(config.invokeTimeout())
+//      .enabledCeHeader(config.enableCeHeaderOffload())
+//      .build();
+//  }
 
-  @Produces
-  @ApplicationScoped
-  HttpOffLoaderConfig httpOffLoaderConfig(InvokerConfig config) {
-    return HttpOffLoaderConfig.builder()
-      .appName("oaas/invoker")
-      .timout(config.invokeTimeout())
-      .enabledCeHeader(config.enableCeHeaderOffload())
-      .build();
-  }
-
-  @Produces
-  @ApplicationScoped
-  OffLoader offLoader(HttpOffLoaderConfig config, WebClient webClient) {
-    return new HttpOffLoader(webClient, config);
-  }
+//  @Produces
+//  @ApplicationScoped
+//  OffLoader offLoader(HttpOffLoaderConfig config, WebClient webClient) {
+//    return new HttpOffLoader(webClient, config);
+//  }
 
 
   @Produces
@@ -131,7 +130,6 @@ public class InvocationEngineProducer {
   GrpcClient grpcClient(Vertx vertx, InvokerConfig config) {
     return GrpcClient.client(vertx.getDelegate(), new HttpClientOptions()
       .setMaxPoolSize(config.connectionPoolMaxSize())
-      .setTcpQuickAck(true)
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)

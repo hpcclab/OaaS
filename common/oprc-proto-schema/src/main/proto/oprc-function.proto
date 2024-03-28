@@ -20,6 +20,7 @@ message ProtoOFunction{
   optional ProtoFunctionState state = 11;
   optional ProtoQosRequirement qos = 12;
   optional ProtoConstraint constraint = 13;
+  optional ProtoOFunctionConfig config = 14;
 }
 
 message ProtoMacroSpec {
@@ -91,6 +92,11 @@ message ProtoOFunctionDeploymentStatus {
   optional string invocationUrl = 2;
   optional string errorMsg = 3;
   int64 ts = 4;
+}
+
+message ProtoOFunctionConfig {
+  map<string, string> offloadingConfig = 1;
+  bool http2 = 2;
 }
 
 

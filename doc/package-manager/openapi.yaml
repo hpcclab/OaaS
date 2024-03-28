@@ -724,7 +724,6 @@ components:
           $ref: '#/components/schemas/ResolvedMember_Public'
     OFunction:
       required:
-      - name
       - type
       - outputCls
       type: object
@@ -732,7 +731,6 @@ components:
         _key:
           type: string
         name:
-          pattern: \S
           type: string
         pkg:
           type: string
@@ -759,6 +757,26 @@ components:
           $ref: '#/components/schemas/QosRequirement'
         constraint:
           $ref: '#/components/schemas/QosConstraint'
+        config:
+          $ref: '#/components/schemas/OFunctionConfig'
+    OFunctionConfig:
+      type: object
+      properties:
+        offloadingConfig:
+          type: object
+          additionalProperties:
+            type: string
+        http2:
+          type: boolean
+    OFunctionConfig_Public:
+      type: object
+      properties:
+        offloadingConfig:
+          type: object
+          additionalProperties:
+            type: string
+        http2:
+          type: boolean
     OFunctionDeploymentStatus:
       type: object
       properties:
@@ -768,6 +786,9 @@ components:
           type: string
         errorMsg:
           type: string
+        ts:
+          format: int64
+          type: integer
     OFunctionDeploymentStatus_Public:
       type: object
       properties:
@@ -777,9 +798,11 @@ components:
           type: string
         errorMsg:
           type: string
+        ts:
+          format: int64
+          type: integer
     OFunction_Public:
       required:
-      - name
       - type
       - outputCls
       type: object
@@ -787,7 +810,6 @@ components:
         _key:
           type: string
         name:
-          pattern: \S
           type: string
         pkg:
           type: string
@@ -814,6 +836,8 @@ components:
           $ref: '#/components/schemas/QosRequirement_Public'
         constraint:
           $ref: '#/components/schemas/QosConstraint_Public'
+        config:
+          $ref: '#/components/schemas/OFunctionConfig_Public'
     OObjectType:
       enum:
       - SIMPLE

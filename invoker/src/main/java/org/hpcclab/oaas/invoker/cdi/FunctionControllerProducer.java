@@ -14,6 +14,7 @@ import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 /**
@@ -23,10 +24,10 @@ public class FunctionControllerProducer {
   @Produces
   TaskFunctionController taskFunctionController(IdGenerator idGenerator,
                                                 ObjectMapper mapper,
-                                                OffLoader offLoader,
+                                                OffLoaderFactory offLoaderFactory,
                                                 ContentUrlGenerator contentUrlGenerator) {
     return new TaskFunctionController(idGenerator,
-      mapper, offLoader, contentUrlGenerator);
+      mapper, offLoaderFactory, contentUrlGenerator);
   }
 
   @Produces

@@ -22,39 +22,22 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OFunction implements Copyable<OFunction>, HasKey<String> {
   @JsonProperty("_key")
-//  @JsonView(Views.Internal.class)
   String key;
-  @NotBlank
-  @ProtoField(1)
   String name;
-  @ProtoField(2)
   String pkg;
-  @ProtoField(3)
   String description;
   @NotNull
-  @ProtoField(4)
   FunctionType type;
   @NotBlank
-  @ProtoField(5)
   String outputCls;
-  @ProtoField(7)
   MacroSpec macro;
-
-  @ProtoField(8)
   ProvisionConfig provision;
-
-  @ProtoField(9)
   List<VariableDescription> variableDescriptions;
-
-  @ProtoField(10)
   OFunctionDeploymentStatus status;
-
-  @ProtoField(11)
   FunctionState state = FunctionState.ENABLED;
-  @ProtoField(12)
   QosRequirement qos;
-  @ProtoField(13)
   QosConstraint constraint;
+  OFunctionConfig config;
 
 
   public OFunction() {
@@ -65,14 +48,14 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
                    String pkg,
                    String description,
                    FunctionType type,
-                   String outputCls,
-                   MacroSpec macro,
+                   String outputCls, MacroSpec macro,
                    ProvisionConfig provision,
                    List<VariableDescription> variableDescriptions,
                    OFunctionDeploymentStatus status,
                    FunctionState state,
                    QosRequirement qos,
-                   QosConstraint constraint) {
+                   QosConstraint constraint,
+                   OFunctionConfig config) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -85,6 +68,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     this.state = state;
     this.qos = qos;
     this.constraint = constraint;
+    this.config = config;
     updateKey();
   }
 
@@ -94,6 +78,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
       throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
+    if (config == null) config = new OFunctionConfig();
     if (type==FunctionType.TASK) {
       macro = null;
     }
@@ -161,7 +146,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       status,
       state,
       qos,
-      constraint
+      constraint,
+      config
     );
   }
 }

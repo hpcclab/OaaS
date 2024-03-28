@@ -3,10 +3,13 @@ package org.hpcclab.oaas.test;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.task.InvokingDetail;
 import org.hpcclab.oaas.invocation.task.OffLoader;
+import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.function.Function;
 
 public class MockOffLoader implements OffLoader {
@@ -32,6 +35,19 @@ public class MockOffLoader implements OffLoader {
     @Override
     public TaskCompletion apply(InvokingDetail<?> detail) {
       return new TaskCompletion().setId(detail.getId()).setSuccess(true);
+    }
+  }
+
+  public static class Factory implements OffLoaderFactory {
+
+    @Override
+    public OffLoader create(OFunction function) {
+      return new MockOffLoader();
+    }
+
+    @Override
+    public OffLoader create(String type, Map<String, String> config) {
+      return new MockOffLoader();
     }
   }
 }

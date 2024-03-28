@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.InvokingDetail;
 import org.hpcclab.oaas.invocation.task.OffLoader;
+import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
@@ -32,16 +33,18 @@ import java.util.Map;
 public class TaskFunctionController extends AbstractFunctionController {
   private static final Logger logger = LoggerFactory.getLogger(TaskFunctionController.class);
 
-  final OffLoader offLoader;
+  final OffLoaderFactory offLoaderFactory;
+  OffLoader offloader;
   final ContentUrlGenerator contentUrlGenerator;
 
 
   public TaskFunctionController(IdGenerator idGenerator,
                                 ObjectMapper mapper,
-                                OffLoader offLoader,
+                                OffLoaderFactory offLoaderFactory,
                                 ContentUrlGenerator contentUrlGenerator) {
     super(idGenerator, mapper);
-    this.offLoader = offLoader;
+    this.offLoaderFactory = offLoaderFactory;
+    this.offloader = offLoaderFactory.create(function);
     this.contentUrlGenerator = contentUrlGenerator;
   }
 
@@ -58,7 +61,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     }
     OTask task = genTask(ctx);
     InvokingDetail<OTask> invokingDetail = InvokingDetail.of(task, getFunction());
-    var uni = offLoader.offload(invokingDetail);
+    var uni = offloader.offload(invokingDetail);
     return uni
       .map(tc -> handleComplete(ctx, tc));
   }
