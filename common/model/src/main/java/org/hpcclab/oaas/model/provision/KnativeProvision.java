@@ -24,12 +24,14 @@ public class KnativeProvision {
   DSMap env;
   String apiPath;
   int port;
-  boolean http2;
 
   public KnativeProvision() {
   }
 
-  public KnativeProvision(String image, int minScale, int maxScale, int concurrency, int targetConcurrency, String scaleDownDelay, String requestsCpu, String requestsMemory, String limitsCpu, String limitsMemory, DSMap env, String apiPath, int port, boolean http2) {
+  public KnativeProvision(String image, int minScale, int maxScale,
+                          int concurrency, int targetConcurrency, String scaleDownDelay,
+                          String requestsCpu, String requestsMemory, String limitsCpu,
+                          String limitsMemory, DSMap env, String apiPath, int port) {
     this.image = image;
     this.minScale = minScale;
     this.maxScale = maxScale;
@@ -43,7 +45,6 @@ public class KnativeProvision {
     this.env = env;
     this.apiPath = apiPath;
     this.port = port;
-    this.http2 = http2;
   }
 
 }

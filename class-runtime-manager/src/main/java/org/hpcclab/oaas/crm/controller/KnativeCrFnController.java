@@ -92,7 +92,7 @@ public class KnativeCrFnController extends AbstractCrFnController {
         .withProtocol("TCP")
         .withContainerPort(knConf.getPort());
       logger.debug("knconf {}", knConf);
-      if (knConf.getHttp2())
+      if (function.getConfig().getHttp2())
         port = port.withName("h2c");
       containerBuilder.withPorts(port.build()
       );
