@@ -44,12 +44,16 @@ public class TaskFunctionController extends AbstractFunctionController {
                                 ContentUrlGenerator contentUrlGenerator) {
     super(idGenerator, mapper);
     this.offLoaderFactory = offLoaderFactory;
-    this.offloader = offLoaderFactory.create(function);
     this.contentUrlGenerator = contentUrlGenerator;
   }
 
   @Override
   protected void validate(InvocationCtx ctx) {
+  }
+
+  @Override
+  protected void afterBind() {
+    this.offloader = offLoaderFactory.create(function);
   }
 
   @Override
