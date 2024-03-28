@@ -7,7 +7,6 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
-import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.infinispan.AdvancedCache;
@@ -83,7 +82,7 @@ public class SegmentCoordinator {
         return Uni.createFrom().nullItem();
       })
       .invoke(__ -> registry.initLocal(cache.getCacheManager()))
-      .call(__ ->registry.updateLocal(cls.getKey(), cache, port));
+      .call(__ ->registry.updateManaged(cls.getKey(), cache, port));
   }
 
   @Listener

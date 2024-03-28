@@ -73,6 +73,7 @@ message ProtoCrHash {
   int32 numSegment = 2;
   repeated ProtoApiAddress segmentAddr = 3;
 //  ProtoHashTopology hashTopology = 4;
+  int64 ts = 4;
 }
 
 message ProtoHashTopology {
@@ -83,6 +84,7 @@ message ProtoHashTopology {
 message ProtoApiAddress {
   string host = 1;
   int32 port = 2;
+  int64 ts = 3;
 }
 
 
