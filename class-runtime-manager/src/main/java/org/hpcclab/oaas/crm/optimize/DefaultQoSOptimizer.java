@@ -97,7 +97,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .disableHpa(unit.getCls().getConfig().getDisableHpa())
       .build();
     CrInstanceSpec saSpec = CrInstanceSpec.builder()
-      .minInstance(getStartReplica(invoker, qos, 0))
+      .minInstance(getStartReplica(sa, qos, 0))
       .maxInstance(sa.maxReplicas())
       .scaleDownDelay(null)
       .targetConcurrency(-1)
