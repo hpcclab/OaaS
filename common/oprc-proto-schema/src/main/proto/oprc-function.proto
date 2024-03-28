@@ -90,6 +90,7 @@ message ProtoOFunctionDeploymentStatus {
   ProtoDeploymentCondition condition = 1;
   optional string invocationUrl = 2;
   optional string errorMsg = 3;
+  int64 ts = 4;
 }
 
 

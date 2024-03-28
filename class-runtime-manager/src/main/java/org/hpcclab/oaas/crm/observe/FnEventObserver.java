@@ -132,8 +132,8 @@ public class FnEventObserver {
         svc.getStatus().getAddress().getUrl();
       var status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_RUNNING)
-        .setErrorMsg("")
         .setInvocationUrl(url)
+        .setTs(System.currentTimeMillis())
         .build();
       controllerManager.update(crId, fnKey, status);
     }
@@ -160,6 +160,7 @@ public class FnEventObserver {
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DOWN)
         .setErrorMsg(msg==null ? "":msg)
         .setInvocationUrl(urlOptional.orElse(""))
+        .setTs(System.currentTimeMillis())
         .build();
       controllerManager.update(crId, fnKey, status);
     }
@@ -178,6 +179,7 @@ public class FnEventObserver {
       ProtoOFunctionDeploymentStatus status = ProtoOFunctionDeploymentStatus.newBuilder()
         .setCondition(PROTO_DEPLOYMENT_CONDITION_DELETED)
         .setErrorMsg("")
+        .setTs(System.currentTimeMillis())
         .build();
 
       controllerManager.update(crId, fnKey, status);

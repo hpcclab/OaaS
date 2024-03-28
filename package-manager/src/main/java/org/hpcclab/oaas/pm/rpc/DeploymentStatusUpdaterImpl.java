@@ -5,9 +5,9 @@ import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
-import org.hpcclab.oaas.pm.service.PackagePublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.pm.service.PackagePublisher;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -35,7 +35,7 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
       .failWith(() -> StdOaasException.notFoundCls(update.getKey(), 404))
       .onFailure(NotFoundException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
-      .flatMap(f -> clsRepo.async().computeAsync(update.getKey(), (k,cls) -> cls.setStatus(status))
+      .flatMap(f -> clsRepo.async().computeAsync(update.getKey(), (k, cls) -> cls.setStatus(status))
       )
       .call(cls -> packagePublisher.submitNewCls(cls))
       .map(__ -> OprcResponse.newBuilder().setSuccess(true).build());
@@ -50,7 +50,11 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
       .failWith(() -> StdOaasException.notFoundFunc(update.getKey(), 404))
       .onFailure(StdOaasException.class).retry().withBackOff(Duration.ofMillis(500))
       .atMost(3)
-      .flatMap(f -> fnRepo.async().computeAsync(update.getKey(), (k,fn) -> fn.setStatus(status))
+      .flatMap(f -> fnRepo.async().computeAsync(update.getKey(), (k, fn) -> {
+          if (fn.getStatus()==null || fn.getStatus().getTs() < status.getTs())
+            fn.setStatus(status);
+          return fn;
+        })
       )
       .call(fn -> packagePublisher.submitNewFunction(fn))
       .map(__ -> OprcResponse.newBuilder().setSuccess(true).build());
@@ -64,7 +68,7 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var clsMap = clsRepo.list(keys);
     for (OClassStatusUpdate update : list) {
       var cls = clsMap.get(update.getKey());
-      if (cls == null) continue;
+      if (cls==null) continue;
       cls.setStatus(mapper.fromProto(update.getStatus()));
     }
     clsRepo.persist(clsMap.values());
@@ -81,7 +85,7 @@ public class DeploymentStatusUpdaterImpl implements DeploymentStatusUpdater {
     var fnMap = fnRepo.list(keys);
     for (var update : list) {
       var fn = fnMap.get(update.getKey());
-      if (fn == null) continue;
+      if (fn==null) continue;
       fn.setStatus(mapper.fromProto(update.getStatus()));
     }
     fnRepo.persist(fnMap.values());

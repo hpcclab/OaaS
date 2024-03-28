@@ -10,20 +10,18 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OFunctionDeploymentStatus {
-  @ProtoField(1)
   DeploymentCondition condition;
-  @ProtoField(2)
   String invocationUrl;
-  @ProtoField(3)
   String errorMsg;
+  long ts;
 
   public OFunctionDeploymentStatus() {
   }
 
-  @ProtoFactory
-  public OFunctionDeploymentStatus(DeploymentCondition condition, String invocationUrl, String errorMsg) {
+  public OFunctionDeploymentStatus(DeploymentCondition condition, String invocationUrl, String errorMsg, long ts) {
     this.condition = condition;
     this.invocationUrl = invocationUrl;
     this.errorMsg = errorMsg;
+    this.ts = ts;
   }
 }
