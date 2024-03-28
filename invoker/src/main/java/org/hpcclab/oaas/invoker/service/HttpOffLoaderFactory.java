@@ -47,6 +47,8 @@ public class HttpOffLoaderFactory implements OffLoaderFactory {
         .setHttp2MaxPoolSize(invokerConfig.h2ConnectionPoolMaxSize())
         .setShared(true)
         .setName("HttpOffLoader")
+        .setKeepAlive(config.getOrDefault("keepAlive", "true")
+          .equalsIgnoreCase("true"))
         ;
       return new HttpOffLoader(WebClient.create(
         vertx,
