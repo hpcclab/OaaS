@@ -74,10 +74,10 @@ public class InvokerInitializer {
               });
           })
           .start().await().indefinitely();
-        if (config.warmHashCache())
-          hashRegistry.warmCache().await().indefinitely();
         hashListener.setHandler(hashRegistry::updateLocal)
           .start().await().indefinitely();
+        if (config.warmHashCache())
+          hashRegistry.warmCache().await().indefinitely();
         return null;
       }));
   }
