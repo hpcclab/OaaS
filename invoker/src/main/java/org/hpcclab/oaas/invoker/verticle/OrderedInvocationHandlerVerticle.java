@@ -5,16 +5,9 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invocation.ContextLoader;
-import org.hpcclab.oaas.invocation.InvocationExecutor;
-import org.hpcclab.oaas.invocation.OffLoader;
-import org.hpcclab.oaas.invocation.applier.UnifiedFunctionRouter;
-import org.hpcclab.oaas.invocation.dataflow.OneShotDataflowInvoker;
-import org.hpcclab.oaas.invoker.InvocationRecordHandler;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Dependent
 public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerticle<InvocationRequest> {
@@ -40,7 +33,8 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord, InvocationRequest request) {
-    invocationRecordHandler.handleRecord(kafkaRecord, request, (rec, req) -> next(rec));
+  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+                           InvocationRequest request) {
+    invocationRecordHandler.handleRecord(kafkaRecord, request, this::next, false);
   }
 }

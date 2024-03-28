@@ -15,7 +15,6 @@ public class FunctionValidationException extends OaasValidationException {
     );
   }
 
-
   public static FunctionValidationException accessError(String objId, String funcName) {
     return new FunctionValidationException("An object(id='%s') has a function(name='%s') without PUBLIC access."
       .formatted(objId, funcName)

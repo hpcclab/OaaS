@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: package-manager
+  labels:
+    app: package-manager
+    platform: oaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: package-manager
+      platform: oaas
+  template:
+    metadata:
+      labels:
+        app: package-manager
+        platform: oaas
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: package-manager
+                topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: class-manager
+          envFrom:
+            - configMapRef:
+                name: oaas-env
+            - configMapRef:
+                name: oaas-cr-config
+            - secretRef:
+                name: oaas-data
+          image: ghcr.io/hpcclab/oaas/package-manager:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            limits:
+              memory: 512M
+              cpu: '0.5'
+            requests:
+              cpu: '0.1'
+              memory: 256M
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: package-manager
+  labels:
+    app: package-manager
+    platform: oaas
+spec:
+  selector:
+    app: package-manager
+    platform: oaas
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080

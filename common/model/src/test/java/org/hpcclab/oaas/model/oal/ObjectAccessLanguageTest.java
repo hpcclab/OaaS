@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.oal;
 
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,9 +16,15 @@ class ObjectAccessLanguageTest {
     return UUID.randomUUID().toString();
   }
 
+  String cls() {
+    return "example.record";
+  }
+
   @Test
   void testValid() {
     assertTrue(ObjectAccessLanguage.validate(id()));
+    assertTrue(ObjectAccessLanguage.validate("_%s~%s".formatted(cls(),id())));
+    assertTrue(ObjectAccessLanguage.validate("_%s/%s".formatted(cls(),id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test".formatted(id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test()".formatted(id())));
     assertTrue(ObjectAccessLanguage.validate("%s:test(%s)".formatted(id(),id())));
@@ -54,22 +61,24 @@ class ObjectAccessLanguageTest {
     assertNull(fc.getFb());
 
     fc = ObjectAccessLanguage.parse(
-      "%s:test".formatted(ids.get(0))
+      "_%s~%s:test".formatted(cls(), ids.get(0))
     );
     assertNotNull(fc);
+    assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
-    assertNull(fc.getInputs());
-    assertNull(fc.getArgs());
+    assertTrue(fc.getInputs().isEmpty());
+    assertTrue(fc.getArgs().isEmpty());
 
     fc = ObjectAccessLanguage.parse(
-      "%s:test()".formatted(ids.get(0))
+      "_%s/%s:test()".formatted(cls(), ids.get(0))
     );
     assertNotNull(fc);
+    assertEquals(cls(), fc.cls);
     assertEquals(ids.get(0), fc.getMain());
     assertEquals("test", fc.fb);
-    assertNull(fc.getInputs());
-    assertNull(fc.getArgs());
+    assertTrue(fc.getInputs().isEmpty());
+    assertTrue(fc.getArgs().isEmpty());
 
 
     fc = ObjectAccessLanguage.parse(
@@ -81,7 +90,7 @@ class ObjectAccessLanguageTest {
     assertNotNull(fc.getInputs());
     assertEquals(1, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
-    assertNull(fc.getArgs());
+    assertTrue(fc.getArgs().isEmpty());
 
     fc = ObjectAccessLanguage.parse(
       "%s:test(%s,%s)()".formatted(ids.get(0), ids.get(1), ids.get(2))
@@ -93,7 +102,7 @@ class ObjectAccessLanguageTest {
     assertEquals(2, fc.getInputs().size());
     assertEquals(ids.get(1), fc.getInputs().get(0));
     assertEquals(ids.get(2), fc.getInputs().get(1));
-    assertNull(fc.getArgs());
+    assertTrue(fc.getArgs().isEmpty());
 
 
     fc = ObjectAccessLanguage.parse(
@@ -186,7 +195,7 @@ class ObjectAccessLanguageTest {
       .main(ids.get(0))
       .fb("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
-      .args(Map.of("aaa","bbb"))
+      .args(DSMap.of("aaa","bbb"))
       .build();
     assertEquals(
       "%s:more.test(%s,%s)(aaa=bbb)".formatted(ids.get(0),ids.get(1), ids.get(2)),
@@ -197,7 +206,7 @@ class ObjectAccessLanguageTest {
       .main(ids.get(0))
       .fb("more.test")
       .inputs(List.of(ids.get(1),ids.get(2)))
-      .args(Map.of("aaa","bbb", "231aa^()", "-*/++"))
+      .args(DSMap.of("aaa","bbb", "231aa^()", "-*/++"))
       .build();
 
     assertEquals(

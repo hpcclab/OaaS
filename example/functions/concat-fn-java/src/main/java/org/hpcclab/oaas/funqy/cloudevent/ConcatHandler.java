@@ -16,8 +16,8 @@ import io.vertx.mutiny.ext.web.client.predicate.ResponsePredicate;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.model.object.ObjectUpdate;
-import org.hpcclab.oaas.model.task.OaasTask;
+import org.hpcclab.oaas.model.object.OOUpdate;
+import org.hpcclab.oaas.model.task.OTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +44,11 @@ public class ConcatHandler {
     responseSource = "oaas/concat",
     responseType = "oaas.task.result"
   )
-  public Uni<CloudEvent<TaskCompletion>> handle(OaasTask task, @Context CloudEvent<OaasTask> event) {
+  public Uni<CloudEvent<TaskCompletion>> handle(OTask task, @Context CloudEvent<OTask> event) {
     var args = task.getArgs();
     var inputUrl = task.getMainKeys().get("text");
     var inPlace = Boolean.parseBoolean(args.getOrDefault("INPLACE", "false"));
-    var update = new ObjectUpdate().setUpdatedKeys(Set.of("text"));
+    var update = new OOUpdate().setUpdatedKeys(Set.of("text"));
     var completionBuilder = TaskCompletion.builder()
       .id(task.getId())
       .success(true);
@@ -60,7 +60,7 @@ public class ConcatHandler {
     if (allocUrl==null)
       return Uni.createFrom()
         .item(CloudEventBuilder.create()
-          .id(task.getId().toString())
+          .id(task.getId())
           .type("oaas.task.result")
           .source("oaas/concat")
           .build(completionBuilder.success(false).errorMsg("Can not find proper alloc URL").build()));
@@ -74,7 +74,7 @@ public class ConcatHandler {
           text);
       })
       .map(text -> CloudEventBuilder.create()
-        .id(task.getId().toString())
+        .id(task.getId())
         .type("oaas.task.result")
         .source("oaas/concat")
         .build(completionBuilder.build())

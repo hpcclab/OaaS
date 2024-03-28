@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-import static org.hpcclab.oaas.arango.ConversionUtils.createUni;
+import static org.hpcclab.oaas.arango.MutinyUtils.createUni;
 import static org.hpcclab.oaas.arango.repo.AbstractArgRepository.replaceOptions;
 
 public class ArgAtomicService<V> implements AtomicOperationService<String, V> {
@@ -23,7 +23,7 @@ public class ArgAtomicService<V> implements AtomicOperationService<String, V> {
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V v) {
+  public Uni<V> persistWithRevAsync(V v) {
     String key = repository.extractKey(v);
     if (logger.isDebugEnabled())
       logger.debug("persistWithPreconditionAsync[{}] {}", repository.getCollection().name(), key);
@@ -33,7 +33,7 @@ public class ArgAtomicService<V> implements AtomicOperationService<String, V> {
   }
 
   @Override
-  public Uni<Void> persistWithPreconditionAsync(Collection<V> collection) {
+  public Uni<Void> persistWithRevAsync(Collection<V> collection) {
     if (logger.isDebugEnabled())
       logger.debug("persistWithPreconditionAsync(col)[{}] {}",
         repository.getCollection().name(), collection.size());

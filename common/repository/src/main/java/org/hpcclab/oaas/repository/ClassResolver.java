@@ -1,11 +1,9 @@
 package org.hpcclab.oaas.repository;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.model.cls.OaasClass;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.ReferenceSpecification;
 import org.hpcclab.oaas.model.cls.ResolvedMember;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
@@ -20,14 +18,16 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
 public class ClassResolver {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassResolver.class);
 
-  @Inject
   ClassRepository clsRepo;
 
-  public OaasClass resolve(OaasClass base, List<OaasClass> parentClasses) {
+  public ClassResolver(ClassRepository clsRepo) {
+    this.clsRepo = clsRepo;
+  }
+
+  public OClass resolve(OClass base, List<OClass> parentClasses) {
     var resolved = base.copy();
     if (parentClasses.isEmpty()) {
       ResolvedMember resolvedMember = new ResolvedMember(
@@ -85,19 +85,19 @@ public class ClassResolver {
     return resolved.setResolved(resolvedMember);
   }
 
-  public OaasClass resolveInheritance(OaasClass baseCls,
-                                      Map<String, OaasClass> clsMap,
-                                      Set<String> path) {
+  public OClass resolveInheritance(OClass baseCls,
+                                   Map<String, OClass> clsMap,
+                                   Set<String> path) {
     if (path.contains(baseCls.getKey())){
       throw OaasValidationException.errorClassCyclicInheritance(path);
     }
     path.add(baseCls.getKey());
     if (baseCls.getParents() ==null) baseCls.setParents(List.of());
-    LOGGER.info("resolve {} {}", baseCls, baseCls.getParents());
+    LOGGER.debug("resolve {} {}", baseCls, baseCls.getParents());
     var parentClasses = baseCls.getParents()
       .stream()
       .map(clsKey -> {
-        OaasClass cls;
+        OClass cls;
         if (clsMap.containsKey(clsKey))
           cls = clsMap.get(clsKey);
         else
@@ -113,7 +113,7 @@ public class ClassResolver {
     return newCls;
   }
 
-  public Map<String, OaasClass> resolveInheritance(Map<String, OaasClass> clsMap) {
+  public Map<String, OClass> resolveInheritance(Map<String, OClass> clsMap) {
     var startingClasses = List.copyOf(clsMap.values());
     var ctxMap = Maps.mutable.ofMap(clsMap);
     for (var cls : startingClasses) {

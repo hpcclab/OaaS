@@ -1,50 +1,35 @@
 package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
-import com.arangodb.async.ArangoCollectionAsync;
+import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
-import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.factory.Maps;
-import org.eclipse.collections.api.factory.Sets;
-import org.hpcclab.oaas.arango.CacheFactory;
-import org.hpcclab.oaas.model.cls.OaasClass;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.ClassResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import org.hpcclab.oaas.arango.CacheFactory;
+import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.repository.ClassRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-@ApplicationScoped
-public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> implements ClassRepository {
-  private static final Logger LOGGER = LoggerFactory.getLogger( ArgClsRepository.class );
 
-  @Inject
-  @Named("ClassCollection")
+public class ArgClsRepository extends AbstractArgRepository<OClass> implements ClassRepository {
+
+
+  private final Cache<String, OClass> cache;
   ArangoCollection collection;
-  @Inject
-  @Named("ClassCollectionAsync")
   ArangoCollectionAsync collectionAsync;
+  CacheFactory cacheFactory;
 
   @Inject
-  CacheFactory cacheFactory;
-  private Cache<String, OaasClass> cache;
-  private Cache<String, List<String>> subClsCache;
-
-  @PostConstruct
-  void setup() {
+  public ArgClsRepository(ArangoCollection collection,
+                          ArangoCollectionAsync collectionAsync,
+                          CacheFactory cacheFactory) {
+    this.collection = collection;
+    this.collectionAsync = collectionAsync;
+    this.cacheFactory = cacheFactory;
     cache = cacheFactory.get();
-    subClsCache = cacheFactory.getLongTermVer();
   }
+
 
   @Override
   public ArangoCollection getCollection() {
@@ -57,40 +42,20 @@ public class ArgClsRepository extends AbstractCachedArgRepository<OaasClass> imp
   }
 
   @Override
-  public Class<OaasClass> getValueCls() {
-    return OaasClass.class;
+  public Class<OClass> getValueCls() {
+    return OClass.class;
   }
 
   @Override
-  public String extractKey(OaasClass cls) {
+  public String extractKey(OClass cls) {
     return cls.getKey();
   }
-
-  @Override
-  Cache<String, OaasClass> cache() {
+  Cache<String, OClass> cache() {
     return cache;
   }
 
   @Override
-  public Uni<List<String>> listSubClsKeys(String clsKey) {
-    var res = subClsCache.getIfPresent(clsKey);
-    if (res != null)
-      return Uni.createFrom().item(res);
-    var query = """
-      FOR cls IN @@col
-        FILTER cls.resolved.identities ANY == @key
-        return cls._key
-      """;
-    var param = Map.<String, Object>of(
-      "@col", getCollection().name(),
-      "key", clsKey
-    );
-    return this.queryService.queryAsync(query, String.class, param)
-      .invoke(l -> subClsCache.put(clsKey, l));
-  }
-
-  @Override
-  public List<OaasClass> listSubCls(String clsKey) {
+  public List<OClass> listSubCls(String clsKey) {
     var query = """
       FOR cls IN @@col
         FILTER cls.resolved.identities ANY == @key

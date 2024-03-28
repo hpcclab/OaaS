@@ -11,14 +11,14 @@ import java.util.Random;
 public class DefaultAtomicOperationService<K,V extends HasKey<K>>
   implements AtomicOperationService<K,V> {
   Random random = new Random();
-  EntityRepository<K,V> repository;
+  AsyncEntityRepository<K,V> repository;
 
-  public DefaultAtomicOperationService(EntityRepository<K, V> repository) {
+  public DefaultAtomicOperationService(AsyncEntityRepository<K, V> repository) {
     this.repository = repository;
   }
 
   @Override
-  public Uni<V> persistWithPreconditionAsync(V value) {
+  public Uni<V> persistWithRevAsync(V value) {
     if (!(value instanceof HasRev))
       throw new IllegalArgumentException();
     var addRev = random.nextLong(1_000_000);

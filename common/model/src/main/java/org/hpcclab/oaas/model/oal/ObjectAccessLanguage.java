@@ -3,40 +3,43 @@ package org.hpcclab.oaas.model.oal;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-@SuperBuilder
+@Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ObjectAccessLanguage {
   // language=RegExp
   private static final String EXPR_REGEX =
-    "^(?:_(?<cls>[a-zA-Z0-9._-]+[~/]?))?(?<main>[a-zA-Z0-9-]*)(?::(?<fn>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^)]*)\\))?)?)?$";
+    "^(?:_(?<cls>[a-zA-Z0-9._-]+)[~/]?)?(?<main>[a-zA-Z0-9-]*)(?::(?<fn>[a-zA-Z0-9._-]+)(?:\\((?<inputs>[a-zA-Z0-9,-]*)\\)(\\((?<args>[^)]*)\\))?)?)?$";
   private static final Pattern EXPR_PATTERN = Pattern.compile(EXPR_REGEX);
   final String main;
   final String cls;
   final String fb;
   final ObjectNode body;
-  final Map<String, String> args;
+  final DSMap args;
   final List<String> inputs;
 
   @JsonCreator
-  public ObjectAccessLanguage(String main, String mainCls, String fb, Map<String, String> args, List<String> inputs, ObjectNode body) {
+  public ObjectAccessLanguage(String main, String cls, String fb, ObjectNode body, DSMap args, List<String> inputs) {
     this.main = main;
-    this.cls = mainCls;
+    this.cls = cls;
     this.fb = fb;
-    this.args = args;
-    this.inputs = inputs;
     this.body = body;
+    this.args = args == null? DSMap.of(): args;
+    this.inputs = inputs == null? List.of(): inputs;
   }
 
   public static boolean validate(String expr) {
@@ -67,20 +70,21 @@ public class ObjectAccessLanguage {
       oal.inputs(list);
     }
     if (args!=null && !args.isEmpty()) {
-      var argMap = Arrays.stream(args.split(","))
-        .map(pair -> {
+      var argMap = Lists.fixedSize.of(args.split(","))
+        .collect(pair -> {
           var kv = pair.split("=");
           if (kv.length!=2) throw new OalParsingException("Arguments parsing exception");
-          return Map.entry(kv[0], kv[1]);
+          return Tuples.pair(kv[0], kv[1]);
         })
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      oal.args(argMap);
+        .toMap(Pair::getOne, Pair::getTwo);
+      oal.args(DSMap.wrap(argMap));
     }
     return oal.build();
   }
 
   public InvocationRequest.InvocationRequestBuilder toRequest() {
     return InvocationRequest.builder()
+      .partKey(main)
       .main(main)
       .cls(cls)
       .fb(fb)

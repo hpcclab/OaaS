@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "oprc-package.proto";
+import "oprc-class.proto";
+import "oprc-function.proto";
+import "oprc-common.proto";
+import "oprc-cr.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service PackageService {
+  rpc createOrUpdate(ProtoOPackage) returns (ProtoOPackage) {};
+  rpc get(SingleKeyQuery) returns (ProtoOPackage) {};
+}
+
+service ClassService {
+  rpc list(PaginateQuery) returns (stream ProtoOClass) {};
+  rpc get(SingleKeyQuery) returns (ProtoOClass) {};
+  rpc select(MultiKeyQuery) returns (stream ProtoOClass) {};
+}
+
+service FunctionService {
+  rpc list(PaginateQuery) returns (stream ProtoOFunction) {};
+  rpc get(SingleKeyQuery) returns (ProtoOFunction) {};
+  rpc select(MultiKeyQuery) returns (stream ProtoOFunction) {};
+}
+
+service CrStateService{
+  rpc list(PaginateQuery) returns (stream ProtoCr) {};
+  rpc get(SingleKeyQuery) returns (ProtoCr) {};
+}

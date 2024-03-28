@@ -9,11 +9,11 @@ import java.util.Set;
 public interface Copyable <T>{
   T copy();
 
- public static <T> List<T> copy(List<Copyable<T>> original) {
+ static <T> List<T> copy(List<Copyable<T>> original) {
     return Lists.fixedSize.ofAll(original)
       .collect(o -> o.copy());
   }
- public static <T> Set<T> copy(Set<Copyable<T>> original) {
+ static <T> Set<T> copy(Set<Copyable<T>> original) {
     return Sets.fixedSize.ofAll(original)
       .collect(o -> o.copy());
   }

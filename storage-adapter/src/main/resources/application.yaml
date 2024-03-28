@@ -1,21 +1,5 @@
-"%test":
-  oaas:
-    sa:
-      s3:
-        accessKey: accessKey
-        secretKey: secretKey
-        url: http://s3.test.com
-        publicUrl: http://s3.test.com
-
-#"%prod":
-#  quarkus:
-#    infinispan-client:
-#      auth-username: ${infinispan.username:}
-#      auth-password: ${infinispan.password:}
-#      server-list: ${infinispan.server:}
-
 "%dev":
-  oaas:
+  oprc:
     log: DEBUG
   quarkus:
     http:
@@ -23,8 +7,20 @@
     console:
       color: true
 
-oaas:
+oprc:
   log: INFO
+  env: |
+    OPRC_DB_PKG_HOST=localhost
+    OPRC_DB_PKG_PORT=8529
+    OPRC_DB_PKG_USER=root
+    OPRC_DB_DEFAULT_HOST=localhost
+    OPRC_DB_DEFAULT_PORT=8529
+    OPRC_DB_DEFAULT_USER=root
+    OPRC_DB_S3DEFAULT_URL=http://localhost:9090
+    OPRC_DB_S3DEFAULT_BUCKET=oaas-bkt
+    OPRC_DB_S3DEFAULT_PUBLICURL=http://localhost:9090
+    OPRC_DB_S3DEFAULT_USER=minio_access_key
+    OPRC_DB_S3DEFAULT_PASS=minio_secret_key
 
 quarkus:
   s3:
@@ -45,4 +41,4 @@ quarkus:
   log:
     category:
       "org.hpcclab.oaas":
-        level: ${oaas.log}
+        level: ${oprc.log}

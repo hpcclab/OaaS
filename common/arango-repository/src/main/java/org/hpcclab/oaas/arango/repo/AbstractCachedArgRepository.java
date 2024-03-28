@@ -120,8 +120,8 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
 
   @Override
   public Uni<V> computeAsync(String key, BiFunction<String, V, V> function) {
-    LOGGER.debug("computeAsync(cache)[{}] {}",
-      getCollection().name(), key);
+    if (LOGGER.isDebugEnabled())
+      LOGGER.debug("computeAsync(cache)[{}] {}", getCollection().name(), key);
     cache().invalidate(key);
     var uni = Uni.createFrom()
       .completionStage(() -> {
@@ -133,8 +133,7 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
               return getAsyncCollection().replaceDocument(key, newDoc, replaceOptions())
                 .thenApply(__ -> newDoc);
             });
-        }
-      )
+        })
       .onFailure(ArangoDBException.class)
       .retry().atMost(5)
       .invoke(val -> cache().put(key, val));
@@ -171,6 +170,11 @@ public abstract class AbstractCachedArgRepository<V> extends AbstractArgReposito
   @Override
   public void invalidate(String key) {
     cache().invalidate(key);
+  }
+
+  @Override
+  public void invalidate(Collection<String> keys) {
+    cache().invalidateAll(keys);
   }
 
 }

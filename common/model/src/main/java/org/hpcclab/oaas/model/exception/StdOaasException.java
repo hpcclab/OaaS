@@ -50,9 +50,6 @@ public class StdOaasException extends RuntimeException {
     return new StdOaasException("Not found class(name='" + name + "')", code);
   }
 
-  public static StdOaasException notFoundFunc400(String name) {
-    return notFoundFunc(name, 400);
-  }
   public static StdOaasException notFoundFunc(String name, int code) {
     return new StdOaasException("Not found function(name='" + name + "')", code);
   }

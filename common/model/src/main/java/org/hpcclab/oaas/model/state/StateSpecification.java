@@ -28,9 +28,6 @@ public class StateSpecification implements Copyable<StateSpecification> {
 
   public void validate() {
     if (defaultProvider == null) defaultProvider = "s3";
-    for (KeySpecification keySpec : keySpecs) {
-      if (keySpec.getProvider() == null) keySpec.setProvider(defaultProvider);
-    }
   }
 
 
