@@ -59,6 +59,8 @@ public class InvokerInitializer {
   void init(@Observes StartupEvent event) throws Throwable {
     VertxContextSupport.subscribeAndAwait(() ->
       Vertx.currentContext().executeBlocking(() -> {
+        hashListener.setHandler(hashRegistry::updateLocal)
+          .start().await().indefinitely();
         loadAssignedCls();
         clsListener.setHandler(cls -> {
             logger.info("receive cls[{}] update event", cls.getKey());
@@ -73,8 +75,6 @@ public class InvokerInitializer {
               .subscribe().with(v -> {
               });
           })
-          .start().await().indefinitely();
-        hashListener.setHandler(hashRegistry::updateLocal)
           .start().await().indefinitely();
         if (config.warmHashCache())
           hashRegistry.warmCache().await().indefinitely();
