@@ -74,7 +74,8 @@ public class IspnCacheCreator {
       .cacheMode(CacheMode.DIST_SYNC)
       .hash().numOwners(ispnConfig.objStore().owner())
       .numSegments(conf.getPartitions())
-      .stateTransfer().awaitInitialTransfer(cacheStore.awaitInitialTransfer())
+      .stateTransfer()
+      .awaitInitialTransfer(cacheStore.awaitInitialTransfer())
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
@@ -86,6 +87,7 @@ public class IspnCacheCreator {
       .isolationLevel(IsolationLevel.READ_COMMITTED)
       .memory()
       .storage(cacheStore.storageType())
+      .maxSize(cacheStore.maxSize().orElse(null))
       .maxCount(cacheStore.maxCount())
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
