@@ -10,9 +10,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeySpecification {
-  @ProtoField(1)
   String name;
-  @ProtoField(2)
   KeyAccessModifier access = KeyAccessModifier.PUBLIC;
 
   public KeySpecification() {
@@ -22,8 +20,6 @@ public class KeySpecification {
     this.name = name;
   }
 
-
-  @ProtoFactory
   public KeySpecification(String name,  KeyAccessModifier access) {
     this.name = name;
     this.access = access;

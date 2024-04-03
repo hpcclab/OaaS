@@ -861,10 +861,6 @@ components:
           type: array
           items:
             type: string
-        options:
-          type: object
-          additionalProperties:
-            type: string
     OPackage_Public:
       type: object
       properties:
@@ -881,10 +877,6 @@ components:
         required:
           type: array
           items:
-            type: string
-        options:
-          type: object
-          additionalProperties:
             type: string
     OrbitState:
       type: object

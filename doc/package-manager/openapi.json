@@ -1184,12 +1184,6 @@
             "items" : {
               "type" : "string"
             }
-          },
-          "options" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
           }
         }
       },
@@ -1214,12 +1208,6 @@
           "required" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
-            }
-          },
-          "options" : {
-            "type" : "object",
-            "additionalProperties" : {
               "type" : "string"
             }
           }

@@ -14,23 +14,14 @@ import java.util.List;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionBinding {
-  @ProtoField(1)
   FunctionAccessModifier access = FunctionAccessModifier.PUBLIC;
-  @ProtoField(2)
   String function;
-  @ProtoField(3)
   String name;
-  @ProtoField(value = 5)
   DSMap defaultArgs;
-  @ProtoField(6)
   String description;
-  @ProtoField(7)
   String outputCls;
-  @ProtoField(value = 8, defaultValue = "false")
   boolean forceImmutable = false;
-  @ProtoField(value = 9, defaultValue = "false")
   boolean noMain;
-  @ProtoField(10)
   List<String> inputTypes;
 
 

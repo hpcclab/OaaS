@@ -23,7 +23,6 @@ public record InvocationRequest(
   boolean immutable,
   String invId,
   String outId,
-  boolean preloadingNode,
   long queTs,
   ObjectNode body,
   @JsonIgnore String partKey
