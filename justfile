@@ -37,6 +37,11 @@ k8s-deploy-light: k8s-deploy-deps
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
   kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
 
+k8s-deploy-dev: k8s-deploy-deps
+  kubectl apply -n oaas -k deploy/oaas/dev
+  kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
+
 k3d-reload: k3d-build-image
   kubectl -n oaas rollout restart deployment -l platform=oaas
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
