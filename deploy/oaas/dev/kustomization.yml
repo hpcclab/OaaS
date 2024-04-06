@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+
+images:
+  - name: ghcr.io/hpcclab/oaas/package-manager
+    newTag: dev
+  - name: ghcr.io/hpcclab/oaas/class-runtime-manager
+    newTag: dev
+  - name: ghcr.io/hpcclab/oaas/storage-adapter
+    newTag: dev
+  - name: ghcr.io/hpcclab/oaas/invoker
+    newTag: dev
+
+patches:
+  - path: env-configmap.yml
+
+configMapGenerator:
+  - name: oaas-cr-config
+    options:
+      disableNameSuffixHash: true
+    behavior: replace
+    files:
+      - OPRC_CRM_TEMPLATEOVERRIDE=oaas-crts.yml

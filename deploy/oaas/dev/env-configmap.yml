@@ -1,0 +1,21 @@
+apiVersion: v1
+data:
+  JAVA_OPTIONS: "-Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:MaxDirectMemorySize=512m"
+  QUARKUS_CONSOLE_COLOR: 'true'
+  QUARKUS_HTTP_CORS: 'true'
+  KAFKA_BOOTSTRAP_SERVERS: "oaas-kafka-bootstrap:9092"
+  OPRC_LOG: "DEBUG"
+  OPRC_PM_CRMHOST: "class-runtime-manager"
+  OPRC_PM_CRMPORT: "80"
+  OPRC_CRM_PMHOST: "package-manager"
+  OPRC_CRM_PMPORT: "80"
+  OPRC_CRM_MONITORDISABLE: "true"
+  OPRC_CRM_UPTIMEPERCENTAGE: "0.99"
+  OPRC_CRM_EXPOSEKNATIVE: "false"
+  OPRC_ENVCONF_PMHOST: "package-manager"
+  OPRC_ENVCONF_PMPORT: "80"
+  OPRC_ENVCONF_KAFKA: "oaas-kafka-bootstrap:9092"
+
+kind: ConfigMap
+metadata:
+  name: oaas-env
