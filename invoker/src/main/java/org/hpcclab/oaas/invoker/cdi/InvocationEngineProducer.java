@@ -2,18 +2,13 @@ package org.hpcclab.oaas.invoker.cdi;
 
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
-import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.mutiny.core.Vertx;
-import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
-import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.task.HttpOffLoader;
-import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
@@ -68,10 +63,10 @@ public class InvocationEngineProducer {
 
   @Produces
   @ApplicationScoped
-  ControllerInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
-                                                                CtxLoader ctxLoader,
-                                                                IdGenerator idGenerator) {
-    return new ControllerInvocationReqHandler(classControllerRegistry,
+  CcInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
+                                                        CtxLoader ctxLoader,
+                                                        IdGenerator idGenerator) {
+    return new CcInvocationReqHandler(classControllerRegistry,
       ctxLoader,
       idGenerator);
   }

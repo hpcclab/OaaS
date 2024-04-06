@@ -78,6 +78,9 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean enableCeHeaderOffload();
 
+  @WithDefault("false")
+  boolean enableInvReqMetric();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }

@@ -60,6 +60,28 @@ public class IspnCacheCreator {
     }
   }
 
+  public <V> Cache<String, V> createReplicateCache(String name, int maxCount) {
+    if (cacheManager.cacheExists(name)) {
+      return cacheManager.getCache(name);
+    }
+    var cb = new ConfigurationBuilder()
+      .clustering()
+      .cacheMode(CacheMode.REPL_SYNC)
+      .stateTransfer()
+      .awaitInitialTransfer(true)
+      .encoding()
+      .key().mediaType(TEXT_PLAIN_TYPE)
+      .encoding()
+      .value().mediaType(APPLICATION_OBJECT_TYPE)
+      .persistence()
+      .memory()
+      .storage(StorageType.HEAP)
+      .maxCount(maxCount)
+      .whenFull(EvictionStrategy.REMOVE)
+      .statistics().enabled(false);
+    return cacheManager.createCache(name, cb.build());
+  }
+
   public Configuration getCacheDistConfig(OClass cls,
                                           IspnConfig.CacheStore cacheStore,
                                           DatastoreConf datastoreConf,

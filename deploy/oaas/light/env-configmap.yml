@@ -9,7 +9,7 @@ data:
   OPRC_PM_CRMPORT: "80"
   OPRC_CRM_PMHOST: "package-manager"
   OPRC_CRM_PMPORT: "80"
-  OPRC_CRM_PROMURL: "http://prometheus-kube-prometheus-prometheus:9090"
+  OPRC_CRM_MONITORDISABLE: "true"
   OPRC_CRM_UPTIMEPERCENTAGE: "0.99"
   OPRC_CRM_EXPOSEKNATIVE: "false"
   OPRC_ENVCONF_PMHOST: "package-manager"

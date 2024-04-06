@@ -45,6 +45,8 @@ public class ObserverLoopRunner {
   public void setup() {
     if (!config.monitorDisable())
       vertx.setPeriodic(interval, id -> executor.execute(this::optimizationLoopExecute));
+    else
+      logger.warn("monitor disabled!!!");
   }
 
   public void optimizationLoopExecute() {

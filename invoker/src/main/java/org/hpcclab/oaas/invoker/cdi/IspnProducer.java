@@ -10,7 +10,9 @@ import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.proto.InternalCrStateService;
+import org.hpcclab.oaas.proto.ProtoCrHash;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
+import org.infinispan.Cache;
 import org.infinispan.lock.EmbeddedClusteredLockManagerFactory;
 import org.infinispan.lock.api.ClusteredLockManager;
 import org.infinispan.manager.EmbeddedCacheManager;
@@ -28,8 +30,11 @@ public class IspnProducer {
 
   @Produces
   @ApplicationScoped
-  HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService) {
-    return new HashRegistry(crStateService);
+  HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService,
+                            IspnCacheCreator cacheCreator) {
+    Cache<String, ProtoCrHash> replicatedCache = cacheCreator
+      .createReplicateCache("hashRegistry", 100000);
+    return new HashRegistry(crStateService, replicatedCache);
   }
 
   @Produces

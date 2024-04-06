@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.Vertx;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;

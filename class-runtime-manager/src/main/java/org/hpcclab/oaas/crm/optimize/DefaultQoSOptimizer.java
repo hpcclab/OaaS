@@ -184,7 +184,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var meanCpu = mean(metrics.cpu());
     if (targetRps <= 0)
       return AdjustComponent.NONE;
-    if (meanRps < 0.1) {// < 0.1 is too little. Preventing result explode
+    if (meanRps < 1) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee
     }
     var totalRequestCpu = Math.max(1, instanceSpec.minInstance()) * instanceSpec.requestsCpu();

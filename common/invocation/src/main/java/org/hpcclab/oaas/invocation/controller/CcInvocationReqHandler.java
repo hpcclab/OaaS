@@ -13,14 +13,14 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
 /**
  * @author Pawissanutt
  */
-public class ControllerInvocationReqHandler implements InvocationReqHandler {
+public class CcInvocationReqHandler implements InvocationReqHandler {
   protected final ClassControllerRegistry classControllerRegistry;
   protected final CtxLoader ctxLoader;
   protected final IdGenerator idGenerator;
 
-  public ControllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
-                                        CtxLoader ctxLoader,
-                                        IdGenerator idGenerator) {
+  public CcInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
+                                CtxLoader ctxLoader,
+                                IdGenerator idGenerator) {
     this.classControllerRegistry = classControllerRegistry;
     this.ctxLoader = ctxLoader;
     this.idGenerator = idGenerator;
