@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
     <artifactId>oaas-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>999-SNAPSHOT</version>
   </parent>
   <artifactId>storage-adapter</artifactId>
   <properties>
