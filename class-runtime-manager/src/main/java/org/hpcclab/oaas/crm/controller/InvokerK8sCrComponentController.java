@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
@@ -19,8 +20,11 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
  */
 public class InvokerK8sCrComponentController extends AbstractK8sCrComponentController {
 
-  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
+  final CrmConfig crmConfig ;
+
+  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,  CrmConfig crmConfig) {
     super(svcConfig);
+    this.crmConfig = crmConfig;
   }
 
   @Override
@@ -31,14 +35,21 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       CR_COMPONENT_LABEL_KEY, INVOKER.getSvc()
     );
     String name = prefix + INVOKER.getSvc();
+    List<HasMetadata> resources = Lists.mutable.of();
     var deployment = createDeployment(
       "/crts/invoker-dep.yml",
       name,
       labels,
       instanceSpec
     );
-    var podMonitor = K8sResourceUtil
-      .createPodMonitor(name, namespace, labels);
+    resources.add(deployment);
+
+    if (!crmConfig.monitorDisable()) {
+      var podMonitor = K8sResourceUtil
+        .createPodMonitor(name, namespace, labels);
+      resources.add(podMonitor);
+    }
+
     attachSecret(deployment, prefix + NAME_SECRET);
     attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
@@ -49,6 +60,8 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       "/crts/invoker-svc-ping.yml",
       prefix + "invoker-ping",
       labels);
+    resources.add(invokerSvc);
+    resources.add(invokerSvcPing);
     var container = deployment.getSpec().getTemplate().getSpec()
       .getContainers().getFirst();
     addEnv(container, "ISPN_DNS_PING",
@@ -73,10 +86,9 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       );
     if (!instanceSpec.disableHpa()) {
       var hpa = createHpa(instanceSpec, labels, name, name);
-      return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing, hpa);
-    } else {
-      return List.of(deployment, podMonitor, invokerSvc, invokerSvcPing);
+      resources.add(hpa);
     }
+    return resources;
   }
 
 

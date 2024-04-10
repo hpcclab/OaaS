@@ -34,7 +34,7 @@ You can install this cli by using https://www.jbang.dev/[jbang] and run the foll
 ----
 ./mvnw package -DskipTests
 cd cli
-jbang app install --name=ocli --force target/oprc-cli-1.0-SNAPSHOT-runner.jar
+jbang app install --name=ocli --force target/oprc-cli-0.2.0-SNAPSHOT-runner.jar
 ----
 
 == Usage

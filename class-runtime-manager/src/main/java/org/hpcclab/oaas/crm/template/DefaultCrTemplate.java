@@ -3,6 +3,7 @@ package org.hpcclab.oaas.crm.template;
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrControllerManager;
+import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.controller.*;
@@ -19,8 +20,9 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   public DefaultCrTemplate(String name,
                            KubernetesClient k8sClient,
                            QosOptimizer qosOptimizer,
-                           CrtConfig config) {
-    super(name, k8sClient, config, qosOptimizer);
+                           CrtConfig config,
+                           CrmConfig crmConfig) {
+    super(name, k8sClient, config, qosOptimizer, crmConfig);
   }
 
   @Override
@@ -41,7 +43,7 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public CrController create(OprcEnvironment.Config envConf, DeploymentUnit deploymentUnit) {
-    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
+    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()), crmConfig);
     var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
     var conf = new ConfigK8sCrComponentController(null);
     var kn = new KnativeCrFnController(config.functions(), envConf);
@@ -61,7 +63,7 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public CrController load(OprcEnvironment.Config env, ProtoCr cr) {
-    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()));
+    var invoker = new InvokerK8sCrComponentController(config.services().get(OprcComponent.INVOKER.getSvc()), crmConfig);
     var sa = new SaK8sCrComponentController(config.services().get(OprcComponent.STORAGE_ADAPTER.getSvc()));
     var conf = new ConfigK8sCrComponentController(null);
     var kn = new KnativeCrFnController(config.functions(), env);

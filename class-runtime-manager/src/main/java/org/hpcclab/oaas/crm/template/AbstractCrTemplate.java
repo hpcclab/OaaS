@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.template;
 
 import com.github.f4b6a3.tsid.TsidFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
@@ -15,13 +16,16 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
   protected final CrtMappingConfig.CrtConfig config;
   protected final QosOptimizer qosOptimizer;
   protected final String name;
+  protected final CrmConfig crmConfig;
 
   protected AbstractCrTemplate(String name,
                                KubernetesClient k8sClient,
                                CrtMappingConfig.CrtConfig config,
-                               QosOptimizer qosOptimizer) {
+                               QosOptimizer qosOptimizer,
+                               CrmConfig crmConfig) {
 
     this.name = name;
+    this.crmConfig = crmConfig;
     Objects.requireNonNull(k8sClient);
     this.k8sClient = k8sClient;
     Objects.requireNonNull(config);

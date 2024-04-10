@@ -92,7 +92,8 @@ public class CrTemplateManager {
         name,
         kubernetesClient,
         selectOptimizer(config),
-        config
+        config,
+        crmConfig
       );
     } else {
       throw new StdOaasException("No available CR template with type " + config.type());

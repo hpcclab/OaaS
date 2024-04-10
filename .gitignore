@@ -126,7 +126,7 @@ example/pkg/http-client.env.json
 *.bkp
 doc/diagrams/*.pdf
 doc/diagrams/**/*.pdf
-build.sh
+
 ### venv template
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
