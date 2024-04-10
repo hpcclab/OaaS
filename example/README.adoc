@@ -21,7 +21,6 @@ This section will explain how to use OaaS via using the text object as an exampl
 
 === Creating the class and its function
 
-
 [source,http request]
 ----
 POST http://<package_manager>/api/packages
@@ -29,10 +28,23 @@ Content-Type: text/x-yaml
 
 include::pkg/text.yml[]
 ----
+or using ocli command:
+[source, bash]
+----
+ocli p a example/pkg/text.yml
+----
 
 === Creating an object
 //Creating an object requires two steps:
 
+* Using `ocli` command
++
+[source, bash]
+----
+ocli o c example.text -f text=<path to text file>
+----
+
+* Using HTTP request
 . Submitting an object specification to Object Controller. We have to specify the class of a new object on `cls`. In this case, we are going to upload a text file into this object, so we have to specify the `keys` variable to ask Object Controller to generate the URL for uploading in the next step.
 +
 [source,http request]
@@ -73,6 +85,8 @@ Content-Type: text/plain
 <TEXT_FILE_DATA>
 ----
 
+
+
 === Requesting an object state data
 
 You can request the state data of any object via requesting to Content Delivery Service as the following example.
@@ -80,6 +94,11 @@ You can request the state data of any object via requesting to Content Delivery 
 [source,http request]
 ----
 GET http://<invoker>/api/classes/example.text/<object_id>/files/text
+----
+or using ocli command:
+[source, bash]
+----
+ocli o f -c example.text -m <object ID> text <path to download>
 ----
 
 === Invoking a function
@@ -90,7 +109,32 @@ With the Object Access Interface, we can also request the function invocation.
 ----
 GET http://<invoker>/api/classes/example.text/<object_id>/invokes/concat?APPEND=NEW_TEXT
 ----
+or using ocli command:
+[source, bash]
+----
+ocli i2 -c example.text -m <object ID> concat --args APPEND=NEW_TEXT
+----
 
+== Image Object
 
-// == Object Access Interface
-// More information of Object Access Interface (OAI) at  link:../OAI.adoc[the OAI document].
+You can still used the same command to work with the `image` object
+
+Here is the `ocli` examples:
+
+[source, bash]
+----
+# Create Image Class
+ocli p a example/pkg/image.yml
+
+# Create Image OBJECT
+ocli o c example.image -f image=<path to file>
+
+# Create Image OBJECT AND SAVE OBJECT ID FOR LATER USE (SAVE TO LOCAL CONFIG FILE)
+ocli o c example.image -f image=<path to file> -s
+
+# INVOKE resize FUNCTION TO THE SAVED OBJECT AND SAVE THE OUTPUT OBJECT ID
+ocli i2 resize  --args ratio=0.5 -s
+
+#DOWNLOAD IMAGE
+ocli o f image <path to download>
+----
