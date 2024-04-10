@@ -57,7 +57,7 @@ jobs:
 
     - name: Build and test project (concat)
       working-directory: example/functions/concat-fn-java
-      run: mvn versions:set -DnewVersion="${{ env.RELEASE_VERSION }}" && mvn -B package --file pom.xml
+      run: sed -i 's/999-SNAPSHOT/${{ env.RELEASE_VERSION }}/g' pom.xml && mvn -B package --file pom.xml
 
     - name: Build and push container image (concat)
       working-directory: example/functions/concat-fn-java
