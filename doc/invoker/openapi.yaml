@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvocationResponse'
+                $ref: "#/components/schemas/InvocationResponse"
     post:
       tags:
       - Class Resource
@@ -59,14 +59,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectNode'
+              $ref: "#/components/schemas/ObjectNode"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvocationResponse'
+                $ref: "#/components/schemas/InvocationResponse"
   /api/classes/{cls}/objects/{objId}:
     get:
       tags:
@@ -88,7 +88,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OObject'
+                $ref: "#/components/schemas/OObject"
   /api/classes/{cls}/objects/{objId}/files/{file}:
     get:
       tags:
@@ -145,7 +145,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvocationResponse'
+                $ref: "#/components/schemas/InvocationResponse"
     post:
       tags:
       - Object Access Resource
@@ -174,14 +174,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ObjectNode'
+              $ref: "#/components/schemas/ObjectNode"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvocationResponse'
+                $ref: "#/components/schemas/InvocationResponse"
 components:
   schemas:
     InvocationResponse:
@@ -197,9 +197,9 @@ components:
           format: int64
           type: integer
         main:
-          $ref: '#/components/schemas/OObject'
+          $ref: "#/components/schemas/OObject"
         output:
-          $ref: '#/components/schemas/OObject'
+          $ref: "#/components/schemas/OObject"
         invId:
           type: string
         fb:
@@ -209,11 +209,11 @@ components:
           additionalProperties:
             type: string
         status:
-          $ref: '#/components/schemas/InvocationStatus'
+          $ref: "#/components/schemas/InvocationStatus"
         async:
           type: boolean
         body:
-          $ref: '#/components/schemas/ObjectNode'
+          $ref: "#/components/schemas/ObjectNode"
     InvocationStatus:
       enum:
       - QUEUE
@@ -239,7 +239,7 @@ components:
         object:
           type: boolean
         nodeType:
-          $ref: '#/components/schemas/JsonNodeType'
+          $ref: "#/components/schemas/JsonNodeType"
         pojo:
           type: boolean
         number:
@@ -295,13 +295,13 @@ components:
         cls:
           type: string
         state:
-          $ref: '#/components/schemas/OaasObjectState'
+          $ref: "#/components/schemas/OaasObjectState"
         refs:
           type: object
           additionalProperties:
             type: string
         data:
-          $ref: '#/components/schemas/ObjectNode'
+          $ref: "#/components/schemas/ObjectNode"
         lastOffset:
           format: int64
           type: integer
@@ -321,4 +321,4 @@ components:
     ObjectNode:
       type: array
       items:
-        $ref: '#/components/schemas/JsonNode'
+        $ref: "#/components/schemas/JsonNode"

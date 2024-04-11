@@ -30,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginationOClassRuntime'
+                $ref: "#/components/schemas/PaginationOClassRuntime"
   /api/class-runtimes/{id}:
     delete:
       tags:
@@ -74,7 +74,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginationOClass_Public'
+                $ref: "#/components/schemas/PaginationOClass_Public"
   /api/classes/{clsKey}:
     get:
       tags:
@@ -91,7 +91,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OClass_Public'
+                $ref: "#/components/schemas/OClass_Public"
     delete:
       tags:
       - Class Resource
@@ -107,7 +107,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OClass_Public'
+                $ref: "#/components/schemas/OClass_Public"
   /api/functions:
     get:
       tags:
@@ -138,7 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginationOFunction_Public'
+                $ref: "#/components/schemas/PaginationOFunction_Public"
   /api/functions/{funcKey}:
     get:
       tags:
@@ -155,7 +155,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OFunction_Public'
+                $ref: "#/components/schemas/OFunction_Public"
     delete:
       tags:
       - Function Resource
@@ -171,7 +171,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OFunction_Public'
+                $ref: "#/components/schemas/OFunction_Public"
   /api/packages:
     post:
       tags:
@@ -183,14 +183,14 @@ paths:
               type: string
           application/json:
             schema:
-              $ref: '#/components/schemas/OPackage'
+              $ref: "#/components/schemas/OPackage"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OPackage_Public'
+                $ref: "#/components/schemas/OPackage_Public"
 components:
   schemas:
     ConsistencyModel:
@@ -229,9 +229,9 @@ components:
           items:
             type: string
         args:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
         argRefs:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
     DataflowStep_Public:
       type: object
       properties:
@@ -246,9 +246,9 @@ components:
           items:
             type: string
         args:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
         argRefs:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
     DatastoreLink:
       type: object
       properties:
@@ -295,13 +295,13 @@ components:
       type: object
       properties:
         access:
-          $ref: '#/components/schemas/FunctionAccessModifier'
+          $ref: "#/components/schemas/FunctionAccessModifier"
         function:
           type: string
         name:
           type: string
         defaultArgs:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
         description:
           type: string
         outputCls:
@@ -318,13 +318,13 @@ components:
       type: object
       properties:
         access:
-          $ref: '#/components/schemas/FunctionAccessModifier_Public'
+          $ref: "#/components/schemas/FunctionAccessModifier_Public"
         function:
           type: string
         name:
           type: string
         defaultArgs:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
         description:
           type: string
         outputCls:
@@ -386,7 +386,7 @@ components:
         limitsMemory:
           type: string
         env:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
         apiPath:
           type: string
         port:
@@ -411,7 +411,7 @@ components:
         limitsMemory:
           type: string
         env:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
         apiPath:
           type: string
         port:
@@ -439,14 +439,14 @@ components:
         name:
           type: string
         access:
-          $ref: '#/components/schemas/KeyAccessModifier'
+          $ref: "#/components/schemas/KeyAccessModifier"
     KeySpecification_Public:
       type: object
       properties:
         name:
           type: string
         access:
-          $ref: '#/components/schemas/KeyAccessModifier_Public'
+          $ref: "#/components/schemas/KeyAccessModifier_Public"
     KnativeProvision:
       type: object
       properties:
@@ -475,7 +475,7 @@ components:
         limitsMemory:
           type: string
         env:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
         apiPath:
           type: string
         port:
@@ -509,7 +509,7 @@ components:
         limitsMemory:
           type: string
         env:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
         apiPath:
           type: string
         port:
@@ -521,12 +521,12 @@ components:
         steps:
           type: array
           items:
-            $ref: '#/components/schemas/DataflowStep'
+            $ref: "#/components/schemas/DataflowStep"
         exports:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/WorkflowExport'
+            $ref: "#/components/schemas/WorkflowExport"
         export:
           type: string
         atomic:
@@ -537,12 +537,12 @@ components:
         steps:
           type: array
           items:
-            $ref: '#/components/schemas/DataflowStep_Public'
+            $ref: "#/components/schemas/DataflowStep_Public"
         exports:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/WorkflowExport_Public'
+            $ref: "#/components/schemas/WorkflowExport_Public"
         export:
           type: string
         atomic:
@@ -561,19 +561,19 @@ components:
         genericType:
           type: string
         objectType:
-          $ref: '#/components/schemas/OObjectType'
+          $ref: "#/components/schemas/OObjectType"
         stateType:
-          $ref: '#/components/schemas/StateType'
+          $ref: "#/components/schemas/StateType"
         functions:
           type: array
           items:
-            $ref: '#/components/schemas/FunctionBinding'
+            $ref: "#/components/schemas/FunctionBinding"
         stateSpec:
-          $ref: '#/components/schemas/StateSpecification'
+          $ref: "#/components/schemas/StateSpecification"
         refSpec:
           type: array
           items:
-            $ref: '#/components/schemas/ReferenceSpecification'
+            $ref: "#/components/schemas/ReferenceSpecification"
         parents:
           type: array
           items:
@@ -583,22 +583,22 @@ components:
         markForRemoval:
           type: boolean
         store:
-          $ref: '#/components/schemas/DatastoreLink'
+          $ref: "#/components/schemas/DatastoreLink"
         config:
-          $ref: '#/components/schemas/OClassConfig'
+          $ref: "#/components/schemas/OClassConfig"
         status:
-          $ref: '#/components/schemas/OClassDeploymentStatus'
+          $ref: "#/components/schemas/OClassDeploymentStatus"
         qos:
-          $ref: '#/components/schemas/QosRequirement'
+          $ref: "#/components/schemas/QosRequirement"
         constraint:
-          $ref: '#/components/schemas/QosConstraint'
+          $ref: "#/components/schemas/QosConstraint"
         resolved:
-          $ref: '#/components/schemas/ResolvedMember'
+          $ref: "#/components/schemas/ResolvedMember"
     OClassConfig:
       type: object
       properties:
         options:
-          $ref: '#/components/schemas/DSMap'
+          $ref: "#/components/schemas/DSMap"
         partitions:
           format: int32
           type: integer
@@ -618,7 +618,7 @@ components:
       type: object
       properties:
         options:
-          $ref: '#/components/schemas/DSMap_Public'
+          $ref: "#/components/schemas/DSMap_Public"
         partitions:
           format: int32
           type: integer
@@ -657,15 +657,15 @@ components:
         attachedCls:
           type: array
           items:
-            $ref: '#/components/schemas/OClass'
+            $ref: "#/components/schemas/OClass"
         attachedFn:
           type: array
           items:
-            $ref: '#/components/schemas/OFunction'
+            $ref: "#/components/schemas/OFunction"
         namespace:
           type: string
         state:
-          $ref: '#/components/schemas/OrbitState'
+          $ref: "#/components/schemas/OrbitState"
         deleted:
           type: boolean
         stabilizationTime:
@@ -685,19 +685,19 @@ components:
         genericType:
           type: string
         objectType:
-          $ref: '#/components/schemas/OObjectType_Public'
+          $ref: "#/components/schemas/OObjectType_Public"
         stateType:
-          $ref: '#/components/schemas/StateType_Public'
+          $ref: "#/components/schemas/StateType_Public"
         functions:
           type: array
           items:
-            $ref: '#/components/schemas/FunctionBinding_Public'
+            $ref: "#/components/schemas/FunctionBinding_Public"
         stateSpec:
-          $ref: '#/components/schemas/StateSpecification_Public'
+          $ref: "#/components/schemas/StateSpecification_Public"
         refSpec:
           type: array
           items:
-            $ref: '#/components/schemas/ReferenceSpecification_Public'
+            $ref: "#/components/schemas/ReferenceSpecification_Public"
         parents:
           type: array
           items:
@@ -707,17 +707,17 @@ components:
         markForRemoval:
           type: boolean
         store:
-          $ref: '#/components/schemas/DatastoreLink_Public'
+          $ref: "#/components/schemas/DatastoreLink_Public"
         config:
-          $ref: '#/components/schemas/OClassConfig_Public'
+          $ref: "#/components/schemas/OClassConfig_Public"
         status:
-          $ref: '#/components/schemas/OClassDeploymentStatus_Public'
+          $ref: "#/components/schemas/OClassDeploymentStatus_Public"
         qos:
-          $ref: '#/components/schemas/QosRequirement_Public'
+          $ref: "#/components/schemas/QosRequirement_Public"
         constraint:
-          $ref: '#/components/schemas/QosConstraint_Public'
+          $ref: "#/components/schemas/QosConstraint_Public"
         resolved:
-          $ref: '#/components/schemas/ResolvedMember_Public'
+          $ref: "#/components/schemas/ResolvedMember_Public"
     OFunction:
       required:
       - type
@@ -733,28 +733,28 @@ components:
         description:
           type: string
         type:
-          $ref: '#/components/schemas/FunctionType'
+          $ref: "#/components/schemas/FunctionType"
         outputCls:
           pattern: \S
           type: string
         macro:
-          $ref: '#/components/schemas/MacroSpec'
+          $ref: "#/components/schemas/MacroSpec"
         provision:
-          $ref: '#/components/schemas/ProvisionConfig'
+          $ref: "#/components/schemas/ProvisionConfig"
         variableDescriptions:
           type: array
           items:
-            $ref: '#/components/schemas/VariableDescription'
+            $ref: "#/components/schemas/VariableDescription"
         status:
-          $ref: '#/components/schemas/OFunctionDeploymentStatus'
+          $ref: "#/components/schemas/OFunctionDeploymentStatus"
         state:
-          $ref: '#/components/schemas/FunctionState'
+          $ref: "#/components/schemas/FunctionState"
         qos:
-          $ref: '#/components/schemas/QosRequirement'
+          $ref: "#/components/schemas/QosRequirement"
         constraint:
-          $ref: '#/components/schemas/QosConstraint'
+          $ref: "#/components/schemas/QosConstraint"
         config:
-          $ref: '#/components/schemas/OFunctionConfig'
+          $ref: "#/components/schemas/OFunctionConfig"
     OFunctionConfig:
       type: object
       properties:
@@ -777,7 +777,7 @@ components:
       type: object
       properties:
         condition:
-          $ref: '#/components/schemas/DeploymentCondition'
+          $ref: "#/components/schemas/DeploymentCondition"
         invocationUrl:
           type: string
         errorMsg:
@@ -789,7 +789,7 @@ components:
       type: object
       properties:
         condition:
-          $ref: '#/components/schemas/DeploymentCondition_Public'
+          $ref: "#/components/schemas/DeploymentCondition_Public"
         invocationUrl:
           type: string
         errorMsg:
@@ -812,28 +812,28 @@ components:
         description:
           type: string
         type:
-          $ref: '#/components/schemas/FunctionType_Public'
+          $ref: "#/components/schemas/FunctionType_Public"
         outputCls:
           pattern: \S
           type: string
         macro:
-          $ref: '#/components/schemas/MacroSpec_Public'
+          $ref: "#/components/schemas/MacroSpec_Public"
         provision:
-          $ref: '#/components/schemas/ProvisionConfig_Public'
+          $ref: "#/components/schemas/ProvisionConfig_Public"
         variableDescriptions:
           type: array
           items:
-            $ref: '#/components/schemas/VariableDescription_Public'
+            $ref: "#/components/schemas/VariableDescription_Public"
         status:
-          $ref: '#/components/schemas/OFunctionDeploymentStatus_Public'
+          $ref: "#/components/schemas/OFunctionDeploymentStatus_Public"
         state:
-          $ref: '#/components/schemas/FunctionState_Public'
+          $ref: "#/components/schemas/FunctionState_Public"
         qos:
-          $ref: '#/components/schemas/QosRequirement_Public'
+          $ref: "#/components/schemas/QosRequirement_Public"
         constraint:
-          $ref: '#/components/schemas/QosConstraint_Public'
+          $ref: "#/components/schemas/QosConstraint_Public"
         config:
-          $ref: '#/components/schemas/OFunctionConfig_Public'
+          $ref: "#/components/schemas/OFunctionConfig_Public"
     OObjectType:
       enum:
       - SIMPLE
@@ -852,11 +852,11 @@ components:
         classes:
           type: array
           items:
-            $ref: '#/components/schemas/OClass'
+            $ref: "#/components/schemas/OClass"
         functions:
           type: array
           items:
-            $ref: '#/components/schemas/OFunction'
+            $ref: "#/components/schemas/OFunction"
         required:
           type: array
           items:
@@ -869,11 +869,11 @@ components:
         classes:
           type: array
           items:
-            $ref: '#/components/schemas/OClass_Public'
+            $ref: "#/components/schemas/OClass_Public"
         functions:
           type: array
           items:
-            $ref: '#/components/schemas/OFunction_Public'
+            $ref: "#/components/schemas/OFunction_Public"
         required:
           type: array
           items:
@@ -898,7 +898,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/OClassRuntime'
+            $ref: "#/components/schemas/OClassRuntime"
     PaginationOClass_Public:
       type: object
       properties:
@@ -914,7 +914,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/OClass_Public'
+            $ref: "#/components/schemas/OClass_Public"
     PaginationOFunction_Public:
       type: object
       properties:
@@ -930,25 +930,25 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/OFunction_Public'
+            $ref: "#/components/schemas/OFunction_Public"
     ProvisionConfig:
       type: object
       properties:
         knative:
-          $ref: '#/components/schemas/KnativeProvision'
+          $ref: "#/components/schemas/KnativeProvision"
         deployment:
-          $ref: '#/components/schemas/KDeploymentProvision'
+          $ref: "#/components/schemas/KDeploymentProvision"
         staticUrl:
-          $ref: '#/components/schemas/StaticUrlProvision'
+          $ref: "#/components/schemas/StaticUrlProvision"
     ProvisionConfig_Public:
       type: object
       properties:
         knative:
-          $ref: '#/components/schemas/KnativeProvision_Public'
+          $ref: "#/components/schemas/KnativeProvision_Public"
         deployment:
-          $ref: '#/components/schemas/KDeploymentProvision_Public'
+          $ref: "#/components/schemas/KDeploymentProvision_Public"
         staticUrl:
-          $ref: '#/components/schemas/StaticUrlProvision_Public'
+          $ref: "#/components/schemas/StaticUrlProvision_Public"
     QosConstraint:
       type: object
       properties:
@@ -956,7 +956,7 @@ components:
           format: int32
           type: integer
         consistency:
-          $ref: '#/components/schemas/ConsistencyModel'
+          $ref: "#/components/schemas/ConsistencyModel"
         geographical:
           type: string
         persistent:
@@ -972,7 +972,7 @@ components:
           format: int32
           type: integer
         consistency:
-          $ref: '#/components/schemas/ConsistencyModel_Public'
+          $ref: "#/components/schemas/ConsistencyModel_Public"
         geographical:
           type: string
         persistent:
@@ -1013,7 +1013,7 @@ components:
         cls:
           type: string
         access:
-          $ref: '#/components/schemas/KeyAccessModifier'
+          $ref: "#/components/schemas/KeyAccessModifier"
     ReferenceSpecification_Public:
       type: object
       properties:
@@ -1022,22 +1022,22 @@ components:
         cls:
           type: string
         access:
-          $ref: '#/components/schemas/KeyAccessModifier_Public'
+          $ref: "#/components/schemas/KeyAccessModifier_Public"
     ResolvedMember:
       type: object
       properties:
         functions:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/FunctionBinding'
+            $ref: "#/components/schemas/FunctionBinding"
         keySpecs:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/KeySpecification'
+            $ref: "#/components/schemas/KeySpecification"
         refSpecs:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/ReferenceSpecification'
+            $ref: "#/components/schemas/ReferenceSpecification"
         identities:
           uniqueItems: true
           type: array
@@ -1051,15 +1051,15 @@ components:
         functions:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/FunctionBinding_Public'
+            $ref: "#/components/schemas/FunctionBinding_Public"
         keySpecs:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/KeySpecification_Public'
+            $ref: "#/components/schemas/KeySpecification_Public"
         refSpecs:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/ReferenceSpecification_Public'
+            $ref: "#/components/schemas/ReferenceSpecification_Public"
         identities:
           uniqueItems: true
           type: array
@@ -1071,7 +1071,7 @@ components:
         keySpecs:
           type: array
           items:
-            $ref: '#/components/schemas/KeySpecification'
+            $ref: "#/components/schemas/KeySpecification"
         defaultProvider:
           type: string
     StateSpecification_Public:
@@ -1080,7 +1080,7 @@ components:
         keySpecs:
           type: array
           items:
-            $ref: '#/components/schemas/KeySpecification_Public'
+            $ref: "#/components/schemas/KeySpecification_Public"
         defaultProvider:
           type: string
     StateType:
