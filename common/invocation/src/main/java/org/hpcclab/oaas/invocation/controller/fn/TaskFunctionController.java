@@ -59,7 +59,7 @@ public class TaskFunctionController extends AbstractFunctionController {
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     ctx.setImmutable(functionBinding.isForceImmutable() || !function.getType().isMutable());
-    if (functionBinding.getOutputCls()!=null) {
+    if (outputCls!=null) {
       var output = createOutput(ctx);
       ctx.setOutput(output);
     }
