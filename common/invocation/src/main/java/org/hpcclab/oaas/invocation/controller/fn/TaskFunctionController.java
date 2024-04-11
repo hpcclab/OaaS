@@ -203,12 +203,18 @@ public class TaskFunctionController extends AbstractFunctionController {
     List<OObject> updateList = completion.getMain()!=null && !functionBinding.isForceImmutable() ?
       Lists.mutable.of(context.getMain()):
       List.of();
-    List<OObject> createList = completion.getOutput()!=null ?
-      List.of(context.getOutput()):
-      List.of();
-    context.setStateOperations(List.of(
-      new SimpleStateOperation(createList, cls, updateList, outputCls)
-    ));
+    if (outputCls == null) {
+      context.setStateOperations(List.of(
+        SimpleStateOperation.updateObjs(updateList, cls)
+      ));
+    } else {
+      List<OObject> createList = completion.getOutput()!=null ?
+        List.of(context.getOutput()):
+        List.of();
+      context.setStateOperations(List.of(
+        new SimpleStateOperation(createList, outputCls, updateList, cls)
+      ));
+    }
     return context;
   }
 

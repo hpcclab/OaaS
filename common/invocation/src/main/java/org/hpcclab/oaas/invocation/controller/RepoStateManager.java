@@ -17,13 +17,13 @@ public class RepoStateManager implements StateManager {
   @Override
   public Uni<Void> applySimple(SimpleStateOperation operation) {
     Uni<Void> uni;
-    if (!operation.getUpdateObjs().isEmpty()) {
+    if (operation.getUpdateCls() != null && !operation.getUpdateObjs().isEmpty()) {
       var repo = repoManager.getOrCreate(operation.getUpdateCls());
       uni = repo.atomic().persistWithRevAsync(operation.getUpdateObjs());
     } else {
       uni = Uni.createFrom().voidItem();
     }
-    if (!operation.getCreateObjs().isEmpty()) {
+    if (operation.getCreateCls() != null && !operation.getCreateObjs().isEmpty()) {
       var repo = repoManager.getOrCreate(operation.getCreateCls());
       uni = uni.flatMap(v -> repo.async().persistAsync(operation.getCreateObjs()));
     }
