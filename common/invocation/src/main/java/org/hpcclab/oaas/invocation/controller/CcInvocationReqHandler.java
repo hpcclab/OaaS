@@ -34,6 +34,12 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
 
   @Override
   public Uni<InvocationResponse> invoke(InvocationRequest request) {
+    if (request.fb() == null || request.fb().isEmpty()) {
+      return ctxLoader.load(request)
+        .map(ctx -> ctx.createResponse()
+          .async(false)
+          .build());
+    }
     return ctxLoader.load(request)
       .flatMap(ctx -> {
         var con = classControllerRegistry.getClassController(request.cls());

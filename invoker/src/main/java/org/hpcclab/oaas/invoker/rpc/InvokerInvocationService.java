@@ -16,16 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @GrpcService
-public class InvocationServiceImpl implements InvocationService {
-  private static final Logger logger = LoggerFactory.getLogger(InvocationServiceImpl.class);
+public class InvokerInvocationService implements InvocationService {
+  private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationService.class);
   final InvocationReqHandler invocationReqHandler;
   final HashAwareInvocationHandler hashAwareInvocationHandler;
   final ProtoObjectMapper mapper;
 
   @Inject
-  public InvocationServiceImpl(InvocationReqHandler invocationReqHandler,
-                               HashAwareInvocationHandler hashAwareInvocationHandler,
-                               ProtoObjectMapper protoObjectMapper) {
+  public InvokerInvocationService(InvocationReqHandler invocationReqHandler,
+                                  HashAwareInvocationHandler hashAwareInvocationHandler,
+                                  ProtoObjectMapper protoObjectMapper) {
     this.invocationReqHandler = invocationReqHandler;
     this.hashAwareInvocationHandler = hashAwareInvocationHandler;
     this.mapper = protoObjectMapper;

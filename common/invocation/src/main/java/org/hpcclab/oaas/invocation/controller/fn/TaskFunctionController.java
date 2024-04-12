@@ -76,7 +76,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     var req = ctx.getRequest();
     var outId = req!=null ? req.outId():null;
     if (outId!=null && !outId.isEmpty()) {
-      obj.setId(req.outId());
+      obj.setId(outId);
     } else {
       obj.setId(idGenerator.generate());
     }

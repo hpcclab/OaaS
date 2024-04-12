@@ -99,7 +99,7 @@ public class HashAwareInvocationHandler {
     } else {
       logger.debug("invoke remote {}~{}/{} to {}:{}", protoOal.getCls(), protoOal.getMain(),
         protoOal.getFb(), addr.host(), addr.port());
-      return send(() -> resolver.find(protoOal.getMain()), protoOal);
+      return sendOal(() -> resolver.find(protoOal.getMain()), protoOal);
     }
   }
 
@@ -128,7 +128,7 @@ public class HashAwareInvocationHandler {
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
         request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
-      return send(() -> resolver.find(request.getMain()), request);
+      return sendLocal(() -> resolver.find(request.getMain()), request);
     }
   }
 
@@ -139,8 +139,8 @@ public class HashAwareInvocationHandler {
     return lookupManager.getOrInit(cls);
   }
 
-  private Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
-                                            ProtoInvocationRequest request) {
+  private Uni<ProtoInvocationResponse> sendLocal(Supplier<CrHash.ApiAddress> addrSupplier,
+                                                 ProtoInvocationRequest request) {
     MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeLocalMethod();
     Uni<GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse>> clientResponseUni =
@@ -152,8 +152,8 @@ public class HashAwareInvocationHandler {
     return setupRetry(clientResponseUni);
   }
 
-  private Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
-                                            ProtoObjectAccessLanguage request) {
+  private Uni<ProtoInvocationResponse> sendOal(Supplier<CrHash.ApiAddress> addrSupplier,
+                                               ProtoObjectAccessLanguage request) {
     MethodDescriptor<ProtoObjectAccessLanguage, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeOalMethod();
     Uni<GrpcClientResponse<ProtoObjectAccessLanguage, ProtoInvocationResponse>> uni =

@@ -97,8 +97,8 @@ public class InvocationEngineProducer {
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)
       .setConnectTimeout(config.connectTimeout())
-      .setShared(true)
-      .setName("grpc")
+//      .setShared(false)
+//      .setName("grpc")
     );
   }
 }
