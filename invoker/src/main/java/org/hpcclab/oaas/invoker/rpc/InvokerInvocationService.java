@@ -50,15 +50,4 @@ public class InvokerInvocationService implements InvocationService {
       .invoke(e -> logger.error("invoke error", e));
   }
 
-  @Override
-  public Uni<ProtoInvocationResponse> invokeOal(ProtoObjectAccessLanguage request) {
-    try {
-      return hashAwareInvocationHandler.invoke(request)
-        .onFailure()
-        .invoke(e -> logger.error("invokeOal error", e));
-    } catch (StdOaasException e) {
-      logger.error("invokeOal error", e);
-      throw e;
-    }
-  }
 }

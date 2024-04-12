@@ -12,7 +12,6 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.Map;
@@ -58,14 +57,14 @@ public class BaseClassController implements ClassController {
   }
 
   @Override
-  public MinimalValidationContext validate(ObjectAccessLanguage oal) {
-    if (!oal.getFb().isEmpty()) {
-      var fn = functionMap.get(oal.getFb());
-      if (fn==null) throw InvocationException.notFoundFnInCls(oal.getFb(), cls.getKey());
-      var req = oal.toRequest()
+  public MinimalValidationContext validate(InvocationRequest request) {
+    if (!request.fb().isEmpty()) {
+      var fn = functionMap.get(request.fb());
+      if (fn==null) throw InvocationException.notFoundFnInCls(request.fb(), cls.getKey());
+      var req = request.toBuilder()
         .invId(idGenerator.generate())
         .immutable(fn.getFunctionBinding().isImmutable());
-      if (fn.getFunctionBinding().getOutputCls() != null) {
+      if (fn.getFunctionBinding().getOutputCls()!=null) {
         req.outId(idGenerator.generate());
       }
       if (fn.getFunction().getType()==FunctionType.MACRO) {
@@ -79,7 +78,7 @@ public class BaseClassController implements ClassController {
       }
       return new MinimalValidationContext(req.build(), cls, fn.getFunction(), fn.getFunctionBinding());
     }
-    return new MinimalValidationContext(oal.toRequest().build(), cls, null, null);
+    return new MinimalValidationContext(request, cls, null, null);
   }
 
   @Override

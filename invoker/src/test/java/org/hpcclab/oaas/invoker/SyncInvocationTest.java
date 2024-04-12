@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -47,11 +48,11 @@ class SyncInvocationTest {
     main.setId(idGenerator.generate());
     var objectRepo = objectRepoManager.getOrCreate(CLS_1);
     objectRepo.put(main.getKey(), main);
-    ObjectAccessLanguage oal = ObjectAccessLanguage.parse("_%s~%s:%s".formatted(main.getCls(), main.getId(), "f1"));
     given()
       .urlEncodingEnabled(false)
       .when()
-      .get("/oal/{oal}", oal.toString())
+      .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
+        main.getCls(), main.getId(), "f1")
       .then()
       .log().ifValidationFails()
       .statusCode(200)
@@ -59,7 +60,8 @@ class SyncInvocationTest {
     given()
       .urlEncodingEnabled(false)
       .when()
-      .get("/oal/{oal}", oal.toString())
+      .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
+        main.getCls(), main.getId(), "f1")
       .then()
       .log().ifValidationFails()
       .statusCode(200)

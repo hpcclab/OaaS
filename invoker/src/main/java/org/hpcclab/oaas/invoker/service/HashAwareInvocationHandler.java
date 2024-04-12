@@ -19,6 +19,7 @@ import org.hpcclab.oaas.invoker.lookup.ObjLocalResolver;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
@@ -76,37 +77,25 @@ public class HashAwareInvocationHandler {
   }
 
 
-  public Uni<ProtoInvocationResponse> invoke(ProtoObjectAccessLanguage protoOal) {
+  public Uni<InvocationResponse> invoke(InvocationRequest request) {
     if (forceInvokeLocal) {
-      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
-        .map(mapper::toProto);
+      return invocationReqHandler.invoke(request);
     }
-    boolean managed = invokerManager.getManagedCls().contains(protoOal.getCls());
-    if (managed && (protoOal.getMain().isEmpty())) {
-      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
-        .map(mapper::toProto);
+    boolean managed = invokerManager.getManagedCls().contains(request.cls());
+    if (managed && request.main().isEmpty()) {
+      return invocationReqHandler.invoke(request);
     }
-//    if (managed && registry.getClassController(protoOal.getCls()).getCls().getConfig().isDisableHashAware()) {
-//      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
-//        .map(mapper::toProto);
-//    }
-    ObjLocalResolver resolver = resolveAddr(protoOal.getCls());
-    CrHash.ApiAddress addr = resolver.find(protoOal.getMain());
+    ObjLocalResolver resolver = resolveAddr(request.cls());
+    CrHash.ApiAddress addr = resolver.find(request.main());
     if (lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}/{}", protoOal.getCls(), protoOal.getMain(), protoOal.getFb());
-      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
-        .map(mapper::toProto);
+      logger.debug("invoke local {}~{}:{}", request.cls(), request.main(), request.fb());
+      return invocationReqHandler.invoke(request);
     } else {
-      logger.debug("invoke remote {}~{}/{} to {}:{}", protoOal.getCls(), protoOal.getMain(),
-        protoOal.getFb(), addr.host(), addr.port());
-      return sendOal(() -> resolver.find(protoOal.getMain()), protoOal);
+      logger.debug("invoke remote {}~{}:{} to {}:{}",
+        request.cls(), request.main(), request.fb(), addr.host(), addr.port());
+      return sendLocal(() -> resolver.find(request.main()), mapper.toProto(request))
+        .map(mapper::fromProto);
     }
-  }
-
-
-  public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
-    return invoke(mapper.toProto(oal))
-      .map(mapper::fromProto);
   }
 
   public Uni<ProtoInvocationResponse> invoke(ProtoInvocationRequest request) {
@@ -150,18 +139,6 @@ public class HashAwareInvocationHandler {
         .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)));
 
     return setupRetry(clientResponseUni);
-  }
-
-  private Uni<ProtoInvocationResponse> sendOal(Supplier<CrHash.ApiAddress> addrSupplier,
-                                               ProtoObjectAccessLanguage request) {
-    MethodDescriptor<ProtoObjectAccessLanguage, ProtoInvocationResponse> invokeMethod =
-      InvocationServiceGrpc.getInvokeOalMethod();
-    Uni<GrpcClientResponse<ProtoObjectAccessLanguage, ProtoInvocationResponse>> uni =
-      Uni.createFrom().item(addrSupplier)
-        .onItem().ifNull().failWith(RetryableException::new)
-        .flatMap(addr -> toUni(grpcClient.request(toSocketAddress(addr), invokeMethod)))
-        .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)));
-    return setupRetry(uni);
   }
 
   <T> Uni<ProtoInvocationResponse> setupRetry(Uni<GrpcClientResponse<T, ProtoInvocationResponse>> uni) {

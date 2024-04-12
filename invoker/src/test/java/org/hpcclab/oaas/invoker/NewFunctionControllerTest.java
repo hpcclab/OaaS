@@ -54,20 +54,20 @@ class NewFunctionControllerTest {
       mapper.createObjectNode().put("n", 1)
     );
 
-    var oal = new ObjectAccessLanguage(
-      null,
-      MockupData.CLS_1_KEY,
-      "new",
-      mapper.valueToTree(req),
-      null,
-      null
-    );
-    logger.info("oal {}", oal);
+//    var oal = new ObjectAccessLanguage(
+//      null,
+//      MockupData.CLS_1_KEY,
+//      "new",
+//      mapper.valueToTree(req),
+//      null,
+//      null
+//    );
+//    logger.info("oal {}", oal);
     given()
       .when()
-      .body(oal)
+      .body( mapper.valueToTree(req))
       .contentType(ContentType.JSON)
-      .post("/oal")
+      .post("/api/classes/%s/invokes/new".formatted(MockupData.CLS_1_KEY))
       .then()
       .log().ifValidationFails()
       .statusCode(200)

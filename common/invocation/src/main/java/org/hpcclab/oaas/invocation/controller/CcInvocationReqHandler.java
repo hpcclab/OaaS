@@ -6,7 +6,6 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -26,15 +25,10 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
     this.idGenerator = idGenerator;
   }
 
-  @Override
-  public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
-    var req = toRequest(oal).build();
-    return invoke(req);
-  }
 
   @Override
   public Uni<InvocationResponse> invoke(InvocationRequest request) {
-    if (request.fb() == null || request.fb().isEmpty()) {
+    if (request.fb()==null || request.fb().isEmpty()) {
       return ctxLoader.load(request)
         .map(ctx -> ctx.createResponse()
           .async(false)
@@ -43,7 +37,7 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
     return ctxLoader.load(request)
       .flatMap(ctx -> {
         var con = classControllerRegistry.getClassController(request.cls());
-        if (con == null) throw StdOaasException.notFoundCls400(request.cls());
+        if (con==null) throw StdOaasException.notFoundCls400(request.cls());
         return con.invoke(ctx);
       })
       .map(ctx -> ctx.createResponse()
@@ -51,24 +45,20 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
         .build());
   }
 
+
   @Override
-  public Uni<InvocationResponse> enqueue(ObjectAccessLanguage oal) {
-    var con = classControllerRegistry.getClassController(oal.getCls());
-    if (con == null) throw StdOaasException.notFoundCls400(oal.getCls());
-    var ctx = con.validate(oal);
+  public Uni<InvocationResponse> enqueue(InvocationRequest request) {
+    var con = classControllerRegistry.getClassController(request.cls());
+    if (con==null) throw StdOaasException.notFoundCls400(request.cls());
+    var ctx = con.validate(request);
     return con.enqueue(ctx.request())
       .map(v -> InvocationResponse.builder()
         .invId(ctx.request().invId())
         .output(new OObject().setId(ctx.request().outId()))
-        .fb(ctx.fb() != null? ctx.fb().getName() : "")
+        .fb(ctx.fb()!=null ? ctx.fb().getName():"")
         .status(InvocationStatus.QUEUE)
         .async(true)
         .build());
   }
 
-
-  public InvocationRequest.InvocationRequestBuilder toRequest(ObjectAccessLanguage oal) {
-    return oal.toRequest()
-      .invId(idGenerator.generate());
-  }
 }

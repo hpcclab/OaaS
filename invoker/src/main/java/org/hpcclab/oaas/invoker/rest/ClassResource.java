@@ -12,6 +12,7 @@ import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.proto.DSMap;
@@ -59,7 +60,7 @@ public class ClassResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    ObjectAccessLanguage oal = ObjectAccessLanguage.builder()
+    InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)
@@ -86,7 +87,7 @@ public class ClassResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    ObjectAccessLanguage oal = ObjectAccessLanguage.builder()
+    InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)

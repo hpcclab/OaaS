@@ -16,6 +16,7 @@ import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
+import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
@@ -89,7 +90,7 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     InvocationServiceGrpc.InvocationServiceBlockingStub service =
       InvocationServiceGrpc.newBlockingStub(channel);
 
-    var oalBuilder = ProtoObjectAccessLanguage.newBuilder()
+    var oalBuilder = ProtoInvocationRequest.newBuilder()
       .setCls(cls)
       .setMain(main)
       .setFb(fb);
@@ -104,8 +105,8 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     if (inputs!=null) {
       oalBuilder.addAllInputs(inputs);
     }
-    var protoOal = oalBuilder.build();
-    ProtoInvocationResponse response = service.invokeOal(protoOal);
+    var protoReq = oalBuilder.build();
+    ProtoInvocationResponse response = service.invoke(protoReq);
     outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
     return 0;
   }

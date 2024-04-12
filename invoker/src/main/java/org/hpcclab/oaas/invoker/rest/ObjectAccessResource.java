@@ -15,6 +15,7 @@ import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
@@ -66,12 +67,13 @@ public class ObjectAccessResource {
         .getAsync(objId)
         .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404));
     } else {
-      return hashAwareInvocationHandler.invoke(ObjectAccessLanguage.builder()
+      return hashAwareInvocationHandler.invoke(InvocationRequest.builder()
           .cls(cls)
           .main(objId)
           .build())
         .map(InvocationResponse::main)
-        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404));
+        .onItem().ifNull()
+        .failWith(() -> StdOaasException.notFoundObject(objId, 404));
     }
   }
 
@@ -103,7 +105,7 @@ public class ObjectAccessResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    var oal = ObjectAccessLanguage.builder()
+    var oal = InvocationRequest.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
@@ -132,7 +134,7 @@ public class ObjectAccessResource {
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
     List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
-    ObjectAccessLanguage oal = ObjectAccessLanguage.builder()
+    InvocationRequest request = InvocationRequest.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
@@ -142,8 +144,8 @@ public class ObjectAccessResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.enqueue(oal);
+      return invocationHandlerService.enqueue(request);
     }
-    return hashAwareInvocationHandler.invoke(oal);
+    return hashAwareInvocationHandler.invoke(request);
   }
 }

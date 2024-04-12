@@ -19,7 +19,7 @@ public record InvocationRequest(
   String fb,
   DSMap args,
   List<String> inputs,
-  List<OObject> inputObjects,
+  List<OObject> inputObjs,
   boolean immutable,
   String invId,
   String outId,
