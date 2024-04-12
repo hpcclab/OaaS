@@ -6,9 +6,9 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
+import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,13 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
-  public static final long RETRY_DELAY = 200;
+  public static final long RETRY_DELAY = 1000;
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordConsumerVerticle.class);
   public final Duration timeout = Duration.ofMillis(500);
-  final KafkaConsumer<K, V> consumer;
-  final VerticlePoolRecordDispatcher<KafkaConsumerRecord<K, V>> taskDispatcher;
-  final OffsetManager offsetManager;
-  final SegmentCoordinator segmentCoordinator;
+  private final KafkaConsumer<K, V> consumer;
+  private final VerticlePoolRecordDispatcher<KafkaConsumerRecord<K, V>> taskDispatcher;
+  private final OffsetManager offsetManager;
+  private final SegmentCoordinator segmentCoordinator;
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final AtomicBoolean isPolling = new AtomicBoolean(false);
   private final int numberOfVerticle;
@@ -34,7 +34,7 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
     this.consumer = consumer;
     this.taskDispatcher = taskDispatcher;
     this.offsetManager = taskDispatcher.getOffsetManager();
-    numberOfVerticle = config.numOfInvokerVerticle();
+    this.numberOfVerticle = config.numOfInvokerVerticle();
     this.segmentCoordinator = segmentCoordinator;
   }
 
@@ -45,14 +45,12 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
     consumer.partitionsRevokedHandler(offsetManager::handlePartitionRevoked);
     taskDispatcher.setDrainHandler(this::poll);
     offsetManager.setPeriodicCommit(vertx);
-    return vertx.executeBlocking(() -> {
-        segmentCoordinator.init();
+    return taskDispatcher.deploy(numberOfVerticle)
+      .call(() -> vertx.executeBlocking(() -> {
+        segmentCoordinator.init(this::poll);
         return 0;
-      })
+      }))
       .call(segmentCoordinator::updateParts)
-      .call(__ ->
-        taskDispatcher.deploy(numberOfVerticle))
-      .invoke(this::poll)
       .replaceWithVoid();
   }
 
@@ -69,6 +67,8 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
   public void poll() {
     if (closed.get() || isPolling.get())
       return;
+//    if (segmentCoordinator.getLocalParts().isEmpty())
+//      vertx.setTimer(RETRY_DELAY, l -> poll());
     if (isPolling.compareAndSet(false, true)) {
       consumer.poll(timeout)
         .subscribe()
@@ -88,10 +88,13 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
 
   private void handleException(Throwable throwable) {
     LOGGER.error("catch error", throwable);
+    vertx.setTimer(RETRY_DELAY, l -> poll());
   }
 
   private void handlePollException(Throwable throwable) {
-    LOGGER.error("catch error", throwable);
+//    if (!(throwable instanceof IllegalStateException))
+    LOGGER.error("catch error when poll", throwable);
+    isPolling.set(false);
     vertx.setTimer(RETRY_DELAY, l -> poll());
   }
 }

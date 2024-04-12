@@ -2,6 +2,8 @@ package org.hpcclab.oaas.mapper;
 
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
+import org.hpcclab.oaas.model.cr.CrHash;
+import org.hpcclab.oaas.model.cr.OClassRuntime;
 import org.hpcclab.oaas.model.function.OFunctionConfig;
 import org.hpcclab.oaas.model.function.OFunctionDeploymentStatus;
 import org.hpcclab.oaas.model.function.OFunction;
@@ -34,6 +36,10 @@ public interface ProtoMapper {
   ProvisionConfig fromProto(ProtoProvisionConfig config);
   ProtoProvisionConfig toProto(ProvisionConfig config);
   OPackage fromProto(ProtoOPackage pkg);
+  CrHash fromProto(ProtoCrHash crHashed);
+  OClassRuntime fromProto(ProtoCr clsRuntime);
+  ProtoCrHash toProto(CrHash crHash);
+  ProtoCr toProto(OClassRuntime clsRuntime);
 
 
   default DSMap map(Map<String,String> map) {

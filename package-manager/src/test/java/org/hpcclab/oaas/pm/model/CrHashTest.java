@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.pm.model;
 
+import org.hpcclab.oaas.model.cr.CrHash;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -9,8 +9,8 @@ functions:
         requestsMemory: "256M"
         limitsCpu: "1"
         limitsMemory: "512M"
-    qos:
-      throughput: 200
+#    qos:
+#      throughput: 200
 
   - name: record.merge
     type: TASK
@@ -75,23 +75,23 @@ classes:
     objectType: SIMPLE
     stateSpec:
       keySpecs: []
-    qos:
-      throughput: 800
+#    qos:
+#      throughput: 800
 #      availability: 0.999999
     functions:
-      - access: PUBLIC
-        name: random-inplace
+      - name: random-inplace
+        access: PUBLIC
         function: .record.random
         outputCls: none
         defaultArgs:
           INPLACE: "true"
-      - access: PUBLIC
-        name: random
+      - name: random
+        access: PUBLIC
         function: .record.random
         outputCls: .record
         defaultArgs:
           INPLACE: "false"
-        forceImmutable: true
+        immutable: true
       - access: PUBLIC
         name: merge
         function: .record.merge

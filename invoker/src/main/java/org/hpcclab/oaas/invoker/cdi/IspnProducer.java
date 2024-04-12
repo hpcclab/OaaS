@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
+import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.InternalCrStateService;
 import org.hpcclab.oaas.proto.ProtoCrHash;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -32,7 +33,7 @@ public class IspnProducer {
   @ApplicationScoped
   HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService,
                             IspnCacheCreator cacheCreator) {
-    Cache<String, ProtoCrHash> replicatedCache = cacheCreator
+    Cache<String, CrHash> replicatedCache = cacheCreator
       .createReplicateCache("hashRegistry", 100000);
     return new HashRegistry(crStateService, replicatedCache);
   }

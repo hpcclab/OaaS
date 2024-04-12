@@ -13,6 +13,7 @@
 
   <properties>
     <infinispan.version>15.0.0.Final</infinispan.version>
+    <tsid-creator.version>5.2.6</tsid-creator.version>
   </properties>
 
   <dependencyManagement>
@@ -89,6 +90,11 @@
       <groupId>org.msgpack</groupId>
       <artifactId>jackson-dataformat-msgpack</artifactId>
       <version>0.9.8</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.f4b6a3</groupId>
+      <artifactId>tsid-creator</artifactId>
+      <version>${tsid-creator.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>

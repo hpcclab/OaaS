@@ -12,6 +12,7 @@ import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
@@ -47,8 +48,8 @@ public class HashAwareInvocationHandler {
     this.invokerManager = invokerManager;
   }
 
-  public static SocketAddress toSocketAddress(ProtoApiAddress address) {
-    return SocketAddress.inetSocketAddress(address.getPort(), address.getHost());
+  public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
+    return SocketAddress.inetSocketAddress(address.port(), address.host());
   }
 
 
@@ -63,14 +64,14 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     }
-    ProtoApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
+    CrHash.ApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}/{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
       return invocationReqHandler.invoke(mapper.fromProto(protOal))
         .map(mapper::toProto);
     } else {
       logger.debug("invoke remote {}~{}/{} to {}:{}", protOal.getCls(), protOal.getMain(),
-        protOal.getFb(), addr.getHost(), addr.getPort());
+        protOal.getFb(), addr.host(), addr.port());
       return send(addr, protOal);
     }
   }
@@ -84,13 +85,13 @@ public class HashAwareInvocationHandler {
     if (managed && registry.getClassController(oal.getCls()).getCls().getConfig().isDisableHashAware()) {
       return invocationReqHandler.invoke(oal);
     }
-    ProtoApiAddress addr = resolveAddr(oal.getCls(), oal.getMain());
+    CrHash.ApiAddress addr = resolveAddr(oal.getCls(), oal.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", oal.getCls(), oal.getMain(), oal.getFb());
       return invocationReqHandler.invoke(oal);
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
-        oal.getCls(), oal.getMain(), oal.getFb(), addr.getHost(), addr.getPort());
+        oal.getCls(), oal.getMain(), oal.getFb(), addr.host(), addr.port());
       return send(addr, mapper.toProto(oal))
         .map(mapper::fromProto);
     }
@@ -102,24 +103,24 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     }
-    ProtoApiAddress addr = resolveAddr(request.getCls(), request.getMain());
+    CrHash.ApiAddress addr = resolveAddr(request.getCls(), request.getMain());
     if (addr==null || lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
-        request.getCls(), request.getMain(), request.getFb(), addr.getHost(), addr.getPort());
+        request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
       return send(addr, request);
     }
   }
 
-  private ProtoApiAddress resolveAddr(String clsKey, String obj) {
+  private CrHash.ApiAddress resolveAddr(String clsKey, String obj) {
     ClassController classController = registry.getClassController(clsKey);
     if (classController==null) throw StdOaasException.notFoundCls400(clsKey);
     var cls = classController.getCls();
     var lookup = lookupManager.getOrInit(cls);
-    ProtoApiAddress addr;
+    CrHash.ApiAddress addr;
     if (obj==null || obj.isEmpty()) {
       addr = lookup.getAny();
     } else {
@@ -128,7 +129,7 @@ public class HashAwareInvocationHandler {
     return addr;
   }
 
-  private Uni<ProtoInvocationResponse> send(ProtoApiAddress addr,
+  private Uni<ProtoInvocationResponse> send(CrHash.ApiAddress addr,
                                             ProtoInvocationRequest request) {
     MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeLocalMethod();
@@ -137,7 +138,7 @@ public class HashAwareInvocationHandler {
       .flatMap(resp -> toUni(resp.last()));
   }
 
-  private Uni<ProtoInvocationResponse> send(ProtoApiAddress addr,
+  private Uni<ProtoInvocationResponse> send(CrHash.ApiAddress addr,
                                             ProtoObjectAccessLanguage request) {
     MethodDescriptor<ProtoObjectAccessLanguage, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeOalMethod();

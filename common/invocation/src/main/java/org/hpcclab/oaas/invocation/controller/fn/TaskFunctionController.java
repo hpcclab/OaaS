@@ -58,7 +58,7 @@ public class TaskFunctionController extends AbstractFunctionController {
 
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
-    ctx.setImmutable(functionBinding.isForceImmutable() || !function.getType().isMutable());
+    ctx.setImmutable(functionBinding.isImmutable() || !function.getType().isMutable());
     if (outputCls!=null) {
       var output = createOutput(ctx);
       ctx.setOutput(output);
@@ -200,21 +200,21 @@ public class TaskFunctionController extends AbstractFunctionController {
   public InvocationCtx handleComplete(InvocationCtx context, TaskCompletion completion) {
     validateCompletion(context, completion);
     updateState(context, completion);
-    List<OObject> updateList = completion.getMain()!=null && !functionBinding.isForceImmutable() ?
+    List<OObject> updateList = completion.getMain()!=null && !functionBinding.isImmutable() ?
       Lists.mutable.of(context.getMain()):
       List.of();
+    SimpleStateOperation stateOperation;
     if (outputCls == null) {
-      context.setStateOperations(List.of(
-        SimpleStateOperation.updateObjs(updateList, cls)
-      ));
+      stateOperation = SimpleStateOperation.updateObjs(updateList, cls);
     } else {
       List<OObject> createList = completion.getOutput()!=null ?
         List.of(context.getOutput()):
         List.of();
-      context.setStateOperations(List.of(
-        new SimpleStateOperation(createList, outputCls, updateList, cls)
-      ));
+      stateOperation = new SimpleStateOperation(createList, outputCls, updateList, cls);
     }
+    context.setStateOperations(List.of(stateOperation));
+//    logger.debug("state operations: {}, {}", stateOperation.getCreateObjs(),
+//      stateOperation.getUpdateObjs());
     return context;
   }
 
@@ -249,7 +249,7 @@ public class TaskFunctionController extends AbstractFunctionController {
   private void validateCompletion(InvocationCtx context, TaskCompletion completion) {
     if (completion.getMain()!=null) {
       var update = completion.getMain();
-      if (!functionBinding.isForceImmutable()) {
+      if (!functionBinding.isImmutable()) {
         update.filterKeys(cls);
       }
     }

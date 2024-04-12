@@ -7,6 +7,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.proto.ProtoCrHash;
 import org.hpcclab.oaas.proto.ProtoOObject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
@@ -18,9 +19,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class IspnSetup {
+  private static final Logger logger = LoggerFactory.getLogger(IspnSetup.class);
   final IspnConfig config;
   EmbeddedCacheManager cacheManager;
-  private static final Logger logger = LoggerFactory.getLogger(IspnSetup.class);
 
   @Inject
   public IspnSetup(IspnConfig config) {
@@ -42,17 +43,16 @@ public class IspnSetup {
 
 
     GlobalConfigurationBuilder globalConfigurationBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder();
-    if (dns != null) {
+    if (dns!=null) {
       globalConfigurationBuilder
         .transport()
         .defaultTransport()
         .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml");
     }
-    globalConfigurationBuilder.transport().nodeName(podName)
-      .raftMembers();
-    globalConfigurationBuilder.serialization()
-        .marshaller(new ProtoOObjectMarshaller())
-          .allowList().addClass(ProtoOObject.class.getName());
+    globalConfigurationBuilder.transport().nodeName(podName);
+//      .marshaller(new ProtoMarshaller<>(ProtoCrHash.class, ProtoCrHash::parseFrom))
+//      .marshaller(new ProtoMarshaller<>(ProtoOObject.class, ProtoOObject::parseFrom))
+
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
@@ -73,7 +73,7 @@ public class IspnSetup {
   @Priority(100)
   @ApplicationScoped
   EmbeddedCacheManager embeddedCacheManager() {
-    if (cacheManager == null)
+    if (cacheManager==null)
       cacheManager = setup();
     return cacheManager;
   }

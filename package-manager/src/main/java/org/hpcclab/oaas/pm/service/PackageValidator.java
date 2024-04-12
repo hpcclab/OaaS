@@ -9,6 +9,7 @@ import org.eclipse.collections.impl.factory.Sets;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
@@ -25,11 +26,14 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class PackageValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(PackageValidator.class);
-  @Inject
-  FunctionRepository functionRepo;
+  final FunctionRepository functionRepo;
+
+  public PackageValidator(FunctionRepository functionRepo) {
+    this.functionRepo = functionRepo;
+  }
 
 
-  public Uni<OPackage> validate(OPackage pkg) {
+  public OPackage validate(OPackage pkg) {
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var funcMap = functions.stream()
@@ -43,47 +47,40 @@ public class PackageValidator {
       cls.setPkg(pkg.getName());
       cls.validate();
     }
-    var uni = validateFunctionBinding(classes, funcMap)
-      .replaceWith(pkg);
+    validateFunctionBinding(classes, funcMap);
     var macroFunctions = functions.stream()
       .filter(func -> func.getType().equals(FunctionType.MACRO))
       .toList();
     if (macroFunctions.isEmpty())
-      return uni;
-    return
-      uni.call(() -> Multi.createFrom().iterable(macroFunctions)
-        .invoke(this::validateMacro)
-        .collect().last());
+      return pkg;
+    for (OFunction macroFunction : macroFunctions) {
+      validateMacro(macroFunction);
+    }
+    return pkg;
   }
 
-  public Uni<Void> validateFunctionBinding(List<OClass> classes, Map<String, OFunction> functionMap) {
-    return Multi.createFrom().iterable(classes)
-      .call(cls -> validateFunctionBinding(cls, functionMap))
-      .collect()
-      .last()
-      .replaceWithVoid();
+  public void validateFunctionBinding(List<OClass> classes, Map<String, OFunction> functionMap) {
+    for (OClass cls : classes) {
+      validateFunctionBinding(cls, functionMap);
+    }
   }
 
-  public Uni<Void> validateFunctionBinding(OClass cls,
+  public void validateFunctionBinding(OClass cls,
                                            Map<String, OFunction> functionMap) {
 
 
-    return Multi.createFrom()
-      .iterable(cls.getFunctions())
-      .map(binding -> binding.replaceRelative(cls.getPkg()))
-      .invoke(Unchecked.consumer(fb -> {
-        if (fb.getFunction()==null) {
-          throw new OaasValidationException("The 'functions[].function' in class must not be null.");
-        }
-      }))
-      .call(binding -> Uni.createFrom()
-        .item(functionMap.get(binding.getFunction()))
-        .onItem().ifNull()
-        .switchTo(() -> functionRepo.async().getAsync(binding.getFunction()))
-        .onItem().ifNull().failWith(() -> FunctionValidationException.format("Can not find function [%s]", binding.getFunction()))
-        .invoke(binding::validate))
-      .collect().last()
-      .replaceWithVoid();
+    for (FunctionBinding fb : cls.getFunctions()) {
+      fb.replaceRelative(cls.getPkg());
+      if (fb.getFunction()==null) {
+        throw new OaasValidationException("The 'functions[].function' in class must not be null.");
+      }
+      OFunction function = functionMap.get(fb.getFunction());
+      if (function == null)
+        function = functionRepo.get(fb.getFunction());
+      if (function == null)
+        throw FunctionValidationException.format("Can not find function [%s]", fb.getFunction());
+      fb.validate(function);
+    }
   }
 
   public void validateMacro(OFunction function) {

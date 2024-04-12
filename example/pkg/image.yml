@@ -28,7 +28,7 @@ classes:
       - access: PUBLIC
         function: .image.resize
         outputCls: .image
-        forceImmutable: true
+        immutable: true
       - access: PUBLIC
         function: .image.resize
         name: resize-inplace

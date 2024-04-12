@@ -66,7 +66,7 @@ public class PackageResource {
   @JsonView(Views.Public.class)
   @RunOnVirtualThread
   public OPackage create(OPackage packageContainer) {
-    var pkg = validator.validate(packageContainer).await().indefinitely();
+    var pkg = validator.validate(packageContainer);
     var classes = pkg.getClasses();
     var functions = pkg.getFunctions();
     var clsMap = classes.stream()

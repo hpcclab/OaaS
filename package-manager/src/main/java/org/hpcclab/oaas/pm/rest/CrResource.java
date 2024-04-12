@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.pm.model.OClassRuntime;
+import org.hpcclab.oaas.model.cr.OClassRuntime;
 import org.hpcclab.oaas.pm.service.CrStateManager;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.StdOaasException;

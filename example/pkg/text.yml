@@ -46,7 +46,7 @@ classes:
       - access: PUBLIC
         function: .text.concat
         outputCls: .text
-        forceImmutable: true
+        immutable: true
       - access: PUBLIC
         function: .text.concat
         name: concat-inplace

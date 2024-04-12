@@ -306,7 +306,7 @@ components:
           type: string
         outputCls:
           type: string
-        forceImmutable:
+        immutable:
           type: boolean
         noMain:
           type: boolean
@@ -329,7 +329,7 @@ components:
           type: string
         outputCls:
           type: string
-        forceImmutable:
+        immutable:
           type: boolean
         noMain:
           type: boolean
@@ -671,7 +671,7 @@ components:
         stabilizationTime:
           format: int64
           type: integer
-        key:
+        _key:
           type: string
     OClass_Public:
       type: object

@@ -3,6 +3,7 @@ package org.hpcclab.oaas.invoker.lookup;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.ProtoApiAddress;
 
 public class LookupManager {
@@ -24,7 +25,7 @@ public class LookupManager {
     );
   }
 
-  public boolean isLocal(ProtoApiAddress address) {
-    return address.getHost().equals(registry.getLocalAdvertiseAddress());
+  public boolean isLocal(CrHash.ApiAddress address) {
+    return address.host().equals(registry.getLocalAdvertiseAddress());
   }
 }

@@ -27,7 +27,7 @@ classes:
     functions:
       - access: PUBLIC
         function: .video.transcode
-        forceImmutable: true
+        immutable: true
       - access: PUBLIC
         name: new
         function: builtin.logical.new

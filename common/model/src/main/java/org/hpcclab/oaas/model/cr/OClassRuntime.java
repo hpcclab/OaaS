@@ -1,6 +1,6 @@
-package org.hpcclab.oaas.pm.model;
+package org.hpcclab.oaas.model.cr;
 
-import com.arangodb.serde.jackson.Key;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.f4b6a3.tsid.Tsid;
 import lombok.Builder;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -23,7 +23,7 @@ public record OClassRuntime(
     return Tsid.from(id).toLowerCase();
   }
 
-  @Key
+  @JsonProperty("_key")
   public String getKey() {
     return Tsid.from(id).toLowerCase();
   }

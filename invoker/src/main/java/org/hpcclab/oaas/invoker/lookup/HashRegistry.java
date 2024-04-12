@@ -2,6 +2,10 @@ package org.hpcclab.oaas.invoker.lookup;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.collections.api.factory.Lists;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
+import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.InternalCrStateService;
 import org.hpcclab.oaas.proto.PaginateQuery;
 import org.hpcclab.oaas.proto.ProtoApiAddress;
@@ -21,73 +25,59 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
+import static org.hpcclab.oaas.model.cr.CrHash.NULL;
+
 /**
  * @author Pawissanutt
  */
 public class HashRegistry {
   private static final Logger logger = LoggerFactory.getLogger(HashRegistry.class);
-  private static final ProtoApiAddress NULL = ProtoApiAddress.newBuilder().setPort(-1).build();
   final InternalCrStateService crStateService;
-  final Cache<String, ProtoCrHash> cacheMap;
+  final Cache<String, CrHash> cacheMap;
+  final ProtoMapper protoMapper = new ProtoMapperImpl();
   String localAdvertiseAddress;
 
-  public HashRegistry(InternalCrStateService crStateService, Cache<String, ProtoCrHash> cacheMap) {
+  public HashRegistry(InternalCrStateService crStateService, Cache<String, CrHash> cacheMap) {
     this.crStateService = crStateService;
     this.cacheMap = cacheMap;
   }
 
-  static ProtoCrHash merge(ProtoCrHash hash1, ProtoCrHash hash2) {
-    var newer = hash1.getTs() > hash2.getTs() ? hash1:hash2;
-    var older = hash1.getTs() > hash2.getTs() ? hash2:hash1;
-    var count = newer.getNumSegment();
-    List<ProtoApiAddress> list = new ArrayList<>(newer.getSegmentAddrList());
-    for (int i = 0; i < count; i++) {
-      if (older.getSegmentAddrCount() <= i) continue;
-      ProtoApiAddress newerAddr = newer.getSegmentAddr(i);
-      ProtoApiAddress olderAddr = older.getSegmentAddr(i);
-      if (olderAddr.getTs() > newerAddr.getTs())
-        list.set(i, olderAddr);
-    }
-    return ProtoCrHash.newBuilder()
-      .setTs(Math.max(hash1.getTs(), hash2.getTs()))
-      .setCls(hash1.getCls())
-      .setNumSegment(count)
-      .addAllSegmentAddr(list)
-      .build();
-  }
-
-  public Uni<ProtoCrHash> push(String cls, int totalSegment, IntSet segments, ProtoApiAddress address) {
-    var current = cacheMap.getOrDefault(cls, ProtoCrHash.getDefaultInstance());
-    var builder = ProtoCrHash.newBuilder()
-      .setCls(cls)
-      .setNumSegment(totalSegment);
+  public Uni<ProtoCrHash> push(String cls, int totalSegment, IntSet segments, CrHash.ApiAddress address) {
+    var current = cacheMap.get(cls);
+    if (current == null) current = new CrHash(cls, totalSegment, List.of(), 0);
+    var builder = CrHash.builder()
+      .cls(cls)
+      .numSegment(totalSegment);
+    List<CrHash.ApiAddress> newAddr = new ArrayList<>(totalSegment);
+    var currentAddr = current.segmentAddr();
     for (int i = 0; i < totalSegment; i++) {
       if (segments.contains(i)) {
-        builder
-          .addSegmentAddr(address);
+        newAddr.add(address);
       } else {
-        var old = i < current.getSegmentAddrCount() ? current.getSegmentAddr(i):NULL;
-        builder.addSegmentAddr(old);
+        CrHash.ApiAddress old = i < currentAddr.size() ? currentAddr.get(i): NULL;
+        newAddr.add(old);
       }
     }
-    ProtoCrHash protoCrHash = builder
-      .setTs(System.currentTimeMillis())
+    CrHash crHash = builder
+      .segmentAddr(newAddr)
+      .ts(System.currentTimeMillis())
       .build();
-    return crStateService.updateHash(protoCrHash)
-      .call(h -> Uni.createFrom().completionStage(cacheMap.putAsync(cls, protoCrHash)));
+    return crStateService.updateHash(protoMapper.toProto(crHash))
+      .call(h -> Uni.createFrom().completionStage(cacheMap.putAsync(cls, crHash)));
   }
 
   public Uni<Void> warmCache() {
-    if (!cacheMap.isEmpty()) return Uni.createFrom().voidItem(); // no need to warm
+    if (!cacheMap.isEmpty()) return Uni.createFrom().voidItem();
+    logger.info("warm HashRegistry cache");// no need to warm
     return crStateService.listHash(PaginateQuery.newBuilder().setLimit(100000).setOffset(0).build())
       .call(crHash -> Uni.createFrom().completionStage(updateManaged(crHash)))
       .collect().last().replaceWithVoid();
   }
 
-  public ProtoApiAddress get(String cls, int segment) {
-    ProtoCrHash protoCrHash = cacheMap.get(cls);
+  public CrHash.ApiAddress get(String cls, int segment) {
+    CrHash protoCrHash = cacheMap.get(cls);
     if (protoCrHash==null) return null;
-    return protoCrHash.getSegmentAddr(segment);
+    return protoCrHash.segmentAddr().get(segment);
   }
 
   public Uni<Void> updateManaged(String cls, AdvancedCache<?, ?> cache, int port) {
@@ -97,19 +87,20 @@ public class HashRegistry {
     return push(cls,
       topology.getNumSegments(),
       topology.getLocalPrimarySegments(),
-      ProtoApiAddress.newBuilder()
-        .setPort(port)
-        .setTs(System.currentTimeMillis())
-        .setHost(localAdvertiseAddress).build()
+      CrHash.ApiAddress.builder()
+        .port(port)
+        .ts(System.currentTimeMillis())
+        .host(localAdvertiseAddress).build()
     ).replaceWithVoid();
   }
 
-  public CompletionStage<ProtoCrHash> updateManaged(ProtoCrHash protoCrHash) {
+  public CompletionStage<CrHash> updateManaged(ProtoCrHash protoCrHash) {
     logger.info("update local hash registry '{}'", protoCrHash.getCls());
+    var crHash = protoMapper.fromProto(protoCrHash);
     return cacheMap.computeAsync(protoCrHash.getCls(),
       (k, v) -> {
-        if (v==null) return protoCrHash;
-        return merge(v, protoCrHash);
+        if (v==null) return crHash;
+        return CrHash.merge(v, crHash);
       });
   }
 

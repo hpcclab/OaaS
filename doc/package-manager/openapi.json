@@ -413,7 +413,7 @@
           "outputCls" : {
             "type" : "string"
           },
-          "forceImmutable" : {
+          "immutable" : {
             "type" : "boolean"
           },
           "noMain" : {
@@ -448,7 +448,7 @@
           "outputCls" : {
             "type" : "string"
           },
-          "forceImmutable" : {
+          "immutable" : {
             "type" : "boolean"
           },
           "noMain" : {
@@ -912,7 +912,7 @@
             "format" : "int64",
             "type" : "integer"
           },
-          "key" : {
+          "_key" : {
             "type" : "string"
           }
         }

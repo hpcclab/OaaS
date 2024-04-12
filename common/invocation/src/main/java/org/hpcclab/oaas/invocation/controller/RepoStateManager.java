@@ -27,6 +27,7 @@ public class RepoStateManager implements StateManager {
       var repo = repoManager.getOrCreate(operation.getCreateCls());
       uni = uni.flatMap(v -> repo.async().persistAsync(operation.getCreateObjs()));
     }
+    if (uni == null) return Uni.createFrom().voidItem();
     return uni;
   }
 }

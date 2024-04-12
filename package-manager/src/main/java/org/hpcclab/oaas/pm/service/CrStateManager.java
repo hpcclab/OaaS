@@ -13,14 +13,11 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.hpcclab.oaas.arango.RepoFactory;
 import org.hpcclab.oaas.arango.repo.GenericArgRepository;
-import org.hpcclab.oaas.pm.model.CrHash;
-import org.hpcclab.oaas.pm.model.CrMapper;
-import org.hpcclab.oaas.pm.model.CrMapperImpl;
-import org.hpcclab.oaas.pm.model.OClassRuntime;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.cr.CrHash;
+import org.hpcclab.oaas.model.cr.OClassRuntime;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -39,7 +36,6 @@ public class CrStateManager {
   private static final Logger logger = LoggerFactory.getLogger(CrStateManager.class);
   final ClassRepository clsRepo;
   final FunctionRepository fnRepo;
-  CrMapper crMapper = new CrMapperImpl();
   ProtoMapper protoMapper = new ProtoMapperImpl();
   GenericArgRepository<OClassRuntime> crRepo;
   GenericArgRepository<CrHash> hashRepo;
@@ -65,7 +61,7 @@ public class CrStateManager {
   }
 
   public Uni<OprcResponse> updateCr(ProtoCr protoCr) {
-    var cr = crMapper.fromProto(protoCr);
+    var cr = protoMapper.fromProto(protoCr);
     return crRepo.persistAsync(cr)
       .map(entity -> OprcResponse.newBuilder()
         .setSuccess(true)
@@ -73,29 +69,29 @@ public class CrStateManager {
   }
 
   public Uni<ProtoCrHash> updateCrHash(ProtoCrHash protoCrHash) {
-    var crHash = crMapper.fromProto(protoCrHash);
+    var crHash = protoMapper.fromProto(protoCrHash);
     return hashRepo.async().getAsync(crHash.getKey())
       .onFailure(e -> e instanceof ArangoDBException arangoDBException
         && arangoDBException.getResponseCode()==404)
       .recoverWithNull()
       .map(entity -> {
         if (entity==null) return crHash;
-        var merged =  CrHash.merge(entity, crHash);
+        var merged = CrHash.merge(entity, crHash);
         logger.debug("merged crHash: {}", merged);
         return merged;
       })
       .call(h -> hashRepo.persistAsync(h))
       .call(hash -> crHashEmitter.send(Record.of(
         hash.getKey(),
-        Buffer.buffer(crMapper.toProto(hash).toByteArray()))
+        Buffer.buffer(protoMapper.toProto(hash).toByteArray()))
       ))
-      .map(crMapper::toProto);
+      .map(protoMapper::toProto);
   }
 
   public Uni<ProtoCr> get(String id) {
     return crRepo.async().getAsync(id)
       .flatMap(this::refreshFn)
-      .map(crMapper::toProto);
+      .map(protoMapper::toProto);
   }
 
   public Uni<OClassRuntime> refreshFn(OClassRuntime cr) {
@@ -111,7 +107,7 @@ public class CrStateManager {
 
   public Uni<ProtoCrHash> getHash(String id) {
     return hashRepo.getAsync(id)
-      .map(doc -> crMapper.toProto(doc));
+      .map(doc -> protoMapper.toProto(doc));
   }
 
   public Multi<ProtoCr> listCr(PaginateQuery request) {
@@ -120,7 +116,7 @@ public class CrStateManager {
       .toMulti()
       .flatMap(p -> Multi.createFrom().iterable(p.getItems()))
       .onItem().transformToUniAndConcatenate(this::refreshFn)
-      .map(doc -> crMapper.toProto(doc));
+      .map(doc -> protoMapper.toProto(doc));
   }
 
   public Multi<ProtoCrHash> listHash(PaginateQuery request) {
@@ -128,7 +124,7 @@ public class CrStateManager {
       .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
       .flatMap(p -> Multi.createFrom().iterable(p.getItems()))
-      .map(doc -> crMapper.toProto(doc));
+      .map(doc -> protoMapper.toProto(doc));
   }
 
   public void detach(OClass cls) {
@@ -138,7 +134,7 @@ public class CrStateManager {
       return;
     }
     var response = crManager.detach(DetachCrRequest.newBuilder()
-      .setOrbit(crMapper.toProto(cr))
+      .setOrbit(protoMapper.toProto(cr))
       .setCls(protoMapper.toProto(cls))
       .build());
     var newCr = response.getCr();
@@ -146,7 +142,7 @@ public class CrStateManager {
       crRepo.remove(OClassRuntime.toKey(newCr.getId()));
       hashRepo.remove(cls.getKey());
     } else {
-      crRepo.persistAsync(crMapper.fromProto(newCr));
+      crRepo.persistAsync(protoMapper.fromProto(newCr));
     }
     cls.getStatus().setCrId(0);
   }

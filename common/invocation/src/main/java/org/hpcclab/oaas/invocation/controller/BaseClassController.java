@@ -63,7 +63,11 @@ public class BaseClassController implements ClassController {
       var fn = functionMap.get(oal.getFb());
       if (fn==null) throw InvocationException.notFoundFnInCls(oal.getFb(), cls.getKey());
       var req = oal.toRequest()
-        .immutable(fn.getFunctionBinding().isForceImmutable());
+        .invId(idGenerator.generate())
+        .immutable(fn.getFunctionBinding().isImmutable());
+      if (fn.getFunctionBinding().getOutputCls() != null) {
+        req.outId(idGenerator.generate());
+      }
       if (fn.getFunction().getType()==FunctionType.MACRO) {
         var dataflow = fn.getFunction().getMacro();
         var map = Lists.fixedSize.ofAll(dataflow.getSteps())

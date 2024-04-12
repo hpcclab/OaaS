@@ -34,7 +34,7 @@ message ProtoFunctionBinding {
   map<string, string> defaultArgs = 4;
   string description = 5;
   string outputCls = 6;
-  bool forceImmutable = 7;
+  bool immutable = 7;
   bool noMain = 8;
   repeated string inputTypes = 9;
 }

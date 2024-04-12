@@ -92,6 +92,7 @@ classes:
         name: random
         function: .record.random
         outputCls: .record
+        immutable: true
         defaultArgs:
           INPLACE: "false"
       - access: PUBLIC

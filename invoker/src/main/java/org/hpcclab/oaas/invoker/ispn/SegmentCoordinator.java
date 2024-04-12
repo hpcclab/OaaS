@@ -11,6 +11,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.infinispan.AdvancedCache;
 import org.infinispan.commons.util.IntSet;
+import org.infinispan.commons.util.IntSets;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.TopologyChanged;
 import org.infinispan.notifications.cachelistener.event.TopologyChangedEvent;
@@ -29,6 +30,8 @@ public class SegmentCoordinator {
   final SegmentObserver segmentObserver;
   final ObjectRepoManager objectRepoManager;
   AdvancedCache<?, ?> cache;
+  IntSet localParts = IntSets.immutableEmptySet();
+  Runnable runnable;
 
   public SegmentCoordinator(OClass cls,
                             ObjectRepoManager objectRepoManager,
@@ -44,7 +47,8 @@ public class SegmentCoordinator {
     segmentObserver = new SegmentObserver();
   }
 
-  public void init() {
+  public void init(Runnable runnable) {
+    this.runnable = runnable;
     var repo = (EIspnObjectRepository) objectRepoManager.getOrCreate(cls);
     this.cache = repo.getCache();
     cache.addListener(segmentObserver);
@@ -66,6 +70,7 @@ public class SegmentCoordinator {
   }
 
   public Uni<Void> assignParts(IntSet parts) {
+    localParts = parts;
     return consumer.assignment()
       .map(tp -> tp.stream()
         .map(TopicPartition::getPartition)
@@ -82,7 +87,10 @@ public class SegmentCoordinator {
         return Uni.createFrom().nullItem();
       })
       .invoke(__ -> registry.initLocal(cache.getCacheManager()))
-      .call(__ ->registry.updateManaged(cls.getKey(), cache, port));
+      .call(__ ->registry.updateManaged(cls.getKey(), cache, port))
+      .invoke(__ -> {
+        if (!localParts.isEmpty()) runnable.run();
+      });
   }
 
   @Listener
@@ -92,4 +100,5 @@ public class SegmentCoordinator {
       updateParts().await().indefinitely();
     }
   }
+
 }

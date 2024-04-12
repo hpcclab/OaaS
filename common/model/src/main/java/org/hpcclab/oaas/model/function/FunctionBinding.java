@@ -3,10 +3,8 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.List;
 
@@ -20,7 +18,7 @@ public class FunctionBinding {
   DSMap defaultArgs;
   String description;
   String outputCls;
-  boolean forceImmutable = false;
+  boolean immutable = false;
   boolean noMain;
   List<String> inputTypes;
 
@@ -37,7 +35,7 @@ public class FunctionBinding {
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
-    this.forceImmutable = forceImmutable;
+    this.immutable = forceImmutable;
     this.noMain = noMain;
     this.inputTypes = inputTypes;
   }
