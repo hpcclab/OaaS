@@ -4,21 +4,31 @@ import io.grpc.MethodDescriptor;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
+import io.vertx.grpc.client.GrpcClientResponse;
+import io.vertx.grpc.common.GrpcStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
+import org.hpcclab.oaas.invoker.lookup.ObjLocalResolver;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.proto.InvocationServiceGrpc;
+import org.hpcclab.oaas.proto.ProtoInvocationRequest;
+import org.hpcclab.oaas.proto.ProtoInvocationResponse;
+import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.function.Supplier;
 
 import static io.smallrye.mutiny.vertx.UniHelper.toUni;
 
@@ -32,6 +42,11 @@ public class HashAwareInvocationHandler {
   final GrpcClient grpcClient;
   final InvocationReqHandler invocationReqHandler;
   final InvokerManager invokerManager;
+  final InvokerConfig invokerConfig;
+
+  final int retry;
+  final int backoff;
+  final int maxBackoff;
 
   @Inject
   public HashAwareInvocationHandler(LookupManager lookupManager,
@@ -39,13 +54,17 @@ public class HashAwareInvocationHandler {
                                     ProtoObjectMapper mapper,
                                     GrpcClient grpcClient,
                                     InvocationReqHandler invocationReqHandler,
-                                    InvokerManager invokerManager) {
+                                    InvokerManager invokerManager, InvokerConfig invokerConfig) {
     this.lookupManager = lookupManager;
     this.registry = registry;
     this.mapper = mapper;
     this.grpcClient = grpcClient;
     this.invocationReqHandler = invocationReqHandler;
     this.invokerManager = invokerManager;
+    this.invokerConfig = invokerConfig;
+    this.retry = invokerConfig.syncMaxRetry();
+    this.backoff = invokerConfig.syncRetryBackOff();
+    this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -53,48 +72,33 @@ public class HashAwareInvocationHandler {
   }
 
 
-  public Uni<ProtoInvocationResponse> invoke(ProtoObjectAccessLanguage protOal) {
-    boolean managed = invokerManager.getManagedCls().contains(protOal.getCls());
-    if (managed && (protOal.getMain().isEmpty())) {
-      return invocationReqHandler.invoke(mapper.fromProto(protOal))
+  public Uni<ProtoInvocationResponse> invoke(ProtoObjectAccessLanguage protoOal) {
+    boolean managed = invokerManager.getManagedCls().contains(protoOal.getCls());
+    if (managed && (protoOal.getMain().isEmpty())) {
+      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
         .map(mapper::toProto);
     }
-
-    if (managed && registry.getClassController(protOal.getCls()).getCls().getConfig().isDisableHashAware()) {
-      return invocationReqHandler.invoke(mapper.fromProto(protOal))
-        .map(mapper::toProto);
-    }
-    CrHash.ApiAddress addr = resolveAddr(protOal.getCls(), protOal.getMain());
-    if (addr==null || lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}/{}", protOal.getCls(), protOal.getMain(), protOal.getFb());
-      return invocationReqHandler.invoke(mapper.fromProto(protOal))
+//    if (managed && registry.getClassController(protOal.getCls()).getCls().getConfig().isDisableHashAware()) {
+//      return invocationReqHandler.invoke(mapper.fromProto(protOal))
+//        .map(mapper::toProto);
+//    }
+    ObjLocalResolver resolver = resolveAddr(protoOal.getCls());
+    CrHash.ApiAddress addr = resolver.find(protoOal.getMain());
+    if (lookupManager.isLocal(addr)) {
+      logger.debug("invoke local {}~{}/{}", protoOal.getCls(), protoOal.getMain(), protoOal.getFb());
+      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}/{} to {}:{}", protOal.getCls(), protOal.getMain(),
-        protOal.getFb(), addr.host(), addr.port());
-      return send(addr, protOal);
+      logger.debug("invoke remote {}~{}/{} to {}:{}", protoOal.getCls(), protoOal.getMain(),
+        protoOal.getFb(), addr.host(), addr.port());
+      return send(() -> resolver.find(protoOal.getMain()), protoOal);
     }
   }
 
 
   public Uni<InvocationResponse> invoke(ObjectAccessLanguage oal) {
-    boolean managed = invokerManager.getManagedCls().contains(oal.getCls());
-    if (managed && (oal.getMain()==null || oal.getMain().isEmpty())) {
-      return invocationReqHandler.invoke(oal);
-    }
-    if (managed && registry.getClassController(oal.getCls()).getCls().getConfig().isDisableHashAware()) {
-      return invocationReqHandler.invoke(oal);
-    }
-    CrHash.ApiAddress addr = resolveAddr(oal.getCls(), oal.getMain());
-    if (addr==null || lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}:{}", oal.getCls(), oal.getMain(), oal.getFb());
-      return invocationReqHandler.invoke(oal);
-    } else {
-      logger.debug("invoke remote {}~{}:{} to {}:{}",
-        oal.getCls(), oal.getMain(), oal.getFb(), addr.host(), addr.port());
-      return send(addr, mapper.toProto(oal))
-        .map(mapper::fromProto);
-    }
+    return invoke(mapper.toProto(oal))
+      .map(mapper::fromProto);
   }
 
   public Uni<ProtoInvocationResponse> invoke(ProtoInvocationRequest request) {
@@ -103,47 +107,72 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     }
-    CrHash.ApiAddress addr = resolveAddr(request.getCls(), request.getMain());
-    if (addr==null || lookupManager.isLocal(addr)) {
+    ObjLocalResolver resolver = resolveAddr(request.getCls());
+    CrHash.ApiAddress addr = resolver.find(request.getMain());
+    if (lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
         request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
-      return send(addr, request);
+      return send(() -> resolver.find(request.getMain()), request);
     }
   }
 
-  private CrHash.ApiAddress resolveAddr(String clsKey, String obj) {
+  private ObjLocalResolver resolveAddr(String clsKey) {
     ClassController classController = registry.getClassController(clsKey);
     if (classController==null) throw StdOaasException.notFoundCls400(clsKey);
     var cls = classController.getCls();
-    var lookup = lookupManager.getOrInit(cls);
-    CrHash.ApiAddress addr;
-    if (obj==null || obj.isEmpty()) {
-      addr = lookup.getAny();
-    } else {
-      addr = lookup.find(obj);
-    }
-    return addr;
+    return lookupManager.getOrInit(cls);
   }
 
-  private Uni<ProtoInvocationResponse> send(CrHash.ApiAddress addr,
+  private Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
                                             ProtoInvocationRequest request) {
     MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeLocalMethod();
-    return toUni(grpcClient.request(toSocketAddress(addr), invokeMethod))
-      .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)))
-      .flatMap(resp -> toUni(resp.last()));
+    Uni<GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse>> clientResponseUni =
+      Uni.createFrom().item(addrSupplier)
+        .onItem().ifNull().failWith(RetryableException::new)
+        .flatMap(addr -> toUni(grpcClient.request(toSocketAddress(addr), invokeMethod)))
+        .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)));
+
+    return setupRetry(clientResponseUni);
   }
 
-  private Uni<ProtoInvocationResponse> send(CrHash.ApiAddress addr,
+  private Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
                                             ProtoObjectAccessLanguage request) {
     MethodDescriptor<ProtoObjectAccessLanguage, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeOalMethod();
-    return toUni(grpcClient.request(toSocketAddress(addr), invokeMethod))
-      .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)))
-      .flatMap(resp -> toUni(resp.last()));
+    Uni<GrpcClientResponse<ProtoObjectAccessLanguage, ProtoInvocationResponse>> uni =
+      Uni.createFrom().item(addrSupplier)
+        .onItem().ifNull().failWith(RetryableException::new)
+        .flatMap(addr -> toUni(grpcClient.request(toSocketAddress(addr), invokeMethod)))
+        .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)));
+    return setupRetry(uni);
+  }
+
+  <T> Uni<ProtoInvocationResponse> setupRetry(Uni<GrpcClientResponse<T, ProtoInvocationResponse>> uni) {
+    Uni<ProtoInvocationResponse> responseUni = uni
+      .flatMap(resp -> {
+        if (resp.status()==GrpcStatus.UNAVAILABLE ||
+          resp.status()==GrpcStatus.UNKNOWN)
+          return Uni.createFrom().failure(new RetryableException());
+        return toUni(resp.last());
+      });
+    if (retry <= 0) {
+      return responseUni;
+    }
+    return responseUni
+      .onFailure(RetryableException.class)
+      .retry()
+      .withBackOff(Duration.ofMillis(backoff), Duration.ofMillis(maxBackoff))
+      .atMost(retry);
+  }
+
+  static class RetryableException extends StdOaasException {
+    public RetryableException() {
+      super(502);
+    }
   }
 }

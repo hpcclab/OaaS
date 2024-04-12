@@ -68,7 +68,7 @@ public class IspnCacheCreator {
       .clustering()
       .cacheMode(CacheMode.REPL_ASYNC)
       .stateTransfer()
-      .awaitInitialTransfer(false)
+      .awaitInitialTransfer(true)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()

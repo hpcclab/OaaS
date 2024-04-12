@@ -97,7 +97,11 @@ public class SegmentCoordinator {
   public class SegmentObserver {
     @TopologyChanged
     public void topologyChanged(TopologyChangedEvent<String, String> event) {
-      updateParts().await().indefinitely();
+      try {
+        updateParts().await().indefinitely();
+      } catch (Exception e) {
+        logger.error("[{}] error while updating parts", topic, e);
+      }
     }
   }
 

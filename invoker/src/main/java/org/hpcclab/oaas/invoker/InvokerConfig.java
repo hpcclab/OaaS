@@ -80,6 +80,12 @@ public interface InvokerConfig {
 
   @WithDefault("false")
   boolean enableInvReqMetric();
+  @WithDefault("3")
+  int syncMaxRetry();
+  @WithDefault("500")
+  int syncRetryBackOff();
+  @WithDefault("5000")
+  int syncMaxRetryBackOff();
 
   enum LoadAssignMode {
     FETCH, ENV, DISABLED

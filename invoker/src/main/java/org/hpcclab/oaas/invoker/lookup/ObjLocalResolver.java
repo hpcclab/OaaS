@@ -1,13 +1,12 @@
 package org.hpcclab.oaas.invoker.lookup;
 
 import org.hpcclab.oaas.model.cr.CrHash;
-import org.hpcclab.oaas.proto.ProtoApiAddress;
 import org.infinispan.commons.hash.Hash;
 import org.infinispan.commons.hash.MurmurHash3;
 
-import java.util.Random;
+import java.util.function.Supplier;
 
-public class ObjectLocationFinder {
+public class ObjLocalResolver {
   final int segments;
   final int size;
   final Hash hashFunction = MurmurHash3.getInstance();
@@ -15,9 +14,9 @@ public class ObjectLocationFinder {
   final HashRegistry registry;
   int count = 0;
 
-  public ObjectLocationFinder(int segments,
-                              String cls,
-                              HashRegistry registry) {
+  public ObjLocalResolver(int segments,
+                          String cls,
+                          HashRegistry registry) {
     this.segments = segments;
     this.registry = registry;
     this.cls = cls;
@@ -25,8 +24,16 @@ public class ObjectLocationFinder {
   }
 
   public CrHash.ApiAddress find(String id) {
+    if (id == null || id.isEmpty()) return getAny();
     var seg = (hashFunction.hash(id) & Integer.MAX_VALUE) / size;
     return registry.get(cls, seg);
+  }
+
+  public Supplier<CrHash.ApiAddress> createSupplier(String id){
+    if (id == null || id.isEmpty()) return this::getAny;
+    var hash = hashFunction.hash(id);
+    var seg = (hash & Integer.MAX_VALUE) / size;
+    return () -> registry.get(cls, seg);
   }
 
   public CrHash.ApiAddress getAny() {

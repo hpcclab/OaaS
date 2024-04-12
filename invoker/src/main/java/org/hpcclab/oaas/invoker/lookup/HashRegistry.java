@@ -77,7 +77,9 @@ public class HashRegistry {
   public CrHash.ApiAddress get(String cls, int segment) {
     CrHash protoCrHash = cacheMap.get(cls);
     if (protoCrHash==null) return null;
-    return protoCrHash.segmentAddr().get(segment);
+    List<CrHash.ApiAddress> apiAddresses = protoCrHash.segmentAddr();
+    if (apiAddresses.size() < segment) return null;
+    return apiAddresses.get(segment);
   }
 
   public Uni<Void> updateManaged(String cls, AdvancedCache<?, ?> cache, int port) {
@@ -97,7 +99,7 @@ public class HashRegistry {
   public CompletionStage<CrHash> updateManaged(ProtoCrHash protoCrHash) {
     logger.info("update local hash registry '{}'", protoCrHash.getCls());
     var crHash = protoMapper.fromProto(protoCrHash);
-    return cacheMap.computeAsync(protoCrHash.getCls(),
+    return cacheMap.computeAsync(crHash.cls(),
       (k, v) -> {
         if (v==null) return crHash;
         return CrHash.merge(v, crHash);
