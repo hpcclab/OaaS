@@ -28,38 +28,6 @@ import org.slf4j.LoggerFactory;
 public class InvocationEngineProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationEngineProducer.class);
 
-//  @Produces
-//  @ApplicationScoped
-//  WebClient webClient(Vertx vertx, InvokerConfig config) {
-//    WebClientOptions options = new WebClientOptions()
-//      .setTcpQuickAck(true)
-//      .setFollowRedirects(false)
-//      .setMaxPoolSize(config.connectionPoolMaxSize())
-//      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
-//      .setProtocolVersion(HttpVersion.HTTP_2)
-//      ;
-//    if (LOGGER.isDebugEnabled()) {
-//      LOGGER.debug("Creating WebClient with options {}", options.toJson());
-//    }
-//    return WebClient.create(vertx, options);
-//  }
-//
-//  @Produces
-//  @ApplicationScoped
-//  HttpOffLoaderConfig httpOffLoaderConfig(InvokerConfig config) {
-//    return HttpOffLoaderConfig.builder()
-//      .appName("oaas/invoker")
-//      .timout(config.invokeTimeout())
-//      .enabledCeHeader(config.enableCeHeaderOffload())
-//      .build();
-//  }
-
-//  @Produces
-//  @ApplicationScoped
-//  OffLoader offLoader(HttpOffLoaderConfig config, WebClient webClient) {
-//    return new HttpOffLoader(webClient, config);
-//  }
-
 
   @Produces
   @ApplicationScoped
@@ -88,7 +56,7 @@ public class InvocationEngineProducer {
     } else {
       return new UnifyContentUrlGenerator(config.sa().url(),
         DatastoreConfRegistry.getDefault()
-        .getOrDefault("S3DEFAULT"));
+          .getOrDefault("S3DEFAULT"));
     }
   }
 
@@ -128,6 +96,7 @@ public class InvocationEngineProducer {
       .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)
+      .setConnectTimeout(config.connectTimeout())
       .setShared(true)
       .setName("grpc")
     );

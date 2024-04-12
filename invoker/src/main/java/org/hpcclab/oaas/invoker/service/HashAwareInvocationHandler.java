@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.client.GrpcClientResponse;
@@ -27,6 +28,7 @@ import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.time.Duration;
 import java.util.function.Supplier;
 
@@ -163,11 +165,20 @@ public class HashAwareInvocationHandler {
     if (retry <= 0) {
       return responseUni;
     }
-    return responseUni
-      .onFailure(RetryableException.class)
+    Uni<ProtoInvocationResponse> invocationResponseUni = responseUni
+      .onFailure(throwable -> throwable instanceof RetryableException ||
+        throwable instanceof ConnectException ||
+        throwable instanceof HttpClosedException
+      )
       .retry()
       .withBackOff(Duration.ofMillis(backoff), Duration.ofMillis(maxBackoff))
       .atMost(retry);
+    if (logger.isDebugEnabled()) {
+      invocationResponseUni = invocationResponseUni
+        .onFailure()
+        .invoke(throwable -> logger.debug("unexpected exception", throwable));
+    }
+    return invocationResponseUni;
   }
 
   static class RetryableException extends StdOaasException {

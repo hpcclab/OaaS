@@ -86,6 +86,8 @@ public interface InvokerConfig {
   int syncRetryBackOff();
   @WithDefault("5000")
   int syncMaxRetryBackOff();
+  @WithDefault("3000")
+  int connectTimeout();
 
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
