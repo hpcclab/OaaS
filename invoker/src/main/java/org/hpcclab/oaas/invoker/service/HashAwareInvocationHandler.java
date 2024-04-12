@@ -110,6 +110,10 @@ public class HashAwareInvocationHandler {
   }
 
   public Uni<ProtoInvocationResponse> invoke(ProtoInvocationRequest request) {
+    if (forceInvokeLocal) {
+      return invocationReqHandler.invoke(mapper.fromProto(request))
+        .map(mapper::toProto);
+    }
     boolean managed = invokerManager.getManagedCls().contains(request.getCls());
     if (managed && request.getMain().isEmpty()) {
       return invocationReqHandler.invoke(mapper.fromProto(request))

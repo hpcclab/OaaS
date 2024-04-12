@@ -105,13 +105,12 @@ public class InvokerInitializer {
           .collect().asList().await().indefinitely();
       }
     }
+
+    Multi.createFrom().iterable(clsList)
+      .call(invokerManager::registerManaged)
+      .collect().last()
+      .await().indefinitely();
     if (config.enableWarmClsRegistry()) {
-      Multi.createFrom().iterable(clsList)
-        .call(invokerManager::registerManaged)
-        .collect().last()
-        .await().indefinitely();
-    }
-    if (config.loadMode() != InvokerConfig.LoadAssignMode.DISABLED) {
       classService.list(PaginateQuery.newBuilder().setLimit(1000).build())
         .call(invokerManager::update)
         .collect().last()
