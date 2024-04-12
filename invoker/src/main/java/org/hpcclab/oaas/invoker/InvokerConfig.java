@@ -72,22 +72,29 @@ public interface InvokerConfig {
   @WithDefault("none")
   List<String> initClass();
 
-  @WithDefault("true")
-  boolean warmHashCache();
-
   @WithDefault("false")
   boolean enableCeHeaderOffload();
 
   @WithDefault("false")
   boolean enableInvReqMetric();
+
   @WithDefault("3")
   int syncMaxRetry();
+
   @WithDefault("500")
   int syncRetryBackOff();
+
   @WithDefault("5000")
   int syncMaxRetryBackOff();
+
   @WithDefault("3000")
   int connectTimeout();
+
+  @WithDefault("true")
+  boolean enableWarmClsRegistry();
+
+  @WithDefault("true")
+  boolean enableWarmHashCache();
 
   enum LoadAssignMode {
     FETCH, ENV, DISABLED

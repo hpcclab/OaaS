@@ -89,11 +89,9 @@ class NewFunctionControllerTest {
       null,
       null
     );
-    var protoOal = protoObjectMapper.toProto(oal);
-    logger.info("oal: {}", protoOal);
-    var protoInvocationResponse = invocationService.invokeOal(protoOal)
+    var request = protoObjectMapper.toProto(oal.toRequest().build());
+    var protoInvocationResponse = invocationService.invokeLocal(request)
       .await().indefinitely();
-    logger.info("protoInvocationResponse: {}", protoInvocationResponse);
     var resp = protoObjectMapper.fromProto(protoInvocationResponse);
     Assertions.assertThat(resp.output().getData().get("n").asInt())
       .isEqualTo(1);

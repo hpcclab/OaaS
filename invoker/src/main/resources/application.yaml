@@ -12,7 +12,8 @@
     invoker:
       kafka: localhost:9092
       loadMode: disabled
-      warmHashCache: false
+      enableWarmClsRegistry: false
+      enableWarmHashCache: false
     crid: "placeholer"
 
 "%dev":
