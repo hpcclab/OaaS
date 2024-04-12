@@ -82,7 +82,7 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(request);
     }
     boolean managed = invokerManager.getManagedCls().contains(request.cls());
-    if (managed && request.main().isEmpty()) {
+    if (managed && (request.main() == null || request.main().isEmpty())) {
       return invocationReqHandler.invoke(request);
     }
     ObjLocalResolver resolver = resolveAddr(request.cls());
