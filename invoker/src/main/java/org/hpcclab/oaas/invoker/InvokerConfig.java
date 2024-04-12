@@ -96,6 +96,9 @@ public interface InvokerConfig {
   @WithDefault("true")
   boolean enableWarmHashCache();
 
+  @WithDefault("false")
+  boolean forceInvokeLocal();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }

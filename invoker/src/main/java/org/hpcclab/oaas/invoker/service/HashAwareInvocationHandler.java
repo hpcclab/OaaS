@@ -49,6 +49,7 @@ public class HashAwareInvocationHandler {
   final int retry;
   final int backoff;
   final int maxBackoff;
+  final boolean forceInvokeLocal;
 
   @Inject
   public HashAwareInvocationHandler(LookupManager lookupManager,
@@ -67,6 +68,7 @@ public class HashAwareInvocationHandler {
     this.retry = invokerConfig.syncMaxRetry();
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
+    this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -75,13 +77,17 @@ public class HashAwareInvocationHandler {
 
 
   public Uni<ProtoInvocationResponse> invoke(ProtoObjectAccessLanguage protoOal) {
+    if (forceInvokeLocal) {
+      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
+        .map(mapper::toProto);
+    }
     boolean managed = invokerManager.getManagedCls().contains(protoOal.getCls());
     if (managed && (protoOal.getMain().isEmpty())) {
       return invocationReqHandler.invoke(mapper.fromProto(protoOal))
         .map(mapper::toProto);
     }
-//    if (managed && registry.getClassController(protOal.getCls()).getCls().getConfig().isDisableHashAware()) {
-//      return invocationReqHandler.invoke(mapper.fromProto(protOal))
+//    if (managed && registry.getClassController(protoOal.getCls()).getCls().getConfig().isDisableHashAware()) {
+//      return invocationReqHandler.invoke(mapper.fromProto(protoOal))
 //        .map(mapper::toProto);
 //    }
     ObjLocalResolver resolver = resolveAddr(protoOal.getCls());

@@ -14,6 +14,7 @@
       loadMode: disabled
       enableWarmClsRegistry: false
       enableWarmHashCache: false
+      forceInvokeLocal: true
     crid: "placeholer"
 
 "%dev":
