@@ -53,6 +53,8 @@ spec:
               value: DISABLED
             - name: OPRC_LOG
               value: DEBUG
+            - name: OPRC_INVOKER_SYNCMAXRETRY
+              value: '0'
           ports:
             - containerPort: 8080
               name: http

@@ -13,6 +13,7 @@ import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
@@ -49,6 +50,13 @@ public class TaskFunctionController extends AbstractFunctionController {
 
   @Override
   protected void validate(InvocationCtx ctx) {
+    InvocationRequest req = ctx.getRequest();
+    if (req.invId() == null || req.invId().isEmpty()) {
+      req = req.toBuilder()
+        .invId(idGenerator.generate())
+        .build();
+      ctx.setRequest(req);
+    }
   }
 
   @Override

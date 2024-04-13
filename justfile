@@ -31,6 +31,7 @@ k8s-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/base
   kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
   kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
+  kubectl apply -n oaas -f deploy/local-k8s/hash-aware-lb.yml
 
 k8s-deploy-light: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/light

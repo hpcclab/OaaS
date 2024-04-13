@@ -2,10 +2,10 @@ package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
-import io.vertx.grpc.client.GrpcClientResponse;
 import io.vertx.grpc.common.GrpcStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,19 +21,15 @@ import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
 import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.proto.ProtoInvocationResponse;
-import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.time.Duration;
 import java.util.function.Supplier;
-
-import static io.smallrye.mutiny.vertx.UniHelper.toUni;
 
 
 @ApplicationScoped
@@ -46,6 +42,7 @@ public class HashAwareInvocationHandler {
   final InvocationReqHandler invocationReqHandler;
   final InvokerManager invokerManager;
   final InvokerConfig invokerConfig;
+  final ThreadLocal<GrpcInvocationServicePool> pool;
 
   final int retry;
   final int backoff;
@@ -70,6 +67,7 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
+    this.pool = ThreadLocal.withInitial(GrpcInvocationServicePool::new);
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -82,7 +80,7 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(request);
     }
     boolean managed = invokerManager.getManagedCls().contains(request.cls());
-    if (managed && (request.main() == null || request.main().isEmpty())) {
+    if (managed && (request.main()==null || request.main().isEmpty())) {
       return invocationReqHandler.invoke(request);
     }
     ObjLocalResolver resolver = resolveAddr(request.cls());
@@ -93,7 +91,7 @@ public class HashAwareInvocationHandler {
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
         request.cls(), request.main(), request.fb(), addr.host(), addr.port());
-      return sendLocal(() -> resolver.find(request.main()), mapper.toProto(request))
+      return sendWithPool(() -> resolver.find(request.main()), mapper.toProto(request))
         .map(mapper::fromProto);
     }
   }
@@ -117,7 +115,7 @@ public class HashAwareInvocationHandler {
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
         request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
-      return sendLocal(() -> resolver.find(request.getMain()), request);
+      return sendWithPool(() -> resolver.find(request.getMain()), request);
     }
   }
 
@@ -128,31 +126,65 @@ public class HashAwareInvocationHandler {
     return lookupManager.getOrInit(cls);
   }
 
-  private Uni<ProtoInvocationResponse> sendLocal(Supplier<CrHash.ApiAddress> addrSupplier,
-                                                 ProtoInvocationRequest request) {
-    MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
-      InvocationServiceGrpc.getInvokeLocalMethod();
-    Uni<GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse>> clientResponseUni =
+  private Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
+                                            ProtoInvocationRequest request) {
+    Uni<ProtoInvocationResponse> clientResponseUni =
       Uni.createFrom().item(addrSupplier)
         .onItem().ifNull().failWith(RetryableException::new)
-        .flatMap(addr -> toUni(grpcClient.request(toSocketAddress(addr), invokeMethod)))
-        .flatMap(grpcClientRequest -> toUni(grpcClientRequest.send(request)));
-
+        .flatMap(addr -> callGrpc(request, addr)
+        );
     return setupRetry(clientResponseUni);
   }
 
-  <T> Uni<ProtoInvocationResponse> setupRetry(Uni<GrpcClientResponse<T, ProtoInvocationResponse>> uni) {
-    Uni<ProtoInvocationResponse> responseUni = uni
-      .flatMap(resp -> {
-        if (resp.status()==GrpcStatus.UNAVAILABLE ||
-          resp.status()==GrpcStatus.UNKNOWN)
-          return Uni.createFrom().failure(new RetryableException());
-        return toUni(resp.last());
-      });
+  private Uni<ProtoInvocationResponse> sendWithPool(Supplier<CrHash.ApiAddress> addrSupplier,
+                                                    ProtoInvocationRequest request) {
+    var p = pool.get();
+    Uni<ProtoInvocationResponse> clientResponseUni =
+      Uni.createFrom().item(addrSupplier)
+        .onItem().ifNull().failWith(RetryableException::new)
+        .map(p::getOrCreate)
+        .flatMap(invocationService -> invocationService.invokeLocal(request));
+    return setupRetry(clientResponseUni);
+  }
+
+  private Uni<ProtoInvocationResponse> callGrpc(ProtoInvocationRequest request,
+                                                CrHash.ApiAddress addr) {
+    MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
+      InvocationServiceGrpc.getInvokeLocalMethod();
+    return Uni.createFrom().emitter(emitter ->
+      grpcClient.request(toSocketAddress(addr), invokeMethod)
+        .compose(grpcClientRequest -> {
+          logger.debug("sending request to {}", addr);
+          if (grpcClientRequest.writeQueueFull())
+            logger.debug("writeQueueFull to {}", addr);
+          return grpcClientRequest
+            .exceptionHandler(emitter::fail)
+            .end(request)
+            .compose(__ -> {
+              logger.debug("done end to {}", addr);
+              return grpcClientRequest.response();
+            });
+        })
+        .compose(resp -> {
+          logger.debug("handling resp from {}", addr);
+          if (resp.status()==GrpcStatus.UNAVAILABLE ||
+            resp.status()==GrpcStatus.UNKNOWN)
+            return Future.failedFuture(new RetryableException());
+          resp.errorHandler(err -> emitter.fail(StdOaasException.format("grpc error %s", err.toString())));
+          resp.exceptionHandler(err -> emitter.fail(new StdOaasException("grpc error", err)));
+          return resp.last();
+        })
+        .onSuccess(emitter::complete)
+        .onFailure(emitter::fail)
+    );
+
+  }
+
+  Uni<ProtoInvocationResponse> setupRetry(Uni<ProtoInvocationResponse> uni) {
     if (retry <= 0) {
-      return responseUni;
+      return uni;
     }
-    Uni<ProtoInvocationResponse> invocationResponseUni = responseUni
+    Uni<ProtoInvocationResponse> invocationResponseUni = uni
       .onFailure(throwable -> throwable instanceof RetryableException ||
         throwable instanceof ConnectException ||
         throwable instanceof HttpClosedException

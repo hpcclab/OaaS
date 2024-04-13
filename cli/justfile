@@ -1,6 +1,6 @@
 #!/usr/bin/env just --justfile
 mvn := "mvnd"
-version := "0.2.0-SNAPSHOT"
+version := "999-SNAPSHOT"
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 # maven build

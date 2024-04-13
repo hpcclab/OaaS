@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.cdi;
 
+import io.vertx.core.http.Http2Settings;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.grpc.client.GrpcClient;
@@ -92,11 +93,13 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   GrpcClient grpcClient(Vertx vertx, InvokerConfig config) {
     return GrpcClient.client(vertx.getDelegate(), new HttpClientOptions()
-      .setMaxPoolSize(config.connectionPoolMaxSize())
-      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
-      .setProtocolVersion(HttpVersion.HTTP_2)
-      .setHttp2ClearTextUpgrade(false)
-      .setConnectTimeout(config.connectTimeout())
+        .setMaxPoolSize(config.connectionPoolMaxSize())
+        .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
+        .setProtocolVersion(HttpVersion.HTTP_2)
+        .setHttp2ClearTextUpgrade(false)
+        .setConnectTimeout(config.connectTimeout())
+        .setIdleTimeout(30)
+//        .setLogActivity(true)
 //      .setShared(false)
 //      .setName("grpc")
     );

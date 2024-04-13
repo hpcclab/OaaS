@@ -18,7 +18,6 @@ import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
 import org.hpcclab.oaas.proto.ProtoInvocationRequest;
 import org.hpcclab.oaas.proto.ProtoInvocationResponse;
-import org.hpcclab.oaas.proto.ProtoObjectAccessLanguage;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
@@ -55,9 +54,9 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   @CommandLine.Option(names = "-c")
   String cls;
 
-  @CommandLine.Parameters(index = "0", defaultValue = "")
+  @CommandLine.Option(names = {"-m", "--main"})
   String main;
-  @CommandLine.Parameters(index = "1", defaultValue = "")
+  @CommandLine.Parameters(index = "0", defaultValue = "")
   String fb;
   @CommandLine.Option(names = "--args")
   Map<String, String> args;
@@ -65,6 +64,8 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   List<String> inputs;
   @CommandLine.Option(names = {"-b", "--pipe-body"}, defaultValue = "false")
   boolean pipeBody;
+  @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
+  boolean save;
   @Inject
   OutputFormatter outputFormatter;
   @Inject
@@ -85,6 +86,9 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();
     if (cls==null) cls = conf.getDefaultClass();
+    if (main==null)
+      main = conf.getDefaultObject()==null ? "":conf.getDefaultObject();
+
     GrpcClientChannel channel = new GrpcClientChannel(grpcClient, SocketAddress.inetSocketAddress(
       uri.getPort() < 0 ? uri.getDefaultPort():uri.getPort(), uri.getHost()));
     InvocationServiceGrpc.InvocationServiceBlockingStub service =
@@ -108,6 +112,14 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     var protoReq = oalBuilder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);
     outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
+    if (save && !response.getOutput().getId().isEmpty()) {
+      String id = response.getOutput().getId();
+      if (!id.isEmpty()) {
+        conf.setDefaultObject(id);
+        conf.setDefaultClass(response.getOutput().getCls());
+        fileManager.update(conf);
+      }
+    }
     return 0;
   }
 }

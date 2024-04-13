@@ -230,7 +230,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var kn = provision.getKnative();
     int minScale = kn.getMinScale();
     if (minScale < 0)
-      minScale = Math.max(1, fnConfig.startReplicas());
+      minScale = Math.max(0, fnConfig.startReplicas());
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
     return CrInstanceSpec.builder()

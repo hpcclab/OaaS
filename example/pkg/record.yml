@@ -10,7 +10,6 @@ functions:
         limitsCpu: "1"
         limitsMemory: "512M"
         port: 8080
-        http2: true
   #        targetConcurrency: 16
   #        scaleDownDelay: 30s
 
@@ -24,7 +23,6 @@ functions:
         limitsCpu: "1"
         limitsMemory: "512M"
         port: 8080
-        http2: true
 
   - name: record.chain-update
     type: MACRO

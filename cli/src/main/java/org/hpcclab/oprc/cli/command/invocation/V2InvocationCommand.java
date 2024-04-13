@@ -130,6 +130,7 @@ public class V2InvocationCommand implements Callable<Integer> {
       String id = respBody.getJsonObject("output").getString("id");
       if (id != null && !id.isEmpty()) {
         conf.setDefaultObject(id);
+        conf.setDefaultClass(respBody.getJsonObject("output").getString("cls"));
         fileManager.update(conf);
       }
     }

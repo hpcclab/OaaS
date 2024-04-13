@@ -17,7 +17,14 @@ public record CrHash(String cls, int numSegment, List<ApiAddress> segmentAddr, l
 
   @Proto
   @Builder(toBuilder = true)
-  public record ApiAddress(String host, int port, long ts) {}
+  public record ApiAddress(String host, int port, long ts) {
+    @Override
+    public String toString() {
+      return "{" +
+        host + ':' + port +
+        ", ts=" + ts + '}';
+    }
+  }
 
   public static CrHash merge(CrHash h1, CrHash h2) {
     var newer = h1.ts > h2.ts ? h1 : h2;
