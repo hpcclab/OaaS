@@ -52,9 +52,9 @@ spec:
             - name: OPRC_INVOKER_LOADMODE
               value: DISABLED
             - name: OPRC_LOG
-              value: DEBUG
+              value: INFO
             - name: OPRC_INVOKER_SYNCMAXRETRY
-              value: '0'
+              value: '3'
           ports:
             - containerPort: 8080
               name: http
