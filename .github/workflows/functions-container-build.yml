@@ -5,7 +5,7 @@ on:
     branches:
       - "**"
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   function-build:
@@ -18,13 +18,15 @@ jobs:
             dir_path: example/functions/json-update-fn-py
           - func_name: concat-fn-py
             dir_path: example/functions/concat-fn-py
+          - func_name: img-resize-fn-py
+            dir_path: example/functions/img-resize-fn-py
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/${{ matrix.func_name }}
           tags: |
@@ -34,13 +36,13 @@ jobs:
             type=ref,event=pr,prefix=pr-,enable=true,priority=600
       - name: Login to ghcr.io
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.dir_path }}
           push: ${{ github.event_name != 'pull_request' && ! startsWith(github.ref_name, 'dependabot')}}

@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.model.exception;
 
-import org.hpcclab.oaas.model.object.OaasObject;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.object.OObject;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -9,29 +8,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InvocationException extends StdOaasException {
-
-  TaskCompletion taskCompletion;
-  boolean retryable = true;
-  boolean connErr = false;
-  public InvocationException(String message, Throwable cause) {
-    super(message, cause, true, 500);
-  }
+  final String invId;
 
   public InvocationException(String message) {
-    super(message, null, true, 500);
+    this(message, null, 500, null);
+  }
+
+  public InvocationException(String message, Throwable cause) {
+    this(message, cause, 500, null);
   }
 
   public InvocationException(String message, int code) {
-    super(message, code);
+    this(message, null, code, null);
   }
 
   public InvocationException(String message, Throwable cause, int code) {
-    super(message, cause, true, code);
+    this(message, cause, code, null);
   }
-
-  public InvocationException(Throwable cause, TaskCompletion taskCompletion) {
-    super(null, cause);
-    this.taskCompletion = taskCompletion;
+  public InvocationException(String message, Throwable cause, int code, String invId) {
+    super(message, cause, true, code);
+    this.invId = invId;
   }
 
   public static InvocationException detectConcurrent(Throwable e) {
@@ -39,44 +35,30 @@ public class InvocationException extends StdOaasException {
       HttpURLConnection.HTTP_CONFLICT);
   }
 
-  public static InvocationException notReady(List<Map.Entry<OaasObject, OaasObject>> waiting,
-                                             List<OaasObject> failed) {
+  public static InvocationException notReady(List<Map.Entry<OObject, OObject>> waiting,
+                                             List<OObject> failed) {
     return new InvocationException("Dependencies are not ready. {waiting:[%s], failed:[%s]}"
       .formatted(
         waiting.stream()
           .map(entry -> entry.getKey().getId() + ">>" + entry.getValue().getId())
           .collect(Collectors.joining(", ")),
         failed.stream()
-          .map(OaasObject::getId)
+          .map(OObject::getId)
           .collect(Collectors.joining(", "))),
       409);
   }
 
   public static InvocationException connectionErr(Throwable e) {
-    var ex =  new InvocationException("Connection Error", e, HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
-    ex.connErr = true;
-    return ex;
+    return new InvocationException("Connection Error", e,
+      HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
   }
 
-  public TaskCompletion getTaskCompletion() {
-    return taskCompletion;
+  public static StdOaasException notFoundFnInCls(String fb, String cls) {
+    return new StdOaasException("Not found FunctionBinding(" + fb + ") in Class(" + cls + ")", 400);
   }
 
-  public InvocationException setTaskCompletion(TaskCompletion taskCompletion) {
-    this.taskCompletion = taskCompletion;
-    return this;
-  }
 
-  public boolean isRetryable() {
-    return retryable;
+  public String getInvId() {
+    return invId;
   }
-
-  public void setRetryable(boolean retryable) {
-    this.retryable = retryable;
-  }
-
-  public boolean isConnErr() {
-    return connErr;
-  }
-
 }

@@ -1,0 +1,113 @@
+syntax = "proto3";
+import "oprc-common.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message ProtoOClass{
+  string key = 1;
+  string name = 2;
+  string pkg = 3;
+  string description = 4;
+  string genericType = 5;
+  optional ProtoOObjectType objectType = 6;
+  optional ProtoStateType stateType = 7;
+  repeated ProtoFunctionBinding functions = 8;
+  optional ProtoStateSpecification stateSpec = 9;
+  repeated ProtoReferenceSpecification refSpec = 10;
+  repeated string parents = 11;
+  bool markForRemoval = 12;
+  optional ProtoDatastoreLink store = 13;
+  optional ProtoOClassConfig config = 14;
+  optional ProtoOClassDeploymentStatus status = 15;
+  optional ProtoQosRequirement qos = 16;
+  optional ProtoConstraint constraint = 17;
+  optional ProtoResolvedMember resolved = 18;
+}
+
+message ProtoFunctionBinding {
+  optional ProtoFunctionAccessModifier access = 1;
+  string function = 2;
+  string name = 3;
+  map<string, string> defaultArgs = 4;
+  string description = 5;
+  string outputCls = 6;
+  bool immutable = 7;
+  bool noMain = 8;
+  repeated string inputTypes = 9;
+}
+
+message ProtoResolvedMember{
+  map<string, ProtoFunctionBinding> functions = 1;
+  map<string, ProtoKeySpecification> keySpecs = 2;
+  map<string, ProtoReferenceSpecification> refSpecs = 3;
+  repeated string identities = 4;
+}
+
+message ProtoStateSpecification{
+  repeated ProtoKeySpecification keySpecs = 1;
+  string defaultProvider = 2;
+}
+
+message ProtoKeySpecification{
+  string name = 1;
+  ProtoKeyAccessModifier access = 3;
+}
+
+message ProtoReferenceSpecification {
+  string name = 1;
+  string cls = 2;
+  ProtoKeyAccessModifier access = 3;
+}
+
+
+message ProtoDatastoreLink{
+  string name = 1;
+  string colName = 2;
+}
+
+message ProtoOClassConfig {
+  map<string, string> options = 1;
+  int32 partitions = 2;
+  string structStore = 4;
+  string unstructStore = 5;
+  string logStore = 6;
+  string crTemplate = 8;
+  bool disableHpa = 9;
+  bool disableHashAware = 10;
+}
+
+message ProtoOClassDeploymentStatus{
+  int64 crId = 1;
+}
+
+
+enum ProtoOObjectType{
+  PROTO_O_OBJECT_TYPE_UNSPECIFIED = 0;
+  PROTO_O_OBJECT_TYPE_SIMPLE = 1;
+  PROTO_O_OBJECT_TYPE_COMPOUND = 2;
+}
+
+enum ProtoStateType {
+  PROTO_STATE_TYPE_UNSPECIFIED = 0;
+  PROTO_STATE_TYPE_FILES = 1;
+  PROTO_STATE_TYPE_COLLECTION = 2;
+}
+
+
+enum ProtoFunctionAccessModifier {
+  PROTO_FUNCTION_ACCESS_MODIFIER_UNSPECIFIED = 0;
+  PROTO_FUNCTION_ACCESS_MODIFIER_PUBLIC = 1;
+  PROTO_FUNCTION_ACCESS_MODIFIER_INTERNAL = 2;
+  PROTO_FUNCTION_ACCESS_MODIFIER_PRIVATE = 3;
+}
+
+enum ProtoKeyAccessModifier {
+  PROTO_KEY_ACCESS_MODIFIER_UNSPECIFIED = 0;
+  PROTO_KEY_ACCESS_MODIFIER_PUBLIC = 1;
+  PROTO_KEY_ACCESS_MODIFIER_DEPENDENT = 2;
+  PROTO_KEY_ACCESS_MODIFIER_INTERNAL = 3;
+  PROTO_KEY_ACCESS_MODIFIER_PRIVATE = 4;
+}

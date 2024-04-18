@@ -8,7 +8,5 @@ COPY main.py config.py ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/sh", "-c"]
-#CMD ["python3 main.py"]
-CMD ["gunicorn -c config.py -k uvicorn.workers.UvicornWorker main:app"]
+CMD ["gunicorn", "-c" , "config.py", "-k",  "uvicorn.workers.UvicornWorker" ,"main:app"]
 

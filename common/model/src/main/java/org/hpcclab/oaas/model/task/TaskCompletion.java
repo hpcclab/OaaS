@@ -7,8 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.ObjectUpdate;
+import org.hpcclab.oaas.model.object.OOUpdate;
 
 import java.util.List;
 import java.util.Map;
@@ -18,33 +17,36 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public class TaskCompletion {
-  TaskIdentity id;
+  String id;
   boolean success;
   String errorMsg;
   Map<String, String> ext;
-  ObjectUpdate main;
-  ObjectUpdate output;
+  OOUpdate main;
+  OOUpdate output;
   @JsonIgnore
+  @Builder.Default
   long cptTs = -1;
   @JsonIgnore
+  @Builder.Default
   long smtTs = -1;
   ObjectNode body;
-  List<ObjectAccessLanguage> invokes = List.of();
+  @Builder.Default
+  List<InvocationRequest> invokes = List.of();
 
 
   public TaskCompletion() {
   }
 
-  public TaskCompletion(TaskIdentity id,
+  public TaskCompletion(String id,
                         boolean success,
                         String errorMsg,
                         Map<String, String> ext,
-                        ObjectUpdate main,
-                        ObjectUpdate out,
+                        OOUpdate main,
+                        OOUpdate out,
                         long cptTs,
                         long smtTs,
                         ObjectNode body,
-                        List<ObjectAccessLanguage> invokes) {
+                        List<InvocationRequest> invokes) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
@@ -58,7 +60,7 @@ public class TaskCompletion {
   }
 
 
-  public static TaskCompletion error(TaskIdentity id,
+  public static TaskCompletion error(String id,
                                      String errorMsg,
                                      long cptTs,
                                      long smtTs) {
@@ -76,13 +78,8 @@ public class TaskCompletion {
     );
   }
 
-  public TaskIdentity getId() {
-    if (id==null) id = new TaskIdentity();
-    return id;
-  }
-
-  public List<ObjectAccessLanguage> getInvokes() {
-    if (invokes == null) invokes = List.of();
+  public List<InvocationRequest> getInvokes() {
+    if (invokes==null) invokes = List.of();
     return invokes;
   }
 }

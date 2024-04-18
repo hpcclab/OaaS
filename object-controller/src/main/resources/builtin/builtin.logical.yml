@@ -1,6 +1,0 @@
-name: builtin.logical
-functions:
-  - name: copy
-    type: LOGICAL
-  - name: new
-    type: LOGICAL

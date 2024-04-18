@@ -1,0 +1,80 @@
+syntax = "proto3";
+import "oprc-object.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+service InvocationService {
+  rpc invokeLocal(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
+  rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
+//  rpc invokeOal(ProtoObjectAccessLanguage) returns (ProtoInvocationResponse) {};
+}
+
+message ProtoInvocationRequest {
+  optional string invId = 1;
+  optional string main = 2;
+  optional string cls = 3;
+  optional string fb = 4;
+  map<string, string> args = 5;
+  repeated string inputs = 6;
+  bool immutable = 7;
+  repeated ProtoOObject inputObjects = 9;
+  optional string outId = 10;
+  int64 queTs = 13;
+  bytes body = 14;
+//  repeated ProtoStepInvocationRequest next = 15;
+}
+
+message ProtoStepInvocationRequest {
+  string invId = 1;
+  string main = 2;
+  string cls = 3;
+  string fb = 4;
+  repeated string inputs = 5;
+  map<string, string> args = 6;
+  repeated ProtoOObject inputObjects = 7;
+  string outId = 10;
+  bytes body = 13;
+  string dependent = 14;
+  repeated ProtoStepInvocationRequest next = 15;
+}
+
+message ProtoObjectAccessLanguage {
+  string main = 1;
+  string cls = 2;
+  string fb = 3;
+  bytes body = 4;
+  map<string, string> args = 5;
+  repeated string inputs = 6;
+}
+
+message ProtoInvocationResponse {
+  optional ProtoOObject main = 1;
+  optional ProtoOObject output = 2;
+  optional string invId = 3;
+  optional string fb = 4;
+  map<string, string> macroIds = 5;
+  ProtoInvocationStatus status = 6;
+  ProtoInvocationStats stats = 7;
+  bool async = 8;
+  bytes body = 9;
+}
+
+message ProtoInvocationStats{
+  int64 queTs = 1;
+  int64 smtTs = 2;
+  int64 cptTs = 3;
+}
+
+enum ProtoInvocationStatus {
+  PROTO_INVOCATION_STATUS_UNSPECIFIED = 0;
+  PROTO_INVOCATION_STATUS_QUEUE = 1;
+  PROTO_INVOCATION_STATUS_DOING = 2;
+  PROTO_INVOCATION_STATUS_SUCCEEDED = 3;
+  PROTO_INVOCATION_STATUS_FAILED = 4;
+  PROTO_INVOCATION_STATUS_DEPENDENCY_FAILED = 5;
+  PROTO_INVOCATION_STATUS_READY = 6;
+}
+

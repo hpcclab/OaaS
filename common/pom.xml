@@ -7,21 +7,20 @@
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
     <artifactId>oaas-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>999-SNAPSHOT</version>
   </parent>
   <packaging>pom</packaging>
-  <artifactId>oaas-common</artifactId>
+  <artifactId>oprc-common</artifactId>
 
   <modules>
     <module>model</module>
     <module>repository</module>
     <module>common-storage</module>
     <module>arango-repository</module>
-    <module>infinispan-repository</module>
     <module>invocation</module>
     <module>test-util</module>
+    <module>oprc-proto-schema</module>
   </modules>
-
 
 
 </project>

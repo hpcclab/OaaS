@@ -4,42 +4,106 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 import org.hpcclab.oaas.storage.S3ConnConf;
 
+import java.util.List;
+
 @ConfigMapping(
-  prefix = "oaas.invoker",
+  prefix = "oprc.invoker",
   namingStrategy = ConfigMapping.NamingStrategy.VERBATIM
 )
 public interface InvokerConfig {
   String kafka();
+
+  String pmHost();
+
+  String pmPort();
+
   @WithDefault("oaas-invoker")
   String kafkaGroup();
+
   @WithDefault("oaas-fn")
   String fnProvisionTopic();
+
   @WithDefault("oaas-cls")
   String clsProvisionTopic();
-  @WithDefault("oaas-invoke-")
+
+  @WithDefault("oaas-cr-hash")
+  String crHashTopic();
+
+  @WithDefault("oaas-invoker-")
   String invokeTopicPrefix();
-  String storageAdapterUrl();
-  @WithDefault("100")
+
+  Url sa();
+
+  @WithDefault("200")
   int connectionPoolMaxSize();
-  @WithDefault("10")
+
+  @WithDefault("3")
   int h2ConnectionPoolMaxSize();
+
   @WithDefault("1")
   int numOfVerticle();
+
   @WithDefault("2")
   int numOfInvokerVerticle();
+
   @WithDefault("600000")
   int invokeTimeout();
+
   @WithDefault("64")
   int invokeConcurrency();
+
   @WithDefault("500")
   int maxInflight();
+
   S3ConnConf s3();
-  @WithDefault("false")
-  boolean useSa();
 
   @WithDefault("false")
+  boolean useSaOnly();
+
+  @WithDefault("true")
   boolean respPubS3();
 
   @WithDefault("false")
   boolean clusterLock();
+
+  @WithDefault("FETCH")
+  LoadAssignMode loadMode();
+
+  @WithDefault("none")
+  List<String> initClass();
+
+  @WithDefault("false")
+  boolean enableCeHeaderOffload();
+
+  @WithDefault("false")
+  boolean enableInvReqMetric();
+
+  @WithDefault("3")
+  int syncMaxRetry();
+
+  @WithDefault("500")
+  int syncRetryBackOff();
+
+  @WithDefault("5000")
+  int syncMaxRetryBackOff();
+
+  @WithDefault("3000")
+  int connectTimeout();
+
+  @WithDefault("true")
+  boolean enableWarmClsRegistry();
+
+  @WithDefault("true")
+  boolean enableWarmHashCache();
+
+  @WithDefault("false")
+  boolean forceInvokeLocal();
+
+  enum LoadAssignMode {
+    FETCH, ENV, DISABLED
+  }
+
+  interface Url {
+    String url();
+  }
 }

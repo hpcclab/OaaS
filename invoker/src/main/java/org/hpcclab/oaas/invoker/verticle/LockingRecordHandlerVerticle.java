@@ -6,9 +6,8 @@ import io.vertx.core.json.Json;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invoker.InvocationRecordHandler;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.model.invocation.InvocationContext;
+import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.infinispan.lock.api.ClusteredLockConfiguration;
 import org.infinispan.lock.api.ClusteredLockManager;
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Dependent
-public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
+public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(LockingRecordHandlerVerticle.class);
   final AtomicInteger acquireCounter = new AtomicInteger(0);
   final AtomicInteger inflightCounter = new AtomicInteger(0);
@@ -69,7 +68,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
         taskRecord,
         req,
         this::complete,
-        this::skipCondition
+        true
       );
     } else {
       var key = taskRecord.key();
@@ -83,11 +82,11 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
             inflightCounter.incrementAndGet();
             invocationRecordHandler.handleRecord(
               taskRecord, req,
-              (rec, req2) -> {
+              rec -> {
                 lock.unlock();
-                complete(taskRecord, req2);
+                complete(taskRecord);
               },
-              this::skipCondition
+              true
             );
           } else {
             taskQueue.offer(taskRecord);
@@ -97,13 +96,8 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
     }
   }
 
-  boolean skipCondition(KafkaConsumerRecord<String, Buffer> taskRecord,
-                        InvocationContext ctx) {
-    return false;
-  }
 
-  protected void complete(KafkaConsumerRecord<String, Buffer> taskRecord,
-                          InvocationRequest request) {
+  protected void complete(KafkaConsumerRecord<String, Buffer> taskRecord) {
     if (onRecordCompleteHandler!=null)
       onRecordCompleteHandler.accept(taskRecord);
     acquireCounter.decrementAndGet();
@@ -112,7 +106,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
   }
 
   @Override
-  public int countQueueingTasks() {
+  public int countPending() {
     return acquireCounter.get() + taskQueue.size();
   }
 

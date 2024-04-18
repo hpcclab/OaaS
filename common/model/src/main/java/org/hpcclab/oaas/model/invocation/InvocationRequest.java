@@ -4,27 +4,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
+import lombok.With;
+import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
-import java.util.Map;
 
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@With
 public record InvocationRequest(
   String main,
   String cls,
   String fb,
-  Map<String, String> args,
+  DSMap args,
   List<String> inputs,
+  List<OObject> inputObjs,
   boolean immutable,
-  boolean macro,
   String invId,
   String outId,
-  Map<String,String> macroIds,
-  @JsonIgnore String partKey,
-  boolean preloadingNode,
   long queTs,
-  ObjectNode body
+  ObjectNode body,
+  @JsonIgnore String partKey
 ) {
   public static final String CE_TYPE = "oaas.invReq";
 }

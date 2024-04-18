@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: invoker
+  labels:
+    platform: oaas
+spec:
+  selector:
+    cr-part: invoker
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+

@@ -7,91 +7,53 @@
 {empty}
 
 == Introduction
-In the example usages, we provide the example scripts to show how to deploy the application and invoke the function in OaaS. The example scripts begin with creating the class and its function, then constructing objects based on the given class. Then, we show how to use the Object Access Interface to request the state data or invoke a function. The full scripts are provided inside an HTTP directory.
+In the example usages, we provide the example scripts to show how to deploy the application and invoke the function in OaaS. The example scripts begin with creating the class and its function, then constructing objects based on the given class. Then, we show how to use the Object Access Interface to request the state data or invoke a function.
 
-* link:http/text.yml[Text class specification example]
-** link:http/text.http[Example HTTP script to execute this tutorial]
+* link:pkg/text.yml[Text class specification example]
 ** link:functions/concat-fn-java[Concat function source code]
-* link:http/video.yml[Video class specification example]
-** link:http/transcode.http[Example HTTP script to execute this tutorial]
+* link:pkg/video.yml[Video class specification example]
 ** link:functions/transcode-fn-py/[Transcode function source code]
 
-NOTE: Object Controller has an auto-generated link:../doc/oc/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/oc/openapi.json[link].
+NOTE: Package Manager has an auto-generated link:../doc/package-manager/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pawissanutt/OaaS/main/doc/package-manager/openapi.json[link].
 
 == Text Object
 This section will explain how to use OaaS via using the text object as an example. The text object only have a single function that is string concatenation. Each text object represents a single text file.
 
 === Creating the class and its function
 
-
 [source,http request]
 ----
-POST http://<object_controller>/api/modules
+POST http://<package_manager>/api/packages
 Content-Type: text/x-yaml
 
-name: example
-functions:
-  - name: concat
-    type: TASK
-    outputCls: example.text
-    validation: {}
-    provision:
-      knative:
-        image: ghcr.io/pawissanutt/oaas/concat-fn-py:dev
-    variableDescriptions:
-      - name: append
-  - name: chain-concat
-    type: MACRO
-    macro:
-      steps:
-        - target: $
-          as: record1
-          function: concat
-          args:
-            INPLACE: "false"
-        - target: record1
-          as: record2
-          function: json-update
-          args:
-            INPLACE: "false"
-        - target: record2
-          as: record3
-          function: concat
-          args:
-            INPLACE: "false"
-      export: record3
-classes:
-  - name: text
-    stateType: FILES
-    objectType: SIMPLE
-    stateSpec:
-      keySpecs:
-        - name: text
-    functions:
-      - access: PUBLIC
-        function: example.concat
-        forceImmutable: true
-      - access: PUBLIC
-        function: example.concat
-        name: concat-inplace
-        outputCls: void
-        defaultArgs:
-          INPLACE: "true"
+include::pkg/text.yml[]
+----
+or using ocli command:
+[source, bash]
+----
+ocli p a example/pkg/text.yml
 ----
 
 === Creating an object
 //Creating an object requires two steps:
 
+* Using `ocli` command
++
+[source, bash]
+----
+ocli o c example.text -f text=<path to text file>
+----
+
+* Using HTTP request
 . Submitting an object specification to Object Controller. We have to specify the class of a new object on `cls`. In this case, we are going to upload a text file into this object, so we have to specify the `keys` variable to ask Object Controller to generate the URL for uploading in the next step.
 +
 [source,http request]
 ----
-POST http://<object_controller>/api/object-construct
+POST http://<invoker>/api/classes/example.text/invokes/new
 Accept: application/json
 Content-Type: application/json
 
 {
-  "cls": "example.text",
   "keys": ["text"],
 }
 ----
@@ -101,12 +63,14 @@ Object Controller will reply with the detail of a new object and the URL to uplo
 [source,json]
 ----
 {
-  "object": {
+  "output": {
     "id": "fc110a1f-0d9c-407a-8c64-36bf6d0870c9",
     "cls": "example.text"
   },
-  "uploadUrls": {
-    "text": "http://s3.10.131.36.40.nip.io/msc-bkt/fc110a1f-0d9c-407a-8c64-36bf6d0870c9/text?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XYV0GB00VOPBNFKOIHSP%2F20220412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220412T002046Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7c05dfdd8279cfd9cf5a2a941c408a24db0f13d310849de7997ed8a8b2f4d195"
+  "body": {
+    "uploadUrls": {
+      "text": "http://s3.10.131.36.40.nip.io/msc-bkt/fc110a1f-0d9c-407a-8c64-36bf6d0870c9/text?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XYV0GB00VOPBNFKOIHSP%2F20220412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220412T002046Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7c05dfdd8279cfd9cf5a2a941c408a24db0f13d310849de7997ed8a8b2f4d195"
+    }
   }
 }
 ----
@@ -121,24 +85,56 @@ Content-Type: text/plain
 <TEXT_FILE_DATA>
 ----
 
+
+
 === Requesting an object state data
 
 You can request the state data of any object via requesting to Content Delivery Service as the following example.
 //Content Delivery Service will reply with the object state data of given object ID.
 [source,http request]
 ----
-GET http://<content_delivery_service>/oal/<object_id>/text
+GET http://<invoker>/api/classes/example.text/<object_id>/files/text
+----
+or using ocli command:
+[source, bash]
+----
+ocli o f -c example.text -m <object ID> text <path to download>
 ----
 
 === Invoking a function
 
-With the Object Access Interface, we can also request the function invocation and wait for the state data of the output object.
+With the Object Access Interface, we can also request the function invocation.
 
 [source,http request]
 ----
-GET http://<content_delivery_service>/oal/<object_id>:concat()(APPEND=NEW_TEXT)/text
+GET http://<invoker>/api/classes/example.text/<object_id>/invokes/concat?APPEND=NEW_TEXT
+----
+or using ocli command:
+[source, bash]
+----
+ocli i2 -c example.text -m <object ID> concat --args APPEND=NEW_TEXT
 ----
 
+== Image Object
 
-== Object Access Interface
-More information of Object Access Interface (OAI) at  link:../OAI.adoc[the OAI document].
+You can still used the same command to work with the `image` object
+
+Here is the `ocli` examples:
+
+[source, bash]
+----
+# Create Image Class
+ocli p a example/pkg/image.yml
+
+# Create Image OBJECT
+ocli o c example.image -f image=<path to file>
+
+# Create Image OBJECT AND SAVE OBJECT ID FOR LATER USE (SAVE TO LOCAL CONFIG FILE)
+ocli o c example.image -f image=<path to file> -s
+
+# INVOKE resize FUNCTION TO THE SAVED OBJECT AND SAVE THE OUTPUT OBJECT ID
+ocli i2 resize  --args ratio=0.5 -s
+
+#DOWNLOAD IMAGE
+ocli o f image <path to download>
+----

@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
-    <artifactId>oaas-common</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <artifactId>oprc-common</artifactId>
+    <version>999-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>repository</artifactId>
 
   <properties>
-    <tsid-creator.version>5.2.5</tsid-creator.version>
+    <tsid-creator.version>5.2.6</tsid-creator.version>
   </properties>
 
   <dependencyManagement>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.14</version>
+      <version>1.5.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -76,19 +76,6 @@
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.smallrye</groupId>
-        <artifactId>jandex-maven-plugin</artifactId>
-        <version>3.1.6</version>
-        <executions>
-          <execution>
-            <id>make-index</id>
-            <goals>
-              <goal>jandex</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

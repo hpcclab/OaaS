@@ -1,31 +1,30 @@
 package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
-import com.arangodb.async.ArangoCollectionAsync;
+import com.arangodb.ArangoCollectionAsync;
 import com.github.benmanes.caffeine.cache.Cache;
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import jakarta.annotation.PostConstruct;
 import org.hpcclab.oaas.arango.CacheFactory;
-import org.hpcclab.oaas.model.function.OaasFunction;
+import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+public class ArgFunctionRepository extends AbstractCachedArgRepository<OFunction>
+  implements FunctionRepository {
 
-@ApplicationScoped
-public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunction> implements FunctionRepository {
-
-  @Inject
-  @Named("FunctionCollection")
   ArangoCollection collection;
-  @Inject
-  @Named("FunctionCollectionAsync")
   ArangoCollectionAsync collectionAsync;
-
-  @Inject
   CacheFactory cacheFactory;
-  private Cache<String, OaasFunction> cache;
+  private Cache<String, OFunction> cache;
+
+
+  public ArgFunctionRepository(ArangoCollection collection,
+                               ArangoCollectionAsync collectionAsync,
+                               CacheFactory cacheFactory) {
+    this.collection = collection;
+    this.collectionAsync = collectionAsync;
+    this.cacheFactory = cacheFactory;
+    cache = cacheFactory.get();
+  }
 
   @PostConstruct
   void setup() {
@@ -43,17 +42,17 @@ public class ArgFunctionRepository extends AbstractCachedArgRepository<OaasFunct
   }
 
   @Override
-  public Class<OaasFunction> getValueCls() {
-    return OaasFunction.class;
+  public Class<OFunction> getValueCls() {
+    return OFunction.class;
   }
 
   @Override
-  public String extractKey(OaasFunction oaasFunction) {
+  public String extractKey(OFunction oaasFunction) {
     return oaasFunction.getKey();
   }
 
   @Override
-  Cache<String, OaasFunction> cache() {
+  Cache<String, OFunction> cache() {
     return cache;
   }
 }

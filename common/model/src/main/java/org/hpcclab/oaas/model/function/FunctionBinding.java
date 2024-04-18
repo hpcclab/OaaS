@@ -3,87 +3,51 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FunctionBinding {
-  @ProtoField(1)
   FunctionAccessModifier access = FunctionAccessModifier.PUBLIC;
-  @ProtoField(2)
   String function;
-  @ProtoField(3)
   String name;
-  @ProtoField(4)
-  Set<String> forwardRecords;
-  @ProtoField(value = 5, javaType = HashMap.class)
-  Map<String, String> defaultArgs;
-  @ProtoField(6)
+  DSMap defaultArgs;
   String description;
-  @ProtoField(7)
   String outputCls;
-  @ProtoField(value = 8, defaultValue = "false")
-  boolean forceImmutable = false;
-  @ProtoField(value = 9, defaultValue = "false")
-  boolean allowNoMain;
+  boolean immutable = false;
+  boolean noMain;
+  List<String> inputTypes;
 
 
   public FunctionBinding() {
   }
 
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, Set<String> forwardRecords, Map<String, String> defaultArgs, String description, String outputCls,
-                         boolean forceImmutable, boolean allowNoMain) {
-    this.access = access;
-    this.function = function;
-    this.name = name;
-    this.forwardRecords = forwardRecords;
-    this.defaultArgs = defaultArgs;
-    this.description = description;
-    this.outputCls = outputCls;
-    this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
-  }
-
   @ProtoFactory
-  public FunctionBinding(FunctionAccessModifier access,
-                         String function,
-                         String name,
-                         Set<String> forwardRecords,
-                         HashMap<String, String> defaultArgs,
-                         String description,
-                         String outputCls,
-                         boolean forceImmutable,
-                         boolean allowNoMain) {
+
+  public FunctionBinding(FunctionAccessModifier access, String function, String name, DSMap defaultArgs, String description, String outputCls, boolean forceImmutable, boolean noMain, List<String> inputTypes) {
     this.access = access;
     this.function = function;
     this.name = name;
-    this.forwardRecords = forwardRecords;
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
-    this.forceImmutable = forceImmutable;
-    this.allowNoMain = allowNoMain;
+    this.immutable = forceImmutable;
+    this.noMain = noMain;
+    this.inputTypes = inputTypes;
   }
 
-  public void validate() {
-    if (function==null) {
-      throw new OaasValidationException("The 'functions[].function' in class must not be null.");
-    }
+
+  public void validate(OFunction oaasFunction) {
     if (name==null) {
       var i = function.lastIndexOf('.');
       if (i < 0) name = function;
       else name = function.substring(i + 1);
     }
-  }
 
-  public void validate(OaasFunction oaasFunction) {
     if (outputCls==null) {
       outputCls = oaasFunction.getOutputCls();
     } else if (outputCls.equalsIgnoreCase("none") ||

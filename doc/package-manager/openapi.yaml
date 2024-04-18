@@ -1,0 +1,1133 @@
+---
+openapi: 3.0.3
+info:
+  title: package-manager API
+  version: 999-SNAPSHOT
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
+paths:
+  /api/class-runtimes:
+    get:
+      tags:
+      - Cr Resource
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationOClassRuntime"
+  /api/class-runtimes/{id}:
+    delete:
+      tags:
+      - Cr Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+  /api/classes:
+    get:
+      tags:
+      - Class Resource
+      parameters:
+      - name: desc
+        in: query
+        schema:
+          default: false
+          type: boolean
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int64
+          type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationOClass_Public"
+  /api/classes/{clsKey}:
+    get:
+      tags:
+      - Class Resource
+      parameters:
+      - name: clsKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OClass_Public"
+    delete:
+      tags:
+      - Class Resource
+      parameters:
+      - name: clsKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OClass_Public"
+  /api/functions:
+    get:
+      tags:
+      - Function Resource
+      parameters:
+      - name: desc
+        in: query
+        schema:
+          default: false
+          type: boolean
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int64
+          type: integer
+      - name: sort
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationOFunction_Public"
+  /api/functions/{funcKey}:
+    get:
+      tags:
+      - Function Resource
+      parameters:
+      - name: funcKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OFunction_Public"
+    delete:
+      tags:
+      - Function Resource
+      parameters:
+      - name: funcKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OFunction_Public"
+  /api/packages:
+    post:
+      tags:
+      - Package Resource
+      requestBody:
+        content:
+          text/x-yaml:
+            schema:
+              type: string
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OPackage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OPackage_Public"
+components:
+  schemas:
+    ConsistencyModel:
+      enum:
+      - NONE
+      - EVENTUAL
+      - SEQUENTIAL
+      - LINEARIZATION
+      type: string
+    ConsistencyModel_Public:
+      enum:
+      - NONE
+      - EVENTUAL
+      - SEQUENTIAL
+      - LINEARIZATION
+      type: string
+    DSMap:
+      type: array
+      items:
+        type: string
+    DSMap_Public:
+      type: array
+      items:
+        type: string
+    DataflowStep:
+      type: object
+      properties:
+        function:
+          type: string
+        target:
+          type: string
+        as:
+          type: string
+        inputRefs:
+          type: array
+          items:
+            type: string
+        args:
+          $ref: "#/components/schemas/DSMap"
+        argRefs:
+          $ref: "#/components/schemas/DSMap"
+    DataflowStep_Public:
+      type: object
+      properties:
+        function:
+          type: string
+        target:
+          type: string
+        as:
+          type: string
+        inputRefs:
+          type: array
+          items:
+            type: string
+        args:
+          $ref: "#/components/schemas/DSMap_Public"
+        argRefs:
+          $ref: "#/components/schemas/DSMap_Public"
+    DatastoreLink:
+      type: object
+      properties:
+        name:
+          type: string
+        colName:
+          type: string
+    DatastoreLink_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        colName:
+          type: string
+    DeploymentCondition:
+      enum:
+      - PENDING
+      - DEPLOYING
+      - RUNNING
+      - DOWN
+      - DELETED
+      type: string
+    DeploymentCondition_Public:
+      enum:
+      - PENDING
+      - DEPLOYING
+      - RUNNING
+      - DOWN
+      - DELETED
+      type: string
+    FunctionAccessModifier:
+      enum:
+      - PUBLIC
+      - INTERNAL
+      - PRIVATE
+      type: string
+    FunctionAccessModifier_Public:
+      enum:
+      - PUBLIC
+      - INTERNAL
+      - PRIVATE
+      type: string
+    FunctionBinding:
+      type: object
+      properties:
+        access:
+          $ref: "#/components/schemas/FunctionAccessModifier"
+        function:
+          type: string
+        name:
+          type: string
+        defaultArgs:
+          $ref: "#/components/schemas/DSMap"
+        description:
+          type: string
+        outputCls:
+          type: string
+        immutable:
+          type: boolean
+        noMain:
+          type: boolean
+        inputTypes:
+          type: array
+          items:
+            type: string
+    FunctionBinding_Public:
+      type: object
+      properties:
+        access:
+          $ref: "#/components/schemas/FunctionAccessModifier_Public"
+        function:
+          type: string
+        name:
+          type: string
+        defaultArgs:
+          $ref: "#/components/schemas/DSMap_Public"
+        description:
+          type: string
+        outputCls:
+          type: string
+        immutable:
+          type: boolean
+        noMain:
+          type: boolean
+        inputTypes:
+          type: array
+          items:
+            type: string
+    FunctionState:
+      enum:
+      - ENABLED
+      - DISABLED
+      - REMOVING
+      type: string
+    FunctionState_Public:
+      enum:
+      - ENABLED
+      - DISABLED
+      - REMOVING
+      type: string
+    FunctionType:
+      enum:
+      - TASK
+      - IM_TASK
+      - LOGICAL
+      - MACRO
+      - STATIC
+      - READONLY
+      - STATIC_READONLY
+      type: string
+    FunctionType_Public:
+      enum:
+      - TASK
+      - IM_TASK
+      - LOGICAL
+      - MACRO
+      - STATIC
+      - READONLY
+      - STATIC_READONLY
+      type: string
+    KDeploymentProvision:
+      type: object
+      properties:
+        image:
+          type: string
+        replicas:
+          format: int32
+          type: integer
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: "#/components/schemas/DSMap"
+        apiPath:
+          type: string
+        port:
+          format: int32
+          type: integer
+        pullPolicy:
+          type: string
+    KDeploymentProvision_Public:
+      type: object
+      properties:
+        image:
+          type: string
+        replicas:
+          format: int32
+          type: integer
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: "#/components/schemas/DSMap_Public"
+        apiPath:
+          type: string
+        port:
+          format: int32
+          type: integer
+        pullPolicy:
+          type: string
+    KeyAccessModifier:
+      enum:
+      - PUBLIC
+      - DEPENDENT
+      - INTERNAL
+      - PRIVATE
+      type: string
+    KeyAccessModifier_Public:
+      enum:
+      - PUBLIC
+      - DEPENDENT
+      - INTERNAL
+      - PRIVATE
+      type: string
+    KeySpecification:
+      type: object
+      properties:
+        name:
+          type: string
+        access:
+          $ref: "#/components/schemas/KeyAccessModifier"
+    KeySpecification_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        access:
+          $ref: "#/components/schemas/KeyAccessModifier_Public"
+    KnativeProvision:
+      type: object
+      properties:
+        image:
+          type: string
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
+          format: int32
+          type: integer
+        concurrency:
+          format: int32
+          type: integer
+        targetConcurrency:
+          format: int32
+          type: integer
+        scaleDownDelay:
+          type: string
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: "#/components/schemas/DSMap"
+        apiPath:
+          type: string
+        port:
+          format: int32
+          type: integer
+    KnativeProvision_Public:
+      type: object
+      properties:
+        image:
+          type: string
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
+          format: int32
+          type: integer
+        concurrency:
+          format: int32
+          type: integer
+        targetConcurrency:
+          format: int32
+          type: integer
+        scaleDownDelay:
+          type: string
+        requestsCpu:
+          type: string
+        requestsMemory:
+          type: string
+        limitsCpu:
+          type: string
+        limitsMemory:
+          type: string
+        env:
+          $ref: "#/components/schemas/DSMap_Public"
+        apiPath:
+          type: string
+        port:
+          format: int32
+          type: integer
+    MacroSpec:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataflowStep"
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowExport"
+        export:
+          type: string
+        atomic:
+          type: boolean
+    MacroSpec_Public:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataflowStep_Public"
+        exports:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowExport_Public"
+        export:
+          type: string
+        atomic:
+          type: boolean
+    OClass:
+      type: object
+      properties:
+        _key:
+          type: string
+        _rev:
+          type: string
+        name:
+          type: string
+        pkg:
+          type: string
+        genericType:
+          type: string
+        objectType:
+          $ref: "#/components/schemas/OObjectType"
+        stateType:
+          $ref: "#/components/schemas/StateType"
+        functions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FunctionBinding"
+        stateSpec:
+          $ref: "#/components/schemas/StateSpecification"
+        refSpec:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReferenceSpecification"
+        parents:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        markForRemoval:
+          type: boolean
+        store:
+          $ref: "#/components/schemas/DatastoreLink"
+        config:
+          $ref: "#/components/schemas/OClassConfig"
+        status:
+          $ref: "#/components/schemas/OClassDeploymentStatus"
+        qos:
+          $ref: "#/components/schemas/QosRequirement"
+        constraint:
+          $ref: "#/components/schemas/QosConstraint"
+        resolved:
+          $ref: "#/components/schemas/ResolvedMember"
+    OClassConfig:
+      type: object
+      properties:
+        options:
+          $ref: "#/components/schemas/DSMap"
+        partitions:
+          format: int32
+          type: integer
+        structStore:
+          type: string
+        unstructStore:
+          type: string
+        logStore:
+          type: string
+        crTemplate:
+          type: string
+        disableHpa:
+          type: boolean
+        disableHashAware:
+          type: boolean
+    OClassConfig_Public:
+      type: object
+      properties:
+        options:
+          $ref: "#/components/schemas/DSMap_Public"
+        partitions:
+          format: int32
+          type: integer
+        structStore:
+          type: string
+        unstructStore:
+          type: string
+        logStore:
+          type: string
+        crTemplate:
+          type: string
+        disableHpa:
+          type: boolean
+        disableHashAware:
+          type: boolean
+    OClassDeploymentStatus:
+      type: object
+      properties:
+        crId:
+          format: int64
+          type: integer
+    OClassDeploymentStatus_Public:
+      type: object
+      properties:
+        crId:
+          format: int64
+          type: integer
+    OClassRuntime:
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        template:
+          type: string
+        attachedCls:
+          type: array
+          items:
+            $ref: "#/components/schemas/OClass"
+        attachedFn:
+          type: array
+          items:
+            $ref: "#/components/schemas/OFunction"
+        namespace:
+          type: string
+        state:
+          $ref: "#/components/schemas/OrbitState"
+        deleted:
+          type: boolean
+        stabilizationTime:
+          format: int64
+          type: integer
+        _key:
+          type: string
+    OClass_Public:
+      type: object
+      properties:
+        _key:
+          type: string
+        name:
+          type: string
+        pkg:
+          type: string
+        genericType:
+          type: string
+        objectType:
+          $ref: "#/components/schemas/OObjectType_Public"
+        stateType:
+          $ref: "#/components/schemas/StateType_Public"
+        functions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FunctionBinding_Public"
+        stateSpec:
+          $ref: "#/components/schemas/StateSpecification_Public"
+        refSpec:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReferenceSpecification_Public"
+        parents:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        markForRemoval:
+          type: boolean
+        store:
+          $ref: "#/components/schemas/DatastoreLink_Public"
+        config:
+          $ref: "#/components/schemas/OClassConfig_Public"
+        status:
+          $ref: "#/components/schemas/OClassDeploymentStatus_Public"
+        qos:
+          $ref: "#/components/schemas/QosRequirement_Public"
+        constraint:
+          $ref: "#/components/schemas/QosConstraint_Public"
+        resolved:
+          $ref: "#/components/schemas/ResolvedMember_Public"
+    OFunction:
+      required:
+      - type
+      - outputCls
+      type: object
+      properties:
+        _key:
+          type: string
+        name:
+          type: string
+        pkg:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: "#/components/schemas/FunctionType"
+        outputCls:
+          pattern: \S
+          type: string
+        macro:
+          $ref: "#/components/schemas/MacroSpec"
+        provision:
+          $ref: "#/components/schemas/ProvisionConfig"
+        variableDescriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/VariableDescription"
+        status:
+          $ref: "#/components/schemas/OFunctionDeploymentStatus"
+        state:
+          $ref: "#/components/schemas/FunctionState"
+        qos:
+          $ref: "#/components/schemas/QosRequirement"
+        constraint:
+          $ref: "#/components/schemas/QosConstraint"
+        config:
+          $ref: "#/components/schemas/OFunctionConfig"
+    OFunctionConfig:
+      type: object
+      properties:
+        offloadingConfig:
+          type: object
+          additionalProperties:
+            type: string
+        http2:
+          type: boolean
+    OFunctionConfig_Public:
+      type: object
+      properties:
+        offloadingConfig:
+          type: object
+          additionalProperties:
+            type: string
+        http2:
+          type: boolean
+    OFunctionDeploymentStatus:
+      type: object
+      properties:
+        condition:
+          $ref: "#/components/schemas/DeploymentCondition"
+        invocationUrl:
+          type: string
+        errorMsg:
+          type: string
+        ts:
+          format: int64
+          type: integer
+    OFunctionDeploymentStatus_Public:
+      type: object
+      properties:
+        condition:
+          $ref: "#/components/schemas/DeploymentCondition_Public"
+        invocationUrl:
+          type: string
+        errorMsg:
+          type: string
+        ts:
+          format: int64
+          type: integer
+    OFunction_Public:
+      required:
+      - type
+      - outputCls
+      type: object
+      properties:
+        _key:
+          type: string
+        name:
+          type: string
+        pkg:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: "#/components/schemas/FunctionType_Public"
+        outputCls:
+          pattern: \S
+          type: string
+        macro:
+          $ref: "#/components/schemas/MacroSpec_Public"
+        provision:
+          $ref: "#/components/schemas/ProvisionConfig_Public"
+        variableDescriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/VariableDescription_Public"
+        status:
+          $ref: "#/components/schemas/OFunctionDeploymentStatus_Public"
+        state:
+          $ref: "#/components/schemas/FunctionState_Public"
+        qos:
+          $ref: "#/components/schemas/QosRequirement_Public"
+        constraint:
+          $ref: "#/components/schemas/QosConstraint_Public"
+        config:
+          $ref: "#/components/schemas/OFunctionConfig_Public"
+    OObjectType:
+      enum:
+      - SIMPLE
+      - COMPOUND
+      type: string
+    OObjectType_Public:
+      enum:
+      - SIMPLE
+      - COMPOUND
+      type: string
+    OPackage:
+      type: object
+      properties:
+        name:
+          type: string
+        classes:
+          type: array
+          items:
+            $ref: "#/components/schemas/OClass"
+        functions:
+          type: array
+          items:
+            $ref: "#/components/schemas/OFunction"
+        required:
+          type: array
+          items:
+            type: string
+    OPackage_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        classes:
+          type: array
+          items:
+            $ref: "#/components/schemas/OClass_Public"
+        functions:
+          type: array
+          items:
+            $ref: "#/components/schemas/OFunction_Public"
+        required:
+          type: array
+          items:
+            type: string
+    OrbitState:
+      type: object
+      properties:
+        jsonDump:
+          type: string
+    PaginationOClassRuntime:
+      type: object
+      properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
+        itemCount:
+          format: int64
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OClassRuntime"
+    PaginationOClass_Public:
+      type: object
+      properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
+        itemCount:
+          format: int64
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OClass_Public"
+    PaginationOFunction_Public:
+      type: object
+      properties:
+        total:
+          format: int64
+          type: integer
+        offset:
+          format: int64
+          type: integer
+        itemCount:
+          format: int64
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OFunction_Public"
+    ProvisionConfig:
+      type: object
+      properties:
+        knative:
+          $ref: "#/components/schemas/KnativeProvision"
+        deployment:
+          $ref: "#/components/schemas/KDeploymentProvision"
+        staticUrl:
+          $ref: "#/components/schemas/StaticUrlProvision"
+    ProvisionConfig_Public:
+      type: object
+      properties:
+        knative:
+          $ref: "#/components/schemas/KnativeProvision_Public"
+        deployment:
+          $ref: "#/components/schemas/KDeploymentProvision_Public"
+        staticUrl:
+          $ref: "#/components/schemas/StaticUrlProvision_Public"
+    QosConstraint:
+      type: object
+      properties:
+        budget:
+          format: int32
+          type: integer
+        consistency:
+          $ref: "#/components/schemas/ConsistencyModel"
+        geographical:
+          type: string
+        persistent:
+          type: boolean
+        runtimeRequirements:
+          type: array
+          items:
+            type: string
+    QosConstraint_Public:
+      type: object
+      properties:
+        budget:
+          format: int32
+          type: integer
+        consistency:
+          $ref: "#/components/schemas/ConsistencyModel_Public"
+        geographical:
+          type: string
+        persistent:
+          type: boolean
+        runtimeRequirements:
+          type: array
+          items:
+            type: string
+    QosRequirement:
+      type: object
+      properties:
+        latency:
+          format: int32
+          type: integer
+        throughput:
+          format: int32
+          type: integer
+        availability:
+          format: float
+          type: number
+    QosRequirement_Public:
+      type: object
+      properties:
+        latency:
+          format: int32
+          type: integer
+        throughput:
+          format: int32
+          type: integer
+        availability:
+          format: float
+          type: number
+    ReferenceSpecification:
+      type: object
+      properties:
+        name:
+          type: string
+        cls:
+          type: string
+        access:
+          $ref: "#/components/schemas/KeyAccessModifier"
+    ReferenceSpecification_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        cls:
+          type: string
+        access:
+          $ref: "#/components/schemas/KeyAccessModifier_Public"
+    ResolvedMember:
+      type: object
+      properties:
+        functions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FunctionBinding"
+        keySpecs:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/KeySpecification"
+        refSpecs:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ReferenceSpecification"
+        identities:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        flag:
+          type: boolean
+    ResolvedMember_Public:
+      type: object
+      properties:
+        functions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FunctionBinding_Public"
+        keySpecs:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/KeySpecification_Public"
+        refSpecs:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ReferenceSpecification_Public"
+        identities:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+    StateSpecification:
+      type: object
+      properties:
+        keySpecs:
+          type: array
+          items:
+            $ref: "#/components/schemas/KeySpecification"
+        defaultProvider:
+          type: string
+    StateSpecification_Public:
+      type: object
+      properties:
+        keySpecs:
+          type: array
+          items:
+            $ref: "#/components/schemas/KeySpecification_Public"
+        defaultProvider:
+          type: string
+    StateType:
+      enum:
+      - FILES
+      - COLLECTION
+      type: string
+    StateType_Public:
+      enum:
+      - FILES
+      - COLLECTION
+      type: string
+    StaticUrlProvision:
+      type: object
+      properties:
+        url:
+          type: string
+    StaticUrlProvision_Public:
+      type: object
+      properties:
+        url:
+          type: string
+    VariableDescription:
+      type: object
+      properties:
+        name:
+          type: string
+        comment:
+          type: string
+    VariableDescription_Public:
+      type: object
+      properties:
+        name:
+          type: string
+        comment:
+          type: string
+    WorkflowExport:
+      type: object
+      properties:
+        from:
+          type: string
+        as:
+          type: string
+    WorkflowExport_Public:
+      type: object
+      properties:
+        from:
+          type: string
+        as:
+          type: string

@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.hpcclab.oaas</groupId>
     <artifactId>oaas-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>999-SNAPSHOT</version>
   </parent>
   <artifactId>storage-adapter</artifactId>
   <properties>
@@ -47,9 +47,13 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-config-yaml</artifactId>
     </dependency>
+    <!--    <dependency>-->
+    <!--      <groupId>io.quarkus</groupId>-->
+    <!--      <artifactId>quarkus-container-image-jib</artifactId>-->
+    <!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-jib</artifactId>
+      <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -63,15 +67,10 @@
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>smallrye-mutiny-vertx-web-client</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.netty</groupId>-->
-<!--      <artifactId>netty-transport-native-epoll</artifactId>-->
-<!--      <classifier>linux-x86_64</classifier>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.netty.incubator</groupId>
       <artifactId>netty-incubator-transport-native-io_uring</artifactId>
-      <version>0.0.24.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
+      <version>0.0.25.Final</version> <!-- Update this version (https://github.com/netty/netty-incubator-transport-io_uring/tags) -->
       <classifier>linux-x86_64</classifier>
     </dependency>
     <dependency>

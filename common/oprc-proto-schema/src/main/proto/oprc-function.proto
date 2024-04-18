@@ -1,0 +1,127 @@
+syntax = "proto3";
+import "oprc-common.proto";
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message ProtoOFunction{
+  string key = 1;
+  string name = 2;
+  string pkg = 3;
+  optional string description = 4;
+  optional ProtoFunctionType type = 5;
+  optional string outputCls = 6;
+  optional ProtoMacroSpec macro = 7;
+  optional ProtoProvisionConfig provision = 8;
+  repeated VariableDescription variableDescriptions = 9;
+  optional ProtoOFunctionDeploymentStatus status = 10;
+  optional ProtoFunctionState state = 11;
+  optional ProtoQosRequirement qos = 12;
+  optional ProtoConstraint constraint = 13;
+  optional ProtoOFunctionConfig config = 14;
+}
+
+message ProtoMacroSpec {
+  repeated DataflowStep steps = 1;
+  repeated WorkflowExport exports = 2;
+  optional string export = 3;
+  bool atomic = 4;
+}
+
+message ProtoProvisionConfig {
+  optional KnativeProvision knative = 1;
+  optional KDeploymentProvision deployment = 2;
+  optional StaticUrlProvision staticUrl = 3;
+}
+
+message KnativeProvision{
+  string image = 1;
+  int32 minScale = 2;
+  int32 maxScale = 3;
+  int32 concurrency = 4;
+  int32 targetConcurrency = 5;
+  optional string scaleDownDelay = 6;
+  optional string requestsCpu = 7;
+  optional string requestsMemory = 8;
+  optional string limitsCpu = 9;
+  optional string limitsMemory = 10;
+  map<string, string> env = 11;
+  optional string apiPath = 12;
+  int32 port = 13;
+}
+message KDeploymentProvision{
+  string image = 1;
+  int32 replicas = 2;
+  optional string requestsCpu = 3;
+  optional string requestsMemory = 4;
+  optional string limitsCpu = 5;
+  optional string limitsMemory = 6;
+  map<string, string> env = 7;
+  optional string apiPath = 8;
+  int32 port = 9;
+  string pullPolicy = 10;
+}
+message StaticUrlProvision{
+  string url = 1;
+}
+
+message VariableDescription {
+  string name = 1;
+  string comment = 2;
+}
+message DataflowStep {
+  string function = 1;
+  string target = 2;
+  optional string as = 3;
+  repeated  string inputRefs = 4;
+  map<string, string> args = 5;
+  map<string, string> argRefs = 6;
+}
+
+
+message WorkflowExport {
+  string from = 1;
+  string as = 2;
+}
+
+message ProtoOFunctionDeploymentStatus {
+  ProtoDeploymentCondition condition = 1;
+  optional string invocationUrl = 2;
+  optional string errorMsg = 3;
+  int64 ts = 4;
+}
+
+message ProtoOFunctionConfig {
+  map<string, string> offloadingConfig = 1;
+  bool http2 = 2;
+}
+
+
+enum ProtoDeploymentCondition{
+  PROTO_DEPLOYMENT_CONDITION_UNSPECIFIED = 0;
+  PROTO_DEPLOYMENT_CONDITION_PENDING = 1;
+  PROTO_DEPLOYMENT_CONDITION_DEPLOYING = 2;
+  PROTO_DEPLOYMENT_CONDITION_RUNNING = 3;
+  PROTO_DEPLOYMENT_CONDITION_DOWN = 4;
+  PROTO_DEPLOYMENT_CONDITION_DELETED = 5;
+}
+
+enum ProtoFunctionState {
+  PROTO_FUNCTION_STATE_UNSPECIFIED = 0;
+  PROTO_FUNCTION_STATE_ENABLED = 1;
+  PROTO_FUNCTION_STATE_DISABLED = 2;
+  PROTO_FUNCTION_STATE_REMOVING = 3;
+}
+
+enum ProtoFunctionType{
+  PROTO_FUNCTION_TYPE_UNSPECIFIED = 0;
+  PROTO_FUNCTION_TYPE_TASK = 1;
+  PROTO_FUNCTION_TYPE_IM_TASK = 2;
+  PROTO_FUNCTION_TYPE_LOGICAL = 3;
+  PROTO_FUNCTION_TYPE_MACRO = 4;
+  PROTO_FUNCTION_TYPE_STATIC = 5;
+  PROTO_FUNCTION_TYPE_READONLY = 6;
+  PROTO_FUNCTION_TYPE_STATIC_READONLY = 7;
+}

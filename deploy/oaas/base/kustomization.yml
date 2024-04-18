@@ -1,15 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 resources:
-  - env-configmap.yaml
-### kube-provisioner
-  - kp.yml
-  - kp-rb.yml
-### object-controller
-  - oc.yml
-### content-delivery-service
-  - cds.yml
-### storage adapter
-  - sa.yml
-### invoker
-  - invoker.yml
-#  - invoker-hpa.yml
+  - package-manager.yml
+  - env-configmap.yml
+  - class-runtime-manager.yml
+  - class-runtime-manager-rb.yml
+  - invoker-svc.yml
 
+secretGenerator:
+  - name: oaas-data
+    literals:
+      - OPRC_DB_PKG_HOST="arango-cluster"
+      - OPRC_DB_PKG_PORT="8529"
+      - OPRC_DB_PKG_DB="oaas"
+      - OPRC_DB_PKG_USER="root"
+      - OPRC_DB_PKG_PASS="changeme"
+      - OPRC_DB_DEFAULT_HOST="arango-cluster"
+      - OPRC_DB_DEFAULT_PORT="8529"
+      - OPRC_DB_DEFAULT_DB="oaas"
+      - OPRC_DB_DEFAULT_USER="root"
+      - OPRC_DB_DEFAULT_PASS="changeme"
+      - OPRC_DB_S3DEFAULT_URL="http://minio"
+      - OPRC_DB_S3DEFAULT_BUCKET="oaas-bkt"
+      - OPRC_DB_S3DEFAULT_PUBLICURL="http://s3.127.0.0.1.nip.io"
+      - OPRC_DB_S3DEFAULT_USER="minio_access_key"
+      - OPRC_DB_S3DEFAULT_PASS="minio_secret_key"
+      - OPRC_DB_S3DEFAULT_PREFIXPATH="oaas-"
+    options:
+      disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: oaas-cr-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - OPRC_CRM_TEMPLATEOVERRIDE=oaas-crts.yml

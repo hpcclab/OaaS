@@ -1,0 +1,34 @@
+name: example
+functions:
+  - name: video.transcode
+    type: TASK
+    outputCls: .video
+    provision:
+      knative:
+        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:latest
+        minScale: 1
+        targetConcurrency: 3
+#        maxScale: 12
+#        concurrency: 1
+#        requestsCpu: '1'
+#        limitsCpu: '16'
+    variableDescriptions:
+      - name: RESOLUTION
+      - name: VCODEC
+      - name: FORMAT
+
+classes:
+  - name: video
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: video
+    functions:
+      - access: PUBLIC
+        function: .video.transcode
+        immutable: true
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .video

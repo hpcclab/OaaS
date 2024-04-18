@@ -16,10 +16,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
-  implements RecordHandlerVerticle<KafkaConsumerRecord<String, Buffer>> {
+  implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
   private static final Logger logger = LoggerFactory.getLogger(AbstractOrderedRecordVerticle.class);
   final AtomicInteger inflight = new AtomicInteger(0);
   final AtomicBoolean lock = new AtomicBoolean(false);
@@ -31,7 +30,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   protected Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
   protected String name = "unknown";
 
-  public AbstractOrderedRecordVerticle(int maxConcurrent) {
+  protected AbstractOrderedRecordVerticle(int maxConcurrent) {
     this.maxConcurrent = maxConcurrent;
     this.incomingQueue = new ConcurrentLinkedQueue<>();
     this.waitingQueue = new ConcurrentLinkedQueue<>();
@@ -92,7 +91,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   protected abstract void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, T parsedContent);
 
   @Override
-  public int countQueueingTasks() {
+  public int countPending() {
     return incomingQueue.size() + pausedTask.size() + inflight.get();
   }
 
@@ -139,7 +138,7 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       .every(Duration.ofMillis(interval))
       .filter(l -> {
         logger.info("{} ms waiting {} tasks for closing OrderedTaskInvoker[{}]",
-          l * interval, countQueueingTasks(), name);
+          l * interval, countPending(), name);
         return incomingQueue.isEmpty() && pausedTask.isEmpty();
       })
       .toUni()

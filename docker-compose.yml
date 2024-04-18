@@ -4,37 +4,38 @@ version: '3.1'
 services:
 
   arangodb:
-    image: arangodb:3.10
+    image: arangodb:3.11
     ports:
-      - "8529:8529"
+      - "31235:8529"
     environment:
-      ARANGO_ROOT_PASSWORD: "changeme"
+#      ARANGO_ROOT_PASSWORD: "changeme"
+      ARANGO_NO_AUTH: "1"
     volumes:
       - arango-data:/var/lib/arangodb3
 
-  oc:
+  pm:
     depends_on:
       - arangodb
       - redpanda
-    image: ghcr.io/hpcclab/oaas/object-controller
+    image: ghcr.io/hpcclab/oaas/package-manager
     build:
-      context: object-controller
-      dockerfile: src/main/docker/Dockerfile.jvm21
-#    restart: always
+      context: package-manager
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - "8088:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://redpanda:9092
-      OAAS_OC_PROVISIONTOPIC: msc-provisions
-      OAAS_OC_KAFKAENABLED: 'true'
-      OAAS_OC_STORAGEADAPTERURL: http://sa:8080
-      OAAS_REPO_ARG_HOST: arangodb
-      OAAS_REPO_ARG_PORT: "8529"
-      OAAS_REPO_ARG_DB: oaas
-      OAAS_REPO_ARG_USER: root
-      OAAS_REPO_ARG_PASS: changeme
+      OPRC_OC_PROVISIONTOPIC: msc-provisions
+      OPRC_OC_KAFKAENABLED: 'true'
+      OPRC_OC_STORAGEADAPTERURL: http://sa:8080
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
+    restart: on-failure
     healthcheck: &oaas-healthcheck
       test: curl --fail http://localhost:8080/q/health || exit 1
       interval: 10s
@@ -44,24 +45,24 @@ services:
   sa:
     build:
       context: storage-adapter
-      dockerfile: src/main/docker/Dockerfile.jvm21
+      dockerfile: src/main/docker/Dockerfile.jvm
     image: ghcr.io/hpcclab/oaas/storage-adapter
-#    restart: always
     ports:
       - "8090:8080"
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
-      OAAS_SA_S3_URL: http://s3:9000
-      OAAS_SA_S3_BUCKET: oaas
-      OAAS_SA_S3_ACCESSKEY: minio_access_key
-      OAAS_SA_S3_SECRETKEY: minio_secret_key
-      OAAS_SA_S3_PUBLICURL: http://localhost:9000
-      OAAS_REPO_ARG_HOST: arangodb
-      OAAS_REPO_ARG_PORT: "8529"
-      OAAS_REPO_ARG_DB: oaas
-      OAAS_REPO_ARG_USER: root
-      OAAS_REPO_ARG_PASS: changeme
+      OPRC_SA_S3_URL: http://s3:9000
+      OPRC_SA_S3_BUCKET: oaas
+      OPRC_SA_S3_ACCESSKEY: minio_access_key
+      OPRC_SA_S3_SECRETKEY: minio_secret_key
+      OPRC_SA_S3_PUBLICURL: http://localhost:9000
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
     healthcheck: *oaas-healthcheck
+    restart: on-failure
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.1.13
@@ -70,7 +71,6 @@ services:
       - --smp 1
       # The amount of memory to make available to Redpanda.
       - --memory 1G
-#      - --overprovisioned
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers
@@ -90,8 +90,6 @@ services:
       - 18082:18082
       - 19092:19092
       - 19644:9644
-#    volumes:
-#      - redpanda:/var/lib/redpanda/data
     healthcheck:
       test: [ "CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1" ]
       interval: 15s
@@ -141,7 +139,7 @@ services:
     image: ghcr.io/hpcclab/oaas/invoker
     build:
       context: invoker
-      dockerfile: src/main/docker/Dockerfile.jvm21
+      dockerfile: src/main/docker/Dockerfile.jvm
     deploy:
       replicas: 1
     ports:
@@ -149,22 +147,33 @@ services:
     environment: &invoker-env
       QUARKUS_CONSOLE_COLOR: 'true'
       QUARKUS_HTTP_CORS: 'true'
-      OAAS_LOG: DEBUG
-      OAAS_INVOKER_KAFKA: PLAINTEXT://redpanda:9092
-      OAAS_INVOKER_STORAGEADAPTERURL: http://sa:8080
-      OAAS_ISPN_ARGCONNECTION_HOST: arangodb
-      OAAS_ISPN_ARGCONNECTION_PORT: "8529"
-      OAAS_ISPN_ARGCONNECTION_DB: oaas
-      OAAS_ISPN_ARGCONNECTION_USER: root
-      OAAS_ISPN_ARGCONNECTION_PASS: changeme
-      OAAS_INVOKER_S3_URL: http://s3:9000
-      OAAS_INVOKER_S3_BUCKET: oaas
-      OAAS_INVOKER_S3_ACCESSKEY: minio_access_key
-      OAAS_INVOKER_S3_SECRETKEY: minio_secret_key
-      OAAS_INVOKER_S3_PUBLICURL: http://localhost:9000
-      OAAS_INVOKER_USESA: "false"
-      OAAS_INVOKER_RESPPUBS3: "true"
-      OAAS_INVOKER_CLUSTERLOCK: "true"
+      OPRC_LOG: DEBUG
+      OPRC_INVOKER_KAFKA: PLAINTEXT://redpanda:9092
+      OPRC_INVOKER_STORAGEADAPTERURL: http://sa:8080
+      OPRC_INVOKER_S3_URL: http://s3:9000
+      OPRC_INVOKER_S3_BUCKET: oaas
+      OPRC_INVOKER_S3_ACCESSKEY: minio_access_key
+      OPRC_INVOKER_S3_SECRETKEY: minio_secret_key
+      OPRC_INVOKER_S3_PUBLICURL: http://localhost:9000
+      OPRC_INVOKER_USESA: "false"
+      OPRC_INVOKER_RESPPUBS3: "true"
+      OPRC_INVOKER_CLUSTERLOCK: "false"
+      OPRC_DB_PKG_HOST: arangodb
+      OPRC_DB_PKG_PORT: "8529"
+      OPRC_DB_PKG_DB: oaas
+      OPRC_DB_PKG_USER: root
+      OPRC_DB_PKG_PASS: changeme
+      OPRC_DB_DEFAULT_HOST: arangodb
+      OPRC_DB_DEFAULT_PORT: "8529"
+      OPRC_DB_DEFAULT_DB: oaas
+      OPRC_DB_DEFAULT_USER: root
+      OPRC_DB_DEFAULT_PASS: changeme
+      OPRC_DB_INV_HOST: arangodb
+      OPRC_DB_INV_PORT: "8529"
+      OPRC_DB_INV_DB: oaas
+      OPRC_DB_INV_USER: root
+      OPRC_DB_INV_PASS: changeme
+    restart: on-failure
     healthcheck: *oaas-healthcheck
 
   invoker-n:
@@ -172,17 +181,19 @@ services:
     depends_on:
       - arangodb
       - redpanda
+      - invoker
     deploy:
-      replicas: 0
+      replicas: 2
     environment:
       *invoker-env
+    restart: on-failure
     healthcheck: *oaas-healthcheck
 
-  kp:
+  crm:
     build:
-      context: kube-provisioner
-      dockerfile: src/main/docker/Dockerfile.jvm21
-    image: ghcr.io/hpcclab/oaas/kube-provisioner
+      context: class-runtime-manager
+      dockerfile: src/main/docker/Dockerfile.jvm
+    image: ghcr.io/hpcclab/oaas/class-runtime-manager
     deploy:
       replicas: 0
     healthcheck: *oaas-healthcheck
@@ -211,6 +222,15 @@ services:
     image: ghcr.io/hpcclab/oaas/transcode-fn-py
     ports:
       - 10003:8080
+    environment:
+      LOG_LEVEL: DEBUG
+
+  img-resize-fn:
+    build:
+      context: example/functions/img-resize-fn-py
+    image: ghcr.io/hpcclab/oaas/img-resize-fn-py
+    ports:
+      - 10004:8080
     environment:
       LOG_LEVEL: DEBUG
 

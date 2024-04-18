@@ -1,0 +1,8 @@
+# requests
+fastapi
+aiohttp
+uvicorn
+gunicorn
+oaas-sdk-py~=0.2.4
+pillow
+aiofiles

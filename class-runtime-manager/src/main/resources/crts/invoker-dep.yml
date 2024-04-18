@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels: {} #to be injected
+  template:
+    metadata:
+      labels: {} #to be injected
+    spec:
+      terminationGracePeriodSeconds: 60
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {} #to be injected
+                topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: invoker
+          image: ghcr.io/hpcclab/oaas/invoker:latest
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 11222
+              name: infinispan
+            - containerPort: 11223
+              name: infinispan-adm
+            - containerPort: 8888
+              name: ping
+          resources:
+            limits:
+              memory: 2G
+              cpu: '2'
+            requests:
+              cpu: '0.5'
+              memory: 512M
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 100
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
