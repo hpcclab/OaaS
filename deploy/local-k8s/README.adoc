@@ -9,10 +9,12 @@
 == Introduction
 This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d).
 
-== OaaS Installation
+== Oparaca Installation
 === Prerequisites
 
 * JDK21 (if you want to build the project)
+
+* link:../../cli/README.adoc[ocli] (Oparaca CLI)
 
 * https://github.com/casey/just[*just*]
 
@@ -108,13 +110,16 @@ kubectl get pod -n oaas -w
 +
 [source,bash]
 ----
-ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io:9090 --pm=http://pm.oaas.127.0.0.1.nip.io:9090
+ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io --pm=http://pm.oaas.127.0.0.1.nip.io
 ----
 The URLs of platform are accessible via:
 
-* package manager: `http://pm.oaas.127.0.0.1.nip.io:9090`
-* Invoker: `http://inv.oaas.127.0.0.1.nip.io:9090`
+* package manager: `http://pm.oaas.127.0.0.1.nip.io`
+* Invoker: `http://inv.oaas.127.0.0.1.nip.io`
 
+== What next?
+
+Check on our link:../../example/README.adoc[example usages guide] to learn how to use Oparaca.
 
 == Troubleshooting
 // * Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:../oaas/base/cds.yml[]

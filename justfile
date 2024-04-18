@@ -91,7 +91,7 @@ k8s-clean:
   kubectl delete -n oaas -f deploy/local-k8s/kafka-cluster.yml
 
 k3d-create:
-  K3D_FIX_DNS=1 k3d cluster create -p "9090:80@loadbalancer"
+  K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"
 
 compose-build-up: build-image
   docker compose up -d

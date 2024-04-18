@@ -1,4 +1,4 @@
-= OaaS
+= Oparaca (OaaS-based platform)
 :toc:
 :toc-placement: preamble
 :toclevels: 2
@@ -10,9 +10,12 @@ image:https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build
 image:https://jitpack.io/v/hpcclab/OaaS.svg[link="https://jitpack.io/#hpcclab/OaaS"]
 
 == Introduction
+=== What is Oparaca?
+Oparaca (**O**bject **Para**digm on Serverless **C**loud **A**bstraction) is the implementation of Object-as-a-Service (OaaS) paradigm
+
 === What is OaaS?
 
-OaaS is a shortened word for Object as a Service, a new serverless paradigm. OaaS utilizes the notion of Object to incorporate state management into the Serverless platform.
+Object as a Service (OaaS) is a new serverless paradigm, that borrows the object-oriented programming concepts to encapsulate application logic and data in addition to non-functional requirements (QoS and constraints) into a single deployment package, thereby, streamlining cloud-native application development.
 
 .FaaS
 image::doc/diagrams/faas_concept_v4s.dio.png[faas_concept,480]
