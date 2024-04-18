@@ -32,7 +32,7 @@ cd OaaS
 +
 [source,bash]
 ----
-k3d cluster create -p "9090:80@loadbalancer"
+k3d cluster create -p "80:80@loadbalancer"
 # or using just (after clone this project)
 just k3d-create
 ----
@@ -85,13 +85,13 @@ This command will do the following steps:
 
 
 . Kafka
-** Open Kafka UI at `http://kui.127.0.0.1.nip.io:9090`
+** Open Kafka UI at `http://kui.127.0.0.1.nip.io`
 
 . MinIO (S3-compatible storage)
-** Open the web console at `http://minio.127.0.0.1.nip.io:9090` and login with `minio_access_key` as a user and `minio_secret_key` as a password.
+** Open the web console at `http://minio.127.0.0.1.nip.io` and login with `minio_access_key` as a user and `minio_secret_key` as a password.
 
 . ArangoDB
-** Open the web console at `http://arg.127.0.0.1.nip.io:9090` and login with `root` as a user and no password.
+** Open the web console at `http://arg.127.0.0.1.nip.io` and login with `root` as a user and no password.
 
 === Install and Access OaaS
 . Install OaaS
