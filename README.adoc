@@ -1,4 +1,4 @@
-= Oparaca (OaaS-based platform)
+= Oparaca
 :toc:
 :toc-placement: preamble
 :toclevels: 2
