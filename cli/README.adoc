@@ -44,7 +44,7 @@ EXAMPLE
 [source,bash]
 ----
 # CONFIG THE CONNECTION
-ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io:9090 --pm=http://pm.oaas.127.0.0.1.nip.io:9090
+ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io --pm=http://pm.oaas.127.0.0.1.nip.io
 # DEPLOY PACKAGE
 ocli p a example/pkg/record.yml
 # CREATE OBJECT AND SAVE OBJECT ID FOR LATER USE (SAVE TO LOCAL CONFIG FILE)
