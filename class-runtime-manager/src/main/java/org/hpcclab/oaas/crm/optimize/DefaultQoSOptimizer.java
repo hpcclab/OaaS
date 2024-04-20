@@ -94,7 +94,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .limitsCpu(parseCpu(invoker.limitCpu()))
       .limitsMemory(parseMem(invoker.limitMemory()))
       .minAvail(minAvail)
-      .disableHpa(unit.getCls().getConfig().getDisableHpa())
+      .enableHpa(invoker.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
       .build();
     var minSa = getStartReplica(sa, qos, 0);
     CrInstanceSpec saSpec = CrInstanceSpec.builder()
@@ -107,7 +107,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .limitsCpu(parseCpu(sa.limitCpu()))
       .limitsMemory(parseMem(sa.limitMemory()))
       .minAvail(minAvail)
-      .disableHpa(unit.getCls().getConfig().getDisableHpa())
+      .enableHpa(sa.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
       .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
         && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
         || minSa == 0
@@ -231,6 +231,9 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int minScale = kn.getMinScale();
     if (minScale < 0)
       minScale = Math.max(0, fnConfig.startReplicas());
+    if (provision.getDeployment().getReplicas() > 0) {
+      minScale = provision.getDeployment().getReplicas();
+    }
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
     return CrInstanceSpec.builder()

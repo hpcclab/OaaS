@@ -46,6 +46,7 @@ public record CrtMappingConfig(
     int maxReplicas,
     int startReplicas,
     float startReplicasToTpRatio,
+    boolean enableHpa,
     List<Toleration> tolerations
   ) implements ScalingConfig {
   }

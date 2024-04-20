@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.model.exception;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
+
 public class DataAccessException extends StdOaasException {
   public DataAccessException(String message) {
     super(message);
@@ -22,6 +24,6 @@ public class DataAccessException extends StdOaasException {
   }
 
   public static DataAccessException concurrentMod(){
-    throw new DataAccessException("Detected concurrent modification");
+    throw new DataAccessException("Detected concurrent modification", HttpResponseStatus.CONFLICT.code());
   }
 }

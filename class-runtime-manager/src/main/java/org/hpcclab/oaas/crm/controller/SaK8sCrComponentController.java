@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
@@ -43,15 +44,32 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
       name,
       labels);
 
-    var hpa = createHpa(instanceSpec, labels, name, name);
-    return List.of(deployment, svc, hpa);
+    var resources = Lists.mutable.<HasMetadata>of(
+      deployment, svc
+    );
+    if (instanceSpec.enableHpa()) {
+      var hpa = createHpa(instanceSpec, labels, name, name);
+      resources.add(hpa);
+    }
+
+    return resources;
   }
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
     String name = prefix + STORAGE_ADAPTER.getSvc();
-    HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
-    return hpa == null? List.of(): List.of(hpa);
+    if (instanceSpec.enableHpa()) {
+      HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
+      return hpa==null ? List.of():List.of(hpa);
+    } else {
+      Deployment deployment = kubernetesClient.apps().deployments()
+        .inNamespace(namespace)
+        .withName(name)
+        .get();
+      deployment.getSpec()
+        .setReplicas(instanceSpec.minInstance());
+      return List.of(deployment);
+    }
   }
 
   @Override

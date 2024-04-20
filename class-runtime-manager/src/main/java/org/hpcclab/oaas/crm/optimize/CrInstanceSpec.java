@@ -17,7 +17,7 @@ public record CrInstanceSpec(
   float limitsCpu,
   long limitsMemory,
   int minAvail,
-  boolean disableHpa,
+  boolean enableHpa,
   boolean disable
 ) {
 }
