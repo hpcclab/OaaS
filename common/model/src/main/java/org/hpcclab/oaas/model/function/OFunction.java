@@ -79,6 +79,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
     if (config == null) config = new OFunctionConfig();
+    if (type == null)
+      type = FunctionType.TASK;
     if (type==FunctionType.TASK) {
       macro = null;
     }

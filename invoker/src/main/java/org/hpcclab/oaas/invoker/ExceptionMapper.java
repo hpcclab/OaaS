@@ -72,7 +72,7 @@ public class ExceptionMapper {
         .put("violations", exception.getConstraintViolations()
           .stream()
           .map(cv -> cv.getPropertyPath().toString() + " " + cv.getMessage())
-          .collect(Collectors.toList())
+          .toList()
         ))
       .build();
   }
