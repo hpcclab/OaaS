@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
+import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;

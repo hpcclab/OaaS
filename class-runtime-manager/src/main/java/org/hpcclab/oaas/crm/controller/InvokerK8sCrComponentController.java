@@ -84,7 +84,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
         null,
         new EnvVarSource(null, new ObjectFieldSelector(null, "metadata.name"), null, null))
       );
-    if (!instanceSpec.disableHpa()) {
+    if (instanceSpec.enableHpa()) {
       var hpa = createHpa(instanceSpec, labels, name, name);
       resources.add(hpa);
     }
@@ -95,7 +95,10 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
     String name = prefix + INVOKER.getSvc();
-    if (instanceSpec.disableHpa()) {
+    if (instanceSpec.enableHpa()) {
+      HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
+      return hpa==null ? List.of():List.of(hpa);
+    } else {
       Deployment deployment = kubernetesClient.apps().deployments()
         .inNamespace(namespace)
         .withName(name)
@@ -103,9 +106,6 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       deployment.getSpec()
         .setReplicas(instanceSpec.minInstance());
       return List.of(deployment);
-    } else {
-      HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
-      return hpa==null ? List.of():List.of(hpa);
     }
   }
 
