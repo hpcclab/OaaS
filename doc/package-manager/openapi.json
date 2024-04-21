@@ -418,12 +418,6 @@
           },
           "noMain" : {
             "type" : "boolean"
-          },
-          "inputTypes" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           }
         }
       },
@@ -453,12 +447,6 @@
           },
           "noMain" : {
             "type" : "boolean"
-          },
-          "inputTypes" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           }
         }
       },

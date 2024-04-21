@@ -125,7 +125,6 @@ public class MockupData {
         .setName("f3")
         .setFunction(FUNC_1.getKey())
         .setImmutable(true)
-        .setInputTypes(List.of(CLS_1_KEY))
         .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
         .setName(FUNC_2.getName())

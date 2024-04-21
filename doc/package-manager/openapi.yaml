@@ -310,10 +310,6 @@ components:
           type: boolean
         noMain:
           type: boolean
-        inputTypes:
-          type: array
-          items:
-            type: string
     FunctionBinding_Public:
       type: object
       properties:
@@ -333,10 +329,6 @@ components:
           type: boolean
         noMain:
           type: boolean
-        inputTypes:
-          type: array
-          items:
-            type: string
     FunctionState:
       enum:
       - ENABLED

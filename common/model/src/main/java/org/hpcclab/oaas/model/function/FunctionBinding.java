@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.function;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,26 +19,31 @@ public class FunctionBinding {
   DSMap defaultArgs;
   String description;
   String outputCls;
-  boolean immutable = false;
+  @JsonAlias("forceImmutable")
+  boolean immutable;
   boolean noMain;
-  List<String> inputTypes;
 
 
   public FunctionBinding() {
   }
 
   @ProtoFactory
-
-  public FunctionBinding(FunctionAccessModifier access, String function, String name, DSMap defaultArgs, String description, String outputCls, boolean forceImmutable, boolean noMain, List<String> inputTypes) {
+  public FunctionBinding(FunctionAccessModifier access,
+                         String function,
+                         String name,
+                         DSMap defaultArgs,
+                         String description,
+                         String outputCls,
+                         boolean immutable,
+                         boolean noMain) {
     this.access = access;
     this.function = function;
     this.name = name;
     this.defaultArgs = defaultArgs;
     this.description = description;
     this.outputCls = outputCls;
-    this.immutable = forceImmutable;
+    this.immutable = immutable;
     this.noMain = noMain;
-    this.inputTypes = inputTypes;
   }
 
 
