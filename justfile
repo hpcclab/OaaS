@@ -89,6 +89,7 @@ k8s-clean:
 
   kubectl delete -n oaas -f deploy/local-k8s/kafka-ui.yml
   kubectl delete -n oaas -f deploy/local-k8s/kafka-cluster.yml
+  kubectl delete -n oaas -f deploy/local-k8s/hash-aware-lb.yml
 
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"

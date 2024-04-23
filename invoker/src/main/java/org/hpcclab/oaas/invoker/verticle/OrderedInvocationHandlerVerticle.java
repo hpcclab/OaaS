@@ -6,6 +6,7 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 
@@ -22,19 +23,12 @@ public class OrderedInvocationHandlerVerticle extends AbstractOrderedRecordVerti
   }
 
   @Override
-  protected boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord,
-                               InvocationRequest parsedContent) {
-    return !parsedContent.immutable();
+  protected boolean shouldLock(InvocationReqHolder reqHolder) {
+    return !reqHolder.getReq().immutable();
   }
 
   @Override
-  protected InvocationRequest parseContent(KafkaConsumerRecord<String, Buffer> taskRecord) {
-    return Json.decodeValue(taskRecord.value(), InvocationRequest.class);
-  }
-
-  @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                           InvocationRequest request) {
-    invocationRecordHandler.handleRecord(kafkaRecord, request, this::next, false);
+  public void handleRecord(InvocationReqHolder reqHolder) {
+    invocationRecordHandler.handleRecord(reqHolder, this::next, false);
   }
 }

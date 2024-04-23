@@ -18,11 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GrpcInvocationServicePool {
   Map<CrHash.ApiAddress, InvocationService> invocationServiceMap = new ConcurrentHashMap<>();
-//  final GrpcClient grpcClient;
 
-//  public GrpcInvocationServicePool(GrpcClient grpcClient) {
-//    this.grpcClient = grpcClient;
-//  }
 
 
   public InvocationService getOrCreate(CrHash.ApiAddress addr) {
@@ -32,16 +28,11 @@ public class GrpcInvocationServicePool {
         .forAddress(addr.host(), addr.port())
         .disableRetry()
         .usePlaintext();
-//      GrpcClientChannel channel = new GrpcClientChannel(grpcClient, toSocketAddress(addr));
       return new InvocationServiceClient(addr.toString(), builder.build(), this::configure);
     });
   }
 
   MutinyInvocationServiceStub configure(String key, MutinyInvocationServiceStub stub) {
     return stub;
-  }
-
-  public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
-    return SocketAddress.inetSocketAddress(address.port(), address.host());
   }
 }

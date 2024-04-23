@@ -3,8 +3,6 @@ package org.hpcclab.oaas.invoker.dispatcher;
 import io.netty.util.internal.ThreadLocalRandom;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -13,23 +11,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PartitionRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> implements  RecordDispatcher{
+public class PartitionRecordDispatcher implements RecordDispatcher {
   private static final Logger logger = LoggerFactory.getLogger(PartitionRecordDispatcher.class);
   private final AtomicInteger inflight = new AtomicInteger(0);
   private final OffsetManager offsetManager;
   private final int maxInflight;
+  private final ImmutableList<PartitionRecordHandler> partitions;
   String name = "unknown";
   Random random = ThreadLocalRandom.current();
-  private ImmutableList<PartitionRecordHandler<R>> partitions = Lists.immutable.empty();
   private Runnable drainHandler;
 
   public PartitionRecordDispatcher(OffsetManager offsetManager,
+                                   List<? extends PartitionRecordHandler> partitions,
                                    InvokerConfig config) {
     this.offsetManager = offsetManager;
     this.maxInflight = config.maxInflight();
+    this.partitions = Lists.immutable.ofAll(partitions);
+    for (PartitionRecordHandler partition : partitions) {
+      partition.setOnRecordCompleteHandler(this::handleRecordComplete);
+    }
   }
 
   public String getName() {
@@ -48,25 +52,17 @@ public class PartitionRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> impl
     return inflight.get() < maxInflight;
   }
 
-
-  public void setPartitions(ImmutableList<PartitionRecordHandler<R>> partitions) {
-    this.partitions = partitions;
-    for (PartitionRecordHandler<R> partition : partitions) {
-      partition.setOnRecordCompleteHandler(this::handleRecordComplete);
-    }
-  }
-
-  private void handleRecordComplete(R rec) {
-    offsetManager.recordDone(rec);
+  private void handleRecordComplete(InvocationReqHolder reqHolder) {
+    offsetManager.recordDone(reqHolder);
     if (drainHandler!=null && inflight.decrementAndGet() < maxInflight)
       drainHandler.run();
   }
 
-  public void dispatch(KafkaConsumerRecords<?, ?> records) {
+  public void dispatch(List<InvocationReqHolder> records) {
     if (partitions.isEmpty())
       throw new IllegalStateException("Must deploy first");
     for (int i = 0; i < records.size(); i++) {
-      var rec = records.recordAt(i);
+      var rec = records.get(i);
       offsetManager.recordReceived(rec);
       var partition = partitions.getFirst();
       var size = partitions.size();
@@ -76,19 +72,19 @@ public class PartitionRecordDispatcher<R extends KafkaConsumerRecord<?, ?>> impl
           hashIndex = rec.key().hashCode() % size;
           if (hashIndex < 0) hashIndex = -hashIndex;
         } else {
-          hashIndex  = random.nextInt(size);
+          hashIndex = random.nextInt(size);
         }
         partition = partitions.get(hashIndex);
       }
       if (logger.isDebugEnabled())
-        logger.debug("dispatch {} {} {}", hashIndex, rec.key(), rec.offset());
-      partition.offer((R) rec);
+        logger.debug("dispatch {} {}", hashIndex, rec);
+      partition.offer(rec);
     }
   }
 
   public Uni<Void> waitTillQueueEmpty() {
     return Multi.createFrom().ticks().every(Duration.ofMillis(100))
-        .filter(l -> partitions.stream()
+      .filter(l -> partitions.stream()
         .mapToInt(PartitionRecordHandler::countPending)
         .sum()==0)
       .toUni()
