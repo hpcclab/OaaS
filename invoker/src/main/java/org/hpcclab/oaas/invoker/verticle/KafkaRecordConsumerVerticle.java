@@ -5,7 +5,6 @@ import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
-import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
 import org.hpcclab.oaas.invoker.dispatcher.RecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
@@ -31,11 +30,11 @@ public class KafkaRecordConsumerVerticle extends AbstractVerticle {
 
   public KafkaRecordConsumerVerticle(SegmentCoordinator segmentCoordinator,
                                      KafkaConsumer<String, Buffer> consumer,
-                                     RecordDispatcher recordDispatcher,
-                                     InvokerConfig config) {
+                                     OffsetManager offsetManager,
+                                     RecordDispatcher recordDispatcher) {
     this.consumer = consumer;
     this.recordDispatcher = recordDispatcher;
-    this.offsetManager = recordDispatcher.getOffsetManager();
+    this.offsetManager = offsetManager;
     this.segmentCoordinator = segmentCoordinator;
   }
 
@@ -44,7 +43,10 @@ public class KafkaRecordConsumerVerticle extends AbstractVerticle {
     LOGGER.info("[{}] starting task consumer verticle", segmentCoordinator.getCls().getKey());
     consumer.exceptionHandler(this::handleException);
     consumer.partitionsRevokedHandler(offsetManager::handlePartitionRevoked);
-    recordDispatcher.setDrainHandler(this::poll);
+    recordDispatcher.setOnRecordDone(offsetManager::recordDone);
+    recordDispatcher.setOnRecordReceived(offsetManager::recordReceived);
+
+    recordDispatcher.setOnQueueDrained(this::poll);
     offsetManager.setPeriodicCommit(vertx);
     return vertx.executeBlocking(() -> {
         segmentCoordinator.init(this::poll);

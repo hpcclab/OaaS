@@ -57,7 +57,6 @@ public class OffsetManager {
   public void recordDone(InvocationReqHolder reqHolder) {
     if (reqHolder instanceof  KafkaInvocationReqHolder kafkaInvocationReqHolder) {
       recordDone(kafkaInvocationReqHolder.getKafkaRecord());
-    } else {
     }
   }
 

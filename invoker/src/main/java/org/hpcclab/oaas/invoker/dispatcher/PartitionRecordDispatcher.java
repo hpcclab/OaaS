@@ -6,7 +6,6 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,21 +13,21 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class PartitionRecordDispatcher implements RecordDispatcher {
   private static final Logger logger = LoggerFactory.getLogger(PartitionRecordDispatcher.class);
   private final AtomicInteger inflight = new AtomicInteger(0);
-  private final OffsetManager offsetManager;
   private final int maxInflight;
   private final ImmutableList<PartitionRecordHandler> partitions;
   String name = "unknown";
   Random random = ThreadLocalRandom.current();
   private Runnable drainHandler;
+  private Consumer<InvocationReqHolder> onRecordReceived;
+  private Consumer<InvocationReqHolder> onRecordDone;
 
-  public PartitionRecordDispatcher(OffsetManager offsetManager,
-                                   List<? extends PartitionRecordHandler> partitions,
+  public PartitionRecordDispatcher(List<? extends PartitionRecordHandler> partitions,
                                    InvokerConfig config) {
-    this.offsetManager = offsetManager;
     this.maxInflight = config.maxInflight();
     this.partitions = Lists.immutable.ofAll(partitions);
     for (PartitionRecordHandler partition : partitions) {
@@ -44,7 +43,7 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
     this.name = name;
   }
 
-  public void setDrainHandler(Runnable drainHandler) {
+  public void setOnQueueDrained(Runnable drainHandler) {
     this.drainHandler = drainHandler;
   }
 
@@ -53,7 +52,8 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
   }
 
   private void handleRecordComplete(InvocationReqHolder reqHolder) {
-    offsetManager.recordDone(reqHolder);
+//    offsetManager.recordDone(reqHolder);
+    onRecordDone.accept(reqHolder);
     if (drainHandler!=null && inflight.decrementAndGet() < maxInflight)
       drainHandler.run();
   }
@@ -63,7 +63,8 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
       throw new IllegalStateException("Must deploy first");
     for (int i = 0; i < records.size(); i++) {
       var rec = records.get(i);
-      offsetManager.recordReceived(rec);
+//      offsetManager.recordReceived(rec);
+      onRecordReceived.accept(rec);
       var partition = partitions.getFirst();
       var size = partitions.size();
       int hashIndex = 0;
@@ -91,7 +92,14 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
       .replaceWithVoid();
   }
 
-  public OffsetManager getOffsetManager() {
-    return offsetManager;
+
+  @Override
+  public void setOnRecordReceived(Consumer<InvocationReqHolder> onRecordReceived) {
+    this.onRecordReceived = onRecordReceived;
+  }
+
+  @Override
+  public void setOnRecordDone(Consumer<InvocationReqHolder> onRecordDone) {
+    this.onRecordDone = onRecordDone;
   }
 }

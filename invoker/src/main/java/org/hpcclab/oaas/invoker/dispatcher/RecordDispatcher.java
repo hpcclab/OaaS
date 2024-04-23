@@ -1,15 +1,16 @@
 package org.hpcclab.oaas.invoker.dispatcher;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
 import org.hpcclab.oaas.invoker.mq.OffsetManager;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface RecordDispatcher{
-  void setDrainHandler(Runnable drainHandler);
+  void setOnQueueDrained(Runnable drainHandler);
   boolean canConsume();
   void dispatch(List<InvocationReqHolder> invocationReqHolder);
   Uni<Void> waitTillQueueEmpty();
-  OffsetManager getOffsetManager();
+  void setOnRecordDone(Consumer<InvocationReqHolder> onRecordDone);
+  void setOnRecordReceived(Consumer<InvocationReqHolder> onRecordReceived);
 }

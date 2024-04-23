@@ -210,7 +210,9 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
     int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
-    capChanged = Math.min(capChanged, instanceSpec.maxInstance());
+    if (instanceSpec.maxInstance() > 0) {
+      capChanged = Math.min(capChanged, instanceSpec.maxInstance());
+    }
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     var needChange = !instanceSpec.equals(adjust);
     logger.debug("compute adjust[2] on ({} : {}), expectedInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",

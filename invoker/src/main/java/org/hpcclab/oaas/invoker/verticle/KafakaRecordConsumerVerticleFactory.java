@@ -57,7 +57,6 @@ public class KafakaRecordConsumerVerticleFactory implements
     var offsetManager = new OffsetManager(consumer);
     List<RecordHandlerVerticle> handlers = recordHandlerVerticleFactory.createVerticles(cls);
     var dispatcher = new PartitionRecordDispatcher(
-      offsetManager,
       handlers,
       config
     );
@@ -69,7 +68,7 @@ public class KafakaRecordConsumerVerticleFactory implements
       config
     );
     List<Verticle> verticles = new ArrayList<>(handlers);
-    verticles.add(new KafkaRecordConsumerVerticle(segmentCoordinator, consumer, dispatcher, config));
+    verticles.add(new KafkaRecordConsumerVerticle(segmentCoordinator, consumer, offsetManager, dispatcher));
     return verticles;
   }
 
