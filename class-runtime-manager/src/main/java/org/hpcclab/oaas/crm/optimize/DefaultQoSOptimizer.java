@@ -32,6 +32,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
+  final double objectiveFulfilment;
 
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
@@ -48,6 +49,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .getOrDefault("fnThresholdUpper", "0.85"));
     fnThresholdLower = Double.parseDouble(conf
       .getOrDefault("fnThresholdLower", "0.5"));
+    objectiveFulfilment = Double.parseDouble(conf
+      .getOrDefault("objectiveFulfilment", "1"));
   }
 
 
@@ -58,6 +61,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     } else {
       return targetValue; // No need to cap change
     }
+  }
+
+  private static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
+    float startReplica;
+    startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
+    startReplica = Math.max(minInstance, startReplica);
+    startReplica = Math.min(startReplica, sa.maxReplicas());
+    return Math.round(startReplica);
   }
 
   @Override
@@ -110,7 +121,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .enableHpa(sa.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
       .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
         && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
-        || minSa == 0
+        || minSa==0
       )
       .build();
     var instances = Map.of(
@@ -127,14 +138,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .fnInstances(fnInstances)
       .dataSpec(dataSpec)
       .build();
-  }
-
-  private static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
-    float startReplica;
-    startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
-    startReplica = Math.max(minInstance, startReplica);
-    startReplica = Math.min(startReplica, sa.maxReplicas());
-    return Math.round(startReplica);
   }
 
   @Override
@@ -195,17 +198,27 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var cpuPercentage = meanCpu / totalRequestCpu;
     var rpsFulfilPercentage = meanRps / targetRps;
-    var lower = isFunc? fnThresholdLower: thresholdLower;
-    var upper = isFunc? fnThresholdUpper: thresholdUpper;
-    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
+    var lower = isFunc ? fnThresholdLower:thresholdLower;
+    var upper = isFunc ? fnThresholdUpper:thresholdUpper;
+    var expectedRps = cpuPercentage < 1 ? meanRps /cpuPercentage : meanRps;
+      logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
       controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage,
       lower, upper, rpsFulfilPercentage);
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
 
-    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < lower)) {
+    /*
+    * over provisioning
+    ++ low utilization (cpu-util < thresh_low_util)  while meet the objective (real rps > objective)
+    * under provisioning
+    ++ high utilization (cpu-util > thresh_high_util) while not meet the objective (real rps < objective)
+    ++ expect that objective is not fulfilment by current resource ( expect_rps / objective < thresh_objective_fulfilment)
+     */
+    if (cpuPercentage < lower && meanRps > targetRps) {
       nextInstance = Math.min(expectedInstance, nextInstance);
-    } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > upper) {
+    } else if (cpuPercentage > upper && meanRps < targetRps) {
+      nextInstance = Math.max(expectedInstance, nextInstance);
+    } else if (expectedRps / targetRps < objectiveFulfilment) {
       nextInstance = Math.max(expectedInstance, nextInstance);
     } else {
       return AdjustComponent.NONE;
