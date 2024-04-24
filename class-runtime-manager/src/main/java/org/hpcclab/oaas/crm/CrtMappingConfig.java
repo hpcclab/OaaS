@@ -16,7 +16,11 @@ public record CrtMappingConfig(
   public interface ScalingConfig {
     int stabilizationWindow();
 
+    double objectiveMissThreshold();
+
     int maxScaleStep();
+
+    boolean disableDynamicAdjustment();
   }
 
   @Builder(toBuilder = true)
@@ -27,8 +31,7 @@ public record CrtMappingConfig(
     String optimizer,
     Map<String, String> optimizerConf,
     Condition condition,
-    int priority
-  ) {
+    int priority) {
   }
 
   @Builder(toBuilder = true)
@@ -47,8 +50,9 @@ public record CrtMappingConfig(
     int startReplicas,
     float startReplicasToTpRatio,
     boolean enableHpa,
-    List<Toleration> tolerations
-  ) implements ScalingConfig {
+    List<Toleration> tolerations,
+    double objectiveMissThreshold,
+    boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 
   @Builder(toBuilder = true)
@@ -58,8 +62,9 @@ public record CrtMappingConfig(
     String defaultRequestCpu,
     String defaultRequestMem,
     String defaultScaleDawnDelay,
-    int startReplicas
-  ) implements ScalingConfig {
+    int startReplicas,
+    double objectiveMissThreshold,
+    boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 
   public record Toleration(
@@ -67,7 +72,6 @@ public record CrtMappingConfig(
     String value,
     String operator,
     String effect
-  ){
-
+  ) {
   }
 }

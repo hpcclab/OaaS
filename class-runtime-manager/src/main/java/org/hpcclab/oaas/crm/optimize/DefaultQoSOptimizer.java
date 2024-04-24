@@ -32,8 +32,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
-  final double objectiveFulfilment;
-
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
@@ -49,8 +47,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .getOrDefault("fnThresholdUpper", "0.85"));
     fnThresholdLower = Double.parseDouble(conf
       .getOrDefault("fnThresholdLower", "0.5"));
-    objectiveFulfilment = Double.parseDouble(conf
-      .getOrDefault("objectiveFulfilment", "1"));
   }
 
 
@@ -182,6 +178,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
                                           boolean isFunc) {
     if (metrics==null)
       return AdjustComponent.NONE;
+    if (svcConfig.disableDynamicAdjustment())
+      return AdjustComponent.NONE;
     int targetRps = qos.getThroughput();
     if (targetRps <= 0)
       return AdjustComponent.NONE;
@@ -194,18 +192,18 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var totalRequestCpu = Math.max(1, instanceSpec.minInstance()) * instanceSpec.requestsCpu();
     var cpuPerRps = meanCpu / meanRps;
     double expectedCpu = Math.max(0, cpuPerRps * targetRps);
-
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var cpuPercentage = meanCpu / totalRequestCpu;
-    var rpsFulfilPercentage = meanRps / targetRps;
     var lower = isFunc ? fnThresholdLower:thresholdLower;
     var upper = isFunc ? fnThresholdUpper:thresholdUpper;
     var expectedRps = cpuPercentage < 1 ? meanRps /cpuPercentage : meanRps;
-      logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
-      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage,
-      lower, upper, rpsFulfilPercentage);
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
+    var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
+    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
+      controller.getTsidString(), name, meanRps, expectedRps,
+      targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
+      targetRps, cpuPercentage, lower, upper, expectedInstance);
 
     /*
     * over provisioning
@@ -218,7 +216,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       nextInstance = Math.min(expectedInstance, nextInstance);
     } else if (cpuPercentage > upper && meanRps < targetRps) {
       nextInstance = Math.max(expectedInstance, nextInstance);
-    } else if (expectedRps / targetRps < objectiveFulfilment) {
+    } else if (expectedRps / targetRps < objectiveMissThreshold) {
       nextInstance = Math.max(expectedInstance, nextInstance);
     } else {
       return AdjustComponent.NONE;
@@ -231,8 +229,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     }
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     var needChange = !instanceSpec.equals(adjust);
-    logger.debug("compute adjust[2] on ({} : {}), expectedInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
-      controller.getTsidString(), name, expectedInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
+    logger.debug("compute adjust[2] on ({} : {}), nextInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
+      controller.getTsidString(), name, nextInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
 
     if (needChange)
       logger.debug("next adjustment ({} : {}) : {}", controller.getTsidString(), name, adjust);
