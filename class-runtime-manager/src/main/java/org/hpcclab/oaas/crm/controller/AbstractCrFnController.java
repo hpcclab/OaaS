@@ -39,10 +39,15 @@ public abstract class AbstractCrFnController implements CrFnController<HasMetada
   }
 
   @Override
-  public void updateStabilizationTime(String key) {
+  public void updateStableTime(String key) {
     stabilizationTimeMap.put(key,
       System.currentTimeMillis() + fnConfig.stabilizationWindow()
     );
+  }
+
+  @Override
+  public long getStableTime(String key) {
+    return stabilizationTimeMap.getOrDefault(key, -1L);
   }
 
   @Override

@@ -180,10 +180,11 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     if (metrics==null)
       return AdjustComponent.NONE;
     int targetRps = qos.getThroughput();
-    var meanRps = harmonicMean(metrics.rps());
-    var meanCpu = mean(metrics.cpu());
     if (targetRps <= 0)
       return AdjustComponent.NONE;
+    metrics = metrics.filterByStableTime(controller.getStableTime(name));
+    var meanRps = harmonicMean(metrics.rps());
+    var meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee
     }
@@ -206,6 +207,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       nextInstance = Math.min(expectedInstance, nextInstance);
     } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > upper) {
       nextInstance = Math.max(expectedInstance, nextInstance);
+    } else {
+      return AdjustComponent.NONE;
     }
 
     int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.hpcclab.oaas.crm.OprcComponent.INVOKER;
 import static org.hpcclab.oaas.crm.OprcComponent.STORAGE_ADAPTER;
@@ -140,12 +141,12 @@ public class K8SCrController implements CrController {
           attachedFn.put(protoOFunction.getKey(), protoOFunction);
         }
         currentPlan = plan;
-        invokerController.updateStabilizationTime();
-        saController.updateStabilizationTime();
+        invokerController.updateStableTime();
+        saController.updateStableTime();
         plan.fnInstances().keySet()
-          .forEach(deploymentFnController::updateStabilizationTime);
+          .forEach(deploymentFnController::updateStableTime);
         plan.fnInstances().keySet()
-          .forEach(knativeFnController::updateStabilizationTime);
+          .forEach(knativeFnController::updateStableTime);
         initialized = true;
       });
     resourceList.addAll(configController.createDeployOperation(null,
@@ -302,5 +303,18 @@ public class K8SCrController implements CrController {
   @Override
   public boolean isInitialized() {
     return initialized;
+  }
+
+  @Override
+  public long getStableTime(String name) {
+    if (Objects.equals(name, INVOKER.getSvc())){
+      return invokerController.getStableTime();
+    }
+    if (Objects.equals(name, STORAGE_ADAPTER.getSvc())){
+      return invokerController.getStableTime();
+    }
+    long stableTime = knativeFnController.getStableTime(name);
+    if (stableTime > 0) return stableTime;
+    return deploymentFnController.getStableTime(name);
   }
 }

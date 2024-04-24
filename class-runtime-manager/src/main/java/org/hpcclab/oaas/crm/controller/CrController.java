@@ -27,6 +27,7 @@ public interface CrController {
   CrOperation createDestroyOperation();
 
   CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan);
+  long getStableTime(String name);
   ProtoCr dump();
   boolean isInitialized();
   boolean isDeleted();
