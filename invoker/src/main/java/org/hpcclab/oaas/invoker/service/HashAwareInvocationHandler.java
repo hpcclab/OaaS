@@ -42,7 +42,7 @@ public class HashAwareInvocationHandler {
   final InvocationReqHandler invocationReqHandler;
   final InvokerManager invokerManager;
   final InvokerConfig invokerConfig;
-  final ThreadLocal<GrpcInvocationServicePool> pool;
+  final GrpcInvocationServicePool pool;
 
   final int retry;
   final int backoff;
@@ -67,7 +67,7 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
-    this.pool = ThreadLocal.withInitial(GrpcInvocationServicePool::new);
+    this.pool = new GrpcInvocationServicePool();
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -138,11 +138,10 @@ public class HashAwareInvocationHandler {
 
   private Uni<ProtoInvocationResponse> sendWithPool(Supplier<CrHash.ApiAddress> addrSupplier,
                                                     ProtoInvocationRequest request) {
-    var p = pool.get();
-    Uni<ProtoInvocationResponse> clientResponseUni =
+        Uni<ProtoInvocationResponse> clientResponseUni =
       Uni.createFrom().item(addrSupplier)
         .onItem().ifNull().failWith(RetryableException::new)
-        .map(p::getOrCreate)
+        .map(pool::getOrCreate)
         .flatMap(invocationService -> invocationService.invokeLocal(request));
     return setupRetry(clientResponseUni);
   }
