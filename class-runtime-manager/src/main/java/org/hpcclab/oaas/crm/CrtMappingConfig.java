@@ -17,6 +17,7 @@ public record CrtMappingConfig(
     int stabilizationWindow();
 
     double objectiveMissThreshold();
+    double idleFilterThreshold();
 
     int maxScaleStep();
 
@@ -52,6 +53,7 @@ public record CrtMappingConfig(
     boolean enableHpa,
     List<Toleration> tolerations,
     double objectiveMissThreshold,
+    double idleFilterThreshold,
     boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 
@@ -64,6 +66,7 @@ public record CrtMappingConfig(
     String defaultScaleDawnDelay,
     int startReplicas,
     double objectiveMissThreshold,
+    double idleFilterThreshold,
     boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 

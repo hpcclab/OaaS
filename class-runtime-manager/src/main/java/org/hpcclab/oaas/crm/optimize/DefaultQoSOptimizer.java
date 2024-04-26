@@ -200,6 +200,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
     var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
+    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.2: svcConfig.idleFilterThreshold();
     logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
       controller.getTsidString(), name, meanRps, expectedRps,
       targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
@@ -210,13 +211,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     ++ low utilization (cpu-util < thresh_low_util)  while meet the objective (real rps > objective)
     * under provisioning
     ++ high utilization (cpu-util > thresh_high_util) while not meet the objective (real rps < objective)
-    ++ expect that objective is not fulfilment by current resource ( expect_rps / objective < thresh_objective_fulfilment)
+    ++ expect that objective is not fulfilment by current resource ( expect_rps / objective < thresh_objective_fulfilment) with the current utilization higher than threshold
      */
     if (cpuPercentage < lower && meanRps > targetRps) {
       nextInstance = Math.min(expectedInstance, nextInstance);
     } else if (cpuPercentage > upper && meanRps < targetRps) {
       nextInstance = Math.max(expectedInstance, nextInstance);
-    } else if (expectedRps / targetRps < objectiveMissThreshold) {
+    } else if (expectedRps / targetRps < objectiveMissThreshold
+      && cpuPercentage > idleFilterThreshold) {
       nextInstance = Math.max(expectedInstance, nextInstance);
     } else {
       return AdjustComponent.NONE;
