@@ -12,7 +12,6 @@ templates:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
           OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
           OPRC_LOG: "DEBUG"
-#          QUARKUS_HTTP_ACCESS_LOG_ENABLED: "false"
         requestCpu: '1'
         requestMemory: 1Gi
         limitCpu: '2'
@@ -33,8 +32,10 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
     optimizerConf:
-      thresholdUpper: 0.95
+      thresholdUpper: 1
       thresholdLower: 0.5
+      fnThresholdUpper: 0.7
+      fnThresholdLower: 0.3
     functions:
       stabilizationWindow: 30000
       maxScaleStep: 3
@@ -57,6 +58,7 @@ templates:
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "2"
           OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
+          QUARKUS_HTTP_ACCESS_LOG_ENABLED: "false"
           OPRC_LOG: "WARN"
         requestCpu: '4'
         requestMemory: 2Gi
@@ -80,10 +82,12 @@ templates:
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
     optimizerConf:
-      thresholdUpper: 0.8
-      thresholdLower: 0.5
+      thresholdUpper: 1
+      thresholdLower: 0.3
+      fnThresholdUpper: 0.7
+      fnThresholdLower: 0.3
     functions:
-      stabilizationWindow: 30000
+      stabilizationWindow: 60000
       maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi

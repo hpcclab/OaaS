@@ -40,13 +40,13 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     Map<String, String> conf = crtConfig.optimizerConf();
     if (conf==null) conf = Map.of();
     thresholdUpper = Double.parseDouble(conf
-      .getOrDefault("thresholdUpper", "0.85"));
+      .getOrDefault("thresholdUpper", "1"));
     thresholdLower = Double.parseDouble(conf
-      .getOrDefault("thresholdLower", "0.5"));
+      .getOrDefault("thresholdLower", "0.4"));
     fnThresholdUpper = Double.parseDouble(conf
       .getOrDefault("fnThresholdUpper", "0.85"));
     fnThresholdLower = Double.parseDouble(conf
-      .getOrDefault("fnThresholdLower", "0.5"));
+      .getOrDefault("fnThresholdLower", "0.4"));
   }
 
 
@@ -200,7 +200,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
     var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
-    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.2: svcConfig.idleFilterThreshold();
+    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.25: svcConfig.idleFilterThreshold();
     logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
       controller.getTsidString(), name, meanRps, expectedRps,
       targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
