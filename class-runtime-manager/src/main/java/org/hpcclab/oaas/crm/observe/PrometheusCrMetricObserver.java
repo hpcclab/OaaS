@@ -43,14 +43,13 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
   public Map<String, CrPerformanceMetrics> observe() {
     var now = System.currentTimeMillis() / 1000;
     var scope = new Scope(now - observeRange, now, 20);
-    var rateScope = new Scope(now - observeRange + 60, now, 20);
     var cpuJson = loadCPU(scope);
     var cpuMetricMap = parseResp(cpuJson, "pod");
     var memJson = loadMem(scope);
     var memMetricMap = parseResp(memJson, "pod");
-    var rpsJson = loadRpsForInvoker(rateScope);
+    var rpsJson = loadRpsForInvoker(scope);
     var rpsMetricMap = parseResp(rpsJson);
-    var latencyJson = loadLatencyForInvoker(rateScope);
+    var latencyJson = loadLatencyForInvoker(scope);
     var latencyMetricMap = parseResp(latencyJson);
     Map<String, Map<OprcComponent, List<DataPoint>>> cpuCore = Maps.mutable.empty();
     Map<String, Map<String, List<DataPoint>>> cpuFn = Maps.mutable.empty();
