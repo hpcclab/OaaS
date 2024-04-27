@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClosedException;
@@ -138,7 +140,7 @@ public class HashAwareInvocationHandler {
 
   private Uni<ProtoInvocationResponse> sendWithPool(Supplier<CrHash.ApiAddress> addrSupplier,
                                                     ProtoInvocationRequest request) {
-        Uni<ProtoInvocationResponse> clientResponseUni =
+    Uni<ProtoInvocationResponse> clientResponseUni =
       Uni.createFrom().item(addrSupplier)
         .onItem().ifNull().failWith(RetryableException::new)
         .map(pool::getOrCreate)
@@ -184,6 +186,15 @@ public class HashAwareInvocationHandler {
       return uni;
     }
     Uni<ProtoInvocationResponse> invocationResponseUni = uni
+      .onFailure(StatusRuntimeException.class)
+      .transform(err -> {
+        if (err instanceof StatusRuntimeException statusRuntimeException) {
+          Status.Code code = statusRuntimeException.getStatus().getCode();
+          if (code==Status.Code.UNAVAILABLE || code==Status.Code.UNKNOWN)
+            return new RetryableException();
+        }
+        return err;
+      })
       .onFailure(throwable -> throwable instanceof RetryableException ||
         throwable instanceof ConnectException ||
         throwable instanceof HttpClosedException

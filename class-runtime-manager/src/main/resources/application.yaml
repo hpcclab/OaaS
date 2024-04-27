@@ -59,7 +59,7 @@ quarkus:
   native:
     resources:
       includes:
-        - crts.yaml
+        - crts.yml
         - crts/**
   vertx:
     prefer-native-transport: true
