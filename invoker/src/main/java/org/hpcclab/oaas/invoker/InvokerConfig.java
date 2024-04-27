@@ -34,7 +34,7 @@ public interface InvokerConfig {
 
   Url sa();
 
-  @WithDefault("200")
+  @WithDefault("1000")
   int connectionPoolMaxSize();
 
   @WithDefault("3")

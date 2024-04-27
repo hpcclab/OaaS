@@ -1,38 +1,30 @@
 package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.ManagedChannelBuilder;
-import io.vertx.core.net.SocketAddress;
-import io.vertx.grpc.client.GrpcClient;
-import io.vertx.grpc.client.GrpcClientChannel;
-import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.InvocationService;
 import org.hpcclab.oaas.proto.InvocationServiceClient;
 import org.hpcclab.oaas.proto.MutinyInvocationServiceGrpc.MutinyInvocationServiceStub;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Pawissanutt
  */
 public class GrpcInvocationServicePool {
-  Map<CrHash.ApiAddress, InvocationService> invocationServiceMap = new ConcurrentHashMap<>();
-//  final GrpcClient grpcClient;
+  Map<ServiceAddr, InvocationService> invocationServiceMap = new ConcurrentHashMap<>();
 
-//  public GrpcInvocationServicePool(GrpcClient grpcClient) {
-//    this.grpcClient = grpcClient;
-//  }
 
 
   public InvocationService getOrCreate(CrHash.ApiAddress addr) {
-    CrHash.ApiAddress noTsAddr = addr.toBuilder().ts(0).build();
-    return invocationServiceMap.computeIfAbsent(noTsAddr, k -> {
+    ServiceAddr serviceAddr = new ServiceAddr(addr.host(), addr.port());
+    return invocationServiceMap.computeIfAbsent(serviceAddr, k -> {
       ManagedChannelBuilder<?> builder = ManagedChannelBuilder
         .forAddress(addr.host(), addr.port())
         .disableRetry()
-        .usePlaintext();
-//      GrpcClientChannel channel = new GrpcClientChannel(grpcClient, toSocketAddress(addr));
+        .usePlaintext()
+        .directExecutor();
       return new InvocationServiceClient(addr.toString(), builder.build(), this::configure);
     });
   }
@@ -41,7 +33,7 @@ public class GrpcInvocationServicePool {
     return stub;
   }
 
-  public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
-    return SocketAddress.inetSocketAddress(address.port(), address.host());
+  record ServiceAddr(String host, int port) {
+
   }
 }

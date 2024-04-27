@@ -32,7 +32,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
-
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
@@ -41,13 +40,13 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     Map<String, String> conf = crtConfig.optimizerConf();
     if (conf==null) conf = Map.of();
     thresholdUpper = Double.parseDouble(conf
-      .getOrDefault("thresholdUpper", "0.85"));
+      .getOrDefault("thresholdUpper", "1"));
     thresholdLower = Double.parseDouble(conf
-      .getOrDefault("thresholdLower", "0.5"));
+      .getOrDefault("thresholdLower", "0.4"));
     fnThresholdUpper = Double.parseDouble(conf
       .getOrDefault("fnThresholdUpper", "0.85"));
     fnThresholdLower = Double.parseDouble(conf
-      .getOrDefault("fnThresholdLower", "0.5"));
+      .getOrDefault("fnThresholdLower", "0.4"));
   }
 
 
@@ -58,6 +57,14 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     } else {
       return targetValue; // No need to cap change
     }
+  }
+
+  private static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
+    float startReplica;
+    startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
+    startReplica = Math.max(minInstance, startReplica);
+    startReplica = Math.min(startReplica, sa.maxReplicas());
+    return Math.round(startReplica);
   }
 
   @Override
@@ -110,7 +117,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .enableHpa(sa.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
       .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
         && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
-        || minSa == 0
+        || minSa==0
       )
       .build();
     var instances = Map.of(
@@ -127,14 +134,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .fnInstances(fnInstances)
       .dataSpec(dataSpec)
       .build();
-  }
-
-  private static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
-    float startReplica;
-    startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
-    startReplica = Math.max(minInstance, startReplica);
-    startReplica = Math.min(startReplica, sa.maxReplicas());
-    return Math.round(startReplica);
   }
 
   @Override
@@ -179,42 +178,61 @@ public class DefaultQoSOptimizer implements QosOptimizer {
                                           boolean isFunc) {
     if (metrics==null)
       return AdjustComponent.NONE;
+    if (svcConfig.disableDynamicAdjustment())
+      return AdjustComponent.NONE;
     int targetRps = qos.getThroughput();
-    var meanRps = harmonicMean(metrics.rps());
-    var meanCpu = mean(metrics.cpu());
     if (targetRps <= 0)
       return AdjustComponent.NONE;
+    metrics = metrics.filterByStableTime(controller.getStableTime(name));
+    var meanRps = harmonicMean(metrics.rps());
+    var meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee
     }
     var totalRequestCpu = Math.max(1, instanceSpec.minInstance()) * instanceSpec.requestsCpu();
     var cpuPerRps = meanCpu / meanRps;
     double expectedCpu = Math.max(0, cpuPerRps * targetRps);
-
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var cpuPercentage = meanCpu / totalRequestCpu;
-    var rpsFulfilPercentage = meanRps / targetRps;
-    var lower = isFunc? fnThresholdLower: thresholdLower;
-    var upper = isFunc? fnThresholdUpper: thresholdUpper;
-    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, meanCpu {}, cpuPerRps {}, targetRps {}, expectedInstance {}, cpuPercentage {} ({}<{}), rpsFulfilPercentage {}",
-      controller.getTsidString(), name, meanRps, meanCpu, cpuPerRps, targetRps, expectedInstance, cpuPercentage,
-      lower, upper, rpsFulfilPercentage);
+    var lower = isFunc ? fnThresholdLower:thresholdLower;
+    var upper = isFunc ? fnThresholdUpper:thresholdUpper;
+    var expectedRps = cpuPercentage < 1 ? meanRps /cpuPercentage : meanRps;
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
+    var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
+    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.25: svcConfig.idleFilterThreshold();
+    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
+      controller.getTsidString(), name, meanRps, expectedRps,
+      targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
+      targetRps, cpuPercentage, lower, upper, expectedInstance);
 
-    if ((cpuPercentage < rpsFulfilPercentage  && cpuPercentage < lower)) {
+    /*
+    * over provisioning
+    ++ low utilization (cpu-util < thresh_low_util)  while meet the objective (real rps > objective)
+    * under provisioning
+    ++ high utilization (cpu-util > thresh_high_util) while not meet the objective (real rps < objective)
+    ++ expect that objective is not fulfilment by current resource ( expect_rps / objective < thresh_objective_fulfilment) with the current utilization higher than threshold
+     */
+    if (cpuPercentage < lower && meanRps > targetRps) {
       nextInstance = Math.min(expectedInstance, nextInstance);
-    } else if (cpuPercentage > rpsFulfilPercentage && cpuPercentage > upper) {
+    } else if (cpuPercentage > upper && meanRps < targetRps) {
       nextInstance = Math.max(expectedInstance, nextInstance);
+    } else if (expectedRps / targetRps < objectiveMissThreshold
+      && cpuPercentage > idleFilterThreshold) {
+      nextInstance = Math.max(expectedInstance, nextInstance);
+    } else {
+      return AdjustComponent.NONE;
     }
 
     int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());
     capChanged = Math.max(capChanged, instanceSpec.minAvail());
-    capChanged = Math.min(capChanged, instanceSpec.maxInstance());
+    if (instanceSpec.maxInstance() > 0) {
+      capChanged = Math.min(capChanged, instanceSpec.maxInstance());
+    }
     var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
     var needChange = !instanceSpec.equals(adjust);
-    logger.debug("compute adjust[2] on ({} : {}), expectedInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
-      controller.getTsidString(), name, expectedInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
+    logger.debug("compute adjust[2] on ({} : {}), nextInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
+      controller.getTsidString(), name, nextInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
 
     if (needChange)
       logger.debug("next adjustment ({} : {}) : {}", controller.getTsidString(), name, adjust);

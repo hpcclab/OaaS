@@ -151,7 +151,11 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
       stateManager,
       idGenerator,
       invocationQueueProducer,
+      createComponent(cls),
       metricFactory
     );
+  }
+  protected ClassBindingComponent createComponent(OClass cls) {
+    return null;
   }
 }

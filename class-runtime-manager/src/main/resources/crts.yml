@@ -4,9 +4,9 @@ templates:
     condition: { }
     services:
       invoker:
-        image: ghcr.io/hpcclab/oaas/invoker:dev
+        image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
-        stabilizationWindow: 60000
+        stabilizationWindow: 120000
         maxScaleStep: 2
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "1"
@@ -17,8 +17,9 @@ templates:
         limitCpu: '2'
         limitMemory: 2Gi
         maxReplicas: 20
+        objectiveMissThreshold: 0.4
       storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter:dev
+        image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
         maxScaleStep: 2
@@ -29,9 +30,12 @@ templates:
         limitCpu: '2'
         limitMemory: 1Gi
         maxReplicas: 20
+        objectiveMissThreshold: 0.4
     optimizerConf:
-      thresholdUpper: 0.95
+      thresholdUpper: 1
       thresholdLower: 0.5
+      fnThresholdUpper: 0.7
+      fnThresholdLower: 0.3
     functions:
       stabilizationWindow: 30000
       maxScaleStep: 3
@@ -49,17 +53,20 @@ templates:
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
         imagePullPolicy: IfNotPresent
-        stabilizationWindow: 60000
+        stabilizationWindow: 120000
         maxScaleStep: 1
         env:
           OPRC_INVOKER_NUMOFVERTICLE: "2"
           OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
+          QUARKUS_HTTP_ACCESS_LOG_ENABLED: "false"
           OPRC_LOG: "WARN"
         requestCpu: '4'
         requestMemory: 2Gi
         limitCpu: '4'
         limitMemory: 4Gi
         maxReplicas: 20
+        objectiveMissThreshold: 0.4
+        startReplicasToTpRatio: 0.00005
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
@@ -72,11 +79,15 @@ templates:
         limitCpu: '2'
         limitMemory: 2Gi
         maxReplicas: 20
+        objectiveMissThreshold: 0.4
+        startReplicasToTpRatio: 0.00005
     optimizerConf:
-      thresholdUpper: 0.8
-      thresholdLower: 0.5
+      thresholdUpper: 1
+      thresholdLower: 0.3
+      fnThresholdUpper: 0.7
+      fnThresholdLower: 0.3
     functions:
-      stabilizationWindow: 30000
+      stabilizationWindow: 60000
       maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi

@@ -13,5 +13,6 @@ public interface CrComponentController<T> {
   List<T> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec);
   List<T> createAdjustOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec);
   List<T> createDeleteOperation();
-  void updateStabilizationTime();
+  void updateStableTime();
+  long getStableTime();
 }

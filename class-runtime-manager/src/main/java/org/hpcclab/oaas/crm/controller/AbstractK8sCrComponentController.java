@@ -20,7 +20,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   protected KubernetesClient kubernetesClient;
   protected String prefix;
   protected String namespace;
-  long stabilizationTime;
+  long stableTime;
 
   protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
     this.svcConfig = svcConfig;
@@ -40,16 +40,16 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   @Override
   public List<HasMetadata> createAdjustOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
     if (instanceSpec==null) return List.of();
-    if (stabilizationTime > System.currentTimeMillis()) {
+    if (stableTime > System.currentTimeMillis()) {
       return List.of();
     }
-    stabilizationTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
+    stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
     return doCreateAdjustOperation(instanceSpec);
   }
 
   @Override
-  public void updateStabilizationTime() {
-    stabilizationTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
+  public void updateStableTime() {
+    stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
   }
 
   protected abstract List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec);
@@ -238,6 +238,11 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
     hpa.getSpec()
       .setMaxReplicas(spec.maxInstance());
     return hpa;
+  }
+
+  @Override
+  public long getStableTime() {
+    return stableTime;
   }
 }
 

@@ -35,13 +35,17 @@ public class KafkaInvocationQueueProducer implements InvocationQueueProducer {
     var conf = registry.getClassController(request.cls())
       .getCls()
       .getConfig();
-    var partition = HashUtil.getHashed(
-      request.partKey(),
-      conf==null ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions()
-    );
+    var partKey = request.partKey();
+    Integer partition = null;
+    if (partKey!=null) {
+      partition = HashUtil.getHashed(
+        partKey,
+        conf==null ? OClassConfig.DEFAULT_PARTITIONS:conf.getPartitions()
+      );
+    }
     KafkaProducerRecord<String, Buffer> kafkaRecord = KafkaProducerRecord.create(
       topic,
-      request.partKey(),
+      partKey,
       serialize(request),
       null,
       partition

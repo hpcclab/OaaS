@@ -111,6 +111,7 @@ public class ObjectAccessResource {
       .fb(fb)
       .args(args)
       .inputs(inputs)
+      .partKey(objId)
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {

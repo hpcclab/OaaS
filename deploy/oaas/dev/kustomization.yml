@@ -16,10 +16,3 @@ images:
 patches:
   - path: env-configmap.yml
 
-configMapGenerator:
-  - name: oaas-cr-config
-    options:
-      disableNameSuffixHash: true
-    behavior: replace
-    files:
-      - OPRC_CRM_TEMPLATEOVERRIDE=oaas-crts.yml

@@ -53,13 +53,26 @@ public record CrPerformanceMetrics(
       .toSortedList();
   }
 
+  public static List<DataPoint> filterByTime(List<DataPoint> dps, long ts) {
+    return dps.stream().filter(d -> d.timestamp >= ts).toList();
+  }
+
   @Builder(toBuilder = true)
   public record SvcPerformanceMetrics(
     List<DataPoint> cpu,
     List<DataPoint> mem,
     List<DataPoint> rps,
-    List<DataPoint> msLatency
-  ) {
+    List<DataPoint> msLatency) {
+
+    public SvcPerformanceMetrics filterByStableTime(long stableTime) {
+      if (stableTime < 0) return this;
+      return new SvcPerformanceMetrics(
+        filterByTime(cpu, stableTime),
+        filterByTime(mem, stableTime),
+        filterByTime(rps, stableTime),
+        filterByTime(msLatency, stableTime)
+      );
+    }
   }
 
   public record DataPoint(long timestamp, double value) implements Comparable<DataPoint> {

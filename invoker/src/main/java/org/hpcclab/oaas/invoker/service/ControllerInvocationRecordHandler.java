@@ -6,6 +6,8 @@ import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.CtxLoader;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
+import org.hpcclab.oaas.invoker.dispatcher.KafkaInvocationReqHolder;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
@@ -35,18 +37,19 @@ public class ControllerInvocationRecordHandler implements InvocationRecordHandle
   }
 
   @Override
-  public void handleRecord(KafkaConsumerRecord<String, Buffer> kafkaRecord,
-                           InvocationRequest request, Consumer<KafkaConsumerRecord<String, Buffer>> completionHandler,
+  public void handleRecord(InvocationReqHolder reqHolder,
+                           Consumer<InvocationReqHolder> completionHandler,
                            boolean skipDeduplication) {
     if (logger.isDebugEnabled()) {
-      logDebug(kafkaRecord, request);
+      logDebug(reqHolder);
     }
-    ctxLoader.load(request)
+    var req = reqHolder.getReq();
+    ctxLoader.load(reqHolder.getReq())
       .flatMap(ctx -> {
-        if (!skipDeduplication && detectDuplication(kafkaRecord, ctx)) {
+        if (!skipDeduplication && detectDuplication(reqHolder, ctx)) {
           return Uni.createFrom().nullItem();
         }
-        var con = classControllerRegistry.getClassController(request.cls());
+        var con = classControllerRegistry.getClassController(req.cls());
         return con.invoke(ctx);
       })
       .onFailure(InvocationException.class).retry()
@@ -54,42 +57,50 @@ public class ControllerInvocationRecordHandler implements InvocationRecordHandle
       .atMost(3)
       .subscribe()
       .with(
-        ctx -> completionHandler.accept(kafkaRecord),
+        ctx -> completionHandler.accept(reqHolder),
         error -> {
           logger.error("Unexpected error on invoker ", error);
-          completionHandler.accept(kafkaRecord);
+          completionHandler.accept(reqHolder);
         }
       );
   }
 
 
-  private boolean detectDuplication(KafkaConsumerRecord<String, Buffer> kafkaRecord,
+  private boolean detectDuplication(InvocationReqHolder reqHolder,
                                     InvocationCtx ctx) {
-    var obj = ctx.getMain();
-    if (ctx.isImmutable())
-      return false;
-    if (obj.getLastOffset() < kafkaRecord.offset())
-      return false;
-    logger.warn("detect duplication [main={}, objOfs={}, reqOfs={}]",
-      ctx.getRequest().main(),
-      ctx.getMain().getLastOffset(),
-      kafkaRecord.offset());
-    return true;
+    if (reqHolder instanceof KafkaInvocationReqHolder kafkaInvocationReqHolder) {
+      KafkaConsumerRecord<String, Buffer> kafkaRecord = kafkaInvocationReqHolder.getKafkaRecord();
+      var obj = ctx.getMain();
+      if (ctx.isImmutable())
+        return false;
+      if (obj.getLastOffset() < kafkaRecord.offset())
+        return false;
+      logger.warn("detect duplication [main={}, objOfs={}, reqOfs={}]",
+        ctx.getRequest().main(),
+        ctx.getMain().getLastOffset(),
+        kafkaRecord.offset());
+      return true;
+    }
+    return false;
   }
 
-  void logDebug(KafkaConsumerRecord<?, ?> kafkaRecord, InvocationRequest request) {
-    var submittedTs = kafkaRecord.timestamp();
-    var repo = objectRepoManager.getOrCreate(request.cls());
-    var cache = ((EIspnObjectRepository) repo).getCache();
-    var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
+  void logDebug(InvocationReqHolder reqHolder) {
+    if (reqHolder instanceof KafkaInvocationReqHolder kafkaInvocationReqHolder) {
+      KafkaConsumerRecord<String, Buffer> kafkaRecord = kafkaInvocationReqHolder.getKafkaRecord();
+      var request = reqHolder.getReq();
+      var submittedTs = kafkaRecord.timestamp();
+      var repo = objectRepoManager.getOrCreate(request.cls());
+      var cache = ((EIspnObjectRepository) repo).getCache();
+      var local = cache.getDistributionManager().getCacheTopology().getSegment(request.main());
 
-    logger.debug("record[{},{}]: Kafka latency {} ms, locality[{}={}]",
-      kafkaRecord.key(),
-      request.invId(),
-      System.currentTimeMillis() - submittedTs,
-      kafkaRecord.partition(),
-      local
-    );
+      logger.debug("record[{},{}]: Kafka latency {} ms, locality[{}={}]",
+        kafkaRecord.key(),
+        request.invId(),
+        System.currentTimeMillis() - submittedTs,
+        kafkaRecord.partition(),
+        local
+      );
+    }
   }
 
 

@@ -1,6 +1,8 @@
 package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClosedException;
@@ -42,7 +44,7 @@ public class HashAwareInvocationHandler {
   final InvocationReqHandler invocationReqHandler;
   final InvokerManager invokerManager;
   final InvokerConfig invokerConfig;
-  final ThreadLocal<GrpcInvocationServicePool> pool;
+  final GrpcInvocationServicePool pool;
 
   final int retry;
   final int backoff;
@@ -67,7 +69,7 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
-    this.pool = ThreadLocal.withInitial(GrpcInvocationServicePool::new);
+    this.pool = new GrpcInvocationServicePool();
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -138,11 +140,10 @@ public class HashAwareInvocationHandler {
 
   private Uni<ProtoInvocationResponse> sendWithPool(Supplier<CrHash.ApiAddress> addrSupplier,
                                                     ProtoInvocationRequest request) {
-    var p = pool.get();
     Uni<ProtoInvocationResponse> clientResponseUni =
       Uni.createFrom().item(addrSupplier)
         .onItem().ifNull().failWith(RetryableException::new)
-        .map(p::getOrCreate)
+        .map(pool::getOrCreate)
         .flatMap(invocationService -> invocationService.invokeLocal(request));
     return setupRetry(clientResponseUni);
   }
@@ -185,6 +186,15 @@ public class HashAwareInvocationHandler {
       return uni;
     }
     Uni<ProtoInvocationResponse> invocationResponseUni = uni
+      .onFailure(StatusRuntimeException.class)
+      .transform(err -> {
+        if (err instanceof StatusRuntimeException statusRuntimeException) {
+          Status.Code code = statusRuntimeException.getStatus().getCode();
+          if (code==Status.Code.UNAVAILABLE || code==Status.Code.UNKNOWN)
+            return new RetryableException();
+        }
+        return err;
+      })
       .onFailure(throwable -> throwable instanceof RetryableException ||
         throwable instanceof ConnectException ||
         throwable instanceof HttpClosedException

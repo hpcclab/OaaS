@@ -77,7 +77,7 @@ public class CrStateManager {
       .map(entity -> {
         if (entity==null) return crHash;
         var merged = CrHash.merge(entity, crHash);
-        logger.debug("merged crHash: {}", merged);
+        logger.trace("merged crHash: {}", merged);
         return merged;
       })
       .call(h -> hashRepo.persistAsync(h))

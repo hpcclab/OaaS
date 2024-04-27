@@ -36,12 +36,13 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
                                     CrmConfig config) {
     this.webClient = webClient;
     prometheusUrl = config.promUrl();
-    observeRange = config.observeRange();
+    observeRange = Math.max(60, config.observeRange());
   }
 
   @Override
   public Map<String, CrPerformanceMetrics> observe() {
-    var scope = createScope();
+    var now = System.currentTimeMillis() / 1000;
+    var scope = new Scope(now - observeRange, now, 20);
     var cpuJson = loadCPU(scope);
     var cpuMetricMap = parseResp(cpuJson, "pod");
     var memJson = loadMem(scope);
@@ -166,10 +167,6 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
     return name.toString();
   }
 
-  Scope createScope() {
-    var now = System.currentTimeMillis() / 1000;
-    return new Scope(now - observeRange, now, 10);
-  }
 
   public JsonObject loadCPU(Scope scope) {
     return query("""

@@ -3,11 +3,10 @@ package org.hpcclab.oaas.invoker.verticle;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.impl.ConcurrentHashSet;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.impl.factory.Multimaps;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +17,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
-  implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
+  implements RecordHandlerVerticle {
+
   private static final Logger logger = LoggerFactory.getLogger(AbstractOrderedRecordVerticle.class);
   final AtomicInteger inflight = new AtomicInteger(0);
   final AtomicBoolean lock = new AtomicBoolean(false);
-  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> incomingQueue;
-  private final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> waitingQueue;
-  private final MutableListMultimap<String, KafkaConsumerRecord<String, Buffer>> pausedTask;
+  private final ConcurrentLinkedQueue<InvocationReqHolder> incomingQueue;
+  private final ConcurrentLinkedQueue<InvocationReqHolder> waitingQueue;
+  private final MutableListMultimap<String, InvocationReqHolder> pausedTask;
   private final ConcurrentHashSet<String> lockingTaskKeys = new ConcurrentHashSet<>();
   private final int maxConcurrent;
-  protected Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
+  protected Consumer<InvocationReqHolder> onRecordCompleteHandler;
   protected String name = "unknown";
 
   protected AbstractOrderedRecordVerticle(int maxConcurrent) {
@@ -38,21 +38,19 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
   }
 
   @Override
-  public void setOnRecordCompleteHandler(Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler) {
+  public void setOnRecordCompleteHandler(Consumer<InvocationReqHolder> onRecordCompleteHandler) {
     this.onRecordCompleteHandler = onRecordCompleteHandler;
   }
 
   @Override
-  public void offer(KafkaConsumerRecord<String, Buffer> taskRecord) {
-//    logger.debug("offer {} {}", taskRecord.key(), taskRecord.offset());
+  public void offer(InvocationReqHolder taskRecord) {
     incomingQueue.offer(taskRecord);
     if (lock.get())
       return;
     context.runOnContext(__ -> consume());
   }
 
-  protected abstract boolean shouldLock(KafkaConsumerRecord<String, Buffer> taskRecord,
-                                        T parsedContent);
+  protected abstract boolean shouldLock(InvocationReqHolder reqHolder);
 
   private void consume() {
     logger.debug("{}: consuming[lock={}, inflight={}]", name, lock, inflight);
@@ -69,26 +67,22 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
       }
       if (taskRecord.key()==null) {
         inflight.incrementAndGet();
-        var content = parseContent(taskRecord);
-        handleRecord(taskRecord, content);
+        handleRecord(taskRecord);
       } else if (lockingTaskKeys.contains(taskRecord.key())) {
         pausedTask.put(taskRecord.key(), taskRecord);
       } else {
         inflight.incrementAndGet();
-        var content = parseContent(taskRecord);
-        if (shouldLock(taskRecord, content)) {
+        if (shouldLock(taskRecord)) {
           lockingTaskKeys.add(taskRecord.key());
         }
-        handleRecord(taskRecord, content);
+        handleRecord(taskRecord);
       }
     }
 
     lock.set(false);
   }
 
-  protected abstract T parseContent(KafkaConsumerRecord<String, Buffer> taskRecord);
-
-  protected abstract void handleRecord(KafkaConsumerRecord<String, Buffer> taskRecord, T parsedContent);
+  protected abstract void handleRecord(InvocationReqHolder reqHolder);
 
   @Override
   public int countPending() {
@@ -105,17 +99,17 @@ public abstract class AbstractOrderedRecordVerticle<T> extends AbstractVerticle
     this.name = name;
   }
 
-  protected void next(KafkaConsumerRecord<String, Buffer> taskRecord) {
-    var key = taskRecord.key();
+  protected void next(InvocationReqHolder reqHolder) {
+    var key = reqHolder.key();
     if (key!=null)
       lockingTaskKeys.remove(key);
     inflight.decrementAndGet();
     if (onRecordCompleteHandler!=null)
-      onRecordCompleteHandler.accept(taskRecord);
+      onRecordCompleteHandler.accept(reqHolder);
     if (key!=null && pausedTask.containsKey(key)) {
-      var col = pausedTask.get(key);
-      if (!col.isEmpty()) {
-        var rec = col.getFirst();
+      var queue = pausedTask.get(key);
+      if (!queue.isEmpty()) {
+        var rec = queue.getFirst();
         pausedTask.remove(key, rec);
         waitingQueue.add(rec);
       }

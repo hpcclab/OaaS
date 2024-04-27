@@ -1,14 +1,11 @@
 package org.hpcclab.oaas.invoker.verticle;
 
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.infinispan.lock.api.ClusteredLockConfiguration;
 import org.infinispan.lock.api.ClusteredLockManager;
 import org.slf4j.Logger;
@@ -20,15 +17,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Dependent
-public class LockingRecordHandlerVerticle extends AbstractVerticle implements RecordConsumerVerticle<KafkaConsumerRecord<String, Buffer>> {
+public class LockingRecordHandlerVerticle extends AbstractVerticle
+  implements RecordHandlerVerticle {
+
   private static final Logger logger = LoggerFactory.getLogger(LockingRecordHandlerVerticle.class);
   final AtomicInteger acquireCounter = new AtomicInteger(0);
   final AtomicInteger inflightCounter = new AtomicInteger(0);
   final InvocationRecordHandler invocationRecordHandler;
-  final ConcurrentLinkedQueue<KafkaConsumerRecord<String, Buffer>> taskQueue;
+  final ConcurrentLinkedQueue<InvocationReqHolder> taskQueue;
   final ClusteredLockManager lockManager;
   private final int maxConcurrent;
-  Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler;
+  Consumer<InvocationReqHolder> onRecordCompleteHandler;
   String name = "unknown";
 
   @Inject
@@ -42,12 +41,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
   }
 
   @Override
-  public void setOnRecordCompleteHandler(Consumer<KafkaConsumerRecord<String, Buffer>> onRecordCompleteHandler) {
-    this.onRecordCompleteHandler = onRecordCompleteHandler;
-  }
-
-  @Override
-  public void offer(KafkaConsumerRecord<String, Buffer> taskRecord) {
+  public void offer(InvocationReqHolder taskRecord) {
     taskQueue.add(taskRecord);
     if (inflightCounter.get() < maxConcurrent) {
       context.runOnContext(__ -> consume());
@@ -58,15 +52,14 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
     if (inflightCounter.get() > maxConcurrent) {
       return;
     }
-    if (taskQueue.isEmpty())
+    var taskRecord = taskQueue.poll();
+    if (taskRecord == null)
       return;
     acquireCounter.incrementAndGet();
-    var taskRecord = taskQueue.poll();
-    var req = Json.decodeValue(taskRecord.value(), InvocationRequest.class);
+    var req = taskRecord.getReq();
     if (req.immutable()) {
       invocationRecordHandler.handleRecord(
         taskRecord,
-        req,
         this::complete,
         true
       );
@@ -81,7 +74,7 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
           if (Boolean.TRUE.equals(locked)) {
             inflightCounter.incrementAndGet();
             invocationRecordHandler.handleRecord(
-              taskRecord, req,
+              taskRecord,
               rec -> {
                 lock.unlock();
                 complete(taskRecord);
@@ -97,9 +90,9 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
   }
 
 
-  protected void complete(KafkaConsumerRecord<String, Buffer> taskRecord) {
+  protected void complete(InvocationReqHolder reqHolder) {
     if (onRecordCompleteHandler!=null)
-      onRecordCompleteHandler.accept(taskRecord);
+      onRecordCompleteHandler.accept(reqHolder);
     acquireCounter.decrementAndGet();
     inflightCounter.decrementAndGet();
     consume();
@@ -108,6 +101,11 @@ public class LockingRecordHandlerVerticle extends AbstractVerticle implements Re
   @Override
   public int countPending() {
     return acquireCounter.get() + taskQueue.size();
+  }
+
+  @Override
+  public void setOnRecordCompleteHandler(Consumer<InvocationReqHolder> onRecordCompleteHandler) {
+    this.onRecordCompleteHandler = onRecordCompleteHandler;
   }
 
   @Override

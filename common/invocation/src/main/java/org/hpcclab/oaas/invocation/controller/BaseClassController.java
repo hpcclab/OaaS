@@ -28,12 +28,14 @@ public class BaseClassController implements ClassController {
   final IdGenerator idGenerator;
   final MetricFactory metricFactory;
   Map<String, FunctionController> functionMap;
+  ClassBindingComponent component;
 
   public BaseClassController(OClass cls,
                              Map<String, FunctionController> functionMap,
                              StateManager stateManager,
                              IdGenerator idGenerator,
                              InvocationQueueProducer producer,
+                             ClassBindingComponent component,
                              MetricFactory metricFactory) {
     this.cls = cls;
     this.functionMap = functionMap;
@@ -41,6 +43,7 @@ public class BaseClassController implements ClassController {
     this.idGenerator = idGenerator;
     this.producer = producer;
     this.metricFactory = metricFactory;
+    this.component = component;
   }
 
   @Override
@@ -63,6 +66,7 @@ public class BaseClassController implements ClassController {
       if (fn==null) throw InvocationException.notFoundFnInCls(request.fb(), cls.getKey());
       var req = request.toBuilder()
         .invId(idGenerator.generate())
+        .partKey(request.main())
         .immutable(fn.getFunctionBinding().isImmutable());
       if (fn.getFunctionBinding().getOutputCls()!=null) {
         req.outId(idGenerator.generate());
@@ -127,6 +131,11 @@ public class BaseClassController implements ClassController {
       newMap.put(fc.getFunctionBinding().getName(), updater.apply(fc));
     }
     functionMap = newMap;
+  }
+
+  @Override
+  public ClassBindingComponent getComponent() {
+    return component;
   }
 
   @Override

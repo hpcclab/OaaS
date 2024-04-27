@@ -56,7 +56,7 @@ public class CrTemplateManager {
   public void loadTemplate() {
     try {
       CrtMappingConfig conf;
-      var is = getClass().getResourceAsStream("/crts.yaml");
+      var is = getClass().getResourceAsStream("/crts.yml");
       conf = yamlMapper.readValue(is, CrtMappingConfig.class);
       if (conf.templates()==null || conf.templates().isEmpty()) {
         return;

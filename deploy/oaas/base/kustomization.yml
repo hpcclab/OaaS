@@ -34,4 +34,4 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
     files:
-      - OPRC_CRM_TEMPLATEOVERRIDE=oaas-crts.yml
+      - OPRC_CRM_TEMPLATEOVERRIDE=crts.yml

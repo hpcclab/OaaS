@@ -2,39 +2,39 @@ package org.hpcclab.oaas.invoker.verticle;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
-import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecords;
-import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.dispatcher.VerticlePoolRecordDispatcher;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
+import org.hpcclab.oaas.invoker.dispatcher.RecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
 import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
+public class KafkaRecordConsumerVerticle extends AbstractVerticle {
   public static final long RETRY_DELAY = 1000;
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRecordConsumerVerticle.class);
   public final Duration timeout = Duration.ofMillis(500);
-  private final KafkaConsumer<K, V> consumer;
-  private final VerticlePoolRecordDispatcher<KafkaConsumerRecord<K, V>> taskDispatcher;
+  private final KafkaConsumer<String, Buffer> consumer;
+  private final RecordDispatcher recordDispatcher;
   private final OffsetManager offsetManager;
   private final SegmentCoordinator segmentCoordinator;
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final AtomicBoolean isPolling = new AtomicBoolean(false);
-  private final int numberOfVerticle;
 
   public KafkaRecordConsumerVerticle(SegmentCoordinator segmentCoordinator,
-                                     KafkaConsumer<K, V> consumer,
-                                     VerticlePoolRecordDispatcher<KafkaConsumerRecord<K, V>> taskDispatcher,
-                                     InvokerConfig config) {
+                                     KafkaConsumer<String, Buffer> consumer,
+                                     OffsetManager offsetManager,
+                                     RecordDispatcher recordDispatcher) {
     this.consumer = consumer;
-    this.taskDispatcher = taskDispatcher;
-    this.offsetManager = taskDispatcher.getOffsetManager();
-    this.numberOfVerticle = config.numOfInvokerVerticle();
+    this.recordDispatcher = recordDispatcher;
+    this.offsetManager = offsetManager;
     this.segmentCoordinator = segmentCoordinator;
   }
 
@@ -43,13 +43,15 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
     LOGGER.info("[{}] starting task consumer verticle", segmentCoordinator.getCls().getKey());
     consumer.exceptionHandler(this::handleException);
     consumer.partitionsRevokedHandler(offsetManager::handlePartitionRevoked);
-    taskDispatcher.setDrainHandler(this::poll);
+    recordDispatcher.setOnRecordDone(offsetManager::recordDone);
+    recordDispatcher.setOnRecordReceived(offsetManager::recordReceived);
+
+    recordDispatcher.setOnQueueDrained(this::poll);
     offsetManager.setPeriodicCommit(vertx);
-    return taskDispatcher.deploy(numberOfVerticle)
-      .call(() -> vertx.executeBlocking(() -> {
+    return vertx.executeBlocking(() -> {
         segmentCoordinator.init(this::poll);
         return 0;
-      }))
+      })
       .call(segmentCoordinator::updateParts)
       .replaceWithVoid();
   }
@@ -60,15 +62,13 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
     closed.set(true);
     offsetManager.removePeriodicCommit(vertx);
     segmentCoordinator.close();
-    return taskDispatcher.waitTillQueueEmpty()
+    return recordDispatcher.waitTillQueueEmpty()
       .call(offsetManager::commitAll);
   }
 
   public void poll() {
     if (closed.get() || isPolling.get())
       return;
-//    if (segmentCoordinator.getLocalParts().isEmpty())
-//      vertx.setTimer(RETRY_DELAY, l -> poll());
     if (isPolling.compareAndSet(false, true)) {
       consumer.poll(timeout)
         .subscribe()
@@ -76,12 +76,18 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
     }
   }
 
-  private void handleRecords(KafkaConsumerRecords<K, V> records) {
+  private void handleRecords(KafkaConsumerRecords<String, Buffer> records) {
     if (LOGGER.isDebugEnabled() && !records.isEmpty())
       LOGGER.debug("[{}] receiving {} records", segmentCoordinator.getCls().getKey(), records.size());
-    taskDispatcher.dispatch(records);
+    List<InvocationReqHolder> reqHolders = new ArrayList<>(records.size());
+    for (int i = 0; i < records.size(); i++) {
+      reqHolders.add(
+        InvocationReqHolder.from(records.recordAt(i))
+      );
+    }
+    recordDispatcher.dispatch(reqHolders);
     isPolling.set(false);
-    if (taskDispatcher.canConsume()) {
+    if (recordDispatcher.canConsume()) {
       poll();
     }
   }
@@ -92,7 +98,6 @@ public class KafkaRecordConsumerVerticle<K, V> extends AbstractVerticle {
   }
 
   private void handlePollException(Throwable throwable) {
-//    if (!(throwable instanceof IllegalStateException))
     LOGGER.error("catch error when poll", throwable);
     isPolling.set(false);
     vertx.setTimer(RETRY_DELAY, l -> poll());

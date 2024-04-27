@@ -183,7 +183,7 @@ services:
       - redpanda
       - invoker
     deploy:
-      replicas: 2
+      replicas: 0
     environment:
       *invoker-env
     restart: on-failure

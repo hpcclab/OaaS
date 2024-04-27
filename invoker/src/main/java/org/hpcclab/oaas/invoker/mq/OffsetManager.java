@@ -3,12 +3,15 @@ package org.hpcclab.oaas.invoker.mq;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.vertx.UniHelper;
 import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumerRecord;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
+import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
+import org.hpcclab.oaas.invoker.dispatcher.KafkaInvocationReqHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OffsetManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OffsetManager.class);
   static final long COMMIT_INTERVAL = 10000L;
+  private static final Logger LOGGER = LoggerFactory.getLogger(OffsetManager.class);
   final Map<TopicPartition, OffsetTracker> trackerMap;
   KafkaConsumer<?, ?> kafkaConsumer;
 
@@ -50,12 +53,25 @@ public class OffsetManager {
         err -> LOGGER.error("catch error while committing", err));
   }
 
+
+  public void recordDone(InvocationReqHolder reqHolder) {
+    if (reqHolder instanceof  KafkaInvocationReqHolder kafkaInvocationReqHolder) {
+      recordDone(kafkaInvocationReqHolder.getKafkaRecord());
+    }
+  }
+
   public void recordDone(KafkaConsumerRecord<?, ?> rec) {
     var partition = new TopicPartition(rec.topic(), rec.partition());
     var tracker = trackerMap.get(partition);
     if (tracker==null)
       return;
     tracker.recordDone(rec.offset());
+  }
+
+  public void recordReceived(InvocationReqHolder reqHolder) {
+    if (reqHolder instanceof  KafkaInvocationReqHolder kafkaInvocationReqHolder) {
+      recordReceived(kafkaInvocationReqHolder.getKafkaRecord());
+    }
   }
 
   public void recordReceived(KafkaConsumerRecord<?, ?> rec) {

@@ -20,8 +20,9 @@ public interface CrFnController<T> {
 
   void init(CrController parentController);
 
-  void updateStabilizationTime(String key);
+  void updateStableTime(String key);
 
+  long getStableTime(String key);
 
   Map<String, CrInstanceSpec> currentSpecs();
 }
