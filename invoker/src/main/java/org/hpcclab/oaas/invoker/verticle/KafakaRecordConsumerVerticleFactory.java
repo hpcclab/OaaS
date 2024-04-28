@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.dispatcher.PartitionRecordDispatcher;
 import org.hpcclab.oaas.invoker.ispn.SegmentCoordinator;
+import org.hpcclab.oaas.invoker.lookup.AbstractHashRegistry;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.OffsetManager;
 import org.hpcclab.oaas.model.cls.OClass;

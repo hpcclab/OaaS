@@ -6,8 +6,8 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cr.CrHash;
 
 public class LookupManager {
-  ConcurrentMutableMap<String, ObjLocalResolver> map = new ConcurrentHashMap<>();
   final HashRegistry registry;
+  ConcurrentMutableMap<String, ObjLocalResolver> map = new ConcurrentHashMap<>();
 
   public LookupManager(HashRegistry registry) {
     this.registry = registry;
@@ -25,7 +25,7 @@ public class LookupManager {
   }
 
   public boolean isLocal(CrHash.ApiAddress address) {
-    if (address == null) return false;
+    if (address==null) return false;
     return address.host().equals(registry.getLocalAdvertiseAddress());
   }
 }

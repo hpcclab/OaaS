@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.hpcclab.oaas.invoker.lookup.AbstractHashRegistry;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
 import org.hpcclab.oaas.invoker.mq.CrHashListener;
@@ -75,7 +76,7 @@ public class InvokerInitializer {
           .start().await().indefinitely();
         hashListener.setHandler(protoCrHash -> {
             if (!invokerManager.getManagedCls().contains(protoCrHash.getCls()))
-              hashRegistry.updateManaged(protoCrHash);
+              hashRegistry.storeManaged(protoCrHash);
           })
           .start().await().indefinitely();
         loadAssignedCls();

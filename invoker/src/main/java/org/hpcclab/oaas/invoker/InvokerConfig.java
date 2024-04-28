@@ -99,6 +99,9 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean forceInvokeLocal();
 
+  @WithDefault("false")
+  boolean useRepForHash();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }
