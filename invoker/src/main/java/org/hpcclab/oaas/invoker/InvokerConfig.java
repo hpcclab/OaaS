@@ -84,7 +84,7 @@ public interface InvokerConfig {
   @WithDefault("500")
   int syncRetryBackOff();
 
-  @WithDefault("5000")
+  @WithDefault("2000")
   int syncMaxRetryBackOff();
 
   @WithDefault("1000")

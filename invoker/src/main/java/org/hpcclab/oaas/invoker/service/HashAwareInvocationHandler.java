@@ -93,7 +93,7 @@ public class HashAwareInvocationHandler {
     } else {
       logger.debug("invoke remote {}~{}:{} to {}:{}",
         request.cls(), request.main(), request.fb(), addr.host(), addr.port());
-      return sendWithPool(() -> resolver.find(request.main()), mapper.toProto(request))
+      return sendWithPool(resolver.createSupplier(request.main()), mapper.toProto(request))
         .map(mapper::fromProto);
     }
   }
