@@ -26,7 +26,7 @@ public abstract class AbstractHashRegistry implements HashRegistry {
   final ProtoMapper protoMapper = new ProtoMapperImpl();
   String localAdvertiseAddress;
 
-  public AbstractHashRegistry(InternalCrStateService crStateService) {
+  protected AbstractHashRegistry(InternalCrStateService crStateService) {
     this.crStateService = crStateService;
   }
 
@@ -58,7 +58,7 @@ public abstract class AbstractHashRegistry implements HashRegistry {
     if (!isEmpty()) return Uni.createFrom().voidItem();
     logger.info("warm HashRegistry cache");// no need to warm
     return crStateService.listHash(PaginateQuery.newBuilder().setLimit(100000).setOffset(0).build())
-      .invoke(this::storeManaged)
+      .invoke(this::storeExternal)
       .collect().last().replaceWithVoid();
   }
 
@@ -77,10 +77,10 @@ public abstract class AbstractHashRegistry implements HashRegistry {
     ).replaceWithVoid();
   }
 
-  public void storeManaged(ProtoCrHash protoCrHash) {
+  public void storeExternal(ProtoCrHash protoCrHash) {
     logger.info("update local hash registry '{}'", protoCrHash.getCls());
     var crHash = protoMapper.fromProto(protoCrHash);
-    store(crHash);
+    storeMerge(crHash);
   }
 
   @Override
@@ -94,6 +94,7 @@ public abstract class AbstractHashRegistry implements HashRegistry {
   }
 
   abstract void store(CrHash crHash);
+
   abstract void storeMerge(CrHash crHash);
 
   abstract CrHash get(String cls);

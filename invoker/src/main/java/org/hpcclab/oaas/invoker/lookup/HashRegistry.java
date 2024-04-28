@@ -11,7 +11,7 @@ import org.infinispan.AdvancedCache;
 public interface HashRegistry {
   Uni<Void> warmCache();
   CrHash.ApiAddress get(String cls, int segment);
-  void storeManaged(ProtoCrHash protoCrHash);
+  void storeExternal(ProtoCrHash protoCrHash);
   Uni<Void> updateManaged(String cls, AdvancedCache<?, ?> cache, int port);
   void setLocalAdvertiseAddress(String localAdvertiseAddress);
   String getLocalAdvertiseAddress();

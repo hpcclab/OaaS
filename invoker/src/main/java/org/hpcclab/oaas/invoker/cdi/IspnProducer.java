@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
 import org.hpcclab.oaas.invoker.lookup.*;
@@ -32,11 +33,12 @@ public class IspnProducer {
   @ApplicationScoped
   HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService,
                             IspnCacheCreator cacheCreator,
+                            InvokerManager invokerManager,
                             InvokerConfig invokerConfig) {
     if (invokerConfig.useRepForHash()) {
       Cache<String, CrHash> replicatedCache = cacheCreator
         .createReplicateCache("hashRegistry", true, 100000);
-      return new CacheHashRegistry(crStateService, replicatedCache);
+      return new CacheHashRegistry(crStateService, invokerManager, replicatedCache);
     } else {
       return new MapHashRegistry(crStateService);
     }
