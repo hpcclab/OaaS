@@ -59,7 +59,7 @@ public class CacheHashRegistry extends AbstractHashRegistry {
 
   @Override
   public void storeExternal(ProtoCrHash protoCrHash) {
-    if (invokerManager.getManagedCls().contains(protoCrHash.getCls())) {
+    if (!invokerManager.getManagedCls().contains(protoCrHash.getCls())) {
       logger.info("update local hash registry '{}'", protoCrHash.getCls());
       var crHash = protoMapper.fromProto(protoCrHash);
       storeMerge(crHash);
