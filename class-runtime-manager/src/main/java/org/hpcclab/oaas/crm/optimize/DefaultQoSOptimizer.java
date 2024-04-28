@@ -71,7 +71,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   public CrDeploymentPlan resolve(DeploymentUnit unit, OprcEnvironment environment) {
 
     var up = environment.availability().uptimePercentage();
-    float targetAvail = unit.getCls().getQos().getAvailability();
+    double targetAvail = unit.getCls().getQos().getAvailability();
     var qos = unit.getCls().getQos();
     int minInstance;
     int minAvail;
