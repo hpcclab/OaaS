@@ -50,8 +50,8 @@ public abstract class AbstractHashRegistry implements HashRegistry {
       .segmentAddr(newAddr)
       .ts(System.currentTimeMillis())
       .build();
-    return crStateService.updateHash(protoMapper.toProto(crHash))
-      .invoke(h -> store(crHash));
+    store(crHash);
+    return crStateService.updateHash(protoMapper.toProto(crHash));
   }
 
   public Uni<Void> warmCache() {
