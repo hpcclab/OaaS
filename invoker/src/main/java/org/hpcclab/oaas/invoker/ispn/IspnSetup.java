@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invoker.ispn;
 
 import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.Startup;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 @ApplicationScoped
+@Startup
 public class IspnSetup {
   private static final Logger logger = LoggerFactory.getLogger(IspnSetup.class);
   final IspnConfig config;
@@ -50,9 +52,6 @@ public class IspnSetup {
         .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml");
     }
     globalConfigurationBuilder.transport().nodeName(podName);
-//      .marshaller(new ProtoMarshaller<>(ProtoCrHash.class, ProtoCrHash::parseFrom))
-//      .marshaller(new ProtoMarshaller<>(ProtoOObject.class, ProtoOObject::parseFrom))
-
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());

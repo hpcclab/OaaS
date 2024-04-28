@@ -60,7 +60,9 @@ public class IspnCacheCreator {
     }
   }
 
-  public <V> Cache<String, V> createReplicateCache(String name, int maxCount) {
+  public <V> Cache<String, V> createReplicateCache(String name,
+                                                   boolean awaitStateTransfer,
+                                                   int maxCount) {
     if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);
     }
@@ -68,7 +70,7 @@ public class IspnCacheCreator {
       .clustering()
       .cacheMode(CacheMode.REPL_ASYNC)
       .stateTransfer()
-      .awaitInitialTransfer(true)
+      .awaitInitialTransfer(awaitStateTransfer)
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()

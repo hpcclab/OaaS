@@ -34,7 +34,7 @@ public class IspnProducer {
   HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService,
                             IspnCacheCreator cacheCreator) {
     Cache<String, CrHash> replicatedCache = cacheCreator
-      .createReplicateCache("hashRegistry", 100000);
+      .createReplicateCache("hashRegistry", false, 100000);
     return new HashRegistry(crStateService, replicatedCache);
   }
 

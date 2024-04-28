@@ -87,7 +87,7 @@ public interface InvokerConfig {
   @WithDefault("5000")
   int syncMaxRetryBackOff();
 
-  @WithDefault("3000")
+  @WithDefault("1000")
   int connectTimeout();
 
   @WithDefault("true")
