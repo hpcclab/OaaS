@@ -2,19 +2,16 @@ package org.hpcclab.oaas.invoker;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import io.grpc.Status;
+import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
-import org.hpcclab.oaas.model.exception.DataAccessException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ExceptionMapper {
@@ -23,8 +20,10 @@ public class ExceptionMapper {
   @ServerExceptionMapper(StatusRuntimeException.class)
   public Response exceptionMapper(StatusRuntimeException statusRuntimeException) {
     Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-    if (statusRuntimeException.getStatus() == Status.UNAVAILABLE)
+    if (statusRuntimeException.getStatus().getCode()==Code.UNAVAILABLE)
       status = Response.Status.SERVICE_UNAVAILABLE;
+    if (statusRuntimeException.getStatus().getCode()==Code.RESOURCE_EXHAUSTED)
+      status = Response.Status.TOO_MANY_REQUESTS;
     return Response.status(status)
       .entity(new JsonObject()
         .put("msg", statusRuntimeException.getMessage()))

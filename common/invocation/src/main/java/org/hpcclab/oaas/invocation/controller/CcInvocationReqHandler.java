@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.exception.TooManyRequestException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
@@ -45,7 +46,7 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
     int count = inflight.incrementAndGet();
     if (count>maxInflight) {
       inflight.decrementAndGet();
-      throw new StdOaasException("too many requests", HttpResponseStatus.TOO_MANY_REQUESTS.code());
+      return Uni.createFrom().failure(new TooManyRequestException());
     }
     return ctxLoader.load(request)
       .flatMap(ctx -> {
