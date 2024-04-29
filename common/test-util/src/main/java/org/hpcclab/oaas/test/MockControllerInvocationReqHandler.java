@@ -10,7 +10,7 @@ import org.hpcclab.oaas.repository.id.TsidGenerator;
 
 public class MockControllerInvocationReqHandler extends CcInvocationReqHandler {
   public MockControllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry, CtxLoader ctxLoader, IdGenerator idGenerator) {
-    super(classControllerRegistry, ctxLoader, idGenerator);
+    super(classControllerRegistry, ctxLoader, idGenerator, Integer.MAX_VALUE);
   }
 
   public static MockControllerInvocationReqHandler mock() {

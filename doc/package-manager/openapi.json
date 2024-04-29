@@ -1366,7 +1366,7 @@
             "type" : "integer"
           },
           "availability" : {
-            "format" : "float",
+            "format" : "double",
             "type" : "number"
           }
         }
@@ -1383,7 +1383,7 @@
             "type" : "integer"
           },
           "availability" : {
-            "format" : "float",
+            "format" : "double",
             "type" : "number"
           }
         }

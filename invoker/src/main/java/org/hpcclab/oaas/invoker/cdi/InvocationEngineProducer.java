@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invoker.cdi;
 
-import io.vertx.core.http.Http2Settings;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.grpc.client.GrpcClient;
@@ -8,11 +7,14 @@ import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.service.ControllerInvocationRecordHandler;
+import org.hpcclab.oaas.invoker.metrics.MicrometerMetricFactory;
+import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
+import org.hpcclab.oaas.invoker.service.CcInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.UnifyContentUrlGenerator;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
@@ -32,12 +34,15 @@ public class InvocationEngineProducer {
 
   @Produces
   @ApplicationScoped
-  CcInvocationReqHandler controllerInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
-                                                        CtxLoader ctxLoader,
-                                                        IdGenerator idGenerator) {
+  InvocationReqHandler invocationReqHandler(ClassControllerRegistry classControllerRegistry,
+                                            CtxLoader ctxLoader,
+                                            IdGenerator idGenerator,
+                                            InvokerConfig invokerConfig) {
     return new CcInvocationReqHandler(classControllerRegistry,
       ctxLoader,
-      idGenerator);
+      idGenerator,
+      invokerConfig.maxInflight()
+    );
   }
 
   @Produces
@@ -45,7 +50,9 @@ public class InvocationEngineProducer {
   InvocationRecordHandler invocationRecordHandler(ObjectRepoManager objectRepoManager,
                                                   ClassControllerRegistry classControllerRegistry,
                                                   CtxLoader ctxLoader) {
-    return new ControllerInvocationRecordHandler(objectRepoManager, classControllerRegistry, ctxLoader);
+    return new CcInvocationRecordHandler(objectRepoManager,
+      classControllerRegistry,
+      ctxLoader);
   }
 
 
@@ -93,15 +100,24 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   GrpcClient grpcClient(Vertx vertx, InvokerConfig config) {
     return GrpcClient.client(vertx.getDelegate(), new HttpClientOptions()
-        .setMaxPoolSize(config.connectionPoolMaxSize())
-        .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
-        .setProtocolVersion(HttpVersion.HTTP_2)
-        .setHttp2ClearTextUpgrade(false)
-        .setConnectTimeout(config.connectTimeout())
-        .setIdleTimeout(30)
-//        .setLogActivity(true)
-//      .setShared(false)
-//      .setName("grpc")
+      .setMaxPoolSize(config.connectionPoolMaxSize())
+      .setHttp2MaxPoolSize(config.h2ConnectionPoolMaxSize())
+      .setProtocolVersion(HttpVersion.HTTP_2)
+      .setHttp2ClearTextUpgrade(false)
+      .setConnectTimeout(config.connectTimeout())
+      .setIdleTimeout(30)
     );
+  }
+
+  @ApplicationScoped
+  @Produces
+  RequestCounterMap requestCounterMap(InvokerConfig config,
+                                      MicrometerMetricFactory factory,
+                                      ClassControllerRegistry registry) {
+    if (config.enableInvReqMetric()) {
+      return new RequestCounterMap(factory, registry);
+    } else {
+      return new RequestCounterMap.NoOp();
+    }
   }
 }

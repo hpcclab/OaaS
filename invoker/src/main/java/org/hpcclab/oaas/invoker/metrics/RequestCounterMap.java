@@ -15,30 +15,25 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Pawissanutt
  */
-@ApplicationScoped
 public class RequestCounterMap {
   final MicrometerMetricFactory factory;
   final ClassControllerRegistry registry;
   final Map<ClsFbPair, MetricFactory.MetricCounter> timerMap = new ConcurrentHashMap<>();
-  final boolean enable;
 
   public RequestCounterMap(MicrometerMetricFactory factory,
-                           ClassControllerRegistry registry, InvokerConfig invokerConfig) {
+                           ClassControllerRegistry registry) {
     this.factory = factory;
     this.registry = registry;
-    enable = invokerConfig.enableInvReqMetric();
   }
 
   public void increase(String cls, String fb) {
-    if (!enable)
-      return;
     ClsFbPair clsFnPair = new ClsFbPair(cls, fb);
     MetricFactory.MetricCounter counter = timerMap.computeIfAbsent(clsFnPair,
       k -> createMetricCounter(cls, fb));
     counter.increase();
   }
 
-  public MetricFactory.MetricCounter createMetricCounter(String cls, String fb) {
+  MetricFactory.MetricCounter createMetricCounter(String cls, String fb) {
     ClassController clsController = registry.getClassController(cls);
     if (clsController==null) throw StdOaasException.notFoundCls400(cls);
     FunctionController fnController = clsController.getFunctionController(fb);
@@ -48,5 +43,16 @@ public class RequestCounterMap {
   }
 
   public record ClsFbPair(String cls, String fb) {
+  }
+
+  public static class NoOp extends RequestCounterMap {
+
+    public NoOp() {
+      super(null, null);
+    }
+
+    @Override
+    public void increase(String cls, String fb) {
+    }
   }
 }

@@ -10,7 +10,6 @@ import org.hpcclab.oaas.invoker.dispatcher.InvocationReqHolder;
 import org.hpcclab.oaas.invoker.dispatcher.KafkaInvocationReqHolder;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +20,16 @@ import java.util.function.Consumer;
 /**
  * @author Pawissanutt
  */
-public class ControllerInvocationRecordHandler implements InvocationRecordHandler {
-  private static final Logger logger = LoggerFactory.getLogger(ControllerInvocationRecordHandler.class);
+public class CcInvocationRecordHandler implements InvocationRecordHandler {
+  private static final Logger logger = LoggerFactory.getLogger(CcInvocationRecordHandler.class);
 
   final ObjectRepoManager objectRepoManager;
   final ClassControllerRegistry classControllerRegistry;
   final CtxLoader ctxLoader;
 
-  public ControllerInvocationRecordHandler(ObjectRepoManager objectRepoManager,
-                                           ClassControllerRegistry classControllerRegistry,
-                                           CtxLoader ctxLoader) {
+  public CcInvocationRecordHandler(ObjectRepoManager objectRepoManager,
+                                   ClassControllerRegistry classControllerRegistry,
+                                   CtxLoader ctxLoader) {
     this.objectRepoManager = objectRepoManager;
     this.classControllerRegistry = classControllerRegistry;
     this.ctxLoader = ctxLoader;

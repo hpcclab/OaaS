@@ -52,7 +52,6 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
   }
 
   private void handleRecordComplete(InvocationReqHolder reqHolder) {
-//    offsetManager.recordDone(reqHolder);
     onRecordDone.accept(reqHolder);
     if (drainHandler!=null && inflight.decrementAndGet() < maxInflight)
       drainHandler.run();
@@ -61,9 +60,7 @@ public class PartitionRecordDispatcher implements RecordDispatcher {
   public void dispatch(List<InvocationReqHolder> records) {
     if (partitions.isEmpty())
       throw new IllegalStateException("Must deploy first");
-    for (int i = 0; i < records.size(); i++) {
-      var rec = records.get(i);
-//      offsetManager.recordReceived(rec);
+    for (InvocationReqHolder rec : records) {
       onRecordReceived.accept(rec);
       var partition = partitions.getFirst();
       var size = partitions.size();
