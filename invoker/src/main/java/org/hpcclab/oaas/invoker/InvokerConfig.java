@@ -52,7 +52,7 @@ public interface InvokerConfig {
   @WithDefault("64")
   int invokeConcurrency();
 
-  @WithDefault("1000")
+  @WithDefault("5000")
   int maxInflight();
 
   S3ConnConf s3();
