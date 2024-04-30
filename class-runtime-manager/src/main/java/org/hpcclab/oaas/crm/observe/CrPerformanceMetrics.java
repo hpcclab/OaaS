@@ -7,6 +7,7 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public record CrPerformanceMetrics(
   Map<OprcComponent, SvcPerformanceMetrics> coreMetrics,
@@ -72,6 +73,35 @@ public record CrPerformanceMetrics(
         filterByTime(rps, stableTime),
         filterByTime(msLatency, stableTime)
       );
+    }
+
+    public SvcPerformanceMetrics syncTimeOnCpuMemRps() {
+      long min = Stream.of(cpu, mem, rps)
+        .mapToLong(dataPoints -> dataPoints.stream()
+          .mapToLong(DataPoint::timestamp)
+          .min().orElse(0))
+        .max()
+        .orElse(0L);
+      long max = Stream.of(cpu, mem, rps)
+        .mapToLong(dataPoints -> dataPoints.stream()
+          .mapToLong(DataPoint::timestamp)
+          .max().orElse(0))
+        .min()
+        .orElse(0L);
+      var newCpu = cpu.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      var newMem = mem.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      var newRps = rps.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      return toBuilder()
+        .cpu(newCpu)
+        .mem(newMem)
+        .rps(newRps)
+        .build();
     }
   }
 

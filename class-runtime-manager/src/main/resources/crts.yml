@@ -67,6 +67,7 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
+        idleFilterThreshold: 0.5
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
@@ -81,14 +82,16 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
+        idleFilterThreshold: 0.5
     optimizerConf:
       thresholdUpper: 1
       thresholdLower: 0.3
-      fnThresholdUpper: 0.7
-      fnThresholdLower: 0.3
+      fnThresholdUpper: 0.9
+      fnThresholdLower: 0.4
     functions:
       stabilizationWindow: 60000
       maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
+      idleFilterThreshold: 0.5
     priority: 10

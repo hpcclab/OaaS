@@ -184,6 +184,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     if (targetRps <= 0)
       return AdjustComponent.NONE;
     metrics = metrics.filterByStableTime(controller.getStableTime(name) + 60000);
+    metrics = metrics.syncTimeOnCpuMemRps();
     double meanRps = mean(metrics.rps());
     double meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
@@ -200,13 +201,13 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
     var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0 ? 1:svcConfig.objectiveMissThreshold();
-    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0 ? 0.25:svcConfig.idleFilterThreshold();
+    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0 ? 0.4:svcConfig.idleFilterThreshold();
     var targetExpectedRps = targetRps * objectiveMissThreshold;
     logger.debug("compute adjust[1] on ({} : {})[{}], meanRps {}, expectedRps {} (>{}), "
-        + "meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}<{}), expectedInstance {}",
+        + "meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}|{}|{}), expectedInstance {}",
       controller.getTsidString(), name, metrics.rps().size(), meanRps, expectedRps,
       targetExpectedRps, meanCpu, cpuPerRps,
-      targetRps, cpuPercentage, idleFilterThreshold, lower, upper, expectedInstance);
+      targetRps, cpuPercentage,  lower, idleFilterThreshold, upper, expectedInstance);
 
     /*
     * over provisioning
