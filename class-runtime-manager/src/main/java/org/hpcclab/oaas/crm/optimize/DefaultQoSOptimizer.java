@@ -183,7 +183,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     int targetRps = qos.getThroughput();
     if (targetRps <= 0)
       return AdjustComponent.NONE;
-    metrics = metrics.filterByStableTime(controller.getStableTime(name));
+    metrics = metrics.filterByStableTime(controller.getStableTime(name) + 60000);
     double meanRps = mean(metrics.rps());
     double meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
