@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.harmonicMean;
 import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.mean;
 
 public class DefaultQoSOptimizer implements QosOptimizer {
@@ -32,6 +31,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
+
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
@@ -196,15 +196,17 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     var cpuPercentage = meanCpu / totalRequestCpu;
     var lower = isFunc ? fnThresholdLower:thresholdLower;
     var upper = isFunc ? fnThresholdUpper:thresholdUpper;
-    var expectedRps = cpuPercentage < 1 ? meanRps /cpuPercentage : meanRps;
+    var expectedRps = cpuPercentage < 1 ? meanRps / cpuPercentage:meanRps;
     var prevInstance = instanceSpec.minInstance();
     var nextInstance = prevInstance;
-    var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
-    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.25: svcConfig.idleFilterThreshold();
-    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
-      controller.getTsidString(), name, meanRps, expectedRps,
-      targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
-      targetRps, cpuPercentage, lower, upper, expectedInstance);
+    var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0 ? 1:svcConfig.objectiveMissThreshold();
+    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0 ? 0.25:svcConfig.idleFilterThreshold();
+    var targetExpectedRps = targetRps * objectiveMissThreshold;
+    logger.debug("compute adjust[1] on ({} : {})[{}], meanRps {}, expectedRps {} (>{}), "
+        + "meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}<{}), expectedInstance {}",
+      controller.getTsidString(), name, metrics.rps().size(), meanRps, expectedRps,
+      targetExpectedRps, meanCpu, cpuPerRps,
+      targetRps, cpuPercentage, idleFilterThreshold, lower, upper, expectedInstance);
 
     /*
     * over provisioning
@@ -217,8 +219,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       nextInstance = Math.min(expectedInstance, nextInstance);
     } else if (cpuPercentage > upper && meanRps < targetRps) {
       nextInstance = Math.max(expectedInstance, nextInstance);
-    } else if (expectedRps / targetRps < objectiveMissThreshold
-      && cpuPercentage > idleFilterThreshold) {
+    } else if (expectedRps < targetExpectedRps && cpuPercentage > idleFilterThreshold) {
       nextInstance = Math.max(expectedInstance, nextInstance);
     } else {
       return AdjustComponent.NONE;
@@ -234,8 +235,12 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     logger.debug("compute adjust[2] on ({} : {}), nextInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
       controller.getTsidString(), name, nextInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
 
-    if (needChange)
+    if (needChange) {
+      logger.debug("compute adjust[3] on ({} : {}), cpu {}, rps {}",
+        controller.getTsidString(), name, metrics.cpu(), metrics.rps()
+      );
       logger.debug("next adjustment ({} : {}) : {}", controller.getTsidString(), name, adjust);
+    }
     return new AdjustComponent(
       needChange,
       adjust
