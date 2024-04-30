@@ -184,8 +184,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     if (targetRps <= 0)
       return AdjustComponent.NONE;
     metrics = metrics.filterByStableTime(controller.getStableTime(name));
-    var meanRps = harmonicMean(metrics.rps());
-    var meanCpu = mean(metrics.cpu());
+    double meanRps = mean(metrics.rps());
+    double meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee
     }
