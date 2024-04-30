@@ -6,6 +6,8 @@ on:
       - "**"
     tags:
       - '*'
+    paths:
+      - example/functions/**
 
 jobs:
   function-build:
