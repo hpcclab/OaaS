@@ -86,14 +86,22 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(request);
     }
     ObjLocalResolver resolver = resolveAddr(request.cls());
-    CrHash.ApiAddress addr = resolver.find(request.main());
+    Supplier<CrHash.ApiAddress> supplier = resolver.createSupplier(request.main());
+    CrHash.ApiAddress addr = supplier.get();
     if (lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}:{}", request.cls(), request.main(), request.fb());
+      logger.debug("invoke local {}~{}:{}",
+        request.cls(), request.main(), request.fb());
       return invocationReqHandler.invoke(request);
     } else {
-      logger.debug("invoke remote {}~{}:{} to {}:{}",
-        request.cls(), request.main(), request.fb(), addr.host(), addr.port());
-      return sendWithPool(resolver.createSupplier(request.main()), mapper.toProto(request))
+      if (addr!=null) {
+        logger.debug("invoke remote {}~{}:{} to {}:{}",
+          request.cls(), request.main(), request.fb(), addr.host(), addr.port());
+      } else {
+        logger.debug("invoke remote {}~{}:{}",
+          request.cls(), request.main(), request.fb());
+      }
+
+      return sendWithPool(supplier, mapper.toProto(request))
         .map(mapper::fromProto);
     }
   }
@@ -109,15 +117,21 @@ public class HashAwareInvocationHandler {
         .map(mapper::toProto);
     }
     ObjLocalResolver resolver = resolveAddr(request.getCls());
-    CrHash.ApiAddress addr = resolver.find(request.getMain());
+    Supplier<CrHash.ApiAddress> supplier = resolver.createSupplier(request.getMain());
+    CrHash.ApiAddress addr = supplier.get();
     if (lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}:{} to {}:{}",
-        request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
-      return sendWithPool(() -> resolver.find(request.getMain()), request);
+      if (addr!=null)
+        logger.debug("invoke remote {}~{}:{} to {}:{}",
+          request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
+      else {
+        logger.debug("invoke remote {}~{}:{}",
+          request.getCls(), request.getMain(), request.getFb());
+      }
+      return sendWithPool(supplier, request);
     }
   }
 
