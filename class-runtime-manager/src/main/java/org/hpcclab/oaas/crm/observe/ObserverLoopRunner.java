@@ -31,14 +31,15 @@ public class ObserverLoopRunner {
                             CrMetricObserver metricObserver,
                             CrControllerManager controllerManager,
                             OperationExecutor operationExecutor,
-                            EnvironmentManager environmentManager, CrmConfig config) {
+                            EnvironmentManager environmentManager,
+                            CrmConfig config) {
     this.vertx = vertx;
     this.metricObserver = metricObserver;
     this.controllerManager = controllerManager;
     this.operationExecutor = operationExecutor;
     this.environmentManager = environmentManager;
     this.config = config;
-    this.interval = 10000;
+    this.interval = config.optimizerInterval();
     this.executor = Executors.newVirtualThreadPerTaskExecutor();
   }
 

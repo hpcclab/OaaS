@@ -193,11 +193,12 @@ public class DefaultQoSOptimizer implements QosOptimizer {
 
     double meanRps = mean(metrics.rps());
     double meanCpu = mean(metrics.cpu());
-    if (meanRps < 1) {// < 1 is too little. Preventing result explode
+    var cpuPerRps = CrPerformanceMetrics.divideThenMean(metrics.cpu(), metrics.rps());
+    if (meanRps < 1 || cpuPerRps == 0) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee
     }
+//    var cpuPerRps = meanCpu / meanRps;
     var totalRequestCpu = Math.max(1, instanceSpec.minInstance()) * instanceSpec.requestsCpu();
-    var cpuPerRps = meanCpu / meanRps;
     double expectedCpu = Math.max(0, cpuPerRps * targetRps);
     int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
     var cpuPercentage = meanCpu / totalRequestCpu;
