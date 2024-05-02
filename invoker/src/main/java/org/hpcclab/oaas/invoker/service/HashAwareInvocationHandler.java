@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.common.GrpcStatus;
+import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
@@ -57,7 +58,9 @@ public class HashAwareInvocationHandler {
                                     ProtoObjectMapper mapper,
                                     GrpcClient grpcClient,
                                     InvocationReqHandler invocationReqHandler,
-                                    InvokerManager invokerManager, InvokerConfig invokerConfig) {
+                                    InvokerManager invokerManager,
+                                    InvokerConfig invokerConfig,
+                                    Vertx vertx) {
     this.lookupManager = lookupManager;
     this.registry = registry;
     this.mapper = mapper;
@@ -69,7 +72,7 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
-    this.pool = new GrpcInvocationServicePool();
+    this.pool = new GrpcInvocationServicePool(vertx.getDelegate());
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {

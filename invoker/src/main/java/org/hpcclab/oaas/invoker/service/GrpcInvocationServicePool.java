@@ -1,6 +1,9 @@
 package org.hpcclab.oaas.invoker.service;
 
+import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
+import io.vertx.core.Vertx;
+import io.vertx.grpc.VertxChannelBuilder;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.InvocationService;
@@ -13,20 +16,33 @@ import java.util.Map;
  * @author Pawissanutt
  */
 public class GrpcInvocationServicePool {
+  final Vertx vertx;
   Map<ServiceAddr, InvocationService> invocationServiceMap = new ConcurrentHashMap<>();
 
+  public GrpcInvocationServicePool(Vertx vertx) {
+    this.vertx = vertx;
+  }
 
-
-  public InvocationService getOrCreate(CrHash.ApiAddress addr) {
-    ServiceAddr serviceAddr = new ServiceAddr(addr.host(), addr.port());
-    return invocationServiceMap.computeIfAbsent(serviceAddr, k -> {
+  private Channel createChanel(ServiceAddr addr) {
+    if (vertx!=null) {
+      VertxChannelBuilder vertxChannelBuilder = VertxChannelBuilder.forAddress(vertx, addr.host, addr.port)
+        .disableRetry()
+        .usePlaintext();
+      return vertxChannelBuilder.build();
+    } else {
       ManagedChannelBuilder<?> builder = ManagedChannelBuilder
         .forAddress(addr.host(), addr.port())
         .disableRetry()
         .usePlaintext()
         .directExecutor();
-      return new InvocationServiceClient(addr.toString(), builder.build(), this::configure);
-    });
+      return builder.build();
+    }
+  }
+
+  public InvocationService getOrCreate(CrHash.ApiAddress addr) {
+    ServiceAddr serviceAddr = new ServiceAddr(addr.host(), addr.port());
+    return invocationServiceMap.computeIfAbsent(serviceAddr,
+      k -> new InvocationServiceClient(addr.toString(), createChanel(serviceAddr), this::configure));
   }
 
   MutinyInvocationServiceStub configure(String key, MutinyInvocationServiceStub stub) {
