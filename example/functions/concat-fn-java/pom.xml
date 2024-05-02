@@ -63,14 +63,9 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.github.hpcclab.OaaS</groupId>-->
-<!--      <artifactId>model</artifactId>-->
-<!--      <version>main-SNAPSHOT</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-jib</artifactId>
+      <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
