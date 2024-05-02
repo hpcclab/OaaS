@@ -31,6 +31,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
+  final int minDatapoints;
 
   public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
@@ -47,6 +48,8 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .getOrDefault("fnThresholdUpper", "0.85"));
     fnThresholdLower = Double.parseDouble(conf
       .getOrDefault("fnThresholdLower", "0.4"));
+    minDatapoints = Integer.parseInt(conf
+      .getOrDefault("minDatapoints", "3"));
   }
 
 
@@ -185,6 +188,9 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       return AdjustComponent.NONE;
     metrics = metrics.filterByStableTime(controller.getStableTime(name) + 60000);
     metrics = metrics.syncTimeOnCpuMemRps();
+    if (metrics.rps().size() < minDatapoints)
+      return AdjustComponent.NONE;
+
     double meanRps = mean(metrics.rps());
     double meanCpu = mean(metrics.cpu());
     if (meanRps < 1) {// < 1 is too little. Preventing result explode
