@@ -44,6 +44,16 @@
       <artifactId>oprc-proto-schema</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkiverse.arangodb-client-ext</groupId>-->
+<!--      <artifactId>quarkus-arangodb-client-ext</artifactId>-->
+<!--      <version>1.0.1</version>-->
+<!--    </dependency>-->
+    <dependency>
+      <groupId>com.arangodb</groupId>
+      <artifactId>arangodb-java-driver-shaded</artifactId>
+      <version>${arangodb.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver</artifactId>

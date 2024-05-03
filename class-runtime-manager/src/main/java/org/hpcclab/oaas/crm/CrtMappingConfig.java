@@ -16,9 +16,9 @@ public record CrtMappingConfig(
   public interface ScalingConfig {
     int stabilizationWindow();
 
+    double objectiveAmplifier();
     double objectiveMissThreshold();
     double idleFilterThreshold();
-
     int maxScaleStep();
 
     boolean disableDynamicAdjustment();
@@ -52,6 +52,7 @@ public record CrtMappingConfig(
     float startReplicasToTpRatio,
     boolean enableHpa,
     List<Toleration> tolerations,
+    double objectiveAmplifier,
     double objectiveMissThreshold,
     double idleFilterThreshold,
     boolean disableDynamicAdjustment) implements ScalingConfig {
@@ -65,6 +66,7 @@ public record CrtMappingConfig(
     String defaultRequestMem,
     String defaultScaleDawnDelay,
     int startReplicas,
+    double objectiveAmplifier,
     double objectiveMissThreshold,
     double idleFilterThreshold,
     boolean disableDynamicAdjustment) implements ScalingConfig {

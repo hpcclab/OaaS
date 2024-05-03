@@ -16,7 +16,7 @@ import org.hpcclab.oaas.crm.condition.ConditionProcessor;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
-import org.hpcclab.oaas.crm.optimize.DefaultQoSOptimizer;
+import org.hpcclab.oaas.crm.optimize.CpuBasedQoSOptimizer;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
@@ -101,7 +101,7 @@ public class CrTemplateManager {
   }
 
   public QosOptimizer selectOptimizer(CrtMappingConfig.CrtConfig config) {
-    return new DefaultQoSOptimizer(config);
+    return new CpuBasedQoSOptimizer(config);
   }
 
   public ClassRuntimeTemplate selectTemplate(DeploymentUnit deploymentUnit) {
