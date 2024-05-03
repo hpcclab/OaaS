@@ -19,7 +19,9 @@ public interface CrmConfig {
   String promUrl();
   @WithDefault("180")
   int observeRange();
-  @WithDefault("10000")
+  @WithDefault("10")
+  int observeStep();
+  @WithDefault("10")
   int optimizerInterval();
 
   Optional<String> templateOverride();

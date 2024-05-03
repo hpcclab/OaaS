@@ -111,7 +111,7 @@ public class IspnCacheCreator {
       .memory()
       .storage(cacheStore.storageType())
       .maxSize(cacheStore.maxSize().orElse(null))
-      .maxCount(cacheStore.maxCount())
+      .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
     if (datastoreConf!=null) {
@@ -150,7 +150,7 @@ public class IspnCacheCreator {
       .segmented(false)
       .memory()
       .storage(cacheStore.storageType())
-      .maxCount(cacheStore.maxCount())
+      .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
     if (cacheStore.ttl() > 0) {

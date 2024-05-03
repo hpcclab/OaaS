@@ -38,7 +38,7 @@ public class PrometheusCrMetricObserver implements CrMetricObserver {
     this.webClient = webClient;
     prometheusUrl = config.promUrl();
     observeRange = Math.max(60, config.observeRange());
-    observeStep = 20;
+    observeStep = config.observeStep();
   }
 
   @Override

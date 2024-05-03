@@ -37,7 +37,6 @@ public class CpuBasedQoSOptimizer extends AbstractQoSOptimizer {
 
     double meanRps = mean(metrics.rps());
     double meanCpu = mean(metrics.cpu());
-//    var cpuPerRps = CrPerformanceMetrics.divideThenMean(metrics.cpu(), metrics.rps());
     var cpuPerRps = meanCpu / meanRps;
     if (meanRps < 1 || cpuPerRps == 0) {// < 1 is too little. Preventing result explode
       return AdjustComponent.NONE; // prevent overriding throughput guarantee

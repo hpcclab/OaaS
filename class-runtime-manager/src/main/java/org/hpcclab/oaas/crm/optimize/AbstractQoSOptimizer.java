@@ -43,9 +43,9 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
     thresholdLower = Double.parseDouble(conf
       .getOrDefault("thresholdLower", "0.4"));
     fnThresholdUpper = Double.parseDouble(conf
-      .getOrDefault("fnThresholdUpper", "0.85"));
+      .getOrDefault("fnThresholdUpper", "0.9"));
     fnThresholdLower = Double.parseDouble(conf
-      .getOrDefault("fnThresholdLower", "0.4"));
+      .getOrDefault("fnThresholdLower", "0.6"));
     minDatapoints = Integer.parseInt(conf
       .getOrDefault("minDatapoints", "3"));
   }

@@ -20,7 +20,7 @@ public class ObserverLoopRunner {
   final Vertx vertx;
   final CrMetricObserver metricObserver;
   final CrControllerManager controllerManager;
-  final long interval;
+  final int interval;
   final Executor executor;
   final OperationExecutor operationExecutor;
   final EnvironmentManager environmentManager;
@@ -39,7 +39,7 @@ public class ObserverLoopRunner {
     this.operationExecutor = operationExecutor;
     this.environmentManager = environmentManager;
     this.config = config;
-    this.interval = config.optimizerInterval();
+    this.interval = config.optimizerInterval() * 1000;
     this.executor = Executors.newVirtualThreadPerTaskExecutor();
   }
 
