@@ -24,6 +24,17 @@ public class ExceptionMapper {
       status = Response.Status.SERVICE_UNAVAILABLE;
     if (statusRuntimeException.getStatus().getCode()==Code.RESOURCE_EXHAUSTED)
       status = Response.Status.TOO_MANY_REQUESTS;
+    if (statusRuntimeException.getStatus().getCode()==Code.INVALID_ARGUMENT)
+      status = Response.Status.BAD_REQUEST;
+    if (statusRuntimeException.getStatus().getCode()==Code.UNIMPLEMENTED)
+      status = Response.Status.NOT_IMPLEMENTED;
+    if (statusRuntimeException.getStatus().getCode()==Code.UNAUTHENTICATED)
+      status = Response.Status.UNAUTHORIZED;
+    if (LOGGER.isWarnEnabled() || status==Response.Status.INTERNAL_SERVER_ERROR) {
+      LOGGER.warn("mapping StatusRuntimeException({}) {}",
+        status, statusRuntimeException.getMessage());
+    } else if (LOGGER.isDebugEnabled())
+      LOGGER.debug("mapping StatusRuntimeException({})", status);
     return Response.status(status)
       .entity(new JsonObject()
         .put("msg", statusRuntimeException.getMessage()))
@@ -40,7 +51,9 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper(StdOaasException.class)
   public Response exceptionMapper(StdOaasException exception) {
-    if (LOGGER.isDebugEnabled())
+    if (exception.getCode()==500 && LOGGER.isWarnEnabled()) {
+      LOGGER.warn("mapping exception({})", exception.getCode(), exception);
+    } else if (LOGGER.isDebugEnabled())
       LOGGER.debug("mapping exception({})", exception.getCode(), exception);
     return Response.status(exception.getCode())
       .entity(new JsonObject()

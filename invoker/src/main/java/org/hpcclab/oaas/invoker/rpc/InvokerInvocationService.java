@@ -81,6 +81,8 @@ public class InvokerInvocationService implements InvocationService {
         code = Code.INVALID_ARGUMENT_VALUE;
       } else if (oaasException.getCode()==409) {
         code = Code.ABORTED_VALUE;
+      } else if (oaasException.getCode()==501) {
+        code = Code.UNIMPLEMENTED_VALUE;
       }
       return StatusProto.toStatusRuntimeException(Status.newBuilder()
         .setCode(code)
