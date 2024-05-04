@@ -16,8 +16,10 @@ public interface IspnConfig {
   @WithDefault("-1")
   int hotRodPort();
   interface CacheStore{
-    @WithDefault("100000")
+    @WithDefault("1000000")
     int queueSize();
+    @WithDefault("false")
+    boolean async();
     @WithDefault("HEAP")
     StorageType storageType();
     @WithDefault("1000000")

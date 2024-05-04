@@ -94,7 +94,7 @@ public class IspnCacheCreator {
 
     builder
       .clustering()
-      .cacheMode(CacheMode.DIST_SYNC)
+      .cacheMode(cacheStore.async()? CacheMode.DIST_ASYNC : CacheMode.DIST_SYNC)
       .hash().numOwners(ispnConfig.objStore().owner())
       .numSegments(conf.getPartitions())
       .stateTransfer()
@@ -140,7 +140,7 @@ public class IspnCacheCreator {
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
-      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE:APPLICATION_PROTOSTREAM_TYPE)
+      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE: APPLICATION_PROTOSTREAM_TYPE)
       .persistence()
       .addStore(ArgCacheStoreConfig.Builder.class)
       .valueCls(valueCls)

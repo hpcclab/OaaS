@@ -48,11 +48,6 @@ oprc:
       url: http://localhost:8090
     pmHost: localhost
     pmPort: 8088
-  ispn:
-    objStore:
-      maxCount: 1000000
-      queueSize: 1000000
-      storageType: OFF_HEAP
   env: |
     OPRC_DB_PKG_HOST=localhost
     OPRC_DB_PKG_PORT=8529

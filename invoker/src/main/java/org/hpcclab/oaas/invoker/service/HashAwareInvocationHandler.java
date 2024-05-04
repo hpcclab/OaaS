@@ -231,5 +231,9 @@ public class HashAwareInvocationHandler {
     public RetryableException() {
       super(502);
     }
+
+    public RetryableException(Throwable cause) {
+      super(null, cause);
+    }
   }
 }

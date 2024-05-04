@@ -24,19 +24,24 @@ public class GrpcInvocationServicePool {
   }
 
   private Channel createChanel(ServiceAddr addr) {
-    if (vertx!=null) {
-      VertxChannelBuilder vertxChannelBuilder = VertxChannelBuilder.forAddress(vertx, addr.host, addr.port)
-        .disableRetry()
-        .usePlaintext();
-      return vertxChannelBuilder.build();
-    } else {
-      ManagedChannelBuilder<?> builder = ManagedChannelBuilder
-        .forAddress(addr.host(), addr.port())
-        .disableRetry()
-        .usePlaintext()
-        .directExecutor();
-      return builder.build();
+    try {
+      if (vertx!=null) {
+        VertxChannelBuilder vertxChannelBuilder = VertxChannelBuilder.forAddress(vertx, addr.host, addr.port)
+          .disableRetry()
+          .usePlaintext();
+        return vertxChannelBuilder.build();
+      } else {
+        ManagedChannelBuilder<?> builder = ManagedChannelBuilder
+          .forAddress(addr.host(), addr.port())
+          .disableRetry()
+          .usePlaintext()
+          .directExecutor();
+        return builder.build();
+      }
+    } catch (RuntimeException e) {
+      throw new HashAwareInvocationHandler.RetryableException(e);
     }
+
   }
 
   public InvocationService getOrCreate(CrHash.ApiAddress addr) {
