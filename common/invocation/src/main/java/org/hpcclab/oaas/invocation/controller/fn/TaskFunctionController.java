@@ -140,7 +140,7 @@ public class TaskFunctionController extends AbstractFunctionController {
                                           Map<String, OObject> refs,
                                           AccessLevel level) {
     Map<String, String> m = new HashMap<>();
-    generateUrls(m, obj, refs, "", level);
+    if (obj != null) generateUrls(m, obj, refs, "", level);
     return m;
   }
 
@@ -164,7 +164,7 @@ public class TaskFunctionController extends AbstractFunctionController {
                             Map<String, OObject> refs,
                             String prefix,
                             AccessLevel level) {
-
+    if (obj == null) return;
     var verIds = obj.getState().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
       for (var vidEntry : verIds.entrySet()) {

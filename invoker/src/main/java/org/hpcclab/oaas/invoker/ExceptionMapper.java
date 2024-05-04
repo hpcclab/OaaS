@@ -31,8 +31,7 @@ public class ExceptionMapper {
     if (statusRuntimeException.getStatus().getCode()==Code.UNAUTHENTICATED)
       status = Response.Status.UNAUTHORIZED;
     if (LOGGER.isWarnEnabled() || status==Response.Status.INTERNAL_SERVER_ERROR) {
-      LOGGER.warn("mapping StatusRuntimeException({}) {}",
-        status, statusRuntimeException.getMessage());
+      LOGGER.warn("mapping StatusRuntimeException: {}", statusRuntimeException.getMessage());
     } else if (LOGGER.isDebugEnabled())
       LOGGER.debug("mapping StatusRuntimeException({})", status);
     return Response.status(status)

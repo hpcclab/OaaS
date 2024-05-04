@@ -20,7 +20,7 @@ public interface IspnConfig {
     int queueSize();
     @WithDefault("false")
     boolean async();
-    @WithDefault("HEAP")
+    @WithDefault("OFF_HEAP")
     StorageType storageType();
     @WithDefault("1000000")
     Optional<Long> maxCount();
