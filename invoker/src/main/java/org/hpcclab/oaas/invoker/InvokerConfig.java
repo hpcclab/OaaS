@@ -78,6 +78,9 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean enableInvReqMetric();
 
+  @WithDefault("false")
+  boolean disableVertxForGrpc();
+
   @WithDefault("3")
   int syncMaxRetry();
 

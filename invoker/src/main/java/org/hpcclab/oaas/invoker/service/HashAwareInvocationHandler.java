@@ -72,7 +72,9 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
-    this.pool = new GrpcInvocationServicePool(vertx.getDelegate());
+    this.pool = new GrpcInvocationServicePool(
+      invokerConfig.disableVertxForGrpc()? null: vertx.getDelegate()
+    );
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
