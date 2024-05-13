@@ -23,8 +23,7 @@ templates:
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
         maxScaleStep: 2
-        env:
-          OPRC_LOG: "DEBUG"
+        env: {}
         requestCpu: 500m
         requestMemory: 256Mi
         limitCpu: '2'
@@ -41,7 +40,7 @@ templates:
       maxScaleStep: 3
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
-      objectiveAmplifier: 0.75
+      objectiveAmplifier: 0.6
       objectiveMissThreshold: 0.75
       idleFilterThreshold: 0.6
     priority: 0
@@ -76,8 +75,7 @@ templates:
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
         maxScaleStep: 1
-        env:
-          OPRC_LOG: "DEBUG"
+        env: {}
         requestCpu: '2'
         requestMemory: 512Mi
         limitCpu: '2'
@@ -96,7 +94,7 @@ templates:
       maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
-      objectiveAmplifier: 0.75
+      objectiveAmplifier: 0.6
       objectiveMissThreshold: 0.75
       idleFilterThreshold: 0.6
     priority: 10
