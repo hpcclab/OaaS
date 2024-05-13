@@ -1,13 +1,17 @@
 package org.hpcclab.oaas.invocation.controller;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.exception.TooManyRequestException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Pawissanutt
@@ -16,13 +20,17 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
   protected final ClassControllerRegistry classControllerRegistry;
   protected final CtxLoader ctxLoader;
   protected final IdGenerator idGenerator;
+  protected final AtomicInteger inflight = new AtomicInteger(0);
+  protected final int maxInflight;
 
   public CcInvocationReqHandler(ClassControllerRegistry classControllerRegistry,
                                 CtxLoader ctxLoader,
-                                IdGenerator idGenerator) {
+                                IdGenerator idGenerator,
+                                int maxInflight) {
     this.classControllerRegistry = classControllerRegistry;
     this.ctxLoader = ctxLoader;
     this.idGenerator = idGenerator;
+    this.maxInflight = maxInflight;
   }
 
 
@@ -34,6 +42,12 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
           .async(false)
           .build());
     }
+
+    int count = inflight.incrementAndGet();
+    if (count>maxInflight) {
+      inflight.decrementAndGet();
+      return Uni.createFrom().failure(new TooManyRequestException());
+    }
     return ctxLoader.load(request)
       .flatMap(ctx -> {
         var con = classControllerRegistry.getClassController(request.cls());
@@ -42,7 +56,8 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
       })
       .map(ctx -> ctx.createResponse()
         .async(false)
-        .build());
+        .build())
+      .eventually(inflight::decrementAndGet);
   }
 
 
@@ -61,4 +76,8 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
         .build());
   }
 
+  class Counter{
+    int count;
+
+  }
 }

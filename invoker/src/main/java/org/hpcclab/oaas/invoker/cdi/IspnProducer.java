@@ -5,13 +5,13 @@ import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invoker.InvokerConfig;
+import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepoManager;
-import org.hpcclab.oaas.invoker.lookup.HashRegistry;
-import org.hpcclab.oaas.invoker.lookup.LookupManager;
+import org.hpcclab.oaas.invoker.lookup.*;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.proto.InternalCrStateService;
-import org.hpcclab.oaas.proto.ProtoCrHash;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.infinispan.Cache;
 import org.infinispan.lock.EmbeddedClusteredLockManagerFactory;
@@ -32,10 +32,16 @@ public class IspnProducer {
   @Produces
   @ApplicationScoped
   HashRegistry hashRegistry(@GrpcClient("package-manager") InternalCrStateService crStateService,
-                            IspnCacheCreator cacheCreator) {
-    Cache<String, CrHash> replicatedCache = cacheCreator
-      .createReplicateCache("hashRegistry", 100000);
-    return new HashRegistry(crStateService, replicatedCache);
+                            IspnCacheCreator cacheCreator,
+                            InvokerManager invokerManager,
+                            InvokerConfig invokerConfig) {
+    if (invokerConfig.useRepForHash()) {
+      Cache<String, CrHash> replicatedCache = cacheCreator
+        .createReplicateCache("hashRegistry", true, 100000);
+      return new CacheHashRegistry(crStateService, invokerManager, replicatedCache);
+    } else {
+      return new MapHashRegistry(crStateService);
+    }
   }
 
   @Produces

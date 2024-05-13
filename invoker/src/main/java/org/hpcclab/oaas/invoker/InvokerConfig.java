@@ -52,7 +52,7 @@ public interface InvokerConfig {
   @WithDefault("64")
   int invokeConcurrency();
 
-  @WithDefault("500")
+  @WithDefault("5000")
   int maxInflight();
 
   S3ConnConf s3();
@@ -78,16 +78,19 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean enableInvReqMetric();
 
+  @WithDefault("false")
+  boolean disableVertxForGrpc();
+
   @WithDefault("3")
   int syncMaxRetry();
 
   @WithDefault("500")
   int syncRetryBackOff();
 
-  @WithDefault("5000")
+  @WithDefault("10000")
   int syncMaxRetryBackOff();
 
-  @WithDefault("3000")
+  @WithDefault("1000")
   int connectTimeout();
 
   @WithDefault("true")
@@ -98,6 +101,9 @@ public interface InvokerConfig {
 
   @WithDefault("false")
   boolean forceInvokeLocal();
+
+  @WithDefault("false")
+  boolean useRepForHash();
 
   enum LoadAssignMode {
     FETCH, ENV, DISABLED

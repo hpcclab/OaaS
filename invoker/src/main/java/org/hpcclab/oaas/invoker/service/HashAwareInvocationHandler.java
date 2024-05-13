@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.common.GrpcStatus;
+import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
@@ -57,7 +58,9 @@ public class HashAwareInvocationHandler {
                                     ProtoObjectMapper mapper,
                                     GrpcClient grpcClient,
                                     InvocationReqHandler invocationReqHandler,
-                                    InvokerManager invokerManager, InvokerConfig invokerConfig) {
+                                    InvokerManager invokerManager,
+                                    InvokerConfig invokerConfig,
+                                    Vertx vertx) {
     this.lookupManager = lookupManager;
     this.registry = registry;
     this.mapper = mapper;
@@ -69,7 +72,9 @@ public class HashAwareInvocationHandler {
     this.backoff = invokerConfig.syncRetryBackOff();
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
-    this.pool = new GrpcInvocationServicePool();
+    this.pool = new GrpcInvocationServicePool(
+      invokerConfig.disableVertxForGrpc()? null: vertx.getDelegate()
+    );
   }
 
   public static SocketAddress toSocketAddress(CrHash.ApiAddress address) {
@@ -86,14 +91,22 @@ public class HashAwareInvocationHandler {
       return invocationReqHandler.invoke(request);
     }
     ObjLocalResolver resolver = resolveAddr(request.cls());
-    CrHash.ApiAddress addr = resolver.find(request.main());
+    Supplier<CrHash.ApiAddress> supplier = resolver.createSupplier(request.main());
+    CrHash.ApiAddress addr = supplier.get();
     if (lookupManager.isLocal(addr)) {
-      logger.debug("invoke local {}~{}:{}", request.cls(), request.main(), request.fb());
+      logger.debug("invoke local {}~{}:{}",
+        request.cls(), request.main(), request.fb());
       return invocationReqHandler.invoke(request);
     } else {
-      logger.debug("invoke remote {}~{}:{} to {}:{}",
-        request.cls(), request.main(), request.fb(), addr.host(), addr.port());
-      return sendWithPool(() -> resolver.find(request.main()), mapper.toProto(request))
+      if (addr!=null) {
+        logger.debug("invoke remote {}~{}:{} to {}:{}",
+          request.cls(), request.main(), request.fb(), addr.host(), addr.port());
+      } else {
+        logger.debug("invoke remote {}~{}:{}",
+          request.cls(), request.main(), request.fb());
+      }
+
+      return sendWithPool(supplier, mapper.toProto(request))
         .map(mapper::fromProto);
     }
   }
@@ -109,15 +122,21 @@ public class HashAwareInvocationHandler {
         .map(mapper::toProto);
     }
     ObjLocalResolver resolver = resolveAddr(request.getCls());
-    CrHash.ApiAddress addr = resolver.find(request.getMain());
+    Supplier<CrHash.ApiAddress> supplier = resolver.createSupplier(request.getMain());
+    CrHash.ApiAddress addr = supplier.get();
     if (lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}", request.getCls(), request.getMain(), request.getFb());
       return invocationReqHandler.invoke(mapper.fromProto(request))
         .map(mapper::toProto);
     } else {
-      logger.debug("invoke remote {}~{}:{} to {}:{}",
-        request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
-      return sendWithPool(() -> resolver.find(request.getMain()), request);
+      if (addr!=null)
+        logger.debug("invoke remote {}~{}:{} to {}:{}",
+          request.getCls(), request.getMain(), request.getFb(), addr.host(), addr.port());
+      else {
+        logger.debug("invoke remote {}~{}:{}",
+          request.getCls(), request.getMain(), request.getFb());
+      }
+      return sendWithPool(supplier, request);
     }
   }
 
@@ -213,6 +232,10 @@ public class HashAwareInvocationHandler {
   static class RetryableException extends StdOaasException {
     public RetryableException() {
       super(502);
+    }
+
+    public RetryableException(Throwable cause) {
+      super(null, cause);
     }
   }
 }

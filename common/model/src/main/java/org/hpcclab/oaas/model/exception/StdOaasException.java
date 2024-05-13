@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.model.exception;
 
 public class StdOaasException extends RuntimeException {
-  int code;
+  final int code;
 
   public StdOaasException(int code) {
     this(null, null, true, code);
@@ -29,10 +29,6 @@ public class StdOaasException extends RuntimeException {
     return code;
   }
 
-  public StdOaasException setCode(int code) {
-    this.code = code;
-    return this;
-  }
 
 
   public static StdOaasException notFoundObject400(String uuid) {

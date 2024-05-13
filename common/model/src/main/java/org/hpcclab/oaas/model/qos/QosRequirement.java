@@ -18,13 +18,13 @@ public class QosRequirement {
   @ProtoField(2)
   int throughput;
   @ProtoField(3)
-  float availability;
+  double availability;
 
   public QosRequirement() {
   }
 
   @ProtoFactory
-  public QosRequirement(int latency, int throughput, float availability) {
+  public QosRequirement(int latency, int throughput, double availability) {
     this.latency = latency;
     this.throughput = throughput;
     this.availability = availability;

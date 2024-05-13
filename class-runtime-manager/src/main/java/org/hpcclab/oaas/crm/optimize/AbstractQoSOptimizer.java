@@ -19,11 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.harmonicMean;
-import static org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.mean;
-
-public class DefaultQoSOptimizer implements QosOptimizer {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultQoSOptimizer.class);
+public abstract class AbstractQoSOptimizer implements QosOptimizer {
+  private static final Logger logger = LoggerFactory.getLogger(AbstractQoSOptimizer.class);
 
   final String defaultRequestCpu;
   final String defaultRequestMem;
@@ -32,7 +29,9 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   final double thresholdLower;
   final double fnThresholdUpper;
   final double fnThresholdLower;
-  public DefaultQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
+  final int minDatapoints;
+
+  protected AbstractQoSOptimizer(CrtMappingConfig.CrtConfig crtConfig) {
     this.crtConfig = crtConfig;
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
     defaultRequestCpu = Objects.requireNonNullElse(fnConfig.defaultRequestCpu(), "0.5");
@@ -44,9 +43,11 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     thresholdLower = Double.parseDouble(conf
       .getOrDefault("thresholdLower", "0.4"));
     fnThresholdUpper = Double.parseDouble(conf
-      .getOrDefault("fnThresholdUpper", "0.85"));
+      .getOrDefault("fnThresholdUpper", "0.9"));
     fnThresholdLower = Double.parseDouble(conf
-      .getOrDefault("fnThresholdLower", "0.4"));
+      .getOrDefault("fnThresholdLower", "0.6"));
+    minDatapoints = Integer.parseInt(conf
+      .getOrDefault("minDatapoints", "3"));
   }
 
 
@@ -59,7 +60,7 @@ public class DefaultQoSOptimizer implements QosOptimizer {
     }
   }
 
-  private static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
+  public static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
     float startReplica;
     startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
     startReplica = Math.max(minInstance, startReplica);
@@ -68,10 +69,52 @@ public class DefaultQoSOptimizer implements QosOptimizer {
   }
 
   @Override
+  public CrAdjustmentPlan adjust(CrController controller, CrPerformanceMetrics metrics) {
+    Map<String, CrInstanceSpec> fnInstance = Maps.mutable.empty();
+    var currentPlan = controller.currentPlan();
+    for (var entry : controller.getAttachedFn().entrySet()) {
+      var fnKey = entry.getKey();
+      var fn = entry.getValue();
+      var fnMetrics = metrics.fnMetrics().get(fnKey);
+      if (fnMetrics==null) continue;
+      CrInstanceSpec instanceSpec = currentPlan.fnInstances().get(fnKey);
+      var adjust = adjustComponent(
+        controller,
+        instanceSpec,
+        controller.getTemplate().getConfig().functions(),
+        fn.getQos(),
+        fnMetrics,
+        fnKey,
+        true
+      );
+      if (adjust.change()) fnInstance.put(fnKey, adjust.spec());
+    }
+    Map<OprcComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
+
+    if (currentPlan==null)
+      return CrAdjustmentPlan.DEFAULT;
+    return new CrAdjustmentPlan(
+      coreInstance,
+      fnInstance,
+      CrDataSpec.DEFAULT,
+      !coreInstance.isEmpty() || !fnInstance.isEmpty()
+    );
+  }
+
+  protected abstract AdjustComponent adjustComponent(CrController controller,
+                                          CrInstanceSpec instanceSpec,
+                                          CrtMappingConfig.ScalingConfig svcConfig,
+                                          ProtoQosRequirement qos,
+                                          SvcPerformanceMetrics metrics,
+                                          String name,
+                                          boolean isFunc) ;
+
+
+  @Override
   public CrDeploymentPlan resolve(DeploymentUnit unit, OprcEnvironment environment) {
 
     var up = environment.availability().uptimePercentage();
-    float targetAvail = unit.getCls().getQos().getAvailability();
+    double targetAvail = unit.getCls().getQos().getAvailability();
     var qos = unit.getCls().getQos();
     int minInstance;
     int minAvail;
@@ -82,10 +125,10 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       minAvail = 1;
     } else {
       var replica = Math.log(1 - targetAvail) / Math.log(1 - up);
-      var replicaN = (int) Math.max(2, Math.ceil(replica));
-      minInstance = replicaN;
+      minInstance = (int) Math.max(1, Math.ceil(replica));
+      var replicaN = Math.max(2, minInstance);
       dataSpec = new CrDataSpec(replicaN);
-      minAvail = replicaN;
+      minAvail = minInstance;
     }
     CrtMappingConfig.SvcConfig invoker = crtConfig.services()
       .get(OprcComponent.INVOKER.getSvc());
@@ -136,112 +179,6 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .build();
   }
 
-  @Override
-  public CrAdjustmentPlan adjust(CrController controller, CrPerformanceMetrics metrics) {
-    Map<String, CrInstanceSpec> fnInstance = Maps.mutable.empty();
-    var currentPlan = controller.currentPlan();
-    for (var entry : controller.getAttachedFn().entrySet()) {
-      var fnKey = entry.getKey();
-      var fn = entry.getValue();
-      var fnMetrics = metrics.fnMetrics().get(fnKey);
-      if (fnMetrics==null) continue;
-      CrInstanceSpec instanceSpec = currentPlan.fnInstances().get(fnKey);
-      var adjust = adjustComponent(
-        controller,
-        instanceSpec,
-        controller.getTemplate().getConfig().functions(),
-        fn.getQos(),
-        fnMetrics,
-        fnKey,
-        true
-      );
-      if (adjust.change()) fnInstance.put(fnKey, adjust.spec());
-    }
-    Map<OprcComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
-
-    if (currentPlan==null)
-      return CrAdjustmentPlan.DEFAULT;
-    return new CrAdjustmentPlan(
-      coreInstance,
-      fnInstance,
-      CrDataSpec.DEFAULT,
-      !coreInstance.isEmpty() || !fnInstance.isEmpty()
-    );
-  }
-
-  private AdjustComponent adjustComponent(CrController controller,
-                                          CrInstanceSpec instanceSpec,
-                                          CrtMappingConfig.ScalingConfig svcConfig,
-                                          ProtoQosRequirement qos,
-                                          SvcPerformanceMetrics metrics,
-                                          String name,
-                                          boolean isFunc) {
-    if (metrics==null)
-      return AdjustComponent.NONE;
-    if (svcConfig.disableDynamicAdjustment())
-      return AdjustComponent.NONE;
-    int targetRps = qos.getThroughput();
-    if (targetRps <= 0)
-      return AdjustComponent.NONE;
-    metrics = metrics.filterByStableTime(controller.getStableTime(name));
-    var meanRps = harmonicMean(metrics.rps());
-    var meanCpu = mean(metrics.cpu());
-    if (meanRps < 1) {// < 1 is too little. Preventing result explode
-      return AdjustComponent.NONE; // prevent overriding throughput guarantee
-    }
-    var totalRequestCpu = Math.max(1, instanceSpec.minInstance()) * instanceSpec.requestsCpu();
-    var cpuPerRps = meanCpu / meanRps;
-    double expectedCpu = Math.max(0, cpuPerRps * targetRps);
-    int expectedInstance = (int) Math.ceil(expectedCpu / instanceSpec.requestsCpu()); // or limit?
-    var cpuPercentage = meanCpu / totalRequestCpu;
-    var lower = isFunc ? fnThresholdLower:thresholdLower;
-    var upper = isFunc ? fnThresholdUpper:thresholdUpper;
-    var expectedRps = cpuPercentage < 1 ? meanRps /cpuPercentage : meanRps;
-    var prevInstance = instanceSpec.minInstance();
-    var nextInstance = prevInstance;
-    var objectiveMissThreshold = svcConfig.objectiveMissThreshold() <= 0? 1: svcConfig.objectiveMissThreshold();
-    var idleFilterThreshold = svcConfig.idleFilterThreshold() <= 0? 0.25: svcConfig.idleFilterThreshold();
-    logger.debug("compute adjust[1] on ({} : {}), meanRps {}, expectedRps {} (>{}), meanCpu {}, cpuPerRps {}, targetRps {}, cpuPercentage {} ({}<{}), expectedInstance {}",
-      controller.getTsidString(), name, meanRps, expectedRps,
-      targetRps * objectiveMissThreshold, meanCpu, cpuPerRps,
-      targetRps, cpuPercentage, lower, upper, expectedInstance);
-
-    /*
-    * over provisioning
-    ++ low utilization (cpu-util < thresh_low_util)  while meet the objective (real rps > objective)
-    * under provisioning
-    ++ high utilization (cpu-util > thresh_high_util) while not meet the objective (real rps < objective)
-    ++ expect that objective is not fulfilment by current resource ( expect_rps / objective < thresh_objective_fulfilment) with the current utilization higher than threshold
-     */
-    if (cpuPercentage < lower && meanRps > targetRps) {
-      nextInstance = Math.min(expectedInstance, nextInstance);
-    } else if (cpuPercentage > upper && meanRps < targetRps) {
-      nextInstance = Math.max(expectedInstance, nextInstance);
-    } else if (expectedRps / targetRps < objectiveMissThreshold
-      && cpuPercentage > idleFilterThreshold) {
-      nextInstance = Math.max(expectedInstance, nextInstance);
-    } else {
-      return AdjustComponent.NONE;
-    }
-
-    int capChanged = limitChange(instanceSpec.minInstance(), nextInstance, svcConfig.maxScaleStep());
-    capChanged = Math.max(capChanged, instanceSpec.minAvail());
-    if (instanceSpec.maxInstance() > 0) {
-      capChanged = Math.min(capChanged, instanceSpec.maxInstance());
-    }
-    var adjust = instanceSpec.toBuilder().minInstance(capChanged).build();
-    var needChange = !instanceSpec.equals(adjust);
-    logger.debug("compute adjust[2] on ({} : {}), nextInstance {}, prevInstance {}, maxInstance {}, capChanged {}, needChange {}",
-      controller.getTsidString(), name, nextInstance, prevInstance, instanceSpec.maxInstance(), capChanged, needChange);
-
-    if (needChange)
-      logger.debug("next adjustment ({} : {}) : {}", controller.getTsidString(), name, adjust);
-    return new AdjustComponent(
-      needChange,
-      adjust
-    );
-  }
-
   private CrInstanceSpec resolve(ProtoOFunction fn) {
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
     var provision = fn.getProvision();
@@ -267,17 +204,18 @@ public class DefaultQoSOptimizer implements QosOptimizer {
       .build();
   }
 
-  float parseCpu(String val) {
+  protected float parseCpu(String val) {
     if (val==null || val.isEmpty())
       return -1;
     return Quantity.parse(val).getNumericalAmount().floatValue();
   }
 
-  long parseMem(String val) {
+  protected long parseMem(String val) {
     if (val==null || val.isEmpty())
       return -1;
     return Quantity.parse(val).getNumericalAmount().longValue();
   }
+
 
   private Map<OprcComponent, CrInstanceSpec> computeCls(CrController controller,
                                                         CrPerformanceMetrics metrics) {

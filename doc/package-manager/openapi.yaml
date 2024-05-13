@@ -983,7 +983,7 @@ components:
           format: int32
           type: integer
         availability:
-          format: float
+          format: double
           type: number
     QosRequirement_Public:
       type: object
@@ -995,7 +995,7 @@ components:
           format: int32
           type: integer
         availability:
-          format: float
+          format: double
           type: number
     ReferenceSpecification:
       type: object

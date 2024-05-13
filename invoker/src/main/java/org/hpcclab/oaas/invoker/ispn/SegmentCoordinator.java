@@ -5,23 +5,27 @@ import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.mutiny.kafka.client.consumer.KafkaConsumer;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.ispn.repo.EIspnObjectRepository;
+import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.infinispan.AdvancedCache;
 import org.infinispan.commons.util.IntSet;
 import org.infinispan.commons.util.IntSets;
+import org.infinispan.manager.impl.InternalCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.TopologyChanged;
 import org.infinispan.notifications.cachelistener.event.TopologyChangedEvent;
+import org.infinispan.remoting.transport.Transport;
+import org.infinispan.remoting.transport.jgroups.JGroupsAddress;
+import org.jgroups.stack.IpAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
 public class SegmentCoordinator {
-  private static final Logger logger = LoggerFactory.getLogger( SegmentCoordinator.class );
+  private static final Logger logger = LoggerFactory.getLogger(SegmentCoordinator.class);
   final String topic;
   final int port;
   final OClass cls;
@@ -86,11 +90,22 @@ public class SegmentCoordinator {
         }
         return Uni.createFrom().nullItem();
       })
-      .invoke(__ -> registry.initLocal(cache.getCacheManager()))
-      .call(__ ->registry.updateManaged(cls.getKey(), cache, port))
+      .invoke(__ -> initLocal())
+      .call(__ -> registry.updateManaged(cls.getKey(), cache, port))
       .invoke(__ -> {
         if (!localParts.isEmpty()) runnable.run();
       });
+  }
+
+  public void initLocal() {
+    if (registry.getLocalAdvertiseAddress()==null) {
+      var globalComponentRegistry = InternalCacheManager.of(cache.getCacheManager());
+      var transport = globalComponentRegistry.getComponent(Transport.class);
+      JGroupsAddress address = (JGroupsAddress) transport.getPhysicalAddresses().getFirst();
+      IpAddress ipAddress = (IpAddress) address.getJGroupsAddress();
+      var localAdvertiseAddress = ipAddress.getIpAddress().getHostAddress();
+      registry.setLocalAdvertiseAddress(localAdvertiseAddress);
+    }
   }
 
   @Listener

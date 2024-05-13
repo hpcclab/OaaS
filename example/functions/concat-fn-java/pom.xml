@@ -15,7 +15,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.9.4</quarkus.platform.version>
+    <quarkus.platform.version>3.9.5</quarkus.platform.version>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
   </properties>
   <dependencyManagement>
@@ -63,14 +63,9 @@
       <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.github.hpcclab.OaaS</groupId>-->
-<!--      <artifactId>model</artifactId>-->
-<!--      <version>main-SNAPSHOT</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-container-image-jib</artifactId>
+      <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>

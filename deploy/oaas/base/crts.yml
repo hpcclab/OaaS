@@ -23,8 +23,7 @@ templates:
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
         maxScaleStep: 2
-        env:
-          OPRC_LOG: "DEBUG"
+        env: {}
         requestCpu: 500m
         requestMemory: 256Mi
         limitCpu: '2'
@@ -32,15 +31,18 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
     optimizerConf:
-      thresholdUpper: 1
+      thresholdUpper: 1.8
       thresholdLower: 0.5
-      fnThresholdUpper: 0.7
-      fnThresholdLower: 0.3
+      fnThresholdUpper: 0.9
+      fnThresholdLower: 0.6
     functions:
       stabilizationWindow: 30000
       maxScaleStep: 3
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
+      objectiveAmplifier: 0.6
+      objectiveMissThreshold: 0.75
+      idleFilterThreshold: 0.6
     priority: 0
   ######################################################
   high-load:
@@ -67,13 +69,13 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
+        idleFilterThreshold: 0.5
       storage-adapter:
         image: ghcr.io/hpcclab/oaas/storage-adapter
         imagePullPolicy: IfNotPresent
         stabilizationWindow: 30000
         maxScaleStep: 1
-        env:
-          OPRC_LOG: "DEBUG"
+        env: {}
         requestCpu: '2'
         requestMemory: 512Mi
         limitCpu: '2'
@@ -81,14 +83,18 @@ templates:
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
+        idleFilterThreshold: 0.5
     optimizerConf:
-      thresholdUpper: 1
+      thresholdUpper: 1.8
       thresholdLower: 0.3
-      fnThresholdUpper: 0.7
-      fnThresholdLower: 0.3
+      fnThresholdUpper: 0.9
+      fnThresholdLower: 0.6
     functions:
       stabilizationWindow: 60000
       maxScaleStep: 5
       defaultRequestCpu: 500m
       defaultRequestMem: 256Mi
+      objectiveAmplifier: 0.6
+      objectiveMissThreshold: 0.75
+      idleFilterThreshold: 0.6
     priority: 10

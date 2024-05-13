@@ -7,6 +7,8 @@ import org.hpcclab.oaas.crm.OprcComponent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public record CrPerformanceMetrics(
   Map<OprcComponent, SvcPerformanceMetrics> coreMetrics,
@@ -32,6 +34,21 @@ public record CrPerformanceMetrics(
       .filter(v -> !Double.isNaN(v))
       .average()
       .orElse(0);
+  }
+
+  public static Double divideThenMean(List<CrPerformanceMetrics.DataPoint> dp1List,
+                                      List<CrPerformanceMetrics.DataPoint> dp2List) {
+    double sum = 0;
+    double count = 0;
+    Map<Long, Double> dp2Map = dp2List.stream().collect(Collectors.toMap(DataPoint::timestamp, DataPoint::value));
+    for (DataPoint dp1 : dp1List) {
+      double dp2Value = dp2Map.getOrDefault(dp1.timestamp(), 0d);
+      if (dp2Value==0) continue;
+      sum += dp1.value / dp2Value;
+      count++;
+    }
+    if (count==0) return 0d;
+    return sum / count;
   }
 
   public static List<DataPoint> addingMerge(List<DataPoint> list1, List<DataPoint> list2) {
@@ -72,6 +89,35 @@ public record CrPerformanceMetrics(
         filterByTime(rps, stableTime),
         filterByTime(msLatency, stableTime)
       );
+    }
+
+    public SvcPerformanceMetrics syncTimeOnCpuMemRps() {
+      long min = Stream.of(cpu, mem, rps)
+        .mapToLong(dataPoints -> dataPoints.stream()
+          .mapToLong(DataPoint::timestamp)
+          .min().orElse(0))
+        .max()
+        .orElse(0L);
+      long max = Stream.of(cpu, mem, rps)
+        .mapToLong(dataPoints -> dataPoints.stream()
+          .mapToLong(DataPoint::timestamp)
+          .max().orElse(0))
+        .min()
+        .orElse(0L);
+      var newCpu = cpu.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      var newMem = mem.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      var newRps = rps.stream()
+        .filter(d -> d.timestamp >= min && d.timestamp <= max)
+        .toList();
+      return toBuilder()
+        .cpu(newCpu)
+        .mem(newMem)
+        .rps(newRps)
+        .build();
     }
   }
 

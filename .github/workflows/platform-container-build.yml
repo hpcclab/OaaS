@@ -53,7 +53,7 @@ jobs:
 
     - name: Build and push container image (platforms)
       if: env.CONTAINER_PUSH
-      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.jib.base-jvm-image="${BASE_IMAGE}"
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
 
     - name: Build and test project (concat)
       working-directory: example/functions/concat-fn-java
@@ -61,7 +61,7 @@ jobs:
 
     - name: Build and push container image (concat)
       working-directory: example/functions/concat-fn-java
-      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG" -Dquarkus.jib.base-jvm-image="$BASE_IMAGE"
+      run: mvn -B -DskipTests package --file pom.xml -Dquarkus.container-image.username=${{ github.actor }} -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=$CONTAINER_PUSH -Dquarkus.container-image.image="$CI_REGISTRY_IMAGE/concat-fn-java$TAG"
 
     - name: Release
       uses: softprops/action-gh-release@v1

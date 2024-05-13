@@ -73,10 +73,7 @@ public class InvokerInitializer {
               });
           })
           .start().await().indefinitely();
-        hashListener.setHandler(protoCrHash -> {
-            if (!invokerManager.getManagedCls().contains(protoCrHash.getCls()))
-              hashRegistry.updateManaged(protoCrHash);
-          })
+        hashListener.setHandler(hashRegistry::storeExternal)
           .start().await().indefinitely();
         loadAssignedCls();
         if (config.enableWarmHashCache())

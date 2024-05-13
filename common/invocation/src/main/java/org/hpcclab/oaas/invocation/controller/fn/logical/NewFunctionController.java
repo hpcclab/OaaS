@@ -81,9 +81,9 @@ public class NewFunctionController extends AbstractFunctionController
     ctx.setStateOperations(List.of(
       SimpleStateOperation.createObjs(List.of(obj), cls)
     ));
-
+    var fileKeys = construct.keys() == null? Set.of() : construct.keys();
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
-      .select(k -> construct.keys().contains(k.getName()))
+      .select(k -> fileKeys.contains(k.getName()))
       .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
       ctx.setRespBody(null);

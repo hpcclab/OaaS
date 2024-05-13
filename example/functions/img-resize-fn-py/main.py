@@ -39,7 +39,7 @@ def get_image_size(image_path):
         return width, height
 
 
-async def resize_image(input_image, output_image, method='ffmpeg', size=None, ratio=None):
+async def resize_image(input_image, output_image, method='PIL', size=None, ratio=None):
     """
     Resize the input image based on either size or ratio using either PIL or ffmpeg.
 
@@ -99,7 +99,7 @@ class ResizeHandler(oaas.Handler):
     async def handle(self, ctx: OaasInvocationCtx):
         size = ctx.args.get('size', '')
         ratio = float(ctx.args.get('ratio', '1'))
-        method = ctx.args.get("method", "ffmpeg")
+        method = ctx.args.get("method", "PIL")
         inplace = ctx.task.output_obj is None or ctx.task.output_obj.id is None
         req_ts = int(ctx.args.get('reqts', '0'))
         fmt = ctx.task.main_obj.data.get('format', 'png')
@@ -112,11 +112,12 @@ class ResizeHandler(oaas.Handler):
             record['reqts'] = req_ts
 
         start_ts = time.time()
-        async with aiohttp.ClientSession() as session:
-            async with await ctx.load_main_file(session, IMAGE_KEY) as resp:
-                await write_to_file(resp, tmp_in)
-                loading_time = time.time() - start_ts
-                logging.debug(f"load data in {loading_time} s")
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with await ctx.load_main_file(session, IMAGE_KEY) as resp:
+                    await write_to_file(resp, tmp_in)
+                    loading_time = time.time() - start_ts
+                    logging.debug(f"load data in {loading_time} s")
 
                 (width, height) = await resize_image(tmp_in, tmp_out,
                                                      method=method,
@@ -135,6 +136,11 @@ class ResizeHandler(oaas.Handler):
                     ctx.task.main_obj.data = record
                 else:
                     ctx.task.output_obj.data = record
+        finally:
+            if os.path.isfile(tmp_out):
+                os.remove(tmp_out)
+            if os.path.isfile(tmp_in):
+                os.remove(tmp_in)
 
 
 app = FastAPI()

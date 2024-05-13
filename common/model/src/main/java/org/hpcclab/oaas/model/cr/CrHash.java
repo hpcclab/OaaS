@@ -30,7 +30,8 @@ public record CrHash(String cls, int numSegment, List<ApiAddress> segmentAddr, l
     var newer = h1.ts > h2.ts ? h1 : h2;
     var older = h1.ts > h2.ts ? h2 : h1;
     var addrList = Lists.mutable.ofAll(newer.segmentAddr);
-    for (int i = 0; i < h2.segmentAddr().size(); i++) {
+    var count = newer.segmentAddr.size();
+    for (int i = 0; i < count; i++) {
       var newAddr = addrList.get(i);
       if (older.segmentAddr.size() <= i) continue;
       var oldAddr = older.segmentAddr.get(i);
@@ -38,7 +39,7 @@ public record CrHash(String cls, int numSegment, List<ApiAddress> segmentAddr, l
         addrList.set(i, oldAddr);
       }
     }
-    return new CrHash(newer.cls, addrList.size(), addrList, newer.ts);
+    return new CrHash(newer.cls, count, addrList, newer.ts);
   }
 
   public static ApiAddress NULL = new ApiAddress("", 0, 0);

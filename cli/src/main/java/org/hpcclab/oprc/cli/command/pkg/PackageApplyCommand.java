@@ -1,6 +1,7 @@
 package org.hpcclab.oprc.cli.command.pkg;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.uritemplate.UriTemplate;
@@ -31,8 +32,10 @@ public class PackageApplyCommand implements Callable<Integer> {
 
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
-  @CommandLine.Option(names = {"--override-package", "-p"})
+  @CommandLine.Option(names = { "-p", "--override-package",})
   String overridePackageName;
+  @CommandLine.Option(names = { "--tp", "--override-throughput",}, defaultValue = "-1")
+  int overrideThroughput;
 
   @Inject
   ConfigFileManager fileManager;
@@ -49,6 +52,19 @@ public class PackageApplyCommand implements Callable<Integer> {
     var json = new JsonObject(yamlMapper.readValue(pkg, Map.class));
     if (overridePackageName!=null && !overridePackageName.isEmpty())
       json.put("name",overridePackageName);
+    if (overrideThroughput>0) {
+      JsonObject merger = JsonObject.of("qos", JsonObject.of("throughput", overrideThroughput));
+      JsonArray classes = json.getJsonArray("classes");
+      for (int i = 0; i < classes.size(); i++) {
+        JsonObject cls = classes.getJsonObject(i);
+        cls.mergeIn(merger, true);
+      }
+      JsonArray fns = json.getJsonArray("functions");
+      for (int i = 0; i < fns.size(); i++) {
+        JsonObject fn = fns.getJsonObject(i);
+        fn.mergeIn(merger, true);
+      }
+    }
     var res = webClient.postAbs(UriTemplate.of("{+oc}/api/packages")
         .expandToString(Variables.variables()
           .set("oc", fileManager.current().getPmUrl())))

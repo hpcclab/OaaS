@@ -14,7 +14,6 @@ import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -31,18 +30,18 @@ import java.util.Map;
 public class ClassResource {
   final InvokerManager invokerManager;
   final HashAwareInvocationHandler hashAwareInvocationHandler;
-  final InvocationReqHandler invocationHandlerService;
+  final InvocationReqHandler invocationReqHandler;
   final ObjectRepoManager objectRepoManager;
   final RequestCounterMap requestCounterMap;
 
   public ClassResource(InvokerManager invokerManager,
                        HashAwareInvocationHandler hashAwareInvocationHandler,
-                       InvocationReqHandler invocationHandlerService,
+                       InvocationReqHandler invocationReqHandler,
                        ObjectRepoManager objectRepoManager,
                        RequestCounterMap requestCounterMap) {
     this.invokerManager = invokerManager;
     this.hashAwareInvocationHandler = hashAwareInvocationHandler;
-    this.invocationHandlerService = invocationHandlerService;
+    this.invocationReqHandler = invocationReqHandler;
     this.objectRepoManager = objectRepoManager;
     this.requestCounterMap = requestCounterMap;
   }
@@ -68,7 +67,7 @@ public class ClassResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.enqueue(oal);
+      return invocationReqHandler.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }
@@ -96,7 +95,7 @@ public class ClassResource {
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
-      return invocationHandlerService.enqueue(oal);
+      return invocationReqHandler.enqueue(oal);
     }
     return hashAwareInvocationHandler.invoke(oal);
   }

@@ -16,12 +16,14 @@ public interface IspnConfig {
   @WithDefault("-1")
   int hotRodPort();
   interface CacheStore{
-    @WithDefault("100000")
+    @WithDefault("1000000")
     int queueSize();
-    @WithDefault("HEAP")
+    @WithDefault("false")
+    boolean async();
+    @WithDefault("OFF_HEAP")
     StorageType storageType();
     @WithDefault("1000000")
-    int maxCount();
+    Optional<Long> maxCount();
     Optional<String> maxSize();
     @WithDefault("2")
     int owner();

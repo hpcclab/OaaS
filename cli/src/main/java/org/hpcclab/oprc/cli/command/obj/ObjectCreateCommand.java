@@ -47,18 +47,24 @@ public class ObjectCreateCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    FileCliConfig.FileCliContext current = fileManager.current();
-    oaasObjectCreator.setConf(current);
-    if (cls.isBlank())
-      cls = current.getDefaultClass();
-    var res = oaasObjectCreator.createObject(cls, data!=null ? new JsonObject(data):null, fb, files);
-    outputFormatter.print(commonOutputMixin.getOutputFormat(), res);
-    if (save) {
-      var id = res.getJsonObject("output").getString("id");
-      current.setDefaultObject(id);
-      current.setDefaultClass(cls);
-      fileManager.update(current);
+    try {
+      FileCliConfig.FileCliContext current = fileManager.current();
+      oaasObjectCreator.setConf(current);
+      if (cls.isBlank())
+        cls = current.getDefaultClass();
+      JsonObject res = oaasObjectCreator.createObject(cls, data!=null ? new JsonObject(data):null, fb, files);
+
+      outputFormatter.print(commonOutputMixin.getOutputFormat(), res);
+      if (save) {
+        var id = res.getJsonObject("output").getString("id");
+        current.setDefaultObject(id);
+        current.setDefaultClass(cls);
+        fileManager.update(current);
+      }
+      return 0;
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      return 1;
     }
-    return 0;
   }
 }
