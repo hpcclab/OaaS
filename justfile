@@ -29,18 +29,18 @@ k3d-build-image: build-image
 
 k8s-deploy: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/base
-  kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -f deploy/local-k8s/oprc-ingress.yml
   kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
   kubectl apply -n oaas -f deploy/local-k8s/hash-aware-lb.yml
 
 k8s-deploy-light: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/light
-  kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -f deploy/local-k8s/oprc-ingress.yml
   kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
 
 k8s-deploy-dev: k8s-deploy-deps
   kubectl apply -n oaas -k deploy/oaas/dev
-  kubectl apply -n oaas -f deploy/local-k8s/oaas-ingress.yml
+  kubectl apply -n oaas -f deploy/local-k8s/oprc-ingress.yml
   kubectl apply -n oaas -f deploy/local-k8s/oprc-np.yml
 
 k3d-reload: k3d-build-image
@@ -78,18 +78,15 @@ k8s-deploy-deps:
 
 
 k8s-clean:
-  kubectl delete -n oaas ksvc -l oaas.function
-  kubectl delete -n oaas -k deploy/oaas/base
-  kubectl delete -n oaas -f deploy/local-k8s/oaas-ingress.yml
-
-  kubectl delete -n oaas -f deploy/arango/arango-single.yml
-  kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml
-
-  kubectl delete -n oaas -f deploy/local-k8s/minio.yml
-
-  kubectl delete -n oaas -f deploy/local-k8s/kafka-ui.yml
-  kubectl delete -n oaas -f deploy/local-k8s/kafka-cluster.yml
-  kubectl delete -n oaas -f deploy/local-k8s/hash-aware-lb.yml
+  kubectl delete -n oaas ksvc -l oaas.function || true
+  kubectl delete -n oaas -f deploy/arango/arango-single.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/minio.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/kafka-ui.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/kafka-cluster.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/oprc-ingress.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/hash-aware-lb.yml || true
+  kubectl delete -n oaas -k deploy/oaas/base || true
 
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"
