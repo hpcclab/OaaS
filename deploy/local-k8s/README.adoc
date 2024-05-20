@@ -61,6 +61,14 @@ Load images to k3d runtime.
 docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 ----
 
+You can automate these steps by running `just` command:
+[source,bash]
+----
+just k3d-build-image
+----
+
+
+
 === Install dependencies
 
 Use `just` command to install dependencies

@@ -16,6 +16,7 @@ In the example usages, we provide the example scripts to show how to deploy the 
 
 NOTE: Package Manager has an auto-generated link:../doc/package-manager/openapi.yaml[OpenAPI document]. Unfortunately, GitHub does not render the OpenAPI document to user-friendly format, you can look at it on this external link:https://petstore.swagger.io/?url=https://raw.githubusercontent.com/hpcclab/OaaS/main/doc/package-manager/openapi.json[link].
 
+
 == Text Object
 This section will explain how to use OaaS via using the text object as an example. The text object only have a single function that is string concatenation. Each text object represents a single text file.
 
@@ -117,16 +118,16 @@ ocli i2 -c example.text -m <object ID> concat --args APPEND=NEW_TEXT
 
 == Image Object
 
-You can still used the same command to work with the `image` object
+You can still use the same command to work with the `image` object
 
 Here is the `ocli` examples:
 
 [source, bash]
 ----
-# Create Image Class
+# CREATE IMAGE CLASS
 ocli p a example/pkg/image.yml
 
-# Create Image OBJECT
+# CREATE IMAGE OBJECT
 ocli o c example.image -f image=<path to file>
 
 
@@ -145,4 +146,21 @@ ocli o f image <path to download>
 
 # DOWNLOAD IMAGE to out.png
 ocli o f image out.png
+----
+
+== Record Object
+The record class is the class without any file declaration, which means it can only hold the JSON data.
+
+Here is the `ocli` examples:
+
+[source, bash]
+----
+# CREATE RECORD CLASS
+ocli p a example/pkg/record.yml
+
+# CREATE RECORD OBJECT WITH JSON DATA AND SAVE THE NEW OBJECT ID
+ocli o c example.record -d '{"hello": "world"}' -s
+
+# INVOKE random FUNCTION
+ocli i2 random
 ----

@@ -26,6 +26,7 @@ classes:
         function: builtin.logical.new
         outputCls: .text
       - access: PUBLIC
+        name: resize
         function: .image.resize
         outputCls: .image
         immutable: true
