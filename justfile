@@ -73,13 +73,13 @@ k8s-deploy-deps:
   kubectl apply -n oaas -f deploy/local-k8s/kafka-cluster.yml
   kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
   kubectl apply -n oaas -f deploy/local-k8s/minio.yml
-  kubectl apply -n oaas -f deploy/arango/arango-single.yml
+  kubectl apply -n oaas -f deploy/local-k8s/arango-single.yml
   kubectl apply -n oaas -f deploy/local-k8s/arango-ingress.yml
 
 
 k8s-clean:
   kubectl delete -n oaas ksvc -l oaas.function || true
-  kubectl delete -n oaas -f deploy/arango/arango-single.yml || true
+  kubectl delete -n oaas -f deploy/local-k8s/arango-single.yml || true
   kubectl delete -n oaas -f deploy/local-k8s/arango-ingress.yml || true
   kubectl delete -n oaas -f deploy/local-k8s/minio.yml || true
   kubectl delete -n oaas -f deploy/local-k8s/kafka-ui.yml || true
@@ -90,6 +90,12 @@ k8s-clean:
 
 k3d-create:
   K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"
+
+k3d-install-all: k3d-create
+  just k8s-deploy-preq
+  just deploy/helm-prom
+  just k8s-deploy
+  kubectl get pod -w -n oaas
 
 compose-build-up: build-image
   docker compose up -d

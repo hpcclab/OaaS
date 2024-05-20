@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: arango-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arango-cluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arango-cluster
+  template:
+    metadata:
+      labels:
+        app: arango-cluster
+    spec:
+      containers:
+        - name: arangodb
+          image: arangodb:3.11
+          env:
+            #            - name: ARANGO_ROOT_PASSWORD
+            #              value: changeme
+            - name: ARANGO_NO_AUTH
+              value: "1"
+          ports:
+            - containerPort: 8529
+          volumeMounts:
+            - mountPath: /var/lib/arangodb3
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: arango-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: arango-cluster
+spec:
+  selector:
+    app: arango-cluster
+  ports:
+    - port: 8529
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: arango-cluster-ea
+spec:
+  type: NodePort
+  selector:
+    app: arango-cluster
+  ports:
+    - port: 8529
+      nodePort: 31235
