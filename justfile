@@ -1,8 +1,6 @@
 mvn := "mvnd"
 #mvn := "./mvnw"
 export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
-#export CI_REGISTRY_IMAGE := "ghcr.io/pawissanutt/oaas"
-#export QUARKUS_DOCKER_EXECUTABLE_NAME := "docker"
 
 build options="":
   ./mvnw  package {{options}}

@@ -9,6 +9,8 @@
 == Introduction
 This guide is for deploying Oparac system on the local Kubernetes (ex. kind, k3d).
 
+NOTE: TLDR; Make sure that your machine have `docker`, `kubectl`, `k3d` and `just` installed. You can simply run `just k3d-install-all` and skip to <<access_oaas>>.
+
 == Oparaca Installation
 === Prerequisites
 
@@ -101,7 +103,7 @@ This command will do the following steps:
 . ArangoDB
 ** Open the web console at `http://arg.127.0.0.1.nip.io` and login with `root` as a user and no password.
 
-=== Install and Access OaaS
+=== Access OaaS [[access_oaas]]
 . Install OaaS
 +
 [source,bash]

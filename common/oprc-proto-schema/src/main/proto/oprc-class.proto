@@ -25,6 +25,7 @@ message ProtoOClass{
   optional ProtoQosRequirement qos = 16;
   optional ProtoConstraint constraint = 17;
   optional ProtoResolvedMember resolved = 18;
+  bool disabled = 19;
 }
 
 message ProtoFunctionBinding {

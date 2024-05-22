@@ -54,12 +54,16 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
 
   public Uni<ClassController> registerOrUpdate(OClass cls) {
     logger.info("registerOrUpdate class({})", cls.getKey());
-    var outputClsKeys = cls.getFunctions()
-      .stream()
+    var outputClsKeys = cls
+      .getResolved()
+      .getFunctions()
+      .values().stream()
       .map(FunctionBinding::getOutputCls)
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
-    var fnKeys = cls.getFunctions()
+    var fnKeys = cls.getResolved()
+      .getFunctions()
+      .values()
       .stream()
       .map(FunctionBinding::getFunction)
       .collect(Collectors.toSet());
@@ -141,9 +145,11 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
                                 Map<String, OFunction> fnMap,
                                 StateManager stateManager) {
     logger.debug("build {}", cls.getKey());
-    Map<String, FunctionController> fbToFnMap = cls.getFunctions()
+    Map<String, FunctionController> fbToFnMap = cls.getResolved()
+      .getFunctions()
+      .entrySet()
       .stream()
-      .map(fb -> Map.entry(fb.getName(), buildFnController(fb, fnMap, cls, ctxClsMap)))
+      .map(entry -> Map.entry(entry.getKey(), buildFnController(entry.getValue(), fnMap, cls, ctxClsMap)))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return new BaseClassController(
       cls,
@@ -155,6 +161,7 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
       metricFactory
     );
   }
+
   protected ClassBindingComponent createComponent(OClass cls) {
     return null;
   }

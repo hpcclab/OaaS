@@ -44,6 +44,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   List<ReferenceSpecification> refSpec = List.of();
   List<String> parents = List.of();
   String description;
+  boolean disabled;
   boolean markForRemoval;
   DatastoreLink store;
   OClassConfig config;
@@ -67,6 +68,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
                 List<ReferenceSpecification> refSpec,
                 List<String> parents,
                 String description,
+                boolean disabled,
                 boolean markForRemoval,
                 DatastoreLink store,
                 OClassConfig config,
@@ -83,6 +85,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.refSpec = refSpec;
     this.parents = parents;
     this.description = description;
+    this.disabled = disabled;
     this.markForRemoval = markForRemoval;
     this.store = store;
     this.config = config;
@@ -92,7 +95,11 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     updateKey();
   }
 
-  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType, List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents, String description, boolean markForRemoval, DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos, QosConstraint constraint, ResolvedMember resolved) {
+  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType,
+                List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents,
+                String description, boolean markForRemoval, boolean disabled,
+                DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos,
+                QosConstraint constraint, ResolvedMember resolved) {
     this.key = key;
     this.rev = rev;
     this.name = name;
@@ -106,6 +113,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.parents = parents;
     this.description = description;
     this.markForRemoval = markForRemoval;
+    this.disabled = disabled;
     this.store = store;
     this.config = config;
     this.status = status;
@@ -162,6 +170,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       parents==null ? null:List.copyOf(parents),
       description,
       markForRemoval,
+      disabled,
       store,
       config,
       status,
