@@ -16,12 +16,13 @@ import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.qos.QosRequirement;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
@@ -201,7 +202,25 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   }
 
   public ResolvedMember getResolved() {
-    if (resolved==null) resolved = new ResolvedMember();
+    if (resolved==null) {
+      var fb = Optional.ofNullable(getFunctions())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(FunctionBinding::getName, Function.identity()));
+      var ks = Optional.ofNullable(getStateSpec().getKeySpecs())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(KeySpecification::getName, Function.identity()));
+      var rs = Optional.ofNullable(getRefSpec())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(ReferenceSpecification::getName, Function.identity()));
+      var i = Set.<String>of();
+      resolved = new ResolvedMember(
+        fb, ks, rs, i, false
+      );
+    }
+
     return resolved;
   }
 

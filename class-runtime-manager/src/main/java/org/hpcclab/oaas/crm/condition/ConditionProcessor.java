@@ -9,6 +9,8 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -16,6 +18,7 @@ import static org.hpcclab.oaas.crm.condition.ConditionOperation.IS_NULL;
 
 @Singleton
 public class ConditionProcessor {
+  private static final Logger logger = LoggerFactory.getLogger( ConditionProcessor.class );
 
   Configuration conf;
   ObjectMapper mapper;
@@ -39,6 +42,7 @@ public class ConditionProcessor {
       bool &= singleMatches(condition, ctx);
       return bool;
     } catch (JsonProcessingException e) {
+      logger.warn("json parsing error", e);
       return false;
     }
   }
