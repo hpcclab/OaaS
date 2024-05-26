@@ -10,6 +10,7 @@ import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
+import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -80,9 +81,12 @@ public class BaseClassController implements ClassController {
         if (dataflow.getExport()!=null)
           req.outId(map.get(dataflow.getExport()));
       }
-      return new MinimalValidationContext(req.build(), cls, fn.getFunction(), fn.getFunctionBinding());
+      return new MinimalValidationContext(
+        req.build(), cls, fn.getFunctionBinding().getOutputCls(),
+        fn.getFunction(), fn.getFunctionBinding());
     }
-    return new MinimalValidationContext(request, cls, null, null);
+    return new MinimalValidationContext(
+      request, cls, null, null, null);
   }
 
   @Override

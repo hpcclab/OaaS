@@ -1,0 +1,48 @@
+syntax = "proto3";
+import "oprc-object.proto";
+import "oprc-invoker.proto";
+
+
+option java_multiple_files = true;
+option java_package = "org.hpcclab.oaas.proto";
+
+package oprc;
+
+message ProtoOTask {
+  string id = 1;
+  string partKey = 2;
+  ProtoOObject main = 3;
+  ProtoOObject output = 4;
+  string funcKey = 5;
+  string allocMainUrl = 6;
+  string allocOutputUrl = 7;
+  map<string,string> mainKeys = 8;
+  map<string,string> outputKeys = 9;
+  repeated string inputContextKeys = 10;
+  map<string, string> args = 11;
+  bytes reqBody = 12;
+  string fbName = 13;
+  bool immutable = 14;
+  int64 ts = 15;
+}
+
+message ProtoOTaskCompletion {
+  string id = 1;
+  bool success= 2;
+  string errorMsg= 3;
+  map<string, string> ext = 4;
+  ProtoObjectUpdate main = 5;
+  ProtoObjectUpdate output = 6;
+  bytes body = 7;
+  repeated ProtoInvocationRequest invokes = 8;
+}
+
+message ProtoObjectUpdate {
+  bytes data = 1;
+  map<string, string> refs = 2;
+  repeated string updatedKeys = 3;
+}
+
+service OTaskExecutor {
+  rpc invoke(ProtoOTask)  returns (ProtoOTaskCompletion) {};
+}

@@ -101,6 +101,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setFuncKey(function.getKey());
     task.setInputs(ctx.getInputs());
     task.setImmutable(ctx.isImmutable());
+    task.setReqBody(ctx.getRequest().body());
     task.setArgs(resolveArgs(ctx));
 
     task.setMainKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));

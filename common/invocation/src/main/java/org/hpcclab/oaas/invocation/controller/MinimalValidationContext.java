@@ -13,6 +13,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
 public record MinimalValidationContext(
   InvocationRequest request,
   OClass cls,
+  String outputCls,
   OFunction func,
   FunctionBinding fb
 ) {

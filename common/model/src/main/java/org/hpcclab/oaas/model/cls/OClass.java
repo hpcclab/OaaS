@@ -16,12 +16,13 @@ import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.qos.QosRequirement;
+import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
@@ -44,6 +45,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   List<ReferenceSpecification> refSpec = List.of();
   List<String> parents = List.of();
   String description;
+  boolean disabled;
   boolean markForRemoval;
   DatastoreLink store;
   OClassConfig config;
@@ -67,6 +69,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
                 List<ReferenceSpecification> refSpec,
                 List<String> parents,
                 String description,
+                boolean disabled,
                 boolean markForRemoval,
                 DatastoreLink store,
                 OClassConfig config,
@@ -83,6 +86,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.refSpec = refSpec;
     this.parents = parents;
     this.description = description;
+    this.disabled = disabled;
     this.markForRemoval = markForRemoval;
     this.store = store;
     this.config = config;
@@ -92,7 +96,11 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     updateKey();
   }
 
-  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType, List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents, String description, boolean markForRemoval, DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos, QosConstraint constraint, ResolvedMember resolved) {
+  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType,
+                List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents,
+                String description, boolean markForRemoval, boolean disabled,
+                DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos,
+                QosConstraint constraint, ResolvedMember resolved) {
     this.key = key;
     this.rev = rev;
     this.name = name;
@@ -106,6 +114,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.parents = parents;
     this.description = description;
     this.markForRemoval = markForRemoval;
+    this.disabled = disabled;
     this.store = store;
     this.config = config;
     this.status = status;
@@ -162,6 +171,7 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       parents==null ? null:List.copyOf(parents),
       description,
       markForRemoval,
+      disabled,
       store,
       config,
       status,
@@ -192,7 +202,25 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   }
 
   public ResolvedMember getResolved() {
-    if (resolved==null) resolved = new ResolvedMember();
+    if (resolved==null) {
+      var fb = Optional.ofNullable(getFunctions())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(FunctionBinding::getName, Function.identity()));
+      var ks = Optional.ofNullable(getStateSpec().getKeySpecs())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(KeySpecification::getName, Function.identity()));
+      var rs = Optional.ofNullable(getRefSpec())
+        .stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(ReferenceSpecification::getName, Function.identity()));
+      var i = Set.<String>of();
+      resolved = new ResolvedMember(
+        fb, ks, rs, i, false
+      );
+    }
+
     return resolved;
   }
 

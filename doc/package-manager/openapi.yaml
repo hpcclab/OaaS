@@ -572,6 +572,8 @@ components:
             type: string
         description:
           type: string
+        disabled:
+          type: boolean
         markForRemoval:
           type: boolean
         store:
@@ -696,6 +698,8 @@ components:
             type: string
         description:
           type: string
+        disabled:
+          type: boolean
         markForRemoval:
           type: boolean
         store:
@@ -853,6 +857,8 @@ components:
           type: array
           items:
             type: string
+        disable:
+          type: boolean
     OPackage_Public:
       type: object
       properties:
@@ -870,6 +876,8 @@ components:
           type: array
           items:
             type: string
+        disable:
+          type: boolean
     OrbitState:
       type: object
       properties:

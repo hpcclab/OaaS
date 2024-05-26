@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.OObject;
@@ -25,6 +26,7 @@ public class OTask {
   Map<String,String> outputKeys;
   List<String> inputContextKeys = List.of();
   Map<String, String> args;
+  ObjectNode reqBody;
   String fbName;
   boolean immutable;
   long ts = -1;

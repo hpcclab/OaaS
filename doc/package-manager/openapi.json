@@ -764,6 +764,9 @@
           "description" : {
             "type" : "string"
           },
+          "disabled" : {
+            "type" : "boolean"
+          },
           "markForRemoval" : {
             "type" : "boolean"
           },
@@ -949,6 +952,9 @@
           },
           "description" : {
             "type" : "string"
+          },
+          "disabled" : {
+            "type" : "boolean"
           },
           "markForRemoval" : {
             "type" : "boolean"
@@ -1172,6 +1178,9 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "disable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1198,6 +1207,9 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "disable" : {
+            "type" : "boolean"
           }
         }
       },

@@ -4,7 +4,7 @@ The commandline interface for Oparaca (aka https://github.com/hpcclab/OaaS[OaaS]
 
 == Installation
 
-Download the executable file from the artifacts of GitHub Action buid (https://github.com/pawissanutt/OaaS/actions/workflows/platform-container-build.yml[link]). They usually are in the bottom of summary page.
+Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page.
 
 == Build from source
 

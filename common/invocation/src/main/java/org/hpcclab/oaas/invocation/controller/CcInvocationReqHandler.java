@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invocation.controller;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -44,7 +43,7 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
     }
 
     int count = inflight.incrementAndGet();
-    if (count>maxInflight) {
+    if (count > maxInflight) {
       inflight.decrementAndGet();
       return Uni.createFrom().failure(new TooManyRequestException());
     }
@@ -67,17 +66,16 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
     if (con==null) throw StdOaasException.notFoundCls400(request.cls());
     var ctx = con.validate(request);
     return con.enqueue(ctx.request())
-      .map(v -> InvocationResponse.builder()
-        .invId(ctx.request().invId())
-        .output(new OObject().setId(ctx.request().outId()))
-        .fb(ctx.fb()!=null ? ctx.fb().getName():"")
-        .status(InvocationStatus.QUEUE)
-        .async(true)
-        .build());
-  }
-
-  class Counter{
-    int count;
-
+      .map(v -> {
+          InvocationResponse.InvocationResponseBuilder resp = InvocationResponse.builder()
+            .invId(ctx.request().invId())
+            .fb(ctx.fb()!=null ? ctx.fb().getName():"")
+            .status(InvocationStatus.QUEUE)
+            .async(true);
+          if (ctx.outputCls() != null)
+            resp.output(new OObject().setCls(ctx.outputCls()).setId(ctx.request().outId()));
+          return resp.build();
+        }
+      );
   }
 }

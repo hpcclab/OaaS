@@ -10,7 +10,7 @@
   <artifactId>invoker</artifactId>
 
   <properties>
-    <infinispan.version>15.0.3.Final</infinispan.version>
+    <infinispan.version>15.0.4.Final</infinispan.version>
     <arangodb.version>7.6.0</arangodb.version>
   </properties>
 

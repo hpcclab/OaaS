@@ -17,4 +17,5 @@ public class OPackage {
   List<OClass> classes = List.of();
   List<OFunction> functions = List.of();
   List<String> required;
+  boolean disable;
 }
