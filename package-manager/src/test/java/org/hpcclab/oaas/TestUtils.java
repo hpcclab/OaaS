@@ -2,11 +2,9 @@ package org.hpcclab.oaas;
 
 import io.restassured.common.mapper.TypeRef;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.function.OFunction;
 
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
@@ -33,11 +31,9 @@ public class TestUtils {
                   k1: text_value
                 argRefs:
                   k2: k1
-                inputRefs: []
               - function: copy
                 target: new_obj1
                 as: new_obj2
-                inputRefs: []
             exports:
               - from: new_obj1
                 as: obj1
@@ -63,16 +59,6 @@ public class TestUtils {
     """;
 
 
-  public static List<OObject> listObject() {
-    return given()
-      .when().get("/api/objects")
-      .then()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .log().ifValidationFails()
-      .extract().body().as( new TypeRef<Pagination<OObject>>() {})
-      .getItems();
-  }
   public static List<OClass> listClasses() {
     return given()
       .when().get("/api/classes")
@@ -82,18 +68,6 @@ public class TestUtils {
       .log().ifValidationFails()
       .extract().body().as( new TypeRef<Pagination<OClass>>() {})
       .getItems();
-  }
-
-  public static OObject getObject(String id) {
-    return given()
-      .pathParam("id", id)
-      .when().get("/api/objects/{id}")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("id", Matchers.equalTo(id))
-      .extract().body().as(OObject.class);
   }
 
   public static OClass getClass(String name) {
@@ -108,8 +82,8 @@ public class TestUtils {
       .extract().body().as(OClass.class);
   }
 
-  public static OPackage createBatchYaml(String clsText) {
-    return given()
+  public static void createBatchYaml(String clsText) {
+    given()
       .contentType("text/x-yaml")
       .body(clsText)
       .queryParam("update", "true")
@@ -119,17 +93,5 @@ public class TestUtils {
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .extract().body().as(OPackage.class);
-  }
-
-  public static List<OFunction> createFunctionYaml(String function) {
-    return given()
-      .contentType("text/x-yaml")
-      .body(function)
-      .when().post("/api/functions?update=true")
-      .then()
-      .log().ifValidationFails()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .extract().body().as(new TypeRef<List<OFunction>>(){});
   }
 }

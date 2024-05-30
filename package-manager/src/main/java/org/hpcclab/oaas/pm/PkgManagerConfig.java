@@ -14,7 +14,7 @@ public interface PkgManagerConfig {
   @WithDefault("true")
   boolean kafkaEnabled();
   @WithDefault("true")
-  boolean orbitEnabled();
+  boolean crmEnabled();
   String crmHost();
   int crmPort();
 }

@@ -52,7 +52,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   OClassDeploymentStatus status;
   QosRequirement qos;
   QosConstraint constraint;
-
   ResolvedMember resolved;
 
 

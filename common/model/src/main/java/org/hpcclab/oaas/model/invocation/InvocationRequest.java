@@ -23,8 +23,8 @@ public record InvocationRequest(
   boolean immutable,
   String invId,
   String outId,
-  long queTs,
   ObjectNode body,
+  List<InvocationChain> chains,
   @JsonIgnore String partKey
 ) {
   public static final String CE_TYPE = "oaas.invReq";

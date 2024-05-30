@@ -12,7 +12,7 @@ import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
 import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.proto.InvocationService;
 import org.hpcclab.oaas.test.MockupData;
 import org.junit.FixMethodOrder;
@@ -53,16 +53,6 @@ class NewFunctionControllerTest {
     var req = NewFunctionController.ObjectConstructRequest.of(
       mapper.createObjectNode().put("n", 1)
     );
-
-//    var oal = new ObjectAccessLanguage(
-//      null,
-//      MockupData.CLS_1_KEY,
-//      "new",
-//      mapper.valueToTree(req),
-//      null,
-//      null
-//    );
-//    logger.info("oal {}", oal);
     given()
       .when()
       .body( mapper.valueToTree(req))
@@ -77,20 +67,18 @@ class NewFunctionControllerTest {
 
   @Test
   void _2createSimpleGrpc() {
-    var req = NewFunctionController.ObjectConstructRequest.of(
+    var reqBody = NewFunctionController.ObjectConstructRequest.of(
       mapper.createObjectNode().put("n", 1)
     );
+    var req = InvocationRequest
+      .builder()
+      .cls(MockupData.CLS_1_KEY)
+      .fb("new")
+      .body(mapper.valueToTree(reqBody))
+      .build();
 
-    var oal = new ObjectAccessLanguage(
-      null,
-      MockupData.CLS_1_KEY,
-      "new",
-      mapper.valueToTree(req),
-      null,
-      null
-    );
-    var request = protoObjectMapper.toProto(oal.toRequest().build());
-    var protoInvocationResponse = invocationService.invokeLocal(request)
+    var pRequest = protoObjectMapper.toProto(req);
+    var protoInvocationResponse = invocationService.invokeLocal(pRequest)
       .await().indefinitely();
     var resp = protoObjectMapper.fromProto(protoInvocationResponse);
     Assertions.assertThat(resp.output().getData().get("n").asInt())

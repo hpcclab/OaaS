@@ -1,8 +1,18 @@
-name: builtin.logical
+name: builtin
+disable: true
 functions:
-  - name: copy
+  - name: logical.copy
     type: LOGICAL
-  - name: new
+  - name: logical.new
     type: LOGICAL
-  - name: update
+  - name: logical.update
     type: LOGICAL
+classes:
+  - name: base
+    stateType: FILES
+    objectType: SIMPLE
+    functions:
+      - access: PUBLIC
+        name: new
+        function: builtin.logical.new
+        outputCls: .record

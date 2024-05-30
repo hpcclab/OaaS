@@ -1,8 +1,8 @@
-package org.hpcclab.oaas.rest;
+package org.hpcclab.oaas.pm.rest;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import org.hamcrest.Matchers;
+import io.restassured.RestAssured;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,8 @@ import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
-class ClassResourceTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ClassResourceTest.class);
+class PackageResourceTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PackageResourceTest.class);
 
   // language=yaml
   String clsText1 = """
@@ -78,26 +78,26 @@ class ClassResourceTest {
   @Test
   void create() {
     TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
-    given()
+    RestAssured.given()
       .when().get("/api/classes")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("items.name", hasItems("simple", "compound"));
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.dummy.simple")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
-      .body("functions[1].outputCls", Matchers.nullValue());
+      .body("functions[1].outputCls", nullValue());
   }
 
   @Test
   void inheritance() {
     TestUtils.createBatchYaml(clsText1);
-    given()
+    RestAssured.given()
       .when().get("/api/classes/base")
       .then()
       .log().ifValidationFails()
@@ -108,7 +108,7 @@ class ClassResourceTest {
       .body("resolved.keySpecs.k1.name", is("k1"))
       .log().ifValidationFails();
 
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.add-func")
       .then()
       .log().ifValidationFails()
@@ -121,7 +121,7 @@ class ClassResourceTest {
       .body("resolved.keySpecs.k1.name", is("k1"))
       .log().ifValidationFails();
 
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.add-key")
       .then()
       .log().ifValidationFails()
@@ -133,7 +133,7 @@ class ClassResourceTest {
       .body("resolved.keySpecs.k2.name", is("k2"))
       .log().ifValidationFails();
 
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.override-func")
       .then()
       .log().ifValidationFails()
@@ -152,7 +152,7 @@ class ClassResourceTest {
   void testUpdateChild() {
     TestUtils.createBatchYaml(clsText1);
     TestUtils.createBatchYaml(clsText2);
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.add-func")
       .then()
       .log().ifValidationFails()
@@ -170,7 +170,7 @@ class ClassResourceTest {
 
 
 
-    given()
+    RestAssured.given()
       .when().get("/api/classes/test.override-func")
       .then()
       .log().ifValidationFails()
@@ -208,8 +208,8 @@ class ClassResourceTest {
           stateType: FILES
           objectType: SIMPLE
           parents: [c2]
-        """;
-    given()
+      """;
+    RestAssured.given()
       .contentType("text/x-yaml")
       .body(clsText)
       .when().post("/api/packages?update=true")
@@ -219,5 +219,17 @@ class ClassResourceTest {
       .statusCode(400);
   }
 
+
+  @Test
+  void testFunction() {
+    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
+    given()
+      .when().get("/api/functions")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("items.name", hasItems("task", "macro"))
+      .log().ifValidationFails();
+  }
 
 }

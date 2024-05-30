@@ -6,6 +6,7 @@ import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
+import org.hpcclab.oaas.model.function.DataMapperDefinition;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.MacroSpec;
 import org.hpcclab.oaas.model.function.WorkflowExport;
@@ -34,24 +35,26 @@ public class DataflowSemantic {
 
   public static DataflowSemantic construct(MacroSpec spec) {
     var root = new DataflowNode();
+    root.stepIndex = -1;
     var df = new DataflowSemantic(spec, root);
     var steps = spec.getSteps();
     MutableMap<String, DataflowNode> stateMap = Maps.mutable.of("$", root);
     for (int i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
-      DataflowNode targetNode = resolve(stateMap, step.getTarget());
-      List<String> inputRefs = step.getInputRefs();
+      DataflowNode targetNode = resolve(stateMap, step.target());
+      List<DataMapperDefinition> inputRefs = step.inputDataMaps();
       if (inputRefs==null) inputRefs = List.of();
       List<DataflowNode> inputNodes = inputRefs.stream()
-        .map(ref -> resolve(stateMap, ref))
+        .map(ref -> resolve(stateMap, ref.target()))
         .toList();
       MutableSet<DataflowNode> require = Sets.mutable.empty();
       require.add(targetNode);
       require.addAll(inputNodes);
       var node = new DataflowNode(i, step, require, Sets.mutable.empty());
+      node.mainRefStepIndex = targetNode.stepIndex;
       df.allNode.add(node);
-      if (step.getAs()!=null && !step.getAs().isEmpty()) {
-        stateMap.put(step.getAs(), node);
+      if (step.as()!=null && !step.as().isEmpty()) {
+        stateMap.put(step.as(), node);
       }
     }
     for (DataflowNode node : df.allNode) {
@@ -91,6 +94,7 @@ public class DataflowSemantic {
     DataflowStep step;
     MutableSet<DataflowNode> require;
     MutableSet<DataflowNode> next;
+    int mainRefStepIndex = -2;
 
     public DataflowNode() {
       this.require = Sets.mutable.empty();
@@ -150,6 +154,18 @@ public class DataflowSemantic {
 
     public MutableSet<DataflowNode> getNext() {
       return next;
+    }
+
+    public int getStepIndex() {
+      return stepIndex;
+    }
+
+    public int getMainRefStepIndex() {
+      return mainRefStepIndex;
+    }
+
+    public boolean requireFanIn(){
+      return require.size() > 1;
     }
   }
 }

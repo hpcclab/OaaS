@@ -302,6 +302,28 @@
           "type" : "string"
         }
       },
+      "DataMapperDefinition" : {
+        "type" : "object",
+        "properties" : {
+          "target" : {
+            "type" : "string"
+          },
+          "inject" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DataMapperDefinition_Public" : {
+        "type" : "object",
+        "properties" : {
+          "target" : {
+            "type" : "string"
+          },
+          "inject" : {
+            "type" : "string"
+          }
+        }
+      },
       "DataflowStep" : {
         "type" : "object",
         "properties" : {
@@ -311,13 +333,16 @@
           "target" : {
             "type" : "string"
           },
+          "targetCls" : {
+            "type" : "string"
+          },
           "as" : {
             "type" : "string"
           },
-          "inputRefs" : {
+          "inputDataMaps" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "$ref" : "#/components/schemas/DataMapperDefinition"
             }
           },
           "args" : {
@@ -337,13 +362,16 @@
           "target" : {
             "type" : "string"
           },
+          "targetCls" : {
+            "type" : "string"
+          },
           "as" : {
             "type" : "string"
           },
-          "inputRefs" : {
+          "inputDataMaps" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "$ref" : "#/components/schemas/DataMapperDefinition_Public"
             }
           },
           "args" : {

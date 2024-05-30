@@ -94,22 +94,22 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     InvocationServiceGrpc.InvocationServiceBlockingStub service =
       InvocationServiceGrpc.newBlockingStub(channel);
 
-    var oalBuilder = ProtoInvocationRequest.newBuilder()
+    var builder = ProtoInvocationRequest.newBuilder()
       .setCls(cls)
       .setMain(main)
       .setFb(fb);
     if (args!=null)
-      oalBuilder.putAllArgs(args);
+      builder.putAllArgs(args);
     if (pipeBody) {
       var body = System.in.readAllBytes();
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
-      oalBuilder.setBody(ByteString.copyFrom(msgPackMapper.writeValueAsBytes(objectNode)));
+      builder.setBody(ByteString.copyFrom(msgPackMapper.writeValueAsBytes(objectNode)));
     }
     if (inputs!=null) {
-      oalBuilder.addAllInputs(inputs);
+      builder.addAllInputs(inputs);
     }
-    var protoReq = oalBuilder.build();
+    var protoReq = builder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);
     outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
     if (save && !response.getOutput().getId().isEmpty()) {

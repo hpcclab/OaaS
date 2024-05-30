@@ -8,13 +8,12 @@ import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.pm.PkgManagerConfig;
-import org.hpcclab.oaas.pm.service.CrStateManager;
-import org.hpcclab.oaas.pm.service.PackageValidator;
-import org.hpcclab.oaas.pm.service.PackagePublisher;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -22,7 +21,14 @@ import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
-import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.pm.PkgManagerConfig;
+import org.hpcclab.oaas.pm.service.CrStateManager;
+import org.hpcclab.oaas.pm.service.PackagePublisher;
+import org.hpcclab.oaas.pm.service.PackageValidator;
+import org.hpcclab.oaas.proto.CrOperationResponse;
+import org.hpcclab.oaas.proto.DeploymentUnit;
+import org.hpcclab.oaas.proto.OClassStatusUpdate;
+import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
@@ -79,7 +85,8 @@ public class PackageResource {
     pkg.setClasses(pkgCls);
 
     refresh(pkg.getClasses());
-    if (config.orbitEnabled() && pkg.getClasses() != null && !pkg.getClasses().isEmpty()) {
+    if (config.crmEnabled() && !pkg.getClasses().isEmpty()) {
+
       deploy(pkg);
     }
 
@@ -130,7 +137,10 @@ public class PackageResource {
 
   private void deploy(OPackage pkg) {
     for (var cls : pkg.getClasses()) {
-      var resolvedFnList = cls.getResolved().getFunctions().values()
+      if (cls.isDisabled())
+        continue;
+      var resolvedFnList = cls.getResolved()
+        .getFunctions().values()
         .stream()
         .map(FunctionBinding::getFunction)
         .collect(Collectors.toSet());

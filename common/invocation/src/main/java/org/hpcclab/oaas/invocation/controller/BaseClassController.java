@@ -75,8 +75,8 @@ public class BaseClassController implements ClassController {
       if (fn.getFunction().getType()==FunctionType.MACRO) {
         var dataflow = fn.getFunction().getMacro();
         var map = Lists.fixedSize.ofAll(dataflow.getSteps())
-          .select(step -> step.getAs()!=null)
-          .collect(step -> Map.entry(step.getAs(), idGenerator.generate()))
+          .select(step -> step.as()!=null)
+          .collect(step -> Map.entry(step.as(), idGenerator.generate()))
           .toMap(Map.Entry::getKey, Map.Entry::getValue);
         if (dataflow.getExport()!=null)
           req.outId(map.get(dataflow.getExport()));

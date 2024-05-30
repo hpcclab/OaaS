@@ -8,7 +8,6 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.CollectionMappingStrategy;
@@ -32,10 +31,6 @@ public abstract class ProtoObjectMapper {
   public abstract ProtoInvocationRequest toProto(InvocationRequest req);
 
   public abstract ProtoInvocationResponse toProto(InvocationResponse req);
-
-  public abstract ProtoObjectAccessLanguage toProto(ObjectAccessLanguage oal);
-
-  public abstract ObjectAccessLanguage fromProto(ProtoObjectAccessLanguage oal);
 
   public abstract OObject fromProto(ProtoOObject object);
 

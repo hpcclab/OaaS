@@ -7,7 +7,7 @@
   oprc:
     log: TRACE
     pm:
-      orbitEnabled: false
+      crmEnabled: false
       kafkaEnabled: false
 
 "%dev":
@@ -19,7 +19,7 @@
   oprc:
     log: DEBUG
     pm:
-      orbitEnabled: false
+      crmEnabled: false
       kafkaEnabled: false
   kafka:
     bootstrap:
@@ -30,7 +30,7 @@ oprc:
   pm:
     clsProvisionTopic: oaas-cls
     kafkaEnabled: true
-    orbitEnabled: true
+    crmEnabled: true
     fnProvisionTopic: oaas-fn
     crmHost: localhost
     crmPort: 8091
