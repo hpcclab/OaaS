@@ -13,16 +13,6 @@ public class MockControllerInvocationReqHandler extends CcInvocationReqHandler {
     super(classControllerRegistry, ctxLoader, idGenerator, Integer.MAX_VALUE);
   }
 
-  public static MockControllerInvocationReqHandler mock() {
-    MapEntityRepository.MapObjectRepoManager repoManager = new MapEntityRepository.MapObjectRepoManager(Maps.mutable.empty(), MockupData.testClasses());
-    var classControllerRegistry = MockClassControllerRegistry.mock(repoManager);
-    RepoCtxLoader repoCtxLoader = new RepoCtxLoader(repoManager, classControllerRegistry);
-    return new MockControllerInvocationReqHandler(
-      classControllerRegistry,
-      repoCtxLoader,
-      new TsidGenerator());
-  }
-
   public ClassControllerRegistry getClassControllerRegistry() {
     return classControllerRegistry;
   }

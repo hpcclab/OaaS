@@ -10,6 +10,7 @@ import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -52,13 +53,13 @@ public class FanInFunctionController extends AbstractFunctionController {
     if (state==null) newState = new FanInState(
       fanInReq.request, fanInReq.totalRequire, Set.of(fanInReq.step()));
     else newState = new FanInState(
-      state.request == null? fanInReq.request: state.request,
+      state.chain == null? fanInReq.request: state.chain,
       state.totalRequire,
       Sets.mutable.of(fanInReq.step).withAll(state.done)
     );
     if (newState.totalRequire == newState.done().size()){
-      ctx.getReqToProduce()
-        .add(newState.request());
+      ctx.getChains()
+        .add(newState.chain());
       fanInStates.states().remove(fanInReq.id);
     } else {
       fanInStates.states().put(fanInReq.id(), newState);
@@ -73,7 +74,7 @@ public class FanInFunctionController extends AbstractFunctionController {
 
   public record FanInRequest(
     String id,
-    InvocationRequest request,
+    InvocationChain request,
     int totalRequire,
     int step) {
   }
@@ -84,7 +85,7 @@ public class FanInFunctionController extends AbstractFunctionController {
   }
 
   public record FanInState(
-    InvocationRequest request,
+    InvocationChain chain,
     int totalRequire,
     Set<Integer> done) {
   }

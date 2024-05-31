@@ -10,7 +10,6 @@ import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
-import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -28,6 +27,7 @@ public class BaseClassController implements ClassController {
   final InvocationQueueProducer producer;
   final IdGenerator idGenerator;
   final MetricFactory metricFactory;
+  final InvocationChainProcessor chainProcessor;
   Map<String, FunctionController> functionMap;
   ClassBindingComponent component;
 
@@ -37,7 +37,7 @@ public class BaseClassController implements ClassController {
                              IdGenerator idGenerator,
                              InvocationQueueProducer producer,
                              ClassBindingComponent component,
-                             MetricFactory metricFactory) {
+                             MetricFactory metricFactory, InvocationChainProcessor chainProcessor) {
     this.cls = cls;
     this.functionMap = functionMap;
     this.stateManager = stateManager;
@@ -45,6 +45,7 @@ public class BaseClassController implements ClassController {
     this.producer = producer;
     this.metricFactory = metricFactory;
     this.component = component;
+    this.chainProcessor = chainProcessor;
   }
 
   @Override
@@ -57,7 +58,7 @@ public class BaseClassController implements ClassController {
       return Uni.createFrom().failure(InvocationException.notFoundFnInCls(req.fb(), cls.getKey()));
     return fn.invoke(context)
       .flatMap(this::handleStateOperations)
-      .call(ctx -> producer.offer(ctx.getReqToProduce()));
+      .call(chainProcessor::handle);
   }
 
   @Override

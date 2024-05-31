@@ -77,4 +77,14 @@ public abstract class AbstractFunctionController implements FunctionController {
   public FunctionBinding getFunctionBinding() {
     return functionBinding;
   }
+
+  @Override
+  public OClass getCls() {
+    return cls;
+  }
+
+  @Override
+  public OClass getOutputCls() {
+    return outputCls;
+  }
 }

@@ -31,13 +31,19 @@ class SyncInvocationTest {
   IdGenerator idGenerator;
   @Inject
   ClassControllerRegistry registry;
+  @Inject
+  InvokerManager invokerManager;
 
   @BeforeEach
   void setup() {
-    registry.registerOrUpdate(MockupData.CLS_1)
+    invokerManager.update(MockupData.CLS_1)
       .await().indefinitely();
-    registry.registerOrUpdate(MockupData.CLS_2)
+    invokerManager.update(MockupData.CLS_2)
       .await().indefinitely();
+//    registry.registerOrUpdate(MockupData.CLS_1)
+//      .await().indefinitely();
+//    registry.registerOrUpdate(MockupData.CLS_2)
+//      .await().indefinitely();
   }
 
   @Test

@@ -191,22 +191,18 @@ public class MockupData {
     return l;
   }
 
+  static FunctionRepository fnRepo;
 
-  public static void persistMock(ObjectRepoManager objectRepoManager,
-                                 ClassRepository clsRepo,
-                                 FunctionRepository fnRepo) {
-    for (OClass cls : testClasses()) {
-      cls.validate();
-      clsRepo.persist(cls);
-    }
-    for (OFunction func : testFunctions()) {
-      func.validate();
-      fnRepo.persist(func);
-    }
-    for (OObject testObject : testObjects()) {
-      objectRepoManager.persistAsync(testObject)
-        .await().indefinitely();
-    }
+  public static FunctionRepository fnRepo() {
+    if (fnRepo == null)
+      fnRepo = new MapEntityRepository.MapFnRepository(MockupData.testFunctions());
+    return fnRepo;
   }
+  static ClassRepository clsRepo;
 
+  public static ClassRepository clsRepo() {
+    if (clsRepo == null)
+      clsRepo = new MapEntityRepository.MapClsRepository(MockupData.testClasses());
+    return clsRepo;
+  }
 }

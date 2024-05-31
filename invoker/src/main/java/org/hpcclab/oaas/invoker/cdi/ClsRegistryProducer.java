@@ -4,9 +4,7 @@ import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
-import org.hpcclab.oaas.invocation.controller.GrpcClassControllerRegistry;
-import org.hpcclab.oaas.invocation.controller.StateManager;
+import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.proto.ClassService;
@@ -21,21 +19,27 @@ public class ClsRegistryProducer {
 
   @Produces
   @ApplicationScoped
-  ClassControllerRegistry registry(@GrpcClient("package-manager") ClassService classService,
-                                   @GrpcClient("package-manager") FunctionService functionService,
-                                   FunctionControllerFactory functionControllerFactory,
-                                   StateManager stateManager,
-                                   IdGenerator idGenerator,
-                                   InvocationQueueProducer invocationQueueProducer,
-                                   MetricFactory metricFactory) {
-    return new GrpcClassControllerRegistry(
-      classService,
-      functionService,
+  ClassControllerRegistry registry() {
+    return new BaseClassControllerRegistry();
+  }
+
+  @Produces
+  @ApplicationScoped
+  ClassControllerBuilder builder(@GrpcClient("package-manager") ClassService classService,
+                                 @GrpcClient("package-manager") FunctionService functionService,
+                                 FunctionControllerFactory functionControllerFactory,
+                                 StateManager stateManager,
+                                 IdGenerator idGenerator,
+                                 InvocationQueueProducer invocationQueueProducer,
+                                 MetricFactory metricFactory) {
+    return new GrpcClassControllerBuilder(
       functionControllerFactory,
       stateManager,
       idGenerator,
       invocationQueueProducer,
-      metricFactory
+      metricFactory,
+      classService,
+      functionService
     );
   }
 }

@@ -1,8 +1,10 @@
 package org.hpcclab.oaas.invocation.controller;
 
+import org.hpcclab.oaas.invocation.InvocationManager;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.test.MockControllerInvocationReqHandler;
+import org.hpcclab.oaas.test.MockInvocationManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,13 +14,15 @@ import static org.hpcclab.oaas.test.MockupData.CLS_1_KEY;
 
 
 class MacroFnControllerTest {
-  MockControllerInvocationReqHandler reqHandler;
+  InvocationManager manager;
+  InvocationReqHandler reqHandler;
   ClassControllerRegistry registry;
 
   @BeforeEach
   void beforeEach() {
-    reqHandler = MockControllerInvocationReqHandler.mock();
-    registry = reqHandler.getClassControllerRegistry();
+    manager = MockInvocationManager.getInstance();
+    reqHandler = manager.getReqHandler();
+    registry = manager.getRegistry();
   }
 
   @Test
@@ -35,5 +39,9 @@ class MacroFnControllerTest {
       .isNotNull();
     var id = resp.output().getId();
     assertThat(id).isNotNull();
+    request = request.toBuilder()
+      .main(id)
+      .fb("")
+      .build();
   }
 }

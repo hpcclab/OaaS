@@ -8,8 +8,11 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.DataflowSemantic;
 import org.hpcclab.oaas.model.function.DataflowStep;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.repository.id.IdGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pawissanutt
@@ -35,51 +38,63 @@ public class MacroFunctionController extends AbstractFunctionController {
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var root = semantic.getRootNode();
     MutableSet<DataflowSemantic.DataflowNode> next = root.getNext();
-    MutableMap<Integer, InvocationRequest> step2Req = Maps.mutable.empty();
+    MutableMap<Integer, InvocationChain> step2Chain = Maps.mutable.empty();
+    List<InvocationChain> chains = new ArrayList<>();
     for (DataflowSemantic.DataflowNode node : next) {
-      ctx.getReqToProduce().add(createRequest(node, ctx, step2Req));
+      chains.add(createChain(node, ctx, step2Chain));
     }
+    ctx.setChains(chains);
     return Uni.createFrom().item(ctx);
   }
 
-  InvocationRequest createRequest(DataflowSemantic.DataflowNode node,
-                                  InvocationCtx ctx,
-                                  MutableMap<Integer, InvocationRequest> step2Req) {
+  InvocationChain createChain(DataflowSemantic.DataflowNode node,
+                              InvocationCtx ctx,
+                              MutableMap<Integer, InvocationChain> step2Chain) {
     var i = node.getStepIndex();
     DataflowStep step = node.getStep();
-    ObjectTarget objectTarget = resolveId(node, ctx, step2Req);
-    InvocationRequest.InvocationRequestBuilder builder = InvocationRequest.builder()
+    ObjectTarget objectTarget = resolveId(node, ctx, step2Chain);
+    InvocationChain.InvocationChainBuilder builder = InvocationChain.builder()
       .invId(idGenerator.generate())
       .outId(idGenerator.generate())
       .main(objectTarget.id)
-      .cls(objectTarget.cls)
+      .cls(objectTarget.clsOrDefault(step.targetCls()))
       .args(step.args())
-      .fb(step.function())
-      ;
-
+      .fb(step.function());
+    var chains = new ArrayList<InvocationChain>();
+    for (DataflowSemantic.DataflowNode nextNode : node.getNext()) {
+      if (nextNode.getRequire().size() > 1)
+        continue;
+      var nextChain = createChain(nextNode, ctx, step2Chain);
+      chains.add(nextChain);
+    }
+    builder.chains(chains);
     var req = builder.build();
-    step2Req.put(i, req);
+    step2Chain.put(i, req);
     return req;
   }
 
   ObjectTarget resolveId(DataflowSemantic.DataflowNode node,
-                   InvocationCtx ctx,
-                   MutableMap<Integer, InvocationRequest> step2Req) {
+                         InvocationCtx ctx,
+                         MutableMap<Integer, InvocationChain> step2Chain) {
     int stepIndex = node.getMainRefStepIndex();
     if (stepIndex < -1) {
       return ObjectTarget.NULL;
-    } else if (stepIndex == -1) {
+    } else if (stepIndex==-1) {
       return new ObjectTarget(ctx.getRequest().main(), ctx.getRequest().cls());
-    } else if (step2Req.containsKey(stepIndex)){
-      InvocationRequest request = step2Req.get(stepIndex);
-      return new ObjectTarget(request.outId(), null);
+    } else if (step2Chain.containsKey(stepIndex)) {
+      var chain = step2Chain.get(stepIndex);
+      return new ObjectTarget(chain.outId(), null);
     } else {
       return ObjectTarget.NULL;
     }
   }
 
-  record ObjectTarget(String id, String cls){
+  record ObjectTarget(String id, String cls) {
     static ObjectTarget NULL = new ObjectTarget(null, null);
+
+    String clsOrDefault(String defaultCls){
+      return cls == null? defaultCls: cls;
+    }
   }
 
 }

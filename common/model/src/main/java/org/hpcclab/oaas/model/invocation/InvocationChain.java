@@ -1,7 +1,7 @@
 package org.hpcclab.oaas.model.invocation;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.hpcclab.oaas.model.object.OObject;
+import lombok.Builder;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
@@ -9,6 +9,7 @@ import java.util.List;
 /**
  * @author Pawissanutt
  */
+@Builder(toBuilder = true)
 public record InvocationChain (
   String main,
   String cls,

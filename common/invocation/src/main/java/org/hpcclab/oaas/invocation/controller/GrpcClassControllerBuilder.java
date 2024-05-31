@@ -10,8 +10,6 @@ import org.hpcclab.oaas.proto.ClassService;
 import org.hpcclab.oaas.proto.FunctionService;
 import org.hpcclab.oaas.proto.MultiKeyQuery;
 import org.hpcclab.oaas.repository.id.IdGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,29 +17,22 @@ import java.util.Set;
 /**
  * @author Pawissanutt
  */
-
-public class GrpcClassControllerRegistry extends AbsClassControllerRegistry {
-  private static final Logger logger = LoggerFactory.getLogger(GrpcClassControllerRegistry.class);
+public class GrpcClassControllerBuilder extends ClassControllerBuilder {
   final ClassService classService;
   final FunctionService functionService;
 
-  public GrpcClassControllerRegistry(ClassService classService,
-                                     FunctionService functionService,
-                                     FunctionControllerFactory functionControllerFactory,
-                                     StateManager stateManager,
-                                     IdGenerator idGenerator,
-                                     InvocationQueueProducer invocationQueueProducer,
-                                     MetricFactory metricFactory) {
-    super(
-      functionControllerFactory,
-      stateManager,
-      idGenerator,
-      invocationQueueProducer,
-      metricFactory
-    );
+  public GrpcClassControllerBuilder(FunctionControllerFactory functionControllerFactory,
+                                       StateManager stateManager,
+                                       IdGenerator idGenerator,
+                                       InvocationQueueProducer invocationQueueProducer,
+                                       MetricFactory metricFactory,
+                                       ClassService classService,
+                                       FunctionService functionService) {
+    super(functionControllerFactory, stateManager, idGenerator, invocationQueueProducer, metricFactory);
     this.classService = classService;
     this.functionService = functionService;
   }
+
 
   @Override
   protected Uni<Map<String, OClass>> listCls(Set<String> keys) {

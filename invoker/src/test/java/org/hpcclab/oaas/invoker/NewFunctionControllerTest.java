@@ -8,6 +8,7 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
+import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.mapper.ProtoObjectMapper;
@@ -35,16 +36,22 @@ class NewFunctionControllerTest {
   ObjectMapper mapper;
   @Inject
   ClassControllerRegistry registry;
+  @Inject
+  InvokerManager invokerManager;
   @GrpcClient
   InvocationService invocationService;
   ProtoObjectMapper protoObjectMapper = new ProtoObjectMapperImpl();
 
   @BeforeEach
   void setup() {
-    registry.registerOrUpdate(MockupData.CLS_1)
+    invokerManager.update(MockupData.CLS_1)
       .await().indefinitely();
-    registry.registerOrUpdate(MockupData.CLS_2)
+    invokerManager.update(MockupData.CLS_2)
       .await().indefinitely();
+//    registry.registerOrUpdate(MockupData.CLS_1)
+//      .await().indefinitely();
+//    registry.registerOrUpdate(MockupData.CLS_2)
+//      .await().indefinitely();
     protoObjectMapper.setMapper(new MessagePackMapper());
   }
 

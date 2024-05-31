@@ -10,6 +10,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.controller.InvocationLog;
 import org.hpcclab.oaas.invocation.controller.StateOperation;
+import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.OObject;
@@ -41,7 +42,7 @@ public class InvocationCtx {
   ObjectNode respBody;
   List<StateOperation> stateOperations = List.of();
   InvocationLog log;
-  List<InvocationRequest> reqToProduce = List.of();
+  List<InvocationChain> chains = List.of();
   long mqOffset = -1;
   long initTime = -1;
 

@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
@@ -20,27 +19,24 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
  * @author Pawissanutt
  */
-public abstract class AbsClassControllerRegistry implements ClassControllerRegistry {
-  private static final Logger logger = LoggerFactory.getLogger(AbsClassControllerRegistry.class);
+public abstract class ClassControllerBuilder {
+  private static final Logger logger = LoggerFactory.getLogger( ClassControllerBuilder.class );
+
   protected final FunctionControllerFactory functionControllerFactory;
   protected final StateManager stateManager;
   protected final IdGenerator idGenerator;
   protected final InvocationQueueProducer invocationQueueProducer;
   protected final MetricFactory metricFactory;
   protected final ProtoMapper protoMapper = new ProtoMapperImpl();
-  protected final Map<String, ClassController> classControllerMap = new ConcurrentHashMap<>();
 
-
-  protected AbsClassControllerRegistry(FunctionControllerFactory functionControllerFactory,
-                                       StateManager stateManager,
-                                       IdGenerator idGenerator,
-                                       InvocationQueueProducer invocationQueueProducer,
-                                       MetricFactory metricFactory) {
+  protected ClassControllerBuilder(FunctionControllerFactory functionControllerFactory, StateManager stateManager, IdGenerator idGenerator, InvocationQueueProducer invocationQueueProducer, MetricFactory metricFactory) {
     this.functionControllerFactory = functionControllerFactory;
     this.stateManager = stateManager;
     this.idGenerator = idGenerator;
@@ -48,11 +44,11 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
     this.metricFactory = metricFactory;
   }
 
-  public Uni<ClassController> registerOrUpdate(ProtoOClass cls) {
-    return registerOrUpdate(protoMapper.fromProto(cls));
+  public Uni<ClassController> build(ProtoOClass cls) {
+    return build(protoMapper.fromProto(cls));
   }
 
-  public Uni<ClassController> registerOrUpdate(OClass cls) {
+  public Uni<ClassController> build(OClass cls) {
     logger.info("registerOrUpdate class({})", cls.getKey());
     var outputClsKeys = cls
       .getResolved()
@@ -74,47 +70,44 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
       .flatMap(clsMap -> listFn(fnKeys)
         .map(fnMap -> new ClsFnCtx(clsMap, fnMap))
       )
-      .map(clsFnCtx -> build(cls, clsFnCtx.classMap(), clsFnCtx.functionMap(), stateManager))
-      .invoke(classController -> classControllerMap.put(classController.getCls().getKey(), classController));
-  }
-
-  public ClassController getClassController(String clsKey) {
-    return classControllerMap.get(clsKey);
-  }
-
-  public String printStructure() {
-    StringBuilder builder = new StringBuilder();
-    for (ClassController classController : classControllerMap.values()) {
-      builder.append("- ")
-        .append(classController.getCls().getKey())
-        .append(": [");
-      for (var functionController : classController.getFunctionControllers().values()) {
-        builder.append(functionController.getFunctionBinding().getName())
-          .append(":")
-          .append(functionController.getFunction().getKey())
-          .append(",");
-      }
-      builder.append("]\n");
-    }
-    return builder.toString();
-  }
-
-  public void updateFunction(OFunction function) {
-    for (ClassController controller : classControllerMap.values()) {
-      controller.updateFunctionController(function.getKey(),
-        fc -> buildFnController(
-          fc.getFunctionBinding(),
-          function,
-          controller.getCls(),
-          controller.getCls()
-        ));
-    }
+      .map(clsFnCtx -> build(cls, clsFnCtx.classMap(), clsFnCtx.functionMap(), stateManager));
   }
 
   protected abstract Uni<Map<String, OClass>> listCls(Set<String> keys);
 
   protected abstract Uni<Map<String, OFunction>> listFn(Set<String> keys);
 
+  private ClassController build(OClass cls,
+                                Map<String, OClass> ctxClsMap,
+                                Map<String, OFunction> fnMap,
+                                StateManager stateManager) {
+    logger.debug("build {}", cls.getKey());
+    Map<String, FunctionController> fbToFnMap = cls.getResolved()
+      .getFunctions()
+      .entrySet()
+      .stream()
+      .map(entry -> Map.entry(entry.getKey(), buildFnController(entry.getValue(), fnMap, cls, ctxClsMap)))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return new BaseClassController(
+      cls,
+      fbToFnMap,
+      stateManager,
+      idGenerator,
+      invocationQueueProducer,
+      createComponent(cls),
+      metricFactory,
+      new InvocationChainProcessor()
+    );
+  }
+
+  public UnaryOperator<FunctionController> createUpdator(OFunction fn) {
+    return fc -> buildFnController(
+      fc.getFunctionBinding(),
+      fn,
+      fc.getCls(),
+      fc.getOutputCls()
+    );
+  }
 
   private FunctionController buildFnController(FunctionBinding functionBinding,
                                                Map<String, OFunction> functionMap,
@@ -139,30 +132,8 @@ public abstract class AbsClassControllerRegistry implements ClassControllerRegis
     return controller;
   }
 
-
-  private ClassController build(OClass cls,
-                                Map<String, OClass> ctxClsMap,
-                                Map<String, OFunction> fnMap,
-                                StateManager stateManager) {
-    logger.debug("build {}", cls.getKey());
-    Map<String, FunctionController> fbToFnMap = cls.getResolved()
-      .getFunctions()
-      .entrySet()
-      .stream()
-      .map(entry -> Map.entry(entry.getKey(), buildFnController(entry.getValue(), fnMap, cls, ctxClsMap)))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return new BaseClassController(
-      cls,
-      fbToFnMap,
-      stateManager,
-      idGenerator,
-      invocationQueueProducer,
-      createComponent(cls),
-      metricFactory
-    );
-  }
-
   protected ClassBindingComponent createComponent(OClass cls) {
     return null;
   }
+
 }
