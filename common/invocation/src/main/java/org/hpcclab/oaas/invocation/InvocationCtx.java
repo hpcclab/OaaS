@@ -38,6 +38,8 @@ public class InvocationCtx {
   boolean immutable;
   List<OObject> subOutputs = Lists.mutable.empty();
   Map<String, OObject> workflowMap = Maps.mutable.empty();
+  List<String> macroInvIds = Lists.mutable.empty();
+  Map<String, String> macroIds = Maps.mutable.empty();
   TaskCompletion completion;
   ObjectNode respBody;
   List<StateOperation> stateOperations = List.of();
@@ -75,6 +77,9 @@ public class InvocationCtx {
       .fb(request.fb())
       .status(log==null ? null:log.getStatus())
       .body(respBody)
-      .stats(log==null ? null:log.extractStats());
+      .stats(log==null ? null:log.extractStats())
+      .macroIds(macroIds)
+      .macroInvIds(macroInvIds)
+      ;
   }
 }

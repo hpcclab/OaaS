@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.controller.fn.*;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
+import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 
@@ -15,8 +18,19 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   IdGenerator idGenerator = new TsidGenerator();
   ObjectMapper mapper = new ObjectMapper();
   OffLoaderFactory offLoaderFactory = new MockOffLoader.Factory();
-  ContentUrlGenerator contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8090");
+  ContentUrlGenerator contentUrlGenerator ;
   DataUrlAllocator dataUrlAllocator = new MockDataUrlAllocator();
+
+  public MockFunctionControllerFactory() {
+    contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8090") {
+      @Override
+      public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
+        // AVOID EXCEPTION
+        return "";
+      }
+    };
+  }
+
   @Override
   public FunctionController create(OFunction function) {
     return switch (function.getType()) {
@@ -30,6 +44,8 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   LogicalFunctionController createLogical(OFunction function) {
     if (function.getKey().equals("builtin.logical.new")) {
       return new NewFunctionController(idGenerator, mapper, dataUrlAllocator);
+    } else if (function.getKey().equals("builtin.logical.update")) {
+      return new UpdateFunctionController(idGenerator, mapper);
     }
     throw new IllegalArgumentException();
   }

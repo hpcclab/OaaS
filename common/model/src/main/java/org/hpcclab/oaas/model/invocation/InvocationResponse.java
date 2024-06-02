@@ -8,6 +8,7 @@ import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.OObject;
 
+import java.util.List;
 import java.util.Map;
 
 @Builder(toBuilder = true)
@@ -18,6 +19,7 @@ public record InvocationResponse(
   String invId,
   String fb,
   Map<String, String> macroIds,
+  List<String> macroInvIds,
   InvocationStatus status,
   @JsonUnwrapped
   InvocationStats stats,

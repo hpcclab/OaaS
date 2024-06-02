@@ -19,7 +19,7 @@ public class SaContentUrlGenerator implements ContentUrlGenerator {
 
   @Override
   public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new UnsupportedOperationException("Not supported.");
   }
 
   private String generateUrl(String oid,

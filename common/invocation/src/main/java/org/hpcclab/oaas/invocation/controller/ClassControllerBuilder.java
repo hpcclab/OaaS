@@ -96,7 +96,7 @@ public abstract class ClassControllerBuilder {
       invocationQueueProducer,
       createComponent(cls),
       metricFactory,
-      new InvocationChainProcessor()
+      new InvocationChainProcessor(invocationQueueProducer)
     );
   }
 

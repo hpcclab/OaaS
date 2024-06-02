@@ -89,6 +89,22 @@ public class DataflowSemantic {
     return rootNode;
   }
 
+  public MacroSpec getMacroSpec() {
+    return macroSpec;
+  }
+
+  public List<DataflowNode> getAllNode() {
+    return allNode;
+  }
+
+  public DataflowNode getExportNode() {
+    return exportNode;
+  }
+
+  public Map<String, DataflowNode> getExportNodes() {
+    return exportNodes;
+  }
+
   public static class DataflowNode {
     int stepIndex = -1;
     DataflowStep step;

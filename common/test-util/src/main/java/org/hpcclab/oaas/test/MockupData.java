@@ -20,6 +20,7 @@ import org.hpcclab.oaas.repository.ObjectRepoManager;
 import java.util.List;
 
 public class MockupData {
+  public static final String CLS_1_KEY = "ex.cls1";
 
   public static final OFunction FUNC_NEW = new OFunction()
     .setName("new")
@@ -41,8 +42,9 @@ public class MockupData {
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
     );
+
   public static final OFunction MACRO_FUNC_1 = new OFunction()
-    .setName("macroFunc1")
+    .setName("macro1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
     .setMacro(new MacroSpec()
@@ -69,35 +71,37 @@ public class MockupData {
       ))
       .setExport("tmp3")
     );
-  public static final OFunction ATOMIC_MACRO_FUNC = new OFunction()
-    .setName("atomic-macro")
+
+
+  public static final OFunction MACRO_FUNC_2 = new OFunction()
+    .setName("macro2")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
     .setMacro(new MacroSpec()
-        .setSteps(List.of(
-          DataflowStep.builder()
-            .function("f3")
-            .target("$")
-            .as("tmp1")
-            .args(DSMap.of("STEP", "1.1"))
-            .build(),
-          DataflowStep.builder()
-            .function("f3")
-            .target("$")
-            .as("tmp2")
-            .args(DSMap.of("STEP", "1.2"))
-            .build(),
-          DataflowStep.builder()
-            .function("f3")
-            .target("tmp1")
-//          .setInputRefs(List.of("tmp2"))
-            .as("tmp3")
-            .args(DSMap.of("STEP", "2"))
-            .build()
-        ))
-        .setExport("tmp3")
+      .setSteps(List.of(
+        DataflowStep.builder()
+          .function("f1")
+          .target("$")
+          .argRefs(DSMap.of("key1", "arg1"))
+          .as("tmp1")
+          .args(DSMap.of("STEP", "1"))
+          .build(),
+        DataflowStep.builder()
+          .function("f3")
+          .target("tmp1")
+          .as("tmp2")
+          .args(DSMap.of("STEP", "2.1"))
+          .build(),
+        DataflowStep.builder()
+          .function("f3")
+          .target("tmp1")
+          .as("tmp3")
+          .args(DSMap.of("STEP", "2.2"))
+          .build()
+      ))
+      .setExport("tmp3")
     );
-  public static final String CLS_1_KEY = "ex.cls1";
+
   public static final OClass CLS_1 = new OClass()
     .setName("cls1")
     .setPkg("ex")
@@ -141,8 +145,8 @@ public class MockupData {
         .setFunction(MACRO_FUNC_1.getKey())
         .setOutputCls(CLS_1_KEY),
       new FunctionBinding()
-        .setName(ATOMIC_MACRO_FUNC.getName())
-        .setFunction(ATOMIC_MACRO_FUNC.getKey())
+        .setName(MACRO_FUNC_2.getName())
+        .setFunction(MACRO_FUNC_2.getKey())
         .setOutputCls(CLS_1_KEY)
     ));
   public static final OClass CLS_2 = new OClass()
@@ -179,7 +183,7 @@ public class MockupData {
         FUNC_1.copy(),
         FUNC_2.copy(),
         MACRO_FUNC_1.copy(),
-        ATOMIC_MACRO_FUNC.copy()
+        MACRO_FUNC_2.copy()
       )
       .groupByUniqueKey(OFunction::getKey);
   }
