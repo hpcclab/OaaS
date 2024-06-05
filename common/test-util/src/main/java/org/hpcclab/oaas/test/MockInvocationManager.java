@@ -36,7 +36,7 @@ public class MockInvocationManager {
 
     var invocationQueueProducer = new MockInvocationQueueProducer();
     var builder = new RepoClassControllerBuilder(
-      new MockFunctionControllerFactory(),
+      new MockFunctionControllerFactory(reqHandler),
       new RepoStateManager(repoManager),
       new TsidGenerator(),
       invocationQueueProducer,

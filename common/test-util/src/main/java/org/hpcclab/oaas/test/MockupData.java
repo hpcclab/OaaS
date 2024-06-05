@@ -15,7 +15,6 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 import java.util.List;
 
@@ -72,7 +71,6 @@ public class MockupData {
       .setExport("tmp3")
     );
 
-
   public static final OFunction MACRO_FUNC_2 = new OFunction()
     .setName("macro2")
     .setPkg("ex")
@@ -101,7 +99,10 @@ public class MockupData {
       ))
       .setExport("tmp3")
     );
-
+  public static final OFunction CHAIN_FUNC_1 = MACRO_FUNC_1
+    .copy()
+    .setName("chain1")
+    .setType(FunctionType.CHAIN);
   public static final OClass CLS_1 = new OClass()
     .setName("cls1")
     .setPkg("ex")
@@ -147,6 +148,10 @@ public class MockupData {
       new FunctionBinding()
         .setName(MACRO_FUNC_2.getName())
         .setFunction(MACRO_FUNC_2.getKey())
+        .setOutputCls(CLS_1_KEY),
+      new FunctionBinding()
+        .setName(CHAIN_FUNC_1.getName())
+        .setFunction(CHAIN_FUNC_1.getKey())
         .setOutputCls(CLS_1_KEY)
     ));
   public static final OClass CLS_2 = new OClass()
@@ -162,6 +167,9 @@ public class MockupData {
     );
   public static final OObject OBJ_2 = OObject.createFromClasses(CLS_1)
     .setId("o2");
+
+  static FunctionRepository fnRepo;
+  static ClassRepository clsRepo;
 
   private MockupData() {
   }
@@ -183,7 +191,8 @@ public class MockupData {
         FUNC_1.copy(),
         FUNC_2.copy(),
         MACRO_FUNC_1.copy(),
-        MACRO_FUNC_2.copy()
+        MACRO_FUNC_2.copy(),
+        CHAIN_FUNC_1.copy()
       )
       .groupByUniqueKey(OFunction::getKey);
   }
@@ -195,17 +204,14 @@ public class MockupData {
     return l;
   }
 
-  static FunctionRepository fnRepo;
-
   public static FunctionRepository fnRepo() {
-    if (fnRepo == null)
+    if (fnRepo==null)
       fnRepo = new MapEntityRepository.MapFnRepository(MockupData.testFunctions());
     return fnRepo;
   }
-  static ClassRepository clsRepo;
 
   public static ClassRepository clsRepo() {
-    if (clsRepo == null)
+    if (clsRepo==null)
       clsRepo = new MapEntityRepository.MapClsRepository(MockupData.testClasses());
     return clsRepo;
   }

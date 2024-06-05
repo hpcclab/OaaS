@@ -2,9 +2,12 @@ package org.hpcclab.oaas.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.controller.fn.*;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
+import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
@@ -18,10 +21,12 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   IdGenerator idGenerator = new TsidGenerator();
   ObjectMapper mapper = new ObjectMapper();
   OffLoaderFactory offLoaderFactory = new MockOffLoader.Factory();
-  ContentUrlGenerator contentUrlGenerator ;
+  ContentUrlGenerator contentUrlGenerator;
   DataUrlAllocator dataUrlAllocator = new MockDataUrlAllocator();
+  LocationAwareInvocationForwarder invocationForwarder;
+  DataflowOrchestrator dataflowOrchestrator;
 
-  public MockFunctionControllerFactory() {
+  public MockFunctionControllerFactory(InvocationReqHandler reqHandler) {
     contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8090") {
       @Override
       public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
@@ -29,6 +34,8 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
         return "";
       }
     };
+    invocationForwarder = reqHandler::invoke;
+    dataflowOrchestrator = new DataflowOrchestrator(invocationForwarder, idGenerator);
   }
 
   @Override
@@ -36,7 +43,10 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
     return switch (function.getType()) {
       case TASK, IM_TASK -> new TaskFunctionController(idGenerator, mapper, offLoaderFactory, contentUrlGenerator);
       case LOGICAL -> createLogical(function);
-      case MACRO -> new MacroFunctionController(idGenerator, mapper);
+      case MACRO -> new MacroFunctionController(
+        idGenerator, mapper, dataflowOrchestrator
+      );
+      case CHAIN -> new ChainFunctionController(idGenerator, mapper);
       default -> throw new IllegalArgumentException("function %s not supported".formatted(function.getKey()));
     };
   }

@@ -10,7 +10,7 @@ import org.hpcclab.oaas.model.invocation.InvocationRequest;
  * @author Pawissanutt
  */
 @Builder()
-public record MinimalValidationContext(
+public record ValidationContext(
   InvocationRequest request,
   OClass cls,
   String outputCls,

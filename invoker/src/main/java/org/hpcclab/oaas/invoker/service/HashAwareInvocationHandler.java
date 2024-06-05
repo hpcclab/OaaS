@@ -13,6 +13,7 @@ import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -36,7 +37,7 @@ import java.util.function.Supplier;
 
 
 @ApplicationScoped
-public class HashAwareInvocationHandler {
+public class HashAwareInvocationHandler implements LocationAwareInvocationForwarder {
   private static final Logger logger = LoggerFactory.getLogger(HashAwareInvocationHandler.class);
   final LookupManager lookupManager;
   final ClassControllerRegistry registry;

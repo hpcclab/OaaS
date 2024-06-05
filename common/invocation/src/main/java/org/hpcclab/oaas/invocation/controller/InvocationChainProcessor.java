@@ -31,10 +31,14 @@ public class InvocationChainProcessor {
         ctx.getChains().addAll(ctx.getRequest().chains());
       }
     }
-    logger.debug("processing [{}] with [{}] chains",
-      ctx.getRequest().invId(),
-      ctx.getChains().size()
-    );
+    if (logger.isDebugEnabled())
+      logger.debug("processing [{},{}:{}:{}] with [{}] chains",
+        ctx.getRequest().invId(),
+        ctx.getRequest().cls(),
+        ctx.getRequest().main(),
+        ctx.getRequest().fb(),
+        ctx.getChains().size()
+      );
     List<InvocationRequest> requests = ctx.getChains()
       .stream()
       .map(chain -> buildRequest(ctx, chain))

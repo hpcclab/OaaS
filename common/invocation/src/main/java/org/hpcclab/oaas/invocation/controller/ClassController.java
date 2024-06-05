@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 
 import java.util.Map;
@@ -20,7 +19,7 @@ public interface ClassController {
 
   FunctionController getFunctionController(String fb);
 
-  MinimalValidationContext validate(InvocationRequest request);
+  ValidationContext validate(InvocationRequest request);
 
   Uni<Void> enqueue(InvocationRequest req);
 

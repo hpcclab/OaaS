@@ -62,7 +62,7 @@ public class BaseClassController implements ClassController {
   }
 
   @Override
-  public MinimalValidationContext validate(InvocationRequest request) {
+  public ValidationContext validate(InvocationRequest request) {
     if (!request.fb().isEmpty()) {
       var fn = functionMap.get(request.fb());
       if (fn==null) throw InvocationException.notFoundFnInCls(request.fb(), cls.getKey());
@@ -82,11 +82,11 @@ public class BaseClassController implements ClassController {
         if (dataflow.getExport()!=null)
           req.outId(map.get(dataflow.getExport()));
       }
-      return new MinimalValidationContext(
+      return new ValidationContext(
         req.build(), cls, fn.getFunctionBinding().getOutputCls(),
         fn.getFunction(), fn.getFunctionBinding());
     }
-    return new MinimalValidationContext(
+    return new ValidationContext(
       request, cls, null, null, null);
   }
 

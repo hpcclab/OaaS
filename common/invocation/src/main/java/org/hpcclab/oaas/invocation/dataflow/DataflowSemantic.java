@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.controller;
+package org.hpcclab.oaas.invocation.dataflow;
 
 import com.google.common.base.Objects;
 import org.eclipse.collections.api.factory.Lists;
@@ -7,9 +7,9 @@ import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.hpcclab.oaas.model.function.DataMapperDefinition;
+import org.hpcclab.oaas.model.function.DataflowExport;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.function.MacroSpec;
-import org.hpcclab.oaas.model.function.WorkflowExport;
 
 import java.util.List;
 import java.util.Map;
@@ -41,17 +41,21 @@ public class DataflowSemantic {
     MutableMap<String, DataflowNode> stateMap = Maps.mutable.of("$", root);
     for (int i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
-      DataflowNode targetNode = resolve(stateMap, step.target());
       List<DataMapperDefinition> inputRefs = step.inputDataMaps();
       if (inputRefs==null) inputRefs = List.of();
       List<DataflowNode> inputNodes = inputRefs.stream()
         .map(ref -> resolve(stateMap, ref.target()))
         .toList();
       MutableSet<DataflowNode> require = Sets.mutable.empty();
-      require.add(targetNode);
+      DataflowNode targetNode = resolve(stateMap, step.target());
       require.addAll(inputNodes);
+      if (targetNode==null) {
+        if (require.isEmpty()) require.add(root);
+      } else {
+        require.add(targetNode);
+      }
       var node = new DataflowNode(i, step, require, Sets.mutable.empty());
-      node.mainRefStepIndex = targetNode.stepIndex;
+      node.mainRefStepIndex = targetNode == null? -2: targetNode.stepIndex;
       df.allNode.add(node);
       if (step.as()!=null && !step.as().isEmpty()) {
         stateMap.put(step.as(), node);
@@ -65,8 +69,8 @@ public class DataflowSemantic {
       }
     }
     df.exportNode = resolve(stateMap, spec.getExport());
-    Set<WorkflowExport> exports = spec.getExports();
-    if (exports ==null) exports = Set.of();
+    Set<DataflowExport> exports = spec.getExports();
+    if (exports==null) exports = Set.of();
     df.exportNodes = exports.stream()
       .map(ex -> Map.entry(ex.getAs(), resolve(stateMap, ex.getFrom())))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -74,6 +78,7 @@ public class DataflowSemantic {
   }
 
   static DataflowNode resolve(Map<String, DataflowNode> stateMap, String ref) {
+    if (ref==null || ref.isEmpty()) return null;
     var target = extractTargetInFlow(ref);
     var node = stateMap.get(target);
     if (node==null) throw new DataflowParseException("Cannot resolve ref(" + ref + ")", 500);
@@ -180,7 +185,7 @@ public class DataflowSemantic {
       return mainRefStepIndex;
     }
 
-    public boolean requireFanIn(){
+    public boolean requireFanIn() {
       return require.size() > 1;
     }
   }

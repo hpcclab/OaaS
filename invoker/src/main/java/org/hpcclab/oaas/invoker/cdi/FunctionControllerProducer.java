@@ -4,17 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
+import org.hpcclab.oaas.invocation.controller.fn.*;
+import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.task.OffLoader;
-import org.hpcclab.oaas.invocation.controller.fn.CdiFunctionControllerFactory;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.MacroFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.TaskFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
+import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 /**
@@ -32,8 +31,15 @@ public class FunctionControllerProducer {
 
   @Produces
   MacroFunctionController macroFunctionController(IdGenerator idGenerator,
-                                                  ObjectMapper mapper) {
-    return new MacroFunctionController(idGenerator, mapper);
+                                                  ObjectMapper mapper,
+                                                  DataflowOrchestrator orchestrator) {
+    return new MacroFunctionController(idGenerator, mapper, orchestrator);
+  }
+
+  @Produces
+  DataflowOrchestrator dataflowOrchestrator(HashAwareInvocationHandler invocationHandler,
+                                            IdGenerator idGenerator) {
+    return new DataflowOrchestrator(invocationHandler, idGenerator);
   }
 
 
@@ -66,9 +72,11 @@ public class FunctionControllerProducer {
   @Produces
   CdiFunctionControllerFactory functionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                                          Instance<MacroFunctionController> macroFunctionControllerInstance,
+                                                         Instance<ChainFunctionController> chainFunctionControllerInstance,
                                                          Instance<LogicalFunctionController> logicalFunctionControllers) {
     return new CdiFunctionControllerFactory(taskFunctionControllerInstance,
       macroFunctionControllerInstance,
+      chainFunctionControllerInstance,
       logicalFunctionControllers);
   }
 }
