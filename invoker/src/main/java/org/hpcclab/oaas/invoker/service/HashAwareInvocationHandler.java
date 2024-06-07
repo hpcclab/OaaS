@@ -20,7 +20,8 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.lookup.ObjLocalResolver;
-import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
@@ -41,12 +42,12 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
   private static final Logger logger = LoggerFactory.getLogger(HashAwareInvocationHandler.class);
   final LookupManager lookupManager;
   final ClassControllerRegistry registry;
-  final ProtoObjectMapper mapper;
   final GrpcClient grpcClient;
   final InvocationReqHandler invocationReqHandler;
   final InvokerManager invokerManager;
   final InvokerConfig invokerConfig;
   final GrpcInvocationServicePool pool;
+  final ProtoMapper mapper = new ProtoMapperImpl();
 
   final int retry;
   final int backoff;
@@ -56,7 +57,6 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
   @Inject
   public HashAwareInvocationHandler(LookupManager lookupManager,
                                     ClassControllerRegistry registry,
-                                    ProtoObjectMapper mapper,
                                     GrpcClient grpcClient,
                                     InvocationReqHandler invocationReqHandler,
                                     InvokerManager invokerManager,
@@ -64,7 +64,6 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
                                     Vertx vertx) {
     this.lookupManager = lookupManager;
     this.registry = registry;
-    this.mapper = mapper;
     this.grpcClient = grpcClient;
     this.invocationReqHandler = invocationReqHandler;
     this.invokerManager = invokerManager;
@@ -74,7 +73,7 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
     this.pool = new GrpcInvocationServicePool(
-      invokerConfig.disableVertxForGrpc()? null: vertx.getDelegate()
+      invokerConfig.disableVertxForGrpc() ? null:vertx.getDelegate()
     );
   }
 

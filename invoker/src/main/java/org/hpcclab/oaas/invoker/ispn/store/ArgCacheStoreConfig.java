@@ -23,7 +23,19 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
       "valueCls", HasKey.class, Class.class)
     .serializer(AttributeSerializer.CLASS_NAME)
     .immutable().build();
-  public static final AttributeDefinition<ConnectionFactory> CONNECTION_FACTORY = AttributeDefinition.builder("connectionFactory", null, ConnectionFactory.class)
+
+  public static final AttributeDefinition<Class> STORE_CLASS = AttributeDefinition.builder(
+      "storeCls", HasKey.class, Class.class)
+    .serializer(AttributeSerializer.CLASS_NAME)
+    .immutable().build();
+
+
+  public static final AttributeDefinition<ValueMapper> VALUE_MAPPER = AttributeDefinition.builder(
+    "valueMapper", null, ValueMapper.class)
+    .copier(f -> f)
+    .build();
+public static final AttributeDefinition<ConnectionFactory> CONNECTION_FACTORY = AttributeDefinition.builder(
+  "connectionFactory", null, ConnectionFactory.class)
     .copier(f -> f)
     .build();
 
@@ -33,13 +45,28 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
   }
 
   public static AttributeSet attributeDefinitionSet() {
-    return new AttributeSet(ArgCacheStoreConfig.class, AbstractStoreConfiguration.attributeDefinitionSet(), VALUE_CLASS, CONNECTION_FACTORY);
+    return new AttributeSet(ArgCacheStoreConfig.class,
+      AbstractStoreConfiguration.attributeDefinitionSet(),
+      VALUE_CLASS,
+      STORE_CLASS,
+      VALUE_MAPPER,
+      CONNECTION_FACTORY);
   }
 
   public Class getValueCls() {
     return attributes.attribute(VALUE_CLASS)
       .get();
   }
+  public Class getStoreCls() {
+    return attributes.attribute(STORE_CLASS)
+      .get();
+  }
+
+  public ValueMapper getValueMapper() {
+    return attributes.attribute(VALUE_MAPPER)
+      .get();
+  }
+
   public ConnectionFactory getConnectionFactory() {
     return attributes.attribute(CONNECTION_FACTORY)
       .get();
@@ -68,6 +95,15 @@ public class ArgCacheStoreConfig extends AbstractStoreConfiguration{
 
     public Builder valueCls(Class klass) {
       attributes.attribute(VALUE_CLASS).set(klass);
+      return this;
+    }
+
+    public Builder storeCls(Class klass) {
+      attributes.attribute(STORE_CLASS).set(klass);
+      return this;
+    }
+    public Builder valueMapper(ValueMapper valueMapper){
+      attributes.attribute(VALUE_MAPPER).set(valueMapper);
       return this;
     }
 

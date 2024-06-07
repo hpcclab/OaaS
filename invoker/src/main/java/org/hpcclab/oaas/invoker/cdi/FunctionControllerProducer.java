@@ -35,6 +35,12 @@ public class FunctionControllerProducer {
   }
 
   @Produces
+  ChainFunctionController chainFunctionController(IdGenerator idGenerator,
+                                                  ObjectMapper mapper) {
+    return new ChainFunctionController(idGenerator, mapper);
+  }
+
+  @Produces
   DataflowOrchestrator dataflowOrchestrator(HashAwareInvocationHandler invocationHandler,
                                             IdGenerator idGenerator) {
     return new DataflowOrchestrator(invocationHandler, idGenerator);

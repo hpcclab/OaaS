@@ -46,12 +46,12 @@ public class OOUpdate {
       .intersect(Sets.fixedSize.withAll(updatedKeys));
   }
 
-  public void update(POObject obj, String newVerId) {
+  public void update(GOObject obj, String newVerId) {
     if (obj==null)
       return;
 
     if (data!=null)
-      obj.setData(OObjectConverter.getInstance().convert(data));
+      obj.setData(new JsonBytes(data));
 
     if (refs!=null && !refs.isEmpty()) {
       var map = DSMap.copy(obj.getMeta().getRefs());

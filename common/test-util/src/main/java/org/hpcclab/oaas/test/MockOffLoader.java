@@ -56,7 +56,8 @@ public class MockOffLoader implements OffLoader {
         OOUpdate mainUpdate = null;
         OOUpdate outUpdate = null;
         Optional<ObjectNode> jsonNodes = Optional.ofNullable(task.getMain())
-          .map(JOObject::getData);
+          .map(GOObject::getData)
+          .map(JsonBytes::getNode);
         int n = jsonNodes
           .map(on -> on.get("n").asInt())
           .orElse(0);

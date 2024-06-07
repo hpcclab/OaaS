@@ -308,8 +308,14 @@
           "target" : {
             "type" : "string"
           },
+          "jsonPath" : {
+            "type" : "string"
+          },
           "inject" : {
             "type" : "string"
+          },
+          "failOnError" : {
+            "type" : "boolean"
           }
         }
       },
@@ -319,7 +325,35 @@
           "target" : {
             "type" : "string"
           },
+          "jsonPath" : {
+            "type" : "string"
+          },
           "inject" : {
+            "type" : "string"
+          },
+          "failOnError" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "DataflowExport" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DataflowExport_Public" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "as" : {
             "type" : "string"
           }
         }
@@ -487,11 +521,11 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "KDeploymentProvision" : {
@@ -709,7 +743,7 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport"
+              "$ref" : "#/components/schemas/DataflowExport"
             }
           },
           "export" : {
@@ -733,7 +767,7 @@
             "uniqueItems" : true,
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport_Public"
+              "$ref" : "#/components/schemas/DataflowExport_Public"
             }
           },
           "export" : {
@@ -1589,28 +1623,6 @@
             "type" : "string"
           },
           "comment" : {
-            "type" : "string"
-          }
-        }
-      },
-      "WorkflowExport" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
-          },
-          "as" : {
-            "type" : "string"
-          }
-        }
-      },
-      "WorkflowExport_Public" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
-          },
-          "as" : {
             "type" : "string"
           }
         }

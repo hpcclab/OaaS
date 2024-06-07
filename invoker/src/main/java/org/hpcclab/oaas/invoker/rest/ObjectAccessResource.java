@@ -17,9 +17,8 @@ import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.JOObject;
-import org.hpcclab.oaas.model.object.OObjectConverter;
-import org.hpcclab.oaas.model.object.POObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -42,7 +41,6 @@ public class ObjectAccessResource {
   final ContentUrlGenerator generator;
   final InvokerConfig conf;
   final RequestCounterMap requestCounterMap;
-  final OObjectConverter converter = OObjectConverter.getInstance();
 
   public ObjectAccessResource(InvokerManager invokerManager,
                               HashAwareInvocationHandler hashAwareInvocationHandler,
@@ -61,14 +59,13 @@ public class ObjectAccessResource {
   }
 
   @GET
-  public Uni<JOObject> getObj(String cls,
+  public Uni<GOObject> getObj(String cls,
                               String objId) {
     boolean contains = invokerManager.getManagedCls().contains(cls);
     if (contains) {
       return objectRepoManager.getOrCreate(cls).async()
         .getAsync(objId)
-        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404))
-        .map(converter::convert);
+        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(objId, 404));
     } else {
       return hashAwareInvocationHandler.invoke(InvocationRequest.builder()
           .cls(cls)
@@ -76,8 +73,7 @@ public class ObjectAccessResource {
           .build())
         .map(InvocationResponse::main)
         .onItem().ifNull()
-        .failWith(() -> StdOaasException.notFoundObject(objId, 404))
-        .map(o -> converter.convert((POObject) o));
+        .failWith(() -> StdOaasException.notFoundObject(objId, 404));
     }
   }
 
@@ -141,7 +137,7 @@ public class ObjectAccessResource {
       .main(objId)
       .fb(fb)
       .args(args)
-      .body(body)
+      .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {

@@ -8,8 +8,8 @@ import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.client.GrpcClientChannel;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.mapper.ProtoObjectMapper;
-import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.object.OObject;
@@ -81,8 +81,7 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   @Override
   public Integer call() throws Exception {
     MessagePackMapper msgPackMapper = new MessagePackMapper();
-    ProtoObjectMapper protoMapper = new ProtoObjectMapperImpl();
-    protoMapper.setMapper(msgPackMapper);
+    ProtoMapper protoMapper = new ProtoMapperImpl();
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();
     if (cls==null) cls = conf.getDefaultClass();

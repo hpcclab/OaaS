@@ -43,7 +43,7 @@ class MacroFnControllerTest {
     InvocationResponse resp = reqHandler.invoke(request).await().indefinitely();
     assertThat(resp.output())
       .isNotNull();
-    var id = resp.output().getId();
+    var id = resp.output().getKey();
     assertThat(id).isNotNull();
 
     request = request.toBuilder()

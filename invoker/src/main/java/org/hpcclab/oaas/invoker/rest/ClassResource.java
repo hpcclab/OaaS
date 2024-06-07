@@ -14,6 +14,8 @@ import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
+import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -87,7 +89,7 @@ public class ClassResource {
       .cls(cls)
       .fb(fb)
       .args(args)
-      .body(body)
+      .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {

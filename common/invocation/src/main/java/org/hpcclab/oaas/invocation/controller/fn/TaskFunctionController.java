@@ -37,7 +37,6 @@ public class TaskFunctionController extends AbstractFunctionController {
   final OffLoaderFactory offLoaderFactory;
   OffLoader offloader;
   final ContentUrlGenerator contentUrlGenerator;
-  final OObjectConverter converter = OObjectConverter.getInstance();
 
 
   public TaskFunctionController(IdGenerator idGenerator,
@@ -79,7 +78,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       .map(tc -> handleComplete(ctx, tc));
   }
 
-  public POObject createOutput(InvocationCtx ctx) {
+  public GOObject createOutput(InvocationCtx ctx) {
     OMeta meta = new OMeta();
     meta.setCls(outputCls.getKey());
     meta.setRevision(0);
@@ -90,7 +89,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     } else {
       meta.setId(idGenerator.generate());
     }
-    return new POObject(meta, null);
+    return new GOObject(meta);
   }
 
   public OTask genTask(InvocationCtx ctx) {
@@ -99,7 +98,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setId(verId);
     task.setPartKey(ctx.getRequest().main());
     task.setFbName(functionBinding.getName());
-    task.setMain(converter.convert(ctx.getMain()));
+    task.setMain(ctx.getMain());
     task.setFuncKey(function.getKey());
     task.setImmutable(ctx.isImmutable());
     task.setReqBody(ctx.getRequest().body());
@@ -107,7 +106,7 @@ public class TaskFunctionController extends AbstractFunctionController {
 
     task.setMainKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
     if (ctx.getOutput()!=null) {
-      task.setOutput(converter.convert(ctx.getOutput()));
+      task.setOutput(ctx.getOutput());
       if (outputCls.getStateType()==StateType.COLLECTION) {
         var dac = DataAccessContext.generate(task.getOutput(), AccessLevel.ALL, verId);
         task.setAllocOutputUrl(contentUrlGenerator.generateAllocateUrl(ctx.getOutput(), dac));
@@ -121,7 +120,6 @@ public class TaskFunctionController extends AbstractFunctionController {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }
-    if (ctx.getInputs()==null) ctx.setInputs(List.of());
     task.setTs(System.currentTimeMillis());
     return task;
   }
@@ -195,14 +193,14 @@ public class TaskFunctionController extends AbstractFunctionController {
   public InvocationCtx handleComplete(InvocationCtx context, TaskCompletion completion) {
     validateCompletion(context, completion);
     updateState(context, completion);
-    List<POObject> updateList = completion.getMain()!=null && !functionBinding.isImmutable() ?
+    List<GOObject> updateList = completion.getMain()!=null && !functionBinding.isImmutable() ?
       Lists.mutable.of(context.getMain()):
       List.of();
     SimpleStateOperation stateOperation;
     if (outputCls == null) {
       stateOperation = SimpleStateOperation.updateObjs(updateList, cls);
     } else {
-      List<POObject> createList = completion.getOutput()!=null ?
+      List<GOObject> createList = completion.getOutput()!=null ?
         List.of(context.getOutput()):
         List.of();
       stateOperation = new SimpleStateOperation(createList, outputCls, updateList, cls);

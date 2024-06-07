@@ -12,10 +12,7 @@ import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.object.OMeta;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.OObjectConverter;
-import org.hpcclab.oaas.model.object.POObject;
+import org.hpcclab.oaas.model.object.*;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -53,11 +50,7 @@ public class NewFunctionController extends AbstractFunctionController
     if (body==null) {
       req = new ObjectConstructRequest(null, Set.of(), DSMap.of(),DSMap.of());
     } else {
-      try {
-        req = mapper.treeToValue(body, ObjectConstructRequest.class);
-      } catch (JsonProcessingException e) {
-        throw new FunctionValidationException("Cannot decode body to 'ObjectConstructRequest'", e);
-      }
+      req = body.mapToObj(ObjectConstructRequest.class);
     }
     return construct(ctx, req);
   }
@@ -66,11 +59,11 @@ public class NewFunctionController extends AbstractFunctionController
   private Uni<InvocationCtx> construct(InvocationCtx ctx,
                                        ObjectConstructRequest construct) {
     OMeta meta = new OMeta();
-    var obj = new POObject(meta, null);
+    var obj = new GOObject(meta);
     var id = idGenerator.generate();
     meta.setId(id);
     meta.setCls(cls.getKey());
-    obj.setData(converter.convert(construct.data));
+    obj.setData(new JsonBytes(construct.data));
     if (cls.getStateType()!=StateType.COLLECTION) {
       var verIds = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
         .toMap(KeySpecification::getName, __ -> id);

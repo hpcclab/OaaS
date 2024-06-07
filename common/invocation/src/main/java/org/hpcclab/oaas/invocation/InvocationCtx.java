@@ -13,7 +13,8 @@ import org.hpcclab.oaas.invocation.controller.StateOperation;
 import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
@@ -31,16 +32,15 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InvocationCtx {
   InvocationRequest request;
-  POObject output;
-  POObject main;
-  Map<String, POObject> mainRefs;
-  List<POObject> inputs = List.of();
+  GOObject output;
+  GOObject main;
+  Map<String, GOObject> mainRefs;
   Map<String, String> args = Map.of();
   boolean immutable;
   List<String> macroInvIds = Lists.mutable.empty();
   Map<String, String> macroIds = Maps.mutable.empty();
   TaskCompletion completion;
-  ObjectNode respBody;
+  JsonBytes respBody;
   List<StateOperation> stateOperations = List.of();
   InvocationLog log;
   List<InvocationChain> chains = List.of();
@@ -78,5 +78,10 @@ public class InvocationCtx {
       .macroIds(macroIds)
       .macroInvIds(macroInvIds)
       ;
+  }
+
+  public InvocationCtx setRespBody(ObjectNode node) {
+    this.respBody = new JsonBytes(node);
+    return this;
   }
 }

@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.exception.TooManyRequestException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
+import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.object.POObject;
@@ -78,7 +79,7 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
             OMeta meta = new OMeta();
             meta.setCls(ctx.outputCls());
             meta.setId(ctx.request().outId());
-            resp.output(new POObject(meta, null));
+            resp.output(new GOObject(meta));
           }
           return resp.build();
         }

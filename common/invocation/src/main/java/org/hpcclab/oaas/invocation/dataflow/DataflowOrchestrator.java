@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invocation.dataflow;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import lombok.Builder;
@@ -11,7 +10,8 @@ import org.hpcclab.oaas.invocation.dataflow.DataflowSemantic.DataflowNode;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.POObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class DataflowOrchestrator {
       .toBuilder()
       .completed(true)
       .sent(true)
-      .obj((POObject) resp.output())
+      .obj(resp.output())
       .content(resp.body())
       .resp(resp)
       .build();
@@ -126,8 +126,8 @@ public class DataflowOrchestrator {
   @Builder(toBuilder = true)
   record StepState(boolean sent,
                    boolean completed,
-                   POObject obj,
-                   ObjectNode content,
+                   GOObject obj,
+                   JsonBytes content,
                    InvocationResponse resp) {
     static StepState NULL = new StepState(false, false,
       null, null, null);

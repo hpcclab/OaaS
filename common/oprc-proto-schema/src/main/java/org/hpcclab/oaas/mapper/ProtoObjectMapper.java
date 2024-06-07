@@ -9,10 +9,7 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
-import org.hpcclab.oaas.model.object.IOObject;
-import org.hpcclab.oaas.model.object.OMeta;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
+import org.hpcclab.oaas.model.object.*;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
@@ -26,6 +23,7 @@ import java.io.IOException;
 @Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
   nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Deprecated(forRemoval = true)
 public abstract class ProtoObjectMapper {
   private static final Logger logger = LoggerFactory.getLogger(ProtoObjectMapper.class);
   ObjectMapper mapper;
@@ -47,6 +45,8 @@ public abstract class ProtoObjectMapper {
   public abstract InvocationStatus convert(ProtoInvocationStatus status);
   public abstract OMeta fromProto(ProtoOMeta oMeta);
   public abstract  ProtoOMeta toProto(OMeta oMeta);
+
+
   public IOObject fromProto(ProtoPOObject poObject){
     OMeta meta = fromProto(poObject.getMeta());
     return new POObject(meta, poObject.toByteArray());
@@ -92,5 +92,13 @@ public abstract class ProtoObjectMapper {
   public ByteString fromBytes(byte[] bytes) {
     if (bytes == null) return ByteString.EMPTY;
     return ByteString.copyFrom(bytes);
+  }
+  public JsonBytes toJsonBytes(ByteString bytes) {
+    if (bytes == null) return JsonBytes.EMPTY;
+    return new JsonBytes(bytes.toByteArray());
+  }
+  public ByteString fromJsonBytes(JsonBytes jsonBytes) {
+    if (jsonBytes == null) return ByteString.EMPTY;
+    return ByteString.copyFrom(jsonBytes.getBytes());
   }
 }

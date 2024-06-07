@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.With;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 
@@ -21,7 +22,7 @@ public record InvocationRequest(
   boolean immutable,
   String invId,
   String outId,
-  ObjectNode body,
+  JsonBytes body,
   List<InvocationChain> chains,
   @JsonIgnore String partKey
 ) {

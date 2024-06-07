@@ -2,6 +2,7 @@ package org.hpcclab.oaas.model.invocation;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public record InvocationChain (
   DSMap args,
   String invId,
   String outId,
-  ObjectNode body,
+  JsonBytes body,
   boolean immutable,
   List<InvocationChain> chains
   ){

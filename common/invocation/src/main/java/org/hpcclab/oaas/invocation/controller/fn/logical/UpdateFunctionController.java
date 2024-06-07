@@ -31,7 +31,7 @@ implements LogicalFunctionController {
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var body = ctx.getRequest().body();
     var main =  ctx.getMain();
-    main.setData(OObjectConverter.getInstance().convert(body));
+    main.setData(body);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.updateObjs(
         List.of(ctx.getMain()), cls

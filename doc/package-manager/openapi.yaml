@@ -220,14 +220,36 @@ components:
       properties:
         target:
           type: string
+        jsonPath:
+          type: string
         inject:
           type: string
+        failOnError:
+          type: boolean
     DataMapperDefinition_Public:
       type: object
       properties:
         target:
           type: string
+        jsonPath:
+          type: string
         inject:
+          type: string
+        failOnError:
+          type: boolean
+    DataflowExport:
+      type: object
+      properties:
+        from:
+          type: string
+        as:
+          type: string
+    DataflowExport_Public:
+      type: object
+      properties:
+        from:
+          type: string
+        as:
           type: string
     DataflowStep:
       type: object
@@ -365,9 +387,7 @@ components:
       - IM_TASK
       - LOGICAL
       - MACRO
-      - STATIC
-      - READONLY
-      - STATIC_READONLY
+      - CHAIN
       type: string
     FunctionType_Public:
       enum:
@@ -375,9 +395,7 @@ components:
       - IM_TASK
       - LOGICAL
       - MACRO
-      - STATIC
-      - READONLY
-      - STATIC_READONLY
+      - CHAIN
       type: string
     KDeploymentProvision:
       type: object
@@ -536,7 +554,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: "#/components/schemas/WorkflowExport"
+            $ref: "#/components/schemas/DataflowExport"
         export:
           type: string
         atomic:
@@ -552,7 +570,7 @@ components:
           uniqueItems: true
           type: array
           items:
-            $ref: "#/components/schemas/WorkflowExport_Public"
+            $ref: "#/components/schemas/DataflowExport_Public"
         export:
           type: string
         atomic:
@@ -1134,18 +1152,4 @@ components:
         name:
           type: string
         comment:
-          type: string
-    WorkflowExport:
-      type: object
-      properties:
-        from:
-          type: string
-        as:
-          type: string
-    WorkflowExport_Public:
-      type: object
-      properties:
-        from:
-          type: string
-        as:
           type: string

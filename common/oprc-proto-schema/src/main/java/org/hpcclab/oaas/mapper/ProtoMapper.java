@@ -10,8 +10,10 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.function.OFunctionConfig;
 import org.hpcclab.oaas.model.function.OFunctionDeploymentStatus;
-import org.hpcclab.oaas.model.object.OMeta;
-import org.hpcclab.oaas.model.object.POObject;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.invocation.InvocationResponse;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
+import org.hpcclab.oaas.model.object.*;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
@@ -65,8 +67,21 @@ public interface ProtoMapper {
   ProtoCr toProto(OClassRuntime clsRuntime);
   OMeta fromProto(ProtoOMeta oMeta);
   ProtoOMeta toProto(OMeta oMeta);
-  POObject fromProto(ProtoPOObject poObject);
-  ProtoPOObject toProto(POObject poObject);
+  GOObject fromProto(ProtoPOObject obj);
+  ProtoPOObject toProto(GOObject obj);
+
+  ProtoInvocationRequest toProto(InvocationRequest req);
+
+  ProtoInvocationResponse toProto(InvocationResponse req);
+
+  InvocationRequest fromProto(ProtoInvocationRequest object);
+
+  InvocationResponse fromProto(ProtoInvocationResponse resp);
+
+  ProtoInvocationStatus convert(InvocationStatus status);
+
+  InvocationStatus convert(ProtoInvocationStatus status);
+
 
   default DSMap map(Map<String, String> map) {
     if (map instanceof DSMap dsMap) return dsMap;
@@ -84,5 +99,13 @@ public interface ProtoMapper {
   default ByteString convert(byte[] bytes) {
     if (bytes == null) return ByteString.EMPTY;
     return ByteString.copyFrom(bytes);
+  }
+  default JsonBytes toJsonBytes(ByteString bytes) {
+    if (bytes == null) return JsonBytes.EMPTY;
+    return new JsonBytes(bytes.toByteArray());
+  }
+  default ByteString fromJsonBytes(JsonBytes jsonBytes) {
+    if (jsonBytes == null) return ByteString.EMPTY;
+    return ByteString.copyFrom(jsonBytes.getBytes());
   }
 }

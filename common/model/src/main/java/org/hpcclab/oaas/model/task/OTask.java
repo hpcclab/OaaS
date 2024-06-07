@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.JOObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.object.POObject;
 
@@ -18,8 +19,8 @@ public class OTask {
   public static final String CE_TYPE = "oaas.task";
   String id;
   String partKey;
-  JOObject main;
-  JOObject output;
+  GOObject main;
+  GOObject output;
   String funcKey;
   //List<POObject> inputs = List.of();
   //List<String> inputContextKeys = List.of();
@@ -28,7 +29,7 @@ public class OTask {
   Map<String,String> mainKeys;
   Map<String,String> outputKeys;
   Map<String, String> args;
-  ObjectNode reqBody;
+  JsonBytes reqBody;
   String fbName;
   boolean immutable;
   long ts = -1;

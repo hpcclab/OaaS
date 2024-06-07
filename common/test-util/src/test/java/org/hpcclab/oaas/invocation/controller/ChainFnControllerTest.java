@@ -49,7 +49,7 @@ class ChainFnControllerTest {
     InvocationResponse resp = reqHandler.invoke(request).await().indefinitely();
     assertThat(resp.output())
       .isNotNull();
-    var id = resp.output().getId();
+    var id = resp.output().getKey();
     assertThat(id).isNotNull();
 
     request = request.toBuilder()
@@ -80,7 +80,7 @@ class ChainFnControllerTest {
     InvocationResponse resp = reqHandler.invoke(request).await().indefinitely();
     System.out.println(resp);
     if (resp.output() != null) {
-      OObject out = repoManager.getOrCreate(CLS_1_KEY)
+      var out = repoManager.getOrCreate(CLS_1_KEY)
         .get(resp.output().getKey());
       assertThat(out)
         .isNotNull();
