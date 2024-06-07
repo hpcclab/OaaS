@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invocation.task;
 
 import org.hpcclab.oaas.model.data.DataAccessContext;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
 
 public class SaContentUrlGenerator implements ContentUrlGenerator {
@@ -11,14 +12,14 @@ public class SaContentUrlGenerator implements ContentUrlGenerator {
     this.saUrl = saUrl;
   }
 
-  public String generateUrl(OObject obj,
+  public String generateUrl(IOObject<?> obj,
                             DataAccessContext dac,
                             String file) {
-    return generateUrl(obj.getId(), dac.getVid(), file, dac.encode());
+    return generateUrl(obj.getKey(), dac.getVid(), file, dac.encode());
   }
 
   @Override
-  public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
+  public String generatePutUrl(IOObject<?> obj, DataAccessContext dac, String file) {
     throw new UnsupportedOperationException("Not supported.");
   }
 
@@ -30,8 +31,8 @@ public class SaContentUrlGenerator implements ContentUrlGenerator {
       .formatted(oid, vid, file, contextKey);
   }
 
-  public String generateAllocateUrl(OObject obj, DataAccessContext dac) {
+  public String generateAllocateUrl(IOObject<?> obj, DataAccessContext dac) {
     return saUrl + "/allocate/%s?contextKey=%s"
-      .formatted(obj.getId(), dac.encode());
+      .formatted(obj.getKey(), dac.encode());
   }
 }

@@ -3,30 +3,34 @@ package org.hpcclab.oaas.invocation.task;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
 
+import java.util.Map;
+
 public interface ContentUrlGenerator {
-  default String generateUrl(OObject obj,
+  default String generateUrl(IOObject<?> obj,
                              String file,
                              AccessLevel level,
                              boolean usePublic) {
-    if (obj.getState().getVerIds()==null || obj.getState().getVerIds().isEmpty())
-      throw StdOaasException.notKeyInObj(obj.getId(), 404);
-    var vid = obj.getState().findVerId(file);
+    Map<String, String> verIds = obj.getMeta().getVerIds();
+    if (verIds==null || verIds.isEmpty())
+      throw StdOaasException.notKeyInObj(obj.getKey(), 404);
+    var vid = obj.getMeta().getVerIds().get(file);
     if (vid==null)
-      throw StdOaasException.notKeyInObj(obj.getId(), 404);
+      throw StdOaasException.notKeyInObj(obj.getKey(), 404);
     var dac = DataAccessContext.generate(obj, level, vid, usePublic);
     return generateUrl(obj, dac, file);
   }
 
-  String generateUrl(OObject obj,
+  String generateUrl(IOObject<?> obj,
                      DataAccessContext dac,
                      String file);
 
-  String generatePutUrl(OObject obj,
+  String generatePutUrl(IOObject<?> obj,
                         DataAccessContext dac,
                         String file);
 
 
-  String generateAllocateUrl(OObject obj, DataAccessContext dac);
+  String generateAllocateUrl(IOObject<?> obj, DataAccessContext dac);
 }

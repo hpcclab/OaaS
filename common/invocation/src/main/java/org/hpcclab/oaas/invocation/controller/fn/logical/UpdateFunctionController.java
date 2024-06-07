@@ -6,6 +6,7 @@ import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
@@ -30,7 +31,7 @@ implements LogicalFunctionController {
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var body = ctx.getRequest().body();
     var main =  ctx.getMain();
-    main.setData(body);
+    main.setData(OObjectConverter.getInstance().convert(body));
     ctx.setStateOperations(List.of(
       SimpleStateOperation.updateObjs(
         List.of(ctx.getMain()), cls

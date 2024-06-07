@@ -58,12 +58,10 @@ public class ClassResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
@@ -85,12 +83,10 @@ public class ClassResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
       .body(body)
       .build();
     requestCounterMap.increase(cls, fb);

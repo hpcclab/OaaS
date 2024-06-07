@@ -8,6 +8,7 @@ import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
@@ -42,7 +43,7 @@ public class IspnCacheCreator {
   }
 
 
-  public Cache<String, OObject> getObjectCache(OClass cls) {
+  public Cache<String, POObject> getObjectCache(OClass cls) {
     var name = cls.getKey();
     if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);

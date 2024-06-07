@@ -46,30 +46,30 @@ public class OOUpdate {
       .intersect(Sets.fixedSize.withAll(updatedKeys));
   }
 
-  public void update(OObject obj, String newVerId) {
+  public void update(POObject obj, String newVerId) {
     if (obj==null)
       return;
 
     if (data!=null)
-      obj.setData(data);
+      obj.setData(OObjectConverter.getInstance().convert(data));
 
     if (refs!=null && !refs.isEmpty()) {
-      var map = DSMap.copy(obj.getRefs());
+      var map = DSMap.copy(obj.getMeta().getRefs());
       map.putAll(refs);
-      obj.setRefs(map);
+      obj.getMeta().setRefs(map);
     }
 
     if (updatedKeys!=null && !updatedKeys.isEmpty()) {
       var verIds = DSMap.wrap(Sets.fixedSize.ofAll(updatedKeys)
         .toMap(k -> k, __ -> newVerId)
       );
-      var oldVerIds = obj.getState().getVerIds();
+      var oldVerIds = obj.getMeta().getVerIds();
       if (oldVerIds==null || oldVerIds.isEmpty())
-        obj.getState().setVerIds(verIds);
+        obj.getMeta().setVerIds(verIds);
       else {
         var tmp = Maps.mutable.ofMap(oldVerIds);
         tmp.putAll(verIds);
-        obj.getState().setVerIds(DSMap.wrap(tmp));
+        obj.getMeta().setVerIds(DSMap.wrap(tmp));
       }
     }
   }

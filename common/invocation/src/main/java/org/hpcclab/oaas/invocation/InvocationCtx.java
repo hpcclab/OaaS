@@ -14,6 +14,7 @@ import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 
@@ -30,14 +31,12 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InvocationCtx {
   InvocationRequest request;
-  OObject output;
-  OObject main;
-  Map<String, OObject> mainRefs;
-  List<OObject> inputs = List.of();
+  POObject output;
+  POObject main;
+  Map<String, POObject> mainRefs;
+  List<POObject> inputs = List.of();
   Map<String, String> args = Map.of();
   boolean immutable;
-  List<OObject> subOutputs = Lists.mutable.empty();
-  Map<String, OObject> workflowMap = Maps.mutable.empty();
   List<String> macroInvIds = Lists.mutable.empty();
   Map<String, String> macroIds = Maps.mutable.empty();
   TaskCompletion completion;
@@ -55,12 +54,10 @@ public class InvocationCtx {
     log = new InvocationLog();
     if (request!=null) {
       log.setKey(request.invId());
-      log.setOutId(output!=null ? output.getId():null);
-      log.setInputs(request.inputs());
+      log.setOutId(output!=null ? output.getKey():null);
     } else {
-      log.setKey(getOutput().getId());
-      log.setOutId(getOutput().getId());
-      log.setInputs(getInputs().stream().map(OObject::getId).toList());
+      log.setKey(getOutput().getKey());
+      log.setOutId(getOutput().getKey());
     }
     log.setFb(request!=null ? request.fb():null);
     log.setArgs(DSMap.copy(getArgs()));

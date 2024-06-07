@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
@@ -143,9 +144,9 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     throw new UnsupportedOperationException();
   }
 
-  public static class MapObjectRepository extends MapEntityRepository<String, OObject> implements ObjectRepository {
-    public MapObjectRepository(MutableMap<String, OObject> map) {
-      super(map, OObject::getKey);
+  public static class MapObjectRepository extends MapEntityRepository<String, POObject> implements ObjectRepository {
+    public MapObjectRepository(MutableMap<String, POObject> map) {
+      super(map, POObject::getKey);
     }
   }
 
@@ -165,14 +166,14 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
     ClassControllerRegistry registry;
 
-    public MapObjectRepoManager(MutableMap<String, OObject> map,
+    public MapObjectRepoManager(MutableMap<String, POObject> map,
                                 ClassControllerRegistry registry
     ) {
-      var bagMultimap = map.groupBy(OObject::getCls);
+      var bagMultimap = map.groupBy(o -> o.getMeta().getCls());
       bagMultimap.keyMultiValuePairsView()
         .forEach(pair -> {
-          MutableMap<String, OObject> objs = pair.getTwo()
-            .toMap(OObject::getId, o -> o);
+          MutableMap<String, POObject> objs = pair.getTwo()
+            .toMap(POObject::getKey, o -> o);
           repoMap.put(pair.getOne(), new MapObjectRepository(objs));
         });
       this.registry = registry;

@@ -10,6 +10,9 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 public record DataMapperDefinition(
   String target,
-  String inject) {
+  String jsonPath,
+  String inject,
+  boolean failOnError
+  ) {
 
 }

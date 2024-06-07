@@ -1,13 +1,13 @@
 package org.hpcclab.oaas.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.task.InvokingDetail;
 import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.model.object.OOUpdate;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.*;
 import org.hpcclab.oaas.model.task.OTask;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.slf4j.Logger;
@@ -55,19 +55,11 @@ public class MockOffLoader implements OffLoader {
         OTask task = (OTask) detail.getContent();
         OOUpdate mainUpdate = null;
         OOUpdate outUpdate = null;
-        int n = Optional.ofNullable(task.getMain())
-          .map(OObject::getData)
+        Optional<ObjectNode> jsonNodes = Optional.ofNullable(task.getMain())
+          .map(JOObject::getData);
+        int n = jsonNodes
           .map(on -> on.get("n").asInt())
           .orElse(0);
-        if (task.getInputs()!=null && !task.getInputs().isEmpty()) {
-          for (OObject input : task.getInputs()) {
-            var ni = Optional.ofNullable(input)
-              .map(OObject::getData)
-              .map(on -> on.get("n").asInt())
-              .orElse(0);
-            n += ni;
-          }
-        }
         var add = Integer.parseInt(task.getArgs().getOrDefault("ADD", "1"));
 
         var data = objectMapper.createObjectNode()

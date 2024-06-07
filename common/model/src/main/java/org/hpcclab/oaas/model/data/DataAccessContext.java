@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
 
 import java.util.Base64;
@@ -60,39 +61,39 @@ public class DataAccessContext {
   }
 
 
-  public static DataAccessContext generate(OObject obj) {
+  public static DataAccessContext generate(IOObject<?> obj) {
     return generate(obj, AccessLevel.UNIDENTIFIED);
   }
 
 
 
-  public static DataAccessContext generate(OObject obj,
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
-    dac.cls = obj.getCls();
+    dac.id = obj.getKey();
+    dac.cls = obj.getMeta().getCls();
     dac.level = level;
     return dac;
   }
 
-  public static DataAccessContext generate(OObject obj,
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level,
                                            String vid) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
+    dac.id = obj.getKey();
     dac.vid = vid;
-    dac.cls = obj.getCls();
+    dac.cls = obj.getMeta().getCls();
     dac.level = level;
     return dac;
   }
-  public static DataAccessContext generate(OObject obj,
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level,
                                            String vid,
                                            boolean pub) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
+    dac.id = obj.getKey();
     dac.vid = vid;
-    dac.cls = obj.getCls();
+    dac.cls = obj.getKey();
     dac.level = level;
     dac.pub = pub;
     return dac;

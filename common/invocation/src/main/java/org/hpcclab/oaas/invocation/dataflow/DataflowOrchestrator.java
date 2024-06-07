@@ -11,7 +11,7 @@ import org.hpcclab.oaas.invocation.dataflow.DataflowSemantic.DataflowNode;
 import org.hpcclab.oaas.model.function.DataflowStep;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class DataflowOrchestrator {
       .toBuilder()
       .completed(true)
       .sent(true)
-      .obj(resp.output())
+      .obj((POObject) resp.output())
       .content(resp.body())
       .resp(resp)
       .build();
@@ -86,7 +86,7 @@ public class DataflowOrchestrator {
       StepState stepState = state.stepStates()[node.mainRefStepIndex + 1];
       if (stepState.obj()!=null) {
         mainId = stepState.obj().getKey();
-        mainCls = stepState.obj().getCls();
+        mainCls = stepState.obj().getMeta().getCls();
       }
     }
     var invId = idGenerator.generate();
@@ -126,7 +126,7 @@ public class DataflowOrchestrator {
   @Builder(toBuilder = true)
   record StepState(boolean sent,
                    boolean completed,
-                   OObject obj,
+                   POObject obj,
                    ObjectNode content,
                    InvocationResponse resp) {
     static StepState NULL = new StepState(false, false,

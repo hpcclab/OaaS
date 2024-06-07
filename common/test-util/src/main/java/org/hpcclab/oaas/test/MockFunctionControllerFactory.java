@@ -13,6 +13,7 @@ import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
@@ -29,7 +30,7 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   public MockFunctionControllerFactory(InvocationReqHandler reqHandler) {
     contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8090") {
       @Override
-      public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
+      public String generatePutUrl(IOObject<?> obj, DataAccessContext dac, String file) {
         // AVOID EXCEPTION
         return "";
       }

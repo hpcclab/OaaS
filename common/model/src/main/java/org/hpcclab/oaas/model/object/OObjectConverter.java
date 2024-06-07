@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.object;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -18,11 +19,13 @@ public class OObjectConverter {
 
   public JOObject convert(POObject obj) {
     if (obj == null) return null;
+    return new JOObject(obj.meta, convert(obj.getData()));
+  }
+
+  public ObjectNode convert(byte[] bytes) {
+    if (bytes == null || bytes.length == 0) return null;
     try {
-      if (obj.getData() == null || obj.getData().length == 0)
-        return new JOObject(obj.meta, null);
-      else
-        return new JOObject(obj.meta, objectMapper.readValue(obj.getData(), ObjectNode.class));
+      return  objectMapper.readValue(bytes, ObjectNode.class);
     } catch (IOException e) {
       throw new InvocationException("Json parsing error",e);
     }
@@ -30,15 +33,19 @@ public class OObjectConverter {
 
   public POObject convert(JOObject obj) {
     if (obj == null) return null;
+    return new POObject(obj.meta, convert(obj.data));
+  }
+
+
+  public byte[] convert(ObjectNode objectNode) {
+    if (objectNode == null) return new byte[0];
     try {
-      if (obj.data != null)
-        return new POObject(obj.meta, objectMapper.writeValueAsBytes(obj.data));
-      else
-        return new POObject(obj.meta, null);
-    } catch (IOException e) {
-      throw new InvocationException("Json parsing error",e);
+      return objectMapper.writeValueAsBytes(objectNode);
+    } catch (JsonProcessingException e) {
+      throw new InvocationException("Json writing error",e);
     }
   }
+
 
   private static final OObjectConverter INSTANCE = new OObjectConverter(new ObjectMapper());
   public static OObjectConverter getInstance() {

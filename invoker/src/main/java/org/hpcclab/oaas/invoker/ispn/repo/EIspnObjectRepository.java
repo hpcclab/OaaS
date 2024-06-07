@@ -1,24 +1,25 @@
 package org.hpcclab.oaas.invoker.ispn.repo;
 
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.AdvancedCache;
 
-public class EIspnObjectRepository extends AbsEIspnRepository<OObject>
+public class EIspnObjectRepository extends AbsEIspnRepository<POObject>
   implements ObjectRepository {
-  AdvancedCache<String, OObject> cache;
+  AdvancedCache<String, POObject> cache;
 
-  public EIspnObjectRepository(AdvancedCache<String, OObject> cache) {
+  public EIspnObjectRepository(AdvancedCache<String, POObject> cache) {
     this.cache = cache;
   }
 
   @Override
-  String extractKey(OObject oObject) {
+  String extractKey(POObject oObject) {
     return oObject.getKey();
   }
 
   @Override
-  public AdvancedCache<String, OObject> getCache() {
+  public AdvancedCache<String, POObject> getCache() {
     return cache;
   }
 

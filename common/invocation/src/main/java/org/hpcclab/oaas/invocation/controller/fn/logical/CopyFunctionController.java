@@ -28,7 +28,7 @@ public class CopyFunctionController
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var o = ctx.getMain().copy();
-    o.setId(idGenerator.generate());
+    o.getMeta().setId(idGenerator.generate());
     ctx.setOutput(o);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.createObjs(List.of(o), cls)

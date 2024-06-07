@@ -49,8 +49,8 @@ public class InvocationChainProcessor {
 
   InvocationRequest buildRequest(InvocationCtx ctx, InvocationChain chain) {
     if (ctx.getOutput()!=null &&
-      Objects.equals(chain.main(), ctx.getOutput().getId())) {
-      chain = chain.toBuilder().cls(ctx.getOutput().getCls())
+      Objects.equals(chain.main(), ctx.getOutput().getKey())) {
+      chain = chain.toBuilder().cls(ctx.getOutput().getMeta().getCls())
         .build();
     }
     return InvocationRequest.builder()

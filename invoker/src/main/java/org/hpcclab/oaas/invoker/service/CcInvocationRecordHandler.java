@@ -72,11 +72,11 @@ public class CcInvocationRecordHandler implements InvocationRecordHandler {
       var obj = ctx.getMain();
       if (ctx.isImmutable())
         return false;
-      if (obj.getLastOffset() < kafkaRecord.offset())
+      if (obj.getMeta().getLastOffset() < kafkaRecord.offset())
         return false;
       logger.warn("detect duplication [main={}, objOfs={}, reqOfs={}]",
         ctx.getRequest().main(),
-        ctx.getMain().getLastOffset(),
+        ctx.getMain().getMeta().getLastOffset(),
         kafkaRecord.offset());
       return true;
     }

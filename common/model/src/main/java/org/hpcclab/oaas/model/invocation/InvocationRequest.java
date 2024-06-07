@@ -18,8 +18,6 @@ public record InvocationRequest(
   String cls,
   String fb,
   DSMap args,
-  List<String> inputs,
-  List<OObject> inputObjs,
   boolean immutable,
   String invId,
   String outId,

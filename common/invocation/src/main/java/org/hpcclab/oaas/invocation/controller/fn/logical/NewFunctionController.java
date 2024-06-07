@@ -12,7 +12,10 @@ import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
+import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.OObjectConverter;
+import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.OaasObjectState;
@@ -29,6 +32,7 @@ import java.util.Set;
 public class NewFunctionController extends AbstractFunctionController
   implements LogicalFunctionController {
   DataUrlAllocator allocator;
+  OObjectConverter converter = OObjectConverter.getInstance();
 
   public NewFunctionController(IdGenerator idGenerator,
                                ObjectMapper mapper,
@@ -61,22 +65,20 @@ public class NewFunctionController extends AbstractFunctionController
 
   private Uni<InvocationCtx> construct(InvocationCtx ctx,
                                        ObjectConstructRequest construct) {
-    var obj = new OObject();
+    OMeta meta = new OMeta();
+    var obj = new POObject(meta, null);
     var id = idGenerator.generate();
-    obj.setId(id);
-    obj.setCls(cls.getKey());
-    obj.setData(construct.data());
-    var state = new OaasObjectState();
+    meta.setId(id);
+    meta.setCls(cls.getKey());
+    obj.setData(converter.convert(construct.data));
     if (cls.getStateType()!=StateType.COLLECTION) {
       var verIds = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
         .toMap(KeySpecification::getName, __ -> id);
-      state.setVerIds(DSMap.wrap(verIds));
+      meta.setVerIds(DSMap.wrap(verIds));
     }
-    state.setOverrideUrls(construct.overrideUrls());
 
-    obj.setState(state);
-    obj.setRevision(1);
-    obj.setRefs(construct.refs());
+    meta.setRevision(1);
+    meta.setRefs(construct.refs());
     ctx.setOutput(obj);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.createObjs(List.of(obj), cls)
@@ -91,7 +93,7 @@ public class NewFunctionController extends AbstractFunctionController
         .item(ctx);
     } else {
       DataAllocateRequest request = new DataAllocateRequest(
-        obj.getId(),
+        obj.getKey(),
         ks,
         cls.getStateSpec().getDefaultProvider(), true);
       return allocator.allocate(List.of(request))

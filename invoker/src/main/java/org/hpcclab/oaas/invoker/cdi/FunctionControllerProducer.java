@@ -6,9 +6,7 @@ import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.controller.fn.*;
 import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
-import org.hpcclab.oaas.invocation.task.OffLoader;
 import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
@@ -61,13 +59,6 @@ public class FunctionControllerProducer {
                                                     ObjectMapper mapper) {
     return new UpdateFunctionController(idGenerator, mapper);
   }
-
-  @Produces
-  FanInFunctionController fanInFunctionController(IdGenerator idGenerator,
-                                                  ObjectMapper mapper) {
-    return new FanInFunctionController(idGenerator, mapper);
-  }
-
 
   @Produces
   CdiFunctionControllerFactory functionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,

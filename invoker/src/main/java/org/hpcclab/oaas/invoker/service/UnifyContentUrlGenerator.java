@@ -2,6 +2,7 @@ package org.hpcclab.oaas.invoker.service;
 
 import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.model.data.DataAccessContext;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.storage.PresignGenerator;
@@ -24,18 +25,18 @@ public class UnifyContentUrlGenerator extends SaContentUrlGenerator {
 
 
   @Override
-  public String generateUrl(OObject obj,
+  public String generateUrl(IOObject<?> obj,
                             DataAccessContext dac,
                             String file) {
     var gen = dac.isPub()? pubPresignGenerator: presignGenerator;
     return gen.generatePresignGet(bucket,
-      prefixPath + "%s/%s/%s".formatted(obj.getId(), dac.getVid(), file));
+      prefixPath + "%s/%s/%s".formatted(obj.getKey(), dac.getVid(), file));
   }
 
   @Override
-  public String generatePutUrl(OObject obj, DataAccessContext dac, String file) {
+  public String generatePutUrl(IOObject<?> obj, DataAccessContext dac, String file) {
     var gen = dac.isPub()? pubPresignGenerator: presignGenerator;
     return gen.generatePresignPut(bucket,
-      prefixPath + "%s/%s/%s".formatted(obj.getId(), dac.getVid(), file));
+      prefixPath + "%s/%s/%s".formatted(obj.getKey(), dac.getVid(), file));
   }
 }

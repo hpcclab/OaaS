@@ -39,8 +39,8 @@ message ProtoInvocationChain {
 }
 
 message ProtoInvocationResponse {
-  optional ProtoOObject main = 1;
-  optional ProtoOObject output = 2;
+  optional ProtoPOObject main = 1;
+  optional ProtoPOObject output = 2;
   optional string invId = 3;
   optional string fb = 4;
   map<string, string> macroIds = 5;

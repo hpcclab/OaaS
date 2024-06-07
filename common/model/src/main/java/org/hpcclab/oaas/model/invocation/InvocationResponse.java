@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
+import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.POObject;
 
 import java.util.List;
 import java.util.Map;
@@ -14,8 +16,8 @@ import java.util.Map;
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record InvocationResponse(
-  OObject main,
-  OObject output,
+  IOObject<?> main,
+  IOObject<?> output,
   String invId,
   String fb,
   Map<String, String> macroIds,

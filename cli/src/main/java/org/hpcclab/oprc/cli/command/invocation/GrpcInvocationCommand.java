@@ -112,11 +112,11 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     var protoReq = builder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);
     outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
-    if (save && !response.getOutput().getId().isEmpty()) {
-      String id = response.getOutput().getId();
+    if (save && !response.getOutput().getMeta().getId().isEmpty()) {
+      String id = response.getOutput().getMeta().getId();
       if (!id.isEmpty()) {
         conf.setDefaultObject(id);
-        conf.setDefaultClass(response.getOutput().getCls());
+        conf.setDefaultClass(response.getOutput().getMeta().getCls());
         fileManager.update(conf);
       }
     }
