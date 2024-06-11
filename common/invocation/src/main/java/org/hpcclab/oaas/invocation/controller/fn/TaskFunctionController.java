@@ -13,8 +13,11 @@ import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.object.*;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.IOObject;
+import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OTask;
@@ -23,7 +26,6 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +37,8 @@ public class TaskFunctionController extends AbstractFunctionController {
   private static final Logger logger = LoggerFactory.getLogger(TaskFunctionController.class);
 
   final OffLoaderFactory offLoaderFactory;
-  OffLoader offloader;
   final ContentUrlGenerator contentUrlGenerator;
+  OffLoader offloader;
 
 
   public TaskFunctionController(IdGenerator idGenerator,
@@ -51,12 +53,19 @@ public class TaskFunctionController extends AbstractFunctionController {
   @Override
   protected void validate(InvocationCtx ctx) {
     InvocationRequest req = ctx.getRequest();
-    if (req.invId() == null || req.invId().isEmpty()) {
+    if (req.invId()==null || req.invId().isEmpty()) {
       req = req.toBuilder()
         .invId(idGenerator.generate())
         .build();
       ctx.setRequest(req);
     }
+    if ((req.main()==null || req.main().isEmpty()) && !functionBinding.isNoMain()) {
+      throw new InvocationException(
+        "Function '%s' is not marked to be called without main"
+          .formatted(functionBinding.getName()),
+        400);
+    }
+
   }
 
   @Override
@@ -116,7 +125,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       }
     }
 
-    if (function.getType().isMutable() && task.getMain() !=null) {
+    if (function.getType().isMutable() && task.getMain()!=null) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }
@@ -129,7 +138,7 @@ public class TaskFunctionController extends AbstractFunctionController {
                                           Map<String, ? extends IOObject> refs,
                                           AccessLevel level) {
     Map<String, String> m = new HashMap<>();
-    if (obj != null) generateUrls(m, obj, refs, "", level);
+    if (obj!=null) generateUrls(m, obj, refs, "", level);
     return m;
   }
 
@@ -142,8 +151,8 @@ public class TaskFunctionController extends AbstractFunctionController {
     Map<String, String> map = new HashMap<>();
     for (KeySpecification keySpec : keySpecs) {
       var dac = DataAccessContext.generate(obj, level, verId);
-        var url = contentUrlGenerator.generatePutUrl(obj, dac, keySpec.getName());
-        map.put(keySpec.getName(), url);
+      var url = contentUrlGenerator.generatePutUrl(obj, dac, keySpec.getName());
+      map.put(keySpec.getName(), url);
     }
     return map;
   }
@@ -153,7 +162,7 @@ public class TaskFunctionController extends AbstractFunctionController {
                             Map<String, ? extends IOObject> refs,
                             String prefix,
                             AccessLevel level) {
-    if (obj == null) return;
+    if (obj==null) return;
     var verIds = obj.getMeta().getVerIds();
     if (verIds!=null && !verIds.isEmpty()) {
       for (var vidEntry : verIds.entrySet()) {
@@ -197,7 +206,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       Lists.mutable.of(context.getMain()):
       List.of();
     SimpleStateOperation stateOperation;
-    if (outputCls == null) {
+    if (outputCls==null) {
       stateOperation = SimpleStateOperation.updateObjs(updateList, cls);
     } else {
       List<GOObject> createList = completion.getOutput()!=null ?

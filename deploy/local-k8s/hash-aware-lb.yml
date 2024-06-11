@@ -96,6 +96,22 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: hash-aware-lb
+  labels:
+    app: hash-aware-lb
+    platform: oaas
+spec:
+  selector:
+    app: hash-aware-lb
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: hash-aware-lb-np
   labels:
     app: hash-aware-lb

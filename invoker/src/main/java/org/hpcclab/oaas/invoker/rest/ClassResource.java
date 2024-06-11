@@ -76,7 +76,7 @@ public class ClassResource {
   @Path("invokes/{fb}")
   public Uni<InvocationResponse> invokeWithBody(String cls,
                                                 String fb,
-                                                @QueryParam("_async") @DefaultValue("false") boolean async,
+                                                @BeanParam InvokeParameters params,
                                                 @Context UriInfo uriInfo,
                                                 ObjectNode body) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -92,9 +92,11 @@ public class ClassResource {
       .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationReqHandler.enqueue(oal);
+    if (params.async) {
+      return invocationReqHandler.enqueue(oal)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(oal);
+    return hashAwareInvocationHandler.invoke(oal)
+      .map(params::filter);
   }
 }

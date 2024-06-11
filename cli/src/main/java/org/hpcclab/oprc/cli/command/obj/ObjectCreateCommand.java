@@ -56,7 +56,8 @@ public class ObjectCreateCommand implements Callable<Integer> {
 
       outputFormatter.print(commonOutputMixin.getOutputFormat(), res);
       if (save) {
-        var id = res.getJsonObject("output").getString("id");
+        var id = res.getJsonObject("output").getJsonObject("meta")
+          .getString("id");
         current.setDefaultObject(id);
         current.setDefaultClass(cls);
         fileManager.update(current);

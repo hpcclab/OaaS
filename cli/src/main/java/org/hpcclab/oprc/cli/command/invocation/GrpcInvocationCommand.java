@@ -80,7 +80,6 @@ public class GrpcInvocationCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    MessagePackMapper msgPackMapper = new MessagePackMapper();
     ProtoMapper protoMapper = new ProtoMapperImpl();
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();
@@ -103,7 +102,7 @@ public class GrpcInvocationCommand implements Callable<Integer> {
       var body = System.in.readAllBytes();
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
-      builder.setBody(ByteString.copyFrom(msgPackMapper.writeValueAsBytes(objectNode)));
+      builder.setBody(ByteString.copyFrom(objectMapper.writeValueAsBytes(objectNode)));
     }
     if (inputs!=null) {
       builder.addAllInputs(inputs);

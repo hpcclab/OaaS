@@ -1,15 +1,11 @@
 package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -22,12 +18,10 @@ public class OTask {
   GOObject main;
   GOObject output;
   String funcKey;
-  //List<POObject> inputs = List.of();
-  //List<String> inputContextKeys = List.of();
   String allocMainUrl;
   String allocOutputUrl;
-  Map<String,String> mainKeys;
-  Map<String,String> outputKeys;
+  Map<String, String> mainKeys;
+  Map<String, String> outputKeys;
   Map<String, String> args;
   JsonBytes reqBody;
   String fbName;

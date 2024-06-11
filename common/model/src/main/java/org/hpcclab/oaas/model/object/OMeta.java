@@ -18,7 +18,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @Accessors(chain = true)
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Proto
 public class OMeta implements IOObject.IOMeta{
   String id;

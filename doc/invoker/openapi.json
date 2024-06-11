@@ -70,7 +70,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],
@@ -192,7 +216,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],
@@ -236,7 +284,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],

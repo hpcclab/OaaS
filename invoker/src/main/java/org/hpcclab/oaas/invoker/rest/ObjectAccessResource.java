@@ -96,7 +96,7 @@ public class ObjectAccessResource {
   public Uni<InvocationResponse> invoke(String cls,
                                         String objId,
                                         String fb,
-                                        @QueryParam("_async") @DefaultValue("false") boolean async,
+                                        @BeanParam InvokeParameters params,
                                         @Context UriInfo uriInfo) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -112,10 +112,12 @@ public class ObjectAccessResource {
       .partKey(objId)
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationHandlerService.enqueue(oal);
+    if (params.async) {
+      return invocationHandlerService.enqueue(oal)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(oal);
+    return hashAwareInvocationHandler.invoke(oal)
+      .map(params::filter);
   }
 
   @POST
@@ -124,7 +126,7 @@ public class ObjectAccessResource {
                                                 String objId,
                                                 String fb,
                                                 @Context UriInfo uriInfo,
-                                                @QueryParam("_async") @DefaultValue("false") boolean async,
+                                                @BeanParam InvokeParameters params,
                                                 ObjectNode body) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -140,9 +142,11 @@ public class ObjectAccessResource {
       .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationHandlerService.enqueue(request);
+    if (params.async) {
+      return invocationHandlerService.enqueue(request)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(request);
+    return hashAwareInvocationHandler.invoke(request)
+      .map(params::filter);
   }
 }

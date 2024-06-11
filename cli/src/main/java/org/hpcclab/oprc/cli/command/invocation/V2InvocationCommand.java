@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -38,9 +39,7 @@ public class V2InvocationCommand implements Callable<Integer> {
   @CommandLine.Parameters(index = "0", defaultValue = "")
   String fb;
   @CommandLine.Option(names = "--args")
-  Map<String, String> args;
-  //  @CommandLine.Option(names = {"-i", "--inputs"})
-//  List<String> inputs;
+  Map<String, String> args = new HashMap<>();
   @CommandLine.Option(names = {"-b", "--pipe-body"}, defaultValue = "false")
   boolean pipeBody;
   @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
@@ -54,6 +53,8 @@ public class V2InvocationCommand implements Callable<Integer> {
 
   @CommandLine.Option(names = {"-a", "--async"}, defaultValue = "false")
   boolean async;
+  @CommandLine.Option(names = {"--all"}, defaultValue = "false")
+  boolean showAll;
 
   @Override
   public Integer call() throws Exception {
@@ -66,6 +67,8 @@ public class V2InvocationCommand implements Callable<Integer> {
       System.err.println("You must specify both main and fb");
       return 1;
     }
+    if (showAll)
+      args.put("_showAll", "true");
     if (main.isBlank()) {
       url = UriTemplate.of("{+inv}/api/classes/{cls}/invokes/{fb}")
         .expandToString(Variables.variables()

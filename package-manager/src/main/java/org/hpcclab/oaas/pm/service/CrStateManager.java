@@ -151,12 +151,12 @@ public class CrStateManager {
     var cls = unit.getCls();
     var orbitId = cls.getStatus().getCrId();
     if (orbitId==0) {
-      logger.info("deploy a new orbit for cls [{}]", cls.getKey());
+      logger.info("deploy a new CR for cls [{}]", cls.getKey());
       var response = crManager.deploy(unit);
       updateCr(response.getCr()).await().indefinitely();
       return response;
     } else {
-      logger.info("update orbit [{}] for cls [{}]", orbitId, cls.getKey());
+      logger.info("update CR [{}] for cls [{}]", orbitId, cls.getKey());
       var orbit = get(Tsid.from(orbitId).toLowerCase())
         .await().indefinitely();
       var req = CrUpdateRequest.newBuilder()

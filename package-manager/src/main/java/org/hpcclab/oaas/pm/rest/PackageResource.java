@@ -86,7 +86,6 @@ public class PackageResource {
 
     refresh(pkg.getClasses());
     if (config.crmEnabled() && !pkg.getClasses().isEmpty()) {
-
       deploy(pkg);
     }
 
@@ -136,6 +135,8 @@ public class PackageResource {
   }
 
   private void deploy(OPackage pkg) {
+    if (pkg.isDisable())
+      return;
     for (var cls : pkg.getClasses()) {
       if (cls.isDisabled())
         continue;

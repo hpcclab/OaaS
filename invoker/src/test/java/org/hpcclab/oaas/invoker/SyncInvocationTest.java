@@ -51,7 +51,6 @@ class SyncInvocationTest {
     meta.setCls(CLS_1_KEY);
     objectRepoManager.persistAsync(main).await().indefinitely();
     given()
-      .urlEncodingEnabled(false)
       .when()
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
         meta.getCls(), meta.getId(), "f1")
@@ -60,7 +59,6 @@ class SyncInvocationTest {
       .statusCode(200)
       .body("main.data.n", Matchers.equalTo(1));
     given()
-      .urlEncodingEnabled(false)
       .when()
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
         meta.getCls(), meta.getId(), "f1")
