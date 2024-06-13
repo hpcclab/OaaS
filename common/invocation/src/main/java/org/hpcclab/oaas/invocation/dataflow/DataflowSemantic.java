@@ -5,11 +5,8 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.api.set.MutableSet;
-import org.hpcclab.oaas.model.function.DataMapperDefinition;
-import org.hpcclab.oaas.model.function.DataflowExport;
-import org.hpcclab.oaas.model.function.DataflowStep;
-import org.hpcclab.oaas.model.function.MacroSpec;
+import org.hpcclab.oaas.invocation.transform.ODataTransformer;
+import org.hpcclab.oaas.model.function.Dataflows;
 
 import java.util.List;
 import java.util.Map;
@@ -20,68 +17,81 @@ import java.util.stream.Collectors;
  * @author Pawissanutt
  */
 public class DataflowSemantic {
-  MacroSpec macroSpec;
+  Dataflows.Spec macroSpec;
   DataflowNode rootNode;
-  List<DataflowNode> allNode;
-  DataflowNode exportNode;
-  Map<String, DataflowNode> exportNodes;
+  List<DataflowNode> stepNodes;
+  DataflowNode endNode;
 
-  protected DataflowSemantic(MacroSpec macroSpec,
+  protected DataflowSemantic(Dataflows.Spec macroSpec,
                              DataflowNode rootNode) {
     this.macroSpec = macroSpec;
     this.rootNode = rootNode;
-    this.allNode = Lists.mutable.empty();
+    this.stepNodes = Lists.mutable.empty();
   }
 
-  public static DataflowSemantic construct(MacroSpec spec) {
-    var root = new DataflowNode();
-    root.stepIndex = -1;
+  public static DataflowSemantic construct(Dataflows.Spec spec) {
+    var root = new DataflowNode(-1);
     var df = new DataflowSemantic(spec, root);
-    var steps = spec.getSteps();
+    var steps = spec.steps();
     MutableMap<String, DataflowNode> stateMap = Maps.mutable.of("$", root);
     for (int i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
-      List<DataMapperDefinition> inputRefs = step.inputDataMaps();
-      if (inputRefs==null) inputRefs = List.of();
-      List<DataflowNode> inputNodes = inputRefs.stream()
-        .map(ref -> resolve(stateMap, ref.target()))
-        .toList();
-      MutableSet<DataflowNode> require = Sets.mutable.empty();
-      DataflowNode targetNode = resolve(stateMap, step.target());
-      require.addAll(inputNodes);
-      if (targetNode==null) {
-        if (require.isEmpty()) require.add(root);
-      } else {
-        require.add(targetNode);
-      }
-      var node = new DataflowNode(i, step, require, Sets.mutable.empty());
-      node.mainRefStepIndex = targetNode == null? -2: targetNode.stepIndex;
-      df.allNode.add(node);
+      var node = createNode(i, step, stateMap, root);
+      df.stepNodes.add(node);
       if (step.as()!=null && !step.as().isEmpty()) {
         stateMap.put(step.as(), node);
       }
     }
-    for (DataflowNode node : df.allNode) {
+    for (DataflowNode node : df.stepNodes) {
       node.simplifyRequire();
       node.markNext(null);
       if (node.require.isEmpty()) {
         root.next.add(node);
       }
     }
-    df.exportNode = resolve(stateMap, spec.getExport());
-    Set<DataflowExport> exports = spec.getExports();
-    if (exports==null) exports = Set.of();
-    df.exportNodes = exports.stream()
-      .map(ex -> Map.entry(ex.getAs(), resolve(stateMap, ex.getFrom())))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    var endStep = Dataflows.Step.builder()
+      .mappings(spec.respBody())
+      .target(spec.output())
+      .build();
+    df.endNode = createNode(steps.size(), endStep, stateMap, root);
     return df;
   }
 
+  static DataflowNode createNode(int stepIndex,
+                                 Dataflows.Step step,
+                                 MutableMap<String, DataflowNode> stateMap,
+                                 DataflowNode root) {
+    List<Dataflows.DataMapping> mappings = step.mappings();
+    if (mappings==null) mappings = List.of();
+    var dmats = mappings.stream()
+      .map(ref -> new DataMapAndTransformer(resolve(stateMap, ref), ref))
+      .toList();
+    Set<DataflowNode> require =
+      dmats.stream().map(DataMapAndTransformer::node).collect(Collectors.toSet());
+    DataflowNode targetNode = resolve(stateMap, step.target());
+    if (targetNode==null) {
+      if (require.isEmpty()) require.add(root);
+    } else {
+      require.add(targetNode);
+    }
+    var mainRefStepIndex = targetNode==null ? -2:targetNode.stepIndex;
+    return new DataflowNode(stepIndex, step,  dmats,require, Sets.mutable.empty(), mainRefStepIndex);
+  }
+
+
+
+  static DataflowNode resolve(Map<String, DataflowNode> stateMap, Dataflows.DataMapping mapping) {
+    if (mapping==null) return null;
+    var ref = mapping.fromObj() != null? mapping.fromObj(): mapping.fromBody();
+    if (ref == null) throw new DataflowParseException("Cannot resolve " + mapping, 500);
+    return resolve(stateMap, ref);
+  }
+
   static DataflowNode resolve(Map<String, DataflowNode> stateMap, String ref) {
-    if (ref==null || ref.isEmpty()) return null;
+    if (ref == null) return null;
     var target = extractTargetInFlow(ref);
     var node = stateMap.get(target);
-    if (node==null) throw new DataflowParseException("Cannot resolve ref(" + ref + ")", 500);
+    if (node==null) throw new DataflowParseException("Cannot resolve ref("+ref+")", 500);
     return node;
   }
 
@@ -94,47 +104,39 @@ public class DataflowSemantic {
     return rootNode;
   }
 
-  public MacroSpec getMacroSpec() {
+  public Dataflows.Spec getMacroSpec() {
     return macroSpec;
   }
 
   public List<DataflowNode> getAllNode() {
-    return allNode;
+    return stepNodes;
   }
 
-  public DataflowNode getExportNode() {
-    return exportNode;
+  public DataflowNode getEndNode() {
+    return endNode;
   }
 
-  public Map<String, DataflowNode> getExportNodes() {
-    return exportNodes;
-  }
+  public record DataflowNode (
+    int stepIndex,
+    Dataflows.Step step,
+    List<DataMapAndTransformer> dmats,
+    Set<DataflowNode> require,
+    Set<DataflowNode> next,
+    int mainRefStepIndex){
 
-  public static class DataflowNode {
-    int stepIndex = -1;
-    DataflowStep step;
-    MutableSet<DataflowNode> require;
-    MutableSet<DataflowNode> next;
-    int mainRefStepIndex = -2;
-
-    public DataflowNode() {
-      this.require = Sets.mutable.empty();
-      this.next = Sets.mutable.empty();
-    }
-
-    public DataflowNode(int stepIndex,
-                        DataflowStep step,
-                        MutableSet<DataflowNode> require,
-                        MutableSet<DataflowNode> next) {
-      this.stepIndex = stepIndex;
-      this.step = step;
-      this.require = require;
-      this.next = next;
+    public DataflowNode(int stepIndex) {
+      this(
+        stepIndex,
+        null,
+        Lists.mutable.empty(),
+        Sets.mutable.empty(),
+        Sets.mutable.empty(),
+        -2
+      );
     }
 
     Set<DataflowNode> simplifyRequire() {
       if (require.isEmpty()) return Set.of();
-      if (require.size()==1) return require.getOnly().simplifyRequire();
       Set<DataflowNode> transRequireNodes = require
         .stream()
         .flatMap(node -> node.simplifyRequire().stream())
@@ -165,28 +167,16 @@ public class DataflowSemantic {
       return false;
     }
 
-    public DataflowStep getStep() {
-      return step;
-    }
-
-    public MutableSet<DataflowNode> getRequire() {
-      return require;
-    }
-
-    public MutableSet<DataflowNode> getNext() {
-      return next;
-    }
-
-    public int getStepIndex() {
-      return stepIndex;
-    }
-
-    public int getMainRefStepIndex() {
-      return mainRefStepIndex;
-    }
-
     public boolean requireFanIn() {
       return require.size() > 1;
+    }
+  }
+
+  public record DataMapAndTransformer(DataflowNode node,
+                               Dataflows.DataMapping mapping,
+                               ODataTransformer transformer) {
+    public DataMapAndTransformer(DataflowNode node, Dataflows.DataMapping mapping) {
+      this(node, mapping, ODataTransformer.create(mapping));
     }
   }
 }

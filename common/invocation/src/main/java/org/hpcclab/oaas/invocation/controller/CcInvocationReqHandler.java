@@ -9,8 +9,6 @@ import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.OMeta;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,7 +73,7 @@ public class CcInvocationReqHandler implements InvocationReqHandler {
             .fb(ctx.fb()!=null ? ctx.fb().getName():"")
             .status(InvocationStatus.QUEUE)
             .async(true);
-          if (ctx.outputCls() != null) {
+          if (ctx.outputCls()!=null) {
             OMeta meta = new OMeta();
             meta.setCls(ctx.outputCls());
             meta.setId(ctx.request().outId());

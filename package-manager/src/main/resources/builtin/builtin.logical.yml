@@ -7,6 +7,8 @@ functions:
     type: LOGICAL
   - name: logical.update
     type: LOGICAL
+  - name: logical.get
+    type: LOGICAL
 classes:
   - name: base
     stateType: FILES

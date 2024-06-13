@@ -2,11 +2,9 @@ package org.hpcclab.oaas.model.invocation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.With;
 import org.hpcclab.oaas.model.object.JsonBytes;
-import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;

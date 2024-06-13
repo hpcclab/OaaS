@@ -4,8 +4,6 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
 
 import java.util.Collection;
 import java.util.List;

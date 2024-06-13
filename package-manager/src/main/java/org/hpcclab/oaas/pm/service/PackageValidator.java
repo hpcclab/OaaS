@@ -90,7 +90,7 @@ public class PackageValidator {
 
   public void validateMacro(OFunction function) {
     var macro = function.getMacro();
-    var steps = macro.getSteps();
+    var steps = macro.steps();
     int i = -1;
     Set<String> outSet = Sets.mutable.empty();
     for (var step : steps) {

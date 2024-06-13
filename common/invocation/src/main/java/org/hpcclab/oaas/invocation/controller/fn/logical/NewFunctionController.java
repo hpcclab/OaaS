@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.invocation.controller.fn.logical;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
@@ -11,11 +10,12 @@ import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
-import org.hpcclab.oaas.model.exception.FunctionValidationException;
-import org.hpcclab.oaas.model.object.*;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OMeta;
+import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
@@ -90,7 +90,7 @@ public class NewFunctionController extends AbstractFunctionController
         ks,
         cls.getStateSpec().getDefaultProvider(), true);
       return allocator.allocate(List.of(request))
-        .map(list -> new ObjectConstructResponse(null, list.getFirst().getUrlKeys()))
+        .map(list -> new ObjectConstructResponse(list.getFirst().getUrlKeys()))
         .map(resp -> ctx.setRespBody(mapper.valueToTree(resp)));
     }
   }
@@ -112,7 +112,6 @@ public class NewFunctionController extends AbstractFunctionController
   }
 
   public record ObjectConstructResponse(
-    OObject object,
     Map<String, String> uploadUrls) {
   }
 

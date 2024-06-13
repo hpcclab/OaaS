@@ -14,7 +14,6 @@ import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.object.IOObject;
-import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 
@@ -42,7 +41,7 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   @Override
   public FunctionController create(OFunction function) {
     return switch (function.getType()) {
-      case TASK, IM_TASK -> new TaskFunctionController(idGenerator, mapper, offLoaderFactory, contentUrlGenerator);
+      case TASK -> new TaskFunctionController(idGenerator, mapper, offLoaderFactory, contentUrlGenerator);
       case LOGICAL -> createLogical(function);
       case MACRO -> new MacroFunctionController(
         idGenerator, mapper, dataflowOrchestrator

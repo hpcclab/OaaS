@@ -52,6 +52,12 @@ class MacroFnControllerTest {
       .build();
     resp = reqHandler.invoke(request)
       .await().indefinitely();
+    assertThat(resp.body().getNode().get("step1").asInt())
+      .isEqualTo(1);
+    assertThat(resp.body().getNode().get("step2").asInt())
+      .isEqualTo(2);
+    assertThat(resp.body().getNode().get("step3").asInt())
+      .isEqualTo(3);
     System.out.println(resp);
   }
 }

@@ -75,7 +75,7 @@ public class TaskFunctionController extends AbstractFunctionController {
 
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
-    ctx.setImmutable(functionBinding.isImmutable() || !function.getType().isMutable());
+    ctx.setImmutable(functionBinding.isImmutable() || function.isImmutable());
     if (outputCls!=null) {
       var output = createOutput(ctx);
       ctx.setOutput(output);
@@ -125,7 +125,7 @@ public class TaskFunctionController extends AbstractFunctionController {
       }
     }
 
-    if (function.getType().isMutable() && task.getMain()!=null) {
+    if (!function.isImmutable() && task.getMain()!=null) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }

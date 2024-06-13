@@ -12,7 +12,7 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
@@ -21,7 +21,6 @@ import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
-import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -40,7 +39,7 @@ import java.util.concurrent.Callable;
 @RegisterForReflection(
   targets = {
     InvocationResponse.class,
-    OObject.class,
+    GOObject.class,
     OaasObjectState.class,
     DSMap.class,
     InvocationStats.class

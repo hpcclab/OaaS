@@ -15,11 +15,4 @@ import java.util.Map;
 public class OFunctionConfig {
   Map<String, String> offloadingConfig;
   boolean http2;
-
-  public OFunctionConfig() {
-  }
-
-  public OFunctionConfig(Map<String, String> offloadingConfig) {
-    this.offloadingConfig = offloadingConfig;
-  }
 }

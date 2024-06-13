@@ -7,8 +7,6 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 
-import java.util.List;
-
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,8 +20,6 @@ public class FunctionBinding {
   @JsonAlias("forceImmutable")
   boolean immutable;
   boolean noMain;
-
-
   public FunctionBinding() {
   }
 
@@ -47,7 +43,7 @@ public class FunctionBinding {
   }
 
 
-  public void validate(OFunction oaasFunction) {
+  public void validate(OFunction fn) {
     if (name==null) {
       var i = function.lastIndexOf('.');
       if (i < 0) name = function;
@@ -55,11 +51,13 @@ public class FunctionBinding {
     }
 
     if (outputCls==null) {
-      outputCls = oaasFunction.getOutputCls();
+      outputCls = fn.getOutputCls();
     } else if (outputCls.equalsIgnoreCase("none") ||
       outputCls.equalsIgnoreCase("void")) {
       outputCls = null;
     }
+    if (fn.isImmutable())
+      immutable = true;
   }
 
   public FunctionBinding replaceRelative(String pkgName) {

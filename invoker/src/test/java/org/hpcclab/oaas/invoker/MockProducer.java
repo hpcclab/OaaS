@@ -11,14 +11,9 @@ import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.data.DataAllocateResponse;
-import org.hpcclab.oaas.model.object.OOUpdate;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.task.OTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
 import org.hpcclab.oaas.test.MockOffLoader;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,7 +41,7 @@ public class MockProducer {
 
   @Mock
   @Produces
-  OffLoaderFactory offLoaderFactory(){
+  OffLoaderFactory offLoaderFactory() {
     return new MockOffLoader.Factory();
   }
 }

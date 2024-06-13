@@ -2,15 +2,15 @@ package org.hpcclab.oaas.invocation.controller.fn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.collections.api.set.MutableSet;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.dataflow.DataflowSemantic;
-import org.hpcclab.oaas.model.function.DataflowStep;
+import org.hpcclab.oaas.model.function.Dataflows;
 import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Pawissanutt
@@ -35,7 +35,7 @@ public class ChainFunctionController extends AbstractFunctionController {
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var root = semantic.getRootNode();
-    MutableSet<DataflowSemantic.DataflowNode> next = root.getNext();
+    Set<DataflowSemantic.DataflowNode> next = root.next();
     InvocationChain[] step2Chain = new InvocationChain[semantic.getAllNode().size()];
     List<InvocationChain> chains = new ArrayList<>();
     for (DataflowSemantic.DataflowNode node : next) {
@@ -54,8 +54,8 @@ public class ChainFunctionController extends AbstractFunctionController {
   InvocationChain createChain(DataflowSemantic.DataflowNode node,
                               InvocationCtx ctx,
                               InvocationChain[] step2Chain) {
-    var i = node.getStepIndex();
-    DataflowStep step = node.getStep();
+    var i = node.stepIndex();
+    Dataflows.Step step = node.step();
     ObjectTarget objectTarget = resolveId(node, ctx, step2Chain);
     var invId = idGenerator.generate();
     var outId = idGenerator.generate();
@@ -71,8 +71,8 @@ public class ChainFunctionController extends AbstractFunctionController {
     builder.chains(chains);
     var req = builder.build();
     step2Chain[i] = req;
-    for (DataflowSemantic.DataflowNode nextNode : node.getNext()) {
-      if (nextNode.getRequire().size() > 1)
+    for (DataflowSemantic.DataflowNode nextNode : node.next()) {
+      if (nextNode.require().size() > 1)
         continue;
       var nextChain = createChain(nextNode, ctx, step2Chain);
       chains.add(nextChain);
@@ -84,12 +84,12 @@ public class ChainFunctionController extends AbstractFunctionController {
   ObjectTarget resolveId(DataflowSemantic.DataflowNode node,
                          InvocationCtx ctx,
                          InvocationChain[] step2Chain) {
-    int stepIndex = node.getMainRefStepIndex();
+    int stepIndex = node.mainRefStepIndex();
     if (stepIndex < -1) {
       return ObjectTarget.NULL;
     } else if (stepIndex==-1) {
       return new ObjectTarget(ctx.getRequest().main(), ctx.getRequest().cls());
-    } else if (step2Chain[stepIndex] != null) {
+    } else if (step2Chain[stepIndex]!=null) {
       var chain = step2Chain[stepIndex];
       return new ObjectTarget(chain.outId(), null);
     } else {
@@ -100,8 +100,8 @@ public class ChainFunctionController extends AbstractFunctionController {
   record ObjectTarget(String id, String cls) {
     static ObjectTarget NULL = new ObjectTarget(null, null);
 
-    String clsOrDefault(String defaultCls){
-      return cls == null? defaultCls: cls;
+    String clsOrDefault(String defaultCls) {
+      return cls==null ? defaultCls:cls;
     }
   }
 

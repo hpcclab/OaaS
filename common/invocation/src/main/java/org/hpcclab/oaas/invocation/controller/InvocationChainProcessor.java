@@ -31,7 +31,7 @@ public class InvocationChainProcessor {
         ctx.getChains().addAll(ctx.getRequest().chains());
       }
     }
-    if (logger.isDebugEnabled())
+    if (logger.isDebugEnabled() && !ctx.getChains().isEmpty())
       logger.debug("processing [{},{}:{}:{}] with [{}] chains",
         ctx.getRequest().invId(),
         ctx.getRequest().cls(),

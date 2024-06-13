@@ -2,15 +2,13 @@ package org.hpcclab.oaas.invocation.controller;
 
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
 
 import java.util.List;
 
 /**
  * @author Pawissanutt
  */
-public class SimpleStateOperation implements StateOperation{
+public class SimpleStateOperation implements StateOperation {
   final List<GOObject> createObjs;
   final OClass createCls;
   final List<GOObject> updateObjs;
@@ -27,19 +25,22 @@ public class SimpleStateOperation implements StateOperation{
   }
 
   public static SimpleStateOperation createObjs(List<GOObject> createObjs,
-                                                OClass createCls){
+                                                OClass createCls) {
     return new SimpleStateOperation(createObjs, createCls, List.of(), null);
   }
+
   public static SimpleStateOperation createObjs(GOObject createObj,
-                                                OClass createCls){
+                                                OClass createCls) {
     return new SimpleStateOperation(List.of(createObj), createCls, List.of(), null);
   }
+
   public static SimpleStateOperation updateObjs(List<GOObject> updateObjs,
-                                                OClass updateCls){
+                                                OClass updateCls) {
     return new SimpleStateOperation(List.of(), null, updateObjs, updateCls);
   }
+
   public static SimpleStateOperation updateObjs(GOObject updateObj,
-                                                OClass updateCls){
+                                                OClass updateCls) {
     return new SimpleStateOperation(List.of(), null, List.of(updateObj), updateCls);
   }
 

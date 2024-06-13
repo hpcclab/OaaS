@@ -12,6 +12,7 @@
   <artifactId>test-util</artifactId>
 
   <properties>
+    <jayway.version>2.9.0</jayway.version>
   </properties>
 
   <dependencyManagement>
@@ -46,6 +47,12 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.26.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>${jayway.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

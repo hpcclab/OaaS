@@ -5,12 +5,12 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.function.*;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.function.Dataflows.DataMapping;
+import org.hpcclab.oaas.model.function.Dataflows.Transformation;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
-import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
@@ -36,7 +36,8 @@ public class MockupData {
   public static final OFunction FUNC_2 = new OFunction()
     .setName("im-fn")
     .setPkg("ex")
-    .setType(FunctionType.IM_TASK)
+    .setType(FunctionType.TASK)
+    .setImmutable(true)
     .setStatus(new OFunctionDeploymentStatus()
       .setCondition(DeploymentCondition.RUNNING)
       .setInvocationUrl("http://localhost:8080")
@@ -46,58 +47,83 @@ public class MockupData {
     .setName("macro1")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setMacro(new MacroSpec()
-      .setSteps(List.of(
-        DataflowStep.builder()
+    .setMacro(Dataflows.Spec.builder()
+      .steps(List.of(
+        Dataflows.Step.builder()
           .function("f1")
           .target("$")
           .argRefs(DSMap.of("key1", "arg1"))
           .as("tmp1")
           .args(DSMap.of("STEP", "1"))
           .build(),
-        DataflowStep.builder()
+        Dataflows.Step.builder()
           .function("f3")
           .target("tmp1")
           .as("tmp2")
           .args(DSMap.of("STEP", "2"))
           .build(),
-        DataflowStep.builder()
+        Dataflows.Step.builder()
           .function("f3")
           .target("tmp2")
           .as("tmp3")
           .args(DSMap.of("STEP", "3"))
           .build()
       ))
-      .setExport("tmp3")
+      .output("tmp3")
+      .respBody(List.of(
+        DataMapping.builder()
+          .fromBody("tmp1")
+          .transforms(
+            List.of(
+              new Transformation("$.n", "step1")
+            )
+          ).build(),
+        DataMapping.builder()
+          .fromBody("tmp2")
+          .transforms(
+            List.of(
+              new Transformation("$.n", "step2")
+            )
+          ).build(),
+        DataMapping.builder()
+          .fromBody("tmp3")
+          .transforms(
+            List.of(
+              new Transformation("$.n", "step3")
+            )
+          ).build()
+      ))
+      .build()
     );
 
   public static final OFunction MACRO_FUNC_2 = new OFunction()
     .setName("macro2")
     .setPkg("ex")
     .setType(FunctionType.MACRO)
-    .setMacro(new MacroSpec()
-      .setSteps(List.of(
-        DataflowStep.builder()
+    .setMacro(Dataflows.Spec.builder()
+      .steps(List.of(
+        Dataflows.Step.builder()
           .function("f1")
           .target("$")
           .argRefs(DSMap.of("key1", "arg1"))
           .as("tmp1")
           .args(DSMap.of("STEP", "1"))
           .build(),
-        DataflowStep.builder()
+        Dataflows.Step.builder()
           .function("f3")
           .target("tmp1")
           .as("tmp2")
           .args(DSMap.of("STEP", "2.1"))
           .build(),
-        DataflowStep.builder()
+        Dataflows.Step.builder()
           .function("f3")
           .target("tmp1")
           .as("tmp3")
           .args(DSMap.of("STEP", "2.2"))
           .build()
       ))
-      .setExport("tmp3")
+      .output("tmp3")
+      .build()
     );
   public static final OFunction CHAIN_FUNC_1 = MACRO_FUNC_1
     .copy()
@@ -160,13 +186,6 @@ public class MockupData {
     .setConfig(new OClassConfig())
     .setObjectType(OObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()));
-  public static final OObject OBJ_1 = OObject.createFromClasses(CLS_1)
-    .setId("o1")
-    .setState(new OaasObjectState()
-      .setVerIds(DSMap.of("k1", "kkkk"))
-    );
-  public static final OObject OBJ_2 = OObject.createFromClasses(CLS_1)
-    .setId("o2");
 
   static FunctionRepository fnRepo;
   static ClassRepository clsRepo;
@@ -197,12 +216,6 @@ public class MockupData {
       .groupByUniqueKey(OFunction::getKey);
   }
 
-  public static List<OObject> testObjects() {
-    var l = Lists.mutable.<OObject>empty();
-    l.add(OBJ_1.copy());
-    l.add(OBJ_2.copy());
-    return l;
-  }
 
   public static FunctionRepository fnRepo() {
     if (fnRepo==null)

@@ -37,10 +37,6 @@ public class OObjectConverter {
       return new OObjectConverter(new ObjectMapper());
   }
 
-  public JOObject convert(POObject obj) {
-    if (obj == null) return null;
-    return new JOObject(obj.meta, convert(obj.getData()));
-  }
 
   public ObjectNode convert(byte[] bytes) {
     if (bytes == null || bytes.length == 0) return null;
@@ -50,12 +46,6 @@ public class OObjectConverter {
       throw new InvocationException("Json parsing error",e);
     }
   }
-
-  public POObject convert(JOObject obj) {
-    if (obj == null) return null;
-    return new POObject(obj.meta, convert(obj.data));
-  }
-
 
   public byte[] convert(ObjectNode objectNode) {
     if (objectNode == null) return new byte[0];
@@ -69,27 +59,16 @@ public class OObjectConverter {
   public JOObject toJ(IOObject<?> o) {
     return switch (o) {
       case null -> null;
-      case POObject p -> new JOObject(p.meta, convert(p.data));
       case JOObject j -> j;
       case GOObject g -> new JOObject(g.meta, g.data.getNode());
       default -> (JOObject) o;
     };
   }
 
-  public POObject toP(IOObject<?> o) {
-    return switch (o) {
-      case null -> null;
-      case POObject p -> p;
-      case JOObject j -> new POObject(j.meta, convert(j.data));
-      case GOObject g -> new POObject(g.meta, g.data.getBytes());
-      default -> (POObject) o;
-    };
-  }
 
   public GOObject toG(IOObject<?> o) {
     return switch (o) {
       case null -> null;
-      case POObject p -> new GOObject(p.meta, p.data);
       case JOObject j -> new GOObject(j.meta, j.data);
       case GOObject g -> g;
       default -> (GOObject) o;

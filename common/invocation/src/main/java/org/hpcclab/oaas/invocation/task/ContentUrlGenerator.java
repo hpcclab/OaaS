@@ -4,7 +4,6 @@ import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.IOObject;
-import org.hpcclab.oaas.model.object.OObject;
 
 import java.util.Map;
 

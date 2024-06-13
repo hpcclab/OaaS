@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invocation.task;
 
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.IOObject;
-import org.hpcclab.oaas.model.object.OObject;
 
 public class SaContentUrlGenerator implements ContentUrlGenerator {
 

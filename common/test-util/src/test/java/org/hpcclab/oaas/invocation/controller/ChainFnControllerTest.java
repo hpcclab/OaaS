@@ -7,7 +7,6 @@ import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.OObject;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.test.MockInvocationManager;
 import org.hpcclab.oaas.test.MockInvocationQueueProducer;
@@ -79,7 +78,7 @@ class ChainFnControllerTest {
     System.out.println(request);
     InvocationResponse resp = reqHandler.invoke(request).await().indefinitely();
     System.out.println(resp);
-    if (resp.output() != null) {
+    if (resp.output()!=null) {
       var out = repoManager.getOrCreate(CLS_1_KEY)
         .get(resp.output().getKey());
       assertThat(out)

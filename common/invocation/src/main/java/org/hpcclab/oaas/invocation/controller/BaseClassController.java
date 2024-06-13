@@ -75,12 +75,12 @@ public class BaseClassController implements ClassController {
       }
       if (fn.getFunction().getType()==FunctionType.MACRO) {
         var dataflow = fn.getFunction().getMacro();
-        var map = Lists.fixedSize.ofAll(dataflow.getSteps())
+        var map = Lists.fixedSize.ofAll(dataflow.steps())
           .select(step -> step.as()!=null)
           .collect(step -> Map.entry(step.as(), idGenerator.generate()))
           .toMap(Map.Entry::getKey, Map.Entry::getValue);
-        if (dataflow.getExport()!=null)
-          req.outId(map.get(dataflow.getExport()));
+        if (dataflow.output()!=null)
+          req.outId(map.get(dataflow.output()));
       }
       return new ValidationContext(
         req.build(), cls, fn.getFunctionBinding().getOutputCls(),

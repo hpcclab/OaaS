@@ -2,25 +2,25 @@ package org.hpcclab.oaas.model.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
+import org.hpcclab.oaas.model.SelfValidatable;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.qos.QosRequirement;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OFunction implements Copyable<OFunction>, HasKey<String> {
+public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValidatable {
   @JsonProperty("_key")
   String key;
   String name;
@@ -30,32 +30,34 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
   FunctionType type;
   @NotBlank
   String outputCls;
-  MacroSpec macro;
+  Dataflows.Spec macro;
   ProvisionConfig provision;
   List<VariableDescription> variableDescriptions;
   OFunctionDeploymentStatus status;
+  @Builder.Default
   FunctionState state = FunctionState.ENABLED;
   QosRequirement qos;
   QosConstraint constraint;
   OFunctionConfig config;
-
+  boolean immutable;
 
   public OFunction() {
   }
 
-  @ProtoFactory
   public OFunction(String name,
                    String pkg,
                    String description,
                    FunctionType type,
-                   String outputCls, MacroSpec macro,
+                   String outputCls,
+                   Dataflows.Spec macro,
                    ProvisionConfig provision,
                    List<VariableDescription> variableDescriptions,
                    OFunctionDeploymentStatus status,
                    FunctionState state,
                    QosRequirement qos,
                    QosConstraint constraint,
-                   OFunctionConfig config) {
+                   OFunctionConfig config,
+                   boolean immutable) {
     this.name = name;
     this.pkg = pkg;
     this.description = description;
@@ -69,17 +71,19 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     this.qos = qos;
     this.constraint = constraint;
     this.config = config;
+    this.immutable = immutable;
     updateKey();
   }
 
+  @Override
   public void validate() {
-    if (name == null)
+    if (name==null)
       throw new FunctionValidationException("Function's name can not be null");
     if (!name.matches("^[a-zA-Z0-9._-]*$"))
       throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
-    if (config == null) config = new OFunctionConfig();
-    if (type == null)
+    if (config==null) config = new OFunctionConfig();
+    if (type==null)
       type = FunctionType.TASK;
     if (type==FunctionType.TASK) {
       macro = null;
@@ -100,13 +104,13 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       status.setCondition(DeploymentCondition.PENDING);
     }
 
-    if (outputCls != null &&
+    if (outputCls!=null &&
       (outputCls.equalsIgnoreCase("none") ||
-      outputCls.equalsIgnoreCase("void"))) {
+        outputCls.equalsIgnoreCase("void"))) {
       outputCls = null;
     }
 
-    if (provision != null && provision.getStaticUrl() != null){
+    if (provision!=null && provision.getStaticUrl()!=null) {
       status.setCondition(DeploymentCondition.RUNNING)
         .setInvocationUrl(provision.getStaticUrl().getUrl());
     }
@@ -124,10 +128,10 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
     return this;
   }
 
-  public void updateKey(){
+  public void updateKey() {
     if (pkg!=null) {
       this.key = pkg + '.' + name;
-      if (outputCls!= null && outputCls.startsWith("."))
+      if (outputCls!=null && outputCls.startsWith("."))
         outputCls = pkg + outputCls;
     } else {
       this.key = name;
@@ -149,7 +153,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String> {
       state,
       qos,
       constraint,
-      config
+      config,
+      immutable
     );
   }
 }

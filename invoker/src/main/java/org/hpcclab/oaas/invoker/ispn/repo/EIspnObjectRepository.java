@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn.repo;
 
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.repository.ObjectRepository;
 import org.infinispan.AdvancedCache;
 

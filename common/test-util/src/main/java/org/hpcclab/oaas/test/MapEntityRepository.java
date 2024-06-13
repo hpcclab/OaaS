@@ -9,8 +9,6 @@ import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.model.object.OObject;
-import org.hpcclab.oaas.model.object.POObject;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;

@@ -9,7 +9,6 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
@@ -36,8 +35,6 @@ class NewFunctionControllerTest {
   @Inject
   ObjectMapper mapper;
   @Inject
-  ClassControllerRegistry registry;
-  @Inject
   InvokerManager invokerManager;
   @GrpcClient
   InvocationService invocationService;
@@ -49,10 +46,6 @@ class NewFunctionControllerTest {
       .await().indefinitely();
     invokerManager.update(MockupData.CLS_2)
       .await().indefinitely();
-//    registry.registerOrUpdate(MockupData.CLS_1)
-//      .await().indefinitely();
-//    registry.registerOrUpdate(MockupData.CLS_2)
-//      .await().indefinitely();
   }
 
   @Test

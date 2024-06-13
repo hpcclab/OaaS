@@ -3,13 +3,12 @@ package org.hpcclab.oaas.pm.rest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
+import jakarta.ws.rs.core.MediaType;
 import org.hpcclab.oaas.ArangoResource;
 import org.hpcclab.oaas.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.ws.rs.core.MediaType;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -78,20 +77,27 @@ class PackageResourceTest {
   @Test
   void create() {
     TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
-    RestAssured.given()
+    given()
       .when().get("/api/classes")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("items.name", hasItems("simple", "compound"));
-    RestAssured.given()
+    given()
       .when().get("/api/classes/test.dummy.simple")
       .then()
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(200)
       .body("functions[1].outputCls", nullValue());
+    given()
+      .when().get("/api/functions")
+      .then()
+      .contentType(MediaType.APPLICATION_JSON)
+      .statusCode(200)
+      .body("items.name", hasItems("task", "macro"))
+      .log().ifValidationFails();
   }
 
   @Test
@@ -217,19 +223,6 @@ class PackageResourceTest {
       .log().ifValidationFails()
       .contentType(MediaType.APPLICATION_JSON)
       .statusCode(400);
-  }
-
-
-  @Test
-  void testFunction() {
-    TestUtils.createBatchYaml(TestUtils.DUMMY_PACKAGE);
-    given()
-      .when().get("/api/functions")
-      .then()
-      .contentType(MediaType.APPLICATION_JSON)
-      .statusCode(200)
-      .body("items.name", hasItems("task", "macro"))
-      .log().ifValidationFails();
   }
 
 }

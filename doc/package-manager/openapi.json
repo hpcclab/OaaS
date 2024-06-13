@@ -302,117 +302,49 @@
           "type" : "string"
         }
       },
-      "DataMapperDefinition" : {
+      "DataMapping" : {
         "type" : "object",
         "properties" : {
-          "target" : {
+          "fromObj" : {
             "type" : "string"
           },
-          "jsonPath" : {
+          "fromBody" : {
             "type" : "string"
           },
-          "inject" : {
-            "type" : "string"
+          "transforms" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Transformation"
+            }
           },
           "failOnError" : {
+            "type" : "boolean"
+          },
+          "mapAll" : {
             "type" : "boolean"
           }
         }
       },
-      "DataMapperDefinition_Public" : {
+      "DataMapping_Public" : {
         "type" : "object",
         "properties" : {
-          "target" : {
+          "fromObj" : {
             "type" : "string"
           },
-          "jsonPath" : {
+          "fromBody" : {
             "type" : "string"
           },
-          "inject" : {
-            "type" : "string"
+          "transforms" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Transformation_Public"
+            }
           },
           "failOnError" : {
             "type" : "boolean"
-          }
-        }
-      },
-      "DataflowExport" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
           },
-          "as" : {
-            "type" : "string"
-          }
-        }
-      },
-      "DataflowExport_Public" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
-          },
-          "as" : {
-            "type" : "string"
-          }
-        }
-      },
-      "DataflowStep" : {
-        "type" : "object",
-        "properties" : {
-          "function" : {
-            "type" : "string"
-          },
-          "target" : {
-            "type" : "string"
-          },
-          "targetCls" : {
-            "type" : "string"
-          },
-          "as" : {
-            "type" : "string"
-          },
-          "inputDataMaps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataMapperDefinition"
-            }
-          },
-          "args" : {
-            "$ref" : "#/components/schemas/DSMap"
-          },
-          "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap"
-          }
-        }
-      },
-      "DataflowStep_Public" : {
-        "type" : "object",
-        "properties" : {
-          "function" : {
-            "type" : "string"
-          },
-          "target" : {
-            "type" : "string"
-          },
-          "targetCls" : {
-            "type" : "string"
-          },
-          "as" : {
-            "type" : "string"
-          },
-          "inputDataMaps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataMapperDefinition_Public"
-            }
-          },
-          "args" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          },
-          "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
+          "mapAll" : {
+            "type" : "boolean"
           }
         }
       },
@@ -521,11 +453,11 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "CHAIN" ],
+        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "CHAIN" ],
+        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "KDeploymentProvision" : {
@@ -727,54 +659,6 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
-          }
-        }
-      },
-      "MacroSpec" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowExport"
-            }
-          },
-          "export" : {
-            "type" : "string"
-          },
-          "atomic" : {
-            "type" : "boolean"
-          }
-        }
-      },
-      "MacroSpec_Public" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep_Public"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowExport_Public"
-            }
-          },
-          "export" : {
-            "type" : "string"
-          },
-          "atomic" : {
-            "type" : "boolean"
           }
         }
       },
@@ -1065,7 +949,7 @@
             "type" : "string"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/MacroSpec"
+            "$ref" : "#/components/schemas/Spec"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig"
@@ -1090,6 +974,9 @@
           },
           "config" : {
             "$ref" : "#/components/schemas/OFunctionConfig"
+          },
+          "immutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1181,7 +1068,7 @@
             "type" : "string"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/MacroSpec_Public"
+            "$ref" : "#/components/schemas/Spec_Public"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig_Public"
@@ -1206,6 +1093,9 @@
           },
           "config" : {
             "$ref" : "#/components/schemas/OFunctionConfig_Public"
+          },
+          "immutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1553,6 +1443,46 @@
           }
         }
       },
+      "Spec" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Step"
+            }
+          },
+          "respBody" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping"
+            }
+          },
+          "output" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Spec_Public" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Step_Public"
+            }
+          },
+          "respBody" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping_Public"
+            }
+          },
+          "output" : {
+            "type" : "string"
+          }
+        }
+      },
       "StateSpecification" : {
         "type" : "object",
         "properties" : {
@@ -1601,6 +1531,86 @@
         "type" : "object",
         "properties" : {
           "url" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Step" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetCls" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "mappings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping"
+            }
+          },
+          "args" : {
+            "$ref" : "#/components/schemas/DSMap"
+          },
+          "argRefs" : {
+            "$ref" : "#/components/schemas/DSMap"
+          }
+        }
+      },
+      "Step_Public" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetCls" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "mappings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping_Public"
+            }
+          },
+          "args" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          },
+          "argRefs" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          }
+        }
+      },
+      "Transformation" : {
+        "type" : "object",
+        "properties" : {
+          "path" : {
+            "type" : "string"
+          },
+          "inject" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Transformation_Public" : {
+        "type" : "object",
+        "properties" : {
+          "path" : {
+            "type" : "string"
+          },
+          "inject" : {
             "type" : "string"
           }
         }

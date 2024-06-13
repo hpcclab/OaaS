@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.restassured.RestAssured.given;
-import static org.hpcclab.oaas.test.MockupData.*;
+import static org.hpcclab.oaas.test.MockupData.CLS_1_KEY;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
@@ -52,6 +52,7 @@ class SyncInvocationTest {
     objectRepoManager.persistAsync(main).await().indefinitely();
     given()
       .when()
+      .queryParam("_showAll", "true")
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
         meta.getCls(), meta.getId(), "f1")
       .then()
@@ -60,6 +61,7 @@ class SyncInvocationTest {
       .body("main.data.n", Matchers.equalTo(1));
     given()
       .when()
+      .queryParam("_showAll", "true")
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
         meta.getCls(), meta.getId(), "f1")
       .then()

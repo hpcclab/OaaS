@@ -1,12 +1,12 @@
 package org.hpcclab.oaas;
 
 import io.restassured.common.mapper.TypeRef;
+import jakarta.ws.rs.core.MediaType;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.pkg.OPackage;
 
-import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -34,11 +34,16 @@ public class TestUtils {
               - function: copy
                 target: new_obj1
                 as: new_obj2
-            exports:
-              - from: new_obj1
-                as: obj1
-              - from: new_obj2
-                as: obj2
+            output: new_obj2
+            respBody:
+              - fromObj: new_obj1
+                transforms:
+                  - path: $
+                    inject: o1
+              - fromObj: new_obj2
+                transforms:
+                  - path: $
+                    inject: o2
     classes:
       - name: simple
         stateType: FILES
