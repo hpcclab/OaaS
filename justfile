@@ -51,7 +51,7 @@ rd-reload: build-image-docker
   kubectl -n oaas rollout restart deployment -l cr-part=invoker
   kubectl -n oaas rollout restart deployment -l cr-part=storage-adapter
 
-k8s-deploy-preq kn-version="v1.13.1" kourier-version="v1.13.0":
+k8s-deploy-preq kn-version="v1.14.1" kourier-version="v1.14.0":
   kubectl create namespace oaas --dry-run=client -o yaml | kubectl apply -f -
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-crds.yaml
   kubectl apply -f https://github.com/knative/serving/releases/download/knative-{{kn-version}}/serving-core.yaml
@@ -87,7 +87,7 @@ k8s-clean:
   kubectl delete -n oaas -k deploy/oaas/base || true
 
 k3d-create:
-  K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"
+  K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"  --memory 8G
 
 k3d-install-all: k3d-create
   just k8s-deploy-preq

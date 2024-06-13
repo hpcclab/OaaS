@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
@@ -34,7 +33,6 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
   ProvisionConfig provision;
   List<VariableDescription> variableDescriptions;
   OFunctionDeploymentStatus status;
-  @Builder.Default
   FunctionState state = FunctionState.ENABLED;
   QosRequirement qos;
   QosConstraint constraint;
