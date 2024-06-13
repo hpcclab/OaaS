@@ -80,8 +80,7 @@ jobs:
       matrix:
         os:
          - macos-latest
-         - macos-latest-large
-#         - windows-latest
+         - windows-latest
          - ubuntu-latest
     steps:
       - uses: actions/checkout@v4
