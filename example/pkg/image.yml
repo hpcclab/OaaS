@@ -5,7 +5,7 @@ functions:
     outputCls: .image
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/img-resize-fn-py:latest
+        image: ghcr.io/hpcclab/oaas/img-resize-fn-py:latest
         targetConcurrency: 3
         requestsCpu: '2'
         limitsCpu: '2'

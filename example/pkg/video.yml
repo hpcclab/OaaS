@@ -5,7 +5,7 @@ functions:
     outputCls: .video
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/transcode-fn-py:latest
+        image: ghcr.io/hpcclab/oaas/transcode-fn-py:latest
         minScale: 1
         targetConcurrency: 3
 #        maxScale: 12
