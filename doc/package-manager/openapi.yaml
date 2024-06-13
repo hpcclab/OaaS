@@ -306,6 +306,8 @@ components:
           type: boolean
         noMain:
           type: boolean
+        noOutput:
+          type: boolean
     FunctionBinding_Public:
       type: object
       properties:
@@ -324,6 +326,8 @@ components:
         immutable:
           type: boolean
         noMain:
+          type: boolean
+        noOutput:
           type: boolean
     FunctionState:
       enum:

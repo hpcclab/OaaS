@@ -6,7 +6,6 @@ import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
-import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
@@ -14,11 +13,11 @@ import java.util.List;
 /**
  * @author Pawissanutt
  */
-public class UpdateFunctionController extends AbstractFunctionController
+public class UpdateFnController extends AbstractFunctionController
 implements LogicalFunctionController {
 
-  public UpdateFunctionController(IdGenerator idGenerator,
-                                  ObjectMapper mapper) {
+  public UpdateFnController(IdGenerator idGenerator,
+                            ObjectMapper mapper) {
     super(idGenerator, mapper);
   }
 

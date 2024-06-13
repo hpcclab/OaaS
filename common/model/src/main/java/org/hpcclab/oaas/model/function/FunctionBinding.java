@@ -20,6 +20,7 @@ public class FunctionBinding {
   @JsonAlias("forceImmutable")
   boolean immutable;
   boolean noMain;
+  boolean noOutput;
   public FunctionBinding() {
   }
 

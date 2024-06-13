@@ -1,6 +1,6 @@
 package org.hpcclab.oprc.cli.command.invocation;
 
-import io.vertx.core.json.Json;
+import com.jayway.jsonpath.DocumentContext;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpRequest;
@@ -9,6 +9,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import io.vertx.mutiny.uritemplate.UriTemplate;
 import io.vertx.mutiny.uritemplate.Variables;
 import jakarta.inject.Inject;
+import org.hpcclab.oprc.cli.JsonUtil;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
@@ -128,14 +129,14 @@ public class V2InvocationCommand implements Callable<Integer> {
       return 1;
     }
     var respBody = response.bodyAsJsonObject();
+    DocumentContext doc = JsonUtil.parse(response.bodyAsString());
     outputFormatter.print(commonOutputMixin.getOutputFormat(), respBody);
-    if (save && respBody.containsKey("output")) {
-      String id = respBody.getJsonObject("output").getString("id");
-      if (id != null && !id.isEmpty()) {
-        conf.setDefaultObject(id);
-        conf.setDefaultClass(respBody.getJsonObject("output").getString("cls"));
-        fileManager.update(conf);
-      }
+    String outId = doc.read("$.output._meta.id");
+    if (save && outId != null && !outId.isEmpty()) {
+      conf.setDefaultObject(outId);
+      String outCLs = doc.read("$.output._meta.cls");
+      conf.setDefaultClass(outCLs);
+      fileManager.update(conf);
     }
     return 0;
   }

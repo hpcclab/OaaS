@@ -146,7 +146,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .minAvail(minAvail)
       .enableHpa(invoker.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
       .build();
-    var minSa = getStartReplica(sa, qos, 0);
+    var minSa = getStartReplica(sa, qos, 1);
     CrInstanceSpec saSpec = CrInstanceSpec.builder()
       .minInstance(minSa)
       .maxInstance(sa.maxReplicas())

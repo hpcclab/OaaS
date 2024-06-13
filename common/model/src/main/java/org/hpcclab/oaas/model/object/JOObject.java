@@ -7,12 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.Copyable;
-import org.hpcclab.oaas.model.HasKey;
-import org.hpcclab.oaas.model.HasRev;
 import org.hpcclab.oaas.model.Views;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
 
 @Data
@@ -20,6 +15,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JOObject implements IOObject<ObjectNode> {
+  @JsonProperty("_meta")
   OMeta meta;
   ObjectNode data;
 

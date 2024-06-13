@@ -9,6 +9,8 @@ functions:
     type: LOGICAL
   - name: logical.get
     type: LOGICAL
+  - name: logical.file
+    type: LOGICAL
 classes:
   - name: base
     stateType: FILES

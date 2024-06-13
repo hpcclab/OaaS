@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.invocation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import org.hpcclab.oaas.model.object.GOObject;
@@ -19,7 +20,7 @@ public record InvocationResponse(
   List<String> macroInvIds,
   InvocationStatus status,
   InvocationStats stats,
-  boolean async,
+  @JsonIgnore boolean async,
   JsonBytes body
 ) {
 }

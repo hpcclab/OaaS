@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invoker.rest;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
@@ -13,7 +14,6 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
-import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
@@ -25,6 +25,7 @@ import org.hpcclab.oaas.repository.ObjectRepoManager;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Pawissanutt
@@ -82,11 +83,19 @@ public class ObjectAccessResource {
   public Uni<Response> getObjectFile(String cls,
                                      String objId,
                                      String file) {
-    return getObj(cls, objId)
-      .map(obj -> {
-        var fileUrl = generator.generateUrl(obj, file, AccessLevel.UNIDENTIFIED, conf.respPubS3());
+    return hashAwareInvocationHandler.invoke(InvocationRequest.builder()
+        .cls(cls)
+        .main(objId)
+        .fb("file")
+        .args(DSMap.of("key", file, "pub", "true"))
+        .build())
+      .map(resp -> {
+        String url = Optional.ofNullable(resp.body().getNode())
+          .map(o -> o.get(file))
+          .map(JsonNode::asText)
+          .orElseThrow(() -> StdOaasException.notKeyInObj(file, 404));
         return Response.status(HttpResponseStatus.SEE_OTHER.code())
-          .location(URI.create(fileUrl))
+          .location(URI.create(url))
           .build();
       });
   }

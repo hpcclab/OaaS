@@ -59,7 +59,7 @@ public class TaskFunctionController extends AbstractFunctionController {
         .build();
       ctx.setRequest(req);
     }
-    if ((req.main()==null || req.main().isEmpty()) && !functionBinding.isNoMain()) {
+    if (ctx.getMain()==null && !functionBinding.isNoMain()) {
       throw new InvocationException(
         "Function '%s' is not marked to be called without main"
           .formatted(functionBinding.getName()),
@@ -113,7 +113,9 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setReqBody(ctx.getRequest().body());
     task.setArgs(resolveArgs(ctx));
 
-    task.setMainKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
+    task.setMainGetKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
+    task.setMainPutKeys(generatePutUrls(ctx.getMain(), cls, verId,  AccessLevel.ALL));
+
     if (ctx.getOutput()!=null) {
       task.setOutput(ctx.getOutput());
       if (outputCls.getStateType()==StateType.COLLECTION) {

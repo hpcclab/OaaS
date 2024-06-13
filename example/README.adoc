@@ -159,6 +159,7 @@ Here is the `ocli` examples:
 ocli p a example/pkg/record.yml
 
 # CREATE RECORD OBJECT WITH JSON DATA AND SAVE THE NEW OBJECT ID
+# MAKE SURE THE COMMAND ESCAPE THE QUOTE CORRECTLY.
 ocli o c example.record -d '{"hello": "world"}' -s
 
 # INVOKE random FUNCTION

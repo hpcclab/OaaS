@@ -3,4 +3,4 @@ fastapi
 aiohttp
 uvicorn
 gunicorn
-oaas-sdk-py==0.3.0
+oaas-sdk-py==0.3.1

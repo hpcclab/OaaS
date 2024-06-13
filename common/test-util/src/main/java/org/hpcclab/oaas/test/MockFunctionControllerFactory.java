@@ -5,12 +5,12 @@ import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.controller.fn.*;
-import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.logical.NewFnController;
+import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFnController;
 import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.DefaultContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
-import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.object.IOObject;
@@ -27,7 +27,7 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   DataflowOrchestrator dataflowOrchestrator;
 
   public MockFunctionControllerFactory(InvocationReqHandler reqHandler) {
-    contentUrlGenerator = new SaContentUrlGenerator("http://localhost:8090") {
+    contentUrlGenerator = new DefaultContentUrlGenerator("http://localhost:8090") {
       @Override
       public String generatePutUrl(IOObject<?> obj, DataAccessContext dac, String file) {
         // AVOID EXCEPTION
@@ -53,9 +53,9 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
 
   LogicalFunctionController createLogical(OFunction function) {
     if (function.getKey().equals("builtin.logical.new")) {
-      return new NewFunctionController(idGenerator, mapper, dataUrlAllocator);
+      return new NewFnController(idGenerator, mapper, dataUrlAllocator);
     } else if (function.getKey().equals("builtin.logical.update")) {
-      return new UpdateFunctionController(idGenerator, mapper);
+      return new UpdateFnController(idGenerator, mapper);
     }
     throw new IllegalArgumentException();
   }

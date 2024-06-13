@@ -9,7 +9,7 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.logical.NewFnController;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
@@ -50,7 +50,7 @@ class NewFunctionControllerTest {
 
   @Test
   void _1createSimple() throws JsonProcessingException {
-    var req = NewFunctionController.ObjectConstructRequest.of(
+    var req = NewFnController.ObjectConstructRequest.of(
       mapper.createObjectNode().put("n", 1)
     );
     String respString = given()
@@ -77,7 +77,7 @@ class NewFunctionControllerTest {
 
   @Test
   void _2createSimpleGrpc() {
-    var reqBody = NewFunctionController.ObjectConstructRequest.of(
+    var reqBody = NewFnController.ObjectConstructRequest.of(
       mapper.createObjectNode().put("n", 1)
     );
     var req = InvocationRequest

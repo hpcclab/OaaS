@@ -1,14 +1,13 @@
-package org.hpcclab.oaas.invoker.service;
+package org.hpcclab.oaas.storage;
 
-import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.DefaultContentUrlGenerator;
 import org.hpcclab.oaas.model.data.DataAccessContext;
 import org.hpcclab.oaas.model.object.IOObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
-import org.hpcclab.oaas.storage.PresignGenerator;
 
 import static org.hpcclab.oaas.storage.S3ClientBuilderUtil.createPresigner;
 
-public class UnifyContentUrlGenerator extends SaContentUrlGenerator {
+public class UnifyContentUrlGenerator extends DefaultContentUrlGenerator {
   PresignGenerator presignGenerator;
   PresignGenerator pubPresignGenerator;
   String prefixPath;

@@ -5,10 +5,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.controller.fn.*;
+import org.hpcclab.oaas.invocation.controller.fn.logical.*;
 import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
-import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
@@ -48,22 +46,36 @@ public class FunctionControllerProducer {
 
 
   @Produces
-  NewFunctionController newFunctionController(IdGenerator idGenerator,
-                                              ObjectMapper mapper,
-                                              DataUrlAllocator dataUrlAllocator) {
-    return new NewFunctionController(idGenerator, mapper, dataUrlAllocator);
+  NewFnController newFunctionController(IdGenerator idGenerator,
+                                        ObjectMapper mapper,
+                                        DataUrlAllocator dataUrlAllocator) {
+    return new NewFnController(idGenerator, mapper, dataUrlAllocator);
   }
 
   @Produces
-  CopyFunctionController copyFunctionController(IdGenerator idGenerator,
-                                                ObjectMapper mapper) {
-    return new CopyFunctionController(idGenerator, mapper);
+  CopyFnController copyFunctionController(IdGenerator idGenerator,
+                                          ObjectMapper mapper) {
+    return new CopyFnController(idGenerator, mapper);
   }
 
   @Produces
-  UpdateFunctionController updateFunctionController(IdGenerator idGenerator,
-                                                    ObjectMapper mapper) {
-    return new UpdateFunctionController(idGenerator, mapper);
+  UpdateFnController updateFunctionController(IdGenerator idGenerator,
+                                              ObjectMapper mapper) {
+    return new UpdateFnController(idGenerator, mapper);
+  }
+
+  @Produces
+  GetFnController getFnController(IdGenerator idGenerator,
+                                  ObjectMapper mapper) {
+    return new GetFnController(idGenerator, mapper);
+  }
+
+  @Produces
+  GetFileFnController getFileFnController(IdGenerator idGenerator,
+                                          ObjectMapper mapper,
+                                          ContentUrlGenerator generator,
+                                          ObjectMapper objectMapper) {
+    return new GetFileFnController(idGenerator, mapper, generator, objectMapper);
   }
 
   @Produces

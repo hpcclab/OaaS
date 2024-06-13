@@ -412,6 +412,9 @@
           },
           "noMain" : {
             "type" : "boolean"
+          },
+          "noOutput" : {
+            "type" : "boolean"
           }
         }
       },
@@ -440,6 +443,9 @@
             "type" : "boolean"
           },
           "noMain" : {
+            "type" : "boolean"
+          },
+          "noOutput" : {
             "type" : "boolean"
           }
         }

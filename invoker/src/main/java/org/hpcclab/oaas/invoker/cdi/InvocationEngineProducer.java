@@ -10,17 +10,17 @@ import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
-import org.hpcclab.oaas.invocation.task.SaContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.DefaultContentUrlGenerator;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.metrics.MicrometerMetricFactory;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.CcInvocationRecordHandler;
 import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
-import org.hpcclab.oaas.invoker.service.UnifyContentUrlGenerator;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
+import org.hpcclab.oaas.storage.UnifyContentUrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class InvocationEngineProducer {
   @ApplicationScoped
   ContentUrlGenerator contentUrlGenerator(InvokerConfig config) {
     if (config.useSaOnly()) {
-      return new SaContentUrlGenerator(config.sa().url());
+      return new DefaultContentUrlGenerator(config.sa().url());
     } else {
       return new UnifyContentUrlGenerator(config.sa().url(),
         DatastoreConfRegistry.getDefault()

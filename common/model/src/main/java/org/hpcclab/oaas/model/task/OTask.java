@@ -20,7 +20,8 @@ public class OTask {
   String funcKey;
   String allocMainUrl;
   String allocOutputUrl;
-  Map<String, String> mainKeys;
+  Map<String, String> mainGetKeys;
+  Map<String, String> mainPutKeys;
   Map<String, String> outputKeys;
   Map<String, String> args;
   JsonBytes reqBody;

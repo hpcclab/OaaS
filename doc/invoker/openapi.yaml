@@ -9,6 +9,37 @@ servers:
 - url: http://0.0.0.0:8080
   description: Auto generated value
 paths:
+  /api/allocate/{oid}:
+    get:
+      tags:
+      - Object Key Allocation Resource
+      parameters:
+      - name: oid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contextKey
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              uniqueItems: true
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
   /api/classes/{cls}/invokes/{fb}:
     get:
       tags:
@@ -235,12 +266,10 @@ components:
     GOObject:
       type: object
       properties:
-        meta:
+        _meta:
           $ref: "#/components/schemas/OMeta"
         data:
           $ref: "#/components/schemas/JsonBytes"
-        _key:
-          type: string
     InvocationResponse:
       type: object
       properties:
@@ -264,8 +293,6 @@ components:
           $ref: "#/components/schemas/InvocationStatus"
         stats:
           $ref: "#/components/schemas/InvocationStats"
-        async:
-          type: boolean
         body:
           $ref: "#/components/schemas/JsonBytes"
     InvocationStats:

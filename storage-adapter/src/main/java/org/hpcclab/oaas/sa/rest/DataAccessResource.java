@@ -44,7 +44,6 @@ public class DataAccessResource {
                            String vid,
                            String key,
                            @RestQuery String contextKey) {
-    // TODO protect contextKey with encryption and signature
     if (contextKey==null) throw new StdOaasException("'contextKey' query param is required", 400);
     var dac = DataAccessContext.parse(contextKey);
     var clsName = dac.getCls();

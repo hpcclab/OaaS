@@ -15,6 +15,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GOObject implements IOObject<JsonBytes> {
   @ProtoField(1)
+  @JsonProperty("_meta")
   OMeta meta;
   @ProtoField(2)
   JsonBytes data;
@@ -66,7 +67,7 @@ public class GOObject implements IOObject<JsonBytes> {
       .build();
   }
 
-  @JsonProperty("_key")
+  @JsonIgnore
   public String getKey() {
     return meta.id;
   }

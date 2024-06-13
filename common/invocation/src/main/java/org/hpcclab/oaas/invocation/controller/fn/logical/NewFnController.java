@@ -13,7 +13,6 @@ import org.hpcclab.oaas.model.data.DataAllocateRequest;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OMeta;
-import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
@@ -26,14 +25,13 @@ import java.util.Set;
 /**
  * @author Pawissanutt
  */
-public class NewFunctionController extends AbstractFunctionController
+public class NewFnController extends AbstractFunctionController
   implements LogicalFunctionController {
   DataUrlAllocator allocator;
-  OObjectConverter converter = OObjectConverter.getInstance();
 
-  public NewFunctionController(IdGenerator idGenerator,
-                               ObjectMapper mapper,
-                               DataUrlAllocator allocator) {
+  public NewFnController(IdGenerator idGenerator,
+                         ObjectMapper mapper,
+                         DataUrlAllocator allocator) {
     super(idGenerator, mapper);
     this.allocator = allocator;
   }
