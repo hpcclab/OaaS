@@ -19,6 +19,7 @@ NOTE: TLDR; Make sure that your machine have `docker`, `kubectl`, `k3d` and `jus
 * link:../../cli/README.adoc[ocli] (Oparaca CLI)
 
 * https://github.com/casey/just[*just*]
+** For Window user your may need to install `sh` provided by link:https://git-scm.com/[Git for Windows] (for `scoop` user, run `scoop install git`)
 
 * Clone this project.
 +
