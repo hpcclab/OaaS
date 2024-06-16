@@ -46,6 +46,11 @@
       <artifactId>quarkus-vertx</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${org.projectlombok.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.github.f4b6a3</groupId>
       <artifactId>tsid-creator</artifactId>
       <version>${tsid-creator.version}</version>

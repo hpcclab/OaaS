@@ -2,7 +2,6 @@ package org.hpcclab.oaas.invoker;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
-import org.hpcclab.oaas.storage.S3ConnConf;
 
 import java.util.List;
 
@@ -54,8 +53,6 @@ public interface InvokerConfig {
 
   @WithDefault("5000")
   int maxInflight();
-
-  S3ConnConf s3();
 
   @WithDefault("false")
   boolean useSaOnly();
