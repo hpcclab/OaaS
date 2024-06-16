@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 
@@ -21,6 +22,8 @@ public class FunctionBinding {
   boolean immutable;
   boolean noMain;
   boolean noOutput;
+  JsonBytes override;
+
   public FunctionBinding() {
   }
 

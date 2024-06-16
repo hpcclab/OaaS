@@ -22,6 +22,20 @@ public interface ContentUrlGenerator {
     return generateUrl(obj, dac, file);
   }
 
+  default String generatePutUrl(IOObject<?> obj,
+                                String file,
+                                AccessLevel level,
+                                boolean usePublic) {
+    Map<String, String> verIds = obj.getMeta().getVerIds();
+    if (verIds==null || verIds.isEmpty())
+      throw StdOaasException.notKeyInObj(obj.getKey(), 404);
+    var vid = obj.getMeta().getVerIds().get(file);
+    if (vid==null)
+      throw StdOaasException.notKeyInObj(obj.getKey(), 404);
+    var dac = DataAccessContext.generate(obj, level, vid, usePublic);
+    return generatePutUrl(obj, dac, file);
+  }
+
   String generateUrl(IOObject<?> obj,
                      DataAccessContext dac,
                      String file);

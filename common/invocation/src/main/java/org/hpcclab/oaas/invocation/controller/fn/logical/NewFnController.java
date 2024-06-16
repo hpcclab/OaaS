@@ -79,7 +79,7 @@ public class NewFnController extends AbstractFunctionController
       .select(k -> fileKeys.contains(k.getName()))
       .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
-      ctx.setRespBody(null);
+      ctx.setRespBody(JsonBytes.EMPTY);
       return Uni.createFrom()
         .item(ctx);
     } else {

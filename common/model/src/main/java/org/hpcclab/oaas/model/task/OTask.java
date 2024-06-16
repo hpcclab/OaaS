@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class OTask {
   public static final String CE_TYPE = "oaas.task";
   String id;
+  @JsonIgnore
   String partKey;
   GOObject main;
   GOObject output;

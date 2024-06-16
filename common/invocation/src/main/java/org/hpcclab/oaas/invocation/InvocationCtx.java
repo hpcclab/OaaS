@@ -83,4 +83,8 @@ public class InvocationCtx {
     this.respBody = new JsonBytes(node);
     return this;
   }
+  public InvocationCtx setRespBody(JsonBytes jb) {
+    this.respBody = jb;
+    return this;
+  }
 }

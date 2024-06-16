@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.Copyable;
 import org.infinispan.protostream.annotations.Proto;
 
 import java.util.Map;
@@ -20,7 +21,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Proto
-public class OMeta implements IOObject.IOMeta{
+public class OMeta implements IOObject.IOMeta, Copyable<OMeta> {
   String id;
   long revision;
   String cls;
@@ -28,4 +29,15 @@ public class OMeta implements IOObject.IOMeta{
   Map<String, String> refs;
   long lastOffset;
 
+  @Override
+  public OMeta copy() {
+    return new OMeta(
+      id,
+      revision,
+      cls,
+      verIds,
+      refs,
+      lastOffset
+    );
+  }
 }

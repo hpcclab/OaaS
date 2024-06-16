@@ -71,11 +71,17 @@ public class FunctionControllerProducer {
   }
 
   @Produces
-  GetFileFnController getFileFnController(IdGenerator idGenerator,
-                                          ObjectMapper mapper,
-                                          ContentUrlGenerator generator,
-                                          ObjectMapper objectMapper) {
-    return new GetFileFnController(idGenerator, mapper, generator, objectMapper);
+  ProjectFnController projectFnController(IdGenerator idGenerator,
+                                          ObjectMapper mapper) {
+    return new ProjectFnController(idGenerator, mapper);
+  }
+
+  @Produces
+  FileFnController fileFnController(IdGenerator idGenerator,
+                                    ObjectMapper mapper,
+                                    ContentUrlGenerator generator,
+                                    ObjectMapper objectMapper) {
+    return new FileFnController(idGenerator, mapper, generator, objectMapper);
   }
 
   @Produces

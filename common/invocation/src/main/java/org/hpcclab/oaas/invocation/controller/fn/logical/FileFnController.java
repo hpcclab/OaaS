@@ -18,14 +18,14 @@ import java.util.stream.Stream;
 /**
  * @author Pawissanutt
  */
-public class GetFileFnController
+public class FileFnController
   extends AbstractFunctionController
   implements LogicalFunctionController {
 
   final ContentUrlGenerator generator;
   final ObjectMapper objectMapper;
 
-  public GetFileFnController(IdGenerator idGenerator, ObjectMapper mapper, ContentUrlGenerator urlGenerator, ObjectMapper objectMapper) {
+  public FileFnController(IdGenerator idGenerator, ObjectMapper mapper, ContentUrlGenerator urlGenerator, ObjectMapper objectMapper) {
     super(idGenerator, mapper);
     this.generator = urlGenerator;
     this.objectMapper = objectMapper;
@@ -43,9 +43,17 @@ public class GetFileFnController
     if (keyString == null) throw new InvocationException("key must be specified", 400);
     String[] keys = keyString.split(",");
     boolean pub = Boolean.parseBoolean(ctx.getArgs().getOrDefault("pub", "false"));
-    Map<String, String> keyToUrl = Stream.of(keys)
-      .map(k -> Map.entry(k, generator.generateUrl(main, k, AccessLevel.UNIDENTIFIED, pub)))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    boolean put = Boolean.parseBoolean(ctx.getArgs().getOrDefault("put", "false"));
+    Map<String, String> keyToUrl;
+    if (put) {
+      keyToUrl = Stream.of(keys)
+        .map(k -> Map.entry(k, generator.generatePutUrl(main, k, AccessLevel.UNIDENTIFIED, pub)))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    } else {
+      keyToUrl = Stream.of(keys)
+        .map(k -> Map.entry(k, generator.generateUrl(main, k, AccessLevel.UNIDENTIFIED, pub)))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
     ObjectNode objectNode = objectMapper.valueToTree(keyToUrl);
     ctx.setRespBody(objectNode);
     return Uni.createFrom().item(ctx);

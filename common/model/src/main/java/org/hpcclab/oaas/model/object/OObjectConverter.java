@@ -75,4 +75,7 @@ public class OObjectConverter {
     };
   }
 
+  public ObjectNode createEmpty() {
+    return objectMapper.createObjectNode();
+  }
 }

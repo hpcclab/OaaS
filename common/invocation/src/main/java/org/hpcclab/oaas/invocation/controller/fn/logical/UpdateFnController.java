@@ -14,7 +14,7 @@ import java.util.List;
  * @author Pawissanutt
  */
 public class UpdateFnController extends AbstractFunctionController
-implements LogicalFunctionController {
+  implements LogicalFunctionController {
 
   public UpdateFnController(IdGenerator idGenerator,
                             ObjectMapper mapper) {
@@ -29,12 +29,17 @@ implements LogicalFunctionController {
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     var body = ctx.getRequest().body();
-    var main =  ctx.getMain();
-    main.setData(body);
+    var main = ctx.getMain();
+    var update = main;
+    if (functionBinding.isImmutable()) {
+      update = main.copy();
+      update.getMeta().setId(idGenerator.generate());
+    }
+    update.setData(body);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.updateObjs(
-        List.of(ctx.getMain()), cls
-        )));
+        List.of(update), cls
+      )));
     return Uni.createFrom().item(ctx);
   }
 

@@ -48,7 +48,7 @@ public class GOObject implements IOObject<JsonBytes> {
 
   public GOObject copy() {
     return new GOObject(
-      meta.toBuilder().build(),
+      meta.copy(),
       data
     );
   }
@@ -62,9 +62,7 @@ public class GOObject implements IOObject<JsonBytes> {
   @Override
   @JsonIgnore
   public void setRevision(long revision) {
-    meta = meta.toBuilder()
-      .revision(revision)
-      .build();
+    meta.revision = revision;
   }
 
   @JsonIgnore

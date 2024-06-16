@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +50,13 @@ public class JsonBytes {
     }
     objectNode = OObjectConverter.getInstance().convert(bytes);
     return objectNode;
+  }
+
+  @JsonIgnore
+  public ObjectNode getNodeOrEmpty() {
+    var node = getNode();
+    if (node != null) return node;
+    return OObjectConverter.getInstance().createEmpty();
   }
 
   @JsonRawValue
