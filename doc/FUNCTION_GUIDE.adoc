@@ -139,3 +139,13 @@ ctx.resp_body = {"msg": "hello " + name}
 
 === Unstructured Data Access
 TODO
+
+=== Build container image
+[source,bash]
+----
+docker -t <image tag> .
+----
+
+
+== Test the function locally
+TODO
