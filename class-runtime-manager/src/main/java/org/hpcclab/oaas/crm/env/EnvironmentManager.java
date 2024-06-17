@@ -34,6 +34,7 @@ public class EnvironmentManager {
     var pmPort = configProvider
       .getValue("oprc.envconf.pmPort", String.class);
     var envConf = OprcEnvironment.Config.builder()
+      .namespace(conf.namespace())
       .kafkaBootstrap(kafka)
       .classManagerHost(pmHost)
       .classManagerPort(pmPort)

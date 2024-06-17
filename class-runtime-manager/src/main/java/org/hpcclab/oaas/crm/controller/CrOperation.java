@@ -13,6 +13,9 @@ public interface CrOperation {
   default void rollback() throws CrDeployException {
     throw new CrDeployException("Operation cannot rollback");
   }
+  default CrOperation merge(CrOperation operation) {
+    throw new IllegalStateException();
+  }
   default StateUpdateOperation stateUpdates() {
     return EMPTY;
   }

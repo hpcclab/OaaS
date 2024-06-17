@@ -1,13 +1,14 @@
 package org.hpcclab.oaas.crm;
 
-public enum OprcComponent {
+public enum CrComponent {
   LOADBALANCER("lb"),
   INVOKER("invoker"),
-  STORAGE_ADAPTER("storage-adapter");
+  STORAGE_ADAPTER("storage-adapter"),
+  CONFIG("config");
 
   final String svc;
 
-  OprcComponent(String svc) {
+  CrComponent(String svc) {
     this.svc = svc;
   }
 

@@ -6,13 +6,13 @@ import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.optimize.CrDataSpec;
-import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
+import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hpcclab.oaas.crm.OprcComponent.INVOKER;
+import static org.hpcclab.oaas.crm.CrComponent.INVOKER;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 
 /**
@@ -20,15 +20,17 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
  */
 public class InvokerK8sCrComponentController extends AbstractK8sCrComponentController {
 
-  final CrmConfig crmConfig ;
+  final CrmConfig crmConfig;
 
-  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,  CrmConfig crmConfig) {
+  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig, CrmConfig crmConfig) {
     super(svcConfig);
     this.crmConfig = crmConfig;
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
+  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+    var instanceSpec = plan.coreInstances().get(INVOKER);
+    var dataSpec = plan.dataSpec();
     if (instanceSpec.disable()) return List.of();
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
@@ -91,9 +93,9 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
     return resources;
   }
 
-
   @Override
-  protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
+  protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
+    var instanceSpec = plan.coreInstances().get(INVOKER);
     String name = prefix + INVOKER.getSvc();
     if (instanceSpec.enableHpa()) {
       HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
@@ -127,11 +129,13 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       .list()
       .getItems();
     toDeleteResource.addAll(svcList);
-    var podMonitor = kubernetesClient.genericKubernetesResources("monitoring.coreos.com/v1", "PodMonitor")
-      .withLabel(CR_LABEL_KEY, tsidString)
-      .list()
-      .getItems();
-    toDeleteResource.addAll(podMonitor);
+    if (!crmConfig.monitorDisable()) {
+      var podMonitor = kubernetesClient.genericKubernetesResources("monitoring.coreos.com/v1", "PodMonitor")
+        .withLabel(CR_LABEL_KEY, tsidString)
+        .list()
+        .getItems();
+      toDeleteResource.addAll(podMonitor);
+    }
     var hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
       .withLabels(labels)
       .list().getItems();

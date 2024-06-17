@@ -9,7 +9,7 @@ import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 
-public interface ClassRuntimeTemplate {
+public interface CrTemplate {
   CrController create(OprcEnvironment.Config env, DeploymentUnit deploymentUnit);
   CrController load(OprcEnvironment.Config env, ProtoCr orbit);
   String name();

@@ -27,7 +27,7 @@ class CrTemplateManagerTest {
         .setQos(ProtoQosRequirement.newBuilder().setThroughput(1001))
       )
       .build();
-    ClassRuntimeTemplate template = manager.selectTemplate(deployment);
+    CrTemplate template = manager.selectTemplate(deployment);
     System.out.println(template.getConfig());
     assertEquals(10, template.getConfig().priority());
   }

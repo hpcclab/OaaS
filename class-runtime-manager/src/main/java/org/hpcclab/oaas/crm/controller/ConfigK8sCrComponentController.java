@@ -5,8 +5,8 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.optimize.CrDataSpec;
-import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
+import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class ConfigK8sCrComponentController extends AbstractK8sCrComponentContro
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
+  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString()
     );
@@ -62,7 +62,7 @@ public class ConfigK8sCrComponentController extends AbstractK8sCrComponentContro
   }
 
   @Override
-  protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
+  protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
     return List.of();
   }
 

@@ -2,33 +2,35 @@ package org.hpcclab.oaas.crm.env;
 
 import io.fabric8.kubernetes.api.model.Quantity;
 import lombok.Builder;
-import org.snakeyaml.engine.v2.env.EnvConfig;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Builder(toBuilder = true)
-public record OprcEnvironment (
+public record OprcEnvironment(
   Config config,
   EnvResource total,
   EnvResource usable,
   EnvResource request,
   AvailabilityInfo availability
-){
+) {
   @Builder(toBuilder = true)
-  public record Config (String kafkaBootstrap,
-                        String classManagerHost,
-                        String classManagerPort,
-                        String fnTopic,
-                        String clsTopic,
-                        String crHashTopic,
-                        boolean exposeKnative,
-                        boolean useKnativeLb,
-                        String logLevel) {}
+  public record Config(String namespace,
+                       String kafkaBootstrap,
+                       String classManagerHost,
+                       String classManagerPort,
+                       String fnTopic,
+                       String clsTopic,
+                       String crHashTopic,
+                       boolean exposeKnative,
+                       boolean useKnativeLb,
+                       String logLevel) {
+  }
+
   public record EnvResource(double cpu,
-                            long mem){
-    static final Quantity QUANTITY_ZERO = Quantity.parse("0");
+                            long mem) {
     public static final EnvResource ZERO = new EnvResource(0d, 0L);
+    static final Quantity QUANTITY_ZERO = Quantity.parse("0");
 
     public EnvResource(BigDecimal cpu, BigDecimal mem) {
       this(cpu.doubleValue(), mem.longValue());
@@ -37,7 +39,7 @@ public record OprcEnvironment (
 
     public EnvResource(Map<String, Quantity> m) {
       this(m.getOrDefault("cpu", QUANTITY_ZERO).getNumericalAmount(),
-        m.getOrDefault("memory",QUANTITY_ZERO).getNumericalAmount());
+        m.getOrDefault("memory", QUANTITY_ZERO).getNumericalAmount());
     }
 
     public static EnvResource sum(EnvResource a, EnvResource b) {
@@ -58,5 +60,6 @@ public record OprcEnvironment (
   }
 
   @Builder(toBuilder = true)
-  public record AvailabilityInfo(double uptimePercentage) {}
+  public record AvailabilityInfo(double uptimePercentage) {
+  }
 }

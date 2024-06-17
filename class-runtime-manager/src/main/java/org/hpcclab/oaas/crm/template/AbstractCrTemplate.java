@@ -2,15 +2,15 @@ package org.hpcclab.oaas.crm.template;
 
 import com.github.f4b6a3.tsid.TsidFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.hpcclab.oaas.crm.CrComponent;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
+public abstract class AbstractCrTemplate implements CrTemplate {
   protected final TsidFactory tsidFactory;
   protected final KubernetesClient k8sClient;
   protected final CrtMappingConfig.CrtConfig config;
@@ -51,7 +51,7 @@ public abstract class AbstractCrTemplate implements ClassRuntimeTemplate {
     String optimizer = crtConfig.optimizer();
     if (optimizer==null) optimizer = "default";
     Map<String, CrtMappingConfig.SvcConfig> services = crtConfig.services();
-    for (var comp : OprcComponent.values()) {
+    for (var comp : CrComponent.values()) {
       CrtMappingConfig.SvcConfig svcConfig = services.get(comp.getSvc());
       if (svcConfig==null) {
         svcConfig = CrtMappingConfig.SvcConfig.builder()

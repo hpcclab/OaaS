@@ -2,8 +2,8 @@ package org.hpcclab.oaas.crm.optimize;
 
 import io.fabric8.kubernetes.api.model.Quantity;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.crm.CrComponent;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.OprcComponent;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics;
@@ -89,7 +89,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       );
       if (adjust.change()) fnInstance.put(fnKey, adjust.spec());
     }
-    Map<OprcComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
+    Map<CrComponent, CrInstanceSpec> coreInstance = computeCls(controller, metrics);
 
     if (currentPlan==null)
       return CrAdjustmentPlan.DEFAULT;
@@ -131,9 +131,9 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       minAvail = minInstance;
     }
     CrtMappingConfig.SvcConfig invoker = crtConfig.services()
-      .get(OprcComponent.INVOKER.getSvc());
+      .get(CrComponent.INVOKER.getSvc());
     CrtMappingConfig.SvcConfig sa = crtConfig.services()
-      .get(OprcComponent.STORAGE_ADAPTER.getSvc());
+      .get(CrComponent.STORAGE_ADAPTER.getSvc());
     CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
       .minInstance(getStartReplica(invoker, qos, minInstance))
       .maxInstance(invoker.maxReplicas())
@@ -164,8 +164,8 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       )
       .build();
     var instances = Map.of(
-      OprcComponent.INVOKER, invokerSpec,
-      OprcComponent.STORAGE_ADAPTER, saSpec
+      CrComponent.INVOKER, invokerSpec,
+      CrComponent.STORAGE_ADAPTER, saSpec
     );
     var fnInstances = unit.getFnListList()
       .stream()
@@ -217,22 +217,22 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
   }
 
 
-  private Map<OprcComponent, CrInstanceSpec> computeCls(CrController controller,
-                                                        CrPerformanceMetrics metrics) {
-    Map<OprcComponent, CrInstanceSpec> adjustPlanMap = Maps.mutable.empty();
+  private Map<CrComponent, CrInstanceSpec> computeCls(CrController controller,
+                                                      CrPerformanceMetrics metrics) {
+    Map<CrComponent, CrInstanceSpec> adjustPlanMap = Maps.mutable.empty();
     var cls = controller.getAttachedCls().values().iterator().next();
     CrDeploymentPlan currentPlan = controller.currentPlan();
-    CrInstanceSpec instanceSpec = currentPlan.coreInstances().get(OprcComponent.INVOKER);
+    CrInstanceSpec instanceSpec = currentPlan.coreInstances().get(CrComponent.INVOKER);
     var adjust = adjustComponent(
       controller,
       instanceSpec,
-      controller.getTemplate().getConfig().services().get(OprcComponent.INVOKER.getSvc()),
+      controller.getTemplate().getConfig().services().get(CrComponent.INVOKER.getSvc()),
       cls.getQos(),
-      metrics.coreMetrics().get(OprcComponent.INVOKER),
-      OprcComponent.INVOKER.name(),
+      metrics.coreMetrics().get(CrComponent.INVOKER),
+      CrComponent.INVOKER.name(),
       false);
     if (adjust.change)
-      adjustPlanMap.put(OprcComponent.INVOKER, adjust.spec);
+      adjustPlanMap.put(CrComponent.INVOKER, adjust.spec);
     return adjustPlanMap;
   }
 

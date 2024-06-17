@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.optimize.CrDataSpec;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
 import java.util.List;
@@ -38,13 +38,13 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   }
 
   @Override
-  public List<HasMetadata> createAdjustOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
-    if (instanceSpec==null) return List.of();
+  public List<HasMetadata> createAdjustOperation(CrAdjustmentPlan plan) {
+    if (plan==null) return List.of();
     if (stableTime > System.currentTimeMillis()) {
       return List.of();
     }
     stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
-    return doCreateAdjustOperation(instanceSpec);
+    return doCreateAdjustOperation(plan);
   }
 
   @Override
@@ -52,7 +52,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
     stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
   }
 
-  protected abstract List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec);
+  protected abstract List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan);
 
   protected Deployment createDeployment(String filePath,
                                         String name,

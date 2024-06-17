@@ -99,6 +99,8 @@ just k8s-deploy-preq
 # deploy Prometheus stack
 just deploy/helm-prom
 ----
++
+NOTE: You can the Prometheus installation for light-weight deployment.
 
 . Install Kafka
 +
@@ -135,7 +137,11 @@ To access the installed services:
 [source,bash]
 ----
 just k8s-deploy
+# IF YOU SKIP PROMETHEUS INSTALLATION, RUN BELOW COMMAND INSTEAD
+# just k8s-deploy-light
 ----
+
+
 . Wait until all pod is ready
 +
 [source,bash]

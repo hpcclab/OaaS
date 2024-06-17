@@ -2,7 +2,7 @@ package org.hpcclab.oaas.crm.observe;
 
 import lombok.Builder;
 import org.eclipse.collections.api.factory.primitive.LongDoubleMaps;
-import org.hpcclab.oaas.crm.OprcComponent;
+import org.hpcclab.oaas.crm.CrComponent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record CrPerformanceMetrics(
-  Map<OprcComponent, SvcPerformanceMetrics> coreMetrics,
+  Map<CrComponent, SvcPerformanceMetrics> coreMetrics,
   Map<String, SvcPerformanceMetrics> fnMetrics) {
 
   public static Double harmonicMean(List<CrPerformanceMetrics.DataPoint> points) {
