@@ -100,7 +100,7 @@ just k8s-deploy-preq
 just deploy/helm-prom
 ----
 +
-NOTE: You can the Prometheus installation for light-weight deployment.
+NOTE: You can skip the Prometheus installation for light-weight deployment.
 
 . Install Kafka
 +
