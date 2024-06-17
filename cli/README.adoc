@@ -23,7 +23,10 @@ just build-native
 ./mvnw install -Pnative -DskipTests
 
 # THEN COPY TO LOCAL BIN
-cp target/oprc-cli-0.2.0-SNAPSHOT-runner $HOME/.local/bin/ocli
+cp target/oprc-cli-999-SNAPSHOT-runner $HOME/.local/bin/ocli
+# OR IF YOU PREFER TO INSTALL AT SYSTEM LEVEL
+sudo cp target/oprc-cli-999-SNAPSHOT-runner /usr/local/bin/ocli
+# FOR WINDOW USER YOU CAN SIMPLY MOVE IT TO ANYWHERE THAT IS REGISTERED IN PATH VARIABLE
 ----
 
 
@@ -34,7 +37,7 @@ You can install this cli by using https://www.jbang.dev/[jbang] and run the foll
 ----
 ./mvnw package -DskipTests
 cd cli
-jbang app install --name=ocli --force target/oprc-cli-0.2.0-SNAPSHOT-runner.jar
+jbang app install --name=ocli --force target/oprc-cli-999-SNAPSHOT-runner.jar
 ----
 
 == Usage
