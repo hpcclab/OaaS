@@ -51,8 +51,32 @@ classes:
 functions:
   - name: <function name>
     outputCls: <<package.key> of output class>
+    description: <any description for this function> #Only for documenting
+    type: <type of function [TASK, LOGICAL, MACRO, CHAIN] [default: CHAIN]>
+    outputCls: <default class of the output object> # can be override by class definition
+    provision: # configure the engine for deploying this function
+      knative: # if using Knative
+        image: <container image tag>
+        env:  # key-value map to environment varible of deployment container
+          <key>: <value>
 
-  - ...
+  - name: <function name>
+    ...
+    provision:
+      deployment: # if using Kubernetes deployment
+        image: <container image tag>
+        replica: <number of pods>
+        port: <port number>
+        pullPolicy: <image pull policy> # set to 'IfNotPresent' to disable image pull if exists
+        env:  # key-value map to environment varible of deployment container
+          <key>: <value>
+
+  - name: <function name>
+    ...
+    provision:
+      staticUrl: # if using nothing. Only if you host it on yourown.
+        url: <url to function>
+
 ----
 
 == Available built-in Functions

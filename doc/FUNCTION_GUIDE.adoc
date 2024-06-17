@@ -178,6 +178,7 @@ functions:
     provision:
       deployment: # CHANGE HERE
         image: ghcr.io/hpcclab/oaas/json-update-fn-py
+        pullPolicy: IfNotPresent # REQUIRED FOR AVOIDING IMAGE PULLING
 ----
 NOTE: the other configurations may not be 100% compatible between `knative` and `deployment`.
 
