@@ -34,5 +34,8 @@ classes:
         function: .image.resize
         name: resize-inplace
         outputCls: void
+      - access: PUBLIC
+        name: file
+        function: builtin.logical.file
 
 

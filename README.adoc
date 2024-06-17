@@ -27,9 +27,9 @@ image::doc/diagrams/oaas_concept_v5.dio.png[ oaas_concept,480]
 .Overall Architecture
 image::doc/diagrams/qos_oaas_architecture_v15_1.dio.png[architecture1,480]
 .Class Runtime Architecture
-image::doc/diagrams/oaas_architecture_v14_2.dio.png[architecture2,480]
+image::doc/diagrams/qos_oaas_architecture_v15_2s.dio.png[architecture2,480]
 
-== Try it via k3d
+== Try it via k8s
 
 Check on link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on local Kubernetes (ex. kind, k3d, Docker Desktop).
 
@@ -37,6 +37,8 @@ Check on link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on loca
 
 * link:example/README.adoc[The example usage guide]
 // * link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].
+* link:doc/FUNCTION_GUIDE.adoc[Function development guide]
+* link:doc/PACKAGE_REFERENCE.adoc[Package definition guide]
 * link:cli/README.adoc[Command Line Interface]
 * Demo
 +

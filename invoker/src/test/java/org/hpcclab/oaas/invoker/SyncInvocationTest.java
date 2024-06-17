@@ -5,8 +5,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
-import org.hpcclab.oaas.model.invocation.InvocationRequest;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.test.MockupData;
@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.restassured.RestAssured.given;
-import static org.hpcclab.oaas.test.MockupData.CLS_1;
-import static org.hpcclab.oaas.test.MockupData.OBJ_1;
+import static org.hpcclab.oaas.test.MockupData.CLS_1_KEY;
 
 @QuarkusTest
 @QuarkusTestResource(ArangoResource.class)
@@ -33,35 +32,38 @@ class SyncInvocationTest {
   IdGenerator idGenerator;
   @Inject
   ClassControllerRegistry registry;
+  @Inject
+  InvokerManager invokerManager;
 
   @BeforeEach
   void setup() {
-    registry.registerOrUpdate(MockupData.CLS_1)
+    invokerManager.update(MockupData.CLS_1)
       .await().indefinitely();
-    registry.registerOrUpdate(MockupData.CLS_2)
+    invokerManager.update(MockupData.CLS_2)
       .await().indefinitely();
   }
 
   @Test
-  void _1testSingleMutable() {
-    var main = OBJ_1.copy();
-    main.setId(idGenerator.generate());
-    var objectRepo = objectRepoManager.getOrCreate(CLS_1);
-    objectRepo.put(main.getKey(), main);
+  void _1testSingle() {
+    var main = new GOObject();
+    OMeta meta = main.getMeta();
+    meta.setId(idGenerator.generate());
+    meta.setCls(CLS_1_KEY);
+    objectRepoManager.persistAsync(main).await().indefinitely();
     given()
-      .urlEncodingEnabled(false)
       .when()
+      .queryParam("_showAll", "true")
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
-        main.getCls(), main.getId(), "f1")
+        meta.getCls(), meta.getId(), "f1")
       .then()
       .log().ifValidationFails()
       .statusCode(200)
       .body("main.data.n", Matchers.equalTo(1));
     given()
-      .urlEncodingEnabled(false)
       .when()
+      .queryParam("_showAll", "true")
       .get("/api/classes/{cls}/objects/{oid}/invokes/{fb}",
-        main.getCls(), main.getId(), "f1")
+        meta.getCls(), meta.getId(), "f1")
       .then()
       .log().ifValidationFails()
       .statusCode(200)

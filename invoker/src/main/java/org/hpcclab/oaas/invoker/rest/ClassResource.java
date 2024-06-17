@@ -14,6 +14,8 @@ import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
+import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -58,12 +60,10 @@ public class ClassResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
       .build();
     requestCounterMap.increase(cls, fb);
     if (async) {
@@ -76,7 +76,7 @@ public class ClassResource {
   @Path("invokes/{fb}")
   public Uni<InvocationResponse> invokeWithBody(String cls,
                                                 String fb,
-                                                @QueryParam("_async") @DefaultValue("false") boolean async,
+                                                @BeanParam InvokeParameters params,
                                                 @Context UriInfo uriInfo,
                                                 ObjectNode body) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -85,18 +85,18 @@ public class ClassResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     InvocationRequest oal = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
-      .body(body)
+      .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationReqHandler.enqueue(oal);
+    if (params.async) {
+      return invocationReqHandler.enqueue(oal)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(oal);
+    return hashAwareInvocationHandler.invoke(oal)
+      .map(params::filter);
   }
 }

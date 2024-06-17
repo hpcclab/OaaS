@@ -2,10 +2,9 @@ package org.hpcclab.oaas.model.invocation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.With;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 
 import java.util.List;
@@ -18,13 +17,11 @@ public record InvocationRequest(
   String cls,
   String fb,
   DSMap args,
-  List<String> inputs,
-  List<OObject> inputObjs,
   boolean immutable,
   String invId,
   String outId,
-  long queTs,
-  ObjectNode body,
+  JsonBytes body,
+  List<InvocationChain> chains,
   @JsonIgnore String partKey
 ) {
   public static final String CE_TYPE = "oaas.invReq";

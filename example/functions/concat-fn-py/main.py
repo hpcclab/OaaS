@@ -38,8 +38,6 @@ class ConcatHandler(oaas.Handler):
                 if inplace:
                     await ctx.upload_main_byte_data(session, TEXT_KEY, b_text)
                 else:
-                    await ctx.allocate_file(session)
-                    logging.debug(f"allocate url in {time.time() - start_ts} s")
                     start_ts = time.time()
                     await ctx.upload_byte_data(session, TEXT_KEY, b_text)
                 uploading_time = time.time() - start_ts

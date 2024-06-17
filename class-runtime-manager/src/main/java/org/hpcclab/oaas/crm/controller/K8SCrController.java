@@ -10,19 +10,14 @@ import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.exception.CrDeployException;
 import org.hpcclab.oaas.crm.exception.CrUpdateException;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
-import org.hpcclab.oaas.crm.optimize.CrDataSpec;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
-import org.hpcclab.oaas.crm.template.ClassRuntimeTemplate;
+import org.hpcclab.oaas.crm.template.CrTemplate;
 import org.hpcclab.oaas.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import static org.hpcclab.oaas.crm.OprcComponent.INVOKER;
-import static org.hpcclab.oaas.crm.OprcComponent.STORAGE_ADAPTER;
 
 public class K8SCrController implements CrController {
   public static final String CR_LABEL_KEY = "cr-id";
@@ -34,28 +29,23 @@ public class K8SCrController implements CrController {
   private static final Logger logger = LoggerFactory.getLogger(K8SCrController.class);
   final long id;
   final String prefix;
-  final String namespace;
-  final ClassRuntimeTemplate template;
+  final CrTemplate template;
   final KubernetesClient kubernetesClient;
   final OprcEnvironment.Config envConfig;
-  final CrComponentController<HasMetadata> invokerController;
-  final CrComponentController<HasMetadata> saController;
-  final CrComponentController<HasMetadata> configController;
+  final Map<String, CrComponentController<HasMetadata>> componentControllers;
   final Map<String, ProtoOClass> attachedCls = Maps.mutable.empty();
   final Map<String, ProtoOFunction> attachedFn = Maps.mutable.empty();
   final CrFnController<HasMetadata> deploymentFnController;
   final CrFnController<HasMetadata> knativeFnController;
+  final String namespace;
   CrDeploymentPlan currentPlan;
-  CrDataSpec dataSpec;
   boolean deleted = false;
   boolean initialized = false;
 
 
-  public K8SCrController(ClassRuntimeTemplate template,
+  public K8SCrController(CrTemplate template,
                          KubernetesClient client,
-                         CrComponentController<HasMetadata> invokerController,
-                         CrComponentController<HasMetadata> saController,
-                         CrComponentController<HasMetadata> configController,
+                         Map<String, CrComponentController<HasMetadata>> componentControllers,
                          CrFnController<HasMetadata> deploymentFnController,
                          CrFnController<HasMetadata> knativeFnController,
                          OprcEnvironment.Config envConfig,
@@ -63,34 +53,28 @@ public class K8SCrController implements CrController {
     this.template = template;
     this.kubernetesClient = client;
     this.envConfig = envConfig;
-    namespace = kubernetesClient.getNamespace();
+    namespace = envConfig.namespace();
     id = tsid.toLong();
     prefix = "cr-" + tsid.toLowerCase() + "-";
     this.deploymentFnController = deploymentFnController;
     deploymentFnController.init(this);
     this.knativeFnController = knativeFnController;
     knativeFnController.init(this);
-    this.invokerController = invokerController;
-    this.invokerController.init(this);
-    this.saController = saController;
-    this.saController.init(this);
-    this.configController = configController;
-    this.configController.init(this);
+    this.componentControllers = componentControllers;
+    for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
+      componentController.init(this);
+    }
   }
 
-  public K8SCrController(ClassRuntimeTemplate template,
+  public K8SCrController(CrTemplate template,
                          KubernetesClient client,
-                         CrComponentController<HasMetadata> invokerController,
-                         CrComponentController<HasMetadata> saController,
-                         CrComponentController<HasMetadata> configController,
+                         Map<String, CrComponentController<HasMetadata>> componentControllers,
                          CrFnController<HasMetadata> deploymentFnController,
                          CrFnController<HasMetadata> knativeFnController,
                          OprcEnvironment.Config envConfig,
                          ProtoCr protoCr) {
     this(template, client,
-      invokerController,
-      saController,
-      configController,
+      componentControllers,
       deploymentFnController,
       knativeFnController,
       envConfig,
@@ -116,7 +100,7 @@ public class K8SCrController implements CrController {
   }
 
   @Override
-  public ClassRuntimeTemplate getTemplate() {
+  public CrTemplate getTemplate() {
     return template;
   }
 
@@ -141,20 +125,20 @@ public class K8SCrController implements CrController {
           attachedFn.put(protoOFunction.getKey(), protoOFunction);
         }
         currentPlan = plan;
-        invokerController.updateStableTime();
-        saController.updateStableTime();
+        componentControllers.values()
+          .forEach(CrComponentController::updateStableTime);
         plan.fnInstances().keySet()
           .forEach(deploymentFnController::updateStableTime);
         plan.fnInstances().keySet()
           .forEach(knativeFnController::updateStableTime);
         initialized = true;
       });
-    resourceList.addAll(configController.createDeployOperation(null,
-      plan.dataSpec()));
-    resourceList.addAll(saController.createDeployOperation(plan.coreInstances().get(STORAGE_ADAPTER),
-      plan.dataSpec()));
-    resourceList.addAll(invokerController.createDeployOperation(plan.coreInstances().get(INVOKER),
-      plan.dataSpec()));
+//    resourceList.addAll(configController.createDeployOperation(plan));
+//    resourceList.addAll(saController.createDeployOperation(plan));
+//    resourceList.addAll(invokerController.createDeployOperation(plan));
+    for (var componentController : componentControllers.values()) {
+      resourceList.addAll(componentController.createDeployOperation(plan));
+    }
     crOperation.getClsUpdates().add(OClassStatusUpdate.newBuilder()
       .setKey(unit.getCls().getKey())
       .setStatus(ProtoOClassDeploymentStatus.newBuilder()
@@ -218,9 +202,9 @@ public class K8SCrController implements CrController {
   @Override
   public CrOperation createDestroyOperation() throws CrUpdateException {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
-    toDeleteResource.addAll(invokerController.createDeleteOperation());
-    toDeleteResource.addAll(saController.createDeleteOperation());
-    toDeleteResource.addAll(configController.createDeleteOperation());
+    for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
+      toDeleteResource.addAll(componentController.createDeleteOperation());
+    }
     var fn = deploymentFnController.removeAllFunction();
     toDeleteResource.addAll(fn);
     var ksvc = knativeFnController.removeAllFunction();
@@ -236,10 +220,9 @@ public class K8SCrController implements CrController {
   @Override
   public CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan) {
     List<HasMetadata> resource = Lists.mutable.empty();
-    resource.addAll(invokerController.createAdjustOperation(adjustmentPlan.coreInstances().get(INVOKER),
-      adjustmentPlan.dataSpec()));
-    resource.addAll(saController.createAdjustOperation(adjustmentPlan.coreInstances().get(STORAGE_ADAPTER),
-      adjustmentPlan.dataSpec()));
+    for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
+      resource.addAll(componentController.createAdjustOperation(adjustmentPlan));
+    }
     var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
     resource.addAll(fnResourcePlan.resources());
     var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
@@ -307,12 +290,8 @@ public class K8SCrController implements CrController {
 
   @Override
   public long getStableTime(String name) {
-    if (Objects.equals(name, INVOKER.getSvc())){
-      return invokerController.getStableTime();
-    }
-    if (Objects.equals(name, STORAGE_ADAPTER.getSvc())){
-      return invokerController.getStableTime();
-    }
+    if (componentControllers.containsKey(name))
+      componentControllers.get(name).getStableTime();
     long stableTime = knativeFnController.getStableTime(name);
     if (stableTime > 0) return stableTime;
     return deploymentFnController.getStableTime(name);

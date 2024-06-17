@@ -5,26 +5,26 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
-import org.hpcclab.oaas.crm.optimize.CrDataSpec;
-import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
+import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hpcclab.oaas.crm.OprcComponent.INVOKER;
-import static org.hpcclab.oaas.crm.OprcComponent.STORAGE_ADAPTER;
+import static org.hpcclab.oaas.crm.CrComponent.STORAGE_ADAPTER;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 
 /**
  * @author Pawissanutt
  */
-public class SaK8sCrComponentController extends AbstractK8sCrComponentController{
+public class SaK8sCrComponentController extends AbstractK8sCrComponentController {
   public SaK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
     super(svcConfig);
   }
 
-  @Override
-  public List<HasMetadata> createDeployOperation(CrInstanceSpec instanceSpec, CrDataSpec dataSpec) {
+
+  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+    var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
     if (instanceSpec.disable()) return List.of();
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
@@ -56,7 +56,8 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
   }
 
   @Override
-  protected List<HasMetadata> doCreateAdjustOperation(CrInstanceSpec instanceSpec) {
+  protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
+    var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
     String name = prefix + STORAGE_ADAPTER.getSvc();
     if (instanceSpec.enableHpa()) {
       HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);

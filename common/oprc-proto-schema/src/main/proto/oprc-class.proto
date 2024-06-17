@@ -37,6 +37,7 @@ message ProtoFunctionBinding {
   string outputCls = 6;
   bool immutable = 7;
   bool noMain = 8;
+  bool noOutput = 9;
 }
 
 message ProtoResolvedMember{

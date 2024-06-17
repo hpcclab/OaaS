@@ -24,8 +24,7 @@ class ConditionProcessorTest {
 
   @Test
   void test() {
-    OClass cls = OClass.builder()
-      .build();
+    OClass cls = new OClass();
     Condition con = Condition.builder().build();
     boolean res = processor.matches(con, cls);
     assert res;
@@ -63,7 +62,8 @@ class ConditionProcessorTest {
 
   @Test
   void test2() {
-    var cls = OClass.builder().qos(new QosRequirement().setThroughput(100)).build();
+    var cls = OClass.builder().qos(QosRequirement.builder().throughput(100).build())
+      .build();
     var con = Condition.builder()
       .path("$.qos.throughput")
       .op(EQ)
@@ -91,10 +91,13 @@ class ConditionProcessorTest {
   @Test
   void test3() throws Exception {
     var cls = OClass.builder()
-      .qos(new QosRequirement().setThroughput(100)
-        .setAvailability(0.99f))
-      .constraint(new QosConstraint()
-        .setPersistent(false)
+      .qos(QosRequirement.builder().throughput(100)
+        .availability(0.99f)
+        .build()
+      )
+      .constraint(QosConstraint.builder()
+        .persistent(false)
+        .build()
       )
       .build();
 

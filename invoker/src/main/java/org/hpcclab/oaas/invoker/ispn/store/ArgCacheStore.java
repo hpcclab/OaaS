@@ -40,12 +40,14 @@ import java.util.function.Supplier;
 
 @ConfiguredBy(ArgCacheStoreConfig.class)
 
-public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
+public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
   private static final Logger logger = LoggerFactory.getLogger(ArgCacheStore.class);
   ArangoCollectionAsync collectionAsync;
   MarshallableEntryFactory<String, T> marshallableEntryFactory;
   String name;
   Class<T> valueCls;
+  Class<S> storeCls;
+  ValueMapper<T, S> valueMapper;
   Function<T, String> keyExtractor;
   DataConversion valueDataConversion;
   DataConversion keyDataConversion;
@@ -60,6 +62,8 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
     logger.info("starting {}", conf);
     if (conf instanceof ArgCacheStoreConfig argCacheStoreConfig) {
       this.valueCls = argCacheStoreConfig.getValueCls();
+      this.storeCls = argCacheStoreConfig.getStoreCls();
+      this.valueMapper = argCacheStoreConfig.getValueMapper();
       this.keyExtractor = obj -> ((HasKey<String>) obj).getKey();
       collectionAsync = (ArangoCollectionAsync) argCacheStoreConfig.getConnectionFactory()
         .getConnection(ctx.getCache().getName());
@@ -97,11 +101,14 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
   public CompletionStage<MarshallableEntry<String, T>> load(int segment, Object key) {
     var skey = objToStr(key);
     logger.debug("[{}]load {} {}", name, segment, skey);
-    return collectionAsync.getDocument(skey, valueCls)
+    return collectionAsync.getDocument(skey, storeCls)
       .thenApply(doc -> {
         if (doc==null)
           return null;
-        return marshallableEntryFactory.create(key, valueDataConversion.toStorage(doc),
+        T storeVal = valueMapper.mapToCStore(doc);
+//        logger.debug("[{}]loaded {}", name, storeVal);
+        return marshallableEntryFactory.create(key,
+          valueDataConversion.toStorage(storeVal),
           new EmbeddedMetadata.Builder()
             .build(),
           new PrivateMetadata.Builder()
@@ -131,7 +138,8 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
     logger.debug("write {} {}", segment, entry.getKey());
     var options = new DocumentCreateOptions().overwriteMode(OverwriteMode.replace)
       .silent(true);
-    return collectionAsync.insertDocument(entry.getValue(), options)
+    T val = entry.getValue();
+    return collectionAsync.insertDocument(valueMapper.mapToDb(val), options)
       .thenApply(__ -> null);
   }
 
@@ -182,8 +190,9 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
     logger.debug("[{}]batchWrite {}", name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
-      .map(v -> valueDataConversion.fromStorage(v)
+      .map(v -> (T) valueDataConversion.fromStorage(v)
       )
+      .map(valueMapper::mapToDb)
       .toList();
 
     return collectionAsync.insertDocuments(valueList, new DocumentCreateOptions().overwriteMode(OverwriteMode.replace));
@@ -226,11 +235,14 @@ public class ArgCacheStore<T> implements NonBlockingStore<String, T> {
       return doc
       """.formatted(collectionAsync.name());
     var multi = toMulti(() -> collectionAsync.db()
-      .query(query, valueCls)
+      .query(query, storeCls)
     )
-      .map(val -> marshallableEntryFactory.create(
-        keyDataConversion.toStorage(keyExtractor.apply(val)),
-        valueDataConversion.toStorage(val))
+      .map(storeVal -> {
+        var cVal = valueMapper.mapToCStore(storeVal);
+        return marshallableEntryFactory.create(
+            keyDataConversion.toStorage(keyExtractor.apply(cVal)),
+            valueDataConversion.toStorage(cVal));
+        }
       );
     return AdaptersToReactiveStreams.publisher(multi);
   }

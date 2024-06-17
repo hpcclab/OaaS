@@ -11,7 +11,9 @@
   <artifactId>class-runtime-manager</artifactId>
   <properties>
     <tsid-creator.version>5.2.5</tsid-creator.version>
+    <jayway.version>2.9.0</jayway.version>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -74,7 +76,7 @@
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
-      <version>2.9.0</version>
+      <version>${jayway.version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty.incubator</groupId>

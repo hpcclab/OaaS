@@ -3,18 +3,12 @@ package org.hpcclab.oaas.invoker.cdi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
-import org.hpcclab.oaas.invocation.DataUrlAllocator;
-import org.hpcclab.oaas.invocation.task.OffLoader;
-import org.hpcclab.oaas.invocation.controller.fn.CdiFunctionControllerFactory;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.MacroFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.TaskFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.CopyFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.FanInFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.NewFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.logical.UpdateFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.*;
+import org.hpcclab.oaas.invocation.controller.fn.logical.*;
+import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
+import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 /**
@@ -32,43 +26,71 @@ public class FunctionControllerProducer {
 
   @Produces
   MacroFunctionController macroFunctionController(IdGenerator idGenerator,
+                                                  ObjectMapper mapper,
+                                                  DataflowOrchestrator orchestrator) {
+    return new MacroFunctionController(idGenerator, mapper, orchestrator);
+  }
+
+  @Produces
+  ChainFunctionController chainFunctionController(IdGenerator idGenerator,
                                                   ObjectMapper mapper) {
-    return new MacroFunctionController(idGenerator, mapper);
+    return new ChainFunctionController(idGenerator, mapper);
+  }
+
+  @Produces
+  DataflowOrchestrator dataflowOrchestrator(HashAwareInvocationHandler invocationHandler,
+                                            IdGenerator idGenerator) {
+    return new DataflowOrchestrator(invocationHandler, idGenerator);
   }
 
 
   @Produces
-  NewFunctionController newFunctionController(IdGenerator idGenerator,
-                                              ObjectMapper mapper,
-                                              DataUrlAllocator dataUrlAllocator) {
-    return new NewFunctionController(idGenerator, mapper, dataUrlAllocator);
+  NewFnController newFunctionController(IdGenerator idGenerator,
+                                        ObjectMapper mapper,
+                                        ContentUrlGenerator contentUrlGenerator) {
+    return new NewFnController(idGenerator, mapper, contentUrlGenerator);
   }
 
   @Produces
-  CopyFunctionController copyFunctionController(IdGenerator idGenerator,
-                                                ObjectMapper mapper) {
-    return new CopyFunctionController(idGenerator, mapper);
+  CopyFnController copyFunctionController(IdGenerator idGenerator,
+                                          ObjectMapper mapper) {
+    return new CopyFnController(idGenerator, mapper);
   }
 
   @Produces
-  UpdateFunctionController updateFunctionController(IdGenerator idGenerator,
-                                                    ObjectMapper mapper) {
-    return new UpdateFunctionController(idGenerator, mapper);
+  UpdateFnController updateFunctionController(IdGenerator idGenerator,
+                                              ObjectMapper mapper) {
+    return new UpdateFnController(idGenerator, mapper);
   }
 
   @Produces
-  FanInFunctionController fanInFunctionController(IdGenerator idGenerator,
-                                                  ObjectMapper mapper) {
-    return new FanInFunctionController(idGenerator, mapper);
+  GetFnController getFnController(IdGenerator idGenerator,
+                                  ObjectMapper mapper) {
+    return new GetFnController(idGenerator, mapper);
   }
 
+  @Produces
+  ProjectFnController projectFnController(IdGenerator idGenerator,
+                                          ObjectMapper mapper) {
+    return new ProjectFnController(idGenerator, mapper);
+  }
+
+  @Produces
+  FileFnController fileFnController(IdGenerator idGenerator,
+                                    ObjectMapper mapper,
+                                    ContentUrlGenerator generator,
+                                    ObjectMapper objectMapper) {
+    return new FileFnController(idGenerator, mapper, generator, objectMapper);
+  }
 
   @Produces
   CdiFunctionControllerFactory functionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                                          Instance<MacroFunctionController> macroFunctionControllerInstance,
+                                                         Instance<ChainFunctionController> chainFunctionControllerInstance,
                                                          Instance<LogicalFunctionController> logicalFunctionControllers) {
     return new CdiFunctionControllerFactory(taskFunctionControllerInstance,
       macroFunctionControllerInstance,
+      chainFunctionControllerInstance,
       logicalFunctionControllers);
   }
 }

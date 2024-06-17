@@ -19,4 +19,6 @@ public interface FunctionController {
             OClass outputCls);
   OFunction getFunction();
   FunctionBinding getFunctionBinding();
+  OClass getCls();
+  OClass getOutputCls();
 }

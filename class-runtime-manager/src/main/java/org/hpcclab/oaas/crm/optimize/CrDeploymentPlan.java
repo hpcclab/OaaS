@@ -2,13 +2,13 @@ package org.hpcclab.oaas.crm.optimize;
 
 import lombok.Builder;
 import org.eclipse.collections.api.factory.Maps;
-import org.hpcclab.oaas.crm.OprcComponent;
+import org.hpcclab.oaas.crm.CrComponent;
 
 import java.util.Map;
 
 @Builder(toBuilder = true)
 public record CrDeploymentPlan(
-  Map<OprcComponent, CrInstanceSpec> coreInstances,
+  Map<CrComponent, CrInstanceSpec> coreInstances,
   Map<String, CrInstanceSpec> fnInstances,
   CrDataSpec dataSpec
 ) {

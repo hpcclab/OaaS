@@ -302,55 +302,49 @@
           "type" : "string"
         }
       },
-      "DataflowStep" : {
+      "DataMapping" : {
         "type" : "object",
         "properties" : {
-          "function" : {
+          "fromObj" : {
             "type" : "string"
           },
-          "target" : {
+          "fromBody" : {
             "type" : "string"
           },
-          "as" : {
-            "type" : "string"
-          },
-          "inputRefs" : {
+          "transforms" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "$ref" : "#/components/schemas/Transformation"
             }
           },
-          "args" : {
-            "$ref" : "#/components/schemas/DSMap"
+          "failOnError" : {
+            "type" : "boolean"
           },
-          "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap"
+          "mapAll" : {
+            "type" : "boolean"
           }
         }
       },
-      "DataflowStep_Public" : {
+      "DataMapping_Public" : {
         "type" : "object",
         "properties" : {
-          "function" : {
+          "fromObj" : {
             "type" : "string"
           },
-          "target" : {
+          "fromBody" : {
             "type" : "string"
           },
-          "as" : {
-            "type" : "string"
-          },
-          "inputRefs" : {
+          "transforms" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "$ref" : "#/components/schemas/Transformation_Public"
             }
           },
-          "args" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
+          "failOnError" : {
+            "type" : "boolean"
           },
-          "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
+          "mapAll" : {
+            "type" : "boolean"
           }
         }
       },
@@ -418,6 +412,12 @@
           },
           "noMain" : {
             "type" : "boolean"
+          },
+          "noOutput" : {
+            "type" : "boolean"
+          },
+          "override" : {
+            "$ref" : "#/components/schemas/JsonBytes"
           }
         }
       },
@@ -447,6 +447,12 @@
           },
           "noMain" : {
             "type" : "boolean"
+          },
+          "noOutput" : {
+            "type" : "boolean"
+          },
+          "override" : {
+            "$ref" : "#/components/schemas/JsonBytes_Public"
           }
         }
       },
@@ -459,12 +465,198 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "IM_TASK", "LOGICAL", "MACRO", "STATIC", "READONLY", "STATIC_READONLY" ],
+        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
         "type" : "string"
+      },
+      "JsonBytes" : {
+        "type" : "object",
+        "properties" : {
+          "bytes" : {
+            "format" : "binary",
+            "type" : "string"
+          },
+          "objectNode" : {
+            "$ref" : "#/components/schemas/ObjectNode"
+          },
+          "node" : {
+            "$ref" : "#/components/schemas/ObjectNode"
+          },
+          "raw" : {
+            "type" : "string"
+          }
+        }
+      },
+      "JsonBytes_Public" : {
+        "type" : "object",
+        "properties" : {
+          "bytes" : {
+            "format" : "binary",
+            "type" : "string"
+          },
+          "objectNode" : {
+            "$ref" : "#/components/schemas/ObjectNode_Public"
+          },
+          "node" : {
+            "$ref" : "#/components/schemas/ObjectNode_Public"
+          },
+          "raw" : {
+            "type" : "string"
+          }
+        }
+      },
+      "JsonNode" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          },
+          "valueNode" : {
+            "type" : "boolean"
+          },
+          "containerNode" : {
+            "type" : "boolean"
+          },
+          "missingNode" : {
+            "type" : "boolean"
+          },
+          "array" : {
+            "type" : "boolean"
+          },
+          "object" : {
+            "type" : "boolean"
+          },
+          "nodeType" : {
+            "$ref" : "#/components/schemas/JsonNodeType"
+          },
+          "pojo" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "boolean"
+          },
+          "integralNumber" : {
+            "type" : "boolean"
+          },
+          "floatingPointNumber" : {
+            "type" : "boolean"
+          },
+          "short" : {
+            "type" : "boolean"
+          },
+          "int" : {
+            "type" : "boolean"
+          },
+          "long" : {
+            "type" : "boolean"
+          },
+          "float" : {
+            "type" : "boolean"
+          },
+          "double" : {
+            "type" : "boolean"
+          },
+          "bigDecimal" : {
+            "type" : "boolean"
+          },
+          "bigInteger" : {
+            "type" : "boolean"
+          },
+          "textual" : {
+            "type" : "boolean"
+          },
+          "boolean" : {
+            "type" : "boolean"
+          },
+          "null" : {
+            "type" : "boolean"
+          },
+          "binary" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "JsonNodeType" : {
+        "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ],
+        "type" : "string"
+      },
+      "JsonNodeType_Public" : {
+        "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ],
+        "type" : "string"
+      },
+      "JsonNode_Public" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          },
+          "valueNode" : {
+            "type" : "boolean"
+          },
+          "containerNode" : {
+            "type" : "boolean"
+          },
+          "missingNode" : {
+            "type" : "boolean"
+          },
+          "array" : {
+            "type" : "boolean"
+          },
+          "object" : {
+            "type" : "boolean"
+          },
+          "nodeType" : {
+            "$ref" : "#/components/schemas/JsonNodeType_Public"
+          },
+          "pojo" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "boolean"
+          },
+          "integralNumber" : {
+            "type" : "boolean"
+          },
+          "floatingPointNumber" : {
+            "type" : "boolean"
+          },
+          "short" : {
+            "type" : "boolean"
+          },
+          "int" : {
+            "type" : "boolean"
+          },
+          "long" : {
+            "type" : "boolean"
+          },
+          "float" : {
+            "type" : "boolean"
+          },
+          "double" : {
+            "type" : "boolean"
+          },
+          "bigDecimal" : {
+            "type" : "boolean"
+          },
+          "bigInteger" : {
+            "type" : "boolean"
+          },
+          "textual" : {
+            "type" : "boolean"
+          },
+          "boolean" : {
+            "type" : "boolean"
+          },
+          "null" : {
+            "type" : "boolean"
+          },
+          "binary" : {
+            "type" : "boolean"
+          }
+        }
       },
       "KDeploymentProvision" : {
         "type" : "object",
@@ -665,54 +857,6 @@
           "port" : {
             "format" : "int32",
             "type" : "integer"
-          }
-        }
-      },
-      "MacroSpec" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport"
-            }
-          },
-          "export" : {
-            "type" : "string"
-          },
-          "atomic" : {
-            "type" : "boolean"
-          }
-        }
-      },
-      "MacroSpec_Public" : {
-        "type" : "object",
-        "properties" : {
-          "steps" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DataflowStep_Public"
-            }
-          },
-          "exports" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/WorkflowExport_Public"
-            }
-          },
-          "export" : {
-            "type" : "string"
-          },
-          "atomic" : {
-            "type" : "boolean"
           }
         }
       },
@@ -1003,7 +1147,7 @@
             "type" : "string"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/MacroSpec"
+            "$ref" : "#/components/schemas/Spec"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig"
@@ -1028,6 +1172,9 @@
           },
           "config" : {
             "$ref" : "#/components/schemas/OFunctionConfig"
+          },
+          "immutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1042,6 +1189,9 @@
           },
           "http2" : {
             "type" : "boolean"
+          },
+          "custom" : {
+            "$ref" : "#/components/schemas/JsonBytes"
           }
         }
       },
@@ -1056,6 +1206,9 @@
           },
           "http2" : {
             "type" : "boolean"
+          },
+          "custom" : {
+            "$ref" : "#/components/schemas/JsonBytes_Public"
           }
         }
       },
@@ -1119,7 +1272,7 @@
             "type" : "string"
           },
           "macro" : {
-            "$ref" : "#/components/schemas/MacroSpec_Public"
+            "$ref" : "#/components/schemas/Spec_Public"
           },
           "provision" : {
             "$ref" : "#/components/schemas/ProvisionConfig_Public"
@@ -1144,6 +1297,9 @@
           },
           "config" : {
             "$ref" : "#/components/schemas/OFunctionConfig_Public"
+          },
+          "immutable" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1211,6 +1367,18 @@
           "disable" : {
             "type" : "boolean"
           }
+        }
+      },
+      "ObjectNode" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/JsonNode"
+        }
+      },
+      "ObjectNode_Public" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/JsonNode_Public"
         }
       },
       "OrbitState" : {
@@ -1491,6 +1659,46 @@
           }
         }
       },
+      "Spec" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Step"
+            }
+          },
+          "respBody" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping"
+            }
+          },
+          "output" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Spec_Public" : {
+        "type" : "object",
+        "properties" : {
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Step_Public"
+            }
+          },
+          "respBody" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping_Public"
+            }
+          },
+          "output" : {
+            "type" : "string"
+          }
+        }
+      },
       "StateSpecification" : {
         "type" : "object",
         "properties" : {
@@ -1543,6 +1751,86 @@
           }
         }
       },
+      "Step" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetCls" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "mappings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping"
+            }
+          },
+          "args" : {
+            "$ref" : "#/components/schemas/DSMap"
+          },
+          "argRefs" : {
+            "$ref" : "#/components/schemas/DSMap"
+          }
+        }
+      },
+      "Step_Public" : {
+        "type" : "object",
+        "properties" : {
+          "function" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetCls" : {
+            "type" : "string"
+          },
+          "as" : {
+            "type" : "string"
+          },
+          "mappings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataMapping_Public"
+            }
+          },
+          "args" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          },
+          "argRefs" : {
+            "$ref" : "#/components/schemas/DSMap_Public"
+          }
+        }
+      },
+      "Transformation" : {
+        "type" : "object",
+        "properties" : {
+          "path" : {
+            "type" : "string"
+          },
+          "inject" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Transformation_Public" : {
+        "type" : "object",
+        "properties" : {
+          "path" : {
+            "type" : "string"
+          },
+          "inject" : {
+            "type" : "string"
+          }
+        }
+      },
       "VariableDescription" : {
         "type" : "object",
         "properties" : {
@@ -1561,28 +1849,6 @@
             "type" : "string"
           },
           "comment" : {
-            "type" : "string"
-          }
-        }
-      },
-      "WorkflowExport" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
-          },
-          "as" : {
-            "type" : "string"
-          }
-        }
-      },
-      "WorkflowExport_Public" : {
-        "type" : "object",
-        "properties" : {
-          "from" : {
-            "type" : "string"
-          },
-          "as" : {
             "type" : "string"
           }
         }

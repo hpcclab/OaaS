@@ -24,6 +24,7 @@ spec:
             path: /
             backend:
               service:
-                name: invoker
+                name: hash-aware-lb
+#                name: invoker
                 port:
                   number: 80

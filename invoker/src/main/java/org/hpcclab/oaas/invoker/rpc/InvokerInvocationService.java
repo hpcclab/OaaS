@@ -11,7 +11,8 @@ import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invoker.lookup.LookupManager;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
-import org.hpcclab.oaas.mapper.ProtoObjectMapper;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cr.CrHash;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.exception.TooManyRequestException;
@@ -27,17 +28,17 @@ public class InvokerInvocationService implements InvocationService {
   private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationService.class);
   final InvocationReqHandler invocationReqHandler;
   final HashAwareInvocationHandler hashAwareInvocationHandler;
-  final ProtoObjectMapper mapper;
+  final ProtoMapper mapper = new ProtoMapperImpl();
   final LookupManager lookupManager;
   final ClassControllerRegistry registry;
 
   @Inject
   public InvokerInvocationService(InvocationReqHandler invocationReqHandler,
                                   HashAwareInvocationHandler hashAwareInvocationHandler,
-                                  ProtoObjectMapper protoObjectMapper, LookupManager lookupManager, ClassControllerRegistry registry) {
+                                  LookupManager lookupManager,
+                                  ClassControllerRegistry registry) {
     this.invocationReqHandler = invocationReqHandler;
     this.hashAwareInvocationHandler = hashAwareInvocationHandler;
-    this.mapper = protoObjectMapper;
     this.lookupManager = lookupManager;
     this.registry = registry;
   }

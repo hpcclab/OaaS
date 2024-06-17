@@ -12,6 +12,53 @@
     "description" : "Auto generated value"
   } ],
   "paths" : {
+    "/api/allocate/{oid}" : {
+      "get" : {
+        "tags" : [ "Object Key Allocation Resource" ],
+        "parameters" : [ {
+          "name" : "oid",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "contextKey",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "uniqueItems" : true,
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/classes/{cls}/invokes/{fb}" : {
       "get" : {
         "tags" : [ "Class Resource" ],
@@ -70,7 +117,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],
@@ -121,7 +192,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/OObject"
+                  "$ref" : "#/components/schemas/GOObject"
                 }
               }
             }
@@ -192,7 +263,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],
@@ -236,7 +331,31 @@
           "name" : "_async",
           "in" : "query",
           "schema" : {
-            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showMain",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showOutput",
+          "in" : "query",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "_showStat",
+          "in" : "query",
+          "schema" : {
             "type" : "boolean"
           }
         } ],
@@ -266,26 +385,25 @@
   },
   "components" : {
     "schemas" : {
+      "GOObject" : {
+        "type" : "object",
+        "properties" : {
+          "_meta" : {
+            "$ref" : "#/components/schemas/OMeta"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/JsonBytes"
+          }
+        }
+      },
       "InvocationResponse" : {
         "type" : "object",
         "properties" : {
-          "cptTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "smtTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "queTs" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
           "main" : {
-            "$ref" : "#/components/schemas/OObject"
+            "$ref" : "#/components/schemas/GOObject"
           },
           "output" : {
-            "$ref" : "#/components/schemas/OObject"
+            "$ref" : "#/components/schemas/GOObject"
           },
           "invId" : {
             "type" : "string"
@@ -299,20 +417,61 @@
               "type" : "string"
             }
           },
+          "macroInvIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "status" : {
             "$ref" : "#/components/schemas/InvocationStatus"
           },
-          "async" : {
-            "type" : "boolean"
+          "stats" : {
+            "$ref" : "#/components/schemas/InvocationStats"
           },
           "body" : {
-            "$ref" : "#/components/schemas/ObjectNode"
+            "$ref" : "#/components/schemas/JsonBytes"
+          }
+        }
+      },
+      "InvocationStats" : {
+        "type" : "object",
+        "properties" : {
+          "queTs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "smtTs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cptTs" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         }
       },
       "InvocationStatus" : {
         "enum" : [ "QUEUE", "DOING", "SUCCEEDED", "FAILED", "DEPENDENCY_FAILED", "READY" ],
         "type" : "string"
+      },
+      "JsonBytes" : {
+        "type" : "object",
+        "properties" : {
+          "bytes" : {
+            "format" : "binary",
+            "type" : "string"
+          },
+          "objectNode" : {
+            "$ref" : "#/components/schemas/ObjectNode"
+          },
+          "node" : {
+            "$ref" : "#/components/schemas/ObjectNode"
+          },
+          "raw" : {
+            "type" : "string"
+          }
+        }
       },
       "JsonNode" : {
         "type" : "object",
@@ -389,12 +548,9 @@
         "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ],
         "type" : "string"
       },
-      "OObject" : {
+      "OMeta" : {
         "type" : "object",
         "properties" : {
-          "_key" : {
-            "type" : "string"
-          },
           "id" : {
             "type" : "string"
           },
@@ -405,8 +561,11 @@
           "cls" : {
             "type" : "string"
           },
-          "state" : {
-            "$ref" : "#/components/schemas/OaasObjectState"
+          "verIds" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
           "refs" : {
             "type" : "object",
@@ -414,32 +573,9 @@
               "type" : "string"
             }
           },
-          "data" : {
-            "$ref" : "#/components/schemas/ObjectNode"
-          },
           "lastOffset" : {
             "format" : "int64",
             "type" : "integer"
-          },
-          "lastInv" : {
-            "type" : "string"
-          }
-        }
-      },
-      "OaasObjectState" : {
-        "type" : "object",
-        "properties" : {
-          "overrideUrls" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "verIds" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
           }
         }
       },

@@ -1,6 +1,5 @@
 package org.hpcclab.oaas.model.cls;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -10,6 +9,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
+import org.hpcclab.oaas.model.SelfValidatable;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
@@ -20,15 +20,18 @@ import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.model.state.StateType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@AllArgsConstructor
 @Builder(toBuilder = true)
-public class OClass implements Copyable<OClass>, HasKey<String> {
+public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable {
 
   @JsonProperty("_key")
   String key;
@@ -52,7 +55,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   OClassDeploymentStatus status;
   QosRequirement qos;
   QosConstraint constraint;
-
   ResolvedMember resolved;
 
 
@@ -75,7 +77,8 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
                 OClassConfig config,
                 OClassDeploymentStatus status,
                 QosRequirement qos,
-                QosConstraint constraint) {
+                QosConstraint constraint,
+                ResolvedMember resolved) {
     this.name = name;
     this.pkg = pkg;
     this.genericType = genericType;
@@ -88,33 +91,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     this.description = description;
     this.disabled = disabled;
     this.markForRemoval = markForRemoval;
-    this.store = store;
-    this.config = config;
-    this.status = status;
-    this.qos = qos;
-    this.constraint = constraint;
-    updateKey();
-  }
-
-  public OClass(String key, String rev, String name, String pkg, String genericType, OObjectType objectType, StateType stateType,
-                List<FunctionBinding> functions, StateSpecification stateSpec, List<ReferenceSpecification> refSpec, List<String> parents,
-                String description, boolean markForRemoval, boolean disabled,
-                DatastoreLink store, OClassConfig config, OClassDeploymentStatus status, QosRequirement qos,
-                QosConstraint constraint, ResolvedMember resolved) {
-    this.key = key;
-    this.rev = rev;
-    this.name = name;
-    this.pkg = pkg;
-    this.genericType = genericType;
-    this.objectType = objectType;
-    this.stateType = stateType;
-    this.functions = functions;
-    this.stateSpec = stateSpec;
-    this.refSpec = refSpec;
-    this.parents = parents;
-    this.description = description;
-    this.markForRemoval = markForRemoval;
-    this.disabled = disabled;
     this.store = store;
     this.config = config;
     this.status = status;
@@ -143,19 +119,6 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
     config.validate();
   }
 
-  public FunctionBinding findFunction(String funcName) {
-    Objects.requireNonNull(funcName);
-    var func = resolved.getFunctions()
-      .get(funcName);
-    if (func!=null) return func;
-    return resolved
-      .getFunctions()
-      .values()
-      .stream()
-      .filter(fb -> funcName.equals(fb.getName()) || funcName.equals(fb.getFunction()))
-      .findAny()
-      .orElse(null);
-  }
 
   @Override
   public OClass copy() {
@@ -176,9 +139,9 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
       config,
       status,
       qos,
-      constraint
-    )
-      .setResolved(resolved==null ? null:resolved.copy());
+      constraint,
+      resolved==null ? null:resolved.copy()
+    );
   }
 
   public OClass setName(String name) {
@@ -227,21 +190,5 @@ public class OClass implements Copyable<OClass>, HasKey<String> {
   public StateSpecification getStateSpec() {
     if (stateSpec==null) stateSpec = new StateSpecification();
     return stateSpec;
-  }
-
-  @JsonIgnore
-  public boolean isSamePackage(String classKey) {
-    var i = classKey.lastIndexOf('.');
-    if (i < 0)
-      return getPkg()==null;
-    var otherPkg = classKey.substring(0, i);
-    return otherPkg.equals(pkg);
-  }
-
-
-  public Optional<ReferenceSpecification> findReference(String name) {
-    return refSpec.stream()
-      .filter(mem -> mem.getName().equals(name))
-      .findFirst();
   }
 }

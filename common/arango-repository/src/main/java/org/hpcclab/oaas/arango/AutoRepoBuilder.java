@@ -2,7 +2,6 @@ package org.hpcclab.oaas.arango;
 
 import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
-import org.hpcclab.oaas.arango.repo.ArgObjectRepository;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 
 

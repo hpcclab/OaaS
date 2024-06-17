@@ -16,8 +16,6 @@ import org.hpcclab.oaas.crm.condition.ConditionProcessor;
 import org.hpcclab.oaas.crm.controller.CrController;
 import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
-import org.hpcclab.oaas.crm.optimize.CpuBasedQoSOptimizer;
-import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.exception.StdOaasException;
@@ -36,21 +34,22 @@ public class CrTemplateManager {
   private static final Logger logger = LoggerFactory.getLogger(CrTemplateManager.class);
   public static final String DEFAULT = "default";
   final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-  final KubernetesClient kubernetesClient;
   final CrmConfig crmConfig;
   final ProtoMapper protoMapper = new ProtoMapperImpl();
   final ConditionProcessor conditionProcessor;
   final EnvironmentManager environmentManager;
-  ImmutableMap<String, ClassRuntimeTemplate> templateMap = Maps.immutable.empty();
+  final CrTemplateFactory crTemplateFactory;
+  ImmutableMap<String, CrTemplate> templateMap = Maps.immutable.empty();
 
   @Inject
   public CrTemplateManager(KubernetesClient kubernetesClient,
                            CrmConfig crmConfig,
-                           ConditionProcessor conditionProcessor, EnvironmentManager environmentManager) {
-    this.kubernetesClient = kubernetesClient;
+                           ConditionProcessor conditionProcessor,
+                           EnvironmentManager environmentManager, CrTemplateFactory crTemplateFactory) {
     this.crmConfig = crmConfig;
     this.conditionProcessor = conditionProcessor;
     this.environmentManager = environmentManager;
+    this.crTemplateFactory = crTemplateFactory;
   }
 
   public void loadTemplate() {
@@ -67,9 +66,9 @@ public class CrTemplateManager {
         var override = yamlMapper.readValue(templateOverrideString, CrtMappingConfig.class);
         conf.templates().putAll(override.templates());
       }
-      var m = new HashMap<String, ClassRuntimeTemplate>();
+      var m = new HashMap<String, CrTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
-        var template = createCrt(configEntry.getKey(), configEntry.getValue());
+        var template = crTemplateFactory.create(configEntry.getKey(), configEntry.getValue());
         m.put(configEntry.getKey(), template);
       }
       templateMap = Maps.immutable.ofMap(m);
@@ -81,35 +80,17 @@ public class CrTemplateManager {
   }
 
   public void initTemplates(CrControllerManager controllerManager) {
-    for (ClassRuntimeTemplate template : templateMap) {
+    for (CrTemplate template : templateMap) {
       template.init(controllerManager, environmentManager);
     }
   }
 
-  private ClassRuntimeTemplate createCrt(String name, CrtMappingConfig.CrtConfig config) {
-    if (config.type().equals(DEFAULT)) {
-      return new DefaultCrTemplate(
-        name,
-        kubernetesClient,
-        selectOptimizer(config),
-        config,
-        crmConfig
-      );
-    } else {
-      throw new StdOaasException("No available CR template with type " + config.type());
-    }
-  }
-
-  public QosOptimizer selectOptimizer(CrtMappingConfig.CrtConfig config) {
-    return new CpuBasedQoSOptimizer(config);
-  }
-
-  public ClassRuntimeTemplate selectTemplate(DeploymentUnit deploymentUnit) {
+  public CrTemplate selectTemplate(DeploymentUnit deploymentUnit) {
     var template = deploymentUnit.getCls().getConfig().getCrTemplate();
     if (!template.isEmpty())
       return templateMap.get(template);
     var cls = deploymentUnit.getCls();
-    MutableList<ClassRuntimeTemplate> sortedList = templateMap.valuesView()
+    MutableList<CrTemplate> sortedList = templateMap.valuesView()
       .select(tem -> conditionProcessor.matches(tem.getConfig().condition(),
         protoMapper.fromProto(cls)
       ))
@@ -122,7 +103,7 @@ public class CrTemplateManager {
       .orElseThrow();
   }
 
-  public ClassRuntimeTemplate selectTemplate(ProtoCr protoCr) {
+  public CrTemplate selectTemplate(ProtoCr protoCr) {
     var templateName = protoCr.getTemplate();
     if (templateName.isEmpty()) templateName = DEFAULT;
     return templateMap.get(templateName);

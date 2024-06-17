@@ -16,6 +16,20 @@ message ProtoOObject {
   optional string lastInv = 8;
 }
 
+message ProtoPOObject {
+  ProtoOMeta meta = 1;
+  bytes data = 2;
+}
+
+message ProtoOMeta {
+  string id = 1;
+  int64 revision = 2;
+  string cls = 3;
+  map<string, string> verIds = 4;
+  map<string, string> refs = 5;
+  int64 lastOffset = 6;
+}
+
 
 message OOState {
   map<string, string> overrideUrls = 1;

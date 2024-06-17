@@ -9,7 +9,8 @@ import picocli.CommandLine.Command;
   mixinStandardHelpOptions = true,
   subcommands = {
     ObjectCreateCommand.class,
-    ObjectFileCommand.class
+    ObjectFileCommand.class,
+    ObjectCatFileCommand.class
   }
 )
 public class ObjectEntryCommand {

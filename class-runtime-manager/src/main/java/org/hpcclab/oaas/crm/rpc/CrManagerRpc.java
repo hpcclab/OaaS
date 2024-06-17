@@ -49,7 +49,7 @@ public class CrManagerRpc implements CrManager {
         return operationExecutor.applyOrRollback(controller, operation, env);
       }
     } catch (Exception e) {
-      logger.error("orbit deploying error", e);
+      logger.error("CR deploying error", e);
       return Uni.createFrom().failure(e);
     }
   }
@@ -65,7 +65,7 @@ public class CrManagerRpc implements CrManager {
       var operation = orbitStructure.createUpdateOperation(plan, request.getUnit());
       return operationExecutor.applyOrRollback(orbitStructure, operation, env);
     } catch (Exception e) {
-      logger.error("orbit deploying error", e);
+      logger.error("CR deploying error", e);
       return Uni.createFrom().failure(e);
     }
   }
@@ -81,6 +81,7 @@ public class CrManagerRpc implements CrManager {
       controllerManager.deleteFromLocal(controller);
       return Uni.createFrom().item(OprcResponse.newBuilder().setSuccess(true).build());
     } catch (Exception e) {
+      logger.error("CR deleting error", e);
       return Uni.createFrom().failure(e);
     }
   }
@@ -88,14 +89,15 @@ public class CrManagerRpc implements CrManager {
   @Override
   @RunOnVirtualThread
   public Uni<CrOperationResponse> detach(DetachCrRequest request) {
-    var env = environmentManager.getEnvironment();
-    var crController = controllerManager.getOrLoad(request.getOrbit(), env);
-    var operation = crController.createDetachOperation(request.getCls());
     try {
-      operation.apply();
-      var uni = operationExecutor.applyOrRollback(crController, operation, env);
-      return uni;
+      var env = environmentManager.getEnvironment();
+      var crController = controllerManager.getOrLoad(request.getOrbit(), env);
+      var operation = crController.createDetachOperation(request.getCls());
+      return operationExecutor.applyOrRollback(crController, operation, env)
+        .onFailure()
+        .invoke(e -> logger.error("CR detaching error", e));
     } catch (Exception e) {
+      logger.error("CR detaching error", e);
       return Uni.createFrom().failure(e);
     }
   }

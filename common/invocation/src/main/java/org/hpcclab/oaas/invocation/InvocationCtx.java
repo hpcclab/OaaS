@@ -10,9 +10,11 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.controller.InvocationLog;
 import org.hpcclab.oaas.invocation.controller.StateOperation;
+import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.task.TaskCompletion;
 
@@ -29,19 +31,18 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InvocationCtx {
   InvocationRequest request;
-  OObject output;
-  OObject main;
-  Map<String, OObject> mainRefs;
-  List<OObject> inputs = List.of();
+  GOObject output;
+  GOObject main;
+  Map<String, GOObject> mainRefs;
   Map<String, String> args = Map.of();
   boolean immutable;
-  List<OObject> subOutputs = Lists.mutable.empty();
-  Map<String, OObject> workflowMap = Maps.mutable.empty();
+  List<String> macroInvIds = Lists.mutable.empty();
+  Map<String, String> macroIds = Maps.mutable.empty();
   TaskCompletion completion;
-  ObjectNode respBody;
+  JsonBytes respBody;
   List<StateOperation> stateOperations = List.of();
   InvocationLog log;
-  List<InvocationRequest> reqToProduce = List.of();
+  List<InvocationChain> chains = List.of();
   long mqOffset = -1;
   long initTime = -1;
 
@@ -52,16 +53,14 @@ public class InvocationCtx {
     log = new InvocationLog();
     if (request!=null) {
       log.setKey(request.invId());
-      log.setOutId(output!=null ? output.getId():null);
-      log.setInputs(request.inputs());
+      log.setOutId(output!=null ? output.getKey():null);
     } else {
-      log.setKey(getOutput().getId());
-      log.setOutId(getOutput().getId());
-      log.setInputs(getInputs().stream().map(OObject::getId).toList());
+      log.setKey(getOutput().getKey());
+      log.setOutId(getOutput().getKey());
     }
+    log.setMain(main!=null ? getMain().getKey():null);
     log.setFb(request!=null ? request.fb():null);
     log.setArgs(DSMap.copy(getArgs()));
-    log.setMain(getMain().getKey());
     log.setCls(request.cls());
     return log;
   }
@@ -74,6 +73,19 @@ public class InvocationCtx {
       .fb(request.fb())
       .status(log==null ? null:log.getStatus())
       .body(respBody)
-      .stats(log==null ? null:log.extractStats());
+      .stats(log==null ? null:log.extractStats())
+      .macroIds(macroIds)
+      .macroInvIds(macroInvIds)
+      ;
+  }
+
+  public InvocationCtx setRespBody(ObjectNode node) {
+    this.respBody = new JsonBytes(node);
+    return this;
+  }
+
+  public InvocationCtx setRespBody(JsonBytes jb) {
+    this.respBody = jb;
+    return this;
   }
 }

@@ -5,15 +5,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -23,8 +23,20 @@ public class ExceptionMapper {
   @ServerExceptionMapper(StatusRuntimeException.class)
   public Response exceptionMapper(StatusRuntimeException statusRuntimeException) {
     Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-    if (statusRuntimeException.getStatus() == Status.UNAVAILABLE)
+    if (statusRuntimeException.getStatus().getCode()==Status.Code.UNAVAILABLE)
       status = Response.Status.SERVICE_UNAVAILABLE;
+    if (statusRuntimeException.getStatus().getCode()==Status.Code.RESOURCE_EXHAUSTED)
+      status = Response.Status.TOO_MANY_REQUESTS;
+    if (statusRuntimeException.getStatus().getCode()==Status.Code.INVALID_ARGUMENT)
+      status = Response.Status.BAD_REQUEST;
+    if (statusRuntimeException.getStatus().getCode()==Status.Code.UNIMPLEMENTED)
+      status = Response.Status.NOT_IMPLEMENTED;
+    if (statusRuntimeException.getStatus().getCode()==Status.Code.UNAUTHENTICATED)
+      status = Response.Status.UNAUTHORIZED;
+    if (LOGGER.isWarnEnabled() || status==Response.Status.INTERNAL_SERVER_ERROR) {
+      LOGGER.warn("mapping StatusRuntimeException: {}", statusRuntimeException.getMessage());
+    } else if (LOGGER.isDebugEnabled())
+      LOGGER.debug("mapping StatusRuntimeException({})", status);
     return Response.status(status)
       .entity(new JsonObject()
         .put("msg", statusRuntimeException.getMessage()))

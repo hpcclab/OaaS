@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invoker.rest;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
@@ -13,18 +14,18 @@ import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
-import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Pawissanutt
@@ -59,8 +60,8 @@ public class ObjectAccessResource {
   }
 
   @GET
-  public Uni<OObject> getObj(String cls,
-                             String objId) {
+  public Uni<GOObject> getObj(String cls,
+                              String objId) {
     boolean contains = invokerManager.getManagedCls().contains(cls);
     if (contains) {
       return objectRepoManager.getOrCreate(cls).async()
@@ -82,11 +83,19 @@ public class ObjectAccessResource {
   public Uni<Response> getObjectFile(String cls,
                                      String objId,
                                      String file) {
-    return getObj(cls, objId)
-      .map(obj -> {
-        var fileUrl = generator.generateUrl(obj, file, AccessLevel.UNIDENTIFIED, conf.respPubS3());
+    return hashAwareInvocationHandler.invoke(InvocationRequest.builder()
+        .cls(cls)
+        .main(objId)
+        .fb("file")
+        .args(DSMap.of("key", file, "pub", "true"))
+        .build())
+      .map(resp -> {
+        String url = Optional.ofNullable(resp.body().getNode())
+          .map(o -> o.get(file))
+          .map(JsonNode::asText)
+          .orElseThrow(() -> StdOaasException.notKeyInObj(file, 404));
         return Response.status(HttpResponseStatus.SEE_OTHER.code())
-          .location(URI.create(fileUrl))
+          .location(URI.create(url))
           .build();
       });
   }
@@ -96,7 +105,7 @@ public class ObjectAccessResource {
   public Uni<InvocationResponse> invoke(String cls,
                                         String objId,
                                         String fb,
-                                        @QueryParam("_async") @DefaultValue("false") boolean async,
+                                        @BeanParam InvokeParameters params,
                                         @Context UriInfo uriInfo) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -104,20 +113,20 @@ public class ObjectAccessResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     var oal = InvocationRequest.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
       .partKey(objId)
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationHandlerService.enqueue(oal);
+    if (params.async) {
+      return invocationHandlerService.enqueue(oal)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(oal);
+    return hashAwareInvocationHandler.invoke(oal)
+      .map(params::filter);
   }
 
   @POST
@@ -126,7 +135,7 @@ public class ObjectAccessResource {
                                                 String objId,
                                                 String fb,
                                                 @Context UriInfo uriInfo,
-                                                @QueryParam("_async") @DefaultValue("false") boolean async,
+                                                @BeanParam InvokeParameters params,
                                                 ObjectNode body) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
     DSMap args = DSMap.mutable();
@@ -134,19 +143,19 @@ public class ObjectAccessResource {
       if (!entry.getKey().startsWith("_"))
         args.put(entry.getKey(), entry.getValue().getFirst());
     }
-    List<String> inputs = queryParameters.getOrDefault("_inputs", List.of());
     InvocationRequest request = InvocationRequest.builder()
       .cls(cls)
       .main(objId)
       .fb(fb)
       .args(args)
-      .inputs(inputs)
-      .body(body)
+      .body(new JsonBytes(body))
       .build();
     requestCounterMap.increase(cls, fb);
-    if (async) {
-      return invocationHandlerService.enqueue(request);
+    if (params.async) {
+      return invocationHandlerService.enqueue(request)
+        .map(params::filter);
     }
-    return hashAwareInvocationHandler.invoke(request);
+    return hashAwareInvocationHandler.invoke(request)
+      .map(params::filter);
   }
 }

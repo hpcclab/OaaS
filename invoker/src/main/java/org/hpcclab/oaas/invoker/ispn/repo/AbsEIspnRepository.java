@@ -95,7 +95,8 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
 
   @Override
   public Uni<V> putAsync(String key, V value) {
-    return toUni(getCache().putAsync(key,value));
+    return toUni(getCache()
+      .putAsync(key,value));
   }
 
   @Override

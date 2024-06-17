@@ -30,8 +30,6 @@ public class InvocationLog {
   String cls;
   @ProtoField(5)
   DSMap args;
-  @ProtoField(6)
-  List<String> inputs;
   @ProtoField(7)
   String outId;
   @ProtoField(8)

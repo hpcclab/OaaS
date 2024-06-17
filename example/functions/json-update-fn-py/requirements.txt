@@ -4,4 +4,4 @@ aiohttp
 aiofiles
 uvicorn
 gunicorn
-oaas-sdk-py==0.2.4
+oaas-sdk-py==0.3.1

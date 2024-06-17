@@ -1,58 +1,25 @@
 package org.hpcclab.oaas;
 
+import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.storage.PresignGenerator;
 import org.hpcclab.oaas.storage.S3ClientBuilderUtil;
-import org.hpcclab.oaas.storage.S3ConnConf;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.Optional;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class PresignGeneratorTest {
   @Test
   void testPresign() {
-    var presigner = S3ClientBuilderUtil.createPresigner(new S3ConnConf() {
-      @Override
-      public String accessKey() {
-        return "aaaaaaaaa";
-      }
+    var conf = DatastoreConf.builder()
+      .user("aaaa")
+      .pass("bbbb")
+      .options(Map.of("URL", "http://localhost:9000"))
+      .build();
+    var presigner = S3ClientBuilderUtil.createPresigner(conf, false);
 
-      @Override
-      public String secretKey() {
-        return "bbbbbbbbbbb";
-      }
-
-      @Override
-      public URI url() {
-        return URI.create("http://localhost:9000");
-      }
-      @Override
-      public URI publicUrl() {
-        return URI.create("http://localhost:9000");
-      }
-
-      @Override
-      public boolean pathStyle() {
-        return true;
-      }
-
-      @Override
-      public String bucket() {
-        return "oprc";
-      }
-
-      @Override
-      public Optional<String> prefix() {
-        return Optional.of("");
-      }
-
-      @Override
-      public String region() {
-        return "us-east-1";
-      }
-    }, false);
     PresignGenerator presignGenerator = new PresignGenerator(presigner);
     var url = presignGenerator.generatePresignGet("bkt", "obj");
     assertDoesNotThrow(() -> URI.create(url));

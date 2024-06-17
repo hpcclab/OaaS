@@ -21,7 +21,6 @@ public class DatastoreConfRegistry {
     if (instance== null)
       instance = new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
     return instance;
-//    return new DatastoreConfRegistry(DEFAULT_ENV_PREFIX, "oprc.env");
   }
 
   public DatastoreConfRegistry(String prefix, String keyToLoad) {

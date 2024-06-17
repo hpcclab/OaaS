@@ -3,11 +3,12 @@ package org.hpcclab.oaas.test;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
@@ -142,9 +143,9 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     throw new UnsupportedOperationException();
   }
 
-  public static class MapObjectRepository extends MapEntityRepository<String, OObject> implements ObjectRepository {
-    public MapObjectRepository(MutableMap<String, OObject> map) {
-      super(map, OObject::getKey);
+  public static class MapObjectRepository extends MapEntityRepository<String, GOObject> implements ObjectRepository {
+    public MapObjectRepository(MutableMap<String, GOObject> map) {
+      super(map, GOObject::getKey);
     }
   }
 
@@ -162,19 +163,19 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
   public static class MapObjectRepoManager extends ObjectRepoManager {
 
-    MutableMap<String, OClass> clsMap;
+    ClassControllerRegistry registry;
 
-    public MapObjectRepoManager(MutableMap<String, OObject> map,
-                                MutableMap<String, OClass> clsMap
+    public MapObjectRepoManager(MutableMap<String, GOObject> map,
+                                ClassControllerRegistry registry
     ) {
-      var bagMultimap = map.groupBy(OObject::getCls);
+      var bagMultimap = map.groupBy(o -> o.getMeta().getCls());
       bagMultimap.keyMultiValuePairsView()
         .forEach(pair -> {
-          MutableMap<String, OObject> objs = pair.getTwo()
-            .toMap(OObject::getId, o -> o);
+          MutableMap<String, GOObject> objs = pair.getTwo()
+            .toMap(GOObject::getKey, o -> o);
           repoMap.put(pair.getOne(), new MapObjectRepository(objs));
         });
-      this.clsMap = clsMap;
+      this.registry = registry;
     }
 
     @Override
@@ -184,7 +185,7 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
     @Override
     protected OClass load(String clsKey) {
-      return clsMap.get(clsKey);
+      return registry.getClassController(clsKey).getCls();
     }
   }
 }

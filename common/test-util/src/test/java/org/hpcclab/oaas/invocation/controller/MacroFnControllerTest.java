@@ -1,34 +1,38 @@
 package org.hpcclab.oaas.invocation.controller;
 
-import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.invocation.InvocationManager;
+import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.oal.ObjectAccessLanguage;
-import org.hpcclab.oaas.repository.id.TsidGenerator;
-import org.hpcclab.oaas.test.MapEntityRepository;
-import org.hpcclab.oaas.test.MockClassControllerRegistry;
-import org.hpcclab.oaas.test.MockControllerInvocationReqHandler;
-import org.hpcclab.oaas.test.MockupData;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
+import org.hpcclab.oaas.test.MockInvocationManager;
+import org.hpcclab.oaas.test.MockInvocationQueueProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.hpcclab.oaas.test.MockupData.CLS_1;
-import static org.hpcclab.oaas.test.MockupData.CLS_1_KEY;
+import static org.hpcclab.oaas.test.MockupData.*;
 
 
 class MacroFnControllerTest {
-  MockControllerInvocationReqHandler reqHandler;
+  InvocationManager manager;
+  InvocationReqHandler reqHandler;
   ClassControllerRegistry registry;
+  MockInvocationQueueProducer producer;
+  ObjectRepoManager repoManager;
 
   @BeforeEach
   void beforeEach() {
-    reqHandler = MockControllerInvocationReqHandler.mock();
-    registry = reqHandler.getClassControllerRegistry();
+    MockInvocationManager instance = MockInvocationManager.getInstance();
+    manager = instance.invocationManager;
+    repoManager = instance.repoManager;
+    producer = instance.invocationQueueProducer;
+    reqHandler = manager.getReqHandler();
+    registry = manager.getRegistry();
   }
 
   @Test
-  void test() {
+  void testExecMacro() {
     assertThat(registry.getClassController(CLS_1_KEY))
       .isNotNull();
     System.out.println(registry.printStructure());
@@ -39,7 +43,21 @@ class MacroFnControllerTest {
     InvocationResponse resp = reqHandler.invoke(request).await().indefinitely();
     assertThat(resp.output())
       .isNotNull();
-    var id = resp.output().getId();
+    var id = resp.output().getKey();
     assertThat(id).isNotNull();
+
+    request = request.toBuilder()
+      .main(id)
+      .fb(MACRO_FUNC_1.getName())
+      .build();
+    resp = reqHandler.invoke(request)
+      .await().indefinitely();
+    assertThat(resp.body().getNode().get("step1").asInt())
+      .isEqualTo(1);
+    assertThat(resp.body().getNode().get("step2").asInt())
+      .isEqualTo(2);
+    assertThat(resp.body().getNode().get("step3").asInt())
+      .isEqualTo(3);
+    System.out.println(resp);
   }
 }

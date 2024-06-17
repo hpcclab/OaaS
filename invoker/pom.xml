@@ -11,7 +11,7 @@
 
   <properties>
     <infinispan.version>15.0.4.Final</infinispan.version>
-    <arangodb.version>7.6.0</arangodb.version>
+    <arangodb.version>7.7.1</arangodb.version>
   </properties>
 
   <dependencyManagement>

@@ -10,15 +10,18 @@ import org.hpcclab.oaas.model.function.OFunction;
  * @author Pawissanutt
  */
 public class CdiFunctionControllerFactory implements FunctionControllerFactory {
-  Instance<TaskFunctionController> taskFunctionControllerInstance;
-  Instance<MacroFunctionController> macroFunctionControllerInstance;
-  Instance<LogicalFunctionController> logicalFunctionControllers;
+  final Instance<TaskFunctionController> taskFunctionControllerInstance;
+  final  Instance<MacroFunctionController> macroFunctionControllerInstance;
+  final  Instance<ChainFunctionController> chainFunctionControllerInstance;
+  final  Instance<LogicalFunctionController> logicalFunctionControllers;
 
   public CdiFunctionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                       Instance<MacroFunctionController> macroFunctionControllerInstance,
+                                      Instance<ChainFunctionController> chainFunctionControllerInstance,
                                       Instance<LogicalFunctionController> logicalFunctionControllers) {
     this.taskFunctionControllerInstance = taskFunctionControllerInstance;
     this.macroFunctionControllerInstance = macroFunctionControllerInstance;
+    this.chainFunctionControllerInstance = chainFunctionControllerInstance;
     this.logicalFunctionControllers = logicalFunctionControllers;
   }
 
@@ -31,6 +34,9 @@ public class CdiFunctionControllerFactory implements FunctionControllerFactory {
         .orElseThrow();
     } else if (function.getType() == FunctionType.MACRO) {
       return macroFunctionControllerInstance
+        .get();
+    } else if (function.getType() == FunctionType.CHAIN) {
+      return chainFunctionControllerInstance
         .get();
     } else {
       return taskFunctionControllerInstance

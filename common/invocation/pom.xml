@@ -12,6 +12,7 @@
   <artifactId>invocation</artifactId>
 
   <properties>
+    <jayway.version>2.9.0</jayway.version>
   </properties>
 
   <dependencyManagement>
@@ -60,6 +61,11 @@
       <artifactId>mutiny</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>${jayway.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
@@ -82,10 +88,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>oprc-proto-schema</artifactId>
-      <version>999-SNAPSHOT</version>
-      <scope>compile</scope>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.26.0</version>
     </dependency>
   </dependencies>
 
@@ -109,19 +114,6 @@
           <parameters>${maven.compiler.parameters}</parameters>
         </configuration>
       </plugin>
-<!--      <plugin>-->
-<!--        <groupId>io.smallrye</groupId>-->
-<!--        <artifactId>jandex-maven-plugin</artifactId>-->
-<!--        <version>3.1.6</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>make-index</id>-->
-<!--            <goals>-->
-<!--              <goal>jandex</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
     </plugins>
   </build>
 

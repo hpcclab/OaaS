@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.IOObject;
 
 import java.util.Base64;
 
@@ -27,72 +27,38 @@ public class DataAccessContext {
   public DataAccessContext() {
   }
 
-  public String encode() {
-    if (b64 == null)
-      b64 = genB64();
-    return b64;
-  }
-
-  public String forceEncode() {
-    b64 = genB64();
-    return b64;
-  }
-
-  private String genB64() {
-    StringBuilder sb = new StringBuilder();
-    if (id != null)
-      sb.append(id);
-    sb.append(':');
-    if (cls != null)
-      sb.append(cls);
-    sb.append(':');
-    if (level != null)
-      sb.append(level.getLevel());
-    sb.append(':');
-    if (vid != null)
-      sb.append(vid);
-    sb.append(':');
-    sb.append(pub?1:0);
-    sb.append(':');
-    if (sig != null)
-      sb.append(sig);
-    return ENCODER.encodeToString(sb.toString().getBytes());
-  }
-
-
-  public static DataAccessContext generate(OObject obj) {
+  public static DataAccessContext generate(IOObject<?> obj) {
     return generate(obj, AccessLevel.UNIDENTIFIED);
   }
 
-
-
-  public static DataAccessContext generate(OObject obj,
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
-    dac.cls = obj.getCls();
+    dac.id = obj.getKey();
+    dac.cls = obj.getMeta().getCls();
     dac.level = level;
     return dac;
   }
 
-  public static DataAccessContext generate(OObject obj,
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level,
                                            String vid) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
+    dac.id = obj.getKey();
     dac.vid = vid;
-    dac.cls = obj.getCls();
+    dac.cls = obj.getMeta().getCls();
     dac.level = level;
     return dac;
   }
-  public static DataAccessContext generate(OObject obj,
+
+  public static DataAccessContext generate(IOObject<?> obj,
                                            AccessLevel level,
                                            String vid,
                                            boolean pub) {
     var dac = new DataAccessContext();
-    dac.id = obj.getId();
+    dac.id = obj.getKey();
     dac.vid = vid;
-    dac.cls = obj.getCls();
+    dac.cls = obj.getKey();
     dac.level = level;
     dac.pub = pub;
     return dac;
@@ -114,5 +80,37 @@ public class DataAccessContext {
     if (splitText.length > 5)
       dac.sig = splitText[5];
     return dac;
+  }
+
+  public String encode() {
+    if (b64==null)
+      b64 = genB64();
+    return b64;
+  }
+
+  public String forceEncode() {
+    b64 = genB64();
+    return b64;
+  }
+
+  private String genB64() {
+    StringBuilder sb = new StringBuilder();
+    if (id!=null)
+      sb.append(id);
+    sb.append(':');
+    if (cls!=null)
+      sb.append(cls);
+    sb.append(':');
+    if (level!=null)
+      sb.append(level.getLevel());
+    sb.append(':');
+    if (vid!=null)
+      sb.append(vid);
+    sb.append(':');
+    sb.append(pub ? 1:0);
+    sb.append(':');
+    if (sig!=null)
+      sb.append(sig);
+    return ENCODER.encodeToString(sb.toString().getBytes());
   }
 }

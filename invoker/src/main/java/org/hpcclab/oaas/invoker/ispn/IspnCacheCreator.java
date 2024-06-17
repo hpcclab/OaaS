@@ -5,9 +5,12 @@ import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
+import org.hpcclab.oaas.invoker.ispn.store.ValueMapper;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
@@ -20,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
@@ -42,7 +44,7 @@ public class IspnCacheCreator {
   }
 
 
-  public Cache<String, OObject> getObjectCache(OClass cls) {
+  public Cache<String, GOObject> getObjectCache(OClass cls) {
     var name = cls.getKey();
     if (cacheManager.cacheExists(name)) {
       return cacheManager.getCache(name);
@@ -54,7 +56,9 @@ public class IspnCacheCreator {
       var config = getCacheDistConfig(cls,
         ispnConfig.objStore(),
         datastoreConf,
-        OObject.class,
+        GOObject.class,
+        JOObject.class,
+        new GJValueMapper(),
         false);
       return cacheManager.createCache(name, config);
     }
@@ -83,18 +87,20 @@ public class IspnCacheCreator {
     return cacheManager.createCache(name, cb.build());
   }
 
-  public Configuration getCacheDistConfig(OClass cls,
-                                          IspnConfig.CacheStore cacheStore,
-                                          DatastoreConf datastoreConf,
-                                          Class<?> type,
-                                          boolean transactional) {
+  public <V, S> Configuration getCacheDistConfig(OClass cls,
+                                                 IspnConfig.CacheStore cacheStore,
+                                                 DatastoreConf datastoreConf,
+                                                 Class<V> valueCls,
+                                                 Class<S> storeCls,
+                                                 ValueMapper<V, S> valueMapper,
+                                                 boolean transactional) {
     var builder = new ConfigurationBuilder();
     var conf = cls.getConfig();
     if (conf==null) conf = new OClassConfig();
 
     builder
       .clustering()
-      .cacheMode(cacheStore.async()? CacheMode.DIST_ASYNC : CacheMode.DIST_SYNC)
+      .cacheMode(cacheStore.async() ? CacheMode.DIST_ASYNC:CacheMode.DIST_SYNC)
       .hash().numOwners(ispnConfig.objStore().owner())
       .numSegments(conf.getPartitions())
       .stateTransfer()
@@ -117,7 +123,9 @@ public class IspnCacheCreator {
     if (datastoreConf!=null) {
       builder.persistence()
         .addStore(ArgCacheStoreConfig.Builder.class)
-        .valueCls(type)
+        .valueCls(valueCls)
+        .storeCls(storeCls)
+        .valueMapper(valueMapper)
         .connectionFactory(new ArgConnectionFactory(datastoreConf))
         .shared(true)
         .segmented(false)
@@ -130,33 +138,15 @@ public class IspnCacheCreator {
     return builder.build();
   }
 
-
-  public Configuration createSimpleConfig(DatastoreConf datastoreConf,
-                                          IspnConfig.CacheStore cacheStore,
-                                          Class<?> valueCls) {
-    var cb = new ConfigurationBuilder()
-      .clustering()
-      .cacheMode(CacheMode.LOCAL)
-      .encoding()
-      .key().mediaType(TEXT_PLAIN_TYPE)
-      .encoding()
-      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE: APPLICATION_PROTOSTREAM_TYPE)
-      .persistence()
-      .addStore(ArgCacheStoreConfig.Builder.class)
-      .valueCls(valueCls)
-      .connectionFactory(new ArgConnectionFactory(datastoreConf))
-      .shared(false)
-      .ignoreModifications(true)
-      .segmented(false)
-      .memory()
-      .storage(cacheStore.storageType())
-      .maxCount(cacheStore.maxCount().orElse(-1L))
-      .whenFull(EvictionStrategy.REMOVE)
-      .statistics().enabled(true);
-    if (cacheStore.ttl() > 0) {
-      cb.expiration()
-        .lifespan(cacheStore.ttl(), TimeUnit.SECONDS);
+  static class GJValueMapper implements ValueMapper<GOObject, JOObject> {
+    @Override
+    public JOObject mapToDb(GOObject goObject) {
+      return new JOObject(goObject.getMeta(), goObject.getData().getNode());
     }
-    return cb.build();
+
+    @Override
+    public GOObject mapToCStore(JOObject joObject) {
+      return new GOObject(joObject.getMeta(), new JsonBytes(joObject.getData()));
+    }
   }
 }

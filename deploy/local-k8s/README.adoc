@@ -19,6 +19,7 @@ NOTE: TLDR; Make sure that your machine have `docker`, `kubectl`, `k3d` and `jus
 * link:../../cli/README.adoc[ocli] (Oparaca CLI)
 
 * https://github.com/casey/just[*just*]
+** For Window user your may need to install `sh` provided by link:https://git-scm.com/[Git for Windows] (for `scoop` user, run `scoop install git`)
 
 * Clone this project.
 +
@@ -30,7 +31,9 @@ cd OaaS
 
 * Kubernetes
 ** Container runtime (Docker or Podman)
-** Create via k3d
++
+NOTE: The installation scripts should work with most of local Kubernetes environment, but we recommend *k3d* or *Rancher Desktop*
+** Create via *k3d*
 +
 [source,bash]
 ----
@@ -47,6 +50,8 @@ just k3d-create
 
 
 === Build images
+NOTE: SKIP THIS PART IF YOU WANT TO USE THE MAIN BRANCH
+
 To ensure that you use the images of current project, you may have to build the container images yourself.
 
 Use `mvnw` command to build the project and container images.
@@ -75,41 +80,68 @@ just k3d-build-image
 
 Use `just` command to install dependencies
 
+. Create `oaas` namespace
++
+Install Knative
++
+Install Strimzi operator (for installing Kafka in the later step)
++
 [source,bash]
 ----
 # deploy Knative and Strimzi
 just k8s-deploy-preq
+----
 
+. Install Prometheus stack
++
+[source,bash]
+----
 # deploy Prometheus stack
 just deploy/helm-prom
+----
++
+NOTE: You can the Prometheus installation for light-weight deployment.
 
+. Install Kafka
++
+Install ArangoDB
++
+Install MinIO (S3-compatible storage)
+
++
+[source,bash]
+----
 # deploy Kafka and ArangoDB
 just k8s-deploy-deps
 ----
 
-This command will do the following steps:
 
-. Create `oaas` namespace
+To access the installed services:
 
-. Knative
+* Prometheus `http://prom.127.0.0.1.nip.io`
 
+* Grafana `http://grafana.127.0.0.1.nip.io`
+** user:  `admin` password: `prom-operator`
 
-. Kafka
-** Open Kafka UI at `http://kui.127.0.0.1.nip.io`
+* Kafka `http://kui.127.0.0.1.nip.io`
 
-. MinIO (S3-compatible storage)
-** Open the web console at `http://minio.127.0.0.1.nip.io` and login with `minio_access_key` as a user and `minio_secret_key` as a password.
+* MinIO `http://minio.127.0.0.1.nip.io
+* user: `minio_access_key`  password: `minio_secret_key`.
 
-. ArangoDB
-** Open the web console at `http://arg.127.0.0.1.nip.io` and login with `root` as a user and no password.
+* ArangoDB `http://arg.127.0.0.1.nip.io`
+** user: `root` without password
 
-=== Access OaaS [[access_oaas]]
+=== Install Oparaca (OaaS) [[access_oaas]]
 . Install OaaS
 +
 [source,bash]
 ----
 just k8s-deploy
+# IF YOU SKIP PROMETHEUS INSTALLATION, RUN BELOW COMMAND INSTEAD
+# just k8s-deploy-light
 ----
+
+
 . Wait until all pod is ready
 +
 [source,bash]
@@ -124,8 +156,8 @@ ocli ctx set --inv=http://inv.oaas.127.0.0.1.nip.io --pm=http://pm.oaas.127.0.0.
 ----
 The URLs of platform are accessible via:
 
-* package manager: `http://pm.oaas.127.0.0.1.nip.io`
-* Invoker: `http://inv.oaas.127.0.0.1.nip.io`
+* Package manager: `http://pm.oaas.127.0.0.1.nip.io`
+* Hash-aware LB: `http://inv.oaas.127.0.0.1.nip.io`
 
 == What next?
 
@@ -134,5 +166,6 @@ Check on our link:../../example/README.adoc[example usages guide] to learn how t
 == Troubleshooting
 // * Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:../oaas/base/cds.yml[]
 * In the case that you can not access Kubernetes via localhost, you need to change the hostname of `*.127.0.0.1.nip.io` to match your setup.
-** link:oaas-ingress.yml[]
+** link:oprc-ingress.yml[]
 ** link:minio.yml[]
+** link:prom-ingress.yml[]

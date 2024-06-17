@@ -1,7 +1,9 @@
 package org.hpcclab.oprc.cli.command.obj;
 
+import com.jayway.jsonpath.DocumentContext;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
+import org.hpcclab.oprc.cli.JsonUtil;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
@@ -55,15 +57,17 @@ public class ObjectCreateCommand implements Callable<Integer> {
       JsonObject res = oaasObjectCreator.createObject(cls, data!=null ? new JsonObject(data):null, fb, files);
 
       outputFormatter.print(commonOutputMixin.getOutputFormat(), res);
+      DocumentContext doc = JsonUtil.parse(res.toString());
       if (save) {
-        var id = res.getJsonObject("output").getString("id");
+        String id = doc.read("$.output._meta.id", String.class);
+        String outCls = doc.read("$.output._meta.cls");
         current.setDefaultObject(id);
-        current.setDefaultClass(cls);
+        current.setDefaultClass(outCls);
         fileManager.update(current);
       }
       return 0;
     } catch (Exception e) {
-      System.err.println(e.getMessage());
+      System.err.println(e);
       return 1;
     }
   }

@@ -3,23 +3,23 @@ package org.hpcclab.oaas.repository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
 
 import java.util.Collection;
 import java.util.List;
 
-public abstract class ObjectRepoManager extends RepoManager<OClass, OObject, ObjectRepository> {
+public abstract class ObjectRepoManager extends RepoManager<OClass, GOObject, ObjectRepository> {
 
-  public Uni<OObject> persistAsync(OObject newObj) {
-    return getOrCreate(newObj.getCls())
+  public Uni<GOObject> persistAsync(GOObject newObj) {
+    return getOrCreate(newObj.getMeta().getCls())
       .async()
       .persistAsync(newObj);
   }
 
-  public Uni<Void> persistAsync(Collection<OObject> newObjs) {
+  public Uni<Void> persistAsync(Collection<GOObject> newObjs) {
     return Multi.createFrom().iterable(newObjs)
       .onItem()
-      .transformToUniAndMerge(obj -> getOrCreate(obj.getCls())
+      .transformToUniAndMerge(obj -> getOrCreate(obj.getMeta().getCls())
         .async()
         .persistAsync(obj))
       .collect()
@@ -27,10 +27,10 @@ public abstract class ObjectRepoManager extends RepoManager<OClass, OObject, Obj
       .replaceWithVoid();
   }
 
-  public Uni<Void> persistWithRevAsync(List<OObject> oldObjs) {
+  public Uni<Void> persistWithRevAsync(List<GOObject> oldObjs) {
     return Multi.createFrom().iterable(oldObjs)
       .onItem()
-      .transformToUniAndMerge(obj -> getOrCreate(obj.getCls())
+      .transformToUniAndMerge(obj -> getOrCreate(obj.getMeta().getCls())
         .atomic()
         .persistWithRevAsync(obj))
       .collect()

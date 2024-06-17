@@ -7,6 +7,7 @@ import java.util.Map;
 
 public abstract class RepoManager
   <K extends HasKey<String>, V, R extends EntityRepository<String, V>> {
+
   protected Map<String, R> repoMap = new HashMap<>();
   public abstract R createRepo(K cls);
   protected abstract K load(String clsKey);

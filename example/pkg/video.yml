@@ -32,3 +32,6 @@ classes:
         name: new
         function: builtin.logical.new
         outputCls: .video
+      - access: PUBLIC
+        name: file
+        function: builtin.logical.file

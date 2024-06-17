@@ -45,4 +45,6 @@ public interface CrmConfig {
 
   @WithDefault("true")
   boolean loadTemplateOnStart();
+  @WithDefault("oaas")
+  String namespace();
 }

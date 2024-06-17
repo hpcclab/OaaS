@@ -1,0 +1,185 @@
+= Functions Development Guide
+:toc:
+:toc-placement: preamble
+:toclevels: 3
+
+{empty}
+
+== Concepts
+
+
+
+.Class representation
+image::diagrams/oaas_class_representation_v2.dio.png[]
+
+.Invocation offloading
+image::diagrams/oaas_mutable_unstructure_v3.dio.png[]
+
+== Python Guide
+
+=== Project Setup
+==== Requirements
+* Python 3.10+
+* Docker
+
+==== Cloning template project
+
+Clone https://github.com/pawissanutt/oprc-func-py-template[the template project] from GitHub
+[source,bash]
+----
+git clone --depth 1 https://github.com/pawissanutt/oprc-func-py-template.git
+cd oprc-func-py-template
+
+# OPTIONAL REMOVE .git directory and create your own.
+rm -rf .git
+git init
+----
+==== Project Structure
+----
+.
+├── config.py   # script for configuring the runtime in deployment stage
+├── Dockerfile
+├── main.py     # the entry point of source code
+├── README.adoc
+└── requirements.txt
+----
+
+==== Setup Python project
+. Create a virtual environment
++
+[source,bash]
+----
+python -m venv venv
+----
+
+. Activate a virtual environment
++
+[source,bash]
+----
+# For powershell
+./venv/Scripts/activate
+# For bash
+source venv/Scripts/activate
+----
++
+NOTE: If you did it correctly, you should see `(venv)` at the beginning of your terminal.
+
+. Install dependency library
++
+[source,bash]
+----
+pip install -r requirements.txt
+----
+
+=== Task Handling
+
+Open `main.py` file
+[source,python,linenums]
+----
+import logging
+import oaas_sdk_py as oaas
+import uvicorn
+from fastapi import Request, FastAPI, HTTPException
+from oaas_sdk_py import OaasInvocationCtx
+import os
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+level = logging.getLevelName(LOG_LEVEL)
+logging.basicConfig(level=level)
+
+
+class GreetingHandler(oaas.Handler):
+    async def handle(self, ctx: OaasInvocationCtx):
+        name = ctx.args.get('name', 'world')
+        ctx.resp_body = {"msg": "hello " + name}
+
+
+app = FastAPI()
+router = oaas.Router()
+router.register(GreetingHandler())
+
+
+@app.post('/')
+async def handle(request: Request):
+    body = await request.json()
+    logging.debug("request %s", body)
+    resp = await router.handle_task(body)
+    logging.debug("completion %s", resp)
+    if resp is None:
+        raise HTTPException(status_code=404, detail="No handler matched")
+    return resp
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+----
+* Lines 8-10 are boilerplate code for setting Python's logger
+* Lines 13-16 are the function handler (class that extend `oaas.Handler`) that contains the logic of this custom function.
+* Lines 19-21 are configuring the SDK to use the provided `GreetingHandler`.
+* Lines 25-35 are boilerplate code for binding the SDK with FastAPI framework.
+
+NOTE: TLDR; You only need to focus on `GreetingHandler` in Line 19-21
+
+==== Function Handler Implementation Guide
+To create the function handler, you have to create a class that extend `oaas.Handler` and implement a `handle` function that accept `OaasInvocationCtx` as the input.
+
+With `OaasInvocationCtx` input, you can use it to access the request input or modify the object state.
+
+Example:
+
+* To get the args parameter
++
+----
+name = ctx.args['name']
+----
+* To set the return data of this function
++
+----
+ctx.resp_body = {"msg": "hello " + name}
+----
+
+=== Unstructured Data Access
+TODO
+
+=== Build container image
+[source,bash]
+----
+docker -t <image tag> .
+# PUSH IMAGE TO CONTAINER REGISTRY
+docker push <image tag>
+----
+
+
+== Deploy the function
+
+After build the container image, you can simply add the image tag to function definition in package file. Kubernetes runtime will automatically pull the image for container registry.
+
+
+[source, yaml]
+----
+name: example
+functions:
+  - name: record.random
+    type: TASK
+    provision:
+      knative: # v-- put image tag here
+        image: ghcr.io/hpcclab/oaas/json-update-fn-py
+----
+
+=== Deploy the function locally
+
+It is a little tricky, when you want to use the function locally *without* push the image to container registry. Because of *Knative* limitation, it needs to pull the image from registry, even if there is the image locally. TO work around this problem, you have to deploy function with the vanilla Kubernetes deployment. In this case, you only need to change `knative` to `deployment` in package file.
+
+[source, yaml]
+----
+name: example
+functions:
+  - name: record.random
+    type: TASK
+    provision:
+      deployment: # CHANGE HERE
+        image: ghcr.io/hpcclab/oaas/json-update-fn-py
+        pullPolicy: IfNotPresent # REQUIRED FOR AVOIDING IMAGE PULLING
+----
+NOTE: the other configurations may not be 100% compatible between `knative` and `deployment`.
+
+

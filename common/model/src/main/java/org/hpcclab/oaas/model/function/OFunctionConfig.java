@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hpcclab.oaas.model.object.JsonBytes;
 
 import java.util.Map;
 
@@ -15,11 +16,5 @@ import java.util.Map;
 public class OFunctionConfig {
   Map<String, String> offloadingConfig;
   boolean http2;
-
-  public OFunctionConfig() {
-  }
-
-  public OFunctionConfig(Map<String, String> offloadingConfig) {
-    this.offloadingConfig = offloadingConfig;
-  }
+  JsonBytes custom = JsonBytes.EMPTY;
 }

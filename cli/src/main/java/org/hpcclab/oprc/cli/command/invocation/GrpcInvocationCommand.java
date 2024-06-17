@@ -8,11 +8,11 @@ import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.client.GrpcClientChannel;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.mapper.ProtoObjectMapper;
-import org.hpcclab.oaas.mapper.ProtoObjectMapperImpl;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
-import org.hpcclab.oaas.model.object.OObject;
+import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
@@ -21,7 +21,6 @@ import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
-import org.msgpack.jackson.dataformat.MessagePackMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -40,7 +39,7 @@ import java.util.concurrent.Callable;
 @RegisterForReflection(
   targets = {
     InvocationResponse.class,
-    OObject.class,
+    GOObject.class,
     OaasObjectState.class,
     DSMap.class,
     InvocationStats.class
@@ -80,9 +79,7 @@ public class GrpcInvocationCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    MessagePackMapper msgPackMapper = new MessagePackMapper();
-    ProtoObjectMapper protoMapper = new ProtoObjectMapperImpl();
-    protoMapper.setMapper(msgPackMapper);
+    ProtoMapper protoMapper = new ProtoMapperImpl();
     var conf = fileManager.current();
     var uri = URI.create(conf.getInvUrl()).toURL();
     if (cls==null) cls = conf.getDefaultClass();
@@ -94,29 +91,29 @@ public class GrpcInvocationCommand implements Callable<Integer> {
     InvocationServiceGrpc.InvocationServiceBlockingStub service =
       InvocationServiceGrpc.newBlockingStub(channel);
 
-    var oalBuilder = ProtoInvocationRequest.newBuilder()
+    var builder = ProtoInvocationRequest.newBuilder()
       .setCls(cls)
       .setMain(main)
       .setFb(fb);
     if (args!=null)
-      oalBuilder.putAllArgs(args);
+      builder.putAllArgs(args);
     if (pipeBody) {
       var body = System.in.readAllBytes();
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
-      oalBuilder.setBody(ByteString.copyFrom(msgPackMapper.writeValueAsBytes(objectNode)));
+      builder.setBody(ByteString.copyFrom(objectMapper.writeValueAsBytes(objectNode)));
     }
     if (inputs!=null) {
-      oalBuilder.addAllInputs(inputs);
+      builder.addAllInputs(inputs);
     }
-    var protoReq = oalBuilder.build();
+    var protoReq = builder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);
     outputFormatter.printObject(commonOutputMixin.getOutputFormat(), protoMapper.fromProto(response));
-    if (save && !response.getOutput().getId().isEmpty()) {
-      String id = response.getOutput().getId();
+    if (save && !response.getOutput().getMeta().getId().isEmpty()) {
+      String id = response.getOutput().getMeta().getId();
       if (!id.isEmpty()) {
         conf.setDefaultObject(id);
-        conf.setDefaultClass(response.getOutput().getCls());
+        conf.setDefaultClass(response.getOutput().getMeta().getCls());
         fileManager.update(conf);
       }
     }
