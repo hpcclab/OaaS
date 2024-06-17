@@ -22,11 +22,11 @@ public class JaywayDataTransformer implements ODataTransformer {
   ObjectMapper mapper;
   ParseContext parseContext;
   Configuration conf;
-  List<Dataflows.Transformation> transformations= List.of();
-  List<JsonPath> readPaths = List.of();
+  List<Dataflows.Transformation> transformations;
+  List<JsonPath> readPaths;
 
   public JaywayDataTransformer(List<Dataflows.Transformation> transformations) {
-    if (transformations == null) transformations = List.of();
+    if (transformations==null) transformations = List.of();
     mapper = new ObjectMapper();
     conf = Configuration
       .builder()
@@ -37,14 +37,18 @@ public class JaywayDataTransformer implements ODataTransformer {
     parseContext = JsonPath.using(conf);
     this.transformations = transformations;
     readPaths = transformations.stream()
-      .map(t -> JsonPath.compile(t.path()))
+      .map(t -> {
+        if (t.path()==null || t.path().isEmpty())
+          return null;
+        return JsonPath.compile(t.path());
+      })
       .toList();
   }
 
   @Override
   public JsonBytes transform(JsonBytes map) {
     if (transformations.isEmpty()) return map;
-    if (map.getNode() == null) return JsonBytes.EMPTY;
+    if (map.getNode()==null) return JsonBytes.EMPTY;
     ObjectNode mappingNode = map.getNode();
     ObjectNode outputNode = mapper.createObjectNode();
     outputNode = map(outputNode, mappingNode);
@@ -54,7 +58,7 @@ public class JaywayDataTransformer implements ODataTransformer {
   @Override
   public JsonBytes transformMerge(JsonBytes mergeInto, JsonBytes map) {
     if (transformations.isEmpty()) return mergeInto;
-    if (map.getNode() == null) return mergeInto;
+    if (map.getNode()==null) return mergeInto;
     ObjectNode mappingNode = map.getNode();
     ObjectNode outputNode = mergeInto.getNode();
     outputNode = map(outputNode, mappingNode);
@@ -65,7 +69,14 @@ public class JaywayDataTransformer implements ODataTransformer {
     for (int i = 0; i < readPaths.size(); i++) {
       var tran = transformations.get(i);
       var inject = tran.inject()==null ? "":tran.inject();
-      Object out = readPaths.get(i).read(map, conf);
+      JsonPath path = readPaths.get(i);
+      Object out;
+      if (path==null) {
+        base.set(tran.inject(), map);
+        out = map;
+      } else {
+        out = path.read(map, conf);
+      }
       if (inject.isEmpty() && out instanceof ObjectNode on) {
         base = on;
       } else if (out instanceof JsonNode jn) {

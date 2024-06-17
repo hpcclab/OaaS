@@ -13,7 +13,7 @@ message ProtoOFunction{
   optional string description = 4;
   optional ProtoFunctionType type = 5;
   optional string outputCls = 6;
-  optional ProtoMacroSpec macro = 7;
+  optional ProtoDataflowSpec macro = 7;
   optional ProtoProvisionConfig provision = 8;
   repeated VariableDescription variableDescriptions = 9;
   optional ProtoOFunctionDeploymentStatus status = 10;
@@ -21,13 +21,6 @@ message ProtoOFunction{
   optional ProtoQosRequirement qos = 12;
   optional ProtoConstraint constraint = 13;
   optional ProtoOFunctionConfig config = 14;
-}
-
-message ProtoMacroSpec {
-  repeated DataflowStep steps = 1;
-  repeated WorkflowExport exports = 2;
-  optional string export = 3;
-  bool atomic = 4;
 }
 
 message ProtoProvisionConfig {
@@ -71,15 +64,37 @@ message VariableDescription {
   string name = 1;
   string comment = 2;
 }
+
+
+
+message ProtoDataflowSpec {
+  repeated DataflowStep steps = 1;
+  repeated ProtoDataMapping respBody = 2;
+  optional string output = 3;
+}
+
+
 message DataflowStep {
   string function = 1;
   string target = 2;
   optional string as = 3;
-  repeated  string inputRefs = 4;
+  repeated  ProtoDataMapping mappings = 4;
   map<string, string> args = 5;
   map<string, string> argRefs = 6;
 }
 
+message ProtoDataMapping {
+  string fromObj = 1;
+  string fromBody = 2;
+  repeated ProtoTransformation transforms = 3;
+  bool failOnError = 4;
+  bool mapAll =  5;
+}
+
+message ProtoTransformation {
+  string path = 1;
+  string inject = 2;
+}
 
 message WorkflowExport {
   string from = 1;

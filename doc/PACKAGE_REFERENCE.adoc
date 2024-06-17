@@ -55,10 +55,11 @@ functions:
   - ...
 ----
 
-== Built-in Function
+== Available built-in Functions
 
 TODO
 
-== Dataflow Definition
+
+== Dataflow Definitions
 
 TODO

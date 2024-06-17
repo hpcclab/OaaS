@@ -144,8 +144,41 @@ TODO
 [source,bash]
 ----
 docker -t <image tag> .
+# PUSH IMAGE TO CONTAINER REGISTRY
+docker push <image tag>
 ----
 
 
-== Test the function locally
-TODO
+== Deploy the function
+
+After build the container image, you can simply add the image tag to function definition in package file. Kubernetes runtime will automatically pull the image for container registry.
+
+
+[source, yaml]
+----
+name: example
+functions:
+  - name: record.random
+    type: TASK
+    provision:
+      knative: # v-- put image tag here
+        image: ghcr.io/hpcclab/oaas/json-update-fn-py
+----
+
+=== Deploy the function locally
+
+It is a little tricky, when you want to use the function locally *without* push the image to container registry. Because of *Knative* limitation, it needs to pull the image from registry, even if there is the image locally. TO work around this problem, you have to deploy function with the vanilla Kubernetes deployment. In this case, you only need to change `knative` to `deployment` in package file.
+
+[source, yaml]
+----
+name: example
+functions:
+  - name: record.random
+    type: TASK
+    provision:
+      deployment: # CHANGE HERE
+        image: ghcr.io/hpcclab/oaas/json-update-fn-py
+----
+NOTE: the other configurations may not be 100% compatible between `knative` and `deployment`.
+
+

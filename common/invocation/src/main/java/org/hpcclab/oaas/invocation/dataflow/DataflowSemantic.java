@@ -29,11 +29,13 @@ public class DataflowSemantic {
     this.stepNodes = Lists.mutable.empty();
   }
 
+
+
   public static DataflowSemantic construct(Dataflows.Spec spec) {
     var root = new DataflowNode(-1);
     var df = new DataflowSemantic(spec, root);
     var steps = spec.steps();
-    MutableMap<String, DataflowNode> stateMap = Maps.mutable.of("$", root);
+    MutableMap<String, DataflowNode> stateMap = Maps.mutable.of("@", root);
     for (int i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
       var node = createNode(i, step, stateMap, root);
@@ -169,6 +171,18 @@ public class DataflowSemantic {
 
     public boolean requireFanIn() {
       return require.size() > 1;
+    }
+
+    @Override
+    public String toString() {
+      return "DataflowNode{" +
+        "stepIndex=" + stepIndex +
+        ", step=" + step +
+        ", dmats=[" + dmats.size() +
+        "], require=[" + require.size() +
+        "], next=[" + next.size() +
+        "], mainRefStepIndex=" + mainRefStepIndex +
+        '}';
     }
   }
 

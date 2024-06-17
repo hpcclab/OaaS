@@ -2,13 +2,13 @@ package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
+import org.hpcclab.oaas.invocation.controller.fn.ErrorFnController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.proto.ProtoOClass;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Pawissanutt
  */
 public abstract class ClassControllerBuilder {
-  private static final Logger logger = LoggerFactory.getLogger( ClassControllerBuilder.class );
+  private static final Logger logger = LoggerFactory.getLogger(ClassControllerBuilder.class);
 
   protected final FunctionControllerFactory functionControllerFactory;
   protected final StateManager stateManager;
@@ -123,13 +122,28 @@ public abstract class ClassControllerBuilder {
                                                OFunction function,
                                                OClass cls,
                                                OClass outputCls) {
-    if (function==null)
-      throw StdOaasException.format("Cannot load OFunction(%s) for OClass(%s)",
-        functionBinding.getFunction(),
-        cls.getKey());
-    var controller = functionControllerFactory.create(function);
-    controller.bind(metricFactory, functionBinding, function, cls, outputCls);
-    return controller;
+    if (function==null) {
+      var errorMsg = "Cannot load OFunction(%s) for OClass(%s)"
+        .formatted(functionBinding.getFunction(), cls.getKey());
+      logger.error(errorMsg);
+      ErrorFnController controller = new ErrorFnController(errorMsg);
+      var func = new OFunction().setKey(functionBinding.getFunction());
+      controller.bind(metricFactory, functionBinding, func, cls, outputCls);
+      return controller;
+    }
+    FunctionController controller;
+    try {
+      controller = functionControllerFactory.create(function);
+      controller.bind(metricFactory, functionBinding, function, cls, outputCls);
+      return controller;
+    } catch (Exception e) {
+      logger.error("Fail to initiate the function controller for {}:{}",
+        cls.getKey(), functionBinding.getName(), e);
+      controller = new ErrorFnController(e.getMessage());
+      controller.bind(metricFactory, functionBinding, function, cls, outputCls);
+      return controller;
+    }
+
   }
 
   protected ClassBindingComponent createComponent(OClass cls) {

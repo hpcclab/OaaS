@@ -22,3 +22,11 @@ classes:
         name: new
         function: builtin.logical.new
         outputCls: .record
+      - access: PUBLIC
+        name: get
+        function: builtin.logical.get
+        outputCls: .record
+      - access: PUBLIC
+        name: file
+        function: builtin.logical.file
+        outputCls: .record

@@ -51,7 +51,7 @@ public class MockupData {
       .steps(List.of(
         Dataflows.Step.builder()
           .function("f1")
-          .target("$")
+          .target("@")
           .argRefs(DSMap.of("key1", "arg1"))
           .as("tmp1")
           .args(DSMap.of("STEP", "1"))
@@ -104,7 +104,7 @@ public class MockupData {
       .steps(List.of(
         Dataflows.Step.builder()
           .function("f1")
-          .target("$")
+          .target("@")
           .argRefs(DSMap.of("key1", "arg1"))
           .as("tmp1")
           .args(DSMap.of("STEP", "1"))

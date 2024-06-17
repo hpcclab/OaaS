@@ -82,9 +82,11 @@ public class DataflowOrchestrator {
   }
 
   InvocationCtx createResp(InvocationCtx ctx,
-                                DataflowSemantic semantic,
-                                DataflowState state) {
+                           DataflowSemantic semantic,
+                           DataflowState state) {
     DataflowNode endNode = semantic.getEndNode();
+    logger.debug("spec : {}" , semantic.macroSpec );
+    logger.debug("endNode : {}" , endNode );
     int mainRefStepIndex = endNode.mainRefStepIndex();
     if (mainRefStepIndex >= -1) {
       var obj = state.stepStates[mainRefStepIndex + 1].obj;
@@ -132,7 +134,7 @@ public class DataflowOrchestrator {
       ODataTransformer transformer = dmat.transformer();
       if (!dmat.mapping().fromBody().isEmpty())
         resultBody = transformer.transformMerge(resultBody, stepState.body);
-      else if (stepState.obj != null)
+      else if (stepState.obj!=null)
         resultBody = transformer.transformMerge(resultBody, stepState.obj.getData());
     }
     return resultBody;
