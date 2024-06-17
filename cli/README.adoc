@@ -9,7 +9,7 @@ Download the executable file from the artifacts of GitHub Action buid (https://g
 == Build from source
 
 === Native Image
-The native image is more preferable than the jar file because it has a much faster startup time.
+The native image is preferable than the jar file because it has a much faster startup time. First, make sure to install the prerequisite programs for GraalVM. You can check on the prerequisites section of this link:https://quarkus.io/guides/building-native-image[guide].
 
 [source,bash]
 ----

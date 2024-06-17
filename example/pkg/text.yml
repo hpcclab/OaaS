@@ -4,19 +4,8 @@ functions:
     type: TASK
     outputCls: .text
     provision:
-#      knative:
-#        image: ghcr.io/pawissanutt/oaas/concat-fn-py:latest
-#        targetConcurrency: 32
-#        requestsCpu: '0.25'
-#        limitsCpu: '2'
-#        minScale: -1
-#        http2: true
-#        env:
-#          LOG_LEVEL: DEBUG
-      deployment:
+      knative:
         image: ghcr.io/hpcclab/oaas/concat-fn-py:latest
-        port: 8080
-        pullPolicy: IfNotPresent
         env:
           LOG_LEVEL: DEBUG
 

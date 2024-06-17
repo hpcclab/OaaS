@@ -4,7 +4,7 @@ functions:
     type: TASK
     provision:
       knative:
-        image: ghcr.io/pawissanutt/oaas/json-update-fn-py
+        image: ghcr.io/hpcclab/oaas/json-update-fn-py:latest
         requestsCpu: "0.5"
         requestsMemory: "256M"
         limitsCpu: "1"
