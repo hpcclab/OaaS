@@ -10,10 +10,10 @@
 
 
 .Class representation
-image::diagrams/oaas_class_representation_v2.dio.png[]
+image::diagrams/oaas_class_representation_v2.dio.png[cls_rep,480]
 
 .Invocation offloading
-image::diagrams/oaas_mutable_unstructure_v3.dio.png[]
+image::diagrams/oaas_mutable_unstructure_v3.dio.png[inv_off,480]
 
 == Python Guide
 
@@ -153,6 +153,7 @@ docker push <image tag>
 
 After build the container image, you can simply add the image tag to function definition in package file. Kubernetes runtime will automatically pull the image for container registry.
 
+NOTE: Check out this link:PACKAGE_REFERENCE.adoc[reference] for writing package definitions.
 
 [source, yaml]
 ----
