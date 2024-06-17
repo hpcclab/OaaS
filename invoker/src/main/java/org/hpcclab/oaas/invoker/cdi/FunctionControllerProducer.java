@@ -3,7 +3,6 @@ package org.hpcclab.oaas.invoker.cdi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
-import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.controller.fn.*;
 import org.hpcclab.oaas.invocation.controller.fn.logical.*;
 import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
@@ -48,8 +47,8 @@ public class FunctionControllerProducer {
   @Produces
   NewFnController newFunctionController(IdGenerator idGenerator,
                                         ObjectMapper mapper,
-                                        DataUrlAllocator dataUrlAllocator) {
-    return new NewFnController(idGenerator, mapper, dataUrlAllocator);
+                                        ContentUrlGenerator contentUrlGenerator) {
+    return new NewFnController(idGenerator, mapper, contentUrlGenerator);
   }
 
   @Produces

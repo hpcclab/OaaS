@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
-import org.hpcclab.oaas.model.data.DataAllocateRequest;
+import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.model.data.AccessLevel;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OMeta;
@@ -27,13 +28,13 @@ import java.util.Set;
  */
 public class NewFnController extends AbstractFunctionController
   implements LogicalFunctionController {
-  DataUrlAllocator allocator;
+  final ContentUrlGenerator urlGenerator;
 
   public NewFnController(IdGenerator idGenerator,
                          ObjectMapper mapper,
-                         DataUrlAllocator allocator) {
+                         ContentUrlGenerator urlGenerator) {
     super(idGenerator, mapper);
-    this.allocator = allocator;
+    this.urlGenerator = urlGenerator;
   }
 
   @Override
@@ -46,16 +47,17 @@ public class NewFnController extends AbstractFunctionController
     var body = ctx.getRequest().body();
     ObjectConstructRequest req;
     if (body==null) {
-      req = new ObjectConstructRequest(null, Set.of(), DSMap.of(),DSMap.of());
+      req = new ObjectConstructRequest(null, Set.of(), DSMap.of(), DSMap.of());
     } else {
       req = body.mapToObj(ObjectConstructRequest.class);
     }
-    return construct(ctx, req);
+    construct(ctx, req);
+    return Uni.createFrom().item(ctx);
   }
 
 
-  private Uni<InvocationCtx> construct(InvocationCtx ctx,
-                                       ObjectConstructRequest construct) {
+  private void construct(InvocationCtx ctx,
+                         ObjectConstructRequest construct) {
     OMeta meta = new OMeta();
     var obj = new GOObject(meta);
     var id = idGenerator.generate();
@@ -74,23 +76,22 @@ public class NewFnController extends AbstractFunctionController
     ctx.setStateOperations(List.of(
       SimpleStateOperation.createObjs(List.of(obj), cls)
     ));
-    var fileKeys = construct.keys() == null? Set.of() : construct.keys();
+    var fileKeys = construct.keys()==null ? Set.of():construct.keys();
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())
       .select(k -> fileKeys.contains(k.getName()))
       .collect(KeySpecification::getName);
     if (ks.isEmpty()) {
       ctx.setRespBody(JsonBytes.EMPTY);
-      return Uni.createFrom()
-        .item(ctx);
     } else {
-      DataAllocateRequest request = new DataAllocateRequest(
-        obj.getKey(),
-        ks,
-        cls.getStateSpec().getDefaultProvider(), true);
-      return allocator.allocate(List.of(request))
-        .map(list -> new ObjectConstructResponse(list.getFirst().getUrlKeys()))
-        .map(resp -> ctx.setRespBody(mapper.valueToTree(resp)));
+      Map<String,String> keyToUrls = ks
+        .toMap(
+          k -> k,
+          k ->urlGenerator.generatePutUrl(obj, k, AccessLevel.UNIDENTIFIED, true)
+        );
+      ObjectConstructResponse resp = new ObjectConstructResponse(keyToUrls);
+      ctx.setRespBody(mapper.valueToTree(resp));
     }
+    ctx.initLog().setStatus(InvocationStatus.SUCCEEDED);
   }
 
   @Override

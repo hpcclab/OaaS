@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hpcclab.oaas.invocation.DataUrlAllocator;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.controller.fn.*;
@@ -22,7 +21,6 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   ObjectMapper mapper = new ObjectMapper();
   OffLoaderFactory offLoaderFactory = new MockOffLoader.Factory();
   ContentUrlGenerator contentUrlGenerator;
-  DataUrlAllocator dataUrlAllocator = new MockDataUrlAllocator();
   LocationAwareInvocationForwarder invocationForwarder;
   DataflowOrchestrator dataflowOrchestrator;
 
@@ -53,7 +51,7 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
 
   LogicalFunctionController createLogical(OFunction function) {
     if (function.getKey().equals("builtin.logical.new")) {
-      return new NewFnController(idGenerator, mapper, dataUrlAllocator);
+      return new NewFnController(idGenerator, mapper, contentUrlGenerator);
     } else if (function.getKey().equals("builtin.logical.update")) {
       return new UpdateFnController(idGenerator, mapper);
     }

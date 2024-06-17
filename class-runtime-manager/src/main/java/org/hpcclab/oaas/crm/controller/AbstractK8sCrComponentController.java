@@ -23,7 +23,12 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   long stableTime;
 
   protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
-    this.svcConfig = svcConfig;
+    if (svcConfig == null) {
+      this.svcConfig = CrtMappingConfig.SvcConfig.builder()
+        .build();
+    } else {
+      this.svcConfig = svcConfig;
+    }
   }
 
   @Override

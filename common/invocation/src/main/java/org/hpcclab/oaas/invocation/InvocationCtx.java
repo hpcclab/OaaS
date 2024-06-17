@@ -58,9 +58,9 @@ public class InvocationCtx {
       log.setKey(getOutput().getKey());
       log.setOutId(getOutput().getKey());
     }
+    log.setMain(main!=null ? getMain().getKey():null);
     log.setFb(request!=null ? request.fb():null);
     log.setArgs(DSMap.copy(getArgs()));
-    log.setMain(getMain().getKey());
     log.setCls(request.cls());
     return log;
   }
@@ -83,6 +83,7 @@ public class InvocationCtx {
     this.respBody = new JsonBytes(node);
     return this;
   }
+
   public InvocationCtx setRespBody(JsonBytes jb) {
     this.respBody = jb;
     return this;
