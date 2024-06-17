@@ -25,7 +25,7 @@ public class TestUtils {
         macro:
             steps:
               - function: copy
-                target: $
+                target: '@'
                 as: new_obj1
                 args:
                   k1: text_value
