@@ -136,7 +136,7 @@ ocli o c example.image -f image=<path to file> -s
 
 
 # Create Image OBJECT from our diagram image
-ocli o c  example.image -f image=doc\diagrams\faas_concept_v4.dio.png -s
+ocli o c  example.image -f image=doc/diagrams/faas_concept_v4.dio.png -s
 
 # INVOKE resize FUNCTION TO THE SAVED OBJECT AND SAVE THE OUTPUT OBJECT ID
 ocli i2 resize  --args ratio=0.5 -s
