@@ -114,12 +114,16 @@ jobs:
       - name: Build CLI native
         working-directory: cli
         run: mvn -B package -Pnative -DskipTests
-      - name: Rename output binary
+
+      - name: Rename output binary (Linux/Mac)
         working-directory: cli/target
-        continue-on-error: true
-        run: |
-          mv oprc-cli-${{ env.RELEASE_VERSION }}-runner.exe ocli.exe || true
-          mv oprc-cli-${{ env.RELEASE_VERSION }}-runner ocli || true
+        if: runner.os != 'Windows'
+        run: mv oprc-cli-${{ env.RELEASE_VERSION }}-runner ocli
+
+      - name: Rename output binary (Windows)
+        working-directory: cli/target
+        if: runner.os == 'Windows'
+        run: mv oprc-cli-${{ env.RELEASE_VERSION }}-runner.exe ocli.exe
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
