@@ -1269,9 +1269,13 @@ components:
           items:
             $ref: "#/components/schemas/DataMapping"
         args:
-          $ref: "#/components/schemas/DSMap"
+          type: object
+          additionalProperties:
+            type: string
         argRefs:
-          $ref: "#/components/schemas/DSMap"
+          type: object
+          additionalProperties:
+            type: string
     Step_Public:
       type: object
       properties:
@@ -1288,9 +1292,13 @@ components:
           items:
             $ref: "#/components/schemas/DataMapping_Public"
         args:
-          $ref: "#/components/schemas/DSMap_Public"
+          type: object
+          additionalProperties:
+            type: string
         argRefs:
-          $ref: "#/components/schemas/DSMap_Public"
+          type: object
+          additionalProperties:
+            type: string
     Transformation:
       type: object
       properties:

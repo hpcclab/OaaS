@@ -103,28 +103,41 @@ public class MockupData {
     .setMacro(Dataflows.Spec.builder()
       .steps(List.of(
         Dataflows.Step.builder()
-          .function("f1")
+          .function("f3")
           .target("@")
-          .argRefs(DSMap.of("key1", "arg1"))
+          .argRefs(DSMap.of("ADD", "ADD1"))
           .as("tmp1")
-          .args(DSMap.of("STEP", "1"))
+          .args(DSMap.of("STEP", "1.1"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
-          .target("tmp1")
+          .target("@")
+          .argRefs(DSMap.of("ADD", "ADD2"))
           .as("tmp2")
-          .args(DSMap.of("STEP", "2.1"))
+          .args(DSMap.of("STEP", "1.2"))
+          .build(),
+        Dataflows.Step.builder()
+          .function("f3")
+          .target("@")
+          .argRefs(DSMap.of("ADD", "ADD3"))
+          .as("tmp3")
+          .args(DSMap.of("STEP", "1.3"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
           .target("tmp1")
-          .as("tmp3")
-          .args(DSMap.of("STEP", "2.2"))
+          .as("tmp4")
+          .mappings(List.of(
+            DataMapping.builder().fromObj("tmp2").transforms(List.of(new Transformation("$.n", "tmp2"))).build(),
+            DataMapping.builder().fromObj("tmp3").transforms(List.of(new Transformation("$.n", "tmp3"))).build()
+          ))
+          .args(DSMap.of("STEP", "2", "ADD", "0"))
           .build()
       ))
-      .output("tmp3")
+      .output("tmp4")
       .build()
     );
+
   public static final OFunction CHAIN_FUNC_1 = MACRO_FUNC_1
     .copy()
     .setName("chain1")

@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
@@ -16,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 public class MockOffLoader implements OffLoader {
   private static final Logger logger = LoggerFactory.getLogger(MockOffLoader.class);
@@ -47,16 +51,24 @@ public class MockOffLoader implements OffLoader {
       OTask task = (OTask) detail.getContent();
       OOUpdate mainUpdate = null;
       OOUpdate outUpdate = null;
-      Optional<ObjectNode> jsonNodes = Optional.ofNullable(task.getMain())
+      var bodySum = Optional.ofNullable(task.getReqBody())
+        .map(JsonBytes::getNode)
+        .stream()
+        .flatMap(on -> StreamSupport
+          .stream(Spliterators.spliteratorUnknownSize(on.elements(), Spliterator.ORDERED), false))
+        .filter(JsonNode::isInt)
+        .mapToInt(JsonNode::intValue)
+        .sum();
+      Optional<ObjectNode> mainDataOptional = Optional.ofNullable(task.getMain())
         .map(GOObject::getData)
         .map(JsonBytes::getNode);
-      int n = jsonNodes
+      int n = mainDataOptional
         .map(on -> on.get("n").asInt())
         .orElse(0);
       var add = Integer.parseInt(task.getArgs().getOrDefault("ADD", "1"));
 
       var data = objectMapper.createObjectNode()
-        .put("n", n + add);
+        .put("n", n + add + bodySum);
       if (!task.isImmutable()) {
         mainUpdate = new OOUpdate(data);
       }

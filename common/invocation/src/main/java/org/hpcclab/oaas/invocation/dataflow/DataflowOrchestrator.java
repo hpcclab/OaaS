@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import lombok.Builder;
+import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.dataflow.DataflowSemantic.DataflowNode;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -85,8 +87,6 @@ public class DataflowOrchestrator {
                            DataflowSemantic semantic,
                            DataflowState state) {
     DataflowNode endNode = semantic.getEndNode();
-    logger.debug("spec : {}" , semantic.macroSpec );
-    logger.debug("endNode : {}" , endNode );
     int mainRefStepIndex = endNode.mainRefStepIndex();
     if (mainRefStepIndex >= -1) {
       var obj = state.stepStates[mainRefStepIndex + 1].obj;
@@ -113,13 +113,19 @@ public class DataflowOrchestrator {
     var invId = idGenerator.generate();
     var outId = idGenerator.generate();
     ctx.getMacroIds().put(step.as(), outId);
+    Map<String,String> args = Maps.mutable.ofMap(step.args());
+    Map<String,String> argRefs = step.argRefs() == null? Map.of() : step.argRefs();
+    Map<String, String> ctxArgs = ctx.getArgs() == null? Map.of(): ctx.getArgs();
+    for (var argRef : argRefs.entrySet()) {
+      args.put(argRef.getKey(), ctxArgs.get(argRef.getValue()));
+    }
     InvocationRequest.InvocationRequestBuilder builder = InvocationRequest.builder()
       .invId(invId)
       .outId(outId)
       .main(mainId)
       .body(createReqBody(node, state))
       .cls(mainCls!=null ? mainCls:step.targetCls())
-      .args(step.args())
+      .args(args)
       .fb(step.function());
     return builder.build();
   }
@@ -132,7 +138,8 @@ public class DataflowOrchestrator {
         continue;
       var stepState = state.stepStates[stepIndex + 1];
       ODataTransformer transformer = dmat.transformer();
-      if (!dmat.mapping().fromBody().isEmpty())
+      String fromBody = dmat.mapping().fromBody();
+      if (fromBody!= null && !fromBody.isEmpty())
         resultBody = transformer.transformMerge(resultBody, stepState.body);
       else if (stepState.obj!=null)
         resultBody = transformer.transformMerge(resultBody, stepState.obj.getData());

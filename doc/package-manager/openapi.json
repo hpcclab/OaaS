@@ -1773,10 +1773,16 @@
             }
           },
           "args" : {
-            "$ref" : "#/components/schemas/DSMap"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
           "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -1802,10 +1808,16 @@
             }
           },
           "args" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
           "argRefs" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },

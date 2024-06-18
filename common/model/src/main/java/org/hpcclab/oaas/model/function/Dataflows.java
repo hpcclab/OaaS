@@ -1,11 +1,10 @@
 package org.hpcclab.oaas.model.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
-import org.hpcclab.oaas.model.proto.DSMap;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Pawissanutt
@@ -19,6 +18,11 @@ public interface Dataflows {
     List<DataMapping> respBody,
     String output
   ){
+    public Spec cleanNull() {
+      return toBuilder()
+        .steps(Optional.of(steps).stream().flatMap(Collection::stream).map(Step::cleanNull).toList())
+        .build();
+    }
   }
 
   @Builder(toBuilder = true)
@@ -29,9 +33,17 @@ public interface Dataflows {
     String targetCls,
     String as,
     List<DataMapping> mappings,
-    DSMap args,
-    DSMap argRefs
+    Map<String,String> args,
+    Map<String,String> argRefs
   ) {
+
+    public Step cleanNull() {
+      return toBuilder()
+        .mappings(mappings == null? List.of(): mappings)
+        .args(args == null? Map.of(): args)
+        .argRefs(argRefs == null? Map.of(): argRefs)
+        .build();
+    }
   }
 
 
@@ -45,6 +57,19 @@ public interface Dataflows {
     boolean mapAll
   ) {
 
+    public DataMapping cleanNull() {
+      return toBuilder()
+        .transforms(transforms == null? List.of(): transforms)
+        .build();
+    }
+
+    @JsonIgnore
+    public String refName() {
+      if (fromObj != null && !fromObj.isEmpty())
+        return fromObj;
+      else
+        return fromBody;
+    }
   }
 
   record Transformation(String path, String inject){}

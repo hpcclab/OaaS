@@ -32,6 +32,7 @@ public class DataflowSemantic {
 
 
   public static DataflowSemantic construct(Dataflows.Spec spec) {
+    spec = spec.cleanNull();
     var root = new DataflowNode(-1);
     var df = new DataflowSemantic(spec, root);
     var steps = spec.steps();
@@ -84,13 +85,13 @@ public class DataflowSemantic {
 
   static DataflowNode resolve(Map<String, DataflowNode> stateMap, Dataflows.DataMapping mapping) {
     if (mapping==null) return null;
-    var ref = mapping.fromObj() != null? mapping.fromObj(): mapping.fromBody();
-    if (ref == null) throw new DataflowParseException("Cannot resolve " + mapping, 500);
+    var ref = mapping.refName();
+    if (ref == null || ref.isEmpty()) throw new DataflowParseException("Cannot resolve " + mapping, 500);
     return resolve(stateMap, ref);
   }
 
   static DataflowNode resolve(Map<String, DataflowNode> stateMap, String ref) {
-    if (ref == null) return null;
+    if (ref == null || ref.isEmpty()) return null;
     var target = extractTargetInFlow(ref);
     var node = stateMap.get(target);
     if (node==null) throw new DataflowParseException("Cannot resolve ref("+ref+")", 500);
