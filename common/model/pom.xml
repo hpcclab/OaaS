@@ -12,7 +12,7 @@
   <artifactId>model</artifactId>
 
   <properties>
-    <infinispan.version>15.0.4.Final</infinispan.version>
+    <infinispan.version>15.0.5.Final</infinispan.version>
     <tsid-creator.version>5.2.6</tsid-creator.version>
   </properties>
 
