@@ -1,10 +1,16 @@
-= OPRC-CLI
+= Oparaca CLI (OCLI)
+:toc:
+:toc-placement: preamble
+:toclevels: 2
 
-The commandline interface for Oparaca (aka https://github.com/hpcclab/OaaS[OaaS]).
+// Need some preamble to get TOC:
+{empty}
+
+The commandline interface for Oparaca.
 
 == Installation
 
-Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page.
+Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page. Then, copy the executable file to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
 
 == Build from source
 
@@ -21,12 +27,21 @@ cd cli
 just build-native
 # OR
 ./mvnw install -Pnative -DskipTests
+----
+NOTE: For Windows user, there is some issue that the Microsoft Native Tools for Visual Studio must first be initialized before packaging. You can work around by run the following command instead: `just build-native-window`
 
+
+Then, copy the output binary to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
+
+[source,bash]
+----
 # THEN COPY TO LOCAL BIN
 cp target/oprc-cli-999-SNAPSHOT-runner $HOME/.local/bin/ocli
 # OR IF YOU PREFER TO INSTALL AT SYSTEM LEVEL
 sudo cp target/oprc-cli-999-SNAPSHOT-runner /usr/local/bin/ocli
 # FOR WINDOW USER YOU CAN SIMPLY MOVE IT TO ANYWHERE THAT IS REGISTERED IN PATH VARIABLE
+# FOR EXAMPLE
+cp  target/oprc-cli-999-SNAPSHOT-runner.exe $HOME/.local/bin/ocli.exe
 ----
 
 
