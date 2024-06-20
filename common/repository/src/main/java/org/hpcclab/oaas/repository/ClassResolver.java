@@ -7,6 +7,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.ReferenceSpecification;
 import org.hpcclab.oaas.model.cls.ResolvedMember;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.slf4j.Logger;
@@ -102,6 +103,8 @@ public class ClassResolver {
           cls = clsMap.get(clsKey);
         else
           cls = clsRepo.get(clsKey);
+        if (cls == null)
+          throw StdOaasException.notFoundCls400(clsKey);
         if (!cls.getResolved().isFlag()) {
           cls = resolveInheritance(cls, clsMap, path);
         }

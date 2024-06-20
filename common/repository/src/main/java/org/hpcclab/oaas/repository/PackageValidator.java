@@ -1,6 +1,5 @@
-package org.hpcclab.oaas.pm.service;
+package org.hpcclab.oaas.repository;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.FunctionValidationException;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
@@ -9,7 +8,6 @@ import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
-import org.hpcclab.oaas.repository.FunctionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
 public class PackageValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(PackageValidator.class);
   final FunctionRepository functionRepo;
@@ -90,7 +87,7 @@ public class PackageValidator {
   public void validateMacro(OFunction function) {
     var macro = function.getMacro();
     var error = Dataflows.validate(macro);
-    if (error != null)
+    if (error!=null)
       throw FunctionValidationException.format(
         "MacroFunction('%s') %s", function.getKey(), error);
   }

@@ -29,7 +29,6 @@ public class PackageApplyCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(PackageApplyCommand.class);
   @CommandLine.Parameters()
   File pkgFile;
-
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
   @CommandLine.Option(names = { "-p", "--override-package",})

@@ -151,6 +151,16 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
     public MapClsRepository(MutableMap<String, OClass> map) {
       super(map, OClass::getKey);
     }
+
+    @Override
+    public List<OClass> listSubCls(String clsKey) {
+      return map.values()
+        .stream()
+        .filter(cls -> cls.getResolved() != null &&
+          cls.getResolved().getIdentities() != null &&
+          cls.getResolved().getIdentities().contains(clsKey))
+        .toList();
+    }
   }
 
   public static class MapFnRepository extends MapEntityRepository<String, OFunction> implements FunctionRepository {

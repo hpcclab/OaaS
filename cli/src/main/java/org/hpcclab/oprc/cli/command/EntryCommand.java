@@ -8,6 +8,7 @@ import org.hpcclab.oprc.cli.command.cr.CrListCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextGetCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSelectCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSetCommand;
+import org.hpcclab.oprc.cli.command.dev.DevPackageApplyCommand;
 import org.hpcclab.oprc.cli.command.fn.FnListCommand;
 import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
 import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
@@ -42,7 +43,9 @@ public class EntryCommand {
     aliases = {"d", "dev"},
     description = "Emulator for local development",
     mixinStandardHelpOptions = true,
-    subcommands = {}
+    subcommands = {
+      DevPackageApplyCommand.class
+    }
   )
   public static class DevEntryCommand {
   }

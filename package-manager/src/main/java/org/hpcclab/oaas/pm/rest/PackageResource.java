@@ -24,7 +24,6 @@ import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.pm.PkgManagerConfig;
 import org.hpcclab.oaas.pm.service.CrStateManager;
 import org.hpcclab.oaas.pm.service.PackagePublisher;
-import org.hpcclab.oaas.pm.service.PackageValidator;
 import org.hpcclab.oaas.proto.CrOperationResponse;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.OClassStatusUpdate;
@@ -32,6 +31,7 @@ import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.PackageValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
