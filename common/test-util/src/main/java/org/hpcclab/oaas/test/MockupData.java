@@ -15,6 +15,7 @@ import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.MapEntityRepository;
 
 import java.util.List;
 

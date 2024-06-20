@@ -7,7 +7,7 @@ import org.hpcclab.oprc.cli.JsonUtil;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
-import org.hpcclab.oprc.cli.service.OaasObjectCreator;
+import org.hpcclab.oprc.cli.service.OObjectCreator;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
 import picocli.CommandLine;
 
@@ -43,7 +43,7 @@ public class ObjectCreateCommand implements Callable<Integer> {
   @Inject
   ConfigFileManager fileManager;
   @Inject
-  OaasObjectCreator oaasObjectCreator;
+  OObjectCreator oaasObjectCreator;
   @Inject
   OutputFormatter outputFormatter;
 

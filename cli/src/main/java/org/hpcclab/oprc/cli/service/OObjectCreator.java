@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
-public class OaasObjectCreator {
-  private static final Logger logger = LoggerFactory.getLogger(OaasObjectCreator.class);
+public class OObjectCreator {
+  private static final Logger logger = LoggerFactory.getLogger(OObjectCreator.class);
   @Inject
   WebClient webClient;
   @Inject

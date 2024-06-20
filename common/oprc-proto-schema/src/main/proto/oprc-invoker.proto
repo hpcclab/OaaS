@@ -18,9 +18,7 @@ message ProtoInvocationRequest {
   optional string cls = 3;
   optional string fb = 4;
   map<string, string> args = 5;
-  repeated string inputs = 6;
   bool immutable = 7;
-  repeated ProtoOObject inputObjects = 9;
   optional string outId = 10;
   bytes body = 14;
   repeated ProtoInvocationChain chains = 15;
@@ -31,11 +29,11 @@ message ProtoInvocationChain {
   string main = 2;
   string cls = 3;
   string fb = 4;
-  repeated string inputs = 5;
   map<string, string> args = 6;
   string outId = 7;
   bytes body = 8;
-  repeated ProtoInvocationChain chains = 9;
+  bool immutable = 9;
+  repeated ProtoInvocationChain chains = 10;
 }
 
 message ProtoInvocationResponse {
@@ -48,6 +46,7 @@ message ProtoInvocationResponse {
   ProtoInvocationStats stats = 7;
   bool async = 8;
   bytes body = 9;
+  repeated string macroInvIds = 10;
 }
 
 message ProtoInvocationStats{

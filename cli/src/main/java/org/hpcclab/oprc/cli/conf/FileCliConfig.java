@@ -3,7 +3,9 @@ package org.hpcclab.oprc.cli.conf;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -11,9 +13,11 @@ import java.util.Map;
  */
 @Data
 @AllArgsConstructor
+@Builder(toBuilder = true)
 public class FileCliConfig {
   Map<String, FileCliContext> contexts;
   String currentContext;
+  LocalDevelopment localDev;
 
   public FileCliContext current(){
     return contexts.get(currentContext);
@@ -31,4 +35,13 @@ public class FileCliConfig {
     String defaultClass;
     String defaultObject;
   }
+
+  @Builder(toBuilder = true)
+  public record LocalDevelopment(
+    String localhost,
+    int port,
+    Path localPackageFile,
+    Path localStatePath,
+    DatastoreConf dataConf
+  ) {}
 }

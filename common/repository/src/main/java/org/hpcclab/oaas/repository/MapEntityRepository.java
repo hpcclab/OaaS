@@ -1,15 +1,13 @@
-package org.hpcclab.oaas.test;
+package org.hpcclab.oaas.repository;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.Copyable;
 import org.hpcclab.oaas.model.HasKey;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.repository.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -163,10 +161,10 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
   public static class MapObjectRepoManager extends ObjectRepoManager {
 
-    ClassControllerRegistry registry;
+    Function<String, OClass> clsLoader;
 
     public MapObjectRepoManager(MutableMap<String, GOObject> map,
-                                ClassControllerRegistry registry
+                                Function<String, OClass> clsLoader
     ) {
       var bagMultimap = map.groupBy(o -> o.getMeta().getCls());
       bagMultimap.keyMultiValuePairsView()
@@ -175,7 +173,7 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
             .toMap(GOObject::getKey, o -> o);
           repoMap.put(pair.getOne(), new MapObjectRepository(objs));
         });
-      this.registry = registry;
+      this.clsLoader = clsLoader;
     }
 
     @Override
@@ -185,7 +183,7 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
     @Override
     protected OClass load(String clsKey) {
-      return registry.getClassController(clsKey).getCls();
+      return clsLoader.apply(clsKey);
     }
   }
 }

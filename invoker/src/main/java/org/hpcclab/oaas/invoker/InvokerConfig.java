@@ -57,9 +57,6 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean useSaOnly();
 
-  @WithDefault("true")
-  boolean respPubS3();
-
   @WithDefault("false")
   boolean clusterLock();
 

@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.invocation;
 
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.invocation.controller.ClassController;
 import org.hpcclab.oaas.invocation.controller.ClassControllerBuilder;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
@@ -19,7 +18,9 @@ public class InvocationManager {
   private final ClassControllerBuilder classControllerBuilder;
   private final InvocationReqHandler reqHandler;
 
-  public InvocationManager(ClassControllerRegistry registry, ClassControllerBuilder classControllerBuilder, InvocationReqHandler reqHandler) {
+  public InvocationManager(ClassControllerRegistry registry,
+                           ClassControllerBuilder classControllerBuilder,
+                           InvocationReqHandler reqHandler) {
     this.registry = registry;
     this.classControllerBuilder = classControllerBuilder;
     this.reqHandler = reqHandler;

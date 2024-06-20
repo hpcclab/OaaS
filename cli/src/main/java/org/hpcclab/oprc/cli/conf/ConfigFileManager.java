@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oprc.cli.CliConfig;
 
 import java.io.IOException;
@@ -39,9 +40,26 @@ public class ConfigFileManager {
       .invUrl("http://inv.oaas.127.0.0.1.nip.io")
       .defaultClass("example.record")
       .build();
+    var localDev = FileCliConfig.LocalDevelopment.builder()
+      .port(8888)
+      .localStatePath(Path.of(System.getProperty("user.home"), ".oprc", "local"))
+      .localPackageFile(Path.of("pkg.yml"))
+      .localhost("localhost")
+      .dataConf(DatastoreConf.builder()
+        .name("S3DEFAULT")
+        .user("admin")
+        .pass("changethis")
+        .options(Map.of(
+          "PUBLICURL", "http://localhost:9000",
+          "URL", "http://localhost:9000",
+            "BUCKET", "oaas-bkt"
+        ))
+        .build())
+      .build();
     return new FileCliConfig(
       Maps.mutable.of("default", defaultCtx),
-      "default"
+      "default",
+      localDev
     );
   }
 

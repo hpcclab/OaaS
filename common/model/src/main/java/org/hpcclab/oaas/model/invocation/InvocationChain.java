@@ -11,11 +11,11 @@ import java.util.Map;
  */
 @Builder(toBuilder = true)
 public record InvocationChain (
+  String invId,
   String main,
   String cls,
   String fb,
   Map<String, String> args,
-  String invId,
   String outId,
   JsonBytes body,
   boolean immutable,

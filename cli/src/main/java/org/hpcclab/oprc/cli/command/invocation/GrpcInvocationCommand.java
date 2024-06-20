@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -59,8 +58,6 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   String fb;
   @CommandLine.Option(names = "--args")
   Map<String, String> args;
-  @CommandLine.Option(names = {"-i", "--inputs"})
-  List<String> inputs;
   @CommandLine.Option(names = {"-b", "--pipe-body"}, defaultValue = "false")
   boolean pipeBody;
   @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
@@ -102,9 +99,6 @@ public class GrpcInvocationCommand implements Callable<Integer> {
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
       builder.setBody(ByteString.copyFrom(objectMapper.writeValueAsBytes(objectNode)));
-    }
-    if (inputs!=null) {
-      builder.addAllInputs(inputs);
     }
     var protoReq = builder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);

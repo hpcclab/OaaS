@@ -35,7 +35,11 @@ public abstract class ClassControllerBuilder {
   protected final MetricFactory metricFactory;
   protected final ProtoMapper protoMapper = new ProtoMapperImpl();
 
-  protected ClassControllerBuilder(FunctionControllerFactory functionControllerFactory, StateManager stateManager, IdGenerator idGenerator, InvocationQueueProducer invocationQueueProducer, MetricFactory metricFactory) {
+  protected ClassControllerBuilder(FunctionControllerFactory functionControllerFactory,
+                                   StateManager stateManager,
+                                   IdGenerator idGenerator,
+                                   InvocationQueueProducer invocationQueueProducer,
+                                   MetricFactory metricFactory) {
     this.functionControllerFactory = functionControllerFactory;
     this.stateManager = stateManager;
     this.idGenerator = idGenerator;

@@ -8,9 +8,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.DefaultContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.HttpOffLoaderFactory;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.metrics.MicrometerMetricFactory;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
@@ -111,5 +113,19 @@ public class InvocationEngineProducer {
     }
   }
 
+
+  @ApplicationScoped
+  @Produces
+  HttpOffLoaderFactory factory(Vertx vertx, InvokerConfig invokerConfig) {
+    HttpOffLoaderConfig config = HttpOffLoaderConfig.builder()
+      .h2ConnectionPoolMaxSize(invokerConfig.h2ConnectionPoolMaxSize())
+      .appName("oparaca/invoker")
+      .timout(invokerConfig.invokeTimeout())
+      .connectTimeout(invokerConfig.connectTimeout())
+      .enabledCeHeader(invokerConfig.enableCeHeaderOffload())
+      .h2ConnectionPoolMaxSize(invokerConfig.h2ConnectionPoolMaxSize())
+      .build();
+    return new HttpOffLoaderFactory(vertx, config);
+  }
 
 }

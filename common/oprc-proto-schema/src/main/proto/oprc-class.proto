@@ -38,6 +38,7 @@ message ProtoFunctionBinding {
   bool immutable = 7;
   bool noMain = 8;
   bool noOutput = 9;
+  bytes override = 10;
 }
 
 message ProtoResolvedMember{
