@@ -52,7 +52,7 @@ services:
     environment:
       QUARKUS_CONSOLE_COLOR: 'true'
       OPRC_SA_S3_URL: http://s3:9000
-      OPRC_SA_S3_BUCKET: oaas
+      OPRC_SA_S3_BUCKET: oaas-bkt
       OPRC_SA_S3_ACCESSKEY: minio_access_key
       OPRC_SA_S3_SECRETKEY: minio_secret_key
       OPRC_SA_S3_PUBLICURL: http://localhost:9000
@@ -130,7 +130,7 @@ services:
       MINIO_ROOT_USER: minio_access_key
       MINIO_ROOT_PASSWORD: minio_secret_key
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
-      MINIO_DEFAULT_BUCKETS: oaas
+      MINIO_DEFAULT_BUCKETS: oaas-bkt
 
   invoker:
     depends_on:
@@ -151,7 +151,7 @@ services:
       OPRC_INVOKER_KAFKA: PLAINTEXT://redpanda:9092
       OPRC_INVOKER_STORAGEADAPTERURL: http://sa:8080
       OPRC_INVOKER_S3_URL: http://s3:9000
-      OPRC_INVOKER_S3_BUCKET: oaas
+      OPRC_INVOKER_S3_BUCKET: oaas-bkt
       OPRC_INVOKER_S3_ACCESSKEY: minio_access_key
       OPRC_INVOKER_S3_SECRETKEY: minio_secret_key
       OPRC_INVOKER_S3_PUBLICURL: http://localhost:9000

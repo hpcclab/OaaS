@@ -49,6 +49,8 @@ public class EntryCommand {
       DevInvocationCommand.class,
       DevObjectCreateCommand.class,
       DevObjectCleanCommand.class,
+      DevObjectFileCommand.class,
+      DevObjectCatFileCommand.class,
       DevConfigCommand.class
     }
   )

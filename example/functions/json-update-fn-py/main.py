@@ -10,7 +10,7 @@ from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelName(LOG_LEVEL)
+level = logging.getLevelName("DEBUG")
 logging.basicConfig(level=level)
 
 
@@ -65,4 +65,5 @@ async def handle(request: Request):
     return resp
 
 if __name__ == "__main__":
+
     uvicorn.run(app, host="0.0.0.0", port=8080)

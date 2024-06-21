@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(
   name = "object-clean",
   aliases = {"ocl", "od"},
-  description = "create an object",
+  description = "Clean all objects of the given class",
   mixinStandardHelpOptions = true
 )
 public class DevObjectCleanCommand implements Callable<Integer> {

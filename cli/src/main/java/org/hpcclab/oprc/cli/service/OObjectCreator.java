@@ -76,7 +76,7 @@ public class OObjectCreator {
     }
   }
 
-  void uploadFile(String key, File file, String url) {
+  public void uploadFile(String key, File file, String url) {
     logger.info("uploading file {}={} to {}", key, file.getPath(), url);
     try {
       String mimeType = Files.probeContentType(file.toPath());

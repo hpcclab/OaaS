@@ -33,7 +33,7 @@ jbang-install:
     jbang app install --name=ocli --force target/oprc-cli-999-SNAPSHOT-runner.jar
 
 build-native-window:
-    cmd /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && ./mvnw package -Dnative'
+    cmd /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && ./mvnw "-Dquarkus.package.jar.type=fast-jar" package -Dnative'
 
 install-native-window: build-native
     cp target/oprc-cli-{{version}}-runner.exe $HOME/.local/bin/ocli.exe

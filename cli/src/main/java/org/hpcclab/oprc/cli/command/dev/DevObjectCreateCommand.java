@@ -12,6 +12,7 @@ import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
+import org.hpcclab.oprc.cli.service.OObjectCreator;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
 import org.hpcclab.oprc.cli.state.LocalDevManager;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
@@ -61,6 +63,8 @@ public class DevObjectCreateCommand implements Callable<Integer> {
   OutputFormatter outputFormatter;
   @Inject
   LocalDevManager devManager;
+  @Inject
+  OObjectCreator objCreator;
 
   @Override
   public Integer call() throws Exception {
@@ -73,7 +77,10 @@ public class DevObjectCreateCommand implements Callable<Integer> {
       body = JsonBytes.EMPTY;
     }
     InvocationReqHandler reqHandler = invocationManager.getReqHandler();
-    var constructRequest = NewFnController.ObjectConstructRequest.of(body.getNode());
+    var constructRequest = NewFnController.ObjectConstructRequest.builder()
+      .data(body.getNode())
+      .keys(files != null? files.keySet(): Set.of())
+      .build();
     var mapper = new ObjectMapper();
     InvocationRequest req = InvocationRequest.builder()
       .cls(cls)
@@ -82,6 +89,8 @@ public class DevObjectCreateCommand implements Callable<Integer> {
       .build();
     logger.debug("cls {}", invocationManager.getRegistry().printStructure());
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();
+    var constructResp = resp.body().mapToObj(NewFnController.ObjectConstructResponse.class);
+    uploadFiles(files, constructResp);
     outputFormatter.print(commonOutputMixin.getOutputFormat(), JsonObject.mapFrom(resp));
     devManager.persistObject();
     var out = resp.output();
@@ -92,5 +101,14 @@ public class DevObjectCreateCommand implements Callable<Integer> {
       fileManager.update(conf);
     }
     return 0;
+  }
+
+  void uploadFiles(Map<String, File> files,
+                   NewFnController.ObjectConstructResponse resp) {
+    if (files == null || files.isEmpty()) return;
+    Map<String, String> uploadUrls = resp.uploadUrls();
+    for (var entry : uploadUrls.entrySet()) {
+      objCreator.uploadFile(entry.getKey(), files.get(entry.getKey()), entry.getValue());
+    }
   }
 }

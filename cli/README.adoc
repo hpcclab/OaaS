@@ -87,7 +87,7 @@ In thie mode, you can:
 
 The state will be keep in the local file storage. By the default, it will store at `%HOME/.oprc/local`. You can configure the location by editing `$HOME/.oprc/config.yml`.
 
-=== Local Dev Usage
+=== Common Usages
 Suppose you have the function run at http://localhost:10001.
 In this example, we can start json-update-fn locally via docker.
 
@@ -113,6 +113,18 @@ ocli dev oc example.record -s -d '{"hello":"world"}'
 # Invoke the object function
 ocli dev i random -s
 ----
+=== Unstructured Data
+Currently, `ocli` not provide the object storage emulation out of the box. You have to run the local object storage manually.
+[source,bash]
+----
+docker run -d -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=admin -e MINIO_ROOT_PASSWORD=changethis -e MINIO_DEFAULT_BUCKETS=oaas-bkt -e MINIO_API_CORS_ALLOW_ORIGIN=* --name="minio" bitnami/minio
+
+# to clean
+docker stop minio
+docker rm minio
+----
+NOTE: You can change the port of `minio`, but you have to update `$HOME/.oprc/config.yml` to change `localDev.dataConf.options.PUBLICURL` and `localDev.dataConf.options.URL`
+
 === Multi functions
 In the case of having multiple function run locally on the difference port, you have to manually editing the file `$HOME/.oprc/local/pkg.yml` by changing the `functions[].status.invocationUrl` on each function
 [source, yaml]
