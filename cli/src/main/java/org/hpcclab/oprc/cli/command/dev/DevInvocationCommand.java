@@ -1,5 +1,6 @@
 package org.hpcclab.oprc.cli.command.dev;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationManager;
@@ -7,6 +8,9 @@ import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OOUpdate;
+import org.hpcclab.oaas.model.task.OTask;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
@@ -24,6 +28,13 @@ import java.util.concurrent.Callable;
   aliases = {"inv", "i"},
   description = "Invoke a function with REST API",
   mixinStandardHelpOptions = true
+)
+@RegisterForReflection(
+  targets = {
+    OTask.class,
+    OTaskCompletion.class,
+    OOUpdate.class
+  }
 )
 public class DevInvocationCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(DevInvocationCommand.class);

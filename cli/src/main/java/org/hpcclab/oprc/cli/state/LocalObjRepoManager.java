@@ -5,6 +5,7 @@ import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.repository.MapEntityRepository.MapObjectRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -60,7 +61,7 @@ public class LocalObjRepoManager extends ObjectRepoManager {
     return baseDir.resolve(cls + ".ndjson").toFile();
   }
 
-  void persist(String clsKey) throws IOException {
+  public void persist(String clsKey) throws IOException {
     MapObjectRepository repo = (MapObjectRepository) getOrCreate(clsKey);
     File file = fileOf(clsKey);
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
@@ -69,6 +70,15 @@ public class LocalObjRepoManager extends ObjectRepoManager {
         writer.write(jsonString);
         writer.newLine();
       }
+    }
+  }
+
+  public void clean(String clsKey) {
+    File file = fileOf(clsKey);
+    if (!file.exists())
+      return;
+    if (!file.delete()) {
+      throw StdOaasException.format("File %s is failed to delete", file.toPath());
     }
   }
 }

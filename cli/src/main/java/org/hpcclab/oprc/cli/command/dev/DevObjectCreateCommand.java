@@ -1,9 +1,12 @@
 package org.hpcclab.oprc.cli.command.dev;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
+import org.hpcclab.oaas.invocation.controller.fn.logical.NewFnController;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.JsonBytes;
@@ -21,9 +24,15 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(
   name = "object-create",
-  aliases = {"oc", "c"},
+  aliases = {"oc", "o"},
   description = "create an object",
   mixinStandardHelpOptions = true
+)
+@RegisterForReflection(
+  targets = {
+    NewFnController.ObjectConstructRequest.class,
+    NewFnController.ObjectConstructResponse.class
+  }
 )
 public class DevObjectCreateCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(DevObjectCreateCommand.class);
@@ -61,13 +70,15 @@ public class DevObjectCreateCommand implements Callable<Integer> {
     if (data!=null) {
       body = new JsonBytes(data.getBytes());
     } else {
-      body = null;
+      body = JsonBytes.EMPTY;
     }
     InvocationReqHandler reqHandler = invocationManager.getReqHandler();
+    var constructRequest = NewFnController.ObjectConstructRequest.of(body.getNode());
+    var mapper = new ObjectMapper();
     InvocationRequest req = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
-      .body(body)
+      .body(new JsonBytes(mapper.valueToTree(constructRequest)))
       .build();
     logger.debug("cls {}", invocationManager.getRegistry().printStructure());
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();

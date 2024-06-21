@@ -54,9 +54,8 @@ public class LocalDevManager {
 
   void init() {
     if (objRepoManager!=null) return;
-    StateModels.LocalPackage localPackage = null;
     try {
-      localPackage = loadLocal();
+      StateModels.LocalPackage localPackage = loadLocal();
       MutableMap<String, OClass> clsMap = Maps.mutable.empty();
       localPackage.classes().forEach(v -> clsMap.put(v.getKey(), v));
       clsRepo = new MapEntityRepository.MapClsRepository(clsMap);
@@ -137,6 +136,11 @@ public class LocalDevManager {
   public BaseClassControllerRegistry getControllerRegistry() {
     init();
     return controllerRegistry;
+  }
+
+  public LocalObjRepoManager getObjRepoManager() {
+    init();
+    return objRepoManager;
   }
 
   public RepoClassControllerBuilder getClassControllerBuilder() {

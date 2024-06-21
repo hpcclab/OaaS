@@ -8,10 +8,7 @@ import org.hpcclab.oprc.cli.command.cr.CrListCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextGetCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSelectCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSetCommand;
-import org.hpcclab.oprc.cli.command.dev.DevConfigCommand;
-import org.hpcclab.oprc.cli.command.dev.DevInvocationCommand;
-import org.hpcclab.oprc.cli.command.dev.DevObjectCreateCommand;
-import org.hpcclab.oprc.cli.command.dev.DevPackageApplyCommand;
+import org.hpcclab.oprc.cli.command.dev.*;
 import org.hpcclab.oprc.cli.command.fn.FnListCommand;
 import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
 import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
@@ -48,8 +45,10 @@ public class EntryCommand {
     mixinStandardHelpOptions = true,
     subcommands = {
       DevPackageApplyCommand.class,
+      DevPackageDeleteCommand.class,
       DevInvocationCommand.class,
       DevObjectCreateCommand.class,
+      DevObjectCleanCommand.class,
       DevConfigCommand.class
     }
   )
