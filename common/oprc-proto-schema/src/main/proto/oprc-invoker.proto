@@ -9,7 +9,6 @@ package oprc;
 service InvocationService {
   rpc invokeLocal(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
   rpc invoke(ProtoInvocationRequest) returns (ProtoInvocationResponse) {};
-//  rpc invokeOal(ProtoObjectAccessLanguage) returns (ProtoInvocationResponse) {};
 }
 
 message ProtoInvocationRequest {
