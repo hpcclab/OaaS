@@ -3,6 +3,7 @@ package org.hpcclab.oaas.invocation.controller.fn.logical;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
+import lombok.Builder;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
@@ -99,6 +100,7 @@ public class NewFnController extends AbstractFunctionController
     return "builtin.logical.new";
   }
 
+  @Builder(toBuilder = true)
   public record ObjectConstructRequest(
     ObjectNode data,
     Set<String> keys,
@@ -110,6 +112,7 @@ public class NewFnController extends AbstractFunctionController
     }
   }
 
+  @Builder(toBuilder = true)
   public record ObjectConstructResponse(
     Map<String, String> uploadUrls) {
   }

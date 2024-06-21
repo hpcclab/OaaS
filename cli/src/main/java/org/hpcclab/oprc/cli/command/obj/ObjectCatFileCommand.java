@@ -16,7 +16,7 @@ import picocli.CommandLine;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
-  name = "cat file",
+  name = "cat-file",
   aliases = {"cf"},
   description = "Cat the loaded file from object",
   mixinStandardHelpOptions = true

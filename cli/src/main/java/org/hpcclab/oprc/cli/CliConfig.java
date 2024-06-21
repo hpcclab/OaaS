@@ -13,4 +13,8 @@ import io.smallrye.config.WithDefault;
 public interface CliConfig {
   @WithDefault(".oprc/config.yml")
   String configPath();
+  @WithDefault("pkg.yml")
+  String localPackageFile();
+  @WithDefault(".oprc/local/")
+  String localStatePath();
 }

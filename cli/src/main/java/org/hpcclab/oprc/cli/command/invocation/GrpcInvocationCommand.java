@@ -10,9 +10,13 @@ import io.vertx.grpc.client.GrpcClientChannel;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
@@ -26,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -38,8 +41,13 @@ import java.util.concurrent.Callable;
 )
 @RegisterForReflection(
   targets = {
+    InvocationRequest.class,
     InvocationResponse.class,
+    InvocationStats.class,
+    InvocationStatus.class,
     GOObject.class,
+    OMeta.class,
+    JsonBytes.class,
     OaasObjectState.class,
     DSMap.class,
     InvocationStats.class
@@ -49,18 +57,14 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(GrpcInvocationCommand.class);
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
-
   @CommandLine.Option(names = "-c")
   String cls;
-
   @CommandLine.Option(names = {"-m", "--main"})
   String main;
   @CommandLine.Parameters(index = "0", defaultValue = "")
   String fb;
   @CommandLine.Option(names = "--args")
   Map<String, String> args;
-  @CommandLine.Option(names = {"-i", "--inputs"})
-  List<String> inputs;
   @CommandLine.Option(names = {"-b", "--pipe-body"}, defaultValue = "false")
   boolean pipeBody;
   @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
@@ -102,9 +106,6 @@ public class GrpcInvocationCommand implements Callable<Integer> {
       var sbody = new String(body).stripTrailing();
       ObjectNode objectNode = objectMapper.readValue(sbody, ObjectNode.class);
       builder.setBody(ByteString.copyFrom(objectMapper.writeValueAsBytes(objectNode)));
-    }
-    if (inputs!=null) {
-      builder.addAllInputs(inputs);
     }
     var protoReq = builder.build();
     ProtoInvocationResponse response = service.invoke(protoReq);

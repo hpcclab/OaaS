@@ -41,6 +41,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>invocation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>common-storage</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-grpc-client</artifactId>
     </dependency>

@@ -12,7 +12,7 @@ import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OOUpdate;
 import org.hpcclab.oaas.model.task.OTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class MockOffLoader implements OffLoader {
   }
 
   @Override
-  public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
+  public Uni<OTaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (mapper!=null) {
       var tc = mapper.apply(invokingDetail);
       logger.debug("invoke mapping {}\nto {}", invokingDetail, tc);
@@ -42,12 +42,12 @@ public class MockOffLoader implements OffLoader {
     return Uni.createFrom().nullItem();
   }
 
-  public interface Mapper extends Function<InvokingDetail<?>, TaskCompletion>{}
+  public interface Mapper extends Function<InvokingDetail<?>, OTaskCompletion>{}
 
   public static class DefaultMapper implements Mapper {
     ObjectMapper objectMapper = new ObjectMapper();
     @Override
-    public TaskCompletion apply(InvokingDetail<?> detail) {
+    public OTaskCompletion apply(InvokingDetail<?> detail) {
       OTask task = (OTask) detail.getContent();
       OOUpdate mainUpdate = null;
       OOUpdate outUpdate = null;
@@ -76,11 +76,11 @@ public class MockOffLoader implements OffLoader {
         outUpdate = new OOUpdate(data);
       }
 
-      return new TaskCompletion()
+      return new OTaskCompletion()
         .setId(detail.getId())
         .setMain(mainUpdate)
         .setOutput(outUpdate)
-        .setBody(data)
+        .setBody(new JsonBytes(data))
         .setSuccess(true);
     }
   }

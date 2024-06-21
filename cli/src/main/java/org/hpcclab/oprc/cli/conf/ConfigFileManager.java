@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.collections.api.factory.Maps;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oprc.cli.CliConfig;
 
 import java.io.IOException;
@@ -33,15 +34,42 @@ public class ConfigFileManager {
     return getOrCreate().current();
   }
 
-  public FileCliConfig getDefault() {
+  public FileCliConfig.FileCliContext dev() throws IOException {
+    FileCliConfig.FileCliContext dev = getOrCreate().contexts.get("dev");
+    if (dev == null) {
+      dev = FileCliConfig.FileCliContext.builder().build();
+      getOrCreate().contexts.put("dev", dev);
+    }
+    return dev;
+  }
+
+  public FileCliConfig createDefault() {
     var defaultCtx = FileCliConfig.FileCliContext.builder()
       .pmUrl("http://pm.oaas.127.0.0.1.nip.io")
       .invUrl("http://inv.oaas.127.0.0.1.nip.io")
       .defaultClass("example.record")
       .build();
+    var localDev = FileCliConfig.LocalDevelopment.builder()
+      .port(8888)
+      .localStatePath(Path.of(System.getProperty("user.home"), ".oprc", "local"))
+      .localPackageFile("pkg.yml")
+      .localhost("localhost")
+      .fnDevUrl("http://localhost:8080")
+      .dataConf(DatastoreConf.builder()
+        .name("S3DEFAULT")
+        .user("admin")
+        .pass("changethis")
+        .options(Map.of(
+          "PUBLICURL", "http://localhost:9000",
+          "URL", "http://localhost:9000",
+            "BUCKET", "oaas-bkt"
+        ))
+        .build())
+      .build();
     return new FileCliConfig(
       Maps.mutable.of("default", defaultCtx),
-      "default"
+      "default",
+      localDev
     );
   }
 
@@ -54,7 +82,7 @@ public class ConfigFileManager {
       fileCliConfig = objectMapper.readValue(file, FileCliConfig.class);
     } else {
       file.getParentFile().mkdirs();
-      fileCliConfig = getDefault();
+      fileCliConfig = createDefault();
       objectMapper.writeValue(file, fileCliConfig);
     }
     return fileCliConfig;

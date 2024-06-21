@@ -6,6 +6,7 @@ import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.repository.MapEntityRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 
@@ -18,7 +19,9 @@ public class MockInvocationManager {
   public final ObjectRepoManager repoManager;
   public final InvocationManager invocationManager;
 
-  public MockInvocationManager(MockInvocationQueueProducer invocationQueueProducer, ObjectRepoManager repoManager, InvocationManager invocationManager) {
+  public MockInvocationManager(MockInvocationQueueProducer invocationQueueProducer,
+                               ObjectRepoManager repoManager,
+                               InvocationManager invocationManager) {
     this.invocationQueueProducer = invocationQueueProducer;
     this.repoManager = repoManager;
     this.invocationManager = invocationManager;
@@ -26,7 +29,8 @@ public class MockInvocationManager {
 
   public static MockInvocationManager getInstance() {
     var registry = new BaseClassControllerRegistry();
-    var repoManager = new MapEntityRepository.MapObjectRepoManager(Maps.mutable.empty(), registry);
+    var repoManager = new MapEntityRepository.MapObjectRepoManager(Maps.mutable.empty(),
+      k -> registry.getClassController(k).getCls());
     var reqHandler = new CcInvocationReqHandler(
       registry,
       new RepoCtxLoader(repoManager, registry),

@@ -12,4 +12,5 @@ message ProtoOPackage {
   repeated ProtoOClass classes = 2;
   repeated ProtoOFunction functions = 3;
   repeated string required = 4;
+  bool disable = 5;
 }

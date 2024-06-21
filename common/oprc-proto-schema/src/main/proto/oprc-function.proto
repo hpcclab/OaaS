@@ -21,6 +21,7 @@ message ProtoOFunction{
   optional ProtoQosRequirement qos = 12;
   optional ProtoConstraint constraint = 13;
   optional ProtoOFunctionConfig config = 14;
+  bool immutable = 15;
 }
 
 message ProtoProvisionConfig {
@@ -77,10 +78,11 @@ message ProtoDataflowSpec {
 message DataflowStep {
   string function = 1;
   string target = 2;
-  optional string as = 3;
-  repeated  ProtoDataMapping mappings = 4;
-  map<string, string> args = 5;
-  map<string, string> argRefs = 6;
+  string targetCls = 3;
+  optional string as = 4;
+  repeated  ProtoDataMapping mappings = 5;
+  map<string, string> args = 6;
+  map<string, string> argRefs = 7;
 }
 
 message ProtoDataMapping {
@@ -111,6 +113,7 @@ message ProtoOFunctionDeploymentStatus {
 message ProtoOFunctionConfig {
   map<string, string> offloadingConfig = 1;
   bool http2 = 2;
+  bytes custom = 3;
 }
 
 

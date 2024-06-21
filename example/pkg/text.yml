@@ -15,7 +15,7 @@ functions:
     type: MACRO
     macro:
       steps:
-        - target: $
+        - target: '@'
           as: record1
           function: concat
           args:
@@ -30,7 +30,7 @@ functions:
           function: concat
           args:
             INPLACE: "false"
-      export: record3
+      output: record3
 classes:
   - name: text
     stateType: FILES

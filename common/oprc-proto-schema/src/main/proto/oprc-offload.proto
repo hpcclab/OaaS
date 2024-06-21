@@ -11,14 +11,14 @@ package oprc;
 message ProtoOTask {
   string id = 1;
   string partKey = 2;
-  ProtoOObject main = 3;
-  ProtoOObject output = 4;
+  ProtoPOObject main = 3;
+  ProtoPOObject output = 4;
   string funcKey = 5;
   string allocMainUrl = 6;
   string allocOutputUrl = 7;
-  map<string,string> mainKeys = 8;
-  map<string,string> outputKeys = 9;
-  repeated string inputContextKeys = 10;
+  map<string,string> mainGetKeys = 8;
+  map<string,string> mainPutKeys = 9;
+  map<string,string> outputKeys = 10;
   map<string, string> args = 11;
   bytes reqBody = 12;
   string fbName = 13;
@@ -43,6 +43,6 @@ message ProtoObjectUpdate {
   repeated string updatedKeys = 3;
 }
 
-service OTaskExecutor {
+service FunctionExecutor {
   rpc invoke(ProtoOTask)  returns (ProtoOTaskCompletion) {};
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author Pawissanutt
  */
-public class RepoClassControllerBuilder extends ClassControllerBuilder {
+public class RepoClassControllerBuilder extends AbsClassControllerBuilder {
   final FunctionRepository fnRepo;
   final ClassRepository clsRepo;
 

@@ -14,7 +14,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import org.hpcclab.oaas.model.object.OOUpdate;
 import org.hpcclab.oaas.model.task.OTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 
 import java.util.Set;
 
@@ -33,12 +33,12 @@ public class ConcatHandler {
   }
 
   @POST
-  public Uni<TaskCompletion> handle(OTask task) {
+  public Uni<OTaskCompletion> handle(OTask task) {
     var args = task.getArgs();
     var inputUrl = task.getMainGetKeys().get("text");
     var inPlace = Boolean.parseBoolean(args.getOrDefault("INPLACE", "false"));
     var update = new OOUpdate().setUpdatedKeys(Set.of("text"));
-    var completionBuilder = TaskCompletion.builder()
+    var completionBuilder = OTaskCompletion.builder()
       .id(task.getId())
       .success(true);
     if (inPlace)

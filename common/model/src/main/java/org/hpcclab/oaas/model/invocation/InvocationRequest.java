@@ -13,12 +13,12 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @With
 public record InvocationRequest(
+  String invId,
   String main,
   String cls,
   String fb,
   Map<String, String> args,
   boolean immutable,
-  String invId,
   String outId,
   JsonBytes body,
   List<InvocationChain> chains,

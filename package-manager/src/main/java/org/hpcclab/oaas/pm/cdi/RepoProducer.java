@@ -8,6 +8,8 @@ import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
 import org.hpcclab.oaas.repository.ClassRepository;
 import org.hpcclab.oaas.repository.ClassResolver;
+import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.PackageValidator;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 
@@ -35,5 +37,11 @@ public class RepoProducer {
   @Singleton
   IdGenerator idGenerator() {
     return new TsidGenerator();
+  }
+
+  @Produces
+  @ApplicationScoped
+  PackageValidator packageValidator(FunctionRepository functionRepository) {
+    return new PackageValidator(functionRepository);
   }
 }

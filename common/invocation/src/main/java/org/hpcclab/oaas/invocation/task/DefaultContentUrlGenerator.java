@@ -7,8 +7,8 @@ public class DefaultContentUrlGenerator implements ContentUrlGenerator {
 
   private final String prefixUrl;
 
-  public DefaultContentUrlGenerator(String saUrl) {
-    this.prefixUrl = saUrl;
+  public DefaultContentUrlGenerator(String prefixUrl) {
+    this.prefixUrl = prefixUrl;
   }
 
   public String generateUrl(IOObject<?> obj,

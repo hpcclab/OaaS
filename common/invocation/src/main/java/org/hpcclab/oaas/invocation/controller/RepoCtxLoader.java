@@ -5,12 +5,15 @@ import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Pawissanutt
  */
 public class RepoCtxLoader implements CtxLoader {
 
+  private static final Logger logger = LoggerFactory.getLogger( RepoCtxLoader.class );
   final ObjectRepoManager objManager;
   final ClassControllerRegistry registry;
 

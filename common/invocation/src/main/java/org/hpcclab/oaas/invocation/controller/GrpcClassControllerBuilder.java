@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Pawissanutt
  */
-public class GrpcClassControllerBuilder extends ClassControllerBuilder {
+public class GrpcClassControllerBuilder extends AbsClassControllerBuilder {
   final ClassService classService;
   final FunctionService functionService;
 

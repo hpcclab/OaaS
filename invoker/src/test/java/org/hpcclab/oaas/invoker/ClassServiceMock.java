@@ -7,7 +7,7 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.proto.*;
 import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.test.MapEntityRepository;
+import org.hpcclab.oaas.repository.MapEntityRepository;
 import org.hpcclab.oaas.test.MockupData;
 
 /**

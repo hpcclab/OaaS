@@ -25,13 +25,13 @@ public class ClsRegistryProducer {
 
   @Produces
   @ApplicationScoped
-  ClassControllerBuilder builder(@GrpcClient("package-manager") ClassService classService,
-                                 @GrpcClient("package-manager") FunctionService functionService,
-                                 FunctionControllerFactory functionControllerFactory,
-                                 StateManager stateManager,
-                                 IdGenerator idGenerator,
-                                 InvocationQueueProducer invocationQueueProducer,
-                                 MetricFactory metricFactory) {
+  AbsClassControllerBuilder builder(@GrpcClient("package-manager") ClassService classService,
+                                    @GrpcClient("package-manager") FunctionService functionService,
+                                    FunctionControllerFactory functionControllerFactory,
+                                    StateManager stateManager,
+                                    IdGenerator idGenerator,
+                                    InvocationQueueProducer invocationQueueProducer,
+                                    MetricFactory metricFactory) {
     return new GrpcClassControllerBuilder(
       functionControllerFactory,
       stateManager,
