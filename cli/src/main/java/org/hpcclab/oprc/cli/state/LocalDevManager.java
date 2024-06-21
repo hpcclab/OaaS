@@ -46,7 +46,7 @@ public class LocalDevManager {
 
   public LocalDevManager(ConfigFileManager fileManager,
                          CdiFunctionControllerFactory fnControllerFactory) {
-    this.localDev = fileManager.getDefault().getLocalDev();
+    this.localDev = fileManager.createDefault().getLocalDev();
     this.yamlMapper = new ObjectMapper(new YAMLFactory());
     this.controllerRegistry = new BaseClassControllerRegistry();
     this.fnControllerFactory = fnControllerFactory;
@@ -108,6 +108,7 @@ public class LocalDevManager {
     Files.createDirectories(localDev.localStatePath());
     File pkgFile = localDev.localStatePath().resolve(localDev.localPackageFile()).toFile();
     yamlMapper.writeValue(pkgFile, localPackage);
+    logger.debug("update pkg {}}", pkgFile);
   }
 
   public void persistObject() throws IOException {

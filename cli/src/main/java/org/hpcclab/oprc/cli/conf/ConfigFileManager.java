@@ -43,7 +43,7 @@ public class ConfigFileManager {
     return dev;
   }
 
-  public FileCliConfig getDefault() {
+  public FileCliConfig createDefault() {
     var defaultCtx = FileCliConfig.FileCliContext.builder()
       .pmUrl("http://pm.oaas.127.0.0.1.nip.io")
       .invUrl("http://inv.oaas.127.0.0.1.nip.io")
@@ -82,7 +82,7 @@ public class ConfigFileManager {
       fileCliConfig = objectMapper.readValue(file, FileCliConfig.class);
     } else {
       file.getParentFile().mkdirs();
-      fileCliConfig = getDefault();
+      fileCliConfig = createDefault();
       objectMapper.writeValue(file, fileCliConfig);
     }
     return fileCliConfig;

@@ -21,8 +21,11 @@ public class DevConfigCommand implements Callable<Integer> {
 
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
+
   @CommandLine.Option(names = { "-r", "--reset",})
   boolean reset;
+  @CommandLine.Option(names = {"--fn-dev-url",})
+  String fnDevUrl;
 
   @Inject
   ConfigFileManager fileManager;
@@ -34,10 +37,17 @@ public class DevConfigCommand implements Callable<Integer> {
     FileCliConfig config = fileManager.getOrCreate();
     var localDev = config.getLocalDev();
     if (localDev == null || reset) {
-      localDev = fileManager.getDefault().getLocalDev();
+      localDev = fileManager.createDefault().getLocalDev();
       config.setLocalDev(localDev);
       fileManager.update(config);
     }
+    if (fnDevUrl!= null) {
+      localDev = localDev.toBuilder()
+        .fnDevUrl(fnDevUrl)
+        .build();
+    }
+    config.setLocalDev(localDev);
+    fileManager.update(config);
     formatter.printObject(commonOutputMixin.getOutputFormat(), localDev);
     return 0;
   }

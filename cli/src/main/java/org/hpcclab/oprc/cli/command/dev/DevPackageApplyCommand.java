@@ -13,6 +13,8 @@ import org.hpcclab.oaas.repository.PackageValidator;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
 import org.hpcclab.oprc.cli.state.LocalDevManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -41,7 +43,7 @@ import java.util.stream.Collectors;
   registerFullHierarchy = true
 )
 public class DevPackageApplyCommand implements Callable<Integer> {
-
+  private static final Logger logger = LoggerFactory.getLogger(DevPackageApplyCommand.class);
   @CommandLine.Parameters()
   File pkgFile;
 
@@ -52,7 +54,8 @@ public class DevPackageApplyCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    FileCliConfig.LocalDevelopment localDev = fileManager.getDefault().getLocalDev();
+    FileCliConfig.LocalDevelopment localDev = fileManager.getOrCreate().getLocalDev();
+    logger.debug("use {}", localDev);
     ClassResolver classResolver = new ClassResolver(devManager.getClsRepo());
     PackageValidator validator = new PackageValidator(devManager.getFnRepo());
     var yamlMapper = new YAMLMapper();
@@ -69,13 +72,17 @@ public class DevPackageApplyCommand implements Callable<Integer> {
         .setCondition(DeploymentCondition.RUNNING)
         .setInvocationUrl(localDev.fnDevUrl())
       );
+      logger.debug("func {}", function);
     }
     devManager.getClsRepo().persist(changedClasses.values().stream().toList());
     devManager.getFnRepo().persist(functions);
-    devManager.persistPkg();
     for (OClass cls : changedClasses.values()) {
-      System.out.println("update cls: " + cls.getKey());
+      System.out.println("update class: " + cls.getKey());
     }
+    for (OFunction fn : functions) {
+      System.out.println("update func: " + fn.getKey());
+    }
+    devManager.persistPkg();
     return 0;
   }
 }
