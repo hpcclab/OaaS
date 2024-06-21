@@ -34,6 +34,15 @@ public class ConfigFileManager {
     return getOrCreate().current();
   }
 
+  public FileCliConfig.FileCliContext dev() throws IOException {
+    FileCliConfig.FileCliContext dev = getOrCreate().contexts.get("dev");
+    if (dev == null) {
+      dev = FileCliConfig.FileCliContext.builder().build();
+      getOrCreate().contexts.put("dev", dev);
+    }
+    return dev;
+  }
+
   public FileCliConfig getDefault() {
     var defaultCtx = FileCliConfig.FileCliContext.builder()
       .pmUrl("http://pm.oaas.127.0.0.1.nip.io")
@@ -43,8 +52,9 @@ public class ConfigFileManager {
     var localDev = FileCliConfig.LocalDevelopment.builder()
       .port(8888)
       .localStatePath(Path.of(System.getProperty("user.home"), ".oprc", "local"))
-      .localPackageFile(Path.of("pkg.yml"))
+      .localPackageFile("pkg.yml")
       .localhost("localhost")
+      .fnDevUrl("http://localhost:8080")
       .dataConf(DatastoreConf.builder()
         .name("S3DEFAULT")
         .user("admin")

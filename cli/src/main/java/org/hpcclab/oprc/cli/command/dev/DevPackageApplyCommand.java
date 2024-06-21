@@ -4,15 +4,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.cls.OClass;
-import org.hpcclab.oaas.model.function.Dataflows;
-import org.hpcclab.oaas.model.function.FunctionBinding;
-import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.model.function.*;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
 import org.hpcclab.oaas.model.state.StateSpecification;
 import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.PackageValidator;
-import org.hpcclab.oprc.cli.state.LocalStateManager;
+import org.hpcclab.oprc.cli.conf.ConfigFileManager;
+import org.hpcclab.oprc.cli.conf.FileCliConfig;
+import org.hpcclab.oprc.cli.state.LocalDevManager;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
     FunctionBinding.class,
     StateSpecification.class
   },
-  registerFullHierarchy=true
+  registerFullHierarchy = true
 )
 public class DevPackageApplyCommand implements Callable<Integer> {
 
@@ -46,12 +46,15 @@ public class DevPackageApplyCommand implements Callable<Integer> {
   File pkgFile;
 
   @Inject
-  LocalStateManager localStateManager;
+  LocalDevManager devManager;
+  @Inject
+  ConfigFileManager fileManager;
 
   @Override
   public Integer call() throws Exception {
-    ClassResolver classResolver = new ClassResolver(localStateManager.getClsRepo());
-    PackageValidator validator = new PackageValidator(localStateManager.getFnRepo());
+    FileCliConfig.LocalDevelopment localDev = fileManager.getDefault().getLocalDev();
+    ClassResolver classResolver = new ClassResolver(devManager.getClsRepo());
+    PackageValidator validator = new PackageValidator(devManager.getFnRepo());
     var yamlMapper = new YAMLMapper();
     var pkg = yamlMapper.readValue(pkgFile, OPackage.class);
     var validatedPkg = validator.validate(pkg);
@@ -60,12 +63,19 @@ public class DevPackageApplyCommand implements Callable<Integer> {
     var clsMap = classes.stream()
       .collect(Collectors.toMap(OClass::getKey, Function.identity()));
     var changedClasses = classResolver.resolveInheritance(clsMap);
+    for (OFunction function : functions) {
+      if (function.getType()!=FunctionType.TASK) continue;
+      function.setStatus(new OFunctionDeploymentStatus()
+        .setCondition(DeploymentCondition.RUNNING)
+        .setInvocationUrl(localDev.fnDevUrl())
+      );
+    }
+    devManager.getClsRepo().persist(changedClasses.values().stream().toList());
+    devManager.getFnRepo().persist(functions);
+    devManager.persistPkg();
     for (OClass cls : changedClasses.values()) {
       System.out.println("update cls: " + cls.getKey());
     }
-    localStateManager.getClsRepo().persist(changedClasses.values().stream().toList());
-    localStateManager.getFnRepo().persist(functions);
-    localStateManager.persist();
     return 0;
   }
 }

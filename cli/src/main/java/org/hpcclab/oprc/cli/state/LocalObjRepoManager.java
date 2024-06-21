@@ -6,13 +6,11 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.object.GOObject;
-import org.hpcclab.oaas.repository.MapEntityRepository;
+import org.hpcclab.oaas.repository.MapEntityRepository.MapObjectRepository;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.ObjectRepository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Path;
 
 /**
@@ -33,7 +31,7 @@ public class LocalObjRepoManager extends ObjectRepoManager {
   public ObjectRepository createRepo(OClass cls) {
     if (cls == null) return null;
     MutableMap<String, GOObject> objectMap = loadObj(cls.getKey());
-    return new MapEntityRepository.MapObjectRepository(objectMap);
+    return new MapObjectRepository(objectMap);
   }
 
   @Override
@@ -42,7 +40,7 @@ public class LocalObjRepoManager extends ObjectRepoManager {
   }
 
   MutableMap<String, GOObject> loadObj(String clsKey) {
-    File file = baseDir.resolve(clsKey + ".ndjson").toFile();
+    File file = fileOf(clsKey);
     MutableMap<String, GOObject> map = Maps.mutable.empty();
     if (!file.exists())
       return map;
@@ -56,5 +54,21 @@ public class LocalObjRepoManager extends ObjectRepoManager {
       throw new RuntimeException(e);
     }
     return map;
+  }
+
+  File fileOf(String cls) {
+    return baseDir.resolve(cls + ".ndjson").toFile();
+  }
+
+  void persist(String clsKey) throws IOException {
+    MapObjectRepository repo = (MapObjectRepository) getOrCreate(clsKey);
+    File file = fileOf(clsKey);
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
+      for (var obj : repo.getMap().values()) {
+        String jsonString = objectMapper.writeValueAsString(obj);
+        writer.write(jsonString);
+        writer.newLine();
+      }
+    }
   }
 }

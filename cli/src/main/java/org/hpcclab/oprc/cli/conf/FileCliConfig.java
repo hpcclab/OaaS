@@ -40,7 +40,8 @@ public class FileCliConfig {
   public record LocalDevelopment(
     String localhost,
     int port,
-    Path localPackageFile,
+    String fnDevUrl,
+    String localPackageFile,
     Path localStatePath,
     DatastoreConf dataConf
   ) {}

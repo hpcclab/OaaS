@@ -16,7 +16,7 @@ import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.proto.DSMap;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class InvocationCtx {
   boolean immutable;
   List<String> macroInvIds = Lists.mutable.empty();
   Map<String, String> macroIds = Maps.mutable.empty();
-  TaskCompletion completion;
+  OTaskCompletion completion;
   JsonBytes respBody;
   List<StateOperation> stateOperations = List.of();
   InvocationLog log;

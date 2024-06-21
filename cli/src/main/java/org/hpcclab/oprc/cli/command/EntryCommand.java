@@ -8,6 +8,9 @@ import org.hpcclab.oprc.cli.command.cr.CrListCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextGetCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSelectCommand;
 import org.hpcclab.oprc.cli.command.ctx.ContextSetCommand;
+import org.hpcclab.oprc.cli.command.dev.DevConfigCommand;
+import org.hpcclab.oprc.cli.command.dev.DevInvocationCommand;
+import org.hpcclab.oprc.cli.command.dev.DevObjectCreateCommand;
 import org.hpcclab.oprc.cli.command.dev.DevPackageApplyCommand;
 import org.hpcclab.oprc.cli.command.fn.FnListCommand;
 import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
@@ -44,7 +47,10 @@ public class EntryCommand {
     description = "Emulator for local development",
     mixinStandardHelpOptions = true,
     subcommands = {
-      DevPackageApplyCommand.class
+      DevPackageApplyCommand.class,
+      DevInvocationCommand.class,
+      DevObjectCreateCommand.class,
+      DevConfigCommand.class
     }
   )
   public static class DevEntryCommand {
@@ -89,7 +95,7 @@ public class EntryCommand {
       ContextSetCommand.class
     }
   )
-  public class ContextEntryCommand {
+  public static class ContextEntryCommand {
 
   }
 
@@ -102,7 +108,7 @@ public class EntryCommand {
       FnListCommand.class
     }
   )
-  public class FnEntryCommand {
+  public static class FnEntryCommand {
 
   }
 
@@ -116,7 +122,7 @@ public class EntryCommand {
       PackageDeleteCommand.class
     }
   )
-  public class PackageEntryCommand {
+  public static class PackageEntryCommand {
 
   }
 

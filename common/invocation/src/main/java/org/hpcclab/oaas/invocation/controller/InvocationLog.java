@@ -7,10 +7,8 @@ import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.proto.DSMap;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.infinispan.protostream.annotations.ProtoField;
-
-import java.util.List;
 
 /**
  * @author Pawissanutt
@@ -46,7 +44,7 @@ public class InvocationLog {
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   long cptTs;
 
-  public void updateStatus(TaskCompletion completion) {
+  public void updateStatus(OTaskCompletion completion) {
     if (completion.isSuccess()) {
       status = InvocationStatus.SUCCEEDED;
     } else

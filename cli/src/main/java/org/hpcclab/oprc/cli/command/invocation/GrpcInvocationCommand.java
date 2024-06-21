@@ -10,9 +10,13 @@ import io.vertx.grpc.client.GrpcClientChannel;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
+import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStats;
+import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.GOObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.state.OaasObjectState;
 import org.hpcclab.oaas.proto.InvocationServiceGrpc;
@@ -37,8 +41,13 @@ import java.util.concurrent.Callable;
 )
 @RegisterForReflection(
   targets = {
+    InvocationRequest.class,
     InvocationResponse.class,
+    InvocationStats.class,
+    InvocationStatus.class,
     GOObject.class,
+    OMeta.class,
+    JsonBytes.class,
     OaasObjectState.class,
     DSMap.class,
     InvocationStats.class
@@ -48,10 +57,8 @@ public class GrpcInvocationCommand implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(GrpcInvocationCommand.class);
   @CommandLine.Mixin
   CommonOutputMixin commonOutputMixin;
-
   @CommandLine.Option(names = "-c")
   String cls;
-
   @CommandLine.Option(names = {"-m", "--main"})
   String main;
   @CommandLine.Parameters(index = "0", defaultValue = "")

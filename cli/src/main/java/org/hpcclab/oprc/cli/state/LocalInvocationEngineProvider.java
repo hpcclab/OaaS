@@ -4,15 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
 import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
-import org.hpcclab.oaas.invocation.controller.*;
-import org.hpcclab.oaas.invocation.controller.fn.*;
+import org.hpcclab.oaas.invocation.controller.CcInvocationReqHandler;
+import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
+import org.hpcclab.oaas.invocation.controller.fn.ChainFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.MacroFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.TaskFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.logical.*;
 import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
@@ -36,9 +38,9 @@ public class LocalInvocationEngineProvider {
 
   final ConfigFileManager fileManager;
   final FileCliConfig fileCliConfig;
-  final LocalStateManager localStateManager;
+  final LocalDevManager localStateManager;
 
-  public LocalInvocationEngineProvider(ConfigFileManager fileManager, LocalStateManager localStateManager) throws IOException {
+  public LocalInvocationEngineProvider(ConfigFileManager fileManager, LocalDevManager localStateManager) throws IOException {
     this.fileManager = fileManager;
     this.fileCliConfig = fileManager.getOrCreate();
     this.localStateManager = localStateManager;
@@ -47,33 +49,17 @@ public class LocalInvocationEngineProvider {
   @Produces
   @ApplicationScoped
   ClassControllerRegistry controllerRegistry() {
-
-    return new BaseClassControllerRegistry();
+    return localStateManager.getControllerRegistry();
   }
 
   @Produces
   @ApplicationScoped
   InvocationManager invocationManager(ClassControllerRegistry registry,
-                                      ClassControllerBuilder classControllerBuilder,
                                       InvocationReqHandler reqHandler) {
-    return new InvocationManager(registry, classControllerBuilder, reqHandler);
-  }
-
-  @Produces
-  @ApplicationScoped
-  RepoClassControllerBuilder classControllerBuilder(FunctionControllerFactory functionControllerFactory,
-                                                    IdGenerator idGenerator,
-                                                    InvocationQueueProducer invocationQueueProducer,
-                                                    MetricFactory metricFactory) throws IOException {
-    localStateManager.init();
-    return new RepoClassControllerBuilder(functionControllerFactory,
-      localStateManager.stateManager,
-      idGenerator,
-      invocationQueueProducer,
-      metricFactory,
-      localStateManager.fnRepo,
-      localStateManager.clsRepo
-    );
+    return new InvocationManager(
+      registry,
+      localStateManager.getClassControllerBuilder(),
+      reqHandler);
   }
 
   @Produces
@@ -159,16 +145,7 @@ public class LocalInvocationEngineProvider {
     return new FileFnController(idGenerator, mapper, generator, objectMapper);
   }
 
-  @Produces
-  CdiFunctionControllerFactory functionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
-                                                         Instance<MacroFunctionController> macroFunctionControllerInstance,
-                                                         Instance<ChainFunctionController> chainFunctionControllerInstance,
-                                                         Instance<LogicalFunctionController> logicalFunctionControllers) {
-    return new CdiFunctionControllerFactory(taskFunctionControllerInstance,
-      macroFunctionControllerInstance,
-      chainFunctionControllerInstance,
-      logicalFunctionControllers);
-  }
+
 
   @Produces
   @ApplicationScoped
@@ -192,18 +169,12 @@ public class LocalInvocationEngineProvider {
   InvocationReqHandler invocationReqHandler(ClassControllerRegistry classControllerRegistry,
                                             IdGenerator idGenerator) {
     return new CcInvocationReqHandler(classControllerRegistry,
-      localStateManager.ctxLoader,
+      localStateManager.getCtxLoader(),
       idGenerator,
       100
     );
   }
 
-  @Produces
-  @ApplicationScoped
-  LocalObjRepoManager objectRepoManager() throws IOException {
-    localStateManager.init();
-    return localStateManager.objRepoManager;
-  }
 
 
   @ApplicationScoped

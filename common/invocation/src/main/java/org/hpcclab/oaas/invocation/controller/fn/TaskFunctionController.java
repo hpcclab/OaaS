@@ -21,7 +21,7 @@ import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateType;
 import org.hpcclab.oaas.model.task.OTask;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +201,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     return Map.of();
   }
 
-  public InvocationCtx handleComplete(InvocationCtx context, TaskCompletion completion) {
+  public InvocationCtx handleComplete(InvocationCtx context, OTaskCompletion completion) {
     validateCompletion(context, completion);
     updateState(context, completion);
     List<GOObject> updateList = completion.getMain()!=null && !functionBinding.isImmutable() ?
@@ -220,7 +220,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     return context;
   }
 
-  void updateState(InvocationCtx context, TaskCompletion completion) {
+  void updateState(InvocationCtx context, OTaskCompletion completion) {
     var main = context.getMain();
     var out = context.getOutput();
     var log = context.initLog();
@@ -242,7 +242,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     context.setRespBody(completion.getBody());
   }
 
-  private void validateCompletion(InvocationCtx context, TaskCompletion completion) {
+  private void validateCompletion(InvocationCtx context, OTaskCompletion completion) {
     if (completion.getMain()!=null) {
       var update = completion.getMain();
       if (!functionBinding.isImmutable()) {

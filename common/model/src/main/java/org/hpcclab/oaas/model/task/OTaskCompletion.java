@@ -2,11 +2,11 @@ package org.hpcclab.oaas.model.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
+import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.object.OOUpdate;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-public class TaskCompletion {
+public class OTaskCompletion {
   String id;
   boolean success;
   String errorMsg;
@@ -29,24 +29,24 @@ public class TaskCompletion {
   @JsonIgnore
   @Builder.Default
   long smtTs = -1;
-  ObjectNode body;
+  JsonBytes body;
   @Builder.Default
   List<InvocationRequest> invokes = List.of();
 
 
-  public TaskCompletion() {
+  public OTaskCompletion() {
   }
 
-  public TaskCompletion(String id,
-                        boolean success,
-                        String errorMsg,
-                        Map<String, String> ext,
-                        OOUpdate main,
-                        OOUpdate out,
-                        long cptTs,
-                        long smtTs,
-                        ObjectNode body,
-                        List<InvocationRequest> invokes) {
+  public OTaskCompletion(String id,
+                         boolean success,
+                         String errorMsg,
+                         Map<String, String> ext,
+                         OOUpdate main,
+                         OOUpdate out,
+                         long cptTs,
+                         long smtTs,
+                         JsonBytes body,
+                         List<InvocationRequest> invokes) {
     this.id = id;
     this.success = success;
     this.errorMsg = errorMsg;
@@ -60,11 +60,11 @@ public class TaskCompletion {
   }
 
 
-  public static TaskCompletion error(String id,
-                                     String errorMsg,
-                                     long cptTs,
-                                     long smtTs) {
-    return new TaskCompletion(
+  public static OTaskCompletion error(String id,
+                                      String errorMsg,
+                                      long cptTs,
+                                      long smtTs) {
+    return new OTaskCompletion(
       id,
       false,
       errorMsg,

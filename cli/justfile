@@ -11,6 +11,10 @@ build options="":
 build-no-test options="":
   {{mvn}} "{{options}}" package -DskipTests
 
+# maven build without tests
+build-fast-jar options="":
+  {{mvn}} "{{options}}" "-Dquarkus.package.jar.type=fast-jar" package -DskipTests
+
 # dependencies tree for compile
 dependencies:
     ./mvnw dependency:tree

@@ -6,8 +6,8 @@ import io.vertx.mutiny.kafka.admin.KafkaAdminClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.collections.api.factory.Sets;
+import org.hpcclab.oaas.invocation.controller.AbsClassControllerBuilder;
 import org.hpcclab.oaas.invocation.controller.ClassController;
-import org.hpcclab.oaas.invocation.controller.ClassControllerBuilder;
 import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.model.cls.OClass;
@@ -26,7 +26,7 @@ import java.util.function.UnaryOperator;
 public class InvokerManager {
   final InvokerConfig config;
   final KafkaAdminClient adminClient;
-  final ClassControllerBuilder classControllerBuilder;
+  final AbsClassControllerBuilder classControllerBuilder;
   private final ClassControllerRegistry registry;
   private final VerticleDeployer verticleDeployer;
   private final Set<String> managedCls = Sets.mutable.empty();
@@ -36,7 +36,7 @@ public class InvokerManager {
                         VerticleDeployer verticleDeployer,
                         InvokerConfig config,
                         KafkaAdminClient adminClient,
-                        ClassControllerBuilder classControllerBuilder) {
+                        AbsClassControllerBuilder classControllerBuilder) {
     this.registry = registry;
     this.verticleDeployer = verticleDeployer;
     this.config = config;

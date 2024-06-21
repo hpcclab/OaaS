@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invocation.task;
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
@@ -9,7 +10,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import org.hpcclab.oaas.invocation.config.HttpOffLoaderConfig;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.exception.StdOaasException;
-import org.hpcclab.oaas.model.task.TaskCompletion;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class HttpOffLoader implements OffLoader {
   }
 
   @Override
-  public Uni<TaskCompletion> offload(InvokingDetail<?> invokingDetail) {
+  public Uni<OTaskCompletion> offload(InvokingDetail<?> invokingDetail) {
     if (logger.isDebugEnabled())
       logger.debug("invoke {}", invokingDetail.getId());
     if (invokingDetail.getFuncUrl()==null) {
@@ -65,12 +66,12 @@ public class HttpOffLoader implements OffLoader {
     }
   }
 
-  TaskCompletion handleResp(InvokingDetail<?> detail, HttpResponse<Buffer> resp) {
+  OTaskCompletion handleResp(InvokingDetail<?> detail, HttpResponse<Buffer> resp) {
     if (resp.statusCode()==200)
-      return TaskDecoder.tryDecode(detail.getId(), resp.bodyAsBuffer().getDelegate())
+      return tryDecode(detail.getId(), resp.bodyAsBuffer().getDelegate())
         .setSmtTs(detail.getSmtTs());
     else
-      return TaskCompletion.error(
+      return OTaskCompletion.error(
         detail.getId(),
         "Fail to perform invocation: func return not 200 code (%s)"
           .formatted(resp.statusCode()),
@@ -79,4 +80,37 @@ public class HttpOffLoader implements OffLoader {
       );
   }
 
+  public static OTaskCompletion tryDecode(String taskId,
+                                          io.vertx.core.buffer.Buffer buffer) {
+    var ts = System.currentTimeMillis();
+    if (buffer==null) {
+      return OTaskCompletion.error(
+        taskId,
+        "Can not parse the task completion message because response body is null",
+        -1,
+        ts);
+    }
+    try {
+      var completion = Json.decodeValue(buffer, OTaskCompletion.class);
+      if (completion!=null) {
+        return completion
+          .setId(taskId)
+          .setCptTs(ts);
+      }
+
+    } catch (DecodeException decodeException) {
+      logger.info("Decode failed on {} : {}", taskId, decodeException.getMessage());
+      return OTaskCompletion.error(
+        taskId,
+        "Can not parse the task completion message. [%s]".formatted(decodeException.getMessage()),
+        -1,
+        ts);
+    }
+
+    return OTaskCompletion.error(
+      taskId,
+      "Can not parse the task completion message",
+      -1,
+      ts);
+  }
 }
