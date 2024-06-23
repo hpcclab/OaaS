@@ -46,6 +46,7 @@ public class EntryCommand {
     subcommands = {
       DevPackageApplyCommand.class,
       DevPackageDeleteCommand.class,
+      DevClsListCommand.class,
       DevInvocationCommand.class,
       DevObjectCreateCommand.class,
       DevObjectCleanCommand.class,
