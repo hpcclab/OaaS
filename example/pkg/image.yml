@@ -16,11 +16,8 @@ classes:
     stateSpec:
       keySpecs:
         - name: image
+    parents: ['builtin.base']
     functions:
-      - access: PUBLIC
-        name: new
-        function: builtin.logical.new
-        outputCls: .text
       - access: PUBLIC
         name: resize
         function: .image.resize
@@ -30,8 +27,5 @@ classes:
         function: .image.resize
         name: resize-inplace
         outputCls: void
-      - access: PUBLIC
-        name: file
-        function: builtin.logical.file
 
 

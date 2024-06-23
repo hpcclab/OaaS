@@ -8,10 +8,6 @@ functions:
         image: ghcr.io/hpcclab/oaas/transcode-fn-py:latest
         minScale: 1
         targetConcurrency: 3
-#        maxScale: 12
-#        concurrency: 1
-#        requestsCpu: '1'
-#        limitsCpu: '16'
     variableDescriptions:
       - name: RESOLUTION
       - name: VCODEC
@@ -24,14 +20,8 @@ classes:
     stateSpec:
       keySpecs:
         - name: video
+    parents: ['builtin.base']
     functions:
       - access: PUBLIC
         function: .video.transcode
         immutable: true
-      - access: PUBLIC
-        name: new
-        function: builtin.logical.new
-        outputCls: .video
-      - access: PUBLIC
-        name: file
-        function: builtin.logical.file

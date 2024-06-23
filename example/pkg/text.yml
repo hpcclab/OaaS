@@ -8,7 +8,6 @@ functions:
         image: ghcr.io/hpcclab/oaas/concat-fn-py:latest
         env:
           LOG_LEVEL: DEBUG
-
     variableDescriptions:
       - name: append
   - name: chain-concat
@@ -38,6 +37,7 @@ classes:
     stateSpec:
       keySpecs:
         - name: text
+    parents: ['builtin.base']
     functions:
       - access: PUBLIC
         function: .text.concat
@@ -49,13 +49,6 @@ classes:
         outputCls: void
         defaultArgs:
           INPLACE: "true"
-      - access: PUBLIC
-        name: new
-        function: builtin.logical.new
-        outputCls: .text
-      - access: PUBLIC
-        name: file
-        function: builtin.logical.file
 
 
 

@@ -55,6 +55,9 @@ functions:
     description: <any description for this function> #Only for documenting
     type: <type of function [TASK, LOGICAL, MACRO, CHAIN] [default: CHAIN]>
     outputCls: <default class of the output object> # can be override by class definition
+    variableDescriptions: # args description for documenting purpose
+      - name: <arg name>
+        comment: <any comment>
     provision: # configure the engine for deploying this function
       knative: # if using Knative
         image: <container image tag>
@@ -83,13 +86,45 @@ functions:
 
 == Available built-in Functions
 
-=== builtin.new
+=== builtin.logical.new
+`builtin.logical.new` is a function for creating object. When running the command `ocli object create`, the command will call `new` function.
 
+NOTE: If the class doesn't have `new` function, object cannot be created via `ocli object create`.
+
+=== builtin.logical.update
+`builtin.logical.update` is a function for updating the object data from request body.
+
+[source,bash]
+----
+oprc invoke update -d '{"name":"john","surname":"doe"}'
+# the object data will be set to {"name":"john","surname":"doe"}
+----
+
+=== builtin.logical.file
+`builtin.logical.file` is a function for generating a presign URL for unstructured data. When running the command `ocli object file`, the command will call `file` function.
+NOTE: If the class doesn't have `new` function, you cannot load file in object via `ocli object file` or `ocli object cat-file`.
+
+=== builtin.logical.get
+`builtin.logical.file` is a function that return the output object as the  targeted of this function call. This function is made to be used in the dataflow.
+
+Pseudo code for explanation:
+----
+obj = new Object()
+output = obj.get()
+assert output == obj
+----
+
+=== builtin.logical.project
+TODO
 
 == Available built-in class
 
 === builtin.base
-This class
+The utility class to be inherited from. This class contains a list of built-in functions:
+
+* builtin.logical.new
+* builtin.logical.get
+* builtin.logical.file
 
 == Dataflow Definitions
 
