@@ -43,6 +43,9 @@ public interface CrmConfig {
   @WithDefault("false")
   boolean monitorDisable();
 
+  @WithDefault("false")
+  boolean feasibleCheckDisable();
+
   @WithDefault("true")
   boolean loadTemplateOnStart();
   @WithDefault("oaas")

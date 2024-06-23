@@ -73,7 +73,7 @@ public class ClassResolver {
     if (base.getRefSpec()!=null)
       base.getRefSpec()
         .forEach(rs -> refSpecs.put(rs.getName(), rs));
-    if (base.getParents()!=null || !base.getParents().isEmpty()) {
+    if (base.getParents()!=null) {
       identities.addAll(base.getParents());
     }
     ResolvedMember resolvedMember = new ResolvedMember(
@@ -94,7 +94,6 @@ public class ClassResolver {
     }
     path.add(baseCls.getKey());
     if (baseCls.getParents() ==null) baseCls.setParents(List.of());
-    LOGGER.debug("resolve {} {}", baseCls, baseCls.getParents());
     var parentClasses = baseCls.getParents()
       .stream()
       .map(clsKey -> {

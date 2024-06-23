@@ -78,6 +78,7 @@ You can run `ocli` in the emulator mode for the local development.
 ----
 ocli dev -h
 ----
+
 In thie mode, you can:
 
 * apply package
@@ -99,10 +100,8 @@ docker compose up -d json-update-fn
 Example:
 [source,bash]
 ----
-
-
 # First, configure function URL
-ocli d conf --fn-dev-url "http://localhost:10001"
+ocli dev conf --fn-dev-url "http://localhost:10001"
 
 # Apply package to local
 ocli dev pa example/pkg/record.yml

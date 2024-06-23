@@ -17,6 +17,8 @@ public class DefaultFeasibilityChecker implements FeasibilityChecker {
 
   @Override
   public boolean runtimeCheck(OprcEnvironment env, CrController orbit, CrOperation operation) {
+    if (env.config().feasibleCheckDisable())
+      return true;
     var estimate = operation.estimate();
     if (estimate.equals(OprcEnvironment.EnvResource.ZERO))
       return true;

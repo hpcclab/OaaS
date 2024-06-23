@@ -122,14 +122,23 @@ public class KnativeCrFnController extends AbstractCrFnController {
       .endSpec();
     return new FnResourcePlan(
       List.of(serviceBuilder.build()),
-      List.of(OFunctionStatusUpdate.newBuilder()
-        .setKey(function.getKey())
-        .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
-          .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING)
-          .build())
-        .setProvision(function.getProvision())
+      buildStatusUpdate(function));
+  }
+
+  List<OFunctionStatusUpdate> buildStatusUpdate(ProtoOFunction function) {
+    var statusBuilder = ProtoOFunctionDeploymentStatus.newBuilder()
+      .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING);
+    if (!function.getStatus().getInvocationUrl().isEmpty()) {
+      statusBuilder.setInvocationUrl(function.getStatus().getInvocationUrl());
+      statusBuilder.setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING);
+    }
+    OFunctionStatusUpdate update = OFunctionStatusUpdate.newBuilder()
+      .setKey(function.getKey())
+      .setStatus(statusBuilder
         .build())
-    );
+      .setProvision(function.getProvision())
+      .build();
+    return List.of(update);
   }
 
   private String createName(String key) {

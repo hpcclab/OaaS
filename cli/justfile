@@ -24,10 +24,10 @@ updates:
     ./mvnw versions:display-dependency-updates
 
 build-native:
-    ./mvnw install -Pnative -DskipTests
+    ./mvnw "-Dquarkus.package.jar.type=fast-jar" install -Pnative -DskipTests
 
 build-native-container:
-    ./mvnw install -Pnative -DskipTests -Dquarkus.native.container-build=true
+    ./mvnw "-Dquarkus.package.jar.type=fast-jar" install -Pnative -DskipTests -Dquarkus.native.container-build=true
 
 jbang-install:
     jbang app install --name=ocli --force target/oprc-cli-999-SNAPSHOT-runner.jar

@@ -85,6 +85,8 @@ public class PackageResource {
     pkg.setClasses(pkgCls);
 
     refresh(pkg.getClasses());
+    refreshFn(pkg.getFunctions());
+
     if (config.crmEnabled() && !pkg.getClasses().isEmpty()) {
       deploy(pkg);
     }
@@ -118,7 +120,20 @@ public class PackageResource {
       if (oldCls==null)
         continue;
       cls.setStatus(oldCls.getStatus());
-      logger.info("refresh cls {}", cls);
+      logger.debug("refresh cls {}", cls.getKey());
+    }
+  }
+
+  void refreshFn(Collection<OFunction> fnList) {
+    var keys = fnList.stream().map(OFunction::getKey).toList();
+    funcRepo.invalidate(keys);
+    var fnMap = funcRepo.list(keys);
+    for (var fn : fnList) {
+      var oldFn = fnMap.get(fn.getKey());
+      if (oldFn==null)
+        continue;
+      fn.setStatus(oldFn.getStatus());
+      logger.debug("refresh fn {} {}", fn.getKey(), fn.getStatus());
     }
   }
 
@@ -179,13 +194,17 @@ public class PackageResource {
       cls.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
     }
     for (OFunctionStatusUpdate statusUpdate : response.getFnUpdatesList()) {
+      var status = protoMapper.fromProto(statusUpdate.getStatus());
+      var provision = protoMapper.fromProto(statusUpdate.getProvision());
+      logger.debug("update func state {} {} {}",
+        statusUpdate.getKey(), status, provision);
       var functionOptional = pkg.getFunctions().stream()
         .filter(f -> f.getKey().equals(statusUpdate.getKey()))
         .findAny();
       if (functionOptional.isEmpty()) continue;
       var fn = functionOptional.get();
-      fn.setProvision(protoMapper.fromProto(statusUpdate.getProvision()));
-      fn.setStatus(protoMapper.fromProto(statusUpdate.getStatus()));
+      fn.setProvision(provision);
+      fn.setStatus(status);
     }
   }
 }

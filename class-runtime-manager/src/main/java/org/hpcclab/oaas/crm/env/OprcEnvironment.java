@@ -24,6 +24,7 @@ public record OprcEnvironment(
                        String crHashTopic,
                        boolean exposeKnative,
                        boolean useKnativeLb,
+                       boolean feasibleCheckDisable,
                        String logLevel) {
   }
 

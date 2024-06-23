@@ -44,6 +44,7 @@ public class EnvironmentManager {
       .clsTopic(conf.clsProvisionTopic())
       .fnTopic(conf.fnProvisionTopic())
       .crHashTopic(conf.crHashTopic())
+      .feasibleCheckDisable(conf.feasibleCheckDisable())
       .build();
     environment = OprcEnvironment.builder()
       .config(envConf)

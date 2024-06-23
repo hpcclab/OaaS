@@ -133,9 +133,7 @@ public class K8SCrController implements CrController {
           .forEach(knativeFnController::updateStableTime);
         initialized = true;
       });
-//    resourceList.addAll(configController.createDeployOperation(plan));
-//    resourceList.addAll(saController.createDeployOperation(plan));
-//    resourceList.addAll(invokerController.createDeployOperation(plan));
+
     for (var componentController : componentControllers.values()) {
       resourceList.addAll(componentController.createDeployOperation(plan));
     }
@@ -243,16 +241,16 @@ public class K8SCrController implements CrController {
     return currentPlan;
   }
 
-  protected FnResourcePlan deployFunction(CrDeploymentPlan plan,
+  protected FnResourcePlan deployFunction(CrDeploymentPlan newPlan,
                                           ProtoOFunction function) throws CrDeployException {
     if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_MACRO)
       return FnResourcePlan.EMPTY;
     if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_LOGICAL)
       return FnResourcePlan.EMPTY;
     if (!function.getProvision().getDeployment().getImage().isEmpty()) {
-      return deploymentFnController.deployFunction(plan, function);
+      return deploymentFnController.deployFunction(newPlan, function);
     } else if (!function.getProvision().getKnative().getImage().isEmpty()) {
-      return knativeFnController.deployFunction(plan, function);
+      return knativeFnController.deployFunction(newPlan, function);
     }
     throw new CrDeployException("Can not find suitable functions controller for functions:\n" + function);
   }
