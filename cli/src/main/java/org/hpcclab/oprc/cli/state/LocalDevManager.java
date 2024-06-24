@@ -14,6 +14,7 @@ import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OFunction;
+import org.hpcclab.oaas.repository.ClassResolver;
 import org.hpcclab.oaas.repository.MapEntityRepository;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
@@ -52,44 +53,50 @@ public class LocalDevManager {
     this.fnControllerFactory = fnControllerFactory;
   }
 
-  void init() {
+  public void init() {
     if (objRepoManager!=null) return;
     try {
       StateModels.LocalPackage localPackage = loadLocal();
       MutableMap<String, OClass> clsMap = Maps.mutable.empty();
-      localPackage.classes().forEach(v -> clsMap.put(v.getKey(), v));
-      clsRepo = new MapEntityRepository.MapClsRepository(clsMap);
-      logger.debug("loaded cls {}", clsRepo.getMap().keySet());
       MutableMap<String, OFunction> fnMap = Maps.mutable.empty();
-      localPackage.functions().forEach(v -> fnMap.put(v.getKey(), v));
+      clsRepo = new MapEntityRepository.MapClsRepository(clsMap);
       fnRepo = new MapEntityRepository.MapFnRepository(fnMap);
+      BuiltInLoader builtInLoader = new BuiltInLoader(clsRepo, fnRepo);
+      builtInLoader.setup();
+      var clsResolver = new ClassResolver(clsRepo);
+      var updateMap = clsResolver.resolveInheritance(clsMap);
+      clsMap.putAll(updateMap);
+
+      for (OClass oClass : localPackage.classes()) {
+        clsMap.put(oClass.getKey(), oClass);
+      }
+      logger.debug("loaded cls {}", clsRepo.getMap().keySet());
+      for (OFunction v : localPackage.functions()) {
+        fnMap.put(v.getKey(), v);
+      }
       logger.debug("loaded fn {}", fnRepo.getMap().keySet());
+
       objRepoManager = new LocalObjRepoManager(controllerRegistry, localDev.localStatePath());
       var internal = new RepoStateManager(objRepoManager);
       stateManager = new WrapStateManager(internal);
       ctxLoader = new RepoCtxLoader(objRepoManager, controllerRegistry);
-      BuiltInLoader builtInLoader = new BuiltInLoader(clsRepo, fnRepo);
-      builtInLoader.setup();
-      buildClsController();
+      builder = new RepoClassControllerBuilder(
+        fnControllerFactory,
+        stateManager,
+        new TsidGenerator(),
+        request -> Uni.createFrom().nullItem(),
+        new MetricFactory.NoOpMetricFactory(),
+        fnRepo,
+        clsRepo
+      );
       for (OClass cls : clsRepo.getMap()) {
-        ClassController con = builder.build(cls).await().indefinitely();
+        ClassController con = builder.build(cls)
+          .await().indefinitely();
         controllerRegistry.register(con);
       }
     } catch (IOException e) {
       throw new StdOaasException("error on initializing state", e);
     }
-  }
-
-  void buildClsController() {
-    builder = new RepoClassControllerBuilder(
-      fnControllerFactory,
-      stateManager,
-      new TsidGenerator(),
-      request -> Uni.createFrom().nullItem(),
-      new MetricFactory.NoOpMetricFactory(),
-      fnRepo,
-      clsRepo
-    );
   }
 
   StateModels.LocalPackage loadLocal() throws IOException {

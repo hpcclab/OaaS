@@ -29,14 +29,12 @@ public class BaseClassController implements ClassController {
   final MetricFactory metricFactory;
   final InvocationChainProcessor chainProcessor;
   Map<String, FunctionController> functionMap;
-  ClassBindingComponent component;
 
   public BaseClassController(OClass cls,
                              Map<String, FunctionController> functionMap,
                              StateManager stateManager,
                              IdGenerator idGenerator,
                              InvocationQueueProducer producer,
-                             ClassBindingComponent component,
                              MetricFactory metricFactory, InvocationChainProcessor chainProcessor) {
     this.cls = cls;
     this.functionMap = functionMap;
@@ -44,7 +42,6 @@ public class BaseClassController implements ClassController {
     this.idGenerator = idGenerator;
     this.producer = producer;
     this.metricFactory = metricFactory;
-    this.component = component;
     this.chainProcessor = chainProcessor;
   }
 
@@ -136,11 +133,6 @@ public class BaseClassController implements ClassController {
       newMap.put(fc.getFunctionBinding().getName(), updater.apply(fc));
     }
     functionMap = newMap;
-  }
-
-  @Override
-  public ClassBindingComponent getComponent() {
-    return component;
   }
 
   @Override

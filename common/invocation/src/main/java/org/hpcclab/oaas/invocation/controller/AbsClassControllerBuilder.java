@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * @author Pawissanutt
  */
-public abstract class AbsClassControllerBuilder implements ClassControllerBuilder{
+public abstract class AbsClassControllerBuilder implements ClassControllerBuilder {
   private static final Logger logger = LoggerFactory.getLogger(AbsClassControllerBuilder.class);
 
   protected final FunctionControllerFactory functionControllerFactory;
@@ -66,14 +66,11 @@ public abstract class AbsClassControllerBuilder implements ClassControllerBuilde
       .stream()
       .map(FunctionBinding::getFunction)
       .collect(Collectors.toSet());
-    record ClsFnCtx(Map<String, OClass> classMap, Map<String, OFunction> functionMap) {
-    }
 
     return listCls(outputClsKeys)
       .flatMap(clsMap -> listFn(fnKeys)
-        .map(fnMap -> new ClsFnCtx(clsMap, fnMap))
-      )
-      .map(clsFnCtx -> build(cls, clsFnCtx.classMap(), clsFnCtx.functionMap(), stateManager));
+        .map(fnMap -> build(cls, clsMap, fnMap, stateManager))
+      );
   }
 
   protected abstract Uni<Map<String, OClass>> listCls(Set<String> keys);
@@ -84,7 +81,6 @@ public abstract class AbsClassControllerBuilder implements ClassControllerBuilde
                                 Map<String, OClass> ctxClsMap,
                                 Map<String, OFunction> fnMap,
                                 StateManager stateManager) {
-    logger.debug("build {}", cls.getKey());
     Map<String, FunctionController> fbToFnMap = cls.getResolved()
       .getFunctions()
       .entrySet()
@@ -97,7 +93,6 @@ public abstract class AbsClassControllerBuilder implements ClassControllerBuilde
       stateManager,
       idGenerator,
       invocationQueueProducer,
-      createComponent(cls),
       metricFactory,
       new InvocationChainProcessor(invocationQueueProducer)
     );
@@ -149,9 +144,4 @@ public abstract class AbsClassControllerBuilder implements ClassControllerBuilde
     }
 
   }
-
-  protected ClassBindingComponent createComponent(OClass cls) {
-    return null;
-  }
-
 }

@@ -26,6 +26,4 @@ public interface ClassController {
   Uni<InvocationCtx> invoke(InvocationCtx context);
 
   void updateFunctionController(String fnKey, UnaryOperator<FunctionController> updater);
-
-  ClassBindingComponent getComponent();
 }

@@ -52,7 +52,7 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
 
   @Override
   public Uni<Map<K, V>> listAsync(Collection<K> keys) {
-    return Uni.createFrom().item(list(keys));
+    return Uni.createFrom().item(() -> list(keys));
   }
 
   @Override
@@ -91,6 +91,13 @@ public class MapEntityRepository<K, V extends HasKey<K>> implements EntityReposi
   @Override
   public V persist(V v) {
     return put(v.getKey(), v);
+  }
+
+  @Override
+  public void persist(Collection<V> collection) {
+    for (V v : collection) {
+      put(v.getKey(), v);
+    }
   }
 
   @Override

@@ -39,18 +39,22 @@ public class BuiltInLoader {
       var pkg = mapper.readValue(is, OPackage.class);
       var funcList = pkg.getFunctions();
       var clsList = pkg.getClasses();
-      if (LOGGER.isDebugEnabled()) {
-        var funcNames = funcList==null ? List.of()
-          :funcList.stream()
+      for (var f : funcList) {
+        f.setPkg(pkg.getName());
+      }
+      for (var c : clsList) {
+        c.setPkg(pkg.getName());
+      }
+      if (LOGGER.isInfoEnabled()) {
+        var funcNames = funcList.stream()
           .map(f -> f.setPkg(pkg.getName()))
           .map(OFunction::getKey)
           .toList();
-        var clsNames = clsList==null ? List.of()
-          :clsList.stream()
+        var clsNames = clsList.stream()
           .map(c -> c.setPkg(pkg.getName()))
           .map(OClass::getKey)
           .toList();
-        LOGGER.debug("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
+        LOGGER.info("from [{}] import functions {} and classes {}", file, funcNames, clsNames);
       }
       clsRepo.persist(clsList);
       fnRepo.persist(funcList);

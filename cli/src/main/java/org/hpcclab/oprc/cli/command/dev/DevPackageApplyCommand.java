@@ -54,6 +54,7 @@ public class DevPackageApplyCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
+    devManager.init();
     FileCliConfig.LocalDevelopment localDev = fileManager.getOrCreate().getLocalDev();
     logger.debug("use {}", localDev);
     ClassResolver classResolver = new ClassResolver(devManager.getClsRepo());
