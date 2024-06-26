@@ -35,6 +35,11 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-proto-schema</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
       <artifactId>repository</artifactId>
       <version>${project.version}</version>
     </dependency>

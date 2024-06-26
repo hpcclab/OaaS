@@ -41,7 +41,6 @@ message KnativeProvision{
   optional string requestsMemory = 8;
   optional string limitsCpu = 9;
   optional string limitsMemory = 10;
-  map<string, string> env = 11;
   optional string apiPath = 12;
   int32 port = 13;
 }
@@ -52,7 +51,6 @@ message KDeploymentProvision{
   optional string requestsMemory = 4;
   optional string limitsCpu = 5;
   optional string limitsMemory = 6;
-  map<string, string> env = 7;
   optional string apiPath = 8;
   int32 port = 9;
   string pullPolicy = 10;
@@ -114,6 +112,7 @@ message ProtoOFunctionConfig {
   map<string, string> offloadingConfig = 1;
   bool http2 = 2;
   bytes custom = 3;
+  ProtoOffloadingMode offloadingMode = 4;
 }
 
 
@@ -142,4 +141,11 @@ enum ProtoFunctionType{
 //  PROTO_FUNCTION_TYPE_STATIC = 6;
 //  PROTO_FUNCTION_TYPE_READONLY = 7;
 //  PROTO_FUNCTION_TYPE_STATIC_READONLY = 8;
+}
+
+enum ProtoOffloadingMode {
+  PROTO_OFFLOADING_MODE_UNSPECIFIED = 0;
+  PROTO_OFFLOADING_MODE_JSON = 1;
+  PROTO_OFFLOADING_MODE_PROTOBUF = 2;
+  PROTO_OFFLOADING_MODE_GRPC = 3;
 }

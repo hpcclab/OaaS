@@ -150,7 +150,7 @@ public class PackageResource {
   }
 
   private void deploy(OPackage pkg) {
-    if (pkg.isDisable())
+    if (pkg.isDisabled())
       return;
     for (var cls : pkg.getClasses()) {
       if (cls.isDisabled())

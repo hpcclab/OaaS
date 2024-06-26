@@ -17,11 +17,14 @@ import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.provision.ProvisionConfig;
+import org.hpcclab.oaas.model.task.OTask;
+import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.hpcclab.oaas.proto.*;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Map;
 
@@ -29,6 +32,8 @@ import java.util.Map;
   nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
   nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProtoMapper {
+  ProtoMapper INSTANCE = Mappers.getMapper( ProtoMapper.class );
+
   ProtoOClass toProto(OClass cls);
 
   ProtoOFunction toProto(OFunction fn);
@@ -77,6 +82,12 @@ public interface ProtoMapper {
 
   InvocationResponse fromProto(ProtoInvocationResponse resp);
 
+  ProtoOTask toProto(OTask task);
+  ProtoOTaskCompletion toProto(OTaskCompletion taskCompletion);
+  OTask fromProto(ProtoOTask task);
+  OTaskCompletion fromProto(ProtoOTaskCompletion taskCompletion);
+
+
   ProtoInvocationStatus convert(InvocationStatus status);
 
   InvocationStatus convert(ProtoInvocationStatus status);
@@ -107,4 +118,5 @@ public interface ProtoMapper {
     if (jsonBytes == null) return ByteString.EMPTY;
     return ByteString.copyFrom(jsonBytes.getBytes());
   }
+
 }

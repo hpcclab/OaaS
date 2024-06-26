@@ -1,10 +1,13 @@
 package org.hpcclab.oaas.crm.controller;
 
 
+import com.google.protobuf.ByteString;
 import io.fabric8.kubernetes.api.model.*;
+import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.KnativeProvisionOrBuilder;
+import org.hpcclab.oaas.proto.ProtoOFunction;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -113,5 +116,15 @@ public class K8sResourceUtil {
       .build();
   }
 
+
+  public static List<EnvVar> extractEnv(ProtoOFunction function) {
+    ByteString custom = function.getConfig().getCustom();
+    if (custom.isEmpty())
+      return List.of();
+    JsonObject entries = new JsonObject(custom.toStringUtf8());
+    return entries.stream()
+      .map(e -> new EnvVar(e.getKey().toUpperCase(), e.getValue().toString(), null))
+      .toList();
+  }
 
 }

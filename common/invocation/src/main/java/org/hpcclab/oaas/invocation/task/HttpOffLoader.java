@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.invocation.task;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
@@ -18,11 +17,24 @@ public class HttpOffLoader implements OffLoader {
   private static final Logger logger = LoggerFactory.getLogger(HttpOffLoader.class);
   WebClient webClient;
   HttpOffLoaderConfig config;
+  TaskEncoder encoder;
 
   public HttpOffLoader(WebClient webClient,
+                       TaskEncoder encoder,
                        HttpOffLoaderConfig config) {
     this.webClient = webClient;
     this.config = config;
+  }
+
+  public Buffer encode(InvokingDetail<?> invokingDetail) {
+    var content = invokingDetail.getContent();
+    Buffer contentBuffer;
+    switch (content) {
+      case Buffer buffer -> contentBuffer = buffer;
+      case io.vertx.core.buffer.Buffer buffer -> contentBuffer = Buffer.newInstance(buffer);
+      default -> contentBuffer = Buffer.newInstance(Json.encodeToBuffer(content));
+    }
+    return contentBuffer;
   }
 
   @Override
@@ -32,15 +44,7 @@ public class HttpOffLoader implements OffLoader {
     if (invokingDetail.getFuncUrl()==null) {
       throw StdOaasException.format("Function is not ready");
     }
-    var content = invokingDetail.getContent();
-    Buffer contentBuffer;
-    if (content instanceof Buffer buffer) {
-      contentBuffer = buffer;
-    } else if (content instanceof io.vertx.core.buffer.Buffer buffer) {
-      contentBuffer = Buffer.newInstance(buffer);
-    } else {
-      contentBuffer = Buffer.newInstance(Json.encodeToBuffer(content));
-    }
+    Buffer contentBuffer = encoder.encodeTask(invokingDetail);
     return webClient.postAbs(invokingDetail.getFuncUrl())
       .putHeaders(createHeader(invokingDetail))
       .timeout(config.getTimout())
@@ -68,7 +72,8 @@ public class HttpOffLoader implements OffLoader {
 
   OTaskCompletion handleResp(InvokingDetail<?> detail, HttpResponse<Buffer> resp) {
     if (resp.statusCode()==200)
-      return tryDecode(detail.getId(), resp.bodyAsBuffer().getDelegate())
+      return encoder.decodeCompletion(resp.bodyAsBuffer())
+        .setId(detail.getId())
         .setSmtTs(detail.getSmtTs());
     else
       return OTaskCompletion.error(
@@ -76,41 +81,7 @@ public class HttpOffLoader implements OffLoader {
         "Fail to perform invocation: func return not 200 code (%s)"
           .formatted(resp.statusCode()),
         System.currentTimeMillis(),
-        detail.smtTs
+        detail.getSmtTs()
       );
-  }
-
-  public static OTaskCompletion tryDecode(String taskId,
-                                          io.vertx.core.buffer.Buffer buffer) {
-    var ts = System.currentTimeMillis();
-    if (buffer==null) {
-      return OTaskCompletion.error(
-        taskId,
-        "Can not parse the task completion message because response body is null",
-        -1,
-        ts);
-    }
-    try {
-      var completion = Json.decodeValue(buffer, OTaskCompletion.class);
-      if (completion!=null) {
-        return completion
-          .setId(taskId)
-          .setCptTs(ts);
-      }
-
-    } catch (DecodeException decodeException) {
-      logger.info("Decode failed on {} : {}", taskId, decodeException.getMessage());
-      return OTaskCompletion.error(
-        taskId,
-        "Can not parse the task completion message. [%s]".formatted(decodeException.getMessage()),
-        -1,
-        ts);
-    }
-
-    return OTaskCompletion.error(
-      taskId,
-      "Can not parse the task completion message",
-      -1,
-      ts);
   }
 }

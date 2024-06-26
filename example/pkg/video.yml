@@ -7,7 +7,10 @@ functions:
       knative:
         image: ghcr.io/hpcclab/oaas/transcode-fn-py:latest
         minScale: 1
-        targetConcurrency: 3
+        concurrency: 3
+    config:
+      custom:
+        LOG_LEVEL: DEBUG
     variableDescriptions:
       - name: RESOLUTION
       - name: VCODEC

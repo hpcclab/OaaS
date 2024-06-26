@@ -5,13 +5,10 @@ functions:
     provision:
       knative:
         image: ghcr.io/hpcclab/oaas/json-update-fn-py:latest
-        requestsCpu: "0.5"
-        requestsMemory: "256M"
-        limitsCpu: "1"
-        limitsMemory: "512M"
-        port: 8080
-        env:
-          LOG_LEVEL: DEBUG
+    config:
+      offloadingMode: GRPC
+      custom:
+        LOG_LEVEL: DEBUG
 
 
   - name: record.chain-update

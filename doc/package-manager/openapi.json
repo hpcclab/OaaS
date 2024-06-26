@@ -282,6 +282,14 @@
   },
   "components" : {
     "schemas" : {
+      "ColdStartMode" : {
+        "enum" : [ "ALLOW", "NONE" ],
+        "type" : "string"
+      },
+      "ColdStartMode_Public" : {
+        "enum" : [ "ALLOW", "NONE" ],
+        "type" : "string"
+      },
       "ConsistencyModel" : {
         "enum" : [ "NONE", "EVENTUAL", "SEQUENTIAL", "LINEARIZATION" ],
         "type" : "string"
@@ -680,9 +688,6 @@
           "limitsMemory" : {
             "type" : "string"
           },
-          "env" : {
-            "$ref" : "#/components/schemas/DSMap"
-          },
           "apiPath" : {
             "type" : "string"
           },
@@ -716,9 +721,6 @@
           },
           "limitsMemory" : {
             "type" : "string"
-          },
-          "env" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
           },
           "apiPath" : {
             "type" : "string"
@@ -799,9 +801,6 @@
           "limitsMemory" : {
             "type" : "string"
           },
-          "env" : {
-            "$ref" : "#/components/schemas/DSMap"
-          },
           "apiPath" : {
             "type" : "string"
           },
@@ -848,9 +847,6 @@
           "limitsMemory" : {
             "type" : "string"
           },
-          "env" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          },
           "apiPath" : {
             "type" : "string"
           },
@@ -859,6 +855,14 @@
             "type" : "integer"
           }
         }
+      },
+      "Locality" : {
+        "enum" : [ "HOST", "CLUSTER", "REGION", "NONE" ],
+        "type" : "string"
+      },
+      "Locality_Public" : {
+        "enum" : [ "HOST", "CLUSTER", "REGION", "NONE" ],
+        "type" : "string"
       },
       "OClass" : {
         "type" : "object",
@@ -1187,6 +1191,9 @@
               "type" : "string"
             }
           },
+          "offloadingMode" : {
+            "$ref" : "#/components/schemas/OffloadingMode"
+          },
           "http2" : {
             "type" : "boolean"
           },
@@ -1203,6 +1210,9 @@
             "additionalProperties" : {
               "type" : "string"
             }
+          },
+          "offloadingMode" : {
+            "$ref" : "#/components/schemas/OffloadingMode_Public"
           },
           "http2" : {
             "type" : "boolean"
@@ -1335,7 +1345,7 @@
               "type" : "string"
             }
           },
-          "disable" : {
+          "disabled" : {
             "type" : "boolean"
           }
         }
@@ -1364,7 +1374,7 @@
               "type" : "string"
             }
           },
-          "disable" : {
+          "disabled" : {
             "type" : "boolean"
           }
         }
@@ -1380,6 +1390,14 @@
         "items" : {
           "$ref" : "#/components/schemas/JsonNode_Public"
         }
+      },
+      "OffloadingMode" : {
+        "enum" : [ "JSON", "PROTOBUF", "GRPC" ],
+        "type" : "string"
+      },
+      "OffloadingMode_Public" : {
+        "enum" : [ "JSON", "PROTOBUF", "GRPC" ],
+        "type" : "string"
       },
       "OrbitState" : {
         "type" : "object",
@@ -1537,13 +1555,15 @@
       "QosRequirement" : {
         "type" : "object",
         "properties" : {
-          "latency" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "throughput" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "coldStart" : {
+            "$ref" : "#/components/schemas/ColdStartMode"
+          },
+          "locality" : {
+            "$ref" : "#/components/schemas/Locality"
           },
           "availability" : {
             "format" : "double",
@@ -1554,13 +1574,15 @@
       "QosRequirement_Public" : {
         "type" : "object",
         "properties" : {
-          "latency" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "throughput" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "coldStart" : {
+            "$ref" : "#/components/schemas/ColdStartMode_Public"
+          },
+          "locality" : {
+            "$ref" : "#/components/schemas/Locality_Public"
           },
           "availability" : {
             "format" : "double",

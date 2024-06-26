@@ -15,6 +15,11 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OFunctionConfig {
   Map<String, String> offloadingConfig;
+  OffloadingMode offloadingMode;
   boolean http2;
   JsonBytes custom = JsonBytes.EMPTY;
+
+  public enum OffloadingMode{
+    JSON,PROTOBUF,GRPC
+  }
 }

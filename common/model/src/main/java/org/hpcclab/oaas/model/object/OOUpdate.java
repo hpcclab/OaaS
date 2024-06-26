@@ -17,7 +17,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Accessors(chain = true)
 public class OOUpdate {
-  ObjectNode data;
+  JsonBytes data;
   DSMap refs = DSMap.of();
   Set<String> updatedKeys = Set.of();
 
@@ -25,13 +25,13 @@ public class OOUpdate {
   }
 
   public OOUpdate(ObjectNode data) {
-    this.data = data;
+    this.data = new JsonBytes(data);
   }
 
   public OOUpdate(ObjectNode data,
                   DSMap refs,
                   Set<String> updatedKeys) {
-    this.data = data;
+    this.data = new JsonBytes(data);
     this.refs = refs;
     this.updatedKeys = updatedKeys;
   }
@@ -51,7 +51,7 @@ public class OOUpdate {
       return;
 
     if (data!=null)
-      obj.setData(new JsonBytes(data));
+      obj.setData(data);
 
     if (refs!=null && !refs.isEmpty()) {
       var map = DSMap.copy(obj.getMeta().getRefs());

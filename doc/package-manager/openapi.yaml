@@ -193,6 +193,16 @@ paths:
                 $ref: "#/components/schemas/OPackage_Public"
 components:
   schemas:
+    ColdStartMode:
+      enum:
+      - ALLOW
+      - NONE
+      type: string
+    ColdStartMode_Public:
+      enum:
+      - ALLOW
+      - NONE
+      type: string
     ConsistencyModel:
       enum:
       - NONE
@@ -517,8 +527,6 @@ components:
           type: string
         limitsMemory:
           type: string
-        env:
-          $ref: "#/components/schemas/DSMap"
         apiPath:
           type: string
         port:
@@ -542,8 +550,6 @@ components:
           type: string
         limitsMemory:
           type: string
-        env:
-          $ref: "#/components/schemas/DSMap_Public"
         apiPath:
           type: string
         port:
@@ -606,8 +612,6 @@ components:
           type: string
         limitsMemory:
           type: string
-        env:
-          $ref: "#/components/schemas/DSMap"
         apiPath:
           type: string
         port:
@@ -640,13 +644,25 @@ components:
           type: string
         limitsMemory:
           type: string
-        env:
-          $ref: "#/components/schemas/DSMap_Public"
         apiPath:
           type: string
         port:
           format: int32
           type: integer
+    Locality:
+      enum:
+      - HOST
+      - CLUSTER
+      - REGION
+      - NONE
+      type: string
+    Locality_Public:
+      enum:
+      - HOST
+      - CLUSTER
+      - REGION
+      - NONE
+      type: string
     OClass:
       type: object
       properties:
@@ -868,6 +884,8 @@ components:
           type: object
           additionalProperties:
             type: string
+        offloadingMode:
+          $ref: "#/components/schemas/OffloadingMode"
         http2:
           type: boolean
         custom:
@@ -879,6 +897,8 @@ components:
           type: object
           additionalProperties:
             type: string
+        offloadingMode:
+          $ref: "#/components/schemas/OffloadingMode_Public"
         http2:
           type: boolean
         custom:
@@ -973,7 +993,7 @@ components:
           type: array
           items:
             type: string
-        disable:
+        disabled:
           type: boolean
     OPackage_Public:
       type: object
@@ -992,7 +1012,7 @@ components:
           type: array
           items:
             type: string
-        disable:
+        disabled:
           type: boolean
     ObjectNode:
       type: array
@@ -1002,6 +1022,18 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/JsonNode_Public"
+    OffloadingMode:
+      enum:
+      - JSON
+      - PROTOBUF
+      - GRPC
+      type: string
+    OffloadingMode_Public:
+      enum:
+      - JSON
+      - PROTOBUF
+      - GRPC
+      type: string
     OrbitState:
       type: object
       properties:
@@ -1108,24 +1140,26 @@ components:
     QosRequirement:
       type: object
       properties:
-        latency:
-          format: int32
-          type: integer
         throughput:
           format: int32
           type: integer
+        coldStart:
+          $ref: "#/components/schemas/ColdStartMode"
+        locality:
+          $ref: "#/components/schemas/Locality"
         availability:
           format: double
           type: number
     QosRequirement_Public:
       type: object
       properties:
-        latency:
-          format: int32
-          type: integer
         throughput:
           format: int32
           type: integer
+        coldStart:
+          $ref: "#/components/schemas/ColdStartMode_Public"
+        locality:
+          $ref: "#/components/schemas/Locality_Public"
         availability:
           format: double
           type: number

@@ -81,6 +81,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
       throw new FunctionValidationException("Function's name must be follow the pattern of '^[a-zA-Z0-9._-]*$'");
     if (provision!=null) provision.validate();
     if (config==null) config = new OFunctionConfig();
+    if (config.getOffloadingMode() == null)
+      config.setOffloadingMode(OFunctionConfig.OffloadingMode.JSON);
     if (type==null)
       type = FunctionType.TASK;
     if (type==FunctionType.TASK) {
@@ -112,6 +114,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
       status.setCondition(DeploymentCondition.RUNNING)
         .setInvocationUrl(provision.getStaticUrl().getUrl());
     }
+
   }
 
   public OFunction setName(String name) {

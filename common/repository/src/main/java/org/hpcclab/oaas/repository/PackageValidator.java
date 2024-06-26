@@ -46,7 +46,7 @@ public class PackageValidator {
     for (OClass cls : classes) {
       cls.setPkg(pkg.getName());
       cls.validate();
-      if (pkg.isDisable()) cls.setDisabled(true);
+      if (pkg.isDisabled()) cls.setDisabled(true);
     }
     validateFunctionBinding(classes, funcMap);
     var macroFunctions = functions.stream()

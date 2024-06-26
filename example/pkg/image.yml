@@ -6,8 +6,9 @@ functions:
     provision:
       knative:
         image: ghcr.io/hpcclab/oaas/img-resize-fn-py:latest
-        env:
-          LOG_LEVEL: DEBUG
+    config:
+      custom:
+        LOG_LEVEL: DEBUG
     variableDescriptions:
       - name: size
       - name: ratio

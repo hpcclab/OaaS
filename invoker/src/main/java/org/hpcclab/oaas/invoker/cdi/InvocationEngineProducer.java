@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.cdi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.grpc.client.GrpcClient;
@@ -116,7 +117,8 @@ public class InvocationEngineProducer {
 
   @ApplicationScoped
   @Produces
-  HttpOffLoaderFactory factory(Vertx vertx, InvokerConfig invokerConfig) {
+  HttpOffLoaderFactory factory(Vertx vertx, InvokerConfig invokerConfig,
+                               ObjectMapper objectMapper) {
     HttpOffLoaderConfig config = HttpOffLoaderConfig.builder()
       .h2ConnectionPoolMaxSize(invokerConfig.h2ConnectionPoolMaxSize())
       .appName("oparaca/invoker")
@@ -125,7 +127,7 @@ public class InvocationEngineProducer {
       .enabledCeHeader(invokerConfig.enableCeHeaderOffload())
       .h2ConnectionPoolMaxSize(invokerConfig.h2ConnectionPoolMaxSize())
       .build();
-    return new HttpOffLoaderFactory(vertx, config);
+    return new HttpOffLoaderFactory(vertx, config, objectMapper);
   }
 
 }

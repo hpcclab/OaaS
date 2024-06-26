@@ -6,7 +6,10 @@ import io.fabric8.knative.serving.v1.RevisionSpec;
 import io.fabric8.knative.serving.v1.RevisionTemplateSpec;
 import io.fabric8.knative.serving.v1.Service;
 import io.fabric8.knative.serving.v1.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ServiceStatus;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
@@ -81,10 +84,7 @@ public class KnativeCrFnController extends AbstractCrFnController {
     var containerBuilder = new ContainerBuilder()
       .withName("fn")
       .withImage(knConf.getImage())
-      .addAllToEnv(knConf.getEnvMap()
-        .entrySet().stream().map(e -> new EnvVar(e.getKey(), e.getValue(), null))
-        .toList()
-      )
+      .addAllToEnv(K8sResourceUtil.extractEnv(function))
       .withResources(makeResourceRequirements(instanceSpec));
 
     if (knConf.getPort() > 0) {
@@ -124,6 +124,7 @@ public class KnativeCrFnController extends AbstractCrFnController {
       List.of(serviceBuilder.build()),
       buildStatusUpdate(function));
   }
+
 
   List<OFunctionStatusUpdate> buildStatusUpdate(ProtoOFunction function) {
     var statusBuilder = ProtoOFunctionDeploymentStatus.newBuilder()

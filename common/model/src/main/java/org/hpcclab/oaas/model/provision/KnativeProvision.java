@@ -3,9 +3,6 @@ package org.hpcclab.oaas.model.provision;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.proto.DSMap;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
 @Data
 @Accessors(chain = true)
@@ -21,7 +18,6 @@ public class KnativeProvision {
   String requestsMemory;
   String limitsCpu;
   String limitsMemory;
-  DSMap env;
   String apiPath;
   int port;
 
@@ -31,7 +27,7 @@ public class KnativeProvision {
   public KnativeProvision(String image, int minScale, int maxScale,
                           int concurrency, int targetConcurrency, String scaleDownDelay,
                           String requestsCpu, String requestsMemory, String limitsCpu,
-                          String limitsMemory, DSMap env, String apiPath, int port) {
+                          String limitsMemory, String apiPath, int port) {
     this.image = image;
     this.minScale = minScale;
     this.maxScale = maxScale;
@@ -42,7 +38,6 @@ public class KnativeProvision {
     this.requestsMemory = requestsMemory;
     this.limitsCpu = limitsCpu;
     this.limitsMemory = limitsMemory;
-    this.env = env;
     this.apiPath = apiPath;
     this.port = port;
   }

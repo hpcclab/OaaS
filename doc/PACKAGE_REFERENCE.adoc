@@ -3,6 +3,7 @@
 :toc-placement: preamble
 :toclevels: 2
 
+{empty}
 
 == Concepts
 
@@ -15,18 +16,22 @@ image::diagrams/oaas_class_representation_v2.dio.png[cls_rep,480]
 ----
 name: <name>
 functions:
-  - <function definition>
-  - ...
+  - {function definitions}
+  - {...}
 classes:
-  - <class definition>
-  - ...
+  - {class definitions}
+  - {...}
+disabled:  <boolean if all classes in this package should be deployed>
 ----
 
-== Class Structure
+== Class Definition
+=== Structures and References
+
 [source,yaml]
 ----
 classes:
   - name: <class name>
+    disabled: <boolean if this class should be deployed> #  You can disabled class to use it as the template/parent class for other classes.
     stateType: <FILES or COLLECTION>
     stateSpec: # unstructured state declaration
       keySpecs:
@@ -45,24 +50,43 @@ classes:
       - ...
 ----
 
-== Function Structure
+=== Defining data of object
+The data of object consist of two parts: *structured* data and *unstructured* data (BLOB).
 
+For *structured* data, with the current state of Oparaca, it does not support the data schema for validation yet. You can simply store anything within the JSON format.
+However, for the *unstructured* data, it is stored within the object storage, and its keys have to be predefined. The example of defining them are below.
+
+[source, yaml]
+----
+  - name: <class name>
+    stateSpec:
+      keySpecs:
+        - name: key1
+        - name: key2
+        - name: key3
+----
+
+== Function Definition
+
+=== Structures and References
 [source,yaml]
 ----
 functions:
   - name: <function name>
-    outputCls: <<package.key> of output class>
+    outputCls: <<package.key> of output class> # can be override by class definition
     description: <any description for this function> #Only for documenting
-    type: <type of function [TASK, LOGICAL, MACRO, CHAIN] [default: CHAIN]>
-    outputCls: <default class of the output object> # can be override by class definition
+    type: <type of function [TASK, LOGICAL, MACRO, CHAIN] (default=CHAIN)>
     variableDescriptions: # args description for documenting purpose
       - name: <arg name>
         comment: <any comment>
+    config:
+      offloadingMode: <offloading mode [JSON, PROTOBUF, GRPC] (default=JSON)>
+      custom: # dictionary of custom configuration that will be passed to the function (environment variable)
+        <key>: <val>
     provision: # configure the engine for deploying this function
       knative: # if using Knative
         image: <container image tag>
-        env:  # key-value map to environment varible of deployment container
-          <key>: <value>
+        port: <port number of this container>
 
   - name: <function name>
     ...
@@ -72,8 +96,6 @@ functions:
         replica: <number of pods>
         port: <port number>
         pullPolicy: <image pull policy> # set to 'IfNotPresent' to disable image pull if exists
-        env:  # key-value map to environment varible of deployment container
-          <key>: <value>
 
   - name: <function name>
     ...
@@ -129,3 +151,8 @@ The utility class to be inherited from. This class contains a list of built-in f
 == Dataflow Definitions
 
 TODO
+
+[source, yaml]
+----
+
+----

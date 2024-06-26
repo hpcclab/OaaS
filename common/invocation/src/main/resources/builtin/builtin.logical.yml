@@ -1,5 +1,5 @@
 name: builtin
-disable: true
+disabled: true
 functions:
   - name: logical.copy
     type: LOGICAL

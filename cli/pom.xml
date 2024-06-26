@@ -99,6 +99,10 @@
       <artifactId>smallrye-mutiny-vertx-web-client</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.github.f4b6a3</groupId>
       <artifactId>tsid-creator</artifactId>
       <version>${tsid-creator.version}</version>

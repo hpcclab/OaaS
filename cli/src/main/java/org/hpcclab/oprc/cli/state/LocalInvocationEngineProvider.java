@@ -179,11 +179,11 @@ public class LocalInvocationEngineProvider {
 
   @ApplicationScoped
   @Produces
-  HttpOffLoaderFactory factory(Vertx vertx) {
+  HttpOffLoaderFactory factory(Vertx vertx, ObjectMapper mapper) {
     HttpOffLoaderConfig config = HttpOffLoaderConfig.builder()
       .appName("oparaca/cli")
       .build();
-    return new HttpOffLoaderFactory(vertx, config);
+    return new HttpOffLoaderFactory(vertx, config, mapper);
   }
 
 

@@ -62,6 +62,22 @@ public class OTaskCompletion {
 
   public static OTaskCompletion error(String id,
                                       String errorMsg,
+                                      long cptTs) {
+    return new OTaskCompletion(
+      id,
+      false,
+      errorMsg,
+      null,
+      null,
+      null,
+      cptTs,
+      -1,
+      null,
+      null
+    );
+  }
+  public static OTaskCompletion error(String id,
+                                      String errorMsg,
                                       long cptTs,
                                       long smtTs) {
     return new OTaskCompletion(

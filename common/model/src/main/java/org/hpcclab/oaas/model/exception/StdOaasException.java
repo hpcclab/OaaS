@@ -7,6 +7,14 @@ public class StdOaasException extends RuntimeException {
     this(null, null, true, code);
   }
 
+
+  public StdOaasException(Throwable cause) {
+    this(null, cause, true, 500);
+  }
+
+
+
+
   public StdOaasException(String message) {
     this(message, null, true, 500);
   }

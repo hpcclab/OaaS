@@ -20,5 +20,5 @@ public class OPackage {
   @JsonSetter(nulls = Nulls.AS_EMPTY)
   List<OFunction> functions = List.of();
   List<String> required;
-  boolean disable;
+  boolean disabled;
 }
