@@ -6,7 +6,7 @@ functions:
       knative:
         image: ghcr.io/hpcclab/oaas/json-update-fn-py:latest
     config:
-      offloadingMode: GRPC
+      offloadingMode: JSON
       custom:
         LOG_LEVEL: DEBUG
 
