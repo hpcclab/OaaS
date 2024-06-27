@@ -24,6 +24,7 @@ public class HttpOffLoader implements OffLoader {
                        HttpOffLoaderConfig config) {
     this.webClient = webClient;
     this.config = config;
+    this.encoder = encoder;
   }
 
   public Buffer encode(InvokingDetail<?> invokingDetail) {
