@@ -128,17 +128,76 @@ Example:
 
 * To get the args parameter
 +
+[source,python]
 ----
 name = ctx.args['name']
 ----
+
+* To get the body of request as a dict
++
+[source,python]
+----
+body = ctx.task.req_body
+----
+
 * To set the return data of this function
 +
+[source,python]
 ----
 ctx.resp_body = {"msg": "hello " + name}
 ----
 
+* To get the state data of main object (object that got function call)
++
+[source,python]
+----
+main_data =  ctx.task.main_obj.data
+name =  ctx.task.main_obj.data.get('name')
+----
+
+* To update the state data of main object (object that got function call)
++
+[source,python]
+----
+ctx.task.main_obj.data = {"foo": "bar"}
+----
+
+* To update the state data of output object (object that function will produce)
++
+[source,python]
+----
+ctx.task.output_obj.data = {"foo": "bar"}
+----
+
+
 === Unstructured Data Access
-TODO
+
+* To load the file of given key
++
+[source,python]
+----
+import aiohttp
+
+async def write_to_file(resp, file_path):
+    with open(file_path, "wb") as f:
+        async for chunk in resp.content.iter_chunked(1024):
+            f.write(chunk)
+
+async with aiohttp.ClientSession() as session:
+    async with await ctx.load_main_file(session, "key_of_file") as resp:
+        await write_to_file(resp, "path_to_local_file")
+----
+* To upload the file of given key
++
+[source,python]
+----
+async with aiohttp.ClientSession() as session:
+    # FOR OUTPUT OBJECT
+    await ctx.upload_file(session, "key_of_file", "path_to_local_file")
+    # FOR MAIN OBJECT
+    await ctx.upload_main_file(session, "key_of_file", "path_to_local_file")
+----
+
 
 === Build container image
 [source,bash]
