@@ -6,6 +6,9 @@ import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.invocation.BuiltInLoader;
+import org.hpcclab.oaas.repository.ClassRepository;
+import org.hpcclab.oaas.repository.FunctionRepository;
 
 @ApplicationScoped
 public class PmInitializer {
@@ -13,8 +16,8 @@ public class PmInitializer {
   final BuiltInLoader builtInLoader;
 
   @Inject
-  public PmInitializer(BuiltInLoader builtInLoader) {
-    this.builtInLoader = builtInLoader;
+  public PmInitializer(ClassRepository clsRepo, FunctionRepository fnRepo) {
+    this.builtInLoader = new BuiltInLoader(clsRepo, fnRepo);
   }
 
   void onStart(@Observes StartupEvent startupEvent) throws Throwable {

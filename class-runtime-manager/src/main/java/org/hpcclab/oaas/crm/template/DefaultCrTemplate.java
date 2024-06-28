@@ -3,13 +3,13 @@ package org.hpcclab.oaas.crm.template;
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import org.hpcclab.oaas.crm.CrComponent;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig.CrtConfig;
 import org.hpcclab.oaas.crm.controller.*;
 import org.hpcclab.oaas.crm.env.EnvironmentManager;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
+import org.hpcclab.oaas.crm.filter.PodMonitorInjectingFilter;
 import org.hpcclab.oaas.crm.observe.FnEventObserver;
 import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 import org.hpcclab.oaas.proto.DeploymentUnit;
@@ -48,39 +48,47 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   @Override
   public CrController create(OprcEnvironment.Config envConf, DeploymentUnit deploymentUnit) {
-    Map<String, CrComponentController<HasMetadata>> componentControllers = Map.of(
-      INVOKER.getSvc(), new InvokerK8sCrComponentController(config.services().get(INVOKER.getSvc()), crmConfig),
-      STORAGE_ADAPTER.getSvc(), new SaK8sCrComponentController(config.services().get(CrComponent.STORAGE_ADAPTER.getSvc())),
-      CONFIG.getSvc(), new ConfigK8sCrComponentController(null)
-    );
-    var kn = new KnativeCrFnController(config.functions(), envConf);
-    var dep = new DeploymentCrFnController(config.functions());
+    Map<String, CrComponentController<HasMetadata>> componentControllers =
+      createComponentControllers(envConf);
+    var factory = new UnifyFnCrControllerFactory(config.functions(), envConf);
     return new K8SCrController(
       this,
       k8sClient,
       componentControllers,
-      dep,
-      kn,
+      factory,
       envConf,
       tsidFactory.create()
     );
   }
 
   @Override
-  public CrController load(OprcEnvironment.Config env, ProtoCr cr) {
-    Map<String, CrComponentController<HasMetadata>> componentControllers = Map.of(
-      INVOKER.getSvc(), new InvokerK8sCrComponentController(config.services().get(INVOKER.getSvc()), crmConfig),
-      STORAGE_ADAPTER.getSvc(), new SaK8sCrComponentController(config.services().get(CrComponent.STORAGE_ADAPTER.getSvc())),
-      CONFIG.getSvc(), new ConfigK8sCrComponentController(null)
-    );
-    var kn = new KnativeCrFnController(config.functions(), env);
-    var dep = new DeploymentCrFnController(config.functions());
-    return new K8SCrController(this, k8sClient,
+  public CrController load(OprcEnvironment.Config envConf, ProtoCr cr) {
+    Map<String, CrComponentController<HasMetadata>> componentControllers = createComponentControllers(envConf);
+    var factory = new UnifyFnCrControllerFactory(config.functions(), envConf);
+    return new K8SCrController(
+      this,
+      k8sClient,
       componentControllers,
-      dep,
-      kn,
-      env,
-      cr);
+      factory,
+      envConf,
+      cr
+    );
+  }
+
+  private Map<String, CrComponentController<HasMetadata>> createComponentControllers(OprcEnvironment.Config envConf) {
+    var invoker = new InvokerK8sCrComponentController(config.services().get(INVOKER.getSvc()),
+      envConf);
+    if (!crmConfig.monitorDisable()) {
+      invoker.addFilter(new PodMonitorInjectingFilter(k8sClient));
+    }
+    var sa = new SaK8sCrComponentController(
+      config.services().get(STORAGE_ADAPTER.getSvc()), envConf);
+    var conf = new ConfigK8sCrComponentController(null, envConf);
+    return Map.of(
+      INVOKER.getSvc(), invoker,
+      STORAGE_ADAPTER.getSvc(), sa,
+      CONFIG.getSvc(), conf
+    );
   }
 
   @Override

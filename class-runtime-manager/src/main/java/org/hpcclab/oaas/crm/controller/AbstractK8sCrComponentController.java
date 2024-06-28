@@ -5,9 +5,13 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
+import org.hpcclab.oaas.crm.filter.CrFilter;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
+import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,14 +20,18 @@ import java.util.Map;
  */
 public abstract class AbstractK8sCrComponentController implements CrComponentController<HasMetadata> {
   protected final CrtMappingConfig.SvcConfig svcConfig;
+  protected final OprcEnvironment.Config envConfig;
   protected K8SCrController parentController;
   protected KubernetesClient kubernetesClient;
   protected String prefix;
   protected String namespace;
   long stableTime;
+  List<CrFilter<List<HasMetadata>>> filters = new ArrayList<>();
 
-  protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
-    if (svcConfig == null) {
+  protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+                                             OprcEnvironment.Config envConfig) {
+    this.envConfig = envConfig;
+    if (svcConfig==null) {
       this.svcConfig = CrtMappingConfig.SvcConfig.builder()
         .build();
     } else {
@@ -42,6 +50,18 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       throw new IllegalArgumentException("Parent cr controller is not a K8SCrController");
   }
 
+
+  @Override
+  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+    List<HasMetadata> hasMetadata = doCreateDeployOperation(plan);
+    for (CrFilter<List<HasMetadata>> filter : filters) {
+      hasMetadata = filter.applyOnCreate(hasMetadata);
+    }
+    return hasMetadata;
+  }
+
+  protected abstract List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan);
+
   @Override
   public List<HasMetadata> createAdjustOperation(CrAdjustmentPlan plan) {
     if (plan==null) return List.of();
@@ -49,7 +69,11 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       return List.of();
     }
     stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
-    return doCreateAdjustOperation(plan);
+    List<HasMetadata> hasMetadata = doCreateAdjustOperation(plan);
+    for (CrFilter<List<HasMetadata>> filter : filters) {
+      hasMetadata = filter.applyOnAdjust(hasMetadata);
+    }
+    return hasMetadata;
   }
 
   @Override
@@ -57,7 +81,19 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
     stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
   }
 
+
   protected abstract List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan);
+
+  @Override
+  public List<HasMetadata> createDeleteOperation() {
+    List<HasMetadata> list = doCreateDeleteOperation();
+    for (CrFilter<List<HasMetadata>> filter : filters) {
+      list = filter.applyOnDelete(list);
+    }
+    return list;
+  }
+
+  protected abstract List<HasMetadata> doCreateDeleteOperation();
 
   protected Deployment createDeployment(String filePath,
                                         String name,
@@ -146,28 +182,6 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
     return service;
   }
 
-  protected void attachSecret(Deployment deployment, String secretName) {
-    var cons = deployment.getSpec()
-      .getTemplate()
-      .getSpec()
-      .getContainers();
-    for (Container container : cons) {
-      container.getEnvFrom()
-        .add(new EnvFromSource(null, null, new SecretEnvSource(secretName, false)));
-    }
-  }
-
-  protected void attachConf(Deployment deployment, String confName) {
-    var cons = deployment.getSpec()
-      .getTemplate()
-      .getSpec()
-      .getContainers();
-    for (Container container : cons) {
-      container.getEnvFrom()
-        .add(new EnvFromSource(new ConfigMapEnvSource(confName, false), null, null));
-    }
-  }
-
 
   protected HorizontalPodAutoscaler createHpa(CrInstanceSpec spec,
                                               Map<String, String> labels,
@@ -197,8 +211,8 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       )
       .withSelectPolicy("Max")
       .withStabilizationWindowSeconds(
-        svcConfig.stabilizationWindow()>0?
-        svcConfig.stabilizationWindow()/1000: 15
+        svcConfig.stabilizationWindow() > 0 ?
+          svcConfig.stabilizationWindow() / 1000:15
       )
       .endScaleUp()
       .build();
@@ -248,6 +262,11 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   @Override
   public long getStableTime() {
     return stableTime;
+  }
+
+  @Override
+  public void addFilter(CrFilter<List<HasMetadata>> newFilter) {
+    this.filters.add(newFilter);
   }
 }
 

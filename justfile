@@ -92,8 +92,7 @@ k3d-create:
 
 k3d-install-all: k3d-create
   just k8s-deploy-preq
-  just deploy/helm-prom
-  just k8s-deploy
+  just k8s-deploy-light
   kubectl get pod -w -n oaas
 
 compose-build-up: build-image

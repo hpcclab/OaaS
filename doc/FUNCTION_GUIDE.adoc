@@ -19,7 +19,7 @@ image::diagrams/oaas_mutable_unstructure_v3.dio.png[inv_off,480]
 
 === Project Setup
 ==== Requirements
-* Python 3.10+
+* Python 3.11+
 * Docker
 
 ==== Cloning template project

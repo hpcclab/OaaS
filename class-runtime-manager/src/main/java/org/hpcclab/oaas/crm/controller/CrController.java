@@ -21,13 +21,9 @@ public interface CrController {
   Map<String,ProtoOFunction> getAttachedFn();
   CrDeploymentPlan currentPlan();
   CrOperation createUpdateOperation(CrDeploymentPlan plan, DeploymentUnit unit);
-
   CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit);
-
   CrOperation createDetachOperation(ProtoOClass cls);
-
   CrOperation createDestroyOperation();
-
   CrOperation createAdjustmentOperation(CrAdjustmentPlan adjustmentPlan);
   long getStableTime(String name);
   ProtoCr dump();

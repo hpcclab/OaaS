@@ -74,4 +74,5 @@ public abstract class AbstractCrFnController implements CrFnController<HasMetada
   public Map<String, CrInstanceSpec> currentSpecs() {
     return currentSpecs;
   }
+
 }

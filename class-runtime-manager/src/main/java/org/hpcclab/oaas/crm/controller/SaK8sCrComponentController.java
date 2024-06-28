@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 
@@ -12,18 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hpcclab.oaas.crm.CrComponent.STORAGE_ADAPTER;
-import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
+import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_COMPONENT_LABEL_KEY;
+import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_LABEL_KEY;
 
 /**
  * @author Pawissanutt
  */
 public class SaK8sCrComponentController extends AbstractK8sCrComponentController {
-  public SaK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
-    super(svcConfig);
+  public SaK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+                                    OprcEnvironment.Config envConfig) {
+    super(svcConfig, envConfig);
   }
 
 
-  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+  public List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
     if (instanceSpec.disable()) return List.of();
     var labels = Map.of(
@@ -37,8 +40,8 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
       labels,
       instanceSpec
     );
-    attachSecret(deployment, prefix + NAME_SECRET);
-    attachConf(deployment, prefix + NAME_CONFIGMAP);
+//    attachSecret(deployment, prefix + NAME_SECRET);
+//    attachConf(deployment, prefix + NAME_CONFIGMAP);
     var svc = createSvc(
       "/crts/storage-adapter-svc.yml",
       name,
@@ -74,7 +77,7 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
   }
 
   @Override
-  public List<HasMetadata> createDeleteOperation() {
+  public List<HasMetadata> doCreateDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     String tsidString = parentController.getTsidString();
     Map<String, String> labels = Map.of(

@@ -38,6 +38,11 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>invocation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
       <artifactId>arango-repository</artifactId>
       <version>${project.version}</version>
     </dependency>

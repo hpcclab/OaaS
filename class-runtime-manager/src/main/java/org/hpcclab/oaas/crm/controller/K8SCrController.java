@@ -35,8 +35,8 @@ public class K8SCrController implements CrController {
   final Map<String, CrComponentController<HasMetadata>> componentControllers;
   final Map<String, ProtoOClass> attachedCls = Maps.mutable.empty();
   final Map<String, ProtoOFunction> attachedFn = Maps.mutable.empty();
-  final CrFnController<HasMetadata> deploymentFnController;
-  final CrFnController<HasMetadata> knativeFnController;
+  final Map<String, FnCrComponentController<HasMetadata>> fnControllers = Maps.mutable.empty();
+  final FnCrControllerFactory<HasMetadata> factory;
   final String namespace;
   CrDeploymentPlan currentPlan;
   boolean deleted = false;
@@ -46,20 +46,16 @@ public class K8SCrController implements CrController {
   public K8SCrController(CrTemplate template,
                          KubernetesClient client,
                          Map<String, CrComponentController<HasMetadata>> componentControllers,
-                         CrFnController<HasMetadata> deploymentFnController,
-                         CrFnController<HasMetadata> knativeFnController,
+                         FnCrControllerFactory<HasMetadata> factory,
                          OprcEnvironment.Config envConfig,
                          Tsid tsid) {
     this.template = template;
     this.kubernetesClient = client;
     this.envConfig = envConfig;
-    namespace = envConfig.namespace();
-    id = tsid.toLong();
-    prefix = "cr-" + tsid.toLowerCase() + "-";
-    this.deploymentFnController = deploymentFnController;
-    deploymentFnController.init(this);
-    this.knativeFnController = knativeFnController;
-    knativeFnController.init(this);
+    this.namespace = envConfig.namespace();
+    this.id = tsid.toLong();
+    this.prefix = "cr-" + tsid.toLowerCase() + "-";
+    this.factory = factory;
     this.componentControllers = componentControllers;
     for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
       componentController.init(this);
@@ -69,22 +65,23 @@ public class K8SCrController implements CrController {
   public K8SCrController(CrTemplate template,
                          KubernetesClient client,
                          Map<String, CrComponentController<HasMetadata>> componentControllers,
-                         CrFnController<HasMetadata> deploymentFnController,
-                         CrFnController<HasMetadata> knativeFnController,
+                         FnCrControllerFactory<HasMetadata> factory,
                          OprcEnvironment.Config envConfig,
                          ProtoCr protoCr) {
     this(template, client,
       componentControllers,
-      deploymentFnController,
-      knativeFnController,
+      factory,
       envConfig,
       Tsid.from(protoCr.getId())
     );
     for (ProtoOClass protoOClass : protoCr.getAttachedClsList()) {
       attachedCls.put(protoOClass.getKey(), protoOClass);
     }
-    for (ProtoOFunction protoOFunction : protoCr.getAttachedFnList()) {
-      attachedFn.put(protoOFunction.getKey(), protoOFunction);
+    for (ProtoOFunction function : protoCr.getAttachedFnList()) {
+      attachedFn.put(function.getKey(), function);
+      FnCrComponentController<HasMetadata> controller = factory.create(function);
+      controller.init(this);
+      fnControllers.put(function.getKey(), controller);
     }
     var jsonDump = protoCr.getState().getJsonDump();
     if (!jsonDump.isEmpty()) {
@@ -118,7 +115,9 @@ public class K8SCrController implements CrController {
   public CrOperation createDeployOperation(CrDeploymentPlan plan, DeploymentUnit unit)
     throws CrDeployException {
     List<HasMetadata> resourceList = Lists.mutable.empty();
-    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(kubernetesClient, resourceList,
+    ApplyK8SCrOperation crOperation = new ApplyK8SCrOperation(
+      kubernetesClient,
+      resourceList,
       () -> {
         attachedCls.put(unit.getCls().getKey(), unit.getCls());
         for (ProtoOFunction protoOFunction : unit.getFnListList()) {
@@ -127,10 +126,9 @@ public class K8SCrController implements CrController {
         currentPlan = plan;
         componentControllers.values()
           .forEach(CrComponentController::updateStableTime);
-        plan.fnInstances().keySet()
-          .forEach(deploymentFnController::updateStableTime);
-        plan.fnInstances().keySet()
-          .forEach(knativeFnController::updateStableTime);
+        for (var controller : fnControllers.values()) {
+          controller.updateStableTime();
+        }
         initialized = true;
       });
 
@@ -148,6 +146,7 @@ public class K8SCrController implements CrController {
       resourceList.addAll(fnResourcePlan.resources());
       crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
     }
+
     return crOperation;
   }
 
@@ -203,10 +202,9 @@ public class K8SCrController implements CrController {
     for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
       toDeleteResource.addAll(componentController.createDeleteOperation());
     }
-    var fn = deploymentFnController.removeAllFunction();
-    toDeleteResource.addAll(fn);
-    var ksvc = knativeFnController.removeAllFunction();
-    toDeleteResource.addAll(ksvc);
+    for (var controller : fnControllers.values()) {
+      toDeleteResource.addAll(controller.createDeleteOperation());
+    }
     return new DeleteK8SCrOperation(kubernetesClient, toDeleteResource,
       () -> {
         attachedCls.clear();
@@ -221,18 +219,20 @@ public class K8SCrController implements CrController {
     for (CrComponentController<HasMetadata> componentController : componentControllers.values()) {
       resource.addAll(componentController.createAdjustOperation(adjustmentPlan));
     }
-    var fnResourcePlan = knativeFnController.applyAdjustment(adjustmentPlan);
-    resource.addAll(fnResourcePlan.resources());
-    var fnResourcePlan2 = deploymentFnController.applyAdjustment(adjustmentPlan);
-    resource.addAll(fnResourcePlan2.resources());
     var crOperation = new AdjustmentCrOperation(
       kubernetesClient,
       resource,
       () -> currentPlan = currentPlan.update(adjustmentPlan)
     );
-    crOperation.getFnUpdates().addAll(fnResourcePlan.fnUpdates());
-    crOperation.getFnUpdates().addAll(fnResourcePlan2.fnUpdates());
-
+    for (var entry : adjustmentPlan.fnInstances().entrySet()) {
+      if (!fnControllers.containsKey(entry.getKey()))
+        continue;
+      FnCrComponentController<HasMetadata> controller = fnControllers.get(entry.getKey());
+      resource.addAll(controller.createAdjustOperation(adjustmentPlan));
+      OFunctionStatusUpdate update = controller.buildStatusUpdate();
+      if (update!=null)
+        crOperation.getFnUpdates().add(update);
+    }
     return crOperation;
   }
 
@@ -243,23 +243,23 @@ public class K8SCrController implements CrController {
 
   protected FnResourcePlan deployFunction(CrDeploymentPlan newPlan,
                                           ProtoOFunction function) throws CrDeployException {
-    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_MACRO)
-      return FnResourcePlan.EMPTY;
-    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_LOGICAL)
-      return FnResourcePlan.EMPTY;
-    if (!function.getProvision().getDeployment().getImage().isEmpty()) {
-      return deploymentFnController.deployFunction(newPlan, function);
-    } else if (!function.getProvision().getKnative().getImage().isEmpty()) {
-      return knativeFnController.deployFunction(newPlan, function);
-    }
-    throw new CrDeployException("Can not find suitable functions controller for functions:\n" + function);
+    FnCrComponentController<HasMetadata> fnController = factory.create(function);
+    fnController.init(this);
+    fnControllers.put(function.getKey(), fnController);
+    List<HasMetadata> resources = fnController.createDeployOperation(newPlan);
+    OFunctionStatusUpdate update = fnController.buildStatusUpdate();
+    if (update != null)
+      return new FnResourcePlan(resources, List.of(update));
+    else
+      return new FnResourcePlan(resources, List.of());
   }
 
   protected List<HasMetadata> removeFunction(String fnKey) throws CrUpdateException {
-    List<HasMetadata> resourceList = Lists.mutable.empty();
-    resourceList.addAll(deploymentFnController.removeFunction(fnKey));
-    resourceList.addAll(knativeFnController.removeFunction(fnKey));
-    return resourceList;
+    if (fnControllers.containsKey(fnKey)) {
+      CrComponentController<HasMetadata> controller = fnControllers.get(fnKey);
+      return controller.createDeleteOperation();
+    }
+    return List.of();
   }
 
   @Override
@@ -289,9 +289,9 @@ public class K8SCrController implements CrController {
   @Override
   public long getStableTime(String name) {
     if (componentControllers.containsKey(name))
-      componentControllers.get(name).getStableTime();
-    long stableTime = knativeFnController.getStableTime(name);
-    if (stableTime > 0) return stableTime;
-    return deploymentFnController.getStableTime(name);
+      return componentControllers.get(name).getStableTime();
+    if (fnControllers.containsKey(name))
+      return fnControllers.get(name).getStableTime();
+    return -1;
   }
 }

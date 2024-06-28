@@ -92,16 +92,6 @@ Install Strimzi operator (for installing Kafka in the later step)
 just k8s-deploy-preq
 ----
 
-. Install Prometheus stack
-+
-[source,bash]
-----
-# deploy Prometheus stack
-just deploy/helm-prom
-----
-+
-NOTE: You can skip the Prometheus installation for light-weight deployment.
-
 . Install Kafka
 +
 Install ArangoDB
@@ -136,9 +126,7 @@ To access the installed services:
 +
 [source,bash]
 ----
-just k8s-deploy
-# IF YOU SKIP PROMETHEUS INSTALLATION, RUN BELOW COMMAND INSTEAD
-# just k8s-deploy-light
+just k8s-deploy-light
 ----
 
 
@@ -162,6 +150,23 @@ The URLs of platform are accessible via:
 == What next?
 
 Check on our link:../../example/README.adoc[example usages guide] to learn how to use Oparaca.
+
+== Extras
+
+=== Enable QoS-Driven Optimization
+NOTE: This feature is experimental and highly unstable.
+
+First, this feature require Prometheus stack.
+[source,bash]
+----
+just deploy/helm-prom
+----
+Then, you need to redeploy Oparaca with monitoring enabled.
+[source,bash]
+----
+just k8s-deploy
+----
+
 
 == Troubleshooting
 // * Depend on The distribution of Kubernetes, the IP address of Kube DNS might not be the same. If it isn't `10.96.0.10`, the content delivery service will not work. So, you have to find the correct one and replace `10.96.0.10` in link:../oaas/base/cds.yml[]

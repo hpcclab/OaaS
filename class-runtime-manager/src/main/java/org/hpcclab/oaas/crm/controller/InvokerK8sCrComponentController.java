@@ -4,8 +4,8 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
-import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 
@@ -13,22 +13,21 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hpcclab.oaas.crm.CrComponent.INVOKER;
-import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
+import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_COMPONENT_LABEL_KEY;
+import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_LABEL_KEY;
 
 /**
  * @author Pawissanutt
  */
 public class InvokerK8sCrComponentController extends AbstractK8sCrComponentController {
 
-  final CrmConfig crmConfig;
-
-  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig, CrmConfig crmConfig) {
-    super(svcConfig);
-    this.crmConfig = crmConfig;
+  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+                                         OprcEnvironment.Config envConf) {
+    super(svcConfig, envConf);
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+  public List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     var instanceSpec = plan.coreInstances().get(INVOKER);
     var dataSpec = plan.dataSpec();
     if (instanceSpec.disable()) return List.of();
@@ -46,14 +45,6 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
     );
     resources.add(deployment);
 
-    if (!crmConfig.monitorDisable()) {
-      var podMonitor = K8sResourceUtil
-        .createPodMonitor(name, namespace, labels);
-      resources.add(podMonitor);
-    }
-
-    attachSecret(deployment, prefix + NAME_SECRET);
-    attachConf(deployment, prefix + NAME_CONFIGMAP);
     var invokerSvc = createSvc(
       "/crts/invoker-svc.yml",
       name,
@@ -112,7 +103,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
   }
 
   @Override
-  public List<HasMetadata> createDeleteOperation() {
+  public List<HasMetadata> doCreateDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     String tsidString = parentController.getTsidString();
     Map<String, String> labels = Map.of(
@@ -129,13 +120,6 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       .list()
       .getItems();
     toDeleteResource.addAll(svcList);
-    if (!crmConfig.monitorDisable()) {
-      var podMonitor = kubernetesClient.genericKubernetesResources("monitoring.coreos.com/v1", "PodMonitor")
-        .withLabel(CR_LABEL_KEY, tsidString)
-        .list()
-        .getItems();
-      toDeleteResource.addAll(podMonitor);
-    }
     var hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
       .withLabels(labels)
       .list().getItems();

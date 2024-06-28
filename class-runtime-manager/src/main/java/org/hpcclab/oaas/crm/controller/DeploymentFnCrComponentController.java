@@ -1,10 +1,11 @@
 package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
+import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 import org.hpcclab.oaas.proto.OFunctionStatusUpdate;
@@ -20,22 +21,40 @@ import java.util.Map;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
 
-public class DeploymentCrFnController extends AbstractCrFnController {
-  private static final Logger logger = LoggerFactory.getLogger(DeploymentCrFnController.class);
+/**
+ * @author Pawissanutt
+ */
+public class DeploymentFnCrComponentController extends AbstractK8sCrComponentController
+  implements FnCrComponentController<HasMetadata> {
+  private static final Logger logger = LoggerFactory.getLogger(DeploymentFnCrComponentController.class);
+  final CrtMappingConfig.FnConfig fnConfig;
+  final ProtoOFunction function;
 
-  public DeploymentCrFnController(CrtMappingConfig.FnConfig fnConfig) {
-    super(fnConfig);
+  protected DeploymentFnCrComponentController(CrtMappingConfig.FnConfig fnConfig,
+                                              OprcEnvironment.Config envConfig,
+                                              ProtoOFunction function) {
+    super(null, envConfig);
+    this.fnConfig = fnConfig;
+    this.function = function;
   }
 
   @Override
-  public FnResourcePlan deployFunction(CrDeploymentPlan plan,
-                                       ProtoOFunction function) {
+  public void init(CrController parentController) {
+    super.init(parentController);
+    if (parentController instanceof K8SCrController k8SCrController) {
+      this.kubernetesClient = k8SCrController.kubernetesClient;
+    } else {
+      throw new IllegalStateException();
+    }
+  }
 
+  @Override
+  protected List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     logger.debug("deploy function {} with Deployment", function.getKey());
     var instance = plan.fnInstances()
       .get(function.getKey());
     var labels = Map.of(
-      CR_LABEL_KEY, parent.getTsidString(),
+      CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, NAME_FUNCTION,
       CR_FN_KEY, function.getKey()
     );
@@ -43,7 +62,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
       .getDeployment();
     deployConf.getImage();
     if (deployConf.getImage().isEmpty())
-      return FnResourcePlan.EMPTY;
+      return List.of();
     var container = new ContainerBuilder()
       .withName("fn")
       .withImage(deployConf.getImage())
@@ -54,7 +73,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
         .withContainerPort(deployConf.getPort() <= 0 ? 8080:deployConf.getPort())
         .build()
       )
-      .withImagePullPolicy(deployConf.getPullPolicy().isEmpty() ? null: deployConf.getPullPolicy())
+      .withImagePullPolicy(deployConf.getPullPolicy().isEmpty() ? null:deployConf.getPullPolicy())
       .withResources(makeResourceRequirements(instance))
       .build();
     var fnName = createName(function.getKey());
@@ -65,7 +84,7 @@ public class DeploymentCrFnController extends AbstractCrFnController {
       .endMetadata();
     deploymentBuilder
       .withNewSpec()
-      .withReplicas(instance.minInstance() > 0? instance.minInstance(): 1)
+      .withReplicas(instance.minInstance() > 0 ? instance.minInstance():1)
       .withNewSelector()
       .addToMatchLabels(labels)
       .endSelector()
@@ -96,24 +115,17 @@ public class DeploymentCrFnController extends AbstractCrFnController {
       )
       .endSpec()
       .build();
-    return new FnResourcePlan(List.of(deployment, svc),
-      List.of(OFunctionStatusUpdate.newBuilder()
-        .setKey(function.getKey())
-        .setStatus(ProtoOFunctionDeploymentStatus.newBuilder()
-          .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
-          .setInvocationUrl("http://" + svc.getMetadata().getName() + "." + namespace + ".svc.cluster.local")
-          .build())
-        .setProvision(function.getProvision())
-        .build())
-    );
+    return List.of(deployment, svc);
   }
 
+
   @Override
-  protected List<HasMetadata> doApplyAdjustment(String fnKey, CrInstanceSpec spec) {
+  protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
+    CrInstanceSpec spec = plan.fnInstances().get(function.getKey());
     var deployment = kubernetesClient.apps()
       .deployments()
       .inNamespace(namespace)
-      .withName(createName(fnKey))
+      .withName(createName(function.getKey()))
       .get();
     if (deployment==null) return List.of();
     deployment.getSpec()
@@ -121,18 +133,12 @@ public class DeploymentCrFnController extends AbstractCrFnController {
     return List.of(deployment);
   }
 
-  private String createName(String fnKey) {
-    return prefix + "fn-" + fnKey.toLowerCase().replaceAll("[._]", "-")
-      + "-00001";
-
-  }
-
   @Override
-  public List<HasMetadata> removeFunction(String fnKey) {
+  public List<HasMetadata> doCreateDeleteOperation() {
     List<HasMetadata> resources = Lists.mutable.empty();
     var labels = Map.of(
-      CR_LABEL_KEY, parent.getTsidString(),
-      CR_FN_KEY, fnKey
+      CR_LABEL_KEY, parentController.getTsidString(),
+      CR_FN_KEY, function.getKey()
     );
     var deployments = kubernetesClient.apps()
       .deployments()
@@ -146,21 +152,24 @@ public class DeploymentCrFnController extends AbstractCrFnController {
     return resources;
   }
 
+  private String createName(String key) {
+    return prefix + "fn-" + key
+      .replaceAll("[._]", "-");
+  }
+
   @Override
-  public List<HasMetadata> removeAllFunction() {
-    List<HasMetadata> resourceList = Lists.mutable.empty();
-    var labels = Map.of(
-      CR_LABEL_KEY, parent.getTsidString(),
-      CR_COMPONENT_LABEL_KEY, NAME_FUNCTION
-    );
-    List<Deployment> deployments = kubernetesClient.apps().deployments()
-      .withLabels(labels)
-      .list().getItems();
-    resourceList.addAll(deployments);
-    List<Service> services = kubernetesClient.services()
-      .withLabels(labels)
-      .list().getItems();
-    resourceList.addAll(services);
-    return resourceList;
+  public OFunctionStatusUpdate buildStatusUpdate() {
+    var statusBuilder = ProtoOFunctionDeploymentStatus.newBuilder()
+      .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING);
+    if (!function.getStatus().getInvocationUrl().isEmpty()) {
+      statusBuilder.setInvocationUrl(function.getStatus().getInvocationUrl());
+      statusBuilder.setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING);
+    }
+    return OFunctionStatusUpdate.newBuilder()
+      .setKey(function.getKey())
+      .setStatus(statusBuilder
+        .build())
+      .setProvision(function.getProvision())
+      .build();
   }
 }

@@ -3,6 +3,6 @@ fastapi
 aiohttp
 uvicorn
 gunicorn
-oaas-sdk-py==0.3.2
+oaas-sdk-py==0.3.3
 pillow
 aiofiles

@@ -5,6 +5,9 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
+import org.hpcclab.oaas.crm.env.OprcEnvironment;
+import org.hpcclab.oaas.crm.filter.ConfigmapInjectingFilter;
+import org.hpcclab.oaas.crm.filter.SecretInjectingFilter;
 import org.hpcclab.oaas.crm.optimize.CrAdjustmentPlan;
 import org.hpcclab.oaas.crm.optimize.CrDeploymentPlan;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -18,12 +21,26 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
  * @author Pawissanutt
  */
 public class ConfigK8sCrComponentController extends AbstractK8sCrComponentController {
-  public ConfigK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig) {
-    super(svcConfig);
+  public ConfigK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+                                        OprcEnvironment.Config envConfig) {
+    super(svcConfig, envConfig);
   }
 
   @Override
-  public List<HasMetadata> createDeployOperation(CrDeploymentPlan plan) {
+  public void init(CrController parentController) {
+    super.init(parentController);
+    if (parentController instanceof K8SCrController kController) {
+      SecretInjectingFilter secFilter = new SecretInjectingFilter(prefix + NAME_SECRET);
+      ConfigmapInjectingFilter cmFilter = new ConfigmapInjectingFilter(prefix + NAME_CONFIGMAP);
+      for (var componentController : kController.componentControllers.values()) {
+        componentController.addFilter(secFilter);
+        componentController.addFilter(cmFilter);
+      }
+    }
+  }
+
+  @Override
+  public List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString()
     );
@@ -67,7 +84,7 @@ public class ConfigK8sCrComponentController extends AbstractK8sCrComponentContro
   }
 
   @Override
-  public List<HasMetadata> createDeleteOperation() {
+  public List<HasMetadata> doCreateDeleteOperation() {
     List<HasMetadata> toDeleteResource = Lists.mutable.empty();
     var confMap = kubernetesClient.configMaps()
       .inNamespace(namespace)
