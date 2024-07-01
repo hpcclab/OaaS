@@ -27,7 +27,7 @@ disabled:  <boolean if all classes in this package should be deployed>
 == Class Definition
 === Structures and References
 
-[source,yaml]
+[source,yaml,linenumber]
 ----
 classes:
   - name: <class name>
@@ -39,6 +39,7 @@ classes:
           access: <access modifier>
         - ...
     parents: # list of parent classes to inherit from
+      - builtin.base
       - <parent class>
     functions: # List of instance function
       - name: <name of instance function> #this is for calling
@@ -49,6 +50,8 @@ classes:
         noMain: <boolean> #true for allowing the function to be called at class level (similar to static function in Java)
       - ...
 ----
+
+In most cases, any classes should define <<builtin_base>> as the parent class (line 12) to inherit the list of built-in functions for normal operation (ex. create object). However, you can define those built-in function on your own.
 
 === Defining data of object
 The data of object consist of two parts: *structured* data and *unstructured* data (BLOB).
@@ -73,7 +76,7 @@ However, for the *unstructured* data, it is stored within the object storage, an
 ----
 functions:
   - name: <function name>
-    outputCls: <<package.key> of output class> # can be override by class definition
+    outputCls: <<package.key> of output class> # can be overridden by class definition
     description: <any description for this function> #Only for documenting
     type: <type of function [TASK, LOGICAL, MACRO, CHAIN] (default=CHAIN)>
     variableDescriptions: # args description for documenting purpose
@@ -141,7 +144,7 @@ TODO
 
 == Available built-in class
 
-=== builtin.base
+=== builtin.base [[builtin_base]]
 The utility class to be inherited from. This class contains a list of built-in functions:
 
 * builtin.logical.new

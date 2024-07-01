@@ -7,7 +7,7 @@ import lombok.Builder;
  * @author Pawissanutt
  */
 @Builder(toBuilder = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public record QosRequirement(int throughput,
 //                             int latency,
                              ColdStartMode coldStart,
