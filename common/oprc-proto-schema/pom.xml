@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <grpc.version>1.59.0</grpc.version>
     <protoc.version>3.24.4</protoc.version>
-    <jandex.version>3.1.7</jandex.version>
+    <jandex.version>3.2.0</jandex.version>
     <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
 
