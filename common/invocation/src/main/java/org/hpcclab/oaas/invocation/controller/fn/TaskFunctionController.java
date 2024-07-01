@@ -114,7 +114,7 @@ public class TaskFunctionController extends AbstractFunctionController {
     task.setArgs(resolveArgs(ctx));
 
     task.setMainGetKeys(generateUrls(ctx.getMain(), ctx.getMainRefs(), AccessLevel.ALL));
-    task.setMainPutKeys(generatePutUrls(ctx.getMain(), cls, verId,  AccessLevel.ALL));
+    task.setMainPutKeys(generatePutUrls(ctx.getMain(), cls, verId, AccessLevel.ALL));
 
     if (ctx.getOutput()!=null) {
       task.setOutput(ctx.getOutput());
@@ -127,7 +127,9 @@ public class TaskFunctionController extends AbstractFunctionController {
       }
     }
 
-    if (!function.isImmutable() && task.getMain()!=null) {
+    if (!function.isImmutable()
+      && task.getMain()!=null
+      && (!cls.getStateSpec().getKeySpecs().isEmpty() || cls.getStateType()==StateType.COLLECTION)) {
       var dac = DataAccessContext.generate(task.getMain(), AccessLevel.ALL, verId);
       task.setAllocMainUrl(contentUrlGenerator.generateAllocateUrl(ctx.getMain(), dac));
     }

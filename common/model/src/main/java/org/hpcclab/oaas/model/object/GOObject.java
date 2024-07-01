@@ -1,9 +1,6 @@
 package org.hpcclab.oaas.model.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -15,6 +12,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(alphabetic = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GOObject implements IOObject<JsonBytes> {
   @ProtoField(1)
   @JsonProperty("_meta")

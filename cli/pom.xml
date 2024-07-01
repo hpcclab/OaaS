@@ -77,6 +77,10 @@
       <artifactId>quarkus-picocli</artifactId>
     </dependency>
     <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli-codegen</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${org.projectlombok.version}</version>

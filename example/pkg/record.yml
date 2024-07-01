@@ -11,12 +11,12 @@ functions:
         LOG_LEVEL: DEBUG
 
 
-  - name: record.chain-update
+  - name: record.chain-random
     type: MACRO
     macro:
-      # var record1 = self.json-update()
-      # var record2 = record1.json-update()
-      # var record3 = record2.json-update()
+      # var record1 = self.random()
+      # var record2 = record1.random()
+      # var record3 = record2.random()
       # return record3
       steps:
         - target: '@'
@@ -58,5 +58,5 @@ classes:
         defaultArgs:
           INPLACE: "false"
       - name: chain
-        function: .record.chain-update
+        function: .record.chain-random
         outputCls: .record
