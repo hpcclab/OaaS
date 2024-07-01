@@ -61,6 +61,8 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
     var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
+    if (instanceSpec == null)
+      return List.of();
     String name = prefix + STORAGE_ADAPTER.getSvc();
     if (instanceSpec.enableHpa()) {
       HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);
