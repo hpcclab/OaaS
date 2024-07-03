@@ -184,10 +184,12 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
     var provision = fn.getProvision();
     var kn = provision.getKnative();
     int minScale = kn.getMinScale();
+    int minAvail = minScale;
     if (minScale < 0)
       minScale = Math.max(0, fnConfig.startReplicas());
     if (provision.getDeployment().getReplicas() > 0) {
       minScale = provision.getDeployment().getReplicas();
+      minAvail = 1;
     }
     float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
     long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
@@ -200,7 +202,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .requestsMemory(requestsMemory)
       .limitsCpu(parseCpu(kn.getLimitsCpu()))
       .limitsMemory(parseMem(kn.getLimitsMemory()))
-      .minAvail(minScale)
+      .minAvail(minAvail)
       .build();
   }
 

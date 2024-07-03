@@ -17,11 +17,13 @@ public class PodAffinityInjectingFilter implements CrFilter<List<HasMetadata>> {
   final String key;
   final List<String> values;
   final boolean required;
+  final String topologyKey;
 
   public PodAffinityInjectingFilter(String key, List<String> values) {
     this.key = key;
     this.values = values;
     this.required = true;
+    this.topologyKey = "kubernetes.io/hostname";
   }
 
   public PodAffinityInjectingFilter(Map<String,Object> conf) {
@@ -29,6 +31,8 @@ public class PodAffinityInjectingFilter implements CrFilter<List<HasMetadata>> {
     this.key = (String) conf.get("key");
     this.values = List.of(conf.get("values").toString().split(","));
     this.required = (boolean) conf.getOrDefault("required", true);
+    this.topologyKey = (String) conf
+      .getOrDefault("topologyKey", "kubernetes.io/hostname");
   }
 
   @Override
@@ -64,7 +68,7 @@ public class PodAffinityInjectingFilter implements CrFilter<List<HasMetadata>> {
       .withValues(values)
       .endMatchExpression()
       .endLabelSelector()
-      .withTopologyKey("kubernetes.io/hostname")
+      .withTopologyKey(topologyKey)
       .build();
     if (required) {
       return affinity.edit()
