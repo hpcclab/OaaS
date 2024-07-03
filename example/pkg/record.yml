@@ -14,21 +14,22 @@ functions:
   - name: record.chain-random
     type: MACRO
     macro:
-      # var record1 = self.random()
-      # var record2 = record1.random()
-      # var record3 = record2.random()
-      # return record3
       steps:
+        # var record1 = self.random()
         - target: '@'
           as: record1
           function: random
+        # var record2 = record1.random()
         - target: record1
           as: record2
           function: random
+        # var record3 = record2.random()
         - target: record2
           as: record3
           function: random
+      # return record3
       output: record3
+      # {step1: <record1>,step2: <record2>,step3: <record3>}
       respBody:
         - fromObj: record1
           transforms:

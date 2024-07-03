@@ -49,3 +49,4 @@ image::https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx.svg[link=https://asciin
 
 * Lertpongrujikorn, Pawissanutt, and Mohsen Amini Salehi. "Object as a service (oaas): Enabling object abstraction in serverless clouds." 2023 IEEE 16th International Conference on Cloud Computing (CLOUD). IEEE, 2023.
 (https://ieeexplore.ieee.org/abstract/document/10254994[link])
+

@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Pawissanutt
  */
 public abstract class AbstractK8sCrComponentController implements CrComponentController<HasMetadata> {
-  protected final CrtMappingConfig.SvcConfig svcConfig;
+  protected final CrtMappingConfig.CrComponentConfig svcConfig;
   protected final OprcEnvironment.Config envConfig;
   protected K8SCrController parentController;
   protected KubernetesClient kubernetesClient;
@@ -28,11 +28,11 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
   long stableTime;
   List<CrFilter<List<HasMetadata>>> filters = new ArrayList<>();
 
-  protected AbstractK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+  protected AbstractK8sCrComponentController(CrtMappingConfig.CrComponentConfig svcConfig,
                                              OprcEnvironment.Config envConfig) {
     this.envConfig = envConfig;
     if (svcConfig==null) {
-      this.svcConfig = CrtMappingConfig.SvcConfig.builder()
+      this.svcConfig = CrtMappingConfig.CrComponentConfig.builder()
         .build();
     } else {
       this.svcConfig = svcConfig;

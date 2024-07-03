@@ -65,6 +65,10 @@ k8s-deploy-preq kn-version="v1.14.1" kourier-version="v1.14.0":
         --namespace knative-serving \
         --type merge \
         --patch '{"data":{"127.0.0.1.nip.io":""}}'
+  kubectl patch configmap/config-features \
+        --namespace knative-serving \
+        --type merge \
+        --patch '{"data":{"kubernetes.podspec-affinity": "enabled"}}'
 
   kubectl apply -f 'https://strimzi.io/install/latest?namespace=oaas' -n oaas
 

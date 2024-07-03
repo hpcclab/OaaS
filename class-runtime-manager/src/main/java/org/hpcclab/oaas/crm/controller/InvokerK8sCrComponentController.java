@@ -1,6 +1,9 @@
 package org.hpcclab.oaas.crm.controller;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVarSource;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
@@ -21,7 +24,7 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_LABEL_KEY;
  */
 public class InvokerK8sCrComponentController extends AbstractK8sCrComponentController {
 
-  public InvokerK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+  public InvokerK8sCrComponentController(CrtMappingConfig.CrComponentConfig svcConfig,
                                          OprcEnvironment.Config envConf) {
     super(svcConfig, envConf);
   }
@@ -61,16 +64,6 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
       invokerSvcPing.getMetadata().getName() + "." + namespace + ".svc.cluster.local");
     addEnv(container, "KUBERNETES_NAMESPACE", namespace);
     addEnv(container, "OPRC_ISPN_OBJSTORE_OWNER", String.valueOf(dataSpec.replication()));
-    List<CrtMappingConfig.Toleration> tolerations = svcConfig.tolerations();
-    if (tolerations!=null && !tolerations.isEmpty()) {
-      List<Toleration> list = tolerations.stream()
-        .map(t -> new Toleration(t.effect(), t.key(), t.operator(), null, t.value()))
-        .toList();
-      deployment.getSpec()
-        .getTemplate()
-        .getSpec().getTolerations()
-        .addAll(list);
-    }
     container.getEnv()
       .add(new EnvVar(
         "ISPN_POD_NAME",

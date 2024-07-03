@@ -50,11 +50,11 @@ public abstract class AbstractCrTemplate implements CrTemplate {
     }
     String optimizer = crtConfig.optimizer();
     if (optimizer==null) optimizer = "default";
-    Map<String, CrtMappingConfig.SvcConfig> services = crtConfig.services();
+    Map<String, CrtMappingConfig.CrComponentConfig> services = crtConfig.services();
     for (var comp : CrComponent.values()) {
-      CrtMappingConfig.SvcConfig svcConfig = services.get(comp.getSvc());
+      CrtMappingConfig.CrComponentConfig svcConfig = services.get(comp.getSvc());
       if (svcConfig==null) {
-        svcConfig = CrtMappingConfig.SvcConfig.builder()
+        svcConfig = CrtMappingConfig.CrComponentConfig.builder()
           .stabilizationWindow(30000)
           .maxScaleStep(2)
           .maxReplicas(20)

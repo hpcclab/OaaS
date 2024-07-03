@@ -60,7 +60,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
     }
   }
 
-  public static int getStartReplica(CrtMappingConfig.SvcConfig sa, ProtoQosRequirement qos, int minInstance) {
+  public static int getStartReplica(CrtMappingConfig.CrComponentConfig sa, ProtoQosRequirement qos, int minInstance) {
     float startReplica;
     startReplica = sa.startReplicas() + qos.getThroughput() * sa.startReplicasToTpRatio();
     startReplica = Math.max(minInstance, startReplica);
@@ -130,9 +130,9 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       dataSpec = new CrDataSpec(replicaN);
       minAvail = minInstance;
     }
-    CrtMappingConfig.SvcConfig invoker = crtConfig.services()
+    CrtMappingConfig.CrComponentConfig invoker = crtConfig.services()
       .get(CrComponent.INVOKER.getSvc());
-    CrtMappingConfig.SvcConfig sa = crtConfig.services()
+    CrtMappingConfig.CrComponentConfig sa = crtConfig.services()
       .get(CrComponent.STORAGE_ADAPTER.getSvc());
     CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
       .minInstance(getStartReplica(invoker, qos, minInstance))

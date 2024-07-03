@@ -1,10 +1,13 @@
 package org.hpcclab.oaas.crm;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Builder;
 import org.hpcclab.oaas.crm.condition.Condition;
 import org.hpcclab.oaas.crm.optimize.CrInstanceSpec;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +20,11 @@ public record CrtMappingConfig(
     int stabilizationWindow();
 
     double objectiveAmplifier();
+
     double objectiveMissThreshold();
+
     double idleFilterThreshold();
+
     int maxScaleStep();
 
     boolean disableDynamicAdjustment();
@@ -27,7 +33,7 @@ public record CrtMappingConfig(
   @Builder(toBuilder = true)
   public record CrtConfig(
     String type,
-    Map<String, SvcConfig> services,
+    Map<String, CrComponentConfig> services,
     FnConfig functions,
     String optimizer,
     Map<String, String> optimizerConf,
@@ -36,7 +42,7 @@ public record CrtMappingConfig(
   }
 
   @Builder(toBuilder = true)
-  public record SvcConfig(
+  public record CrComponentConfig(
     String image,
     Map<String, String> env,
     String imagePullPolicy,
@@ -51,7 +57,7 @@ public record CrtMappingConfig(
     int startReplicas,
     float startReplicasToTpRatio,
     boolean enableHpa,
-    List<Toleration> tolerations,
+    List<FilterConfig> filters,
     double objectiveAmplifier,
     double objectiveMissThreshold,
     double idleFilterThreshold,
@@ -69,14 +75,22 @@ public record CrtMappingConfig(
     double objectiveAmplifier,
     double objectiveMissThreshold,
     double idleFilterThreshold,
+    List<FilterConfig> filters,
     boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 
-  public record Toleration(
-    String key,
-    String value,
-    String operator,
-    String effect
-  ) {
+
+
+  public record FilterConfig(String type,
+                             @JsonAnyGetter Map<String, Object> conf) {
+
+    public FilterConfig {
+      conf = conf==null ? new HashMap<>():conf;
+    }
+
+    @JsonAnySetter
+    public void addAttribute(final String key, final Object value) {
+      conf.put(key, value);
+    }
   }
 }

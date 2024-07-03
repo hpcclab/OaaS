@@ -46,11 +46,8 @@ templates:
     priority: 0
   ######################################################
   high-load:
-    condition:
-      path: "$.qos.throughput"
-      op: GT
-      val: "1000"
-    type: "default"
+    condition: { path: $.qos.throughput, op: GT, val: 1000}
+    type: default
     services:
       invoker:
         image: ghcr.io/hpcclab/oaas/invoker
@@ -62,9 +59,9 @@ templates:
           OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
           QUARKUS_HTTP_ACCESS_LOG_ENABLED: "false"
           OPRC_LOG: "WARN"
-        requestCpu: '4'
+        requestCpu: 4
         requestMemory: 2Gi
-        limitCpu: '4'
+        limitCpu: 4
         limitMemory: 4Gi
         maxReplicas: 20
         objectiveMissThreshold: 0.4
@@ -98,3 +95,54 @@ templates:
       objectiveMissThreshold: 0.75
       idleFilterThreshold: 0.6
     priority: 10
+  locality:
+    condition: { path: '$.qos.locality', op: 'EQ', val: 'HOST'}
+    type: default
+    services:
+      invoker:
+        image: ghcr.io/hpcclab/oaas/invoker
+        imagePullPolicy: IfNotPresent
+        stabilizationWindow: 120000
+        maxScaleStep: 2
+        env:
+          OPRC_INVOKER_NUMOFVERTICLE: "1"
+          OPRC_INVOKER_NUMOFINVOKERVERTICLE: "2"
+          OPRC_LOG: "DEBUG"
+        requestCpu: '1'
+        requestMemory: 1Gi
+        limitCpu: '2'
+        limitMemory: 2Gi
+        maxReplicas: 20
+        objectiveMissThreshold: 0.4
+        filters:
+          - {type: 'PodAffinityInjecting', key: 'app', values: 'arango-cluster'}
+      storage-adapter:
+        image: ghcr.io/hpcclab/oaas/storage-adapter
+        imagePullPolicy: IfNotPresent
+        stabilizationWindow: 30000
+        maxScaleStep: 2
+        env: { }
+        requestCpu: 500m
+        requestMemory: 256Mi
+        limitCpu: '2'
+        limitMemory: 1Gi
+        maxReplicas: 20
+        objectiveMissThreshold: 0.4
+        filters:
+          - {type: 'PodAffinityInjecting', key: 'app', values: 'arango-cluster'}
+    optimizerConf:
+      thresholdUpper: 1.8
+      thresholdLower: 0.5
+      fnThresholdUpper: 0.9
+      fnThresholdLower: 0.6
+    functions:
+      stabilizationWindow: 30000
+      maxScaleStep: 3
+      defaultRequestCpu: 500m
+      defaultRequestMem: 256Mi
+      objectiveAmplifier: 0.6
+      objectiveMissThreshold: 0.75
+      idleFilterThreshold: 0.6
+      filters:
+          - {type: 'PodAffinityInjecting', key: 'app', values: 'arango-cluster'}
+    priority: 15

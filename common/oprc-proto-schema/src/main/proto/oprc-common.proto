@@ -27,8 +27,7 @@ message ProtoQosRequirement{
 //  int32 latency = 1;
   int32 throughput = 2;
   double availability = 3;
-  ProtoColdStartMode coldStart = 4;
-  ProtoLocality locality = 5;
+  ProtoLocality locality = 4;
 }
 
 message ProtoConstraint{
@@ -45,12 +44,6 @@ enum ProtoConsistencyModel {
   PROTO_CONSISTENCY_MODEL_EVENTUAL = 2;
   PROTO_CONSISTENCY_MODEL_SEQUENTIAL = 3;
   PROTO_CONSISTENCY_MODEL_LINEARIZATION = 4;
-}
-
-enum ProtoColdStartMode{
-  PROTO_COLD_START_MODE_UNSPECIFIED = 0;
-  PROTO_COLD_START_MODE_ALLOW = 1;
-  PROTO_COLD_START_MODE_NONE = 2;
 }
 
 enum ProtoLocality{

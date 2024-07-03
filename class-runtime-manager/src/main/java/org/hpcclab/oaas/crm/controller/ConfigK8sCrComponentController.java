@@ -21,7 +21,7 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
  * @author Pawissanutt
  */
 public class ConfigK8sCrComponentController extends AbstractK8sCrComponentController {
-  public ConfigK8sCrComponentController(CrtMappingConfig.SvcConfig svcConfig,
+  public ConfigK8sCrComponentController(CrtMappingConfig.CrComponentConfig svcConfig,
                                         OprcEnvironment.Config envConfig) {
     super(svcConfig, envConfig);
   }

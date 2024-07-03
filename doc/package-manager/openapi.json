@@ -282,14 +282,6 @@
   },
   "components" : {
     "schemas" : {
-      "ColdStartMode" : {
-        "enum" : [ "ALLOW", "NONE" ],
-        "type" : "string"
-      },
-      "ColdStartMode_Public" : {
-        "enum" : [ "ALLOW", "NONE" ],
-        "type" : "string"
-      },
       "ConsistencyModel" : {
         "enum" : [ "NONE", "EVENTUAL", "SEQUENTIAL", "LINEARIZATION" ],
         "type" : "string"
@@ -1559,9 +1551,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "coldStart" : {
-            "$ref" : "#/components/schemas/ColdStartMode"
-          },
           "locality" : {
             "$ref" : "#/components/schemas/Locality"
           },
@@ -1577,9 +1566,6 @@
           "throughput" : {
             "format" : "int32",
             "type" : "integer"
-          },
-          "coldStart" : {
-            "$ref" : "#/components/schemas/ColdStartMode_Public"
           },
           "locality" : {
             "$ref" : "#/components/schemas/Locality_Public"
