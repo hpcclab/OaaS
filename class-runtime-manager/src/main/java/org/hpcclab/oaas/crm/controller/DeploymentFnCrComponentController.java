@@ -160,11 +160,9 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
   @Override
   public OFunctionStatusUpdate buildStatusUpdate() {
     var statusBuilder = ProtoOFunctionDeploymentStatus.newBuilder()
-      .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_DEPLOYING);
-    if (!function.getStatus().getInvocationUrl().isEmpty()) {
-      statusBuilder.setInvocationUrl(function.getStatus().getInvocationUrl());
-      statusBuilder.setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING);
-    }
+      .setInvocationUrl("http://" + createName(function.getKey()) + "." + namespace + ".svc.cluster.local")
+      .setCondition(ProtoDeploymentCondition.PROTO_DEPLOYMENT_CONDITION_RUNNING)
+      .setTs(System.currentTimeMillis());
     return OFunctionStatusUpdate.newBuilder()
       .setKey(function.getKey())
       .setStatus(statusBuilder
