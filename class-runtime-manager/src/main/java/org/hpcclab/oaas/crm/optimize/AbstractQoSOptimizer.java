@@ -144,7 +144,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .limitsCpu(parseCpu(invoker.limitCpu()))
       .limitsMemory(parseMem(invoker.limitMemory()))
       .minAvail(minAvail)
-      .enableHpa(invoker.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
+      .enableHpa(invoker.enableHpa())
       .build();
     var minSa = getStartReplica(sa, qos, 1);
     CrInstanceSpec saSpec = CrInstanceSpec.builder()
@@ -157,7 +157,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .limitsCpu(parseCpu(sa.limitCpu()))
       .limitsMemory(parseMem(sa.limitMemory()))
       .minAvail(minAvail)
-      .enableHpa(sa.enableHpa() && !unit.getCls().getConfig().getDisableHpa())
+      .enableHpa(sa.enableHpa())
       .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
         && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
         || minSa==0

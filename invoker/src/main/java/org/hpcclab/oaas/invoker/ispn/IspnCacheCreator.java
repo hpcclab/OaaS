@@ -11,6 +11,7 @@ import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.qos.ConsistencyModel;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
@@ -120,8 +121,8 @@ public class IspnCacheCreator {
       .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (datastoreConf!=null) {
-      builder.persistence()
+    if (datastoreConf!=null && cls.getConstraint().persistent()) {
+      var storeBuilder = builder.persistence()
         .addStore(ArgCacheStoreConfig.Builder.class)
         .valueCls(valueCls)
         .storeCls(storeCls)
@@ -129,11 +130,15 @@ public class IspnCacheCreator {
         .connectionFactory(new ArgConnectionFactory(datastoreConf))
         .shared(true)
         .segmented(false)
-        .ignoreModifications(cacheStore.readOnly())
-        .async()
-        .enabled(cacheStore.queueSize() > 0)
-        .modificationQueueSize(cacheStore.queueSize())
-        .failSilently(false);
+        .ignoreModifications(cacheStore.readOnly());
+      ConsistencyModel consistency = cls.getConstraint().consistency();
+      if (consistency==ConsistencyModel.EVENTUAL
+        || consistency==ConsistencyModel.NONE) {
+        storeBuilder.async()
+          .enabled(cacheStore.queueSize() > 0)
+          .modificationQueueSize(cacheStore.queueSize())
+          .failSilently(false);
+      }
     }
     return builder.build();
   }

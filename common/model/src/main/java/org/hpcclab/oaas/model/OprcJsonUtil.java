@@ -1,21 +1,16 @@
 package org.hpcclab.oaas.model;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ByteArraySerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +39,6 @@ public class OprcJsonUtil {
         gen.writeObject(value.getList());
       }
     });
-
 
     module.addDeserializer(JsonArray.class, new JsonDeserializer<JsonArray>() {
       @Override

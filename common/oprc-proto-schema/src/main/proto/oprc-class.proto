@@ -71,14 +71,11 @@ message ProtoDatastoreLink{
 }
 
 message ProtoOClassConfig {
-  map<string, string> options = 1;
   int32 partitions = 2;
   string structStore = 4;
   string unstructStore = 5;
   string logStore = 6;
   string crTemplate = 8;
-  bool disableHpa = 9;
-  bool disableHashAware = 10;
 }
 
 message ProtoOClassDeploymentStatus{

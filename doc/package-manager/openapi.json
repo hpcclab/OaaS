@@ -933,9 +933,6 @@
       "OClassConfig" : {
         "type" : "object",
         "properties" : {
-          "options" : {
-            "$ref" : "#/components/schemas/DSMap"
-          },
           "partitions" : {
             "format" : "int32",
             "type" : "integer"
@@ -951,9 +948,6 @@
           },
           "crTemplate" : {
             "type" : "string"
-          },
-          "disableHpa" : {
-            "type" : "boolean"
           },
           "disableHashAware" : {
             "type" : "boolean"
@@ -963,9 +957,6 @@
       "OClassConfig_Public" : {
         "type" : "object",
         "properties" : {
-          "options" : {
-            "$ref" : "#/components/schemas/DSMap_Public"
-          },
           "partitions" : {
             "format" : "int32",
             "type" : "integer"
@@ -981,9 +972,6 @@
           },
           "crTemplate" : {
             "type" : "string"
-          },
-          "disableHpa" : {
-            "type" : "boolean"
           },
           "disableHashAware" : {
             "type" : "boolean"

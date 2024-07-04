@@ -14,6 +14,7 @@ import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.exception.OaasValidationException;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.object.OObjectType;
+import org.hpcclab.oaas.model.qos.ConsistencyModel;
 import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.qos.QosRequirement;
 import org.hpcclab.oaas.model.state.KeySpecification;
@@ -116,6 +117,11 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
     if (config==null) {
       config = new OClassConfig();
     }
+    if (constraint == null)
+      constraint = QosConstraint.builder()
+        .persistent(true)
+        .consistency(ConsistencyModel.NONE)
+        .build();
     config.validate();
   }
 
