@@ -80,6 +80,7 @@ public class InvokerK8sCrComponentController extends AbstractK8sCrComponentContr
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
     var instanceSpec = plan.coreInstances().get(INVOKER);
+    if (instanceSpec == null) return List.of();
     String name = prefix + INVOKER.getSvc();
     if (instanceSpec.enableHpa()) {
       HorizontalPodAutoscaler hpa = editHpa(instanceSpec, name);

@@ -68,10 +68,12 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
     if (stableTime > System.currentTimeMillis()) {
       return List.of();
     }
-    stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
     List<HasMetadata> hasMetadata = doCreateAdjustOperation(plan);
     for (CrFilter<List<HasMetadata>> filter : filters) {
       hasMetadata = filter.applyOnAdjust(hasMetadata);
+    }
+    if (!hasMetadata.isEmpty()) {
+      stableTime = System.currentTimeMillis() + svcConfig.stabilizationWindow();
     }
     return hasMetadata;
   }
