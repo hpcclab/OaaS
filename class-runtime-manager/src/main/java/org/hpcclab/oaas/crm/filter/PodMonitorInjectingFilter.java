@@ -15,6 +15,7 @@ import java.util.List;
  * @author Pawissanutt
  */
 public class PodMonitorInjectingFilter implements CrFilter<List<HasMetadata>>{
+  private static final Logger logger = LoggerFactory.getLogger( PodMonitorInjectingFilter.class );
 
   final KubernetesClient k8sClient;
 
@@ -43,7 +44,6 @@ public class PodMonitorInjectingFilter implements CrFilter<List<HasMetadata>>{
     return item;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger( PodMonitorInjectingFilter.class );
   @Override
   public List<HasMetadata> applyOnDelete(List<HasMetadata> item) {
     var newRes = Lists.mutable.ofAll(item);
@@ -55,7 +55,6 @@ public class PodMonitorInjectingFilter implements CrFilter<List<HasMetadata>>{
           .withLabels(metadata.getLabels())
           .list()
           .getItems();
-        logger.debug("delete podmonitor {}", podMonitor);
         newRes.addAll(podMonitor);
       }
     }

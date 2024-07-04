@@ -2,7 +2,7 @@ package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
-import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
@@ -130,6 +130,69 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
     return resources;
   }
 
+
+  protected HorizontalPodAutoscaler createHpa(CrInstanceSpec spec,
+                                              Map<String, String> labels,
+                                              String name,
+                                              String deployName) {
+    HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
+      .withNewScaleDown()
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Pods")
+        .withValue(1)
+        .withPeriodSeconds(30)
+        .build()
+      )
+      .endScaleDown()
+      .withNewScaleUp()
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Percent")
+        .withValue(10)
+        .withPeriodSeconds(15)
+        .build()
+      )
+      .addToPolicies(new HPAScalingPolicyBuilder()
+        .withType("Pods")
+        .withValue(fnConfig.maxScaleStep())
+        .withPeriodSeconds(15)
+        .build()
+      )
+      .withSelectPolicy("Max")
+      .withStabilizationWindowSeconds(
+        svcConfig.stabilizationWindow() > 0 ?
+          svcConfig.stabilizationWindow() / 1000:15
+      )
+      .endScaleUp()
+      .build();
+    MetricSpec metricSpec = new MetricSpecBuilder()
+      .withType("Resource")
+      .withNewResource()
+      .withName("cpu")
+      .withNewTarget()
+      .withType("Utilization")
+      .withAverageUtilization(70)
+      .endTarget()
+      .endResource()
+      .build();
+    return new HorizontalPodAutoscalerBuilder()
+      .withNewMetadata()
+      .withName(name)
+      .withNamespace(namespace)
+      .withLabels(labels)
+      .endMetadata()
+      .withNewSpec()
+      .withNewScaleTargetRef()
+      .withKind("Deployment")
+      .withApiVersion("apps/v1")
+      .withName(deployName)
+      .endScaleTargetRef()
+      .withMinReplicas(spec.minInstance())
+      .withMaxReplicas(spec.maxInstance())
+      .withBehavior(behavior)
+      .withMetrics(metricSpec)
+      .endSpec()
+      .build();
+  }
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {

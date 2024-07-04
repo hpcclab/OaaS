@@ -53,6 +53,9 @@ public abstract class AbstractCrTemplate implements CrTemplate {
     if (func.defaultMaxScale() <= 0) {
       func = func.toBuilder().defaultMaxScale(10).build();
     }
+    if (func.maxScaleStep() <= 0) {
+      func = func.toBuilder().maxScaleStep(3).build();
+    }
     String optimizer = crtConfig.optimizer();
     if (optimizer==null) optimizer = "default";
     Map<String, CrtMappingConfig.CrComponentConfig> services = crtConfig.services();
