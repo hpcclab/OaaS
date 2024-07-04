@@ -9,6 +9,7 @@ import org.hpcclab.oaas.model.function.Dataflows.DataMapping;
 import org.hpcclab.oaas.model.function.Dataflows.Transformation;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
+import org.hpcclab.oaas.model.qos.QosConstraint;
 import org.hpcclab.oaas.model.state.KeyAccessModifier;
 import org.hpcclab.oaas.model.state.KeySpecification;
 import org.hpcclab.oaas.model.state.StateSpecification;
@@ -148,6 +149,7 @@ public class MockupData {
     .setPkg("ex")
     .setObjectType(OObjectType.SIMPLE)
     .setConfig(new OClassConfig())
+    .setConstraint(QosConstraint.builder().build())
     .setStateSpec(new StateSpecification()
       .setKeySpecs(
         List.of(
@@ -199,7 +201,9 @@ public class MockupData {
     .setPkg("ex")
     .setConfig(new OClassConfig())
     .setObjectType(OObjectType.SIMPLE)
-    .setParents(List.of(CLS_1.getKey()));
+    .setParents(List.of(CLS_1.getKey()))
+    .setConstraint(QosConstraint.builder().build())
+    ;
 
   static FunctionRepository fnRepo;
   static ClassRepository clsRepo;
@@ -209,6 +213,8 @@ public class MockupData {
 
   public static MutableMap<String, OClass> testClasses() {
     var clsResolver = new ClassResolver(null);
+    CLS_1.validate();
+    CLS_2.validate();
     var cls1 = clsResolver.resolve(CLS_1.copy(), List.of());
     var cls2 = clsResolver.resolve(CLS_2.copy(), List.of(cls1));
     return Lists.fixedSize.of(
