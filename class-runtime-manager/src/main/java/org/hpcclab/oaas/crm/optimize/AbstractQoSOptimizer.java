@@ -212,8 +212,8 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       int minAvail = minScale;
       int maxScale = deployment.getMaxScale();
       if (maxScale <= 0) maxScale = fnConfig.defaultMaxScale();
-      float requestedCpu = parseCpu(deployment.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
-      long requestsMemory = parseMem(deployment.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
+      float requestedCpu = parseCpu(deployment.getRequestsCpu().isEmpty() ? defaultRequestCpu:deployment.getRequestsCpu());
+      long requestsMemory = parseMem(deployment.getRequestsMemory().isEmpty() ? defaultRequestMem:deployment.getRequestsMemory());
       return CrInstanceSpec.builder()
         .minInstance(minScale)
         .maxInstance(maxScale)
