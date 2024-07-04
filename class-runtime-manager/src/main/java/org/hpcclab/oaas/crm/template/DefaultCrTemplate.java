@@ -3,6 +3,8 @@ package org.hpcclab.oaas.crm.template;
 import io.fabric8.knative.client.DefaultKnativeClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.crm.CrControllerManager;
 import org.hpcclab.oaas.crm.CrmConfig;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
@@ -83,18 +85,19 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
   }
 
   private Map<String, CrComponentController<HasMetadata>> createComponentControllers(OprcEnvironment.Config envConf) {
+    var conf = new ConfigK8sCrComponentController(null, envConf);
     var invoker = createInvoker3c(envConf);
     var sa = createSa3c(envConf);
-    var conf = new ConfigK8sCrComponentController(null, envConf);
-    return Map.of(
-      INVOKER.getSvc(), invoker,
-      STORAGE_ADAPTER.getSvc(), sa,
-      CONFIG.getSvc(), conf
-    );
+    MutableMap<String, CrComponentController<HasMetadata>> map = Maps.mutable
+      .of( CONFIG.getSvc(), conf);
+    if (invoker != null) map.put(INVOKER.getSvc(), invoker);
+    if (sa != null) map.put(STORAGE_ADAPTER.getSvc(), sa);
+    return map;
   }
 
   private SaK8sCrComponentController createSa3c(OprcEnvironment.Config envConf) {
     CrtMappingConfig.CrComponentConfig svcConfig = config.services().get(STORAGE_ADAPTER.getSvc());
+    if (svcConfig == null) return null;
     SaK8sCrComponentController sa = new SaK8sCrComponentController(
       svcConfig, envConf);
     filterFactory.injectFilter(svcConfig.filters(), sa);
@@ -103,6 +106,7 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   private InvokerK8sCrComponentController createInvoker3c(OprcEnvironment.Config envConf) {
     CrtMappingConfig.CrComponentConfig svcConfig = config.services().get(INVOKER.getSvc());
+    if (svcConfig == null) return null;
     var invoker = new InvokerK8sCrComponentController(svcConfig, envConf);
     if (!crmConfig.monitorDisable()) {
       invoker.addFilter(new PodMonitorInjectingFilter(k8sClient));
