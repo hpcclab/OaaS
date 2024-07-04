@@ -77,8 +77,6 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       var fn = entry.getValue();
       var fnMetrics = metrics.fnMetrics().get(fnKey);
       if (fnMetrics==null) {
-        logger.debug("checking on ({} : {}): not found metrics",
-          controller.getTsidString(), fnKey);
         continue;
       }
       CrInstanceSpec instanceSpec = currentPlan.fnInstances().get(fnKey);

@@ -154,7 +154,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
 
   private String createName(String key) {
     return prefix + "fn-" + key
-      .replaceAll("[._]", "-");
+      .replaceAll("[._]", "-") + "-00001";
   }
 
   @Override
