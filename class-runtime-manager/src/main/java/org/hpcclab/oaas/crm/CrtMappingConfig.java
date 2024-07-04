@@ -72,10 +72,12 @@ public record CrtMappingConfig(
     String defaultRequestMem,
     String defaultScaleDawnDelay,
     int startReplicas,
+    int defaultMaxScale,
     double objectiveAmplifier,
     double objectiveMissThreshold,
     double idleFilterThreshold,
     List<FilterConfig> filters,
+    boolean enableHpa,
     boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 

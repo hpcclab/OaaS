@@ -18,6 +18,7 @@ public class OFunctionConfig {
   OffloadingMode offloadingMode;
   boolean http2;
   JsonBytes custom = JsonBytes.EMPTY;
+  String apiPath = "";
 
   public enum OffloadingMode{
     JSON,PROTOBUF,GRPC

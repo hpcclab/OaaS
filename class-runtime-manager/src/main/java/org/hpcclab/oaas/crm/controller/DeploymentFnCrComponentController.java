@@ -2,6 +2,7 @@ package org.hpcclab.oaas.crm.controller;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.crm.CrtMappingConfig;
 import org.hpcclab.oaas.crm.env.OprcEnvironment;
@@ -29,6 +30,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
   private static final Logger logger = LoggerFactory.getLogger(DeploymentFnCrComponentController.class);
   final CrtMappingConfig.FnConfig fnConfig;
   final ProtoOFunction function;
+  final boolean enableHpa;
 
   protected DeploymentFnCrComponentController(CrtMappingConfig.FnConfig fnConfig,
                                               OprcEnvironment.Config envConfig,
@@ -36,6 +38,8 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
     super(null, envConfig);
     this.fnConfig = fnConfig;
     this.function = function;
+    this.enableHpa = fnConfig.enableHpa();
+    logger.debug("HPA is enabled ({}) for {}", enableHpa, function.getKey());
   }
 
   @Override
@@ -51,7 +55,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
   @Override
   protected List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     logger.debug("deploy function {} with Deployment", function.getKey());
-    var instance = plan.fnInstances()
+    var instanceSpec = plan.fnInstances()
       .get(function.getKey());
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
@@ -63,6 +67,8 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
     deployConf.getImage();
     if (deployConf.getImage().isEmpty())
       return List.of();
+
+    List<HasMetadata> resources = Lists.mutable.of();
     var container = new ContainerBuilder()
       .withName("fn")
       .withImage(deployConf.getImage())
@@ -74,7 +80,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
         .build()
       )
       .withImagePullPolicy(deployConf.getPullPolicy().isEmpty() ? null:deployConf.getPullPolicy())
-      .withResources(makeResourceRequirements(instance))
+      .withResources(makeResourceRequirements(instanceSpec))
       .build();
     var fnName = createName(function.getKey());
     var deploymentBuilder = new DeploymentBuilder()
@@ -84,7 +90,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
       .endMetadata();
     deploymentBuilder
       .withNewSpec()
-      .withReplicas(instance.minInstance() > 0 ? instance.minInstance():1)
+      .withReplicas(instanceSpec.minInstance() > 0 ? instanceSpec.minInstance():1)
       .withNewSelector()
       .addToMatchLabels(labels)
       .endSelector()
@@ -115,22 +121,33 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
       )
       .endSpec()
       .build();
-    return List.of(deployment, svc);
+    resources.add(deployment);
+    resources.add(svc);
+    if (enableHpa) {
+      var hpa = createHpa(instanceSpec, labels, fnName, fnName);
+      resources.add(hpa);
+    }
+    return resources;
   }
 
 
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
     CrInstanceSpec spec = plan.fnInstances().get(function.getKey());
-    var deployment = kubernetesClient.apps()
-      .deployments()
-      .inNamespace(namespace)
-      .withName(createName(function.getKey()))
-      .get();
-    if (deployment==null) return List.of();
-    deployment.getSpec()
-      .setReplicas(spec.minInstance());
-    return List.of(deployment);
+    String deployName = createName(function.getKey());
+    if (enableHpa) {
+      HorizontalPodAutoscaler hpa = editHpa(spec, deployName);
+      return hpa==null ? List.of():List.of(hpa);
+    } else {
+      var deployment = kubernetesClient.apps()
+        .deployments()
+        .inNamespace(namespace)
+        .withName(deployName)
+        .get();
+      deployment.getSpec()
+        .setReplicas(spec.minInstance());
+      return List.of(deployment);
+    }
   }
 
   @Override
@@ -140,15 +157,24 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_FN_KEY, function.getKey()
     );
+    var fnDeployment = createName(function.getKey());
     var deployments = kubernetesClient.apps()
       .deployments()
-      .withLabels(labels)
-      .list()
-      .getItems();
-    resources.addAll(deployments);
-    var services = kubernetesClient.services().withLabels(labels)
-      .list().getItems();
-    resources.addAll(services);
+      .withName(fnDeployment)
+      .get();
+    if (deployments != null)
+      resources.add(deployments);
+    var services = kubernetesClient.services()
+      .withName(fnDeployment)
+      .get();
+    if (services != null)
+      resources.add(services);
+    if (enableHpa) {
+      var hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
+        .withName(fnDeployment).get();
+      if (hpa != null)
+        resources.add(hpa);
+    }
     return resources;
   }
 

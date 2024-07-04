@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Builder(toBuilder = true)
-public record KDeploymentProvision(
+public record GenericContainerProvision(
   String image,
   int minScale,
   int maxScale,
@@ -13,8 +13,8 @@ public record KDeploymentProvision(
   String requestsMemory,
   String limitsCpu,
   String limitsMemory,
-  String apiPath,
   int port,
-  String pullPolicy
+  boolean useKDeployment
 ) {
+
 }

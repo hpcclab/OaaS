@@ -224,7 +224,7 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       .withName("cpu")
       .withNewTarget()
       .withType("Utilization")
-      .withAverageUtilization(100)
+      .withAverageUtilization(90)
       .endTarget()
       .endResource()
       .build();

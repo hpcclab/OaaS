@@ -664,7 +664,11 @@
           "image" : {
             "type" : "string"
           },
-          "replicas" : {
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -698,7 +702,11 @@
           "image" : {
             "type" : "string"
           },
-          "replicas" : {
+          "minScale" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxScale" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -1179,6 +1187,9 @@
           },
           "custom" : {
             "$ref" : "#/components/schemas/JsonBytes"
+          },
+          "apiPath" : {
+            "type" : "string"
           }
         }
       },
@@ -1199,6 +1210,9 @@
           },
           "custom" : {
             "$ref" : "#/components/schemas/JsonBytes_Public"
+          },
+          "apiPath" : {
+            "type" : "string"
           }
         }
       },

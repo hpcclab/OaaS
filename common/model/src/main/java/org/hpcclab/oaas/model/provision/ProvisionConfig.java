@@ -38,5 +38,6 @@ public class ProvisionConfig {
     if (staticUrl != null) nonNullCounter ++;
     if (nonNullCounter > 1)
       throw FunctionValidationException.format("provision config must be declared only one option");
+
   }
 }

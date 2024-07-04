@@ -30,7 +30,7 @@ public class CrTemplateFactoryImpl implements CrTemplateFactory {
       return new DefaultCrTemplate(
         name,
         kubernetesClient,
-        selectOptimizer(config),
+        this::selectOptimizer,
         config,
         crmConfig
       );

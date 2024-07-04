@@ -9,6 +9,7 @@ import org.hpcclab.oaas.crm.optimize.QosOptimizer;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class AbstractCrTemplate implements CrTemplate {
   protected final TsidFactory tsidFactory;
@@ -21,7 +22,7 @@ public abstract class AbstractCrTemplate implements CrTemplate {
   protected AbstractCrTemplate(String name,
                                KubernetesClient k8sClient,
                                CrtMappingConfig.CrtConfig config,
-                               QosOptimizer qosOptimizer,
+                               Function<CrtMappingConfig.CrtConfig, QosOptimizer> optimizerBuilder,
                                CrmConfig crmConfig) {
 
     this.name = name;
@@ -30,8 +31,8 @@ public abstract class AbstractCrTemplate implements CrTemplate {
     this.k8sClient = k8sClient;
     Objects.requireNonNull(config);
     this.config = validate(config);
-    Objects.requireNonNull(qosOptimizer);
-    this.qosOptimizer = qosOptimizer;
+    Objects.requireNonNull(optimizerBuilder);
+    this.qosOptimizer = optimizerBuilder.apply(this.config);
     this.tsidFactory = TsidFactory.newInstance1024();
 
   }
@@ -41,12 +42,16 @@ public abstract class AbstractCrTemplate implements CrTemplate {
     return qosOptimizer;
   }
 
-  protected static CrtMappingConfig.CrtConfig validate(CrtMappingConfig.CrtConfig crtConfig) {
+  protected CrtMappingConfig.CrtConfig validate(CrtMappingConfig.CrtConfig crtConfig) {
     var func = crtConfig.functions();
     if (func==null) {
       func = CrtMappingConfig.FnConfig.builder()
         .stabilizationWindow(20000)
+        .defaultMaxScale(10)
         .build();
+    }
+    if (func.defaultMaxScale() <= 0) {
+      func = func.toBuilder().defaultMaxScale(10).build();
     }
     String optimizer = crtConfig.optimizer();
     if (optimizer==null) optimizer = "default";
@@ -57,7 +62,7 @@ public abstract class AbstractCrTemplate implements CrTemplate {
         svcConfig = CrtMappingConfig.CrComponentConfig.builder()
           .stabilizationWindow(30000)
           .maxScaleStep(2)
-          .maxReplicas(20)
+          .maxReplicas(10)
           .build();
         services.put(comp.getSvc(), svcConfig);
       }

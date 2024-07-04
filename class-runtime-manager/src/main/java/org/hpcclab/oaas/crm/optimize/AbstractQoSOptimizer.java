@@ -185,27 +185,46 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
     CrtMappingConfig.FnConfig fnConfig = crtConfig.functions();
     var provision = fn.getProvision();
     var kn = provision.getKnative();
-    int minScale = kn.getMinScale();
-    int minAvail = minScale;
-    if (minScale < 0)
-      minScale = Math.max(0, fnConfig.startReplicas());
-    if (provision.getDeployment().getReplicas() > 0) {
-      minScale = provision.getDeployment().getReplicas();
-      minAvail = 1;
+    var deployment = provision.getDeployment();
+    if (!kn.getImage().isEmpty()) {
+      int minScale = kn.getMinScale();
+      if (minScale < 0)
+        minScale = Math.max(0, fnConfig.startReplicas());
+      int minAvail = minScale;
+      int maxScale = kn.getMaxScale();
+      float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
+      long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
+      return CrInstanceSpec.builder()
+        .minInstance(minScale)
+        .maxInstance(maxScale)
+        .scaleDownDelay(kn.getScaleDownDelay())
+        .targetConcurrency(kn.getTargetConcurrency())
+        .requestsCpu(requestedCpu)
+        .requestsMemory(requestsMemory)
+        .limitsCpu(parseCpu(kn.getLimitsCpu()))
+        .limitsMemory(parseMem(kn.getLimitsMemory()))
+        .minAvail(minAvail)
+        .build();
+    } else if (!deployment.getImage().isEmpty()) {
+      int minScale = deployment.getMinScale();
+      if (minScale <= 0)
+        minScale = Math.max(1, fnConfig.startReplicas());
+      int minAvail = minScale;
+      int maxScale = deployment.getMaxScale();
+      if (maxScale <= 0) maxScale = fnConfig.defaultMaxScale();
+      float requestedCpu = parseCpu(deployment.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
+      long requestsMemory = parseMem(deployment.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
+      return CrInstanceSpec.builder()
+        .minInstance(minScale)
+        .maxInstance(maxScale)
+        .requestsCpu(requestedCpu)
+        .requestsMemory(requestsMemory)
+        .limitsCpu(parseCpu(deployment.getLimitsCpu()))
+        .limitsMemory(parseMem(deployment.getLimitsMemory()))
+        .minAvail(minAvail)
+        .build();
     }
-    float requestedCpu = parseCpu(kn.getRequestsCpu().isEmpty() ? defaultRequestCpu:kn.getRequestsCpu());
-    long requestsMemory = parseMem(kn.getRequestsMemory().isEmpty() ? defaultRequestMem:kn.getRequestsMemory());
-    return CrInstanceSpec.builder()
-      .minInstance(minScale)
-      .maxInstance(kn.getMaxScale())
-      .scaleDownDelay(kn.getScaleDownDelay())
-      .targetConcurrency(kn.getTargetConcurrency())
-      .requestsCpu(requestedCpu)
-      .requestsMemory(requestsMemory)
-      .limitsCpu(parseCpu(kn.getLimitsCpu()))
-      .limitsMemory(parseMem(kn.getLimitsMemory()))
-      .minAvail(minAvail)
-      .build();
+    return CrInstanceSpec.builder().build();
   }
 
   protected float parseCpu(String val) {

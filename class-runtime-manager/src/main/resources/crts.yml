@@ -42,6 +42,7 @@ templates:
       objectiveAmplifier: 0.6
       objectiveMissThreshold: 0.75
       idleFilterThreshold: 0.6
+      enableHpa: true
     priority: 0
   ######################################################
   high-load:
@@ -96,4 +97,5 @@ templates:
       objectiveAmplifier: 0.6
       objectiveMissThreshold: 0.75
       idleFilterThreshold: 0.6
+      enableHpa: true
     priority: 10

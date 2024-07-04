@@ -18,6 +18,7 @@ import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoCr;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.hpcclab.oaas.crm.CrComponent.*;
 
@@ -27,10 +28,10 @@ public class DefaultCrTemplate extends AbstractCrTemplate {
 
   public DefaultCrTemplate(String name,
                            KubernetesClient k8sClient,
-                           QosOptimizer qosOptimizer,
+                           Function<CrtConfig, QosOptimizer> optimizerBuilder,
                            CrtConfig config,
                            CrmConfig crmConfig) {
-    super(name, k8sClient, config, qosOptimizer, crmConfig);
+    super(name, k8sClient, config, optimizerBuilder, crmConfig);
     filterFactory = new K8sFilterFactory();
   }
 

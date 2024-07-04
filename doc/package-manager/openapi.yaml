@@ -506,7 +506,10 @@ components:
       properties:
         image:
           type: string
-        replicas:
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
           format: int32
           type: integer
         requestsCpu:
@@ -529,7 +532,10 @@ components:
       properties:
         image:
           type: string
-        replicas:
+        minScale:
+          format: int32
+          type: integer
+        maxScale:
           format: int32
           type: integer
         requestsCpu:
@@ -872,6 +878,8 @@ components:
           type: boolean
         custom:
           $ref: "#/components/schemas/JsonBytes"
+        apiPath:
+          type: string
     OFunctionConfig_Public:
       type: object
       properties:
@@ -885,6 +893,8 @@ components:
           type: boolean
         custom:
           $ref: "#/components/schemas/JsonBytes_Public"
+        apiPath:
+          type: string
     OFunctionDeploymentStatus:
       type: object
       properties:
