@@ -28,7 +28,7 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
 
   public List<HasMetadata> doCreateDeployOperation(CrDeploymentPlan plan) {
     var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
-    if (instanceSpec.disable()) return List.of();
+    if (instanceSpec == null || instanceSpec.disable()) return List.of();
     var labels = Map.of(
       CR_LABEL_KEY, parentController.getTsidString(),
       CR_COMPONENT_LABEL_KEY, STORAGE_ADAPTER.getSvc()
@@ -61,7 +61,7 @@ public class SaK8sCrComponentController extends AbstractK8sCrComponentController
   @Override
   protected List<HasMetadata> doCreateAdjustOperation(CrAdjustmentPlan plan) {
     var instanceSpec = plan.coreInstances().get(STORAGE_ADAPTER);
-    if (instanceSpec == null)
+    if (instanceSpec == null || instanceSpec.disable())
       return List.of();
     String name = prefix + STORAGE_ADAPTER.getSvc();
     if (instanceSpec.enableHpa()) {

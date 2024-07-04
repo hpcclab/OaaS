@@ -104,12 +104,12 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
   }
 
   protected abstract AdjustComponent adjustComponent(CrController controller,
-                                          CrInstanceSpec instanceSpec,
-                                          CrtMappingConfig.ScalingConfig svcConfig,
-                                          ProtoQosRequirement qos,
-                                          SvcPerformanceMetrics metrics,
-                                          String name,
-                                          boolean isFunc) ;
+                                                     CrInstanceSpec instanceSpec,
+                                                     CrtMappingConfig.ScalingConfig svcConfig,
+                                                     ProtoQosRequirement qos,
+                                                     SvcPerformanceMetrics metrics,
+                                                     String name,
+                                                     boolean isFunc);
 
 
   @Override
@@ -148,27 +148,28 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .minAvail(minAvail)
       .enableHpa(invoker.enableHpa())
       .build();
-    var minSa = getStartReplica(sa, qos, 1);
-    CrInstanceSpec saSpec = CrInstanceSpec.builder()
-      .minInstance(minSa)
-      .maxInstance(sa.maxReplicas())
-      .scaleDownDelay(null)
-      .targetConcurrency(-1)
-      .requestsCpu(parseCpu(sa.requestCpu()))
-      .requestsMemory(parseMem(sa.requestMemory()))
-      .limitsCpu(parseCpu(sa.limitCpu()))
-      .limitsMemory(parseMem(sa.limitMemory()))
-      .minAvail(minAvail)
-      .enableHpa(sa.enableHpa())
-      .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
-        && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
-        || minSa==0
-      )
-      .build();
-    var instances = Map.of(
-      CrComponent.INVOKER, invokerSpec,
-      CrComponent.STORAGE_ADAPTER, saSpec
-    );
+
+    var instances = Maps.mutable.of(CrComponent.INVOKER, invokerSpec);
+    if (sa!=null) {
+      var minSa = getStartReplica(sa, qos, 1);
+      CrInstanceSpec saSpec = CrInstanceSpec.builder()
+        .minInstance(minSa)
+        .maxInstance(sa.maxReplicas())
+        .scaleDownDelay(null)
+        .targetConcurrency(-1)
+        .requestsCpu(parseCpu(sa.requestCpu()))
+        .requestsMemory(parseMem(sa.requestMemory()))
+        .limitsCpu(parseCpu(sa.limitCpu()))
+        .limitsMemory(parseMem(sa.limitMemory()))
+        .minAvail(minAvail)
+        .enableHpa(sa.enableHpa())
+        .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
+          && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
+          || minSa==0
+        )
+        .build();
+      instances.put(CrComponent.STORAGE_ADAPTER, saSpec);
+    }
     var fnInstances = unit.getFnListList()
       .stream()
       .map(f -> Map.entry(f.getKey(), resolve(f)))
