@@ -57,14 +57,14 @@ public class CrTemplateManager {
       CrtMappingConfig conf;
       var is = getClass().getResourceAsStream("/crts.yml");
       conf = yamlMapper.readValue(is, CrtMappingConfig.class);
-      if (conf.templates()==null || conf.templates().isEmpty()) {
-        return;
-      }
       var op = crmConfig.templateOverride();
       if (op.isPresent()) {
         String templateOverrideString = op.get();
         var override = yamlMapper.readValue(templateOverrideString, CrtMappingConfig.class);
-        conf.templates().putAll(override.templates());
+        if (override != null) conf = override;
+      }
+      if (conf.templates()==null) {
+        return;
       }
       var m = new HashMap<String, CrTemplate>();
       for (var configEntry : conf.templates().entrySet()) {
