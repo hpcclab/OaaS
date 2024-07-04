@@ -10,7 +10,7 @@ from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelName("DEBUG")
+level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
 
