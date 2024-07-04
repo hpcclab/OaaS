@@ -55,6 +55,10 @@ public class ObserverLoopRunner {
       var metricsMap = metricObserver.observe();
       logger.trace("metrics: {}", metricsMap);
       for (var entry : metricsMap.entrySet()) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("received metrics {} {}",
+            entry.getKey(), entry.getValue().fnMetrics().keySet());
+        }
         var id = Tsid.from(entry.getKey());
         var controller = controllerManager.get(id.toLong());
         if (controller==null || controller.isDeleted())

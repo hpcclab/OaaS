@@ -36,7 +36,7 @@ public class MicrometerMetricFactory implements MetricFactory {
       Tag.of("fb", fb),
       Tag.of("func", func)
     );
-    if (crId.isPresent()) tags.add(Tag.of("crId", crId.get()));
+    crId.ifPresent(s -> tags.add(Tag.of("crId", s)));
     Counter counter = Counter.builder("oprc.request")
       .tags(tags)
       .register(registry);

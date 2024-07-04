@@ -23,7 +23,6 @@ public class CpuBasedQoSOptimizer extends AbstractQoSOptimizer {
                                           SvcPerformanceMetrics metrics,
                                           String name,
                                           boolean isFunc) {
-    logger.debug("start checking on ({} : {})", controller.getTsidString(), name);
     if (metrics==null)
       return AdjustComponent.NONE;
     if (svcConfig.disableDynamicAdjustment())
