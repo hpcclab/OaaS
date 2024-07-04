@@ -135,12 +135,15 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
                                               Map<String, String> labels,
                                               String name,
                                               String deployName) {
+    var stabilizationWindow = svcConfig.stabilizationWindow() > 0 ?
+      svcConfig.stabilizationWindow() / 1000:15;
+    int avgUtil = fnConfig.hpaAvgUtil() <= 0 ? 70:fnConfig.hpaAvgUtil();
     HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
       .withNewScaleDown()
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Pods")
         .withValue(1)
-        .withPeriodSeconds(30)
+        .withPeriodSeconds(stabilizationWindow)
         .build()
       )
       .endScaleDown()
@@ -148,20 +151,17 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Percent")
         .withValue(10)
-        .withPeriodSeconds(15)
+        .withPeriodSeconds(stabilizationWindow)
         .build()
       )
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Pods")
         .withValue(fnConfig.maxScaleStep())
-        .withPeriodSeconds(15)
+        .withPeriodSeconds(stabilizationWindow)
         .build()
       )
       .withSelectPolicy("Max")
-      .withStabilizationWindowSeconds(
-        svcConfig.stabilizationWindow() > 0 ?
-          svcConfig.stabilizationWindow() / 1000:15
-      )
+      .withStabilizationWindowSeconds(stabilizationWindow)
       .endScaleUp()
       .build();
     MetricSpec metricSpec = new MetricSpecBuilder()
@@ -170,7 +170,7 @@ public class DeploymentFnCrComponentController extends AbstractK8sCrComponentCon
       .withName("cpu")
       .withNewTarget()
       .withType("Utilization")
-      .withAverageUtilization(70)
+      .withAverageUtilization(avgUtil)
       .endTarget()
       .endResource()
       .build();

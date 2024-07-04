@@ -189,12 +189,15 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
                                               Map<String, String> labels,
                                               String name,
                                               String deployName) {
+    var stabilizationWindow = svcConfig.stabilizationWindow() > 0 ?
+      svcConfig.stabilizationWindow() / 1000:15;
+
     HorizontalPodAutoscalerBehavior behavior = new HorizontalPodAutoscalerBehaviorBuilder()
       .withNewScaleDown()
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Pods")
         .withValue(1)
-        .withPeriodSeconds(30)
+        .withPeriodSeconds(stabilizationWindow * 2)
         .build()
       )
       .endScaleDown()
@@ -202,20 +205,17 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Percent")
         .withValue(10)
-        .withPeriodSeconds(15)
+        .withPeriodSeconds(stabilizationWindow)
         .build()
       )
       .addToPolicies(new HPAScalingPolicyBuilder()
         .withType("Pods")
         .withValue(2)
-        .withPeriodSeconds(15)
+        .withPeriodSeconds(stabilizationWindow)
         .build()
       )
       .withSelectPolicy("Max")
-      .withStabilizationWindowSeconds(
-        svcConfig.stabilizationWindow() > 0 ?
-          svcConfig.stabilizationWindow() / 1000:15
-      )
+      .withStabilizationWindowSeconds(stabilizationWindow)
       .endScaleUp()
       .build();
     MetricSpec metricSpec = new MetricSpecBuilder()
@@ -250,7 +250,8 @@ public abstract class AbstractK8sCrComponentController implements CrComponentCon
 
   protected HorizontalPodAutoscaler editHpa(CrInstanceSpec spec,
                                             String name) {
-    HorizontalPodAutoscaler hpa = kubernetesClient.autoscaling().v2().horizontalPodAutoscalers()
+    HorizontalPodAutoscaler hpa = kubernetesClient.autoscaling().v2()
+      .horizontalPodAutoscalers()
       .inNamespace(namespace)
       .withName(name).get();
     if (hpa==null) return null;

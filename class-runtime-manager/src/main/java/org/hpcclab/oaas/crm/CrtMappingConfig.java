@@ -78,6 +78,7 @@ public record CrtMappingConfig(
     double idleFilterThreshold,
     List<FilterConfig> filters,
     boolean enableHpa,
+    int hpaAvgUtil,
     boolean disableDynamicAdjustment) implements ScalingConfig {
   }
 
