@@ -22,6 +22,8 @@ build-image-push : (build-no-test '"-Dquarkus.container-image.build=true" "-Dqua
 build-image-docker : build-no-test
   docker compose build
 
+build-image-podman : (build-no-test '"-Dquarkus.container-image.builder=podman"')
+
 k3d-build-image: build-image
   docker images --format json | jq -r .Repository | grep ghcr.io/hpcclab/oaas | grep -v fn-py | xargs k3d image import
 

@@ -46,7 +46,6 @@ oprc:
     pmHost: ${oprc.crm.pmHost}
     pmPort: ${oprc.crm.pmPort}
 
-
 quarkus:
   log:
     category:
@@ -64,6 +63,7 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
+    builder: docker
     image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
   console:
     color: true

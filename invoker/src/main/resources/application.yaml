@@ -98,6 +98,7 @@ quarkus:
       "org.hpcclab.oaas":
         level: ${oprc.log}
   container-image:
+    builder: docker
     image: ${ci.registry.image:oaas}/${oprc.name}${tag:}
   micrometer:
     export:

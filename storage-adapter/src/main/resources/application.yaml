@@ -35,6 +35,7 @@ quarkus:
   vertx:
     prefer-native-transport: true
   container-image:
+    builder: docker
     image: ${ci.registry.image:oaas}/storage-adapter${tag:}
   log:
     category:
