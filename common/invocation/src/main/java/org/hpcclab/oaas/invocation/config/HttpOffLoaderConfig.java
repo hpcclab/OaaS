@@ -20,4 +20,6 @@ public class HttpOffLoaderConfig {
   int h2ConnectionPoolMaxSize = 3;
   @Builder.Default
   int connectTimeout = 1000;
+  @Builder.Default
+  int keepaliveTimeout = 60;
 }
