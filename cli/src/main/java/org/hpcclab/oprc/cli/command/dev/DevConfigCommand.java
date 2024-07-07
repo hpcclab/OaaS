@@ -41,7 +41,7 @@ public class DevConfigCommand implements Callable<Integer> {
       config.setLocalDev(localDev);
       fileManager.update(config);
     }
-    if (fnDevUrl!= null) {
+    if (fnDevUrl!= null && !fnDevUrl.isEmpty()) {
       localDev = localDev.toBuilder()
         .fnDevUrl(fnDevUrl)
         .build();

@@ -96,7 +96,7 @@ public class DevInvocationCommand implements Callable<Integer> {
       conf.setDefaultObject(out.getKey());
       String outCls = out.getMeta().getCls();
       conf.setDefaultClass(outCls);
-      fileManager.update(conf);
+      fileManager.updateDev(conf);
     }
     return 0;
   }

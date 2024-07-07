@@ -8,6 +8,7 @@ import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oprc.cli.CliConfig;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
@@ -92,12 +93,7 @@ public class ConfigFileManager {
     String homeDir = System.getProperty("user.home");
     Path configFilePath = Path.of(homeDir).resolve(cliConfig.configPath());
     var file = configFilePath.toFile();
-    if (file.exists()) {
-      objectMapper.writeValue(file, config);
-    } else {
-      file.getParentFile().mkdirs();
-      objectMapper.writeValue(file, config);
-    }
+    writeConf(file, config);
   }
 
   public void update(FileCliConfig.FileCliContext ctx) throws IOException {
@@ -106,6 +102,24 @@ public class ConfigFileManager {
     var file = configFilePath.toFile();
     var conf = getOrCreate();
     conf.getContexts().put(conf.getCurrentContext(), ctx);
-    objectMapper.writeValue(file, conf);
+    writeConf(file, conf);
+  }
+
+  public void updateDev(FileCliConfig.FileCliContext ctx) throws IOException {
+    String homeDir = System.getProperty("user.home");
+    Path configFilePath = Path.of(homeDir).resolve(cliConfig.configPath());
+    var file = configFilePath.toFile();
+    var conf = getOrCreate();
+    conf.getContexts().put("dev", ctx);
+    writeConf(file, conf);
+  }
+
+  private void writeConf(File file, FileCliConfig conf) throws IOException {
+    if (file.exists()) {
+      objectMapper.writeValue(file, conf);
+    } else {
+      file.getParentFile().mkdirs();
+      objectMapper.writeValue(file, conf);
+    }
   }
 }
