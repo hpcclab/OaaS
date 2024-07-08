@@ -29,20 +29,26 @@ image::doc/diagrams/qos_oaas_architecture_v15_1.dio.png[architecture1,480]
 .Class Runtime Architecture
 image::doc/diagrams/qos_oaas_architecture_v15_2s.dio.png[architecture2,480]
 
-== Try it via k8s
+== Getting start with Dev mode for local development
 
-Check on link:deploy/local-k8s/README.adoc[this guide] to install *OaaS* on local Kubernetes (ex. kind, k3d, Docker Desktop).
+Oparaca came with `ocli` commandline tool with the dev mode for local development.  This Dev mode allow to interact with Oparaca similar to the cluster mode but without the need of Kubernetes.
 
-== OaaS Usage
+Check on the guides:
 
-* link:example/README.adoc[The example usage guide]
-// * link:doc/OAI.adoc[The detail of Object Access Interface (OAI)].
-* link:doc/FUNCTION_GUIDE.adoc[Function development guide]
-* link:doc/PACKAGE_REFERENCE.adoc[Package definition guide]
-* link:cli/README.adoc[Command Line Interface]
-* Demo
-+
-image::https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx.svg[link=https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx]
+* link:example/README.adoc[the example usage]
+* link:cli/README.adoc[ocli installation and usage guide]
+* link:doc/FUNCTION_GUIDE.adoc[function development]
+* link:doc/PACKAGE_REFERENCE.adoc[package definition guide]
+
+== Deploying the cluster in Kubernetes
+
+Check on link:deploy/local-k8s/README.adoc[this guide] to install *Oparaca* on local Kubernetes (ex. kind, k3d, Docker Desktop, Rancher Desktop).
+
+// == Demo
+//
+// * Demo
+// +
+// image::https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx.svg[link=https://asciinema.org/a/zdLjJ77dNEKvEKrghHQzyFahx]
 
 
 == Publication
