@@ -35,14 +35,17 @@ Oparaca came with `ocli` commandline tool with the dev mode for local developmen
 
 Check on the guides:
 
-* link:example/README.adoc[the example usage]
 * link:cli/README.adoc[ocli installation and usage guide]
 * link:doc/FUNCTION_GUIDE.adoc[function development]
 * link:doc/PACKAGE_REFERENCE.adoc[package definition guide]
 
-== Deploying the cluster in Kubernetes
+== Deploying the Oparaca platform in Kubernetes
 
-Check on link:deploy/local-k8s/README.adoc[this guide] to install *Oparaca* on local Kubernetes (ex. kind, k3d, Docker Desktop, Rancher Desktop).
+Check on the guides:
+
+* link:deploy/local-k8s/README.adoc[Installing *Oparaca* on local Kubernetes] (ex. kind, k3d, Docker Desktop, Rancher Desktop).
+
+* link:example/README.adoc[Example usages in Oparaca cluster].
 
 // == Demo
 //

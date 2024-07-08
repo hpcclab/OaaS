@@ -15,6 +15,8 @@ image::diagrams/oaas_class_representation_v2.dio.png[cls_rep,480]
 .Invocation offloading
 image::diagrams/oaas_mutable_unstructure_v3.dio.png[inv_off,480]
 
+
+
 == Python Guide
 
 === Project Setup
@@ -223,6 +225,43 @@ functions:
     provision:
       knative: # 👇 put image tag here
         image: ghcr.io/hpcclab/oaas/json-update-fn-py
+----
+
+=== Test the function in Dev mode
+
+First, install or download `ocli`: link:../cli/README.adoc[guide]
+
+
+. Start server
++
+[source,bash]
+----
+python main.py
+----
+
+. Apply `pkg.yml` via `ocli`
++
+[source,bash]
+----
+ocli dev pa pkg.yml
+----
+
+. Create a new object
++
+[source,bash]
+----
+ocli dev object-create example.greeter -s
+----
++
+NOTE: With `-s`, the ID of new object will be saved locally to be used by next command.
+
+. Invoke the `greet` function of `greeter` object
++
+[source,bash]
+----
+ocli dev invoke greet
+#OR
+ocli dev invoke -m "<ID of object>" greet
 ----
 
 === Deploy the function locally
