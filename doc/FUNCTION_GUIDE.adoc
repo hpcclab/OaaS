@@ -85,24 +85,24 @@ from fastapi import Request, FastAPI, HTTPException
 from oaas_sdk_py import OaasInvocationCtx
 import os
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")  # <1>
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
 
-class GreetingHandler(oaas.Handler):
+class GreetingHandler(oaas.Handler):  # <2>
     async def handle(self, ctx: OaasInvocationCtx):
         name = ctx.args.get('name', 'world')
         ctx.resp_body = {"msg": "hello " + name}
 
 
-app = FastAPI()
+app = FastAPI() # <3>
 router = oaas.Router()
 router.register(GreetingHandler())
 
 
 @app.post('/')
-async def handle(request: Request):
+async def handle(request: Request): # <4>
     body = await request.json()
     logging.debug("request %s", body)
     resp = await router.handle_task(body)
@@ -114,10 +114,12 @@ async def handle(request: Request):
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
 ----
-* Lines 8-10 are boilerplate code for setting Python's logger
-* Lines 13-16 are the function handler (class that extend `oaas.Handler`) that contains the logic of this custom function.
-* Lines 19-21 are configuring the SDK to use the provided `GreetingHandler`.
-* Lines 25-35 are boilerplate code for binding the SDK with FastAPI framework.
+
+<1> Lines 8-10 are boilerplate code for setting Python's logger
+
+<2> Lines 13-16 are the function handler (class that extend `oaas.Handler`) that contains the logic of this custom function.
+<3> Lines 19-21 are configuring the SDK to use the provided `GreetingHandler`.
+<4> Lines 25-35 are boilerplate code for binding the SDK with FastAPI framework.
 
 NOTE: TLDR; You only need to focus on `GreetingHandler` in Line 19-21
 
