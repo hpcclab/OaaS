@@ -10,13 +10,15 @@ The commandline interface for Oparaca.
 
 == Installation
 
+=== Download from GitHub Action
+
 Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page. Then, copy the executable file to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
 
 image::../doc/images/ocli-download.png[]
 
-== Build from source
+=== Build from source
 
-=== Native Image
+==== Native Image
 The native image is preferable than the jar file because it has a much faster startup time. First, make sure to install the prerequisite programs for GraalVM. You can check on the prerequisites section of this link:https://quarkus.io/guides/building-native-image[guide].
 
 [source,bash]
@@ -47,7 +49,7 @@ cp  target/oprc-cli-999-SNAPSHOT-runner.exe $HOME/.local/bin/ocli.exe
 ----
 
 
-=== Jar file via JBang
+==== Jar file via JBang
 You can install this cli by using https://www.jbang.dev/[jbang] and run the following command
 
 [source,bash]
@@ -73,7 +75,7 @@ ocli o c example.record -s
 ocli i2 random
 ----
 
-== Local Development
+== Local Development (Dev Mode)
 
 You can run `ocli` in the emulator mode for the local development.
 [source,bash]
