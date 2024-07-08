@@ -12,6 +12,8 @@ The commandline interface for Oparaca.
 
 Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page. Then, copy the executable file to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
 
+image::../doc/images/ocli-download.png[]
+
 == Build from source
 
 === Native Image
