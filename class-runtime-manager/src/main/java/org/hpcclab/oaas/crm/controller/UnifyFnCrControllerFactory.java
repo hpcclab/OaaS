@@ -30,7 +30,7 @@ public class UnifyFnCrControllerFactory implements FnCrControllerFactory<HasMeta
   public FnCrComponentController<HasMetadata> create(ProtoOFunction function) {
     if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_MACRO)
       return new FnCrComponentController.NoOp<>();
-    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_LOGICAL)
+    if (function.getType()==ProtoFunctionType.PROTO_FUNCTION_TYPE_BUILTIN)
       return new FnCrComponentController.NoOp<>();
     if (!function.getProvision().getDeployment().getImage().isEmpty()) {
       var controller = new DeploymentFnCrComponentController(

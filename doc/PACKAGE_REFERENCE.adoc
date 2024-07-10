@@ -111,13 +111,13 @@ functions:
 
 == Available built-in Functions
 
-=== builtin.logical.new
-`builtin.logical.new` is a function for creating object. When running the command `ocli object create`, the command will call `new` function.
+=== builtin.new
+`builtin.new` is a function for creating object. When running the command `ocli object create`, the command will call `new` function.
 
 NOTE: If the class doesn't have `new` function, object cannot be created via `ocli object create`.
 
-=== builtin.logical.update
-`builtin.logical.update` is a function for updating the object data from request body.
+=== builtin.update
+`builtin.update` is a function for updating the object data from request body.
 
 [source,bash]
 ----
@@ -125,12 +125,12 @@ oprc invoke update -d '{"name":"john","surname":"doe"}'
 # the object data will be set to {"name":"john","surname":"doe"}
 ----
 
-=== builtin.logical.file
-`builtin.logical.file` is a function for generating a presign URL for unstructured data. When running the command `ocli object file`, the command will call `file` function.
+=== builtin.file
+`builtin.file` is a function for generating a presign URL for unstructured data. When running the command `ocli object file`, the command will call `file` function.
 NOTE: If the class doesn't have `new` function, you cannot load file in object via `ocli object file` or `ocli object cat-file`.
 
-=== builtin.logical.get
-`builtin.logical.file` is a function that return the output object as the  targeted of this function call. This function is made to be used in the dataflow.
+=== builtin.get
+`builtin.file` is a function that return the output object as the  targeted of this function call. This function is made to be used in the dataflow.
 
 Pseudo code for explanation:
 ----
@@ -139,7 +139,7 @@ output = obj.get()
 assert output == obj
 ----
 
-=== builtin.logical.project
+=== builtin.project
 TODO
 
 == Available built-in class
@@ -147,12 +147,21 @@ TODO
 === builtin.base [[builtin_base]]
 The utility class to be inherited from. This class contains a list of built-in functions:
 
-* builtin.logical.new
-* builtin.logical.get
-* builtin.logical.file
+* builtin.new
+* builtin.get
+* builtin.file
 
 == Dataflow Definitions
 
+=== Chain functions
+TODO
+
+[source, yaml]
+----
+
+----
+
+=== Macro functions
 TODO
 
 [source, yaml]

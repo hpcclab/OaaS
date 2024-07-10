@@ -25,13 +25,13 @@ public class BuiltInLoader {
 
 
   public void setup() throws IOException {
-    var fn = fnRepo.get("builtin.logical.new");
+    var fn = fnRepo.get("builtin.new");
     if (fn!=null) return;
 
     var mapper = new YAMLMapper();
 
     var files = List.of(
-      "/builtin/builtin.logical.yml"
+      "/builtin/builtin.yml"
     );
 
     for (String file : files) {

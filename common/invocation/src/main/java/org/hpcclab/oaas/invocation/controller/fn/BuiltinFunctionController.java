@@ -3,6 +3,6 @@ package org.hpcclab.oaas.invocation.controller.fn;
 /**
  * @author Pawissanutt
  */
-public interface LogicalFunctionController extends FunctionController{
+public interface BuiltinFunctionController extends FunctionController{
   String getFnKey();
 }

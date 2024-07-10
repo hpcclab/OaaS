@@ -25,8 +25,8 @@ public class MockupData {
 
   public static final OFunction FUNC_NEW = new OFunction()
     .setName("new")
-    .setPkg("builtin.logical")
-    .setType(FunctionType.LOGICAL);
+    .setPkg("builtin")
+    .setType(FunctionType.BUILTIN);
   public static final OFunction FUNC_1 = new OFunction()
     .setName("func1")
     .setPkg("ex")
@@ -161,7 +161,7 @@ public class MockupData {
     .setFunctions(List.of(
       new FunctionBinding()
         .setName("new")
-        .setFunction("builtin.logical.new")
+        .setFunction("builtin.new")
         .setOutputCls(CLS_1_KEY)
         .setNoMain(true)
       ,

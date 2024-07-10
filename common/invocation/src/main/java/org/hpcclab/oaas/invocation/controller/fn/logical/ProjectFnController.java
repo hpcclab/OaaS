@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.invocation.transform.ODataTransformer;
 import org.hpcclab.oaas.model.function.Dataflows;
 import org.hpcclab.oaas.repository.id.IdGenerator;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ProjectFnController
   extends AbstractFunctionController
-  implements LogicalFunctionController {
+  implements BuiltinFunctionController {
 
   public ProjectFnController(IdGenerator idGenerator, ObjectMapper mapper) {
     super(idGenerator, mapper);
@@ -64,6 +64,6 @@ public class ProjectFnController
 
   @Override
   public String getFnKey() {
-    return "builtin.logical.project";
+    return "builtin.project";
   }
 }

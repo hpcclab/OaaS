@@ -465,11 +465,11 @@
         "type" : "string"
       },
       "FunctionType" : {
-        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
+        "enum" : [ "TASK", "BUILTIN", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "FunctionType_Public" : {
-        "enum" : [ "TASK", "LOGICAL", "MACRO", "CHAIN" ],
+        "enum" : [ "TASK", "BUILTIN", "MACRO", "CHAIN" ],
         "type" : "string"
       },
       "JsonBytes" : {

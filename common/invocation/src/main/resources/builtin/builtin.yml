@@ -1,0 +1,32 @@
+name: builtin
+disabled: true
+functions:
+  - name: copy
+    type: BUILTIN
+  - name: new
+    type: BUILTIN
+  - name: update
+    type: BUILTIN
+  - name: get
+    type: BUILTIN
+  - name: file
+    type: BUILTIN
+  - name: project
+    type: BUILTIN
+classes:
+  - name: base
+    stateType: FILES
+    objectType: SIMPLE
+    functions:
+      - access: PUBLIC
+        name: new
+        function: builtin.new
+        outputCls: .record
+      - access: PUBLIC
+        name: get
+        function: builtin.get
+        outputCls: .record
+      - access: PUBLIC
+        name: file
+        function: builtin.file
+        outputCls: .record

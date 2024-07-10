@@ -3,7 +3,7 @@ mvn := "mvnd"
 export CI_REGISTRY_IMAGE := "ghcr.io/hpcclab/oaas"
 
 build options="":
-  ./mvnw  package {{options}}
+  {{mvn}}  package {{options}} -1
 
 build-no-test options="":
   {{mvn}} package -DskipTests {{options}}
@@ -12,7 +12,7 @@ build-image-native options="":
   ./mvnw package -DskipTests -Pnative  "-Dquarkus.container-image.build=true" "-Dquarkus.native.remote-container-build=true" {{options}}
 
 build-native-window:
-    pwsh -c "cmd /c 'call \"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat\" && mvn package -DskipTests -Dnative'"
+   pwsh -c "cmd /c 'call \"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat\" && mvn package -DskipTests -Dnative'"
 
 
 build-image : (build-no-test '"-Dquarkus.container-image.build=true"')

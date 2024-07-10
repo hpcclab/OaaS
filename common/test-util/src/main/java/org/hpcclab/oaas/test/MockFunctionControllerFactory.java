@@ -40,7 +40,7 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
   public FunctionController create(OFunction function) {
     return switch (function.getType()) {
       case TASK -> new TaskFunctionController(idGenerator, mapper, offLoaderFactory, contentUrlGenerator);
-      case LOGICAL -> createLogical(function);
+      case BUILTIN -> createBuiltin(function);
       case MACRO -> new MacroFunctionController(
         idGenerator, mapper, dataflowOrchestrator
       );
@@ -49,10 +49,10 @@ public class MockFunctionControllerFactory implements FunctionControllerFactory 
     };
   }
 
-  LogicalFunctionController createLogical(OFunction function) {
-    if (function.getKey().equals("builtin.logical.new")) {
+  BuiltinFunctionController createBuiltin(OFunction function) {
+    if (function.getKey().equals("builtin.new")) {
       return new NewFnController(idGenerator, mapper, contentUrlGenerator);
-    } else if (function.getKey().equals("builtin.logical.update")) {
+    } else if (function.getKey().equals("builtin.update")) {
       return new UpdateFnController(idGenerator, mapper);
     }
     throw new IllegalArgumentException();

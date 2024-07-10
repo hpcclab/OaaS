@@ -8,7 +8,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Pawissanutt
  */
 public class NewFnController extends AbstractFunctionController
-  implements LogicalFunctionController {
+  implements BuiltinFunctionController {
   final ContentUrlGenerator urlGenerator;
 
   public NewFnController(IdGenerator idGenerator,
@@ -97,7 +97,7 @@ public class NewFnController extends AbstractFunctionController
 
   @Override
   public String getFnKey() {
-    return "builtin.logical.new";
+    return "builtin.new";
   }
 
   @Builder(toBuilder = true)

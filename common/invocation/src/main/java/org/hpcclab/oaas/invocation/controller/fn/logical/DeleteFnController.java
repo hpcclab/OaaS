@@ -10,10 +10,10 @@ import org.hpcclab.oaas.repository.id.IdGenerator;
 /**
  * @author Pawissanutt
  */
-public class GetFnController
+public class DeleteFnController
   extends AbstractFunctionController
   implements BuiltinFunctionController {
-  public GetFnController(IdGenerator idGenerator, ObjectMapper mapper) {
+  public DeleteFnController(IdGenerator idGenerator, ObjectMapper mapper) {
     super(idGenerator, mapper);
   }
 
@@ -24,13 +24,12 @@ public class GetFnController
 
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
-    var o = ctx.getMain();
-    ctx.setOutput(o);
+
     return Uni.createFrom().item(ctx);
   }
 
   @Override
   public String getFnKey() {
-    return "builtin.get";
+    return "builtin.delete";
   }
 }

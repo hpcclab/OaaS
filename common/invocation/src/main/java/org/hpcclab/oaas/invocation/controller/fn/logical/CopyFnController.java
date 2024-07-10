@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class CopyFnController
   extends AbstractFunctionController
-  implements LogicalFunctionController {
+  implements BuiltinFunctionController {
   public CopyFnController(IdGenerator idGenerator, ObjectMapper mapper) {
     super(idGenerator, mapper);
   }
@@ -38,6 +38,6 @@ public class CopyFnController
 
   @Override
   public String getFnKey() {
-    return "builtin.logical.copy";
+    return "builtin.copy";
   }
 }

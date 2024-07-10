@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.invocation.controller.fn;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
 
@@ -13,12 +11,12 @@ public class CdiFunctionControllerFactory implements FunctionControllerFactory {
   final Instance<TaskFunctionController> taskFunctionControllerInstance;
   final  Instance<MacroFunctionController> macroFunctionControllerInstance;
   final  Instance<ChainFunctionController> chainFunctionControllerInstance;
-  final  Instance<LogicalFunctionController> logicalFunctionControllers;
+  final  Instance<BuiltinFunctionController> logicalFunctionControllers;
 
   public CdiFunctionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                       Instance<MacroFunctionController> macroFunctionControllerInstance,
                                       Instance<ChainFunctionController> chainFunctionControllerInstance,
-                                      Instance<LogicalFunctionController> logicalFunctionControllers) {
+                                      Instance<BuiltinFunctionController> logicalFunctionControllers) {
     this.taskFunctionControllerInstance = taskFunctionControllerInstance;
     this.macroFunctionControllerInstance = macroFunctionControllerInstance;
     this.chainFunctionControllerInstance = chainFunctionControllerInstance;
@@ -26,7 +24,7 @@ public class CdiFunctionControllerFactory implements FunctionControllerFactory {
   }
 
   public FunctionController create(OFunction function) {
-    if (function.getType() == FunctionType.LOGICAL) {
+    if (function.getType() == FunctionType.BUILTIN) {
         return logicalFunctionControllers
         .stream()
         .filter(fc -> fc.getFnKey().equals(function.getKey()))

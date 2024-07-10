@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.model.data.AccessLevel;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  */
 public class FileFnController
   extends AbstractFunctionController
-  implements LogicalFunctionController {
+  implements BuiltinFunctionController {
 
   final ContentUrlGenerator generator;
   final ObjectMapper objectMapper;
@@ -61,6 +61,6 @@ public class FileFnController
 
   @Override
   public String getFnKey() {
-    return "builtin.logical.file";
+    return "builtin.file";
   }
 }

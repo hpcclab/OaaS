@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
-import org.hpcclab.oaas.invocation.controller.fn.LogicalFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author Pawissanutt
  */
 public class UpdateFnController extends AbstractFunctionController
-  implements LogicalFunctionController {
+  implements BuiltinFunctionController {
 
   public UpdateFnController(IdGenerator idGenerator,
                             ObjectMapper mapper) {
@@ -45,6 +45,6 @@ public class UpdateFnController extends AbstractFunctionController
 
   @Override
   public String getFnKey() {
-    return "builtin.logical.update";
+    return "builtin.update";
   }
 }

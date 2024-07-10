@@ -3,7 +3,7 @@ package org.hpcclab.oaas.model.function;
 
 public enum FunctionType {
   TASK(),
-  LOGICAL(),
+  BUILTIN(),
   MACRO(),
   CHAIN(),
 //  STATIC(false),

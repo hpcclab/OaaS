@@ -15,10 +15,10 @@ import org.hpcclab.oaas.model.qos.ConsistencyModel;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
+import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.configuration.cache.*;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.manager.EmbeddedCacheManagerAdmin;
 import org.infinispan.transaction.LockingMode;
 import org.infinispan.transaction.TransactionMode;
 import org.slf4j.Logger;
@@ -47,7 +47,6 @@ public class IspnCacheCreator {
 
 
   public Cache<String, GOObject> getObjectCache(OClass cls) {
-    EmbeddedCacheManagerAdmin administration = cacheManager.administration();
 //    if (cacheManager.cacheExists(name)) {
 //      return cacheManager.getCache(name);
 //    } else {
@@ -75,7 +74,9 @@ public class IspnCacheCreator {
       JOObject.class,
       new GJValueMapper(),
       false);
-    return administration.getOrCreateCache(cls.getKey(), config);
+    return cacheManager.administration()
+      .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
+      .getOrCreateCache(cls.getKey(), config);
   }
 
   public <V> Cache<String, V> createReplicateCache(String name,
@@ -98,7 +99,9 @@ public class IspnCacheCreator {
       .maxCount(maxCount)
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(false);
-    return cacheManager.administration().getOrCreateCache(name, cb.build());
+    return cacheManager.administration()
+      .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
+      .getOrCreateCache(name, cb.build());
   }
 
   public <V, S> Configuration getCacheDistConfig(OClass cls,

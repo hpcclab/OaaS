@@ -348,14 +348,14 @@ components:
     FunctionType:
       enum:
       - TASK
-      - LOGICAL
+      - BUILTIN
       - MACRO
       - CHAIN
       type: string
     FunctionType_Public:
       enum:
       - TASK
-      - LOGICAL
+      - BUILTIN
       - MACRO
       - CHAIN
       type: string

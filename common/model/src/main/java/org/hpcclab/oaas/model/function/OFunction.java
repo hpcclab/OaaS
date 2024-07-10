@@ -98,7 +98,7 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
     }
     if (status==null)
       status = new OFunctionDeploymentStatus();
-    if (type==FunctionType.MACRO || type==FunctionType.LOGICAL) {
+    if (type==FunctionType.MACRO || type==FunctionType.BUILTIN) {
       status.setCondition(DeploymentCondition.RUNNING);
     } else {
       status.setCondition(DeploymentCondition.PENDING);

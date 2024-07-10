@@ -15,7 +15,7 @@ public class ControllerProducer {
   CdiFunctionControllerFactory functionControllerFactory(Instance<TaskFunctionController> taskFunctionControllerInstance,
                                                          Instance<MacroFunctionController> macroFunctionControllerInstance,
                                                          Instance<ChainFunctionController> chainFunctionControllerInstance,
-                                                         Instance<LogicalFunctionController> logicalFunctionControllers) {
+                                                         Instance<BuiltinFunctionController> logicalFunctionControllers) {
     return new CdiFunctionControllerFactory(taskFunctionControllerInstance,
       macroFunctionControllerInstance,
       chainFunctionControllerInstance,

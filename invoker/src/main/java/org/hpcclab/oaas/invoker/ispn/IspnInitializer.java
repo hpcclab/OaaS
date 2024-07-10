@@ -1,8 +1,6 @@
 package org.hpcclab.oaas.invoker.ispn;
 
 import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.Startup;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -10,6 +8,7 @@ import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.globalstate.ConfigurationStorage;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
@@ -50,6 +49,9 @@ public class IspnInitializer {
         .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml");
     }
     globalConfigurationBuilder.transport().nodeName(podName);
+    globalConfigurationBuilder.globalState()
+      .configurationStorage(ConfigurationStorage.VOLATILE)
+      .enabled(true);
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
