@@ -78,7 +78,9 @@ public class InvokerInvocationService implements InvocationService {
         .build());
     } else if (throwable instanceof StdOaasException oaasException) {
       var code = Code.INTERNAL_VALUE;
-      if (oaasException.getCode()==400) {
+      if (oaasException.getCode() == 404) {
+        code = Code.NOT_FOUND_VALUE;
+      } else if (oaasException.getCode()==400) {
         code = Code.INVALID_ARGUMENT_VALUE;
       } else if (oaasException.getCode()==409) {
         code = Code.ABORTED_VALUE;

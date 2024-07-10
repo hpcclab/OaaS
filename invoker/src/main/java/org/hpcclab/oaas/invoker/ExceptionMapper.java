@@ -20,15 +20,18 @@ public class ExceptionMapper {
   @ServerExceptionMapper(StatusRuntimeException.class)
   public Response exceptionMapper(StatusRuntimeException statusRuntimeException) {
     Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-    if (statusRuntimeException.getStatus().getCode()==Code.UNAVAILABLE)
+
+    if (statusRuntimeException.getStatus().getCode()==Code.NOT_FOUND)
+      status = Response.Status.NOT_FOUND;
+    else if (statusRuntimeException.getStatus().getCode()==Code.UNAVAILABLE)
       status = Response.Status.SERVICE_UNAVAILABLE;
-    if (statusRuntimeException.getStatus().getCode()==Code.RESOURCE_EXHAUSTED)
+    else if (statusRuntimeException.getStatus().getCode()==Code.RESOURCE_EXHAUSTED)
       status = Response.Status.TOO_MANY_REQUESTS;
-    if (statusRuntimeException.getStatus().getCode()==Code.INVALID_ARGUMENT)
+    else if (statusRuntimeException.getStatus().getCode()==Code.INVALID_ARGUMENT)
       status = Response.Status.BAD_REQUEST;
-    if (statusRuntimeException.getStatus().getCode()==Code.UNIMPLEMENTED)
+    else  if (statusRuntimeException.getStatus().getCode()==Code.UNIMPLEMENTED)
       status = Response.Status.NOT_IMPLEMENTED;
-    if (statusRuntimeException.getStatus().getCode()==Code.UNAUTHENTICATED)
+    else if (statusRuntimeException.getStatus().getCode()==Code.UNAUTHENTICATED)
       status = Response.Status.UNAUTHORIZED;
 
     if (LOGGER.isWarnEnabled() && status==Response.Status.INTERNAL_SERVER_ERROR) {

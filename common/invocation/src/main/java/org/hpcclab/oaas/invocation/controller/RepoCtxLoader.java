@@ -23,7 +23,6 @@ public class RepoCtxLoader implements CtxLoader {
     this.registry = registry;
   }
 
-
   @Override
   public Uni<InvocationCtx> load(InvocationRequest request) {
     var ctx = new InvocationCtx();
@@ -38,6 +37,7 @@ public class RepoCtxLoader implements CtxLoader {
     if (request.main()!=null && !request.main().isEmpty()) {
       var repo = objManager.getOrCreate(cls);
       uni = uni.flatMap(ctx2 -> repo.async().getAsync(request.main())
+        .onItem().ifNull().failWith(() -> StdOaasException.notFoundObject(request.main(), 404))
         .map(ctx2::setMain)
       );
     }
