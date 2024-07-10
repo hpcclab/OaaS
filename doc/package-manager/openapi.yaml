@@ -1107,7 +1107,7 @@ components:
           $ref: "#/components/schemas/ConsistencyModel"
         geographical:
           type: string
-        persistent:
+        ephemeral:
           type: boolean
         runtimeRequirements:
           type: array
@@ -1123,7 +1123,7 @@ components:
           $ref: "#/components/schemas/ConsistencyModel_Public"
         geographical:
           type: string
-        persistent:
+        ephemeral:
           type: boolean
         runtimeRequirements:
           type: array

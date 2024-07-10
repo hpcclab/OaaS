@@ -149,7 +149,7 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
     logger.debug("write {} {}", segment, entry.getKey());
     var options = new DocumentCreateOptions().overwriteMode(OverwriteMode.replace)
       .silent(true);
-    T val = entry.getValue();
+    T val = (T) valueDataConversion.fromStorage(entry.getValue());
     return collectionAsync.insertDocument(valueMapper.mapToDb(val), options)
       .thenApply(__ -> null);
   }
@@ -201,8 +201,7 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
     logger.debug("[{}]batchWrite {}", name, list.size());
 
     var valueList = list.stream().map(MarshallableEntry::getValue)
-      .map(v -> (T) valueDataConversion.fromStorage(v)
-      )
+      .map(v -> (T) valueDataConversion.fromStorage(v))
       .map(valueMapper::mapToDb)
       .toList();
 

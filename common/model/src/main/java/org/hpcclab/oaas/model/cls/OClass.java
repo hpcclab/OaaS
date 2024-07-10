@@ -119,7 +119,6 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
     }
     if (constraint == null)
       constraint = QosConstraint.builder()
-        .persistent(true)
         .consistency(ConsistencyModel.NONE)
         .build();
     config.validate();

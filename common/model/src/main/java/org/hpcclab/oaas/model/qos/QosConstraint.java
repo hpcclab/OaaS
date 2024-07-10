@@ -13,6 +13,6 @@ import java.util.List;
 public record QosConstraint(int budget,
                             ConsistencyModel consistency,
                             String geographical,
-                            boolean persistent,
+                            boolean ephemeral,
                             List<String> runtimeRequirements) {
 }

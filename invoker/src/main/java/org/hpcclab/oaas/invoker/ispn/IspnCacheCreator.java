@@ -133,25 +133,26 @@ public class IspnCacheCreator {
       .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (datastoreConf!=null && cls.getConstraint().persistent()) {
-      var storeBuilder = builder.persistence()
-        .addStore(ArgCacheStoreConfigBuilder.class)
-        .valueCls(valueCls)
-        .storeCls(storeCls)
-        .valueMapper(GJValueMapper.class)
-        .autoCreate(true)
-        .storeConfName(datastoreConf.name())
-        .shared(true)
-        .segmented(false)
-        .ignoreModifications(cacheStore.readOnly());
-      ConsistencyModel consistency = cls.getConstraint().consistency();
-      if (consistency==ConsistencyModel.EVENTUAL
-        || consistency==ConsistencyModel.NONE) {
-        storeBuilder.async()
-          .enabled(cacheStore.queueSize() > 0)
-          .modificationQueueSize(cacheStore.queueSize())
-          .failSilently(false);
-      }
+    if (datastoreConf==null || cls.getConstraint().ephemeral())
+      return builder.build();
+
+    var storeBuilder = builder.persistence()
+      .addStore(ArgCacheStoreConfigBuilder.class)
+      .valueCls(valueCls)
+      .storeCls(storeCls)
+      .valueMapper(GJValueMapper.class)
+      .autoCreate(true)
+      .storeConfName(datastoreConf.name())
+      .shared(true)
+      .segmented(false)
+      .ignoreModifications(cacheStore.readOnly());
+    ConsistencyModel consistency = cls.getConstraint().consistency();
+    if (consistency==ConsistencyModel.EVENTUAL
+      || consistency==ConsistencyModel.NONE) {
+      storeBuilder.async()
+        .enabled(cacheStore.queueSize() > 0)
+        .modificationQueueSize(cacheStore.queueSize())
+        .failSilently(false);
     }
     return builder.build();
   }

@@ -96,7 +96,7 @@ class ConditionProcessorTest {
         .build()
       )
       .constraint(QosConstraint.builder()
-        .persistent(false)
+        .ephemeral(true)
         .build()
       )
       .build();
@@ -126,9 +126,9 @@ class ConditionProcessorTest {
        - path: $.qos.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.persistent
+       - path: $.constraint.ephemeral
          op: EQ
-         val: 'false'
+         val: 'true'
       """);
     assert res;
     // language=yaml
@@ -140,9 +140,9 @@ class ConditionProcessorTest {
        - path: $.qos.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.persistent
+       - path: $.constraint.ephemeral
          op: EQ
-         val: 'y'
+         val: 'n'
       """);
     assert !res;
     // language=yaml
@@ -154,9 +154,9 @@ class ConditionProcessorTest {
        - path: $.qos.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.persistent
+       - path: $.constraint.ephemeral
          op: EQ
-         val: 'y'
+         val: 'n'
       """);
     assert res;
   }
