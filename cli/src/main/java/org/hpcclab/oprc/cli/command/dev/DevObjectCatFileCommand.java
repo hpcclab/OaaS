@@ -41,7 +41,7 @@ public class DevObjectCatFileCommand implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    var conf = fileManager.current();
+    var conf = fileManager.dev();
     if (cls==null) cls = conf.getDefaultClass();
     if (main==null)
       main = conf.getDefaultObject();
