@@ -50,8 +50,7 @@ public class IspnInitializer {
     }
     globalConfigurationBuilder.transport().nodeName(podName);
     globalConfigurationBuilder.globalState()
-      .configurationStorage(ConfigurationStorage.VOLATILE)
-      .enabled(true);
+      .configurationStorage(ConfigurationStorage.VOLATILE);
 
     logger.info("starting infinispan {}", globalConfigurationBuilder);
     cacheManager = new DefaultCacheManager(globalConfigurationBuilder.build());
