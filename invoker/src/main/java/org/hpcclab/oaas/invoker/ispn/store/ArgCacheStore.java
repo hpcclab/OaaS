@@ -12,6 +12,7 @@ import io.smallrye.mutiny.subscription.MultiEmitter;
 import mutiny.zero.flow.adapters.AdaptersToFlow;
 import mutiny.zero.flow.adapters.AdaptersToReactiveStreams;
 import org.hpcclab.oaas.model.HasKey;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.commons.util.IntSet;
@@ -39,7 +40,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @ConfiguredBy(ArgCacheStoreConfig.class)
-
 public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
   private static final Logger logger = LoggerFactory.getLogger(ArgCacheStore.class);
   ArangoCollectionAsync collectionAsync;
@@ -59,27 +59,38 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
     keyDataConversion = ctx.getCache().getAdvancedCache().getKeyDataConversion();
     name = ctx.getCache().getAdvancedCache().getName();
     var conf = ctx.getConfiguration();
-    logger.info("starting {}", conf);
+    logger.debug("starting {} {}", name, conf);
     if (conf instanceof ArgCacheStoreConfig argCacheStoreConfig) {
-      this.valueCls = argCacheStoreConfig.getValueCls();
-      this.storeCls = argCacheStoreConfig.getStoreCls();
-      this.valueMapper = argCacheStoreConfig.getValueMapper();
-      this.keyExtractor = obj -> ((HasKey<String>) obj).getKey();
-      collectionAsync = (ArangoCollectionAsync) argCacheStoreConfig.getConnectionFactory()
-        .getConnection(ctx.getCache().getName());
+      try {
+        this.valueCls = argCacheStoreConfig.getValueCls();
+        this.storeCls = argCacheStoreConfig.getStoreCls();
+        this.valueMapper = (ValueMapper<T, S>) argCacheStoreConfig.getValueMapper()
+          .getConstructor()
+          .newInstance();
+        this.keyExtractor = obj -> ((HasKey<String>) obj).getKey();
+        String storeConfName = argCacheStoreConfig.getStoreConfName();
+        ArgConnectionFactory factory = new ArgConnectionFactory(DatastoreConfRegistry.getDefault().get(storeConfName));
+        collectionAsync = factory.getConnection(name);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     } else {
       throw new IllegalStateException();
     }
     this.marshallableEntryFactory = ctx.getMarshallableEntryFactory();
-    return collectionAsync.exists()
-      .thenCompose(exist -> {
-        if (Boolean.TRUE.equals(exist)) {
-          return CompletableFuture.completedStage(null);
-        } else {
-          return collectionAsync.create()
-            .thenApply(__ -> null);
-        }
-      });
+    if (((ArgCacheStoreConfig) conf).isAutoCreate()) {
+      return collectionAsync.exists()
+        .thenCompose(exist -> {
+          if (Boolean.TRUE.equals(exist)) {
+            return CompletableFuture.completedStage(null);
+          } else {
+            return collectionAsync.create()
+              .thenApply(__ -> null);
+          }
+        });
+    } else {
+      return CompletableFuture.completedStage(null);
+    }
   }
 
 
@@ -238,8 +249,8 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
       .query(query, storeCls)
     )
       .map(storeVal -> {
-        var cVal = valueMapper.mapToCStore(storeVal);
-        return marshallableEntryFactory.create(
+          var cVal = valueMapper.mapToCStore(storeVal);
+          return marshallableEntryFactory.create(
             keyDataConversion.toStorage(keyExtractor.apply(cVal)),
             valueDataConversion.toStorage(cVal));
         }

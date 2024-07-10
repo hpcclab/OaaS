@@ -105,7 +105,7 @@ public class DatastoreConfRegistry {
     return confMap.get(DEFAULT);
   }
 
-  DatastoreConf get(String name) {
+  public DatastoreConf get(String name) {
     return confMap.get(name);
   }
 }

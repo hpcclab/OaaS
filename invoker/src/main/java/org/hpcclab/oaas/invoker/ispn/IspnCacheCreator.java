@@ -3,14 +3,11 @@ package org.hpcclab.oaas.invoker.ispn;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invoker.InvokerConfig;
-import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfig;
-import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
-import org.hpcclab.oaas.invoker.ispn.store.ValueMapper;
+import org.hpcclab.oaas.invoker.ispn.store.ArgCacheStoreConfigBuilder;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JOObject;
-import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.model.qos.ConsistencyModel;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
@@ -72,8 +69,8 @@ public class IspnCacheCreator {
       datastoreConf,
       GOObject.class,
       JOObject.class,
-      new GJValueMapper(),
       false);
+    logger.debug("create cache {} {}", cls.getKey(), config);
     return cacheManager.administration()
       .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
       .getOrCreateCache(cls.getKey(), config);
@@ -109,7 +106,6 @@ public class IspnCacheCreator {
                                                  DatastoreConf datastoreConf,
                                                  Class<V> valueCls,
                                                  Class<S> storeCls,
-                                                 ValueMapper<V, S> valueMapper,
                                                  boolean transactional) {
     var builder = new ConfigurationBuilder();
     var conf = cls.getConfig();
@@ -139,11 +135,12 @@ public class IspnCacheCreator {
       .statistics().enabled(true);
     if (datastoreConf!=null && cls.getConstraint().persistent()) {
       var storeBuilder = builder.persistence()
-        .addStore(ArgCacheStoreConfig.Builder.class)
+        .addStore(ArgCacheStoreConfigBuilder.class)
         .valueCls(valueCls)
         .storeCls(storeCls)
-        .valueMapper(valueMapper)
-        .connectionFactory(new ArgConnectionFactory(datastoreConf))
+        .valueMapper(GJValueMapper.class)
+        .autoCreate(true)
+        .storeConfName(datastoreConf.name())
         .shared(true)
         .segmented(false)
         .ignoreModifications(cacheStore.readOnly());
@@ -159,15 +156,4 @@ public class IspnCacheCreator {
     return builder.build();
   }
 
-  static class GJValueMapper implements ValueMapper<GOObject, JOObject> {
-    @Override
-    public JOObject mapToDb(GOObject goObject) {
-      return new JOObject(goObject.getMeta(), goObject.getData().getNode());
-    }
-
-    @Override
-    public GOObject mapToCStore(JOObject joObject) {
-      return new GOObject(joObject.getMeta(), new JsonBytes(joObject.getData()));
-    }
-  }
 }

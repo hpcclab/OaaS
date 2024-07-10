@@ -4,7 +4,6 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
-import org.hpcclab.oaas.invocation.controller.ClassControllerRegistry;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -30,8 +29,6 @@ class SyncInvocationTest {
   ObjectRepoManager objectRepoManager;
   @Inject
   IdGenerator idGenerator;
-  @Inject
-  ClassControllerRegistry registry;
   @Inject
   InvokerManager invokerManager;
 
