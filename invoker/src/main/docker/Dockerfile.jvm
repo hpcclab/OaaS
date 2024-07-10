@@ -85,6 +85,9 @@ COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
 COPY --chown=185 target/quarkus-app/*.jar /deployments/
 COPY --chown=185 target/quarkus-app/app/ /deployments/app/
 COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
+USER root
+RUN mkdir /deployments/ispn/ && \
+    chown 185 /deployments/ispn/
 
 EXPOSE 8080
 USER 185
