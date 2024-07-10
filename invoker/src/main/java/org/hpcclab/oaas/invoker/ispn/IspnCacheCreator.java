@@ -18,6 +18,7 @@ import org.infinispan.Cache;
 import org.infinispan.configuration.cache.*;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.manager.EmbeddedCacheManagerAdmin;
 import org.infinispan.transaction.LockingMode;
 import org.infinispan.transaction.TransactionMode;
 import org.slf4j.Logger;
@@ -46,31 +47,43 @@ public class IspnCacheCreator {
 
 
   public Cache<String, GOObject> getObjectCache(OClass cls) {
-    var name = cls.getKey();
-    if (cacheManager.cacheExists(name)) {
-      return cacheManager.getCache(name);
-    } else {
-      DatastoreConf datastoreConf = confRegistry
-        .getOrDefault(Optional.ofNullable(cls.getConfig())
-          .map(OClassConfig::getStructStore)
-          .orElse(DatastoreConfRegistry.DEFAULT));
-      var config = getCacheDistConfig(cls,
-        ispnConfig.objStore(),
-        datastoreConf,
-        GOObject.class,
-        JOObject.class,
-        new GJValueMapper(),
-        false);
-      return cacheManager.createCache(name, config);
-    }
+    EmbeddedCacheManagerAdmin administration = cacheManager.administration();
+//    if (cacheManager.cacheExists(name)) {
+//      return cacheManager.getCache(name);
+//    } else {
+//      DatastoreConf datastoreConf = confRegistry
+//        .getOrDefault(Optional.ofNullable(cls.getConfig())
+//          .map(OClassConfig::getStructStore)
+//          .orElse(DatastoreConfRegistry.DEFAULT));
+//      var config = getCacheDistConfig(cls,
+//        ispnConfig.objStore(),
+//        datastoreConf,
+//        GOObject.class,
+//        JOObject.class,
+//        new GJValueMapper(),
+//        false);
+//      return cacheManager.createCache(name, config);
+//    }
+    DatastoreConf datastoreConf = confRegistry
+      .getOrDefault(Optional.ofNullable(cls.getConfig())
+        .map(OClassConfig::getStructStore)
+        .orElse(DatastoreConfRegistry.DEFAULT));
+    var config = getCacheDistConfig(cls,
+      ispnConfig.objStore(),
+      datastoreConf,
+      GOObject.class,
+      JOObject.class,
+      new GJValueMapper(),
+      false);
+    return administration.getOrCreateCache(cls.getKey(), config);
   }
 
   public <V> Cache<String, V> createReplicateCache(String name,
                                                    boolean awaitStateTransfer,
                                                    int maxCount) {
-    if (cacheManager.cacheExists(name)) {
-      return cacheManager.getCache(name);
-    }
+//    if (cacheManager.cacheExists(name)) {
+//      return cacheManager.getCache(name);
+//    }
     var cb = new ConfigurationBuilder()
       .clustering()
       .cacheMode(CacheMode.REPL_ASYNC)
@@ -85,7 +98,7 @@ public class IspnCacheCreator {
       .maxCount(maxCount)
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(false);
-    return cacheManager.createCache(name, cb.build());
+    return cacheManager.administration().getOrCreateCache(name, cb.build());
   }
 
   public <V, S> Configuration getCacheDistConfig(OClass cls,
