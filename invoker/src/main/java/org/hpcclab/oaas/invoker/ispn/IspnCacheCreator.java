@@ -126,11 +126,12 @@ public class IspnCacheCreator {
 
     builder
       .clustering()
-      .cacheMode(cacheStore.async() ? CacheMode.REPL_ASYNC:CacheMode.REPL_SYNC)
-      .hash()
+      .cacheMode(cacheStore.async() ? CacheMode.REPL_ASYNC:CacheMode.REPL_SYNC).hash()
       .numSegments(conf.getPartitions())
       .stateTransfer()
       .awaitInitialTransfer(cacheStore.awaitInitialTransfer())
+      .chunkSize(cacheStore.transferChuckSize())
+      .fetchInMemoryState(cacheStore.fetchInMemoryState())
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()
@@ -170,6 +171,8 @@ public class IspnCacheCreator {
       .numSegments(conf.getPartitions())
       .stateTransfer()
       .awaitInitialTransfer(cacheStore.awaitInitialTransfer())
+      .chunkSize(cacheStore.transferChuckSize())
+      .fetchInMemoryState(cacheStore.fetchInMemoryState())
       .encoding()
       .key().mediaType(TEXT_PLAIN_TYPE)
       .encoding()

@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OClassConfig {
-  public static final int DEFAULT_PARTITIONS = 16;
+  public static final int DEFAULT_PARTITIONS = 32;
   int partitions = DEFAULT_PARTITIONS;
   String structStore;
   String unstructStore;
