@@ -61,7 +61,7 @@ public class JsonBytes {
   @JsonRawValue
   @JsonValue
   public String getRaw() {
-    if (bytes!=null)
+    if (bytes!=null && bytes.length != 0)
       return new String(getBytes());
     else if (objectNode!=null)
       return objectNode.toString();
