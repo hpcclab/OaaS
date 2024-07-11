@@ -1,6 +1,6 @@
 package org.hpcclab.oaas.invoker.service;
 
-import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.vertx.core.Vertx;
 import io.vertx.grpc.VertxChannelBuilder;
@@ -23,7 +23,7 @@ public class GrpcInvocationServicePool {
     this.vertx = vertx;
   }
 
-  private Channel createChanel(ServiceAddr addr) {
+  private ManagedChannel createChanel(ServiceAddr addr) {
     try {
       if (vertx!=null) {
         VertxChannelBuilder vertxChannelBuilder = VertxChannelBuilder.forAddress(vertx, addr.host, addr.port)

@@ -99,6 +99,9 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean useRepForHash();
 
+  @WithDefault("false")
+  boolean useVertxGrpc();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }

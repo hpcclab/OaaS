@@ -76,7 +76,7 @@ k8s-deploy-preq kn-version="v1.14.1" kourier-version="v1.14.0":
 
 k8s-deploy-deps:
   kubectl apply -n oaas -f deploy/local-k8s/kafka-cluster.yml
-  kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
+  # kubectl apply -n oaas -f deploy/local-k8s/kafka-ui.yml
   kubectl apply -n oaas -f deploy/local-k8s/minio.yml
   kubectl apply -n oaas -f deploy/local-k8s/arango-single.yml
   kubectl apply -n oaas -f deploy/local-k8s/arango-ingress.yml

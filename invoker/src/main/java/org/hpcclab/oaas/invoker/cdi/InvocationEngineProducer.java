@@ -17,8 +17,7 @@ import org.hpcclab.oaas.invocation.task.HttpOffLoaderFactory;
 import org.hpcclab.oaas.invoker.InvokerConfig;
 import org.hpcclab.oaas.invoker.metrics.MicrometerMetricFactory;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
-import org.hpcclab.oaas.invoker.service.CcInvocationRecordHandler;
-import org.hpcclab.oaas.invoker.service.InvocationRecordHandler;
+import org.hpcclab.oaas.invoker.service.*;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
@@ -98,7 +97,6 @@ public class InvocationEngineProducer {
       .setProtocolVersion(HttpVersion.HTTP_2)
       .setHttp2ClearTextUpgrade(false)
       .setConnectTimeout(config.connectTimeout())
-      .setIdleTimeout(30)
     );
   }
 
@@ -130,4 +128,16 @@ public class InvocationEngineProducer {
     return new HttpOffLoaderFactory(vertx, config, objectMapper);
   }
 
+
+  @ApplicationScoped
+  @Produces
+  RemoteInvocationSender sender(Vertx vertx,
+                                GrpcClient client,
+                                InvokerConfig config) {
+    if (config.useVertxGrpc()) {
+      return new VertxGrpcInvocationSender(client);
+    } else {
+      return new ManagedGrpcInvocationSender(vertx, config);
+    }
+  }
 }
