@@ -20,6 +20,7 @@ class JsonBytesTest {
       """;
     JsonBytes jb = new JsonBytes(jsonString.getBytes());
     String s = mapper.writeValueAsString(jb);
+    System.out.println(s);
     JsonBytes jb2 = mapper.readValue(s, JsonBytes.class);
     assertEquals("aaaa", jb2.objectNode.get("test").textValue());
   }

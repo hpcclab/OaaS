@@ -41,7 +41,6 @@ public class JsonBytes {
     return bytes;
   }
 
-  @JsonValue
   public ObjectNode getNode() {
     if (bytes==null && objectNode==null) {
       return null;
@@ -60,12 +59,13 @@ public class JsonBytes {
   }
 
   @JsonRawValue
+  @JsonValue
   public String getRaw() {
     if (bytes!=null)
       return new String(getBytes());
     else if (objectNode!=null)
       return objectNode.toString();
-    return null;
+    return "null";
   }
 
   public <T> T mapToObj(Class<T> clazz) {
