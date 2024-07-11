@@ -96,6 +96,10 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean forceInvokeLocal();
 
+
+  @WithDefault("false")
+  boolean disableHashAware();
+
   @WithDefault("false")
   boolean useRepForHash();
 

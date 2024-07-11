@@ -109,9 +109,13 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
 
   @Override
   public Uni<Void> persistAsync(Collection<V> collection) {
+    if (collection.isEmpty()) return Uni.createFrom().nullItem();
+    if (collection.size() == 1) {
+      V val = collection.iterator().next();
+      return persistAsync(val).replaceWithVoid();
+    }
     var map = collection.stream()
       .collect(Collectors.toMap(this::extractKey, Function.identity()));
-
     return toUni(getCache()
       .withFlags(Flag.IGNORE_RETURN_VALUES)
       .putAllAsync(map));
