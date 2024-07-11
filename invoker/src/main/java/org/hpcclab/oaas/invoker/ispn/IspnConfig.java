@@ -34,5 +34,7 @@ public interface IspnConfig {
     int transferChuckSize();
     @WithDefault("true")
     boolean fetchInMemoryState();
+    @WithDefault("15000")
+    long remoteTimeout();
   }
 }

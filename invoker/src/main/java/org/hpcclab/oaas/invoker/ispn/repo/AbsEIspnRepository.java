@@ -1,8 +1,9 @@
 package org.hpcclab.oaas.invoker.ispn.repo;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.hpcclab.oaas.repository.*;
+import org.hpcclab.oaas.repository.AsyncEntityRepository;
+import org.hpcclab.oaas.repository.EntityRepository;
+import org.hpcclab.oaas.repository.QueryService;
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
 
@@ -85,7 +86,8 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
 
   @Override
   public V put(String key, V value) {
-    return getCache().put(key, value);
+    return getCache().withFlags(Flag.IGNORE_RETURN_VALUES)
+      .put(key, value);
   }
 
   @Override
@@ -96,6 +98,7 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
   @Override
   public Uni<V> putAsync(String key, V value) {
     return toUni(getCache()
+      .withFlags(Flag.IGNORE_RETURN_VALUES)
       .putAsync(key,value));
   }
 
@@ -109,7 +112,9 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
     var map = collection.stream()
       .collect(Collectors.toMap(this::extractKey, Function.identity()));
 
-    return toUni(getCache().putAllAsync(map));
+    return toUni(getCache()
+      .withFlags(Flag.IGNORE_RETURN_VALUES)
+      .putAllAsync(map));
   }
 
   @Override

@@ -71,21 +71,13 @@ public class IspnCacheCreator {
         .map(OClassConfig::getStructStore)
         .orElse(DatastoreConfRegistry.DEFAULT));
     Configuration config;
-    if (cls.getConfig().isReplicated()) {
-      config = getCacheRepConfig(cls,
-        ispnConfig.objStore(),
-        datastoreConf,
-        GOObject.class,
-        JOObject.class,
-        false);
-    } else {
-      config = getCacheDistConfig(cls,
-        ispnConfig.objStore(),
-        datastoreConf,
-        GOObject.class,
-        JOObject.class,
-        false);
-    }
+    config = getCacheConfig(cls,
+      ispnConfig.objStore(),
+      datastoreConf,
+      GOObject.class,
+      JOObject.class,
+      false);
+
     logger.debug("create cache {} {}", cls.getKey(), config);
     return cacheManager.administration()
       .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
@@ -114,59 +106,22 @@ public class IspnCacheCreator {
       .getOrCreateCache(name, cb.build());
   }
 
-  public <V, S> Configuration getCacheRepConfig(OClass cls,
-                                                IspnConfig.CacheStore cacheStore,
-                                                DatastoreConf datastoreConf,
-                                                Class<V> valueCls,
-                                                Class<S> storeCls,
-                                                boolean transactional) {
+
+  public <V, S> Configuration getCacheConfig(OClass cls,
+                                             IspnConfig.CacheStore cacheStore,
+                                             DatastoreConf datastoreConf,
+                                             Class<V> valueCls,
+                                             Class<S> storeCls,
+                                             boolean transactional) {
     var builder = new ConfigurationBuilder();
     var conf = cls.getConfig();
     if (conf==null) conf = new OClassConfig();
 
     builder
       .clustering()
-      .cacheMode(cacheStore.async() ? CacheMode.REPL_ASYNC:CacheMode.REPL_SYNC).hash()
-      .numSegments(conf.getPartitions())
-      .stateTransfer()
-      .awaitInitialTransfer(cacheStore.awaitInitialTransfer())
-      .chunkSize(cacheStore.transferChuckSize())
-      .fetchInMemoryState(cacheStore.fetchInMemoryState())
-      .encoding()
-      .key().mediaType(TEXT_PLAIN_TYPE)
-      .encoding()
-      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE:APPLICATION_PROTOSTREAM_TYPE)
-      .transaction()
-      .lockingMode(LockingMode.OPTIMISTIC)
-      .transactionMode(transactional ? TransactionMode.TRANSACTIONAL:TransactionMode.NON_TRANSACTIONAL)
-      .locking()
-      .isolationLevel(IsolationLevel.READ_COMMITTED)
-      .memory()
-      .storage(cacheStore.storageType())
-      .maxSize(cacheStore.maxSize().orElse(null))
-      .maxCount(cacheStore.maxCount().orElse(-1L))
-      .whenFull(EvictionStrategy.REMOVE)
-      .statistics().enabled(true);
-    if (datastoreConf==null || cls.getConstraints().ephemeral())
-      return builder.build();
-
-    addStore(cls, cacheStore, datastoreConf, valueCls, storeCls, builder);
-    return builder.build();
-  }
-
-  public <V, S> Configuration getCacheDistConfig(OClass cls,
-                                                 IspnConfig.CacheStore cacheStore,
-                                                 DatastoreConf datastoreConf,
-                                                 Class<V> valueCls,
-                                                 Class<S> storeCls,
-                                                 boolean transactional) {
-    var builder = new ConfigurationBuilder();
-    var conf = cls.getConfig();
-    if (conf==null) conf = new OClassConfig();
-
-    builder
-      .clustering()
-      .cacheMode(cacheStore.async() ? CacheMode.DIST_ASYNC:CacheMode.DIST_SYNC)
+      .cacheType(conf.isReplicated() ? CacheType.REPLICATION:CacheType.DISTRIBUTION)
+      .cacheSync(!cacheStore.async())
+      .remoteTimeout(cacheStore.remoteTimeout())
       .hash().numOwners(ispnConfig.objStore().owner())
       .numSegments(conf.getPartitions())
       .stateTransfer()
