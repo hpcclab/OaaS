@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.invoker.service;
 
+import io.netty.handler.codec.http2.Http2Exception;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.HttpClosedException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -136,7 +137,8 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
     Uni<ProtoInvocationResponse> invocationResponseUni = uni
       .onFailure(throwable -> throwable instanceof RetryableException ||
         throwable instanceof ConnectException ||
-        throwable instanceof HttpClosedException
+        throwable instanceof HttpClosedException ||
+        throwable instanceof Http2Exception
       )
       .retry()
       .withBackOff(Duration.ofMillis(backoff), Duration.ofMillis(maxBackoff))

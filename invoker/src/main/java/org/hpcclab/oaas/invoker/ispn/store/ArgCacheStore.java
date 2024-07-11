@@ -117,7 +117,6 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
         if (doc==null)
           return null;
         T storeVal = valueMapper.mapToCStore(doc);
-//        logger.debug("[{}]loaded {}", name, storeVal);
         return marshallableEntryFactory.create(key,
           valueDataConversion.toStorage(storeVal),
           new EmbeddedMetadata.Builder()
@@ -175,18 +174,14 @@ public class ArgCacheStore<T, S> implements NonBlockingStore<String, T> {
 
     var writtenUni = Multi.createFrom().publisher(AdaptersToFlow.publisher(writePublisher))
       .flatMap(AdaptersToFlow::publisher)
-//      .group().intoLists().of(65536, Duration.ofMillis(100))
       .collect().asList()
       .call(list -> Uni.createFrom().completionStage(batchWrite(list)))
-//      .collect().last()
       .replaceWithVoid();
     var removedUni = Multi.createFrom().publisher(AdaptersToFlow.publisher(removePublisher))
       .flatMap(AdaptersToFlow::publisher)
       .map(this::objToStr)
-//      .group().intoLists().of(65536, Duration.ofMillis(100))
       .collect().asList()
       .call(list -> Uni.createFrom().completionStage(batchRemove(list)))
-//      .collect().last()
       .replaceWithVoid();
 
     return Uni.join().all(writtenUni, removedUni)
