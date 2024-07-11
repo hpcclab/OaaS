@@ -47,7 +47,7 @@ templates:
     priority: 0
   ######################################################
   high-load:
-    condition: { path: $.qos.throughput, op: GT, val: 1000}
+    condition: { path: $.requirements.throughput, op: GT, val: 1000}
     type: default
     services:
       invoker:
@@ -98,7 +98,7 @@ templates:
       enableHpa: true
     priority: 10
   locality:
-    condition: { path: '$.qos.locality', op: 'EQ', val: 'HOST'}
+    condition: { path: '$.requirements.locality', op: 'EQ', val: 'HOST'}
     type: default
     services:
       invoker:

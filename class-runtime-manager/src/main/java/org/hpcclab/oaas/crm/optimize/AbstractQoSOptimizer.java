@@ -84,7 +84,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
         controller,
         instanceSpec,
         controller.getTemplate().getConfig().functions(),
-        fn.getQos(),
+        fn.getRequirements(),
         fnMetrics,
         fnKey,
         true
@@ -115,8 +115,8 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
   @Override
   public CrDeploymentPlan resolve(DeploymentUnit unit, OprcEnvironment environment) {
     var up = environment.availability().uptimePercentage();
-    double targetAvail = unit.getCls().getQos().getAvailability();
-    var qos = unit.getCls().getQos();
+    double targetAvail = unit.getCls().getRequirements().getAvailability();
+    var qos = unit.getCls().getRequirements();
     int minInstance;
     int minAvail;
     CrDataSpec dataSpec;
@@ -250,7 +250,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       controller,
       instanceSpec,
       controller.getTemplate().getConfig().services().get(CrComponent.INVOKER.getSvc()),
-      cls.getQos(),
+      cls.getRequirements(),
       metrics.coreMetrics().get(CrComponent.INVOKER),
       CrComponent.INVOKER.name(),
       false);

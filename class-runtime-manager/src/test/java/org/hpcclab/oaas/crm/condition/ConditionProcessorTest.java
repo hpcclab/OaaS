@@ -30,7 +30,7 @@ class ConditionProcessorTest {
     assert res;
 
     con = Condition.builder()
-      .path("$.qos.throughput")
+      .path("$.requirements.throughput")
       .op(EQ)
       .val("100")
       .build();
@@ -38,7 +38,7 @@ class ConditionProcessorTest {
     assert !res;
 
     con = Condition.builder()
-      .path("$.qos.throughput")
+      .path("$.requirements.throughput")
       .op(LT)
       .val("100")
       .build();
@@ -46,7 +46,7 @@ class ConditionProcessorTest {
     assert !res;
 
     con = Condition.builder()
-      .path("$.qos.asdasdda")
+      .path("$.requirements.asdasdda")
       .op(IS_NULL)
       .build();
     res = processor.matches(con, cls);
@@ -62,10 +62,10 @@ class ConditionProcessorTest {
 
   @Test
   void test2() {
-    var cls = OClass.builder().qos(QosRequirement.builder().throughput(100).build())
+    var cls = OClass.builder().requirements(QosRequirement.builder().throughput(100).build())
       .build();
     var con = Condition.builder()
-      .path("$.qos.throughput")
+      .path("$.requirements.throughput")
       .op(EQ)
       .val("100")
       .build();
@@ -73,14 +73,14 @@ class ConditionProcessorTest {
     assertTrue(res);
 
     con = Condition.builder()
-      .path("$.qos.throughput")
+      .path("$.requirements.throughput")
       .op(NOT_NULL)
       .build();
     res = processor.matches(con, cls);
 
     assertTrue(res);
     con = Condition.builder()
-      .path("$.qos.throughput")
+      .path("$.requirements.throughput")
       .op(GTE)
       .val("100")
       .build();
@@ -91,11 +91,11 @@ class ConditionProcessorTest {
   @Test
   void test3() throws Exception {
     var cls = OClass.builder()
-      .qos(QosRequirement.builder().throughput(100)
+      .requirements(QosRequirement.builder().throughput(100)
         .availability(0.99f)
         .build()
       )
-      .constraint(QosConstraint.builder()
+      .constraints(QosConstraint.builder()
         .ephemeral(true)
         .build()
       )
@@ -103,7 +103,7 @@ class ConditionProcessorTest {
 
     // language=yaml
     var res = check(cls, """
-      path: $.qos.throughput
+      path: $.requirements.throughput
       op: EQ
       val: 100
       """);
@@ -111,7 +111,7 @@ class ConditionProcessorTest {
 
     // language=yaml
     res = check(cls, """
-      path: $.qos.throughput
+      path: $.requirements.throughput
       op: NEQ
       val: '100'
       """);
@@ -120,13 +120,13 @@ class ConditionProcessorTest {
     // language=yaml
     res = check(cls, """
       all:
-       - path: $.qos.throughput
+       - path: $.requirements.throughput
          op: EQ
          val: '100'
-       - path: $.qos.availability
+       - path: $.requirements.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.ephemeral
+       - path: $.constraints.ephemeral
          op: EQ
          val: 'true'
       """);
@@ -134,13 +134,13 @@ class ConditionProcessorTest {
     // language=yaml
     res = check(cls, """
       all:
-       - path: $.qos.throughput
+       - path: $.requirements.throughput
          op: EQ
          val: '100'
-       - path: $.qos.availability
+       - path: $.requirements.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.ephemeral
+       - path: $.constraints.ephemeral
          op: EQ
          val: 'n'
       """);
@@ -148,13 +148,13 @@ class ConditionProcessorTest {
     // language=yaml
     res = check(cls, """
       any:
-       - path: $.qos.throughput
+       - path: $.requirements.throughput
          op: EQ
          val: '100'
-       - path: $.qos.availability
+       - path: $.requirements.availability
          op: GT
          val: '0.9'
-       - path: $.constraint.ephemeral
+       - path: $.constraints.ephemeral
          op: EQ
          val: 'n'
       """);

@@ -149,7 +149,7 @@ public class MockupData {
     .setPkg("ex")
     .setObjectType(OObjectType.SIMPLE)
     .setConfig(new OClassConfig())
-    .setConstraint(QosConstraint.builder().build())
+    .setConstraints(QosConstraint.builder().build())
     .setStateSpec(new StateSpecification()
       .setKeySpecs(
         List.of(
@@ -202,7 +202,7 @@ public class MockupData {
     .setConfig(new OClassConfig())
     .setObjectType(OObjectType.SIMPLE)
     .setParents(List.of(CLS_1.getKey()))
-    .setConstraint(QosConstraint.builder().build())
+    .setConstraints(QosConstraint.builder().build())
     ;
 
   static FunctionRepository fnRepo;

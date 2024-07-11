@@ -24,7 +24,7 @@ class CrTemplateManagerTest {
   void test() {
     DeploymentUnit deployment = DeploymentUnit.newBuilder()
       .setCls(ProtoOClass.newBuilder()
-        .setQos(ProtoQosRequirement.newBuilder().setThroughput(1001))
+        .setRequirements(ProtoQosRequirement.newBuilder().setThroughput(1001))
       )
       .build();
     CrTemplate template = manager.selectTemplate(deployment);

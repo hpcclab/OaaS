@@ -348,28 +348,6 @@
           }
         }
       },
-      "DatastoreLink" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "colName" : {
-            "type" : "string"
-          }
-        }
-      },
-      "DatastoreLink_Public" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "colName" : {
-            "type" : "string"
-          }
-        }
-      },
       "DeploymentCondition" : {
         "enum" : [ "PENDING", "DEPLOYING", "RUNNING", "DOWN", "DELETED" ],
         "type" : "string"
@@ -695,9 +673,6 @@
           "pkg" : {
             "type" : "string"
           },
-          "genericType" : {
-            "type" : "string"
-          },
           "objectType" : {
             "$ref" : "#/components/schemas/OObjectType"
           },
@@ -734,19 +709,16 @@
           "markForRemoval" : {
             "type" : "boolean"
           },
-          "store" : {
-            "$ref" : "#/components/schemas/DatastoreLink"
-          },
           "config" : {
             "$ref" : "#/components/schemas/OClassConfig"
           },
           "status" : {
             "$ref" : "#/components/schemas/OClassDeploymentStatus"
           },
-          "qos" : {
+          "requirements" : {
             "$ref" : "#/components/schemas/QosRequirement"
           },
-          "constraint" : {
+          "constraints" : {
             "$ref" : "#/components/schemas/QosConstraint"
           },
           "resolved" : {
@@ -773,7 +745,10 @@
           "crTemplate" : {
             "type" : "string"
           },
-          "disableHashAware" : {
+          "replicated" : {
+            "type" : "boolean"
+          },
+          "writeThrough" : {
             "type" : "boolean"
           }
         }
@@ -797,7 +772,10 @@
           "crTemplate" : {
             "type" : "string"
           },
-          "disableHashAware" : {
+          "replicated" : {
+            "type" : "boolean"
+          },
+          "writeThrough" : {
             "type" : "boolean"
           }
         }
@@ -872,9 +850,6 @@
           "pkg" : {
             "type" : "string"
           },
-          "genericType" : {
-            "type" : "string"
-          },
           "objectType" : {
             "$ref" : "#/components/schemas/OObjectType_Public"
           },
@@ -911,19 +886,16 @@
           "markForRemoval" : {
             "type" : "boolean"
           },
-          "store" : {
-            "$ref" : "#/components/schemas/DatastoreLink_Public"
-          },
           "config" : {
             "$ref" : "#/components/schemas/OClassConfig_Public"
           },
           "status" : {
             "$ref" : "#/components/schemas/OClassDeploymentStatus_Public"
           },
-          "qos" : {
+          "requirements" : {
             "$ref" : "#/components/schemas/QosRequirement_Public"
           },
-          "constraint" : {
+          "constraints" : {
             "$ref" : "#/components/schemas/QosConstraint_Public"
           },
           "resolved" : {
@@ -972,10 +944,10 @@
           "state" : {
             "$ref" : "#/components/schemas/FunctionState"
           },
-          "qos" : {
+          "requirements" : {
             "$ref" : "#/components/schemas/QosRequirement"
           },
-          "constraint" : {
+          "constraints" : {
             "$ref" : "#/components/schemas/QosConstraint"
           },
           "config" : {
@@ -1111,10 +1083,10 @@
           "state" : {
             "$ref" : "#/components/schemas/FunctionState_Public"
           },
-          "qos" : {
+          "requirements" : {
             "$ref" : "#/components/schemas/QosRequirement_Public"
           },
-          "constraint" : {
+          "constraints" : {
             "$ref" : "#/components/schemas/QosConstraint_Public"
           },
           "config" : {
@@ -1319,12 +1291,6 @@
           },
           "ephemeral" : {
             "type" : "boolean"
-          },
-          "runtimeRequirements" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           }
         }
       },
@@ -1343,12 +1309,6 @@
           },
           "ephemeral" : {
             "type" : "boolean"
-          },
-          "runtimeRequirements" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           }
         }
       },

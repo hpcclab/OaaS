@@ -18,8 +18,8 @@ message ProtoOFunction{
   repeated VariableDescription variableDescriptions = 9;
   optional ProtoOFunctionDeploymentStatus status = 10;
   optional ProtoFunctionState state = 11;
-  optional ProtoQosRequirement qos = 12;
-  optional ProtoConstraint constraint = 13;
+  optional ProtoQosRequirement requirements = 12;
+  optional ProtoConstraint constraints = 13;
   optional ProtoOFunctionConfig config = 14;
   bool immutable = 15;
 }

@@ -146,7 +146,7 @@ public class IspnCacheCreator {
       .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (datastoreConf==null || cls.getConstraint().ephemeral())
+    if (datastoreConf==null || cls.getConstraints().ephemeral())
       return builder.build();
 
     addStore(cls, cacheStore, datastoreConf, valueCls, storeCls, builder);
@@ -185,7 +185,7 @@ public class IspnCacheCreator {
       .maxCount(cacheStore.maxCount().orElse(-1L))
       .whenFull(EvictionStrategy.REMOVE)
       .statistics().enabled(true);
-    if (datastoreConf==null || cls.getConstraint().ephemeral())
+    if (datastoreConf==null || cls.getConstraints().ephemeral())
       return builder.build();
 
     addStore(cls, cacheStore, datastoreConf, valueCls, storeCls, builder);

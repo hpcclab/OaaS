@@ -47,7 +47,7 @@ templates:
   ######################################################
   high-load:
     condition:
-      path: "$.qos.throughput"
+      path: "$.requirements.throughput"
       op: GT
       val: "1000"
     type: "default"

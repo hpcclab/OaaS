@@ -3,8 +3,6 @@ package org.hpcclab.oaas.model.qos;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-import java.util.List;
-
 /**
  * @author Pawissanutt
  */
@@ -13,6 +11,5 @@ import java.util.List;
 public record QosConstraint(int budget,
                             ConsistencyModel consistency,
                             String geographical,
-                            boolean ephemeral,
-                            List<String> runtimeRequirements) {
+                            boolean ephemeral) {
 }

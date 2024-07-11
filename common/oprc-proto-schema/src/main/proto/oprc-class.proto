@@ -11,7 +11,6 @@ message ProtoOClass{
   string name = 2;
   string pkg = 3;
   string description = 4;
-  string genericType = 5;
   optional ProtoOObjectType objectType = 6;
   optional ProtoStateType stateType = 7;
   repeated ProtoFunctionBinding functions = 8;
@@ -19,11 +18,10 @@ message ProtoOClass{
   repeated ProtoReferenceSpecification refSpec = 10;
   repeated string parents = 11;
   bool markForRemoval = 12;
-  optional ProtoDatastoreLink store = 13;
   optional ProtoOClassConfig config = 14;
   optional ProtoOClassDeploymentStatus status = 15;
-  optional ProtoQosRequirement qos = 16;
-  optional ProtoConstraint constraint = 17;
+  optional ProtoQosRequirement requirements = 16;
+  optional ProtoConstraint constraints = 17;
   optional ProtoResolvedMember resolved = 18;
   bool disabled = 19;
 }
@@ -62,12 +60,6 @@ message ProtoReferenceSpecification {
   string name = 1;
   string cls = 2;
   ProtoKeyAccessModifier access = 3;
-}
-
-
-message ProtoDatastoreLink{
-  string name = 1;
-  string colName = 2;
 }
 
 message ProtoOClassConfig {

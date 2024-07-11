@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.function;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -34,8 +35,10 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
   List<VariableDescription> variableDescriptions;
   OFunctionDeploymentStatus status;
   FunctionState state = FunctionState.ENABLED;
-  QosRequirement qos;
-  QosConstraint constraint;
+  @JsonAlias({"qos", "requirement"})
+  QosRequirement requirements;
+  @JsonAlias({"constraint"})
+  QosConstraint constraints;
   OFunctionConfig config;
   boolean immutable;
 
@@ -52,8 +55,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
                    List<VariableDescription> variableDescriptions,
                    OFunctionDeploymentStatus status,
                    FunctionState state,
-                   QosRequirement qos,
-                   QosConstraint constraint,
+                   QosRequirement requirements,
+                   QosConstraint constraints,
                    OFunctionConfig config,
                    boolean immutable) {
     this.name = name;
@@ -66,8 +69,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
     this.variableDescriptions = variableDescriptions;
     this.status = status;
     this.state = state;
-    this.qos = qos;
-    this.constraint = constraint;
+    this.requirements = requirements;
+    this.constraints = constraints;
     this.config = config;
     this.immutable = immutable;
     updateKey();
@@ -152,8 +155,8 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
       variableDescriptions == null? null : List.copyOf(variableDescriptions),
       status,
       state,
-      qos,
-      constraint,
+      requirements,
+      constraints,
       config,
       immutable
     );

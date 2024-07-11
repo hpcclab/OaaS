@@ -1,5 +1,6 @@
 package org.hpcclab.oaas.model.cls;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -41,7 +42,6 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
   String rev;
   String name;
   String pkg;
-  String genericType;
   OObjectType objectType;
   StateType stateType;
   List<FunctionBinding> functions = List.of();
@@ -51,11 +51,12 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
   String description;
   boolean disabled;
   boolean markForRemoval;
-  DatastoreLink store;
   OClassConfig config;
   OClassDeploymentStatus status;
-  QosRequirement qos;
-  QosConstraint constraint;
+  @JsonAlias({"qos","requirement"})
+  QosRequirement requirements;
+  @JsonAlias({"constraint"})
+  QosConstraint constraints;
   ResolvedMember resolved;
 
 
@@ -64,7 +65,6 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
 
   public OClass(String name,
                 String pkg,
-                String genericType,
                 OObjectType objectType,
                 StateType stateType,
                 List<FunctionBinding> functions,
@@ -74,15 +74,13 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
                 String description,
                 boolean disabled,
                 boolean markForRemoval,
-                DatastoreLink store,
                 OClassConfig config,
                 OClassDeploymentStatus status,
-                QosRequirement qos,
-                QosConstraint constraint,
+                QosRequirement requirements,
+                QosConstraint constraints,
                 ResolvedMember resolved) {
     this.name = name;
     this.pkg = pkg;
-    this.genericType = genericType;
     this.objectType = objectType;
     this.stateType = stateType;
     this.functions = functions;
@@ -92,11 +90,10 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
     this.description = description;
     this.disabled = disabled;
     this.markForRemoval = markForRemoval;
-    this.store = store;
     this.config = config;
     this.status = status;
-    this.qos = qos;
-    this.constraint = constraint;
+    this.requirements = requirements;
+    this.constraints = constraints;
     this.resolved = resolved;
     updateKey();
   }
@@ -117,8 +114,8 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
     if (config==null) {
       config = new OClassConfig();
     }
-    if (constraint == null)
-      constraint = QosConstraint.builder()
+    if (constraints== null)
+      constraints = QosConstraint.builder()
         .consistency(ConsistencyModel.NONE)
         .build();
     config.validate();
@@ -130,7 +127,6 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
     return new OClass(
       name,
       pkg,
-      genericType,
       objectType,
       stateType,
       List.copyOf(functions),
@@ -140,11 +136,10 @@ public class OClass implements Copyable<OClass>, HasKey<String>, SelfValidatable
       description,
       markForRemoval,
       disabled,
-      store,
       config,
       status,
-      qos,
-      constraint,
+      requirements,
+      constraints,
       resolved==null ? null:resolved.copy()
     );
   }
