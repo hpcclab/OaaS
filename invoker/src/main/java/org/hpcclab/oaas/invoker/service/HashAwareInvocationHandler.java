@@ -1,7 +1,5 @@
 package org.hpcclab.oaas.invoker.service;
 
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.HttpClosedException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -136,15 +134,6 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
       return uni;
     }
     Uni<ProtoInvocationResponse> invocationResponseUni = uni
-      .onFailure(StatusRuntimeException.class)
-      .transform(err -> {
-        if (err instanceof StatusRuntimeException statusRuntimeException) {
-          Status.Code code = statusRuntimeException.getStatus().getCode();
-          if (code==Status.Code.UNAVAILABLE || code==Status.Code.UNKNOWN)
-            return new RetryableException();
-        }
-        return err;
-      })
       .onFailure(throwable -> throwable instanceof RetryableException ||
         throwable instanceof ConnectException ||
         throwable instanceof HttpClosedException

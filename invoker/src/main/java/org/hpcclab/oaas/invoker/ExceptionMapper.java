@@ -17,10 +17,30 @@ import org.slf4j.LoggerFactory;
 public class ExceptionMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionMapper.class);
 
+  boolean errorLogging;
+
+  public ExceptionMapper(InvokerConfig config) {
+    this.errorLogging = config.enableErrorLogging();
+  }
+
   @ServerExceptionMapper(StatusRuntimeException.class)
   public Response exceptionMapper(StatusRuntimeException statusRuntimeException) {
-    Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
+    Response.Status status = getStatus(statusRuntimeException);
 
+    if (LOGGER.isWarnEnabled() && status==Response.Status.INTERNAL_SERVER_ERROR) {
+      LOGGER.warn("mapping StatusRuntimeException: {}", statusRuntimeException.getMessage());
+    } else if (LOGGER.isDebugEnabled())
+      LOGGER.debug("mapping StatusRuntimeException({})", status);
+    else if (errorLogging)
+      LOGGER.warn("mapping StatusRuntimeException({})", statusRuntimeException.getMessage());
+    return Response.status(status)
+      .entity(new JsonObject()
+        .put("msg", statusRuntimeException.getMessage()))
+      .build();
+  }
+
+  private static Response.Status getStatus(StatusRuntimeException statusRuntimeException) {
+    Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
     if (statusRuntimeException.getStatus().getCode()==Code.NOT_FOUND)
       status = Response.Status.NOT_FOUND;
     else if (statusRuntimeException.getStatus().getCode()==Code.UNAVAILABLE)
@@ -33,15 +53,7 @@ public class ExceptionMapper {
       status = Response.Status.NOT_IMPLEMENTED;
     else if (statusRuntimeException.getStatus().getCode()==Code.UNAUTHENTICATED)
       status = Response.Status.UNAUTHORIZED;
-
-    if (LOGGER.isWarnEnabled() && status==Response.Status.INTERNAL_SERVER_ERROR) {
-      LOGGER.warn("mapping StatusRuntimeException: {}", statusRuntimeException.getMessage());
-    } else if (LOGGER.isDebugEnabled())
-      LOGGER.debug("mapping StatusRuntimeException({})", status);
-    return Response.status(status)
-      .entity(new JsonObject()
-        .put("msg", statusRuntimeException.getMessage()))
-      .build();
+    return status;
   }
 
   @ServerExceptionMapper(IllegalArgumentException.class)
@@ -52,12 +64,17 @@ public class ExceptionMapper {
       .build();
   }
 
+  static final String format = "mapping exception({})";
   @ServerExceptionMapper(StdOaasException.class)
   public Response exceptionMapper(StdOaasException exception) {
+
     if (exception.getCode()==500 && LOGGER.isWarnEnabled()) {
-      LOGGER.warn("mapping exception({})", exception.getCode(), exception);
+      LOGGER.warn(format, exception.getCode(), exception);
     } else if (LOGGER.isDebugEnabled())
-      LOGGER.debug("mapping exception({})", exception.getCode(), exception);
+      LOGGER.debug(format, exception.getCode(), exception);
+    else if (errorLogging) {
+      LOGGER.warn(format, exception.getCode(), exception);
+    }
     return Response.status(exception.getCode())
       .entity(new JsonObject()
         .put("msg", exception.getMessage()))

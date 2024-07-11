@@ -79,7 +79,9 @@ public class IspnInitializer {
   }
 
   void clean(@Observes ShutdownEvent event) {
-    logger.info("Stopping infinispan...");
-    cacheManager.stop();
+    if (cacheManager != null) {
+      logger.info("Stopping infinispan...");
+      cacheManager.stop();
+    }
   }
 }

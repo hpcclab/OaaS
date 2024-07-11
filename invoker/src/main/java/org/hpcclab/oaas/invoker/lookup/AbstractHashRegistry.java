@@ -78,7 +78,7 @@ public abstract class AbstractHashRegistry implements HashRegistry {
   }
 
   public void storeExternal(ProtoCrHash protoCrHash) {
-    logger.info("update local hash registry '{}'", protoCrHash.getCls());
+    logger.debug("update hash '{}'", protoCrHash.getCls());
     var crHash = protoMapper.fromProto(protoCrHash);
     storeMerge(crHash);
   }

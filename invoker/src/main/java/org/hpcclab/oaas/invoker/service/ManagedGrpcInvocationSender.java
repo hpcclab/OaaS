@@ -1,5 +1,7 @@
 package org.hpcclab.oaas.invoker.service;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import org.hpcclab.oaas.invoker.InvokerConfig;
@@ -19,9 +21,9 @@ import java.util.function.Supplier;
  */
 public class ManagedGrpcInvocationSender implements RemoteInvocationSender {
 
+  private static final Logger logger = LoggerFactory.getLogger(ManagedGrpcInvocationSender.class);
   final ProtoMapper mapper = new ProtoMapperImpl();
   final GrpcInvocationServicePool pool;
-  private static final Logger logger = LoggerFactory.getLogger( ManagedGrpcInvocationSender.class );
 
   public ManagedGrpcInvocationSender(GrpcInvocationServicePool pool) {
     this.pool = pool;
@@ -39,12 +41,20 @@ public class ManagedGrpcInvocationSender implements RemoteInvocationSender {
   public Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
                                            ProtoInvocationRequest request) {
 
-    Uni<ProtoInvocationResponse> clientResponseUni =
+    return
       Uni.createFrom().item(addrSupplier)
         .onItem().ifNull().failWith(HashAwareInvocationHandler.RetryableException::new)
         .map(pool::getOrCreate)
-        .flatMap(invocationService -> invocationService.invokeLocal(request));
-    return clientResponseUni;
+        .flatMap(invocationService -> invocationService.invokeLocal(request))
+        .onFailure(StatusRuntimeException.class)
+        .transform(err -> {
+          if (err instanceof StatusRuntimeException statusRuntimeException) {
+            Status.Code code = statusRuntimeException.getStatus().getCode();
+            if (code==Status.Code.UNAVAILABLE || code==Status.Code.UNKNOWN)
+              return new HashAwareInvocationHandler.RetryableException();
+          }
+          return err;
+        });
   }
 
 }

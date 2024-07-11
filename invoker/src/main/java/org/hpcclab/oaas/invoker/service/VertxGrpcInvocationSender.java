@@ -36,6 +36,28 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
     return SocketAddress.inetSocketAddress(address.port(), address.host());
   }
 
+  private static Future<ProtoInvocationResponse> mapError(GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse> resp) {
+    if (resp.status()==GrpcStatus.UNAVAILABLE ||
+      resp.status()==GrpcStatus.UNKNOWN)
+      return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
+    else if (resp.status()==GrpcStatus.INTERNAL) {
+      logger.warn("grpc internal error: {}", resp.statusMessage());
+      return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
+    } else if (resp.status()==GrpcStatus.RESOURCE_EXHAUSTED)
+      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
+        HttpResponseStatus.TOO_MANY_REQUESTS.code()));
+    else if (resp.status()==GrpcStatus.NOT_FOUND)
+      return Future.failedFuture(new StdOaasException(resp.statusMessage(), 404));
+    else if (resp.status()==GrpcStatus.UNIMPLEMENTED)
+      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
+        HttpResponseStatus.NOT_IMPLEMENTED.code()));
+    else if (resp.status()==GrpcStatus.INVALID_ARGUMENT)
+      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
+        HttpResponseStatus.BAD_REQUEST.code()));
+
+    return null;
+  }
+
   @Override
   public Uni<ProtoInvocationResponse> send(Supplier<CrHash.ApiAddress> addrSupplier,
                                            ProtoInvocationRequest request) {
@@ -50,46 +72,24 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
                                                 CrHash.ApiAddress addr) {
     MethodDescriptor<ProtoInvocationRequest, ProtoInvocationResponse> invokeMethod =
       InvocationServiceGrpc.getInvokeLocalMethod();
-    return Uni.createFrom().emitter(emitter ->
-      grpcClient.request(toSocketAddress(addr), invokeMethod)
-        .compose(grpcClientRequest -> grpcClientRequest
-          .exceptionHandler(emitter::fail)
-          .end(request)
-          .compose(__ -> {
-            logger.debug("done end to {}", addr);
-            return grpcClientRequest.response();
-          }))
-        .compose(resp -> {
-          logger.debug("handling resp from {}", addr);
-          Future<ProtoInvocationResponse> failedFuture = mapError(resp);
-          if (failedFuture!=null) return failedFuture;
-          resp.errorHandler(err -> emitter.fail(StdOaasException.format("grpc error %s", err.toString())));
-          resp.exceptionHandler(err -> emitter.fail(new StdOaasException("grpc error", err)));
-          return resp.last();
-        })
-        .onSuccess(emitter::complete)
-        .onFailure(emitter::fail)
-    );
-
-  }
-
-  private static Future<ProtoInvocationResponse> mapError(GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse> resp) {
-    if (resp.status()==GrpcStatus.UNAVAILABLE ||
-      resp.status()==GrpcStatus.UNKNOWN ||
-      resp.status()==GrpcStatus.INTERNAL)
-      return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
-    else if (resp.status()==GrpcStatus.RESOURCE_EXHAUSTED)
-      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
-        HttpResponseStatus.TOO_MANY_REQUESTS.code()));
-    else if (resp.status()==GrpcStatus.NOT_FOUND)
-      return Future.failedFuture(new StdOaasException(resp.statusMessage(), 404));
-    else if (resp.status()==GrpcStatus.UNIMPLEMENTED)
-      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
-        HttpResponseStatus.NOT_IMPLEMENTED.code()));
-    else if (resp.status()==GrpcStatus.INVALID_ARGUMENT)
-      return Future.failedFuture(new StdOaasException(resp.statusMessage(),
-        HttpResponseStatus.BAD_REQUEST.code()));
-
-    return null;
+    return Uni.createFrom().<ProtoInvocationResponse>emitter(emitter ->
+        grpcClient.request(toSocketAddress(addr), invokeMethod)
+          .compose(grpcClientRequest -> grpcClientRequest
+            .exceptionHandler(emitter::fail)
+            .end(request)
+            .compose(__ -> grpcClientRequest.response()))
+          .compose(resp -> {
+            logger.debug("handling resp from {}", addr);
+            Future<ProtoInvocationResponse> failedFuture = mapError(resp);
+            if (failedFuture!=null) return failedFuture;
+            resp.errorHandler(err -> emitter.fail(StdOaasException.format("grpc error %s", err.toString())));
+            resp.exceptionHandler(err -> emitter.fail(new StdOaasException("grpc error", err)));
+            return resp.last();
+          })
+          .onSuccess(emitter::complete)
+          .onFailure(emitter::fail)
+      )
+      .onFailure(e -> !(e instanceof HashAwareInvocationHandler.RetryableException))
+      .invoke(throwable -> logger.warn("grpc error ", throwable));
   }
 }

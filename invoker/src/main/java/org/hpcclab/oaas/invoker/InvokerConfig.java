@@ -102,6 +102,9 @@ public interface InvokerConfig {
   @WithDefault("false")
   boolean useVertxGrpc();
 
+  @WithDefault("false")
+  boolean enableErrorLogging();
+
   enum LoadAssignMode {
     FETCH, ENV, DISABLED
   }
