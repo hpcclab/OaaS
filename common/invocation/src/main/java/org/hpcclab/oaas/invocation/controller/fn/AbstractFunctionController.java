@@ -1,15 +1,14 @@
 package org.hpcclab.oaas.invocation.controller.fn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.FunctionBinding;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.function.OFunctionConfig;
-import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.time.Duration;
@@ -27,8 +26,7 @@ public abstract class AbstractFunctionController implements FunctionController {
   protected OFunction function;
   protected OClass cls;
   protected OClass outputCls;
-  protected ObjectNode customConfig;
-
+  protected JsonObject customConfig;
   protected MetricFactory.MetricTimer invocationTimer;
 
   protected AbstractFunctionController(IdGenerator idGenerator,
@@ -50,12 +48,12 @@ public abstract class AbstractFunctionController implements FunctionController {
     this.outputCls = outputCls;
     this.customConfig = Optional.ofNullable(function.getConfig())
       .map(OFunctionConfig::getCustom)
-      .map(JsonBytes::getNodeOrEmpty)
-      .orElseGet(mapper::createObjectNode)
-      .deepCopy();
-    var override = functionBinding.getOverride();
-    if (override != null)
-      this.customConfig.setAll(override.getNodeOrEmpty());
+      .map(JsonObject::new)
+      .orElseGet(JsonObject::new)
+      .copy();
+    var override = functionBinding.getOverride()!=null ?
+      new JsonObject(functionBinding.getOverride()):new JsonObject();
+    this.customConfig.mergeIn(override);
     afterBind();
   }
 
@@ -64,7 +62,7 @@ public abstract class AbstractFunctionController implements FunctionController {
 
   @Override
   public Uni<InvocationCtx> invoke(InvocationCtx context) {
-    if (invocationTimer == null) {
+    if (invocationTimer==null) {
       invocationTimer = metricFactory.createInvocationTimer(
         cls.getKey(),
         functionBinding.getName(),

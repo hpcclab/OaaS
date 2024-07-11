@@ -309,7 +309,8 @@ components:
         noOutput:
           type: boolean
         override:
-          $ref: "#/components/schemas/JsonBytes"
+          type: object
+          additionalProperties: {}
     FunctionBinding_Public:
       type: object
       properties:
@@ -332,7 +333,8 @@ components:
         noOutput:
           type: boolean
         override:
-          $ref: "#/components/schemas/JsonBytes_Public"
+          type: object
+          additionalProperties: {}
     FunctionState:
       enum:
       - ENABLED
@@ -359,148 +361,6 @@ components:
       - MACRO
       - CHAIN
       type: string
-    JsonBytes:
-      type: object
-      properties:
-        bytes:
-          format: binary
-          type: string
-        objectNode:
-          $ref: "#/components/schemas/ObjectNode"
-        node:
-          $ref: "#/components/schemas/ObjectNode"
-        raw:
-          type: string
-    JsonBytes_Public:
-      type: object
-      properties:
-        bytes:
-          format: binary
-          type: string
-        objectNode:
-          $ref: "#/components/schemas/ObjectNode_Public"
-        node:
-          $ref: "#/components/schemas/ObjectNode_Public"
-        raw:
-          type: string
-    JsonNode:
-      type: object
-      properties:
-        empty:
-          type: boolean
-        valueNode:
-          type: boolean
-        containerNode:
-          type: boolean
-        missingNode:
-          type: boolean
-        array:
-          type: boolean
-        object:
-          type: boolean
-        nodeType:
-          $ref: "#/components/schemas/JsonNodeType"
-        pojo:
-          type: boolean
-        number:
-          type: boolean
-        integralNumber:
-          type: boolean
-        floatingPointNumber:
-          type: boolean
-        short:
-          type: boolean
-        int:
-          type: boolean
-        long:
-          type: boolean
-        float:
-          type: boolean
-        double:
-          type: boolean
-        bigDecimal:
-          type: boolean
-        bigInteger:
-          type: boolean
-        textual:
-          type: boolean
-        boolean:
-          type: boolean
-        "null":
-          type: boolean
-        binary:
-          type: boolean
-    JsonNodeType:
-      enum:
-      - ARRAY
-      - BINARY
-      - BOOLEAN
-      - MISSING
-      - "NULL"
-      - NUMBER
-      - OBJECT
-      - POJO
-      - STRING
-      type: string
-    JsonNodeType_Public:
-      enum:
-      - ARRAY
-      - BINARY
-      - BOOLEAN
-      - MISSING
-      - "NULL"
-      - NUMBER
-      - OBJECT
-      - POJO
-      - STRING
-      type: string
-    JsonNode_Public:
-      type: object
-      properties:
-        empty:
-          type: boolean
-        valueNode:
-          type: boolean
-        containerNode:
-          type: boolean
-        missingNode:
-          type: boolean
-        array:
-          type: boolean
-        object:
-          type: boolean
-        nodeType:
-          $ref: "#/components/schemas/JsonNodeType_Public"
-        pojo:
-          type: boolean
-        number:
-          type: boolean
-        integralNumber:
-          type: boolean
-        floatingPointNumber:
-          type: boolean
-        short:
-          type: boolean
-        int:
-          type: boolean
-        long:
-          type: boolean
-        float:
-          type: boolean
-        double:
-          type: boolean
-        bigDecimal:
-          type: boolean
-        bigInteger:
-          type: boolean
-        textual:
-          type: boolean
-        boolean:
-          type: boolean
-        "null":
-          type: boolean
-        binary:
-          type: boolean
     KDeploymentProvision:
       type: object
       properties:
@@ -877,7 +737,8 @@ components:
         http2:
           type: boolean
         custom:
-          $ref: "#/components/schemas/JsonBytes"
+          type: object
+          additionalProperties: {}
         apiPath:
           type: string
     OFunctionConfig_Public:
@@ -892,7 +753,8 @@ components:
         http2:
           type: boolean
         custom:
-          $ref: "#/components/schemas/JsonBytes_Public"
+          type: object
+          additionalProperties: {}
         apiPath:
           type: string
     OFunctionDeploymentStatus:
@@ -1006,14 +868,6 @@ components:
             type: string
         disabled:
           type: boolean
-    ObjectNode:
-      type: array
-      items:
-        $ref: "#/components/schemas/JsonNode"
-    ObjectNode_Public:
-      type: array
-      items:
-        $ref: "#/components/schemas/JsonNode_Public"
     OffloadingMode:
       enum:
       - JSON

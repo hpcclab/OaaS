@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.mapper;
 
 import com.google.protobuf.ByteString;
+import io.vertx.core.json.JsonObject;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassDeploymentStatus;
 import org.hpcclab.oaas.model.cr.CrHash;
@@ -118,5 +119,16 @@ public interface ProtoMapper {
     if (jsonBytes == null) return ByteString.EMPTY;
     return ByteString.copyFrom(jsonBytes.getBytes());
   }
+
+  default Map<String, Object> toJsonMap(ByteString bytes) {
+    if (bytes == null) return Map.of();
+    if (bytes.isEmpty()) return Map.of();
+    return new JsonObject(bytes.toStringUtf8()).getMap();
+  }
+  default ByteString fromJsonMap(Map<String, Object> map) {
+    if (map == null) return ByteString.EMPTY;
+    return ByteString.copyFromUtf8(new JsonObject(map).toString());
+  }
+
 
 }

@@ -1,10 +1,9 @@
 package org.hpcclab.oaas.invocation.controller.fn.logical;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonArray;
+import org.eclipse.collections.api.factory.Lists;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
@@ -30,16 +29,13 @@ public class ProjectFnController
 
   @Override
   protected void afterBind() {
-    JsonNode node = customConfig.get("transform");
-    if (node!= null) {
-      try {
-        transforms = mapper.treeToValue(node, new TypeReference<List<Dataflows.Transformation>>() {
-        });
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      transforms = List.of();
+    JsonArray array = customConfig.getJsonArray("transforms");
+    transforms = Lists.mutable.empty();
+    if (array == null) array = new JsonArray();
+    for (int i = 0; i < array.size(); i++) {
+      var o = array.getJsonObject(i);
+      Dataflows.Transformation transformation = o.mapTo(Dataflows.Transformation.class);
+      transforms.add(transformation);
     }
     transformer = ODataTransformer.create(transforms);
   }
