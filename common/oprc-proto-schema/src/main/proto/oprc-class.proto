@@ -71,11 +71,13 @@ message ProtoDatastoreLink{
 }
 
 message ProtoOClassConfig {
-  int32 partitions = 2;
-  string structStore = 4;
-  string unstructStore = 5;
-  string logStore = 6;
-  string crTemplate = 8;
+  int32 partitions = 1;
+  string structStore = 2;
+  string unstructStore = 3;
+  string logStore = 4;
+  string crTemplate = 5;
+  bool replicated = 6;
+  bool writeThrough = 7;
 }
 
 message ProtoOClassDeploymentStatus{

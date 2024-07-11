@@ -8,7 +8,6 @@ import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JOObject;
-import org.hpcclab.oaas.model.qos.ConsistencyModel;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
@@ -42,34 +41,51 @@ public class IspnCacheCreator {
     this.cacheManager = cacheManager;
   }
 
+  private static <V, S> void addStore(OClass cls,
+                                      IspnConfig.CacheStore cacheStore,
+                                      DatastoreConf datastoreConf,
+                                      Class<V> valueCls,
+                                      Class<S> storeCls,
+                                      ConfigurationBuilder builder) {
+    var storeBuilder = builder.persistence()
+      .addStore(ArgCacheStoreConfigBuilder.class)
+      .valueCls(valueCls)
+      .storeCls(storeCls)
+      .valueMapper(GJValueMapper.class)
+      .autoCreate(true)
+      .storeConfName(datastoreConf.name())
+      .shared(true)
+      .segmented(false)
+      .ignoreModifications(cacheStore.readOnly());
+    if (!cls.getConfig().isWriteThrough()) {
+      storeBuilder.async()
+        .enabled(cacheStore.queueSize() > 0)
+        .modificationQueueSize(cacheStore.queueSize())
+        .failSilently(false);
+    }
+  }
 
   public Cache<String, GOObject> getObjectCache(OClass cls) {
-//    if (cacheManager.cacheExists(name)) {
-//      return cacheManager.getCache(name);
-//    } else {
-//      DatastoreConf datastoreConf = confRegistry
-//        .getOrDefault(Optional.ofNullable(cls.getConfig())
-//          .map(OClassConfig::getStructStore)
-//          .orElse(DatastoreConfRegistry.DEFAULT));
-//      var config = getCacheDistConfig(cls,
-//        ispnConfig.objStore(),
-//        datastoreConf,
-//        GOObject.class,
-//        JOObject.class,
-//        new GJValueMapper(),
-//        false);
-//      return cacheManager.createCache(name, config);
-//    }
     DatastoreConf datastoreConf = confRegistry
       .getOrDefault(Optional.ofNullable(cls.getConfig())
         .map(OClassConfig::getStructStore)
         .orElse(DatastoreConfRegistry.DEFAULT));
-    var config = getCacheDistConfig(cls,
-      ispnConfig.objStore(),
-      datastoreConf,
-      GOObject.class,
-      JOObject.class,
-      false);
+    Configuration config;
+    if (cls.getConfig().isReplicated()) {
+      config = getCacheRepConfig(cls,
+        ispnConfig.objStore(),
+        datastoreConf,
+        GOObject.class,
+        JOObject.class,
+        false);
+    } else {
+      config = getCacheDistConfig(cls,
+        ispnConfig.objStore(),
+        datastoreConf,
+        GOObject.class,
+        JOObject.class,
+        false);
+    }
     logger.debug("create cache {} {}", cls.getKey(), config);
     return cacheManager.administration()
       .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
@@ -79,9 +95,6 @@ public class IspnCacheCreator {
   public <V> Cache<String, V> createReplicateCache(String name,
                                                    boolean awaitStateTransfer,
                                                    int maxCount) {
-//    if (cacheManager.cacheExists(name)) {
-//      return cacheManager.getCache(name);
-//    }
     var cb = new ConfigurationBuilder()
       .clustering()
       .cacheMode(CacheMode.REPL_ASYNC)
@@ -99,6 +112,45 @@ public class IspnCacheCreator {
     return cacheManager.administration()
       .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
       .getOrCreateCache(name, cb.build());
+  }
+
+  public <V, S> Configuration getCacheRepConfig(OClass cls,
+                                                IspnConfig.CacheStore cacheStore,
+                                                DatastoreConf datastoreConf,
+                                                Class<V> valueCls,
+                                                Class<S> storeCls,
+                                                boolean transactional) {
+    var builder = new ConfigurationBuilder();
+    var conf = cls.getConfig();
+    if (conf==null) conf = new OClassConfig();
+
+    builder
+      .clustering()
+      .cacheMode(cacheStore.async() ? CacheMode.REPL_ASYNC:CacheMode.REPL_SYNC)
+      .hash()
+      .numSegments(conf.getPartitions())
+      .stateTransfer()
+      .awaitInitialTransfer(cacheStore.awaitInitialTransfer())
+      .encoding()
+      .key().mediaType(TEXT_PLAIN_TYPE)
+      .encoding()
+      .value().mediaType(cacheStore.storageType()==StorageType.HEAP ? APPLICATION_OBJECT_TYPE:APPLICATION_PROTOSTREAM_TYPE)
+      .transaction()
+      .lockingMode(LockingMode.OPTIMISTIC)
+      .transactionMode(transactional ? TransactionMode.TRANSACTIONAL:TransactionMode.NON_TRANSACTIONAL)
+      .locking()
+      .isolationLevel(IsolationLevel.READ_COMMITTED)
+      .memory()
+      .storage(cacheStore.storageType())
+      .maxSize(cacheStore.maxSize().orElse(null))
+      .maxCount(cacheStore.maxCount().orElse(-1L))
+      .whenFull(EvictionStrategy.REMOVE)
+      .statistics().enabled(true);
+    if (datastoreConf==null || cls.getConstraint().ephemeral())
+      return builder.build();
+
+    addStore(cls, cacheStore, datastoreConf, valueCls, storeCls, builder);
+    return builder.build();
   }
 
   public <V, S> Configuration getCacheDistConfig(OClass cls,
@@ -136,24 +188,7 @@ public class IspnCacheCreator {
     if (datastoreConf==null || cls.getConstraint().ephemeral())
       return builder.build();
 
-    var storeBuilder = builder.persistence()
-      .addStore(ArgCacheStoreConfigBuilder.class)
-      .valueCls(valueCls)
-      .storeCls(storeCls)
-      .valueMapper(GJValueMapper.class)
-      .autoCreate(true)
-      .storeConfName(datastoreConf.name())
-      .shared(true)
-      .segmented(false)
-      .ignoreModifications(cacheStore.readOnly());
-    ConsistencyModel consistency = cls.getConstraint().consistency();
-    if (consistency==ConsistencyModel.EVENTUAL
-      || consistency==ConsistencyModel.NONE) {
-      storeBuilder.async()
-        .enabled(cacheStore.queueSize() > 0)
-        .modificationQueueSize(cacheStore.queueSize())
-        .failSilently(false);
-    }
+    addStore(cls, cacheStore, datastoreConf, valueCls, storeCls, builder);
     return builder.build();
   }
 

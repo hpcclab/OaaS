@@ -8,13 +8,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OClassConfig {
-  public static final int DEFAULT_PARTITIONS = 12;
+  public static final int DEFAULT_PARTITIONS = 16;
   int partitions = DEFAULT_PARTITIONS;
   String structStore;
   String unstructStore;
   String logStore;
   String crTemplate;
-  boolean disableHashAware = false;
+  boolean replicated = false;
+  boolean writeThrough = false;
 
   public OClassConfig() {
   }
@@ -24,11 +25,15 @@ public class OClassConfig {
                       String structStore,
                       String unstructStore,
                       String logStore,
-                      String crTemplate) {
+                      String crTemplate,
+                      boolean replicated,
+                      boolean writeThrough) {
     this.partitions = partitions;
     this.structStore = structStore;
     this.unstructStore = unstructStore;
     this.logStore = logStore;
+    this.replicated = replicated;
+    this.writeThrough = writeThrough;
     this.crTemplate = crTemplate;
   }
 
