@@ -141,10 +141,10 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
       .retry()
       .withBackOff(Duration.ofMillis(backoff), Duration.ofMillis(maxBackoff))
       .atMost(retry);
-    if (logger.isDebugEnabled()) {
+    if (logger.isWarnEnabled()) {
       invocationResponseUni = invocationResponseUni
         .onFailure()
-        .invoke(throwable -> logger.debug("unexpected exception", throwable));
+        .invoke(throwable -> logger.warn("unexpected exception", throwable));
     }
     return invocationResponseUni;
   }

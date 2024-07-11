@@ -1,13 +1,17 @@
 package org.hpcclab.oaas.invoker.service;
 
 import io.grpc.MethodDescriptor;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Future;
+import io.vertx.core.VertxException;
+import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.grpc.client.GrpcClient;
 import io.vertx.grpc.client.GrpcClientResponse;
 import io.vertx.grpc.common.GrpcStatus;
+import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler.RetryableException;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cr.CrHash;
@@ -18,6 +22,7 @@ import org.hpcclab.oaas.proto.ProtoInvocationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.util.function.Supplier;
 
 /**
@@ -39,10 +44,10 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
   private static Future<ProtoInvocationResponse> mapError(GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse> resp) {
     if (resp.status()==GrpcStatus.UNAVAILABLE ||
       resp.status()==GrpcStatus.UNKNOWN)
-      return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
+      return Future.failedFuture(new RetryableException());
     else if (resp.status()==GrpcStatus.INTERNAL) {
       logger.warn("grpc internal error: {}", resp.statusMessage());
-      return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
+      return Future.failedFuture(new RetryableException());
     } else if (resp.status()==GrpcStatus.RESOURCE_EXHAUSTED)
       return Future.failedFuture(new StdOaasException(resp.statusMessage(),
         HttpResponseStatus.TOO_MANY_REQUESTS.code()));
@@ -63,7 +68,7 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
                                            ProtoInvocationRequest request) {
 
     return Uni.createFrom().item(addrSupplier)
-      .onItem().ifNull().failWith(HashAwareInvocationHandler.RetryableException::new)
+      .onItem().ifNull().failWith(RetryableException::new)
       .flatMap(addr -> callGrpc(request, addr)
       );
   }
@@ -89,7 +94,11 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
           .onSuccess(emitter::complete)
           .onFailure(emitter::fail)
       )
-      .onFailure(e -> !(e instanceof HashAwareInvocationHandler.RetryableException))
+      .onFailure(ConnectException.class).transform(RetryableException::new)
+      .onFailure(ConnectTimeoutException.class).transform(RetryableException::new)
+      .onFailure(HttpClosedException.class).transform(RetryableException::new)
+      .onFailure(VertxException.class).transform(RetryableException::new)
+      .onFailure(e -> !(e instanceof RetryableException))
       .invoke(throwable -> logger.warn("grpc error ", throwable));
   }
 }
