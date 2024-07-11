@@ -75,7 +75,8 @@ public class VertxGrpcInvocationSender implements RemoteInvocationSender {
 
   private static Future<ProtoInvocationResponse> mapError(GrpcClientResponse<ProtoInvocationRequest, ProtoInvocationResponse> resp) {
     if (resp.status()==GrpcStatus.UNAVAILABLE ||
-      resp.status()==GrpcStatus.UNKNOWN)
+      resp.status()==GrpcStatus.UNKNOWN ||
+      resp.status()==GrpcStatus.INTERNAL)
       return Future.failedFuture(new HashAwareInvocationHandler.RetryableException());
     else if (resp.status()==GrpcStatus.RESOURCE_EXHAUSTED)
       return Future.failedFuture(new StdOaasException(resp.statusMessage(),

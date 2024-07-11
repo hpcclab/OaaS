@@ -80,11 +80,11 @@ public class CrStateManager {
         logger.trace("merged crHash: {}", merged);
         return merged;
       })
-      .call(h -> hashRepo.persistAsync(h))
       .call(hash -> crHashEmitter.send(Record.of(
         hash.getKey(),
         Buffer.buffer(protoMapper.toProto(hash).toByteArray()))
       ))
+      .call(h -> hashRepo.persistAsync(h))
       .map(protoMapper::toProto);
   }
 
