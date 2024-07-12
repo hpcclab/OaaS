@@ -31,7 +31,7 @@ public class CopyFnController
     o.getMeta().setId(idGenerator.generate());
     ctx.setOutput(o);
     ctx.setStateOperations(List.of(
-      SimpleStateOperation.createObjs(List.of(o), cls)
+      SimpleStateOperation.createObjs(o, cls)
     ));
     return Uni.createFrom().item(ctx);
   }

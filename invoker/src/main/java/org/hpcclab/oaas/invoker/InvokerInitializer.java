@@ -7,13 +7,19 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
+import org.hpcclab.oaas.invocation.task.DefaultContentUrlGenerator;
 import org.hpcclab.oaas.invoker.lookup.HashRegistry;
 import org.hpcclab.oaas.invoker.mq.ClassListener;
 import org.hpcclab.oaas.invoker.mq.CrHashListener;
 import org.hpcclab.oaas.invoker.mq.FunctionListener;
 import org.hpcclab.oaas.proto.*;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
+import org.hpcclab.oaas.storage.UnifyContentUrlGenerator;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +39,7 @@ public class InvokerInitializer {
   final InvokerManager invokerManager;
   final CrStateService crStateService;
   final ClassService classService;
+  final EmbeddedCacheManager embeddedCacheManager;
 
 
   @Inject
@@ -45,7 +52,8 @@ public class InvokerInitializer {
                             @GrpcClient("package-manager")
                             CrStateService crStateService,
                             @GrpcClient("package-manager")
-                            ClassService classService) {
+                            ClassService classService,
+                            EmbeddedCacheManager embeddedCacheManager) {
     this.config = config;
     this.clsListener = clsListener;
     this.functionListener = functionListener;
@@ -54,11 +62,13 @@ public class InvokerInitializer {
     this.invokerManager = invokerManager;
     this.crStateService = crStateService;
     this.classService = classService;
+    this.embeddedCacheManager = embeddedCacheManager;
   }
 
   void init(@Observes StartupEvent event) throws Throwable {
     VertxContextSupport.subscribeAndAwait(() ->
       Vertx.currentContext().executeBlocking(() -> {
+        initLocalAddress();
         functionListener.setHandler(fn -> {
             logger.info("receive fn[{}] update event", fn.getKey());
             invokerManager.update(fn)
@@ -116,5 +126,33 @@ public class InvokerInitializer {
     if (logger.isInfoEnabled())
       logger.info("setup class controller registry:\n{}",
         invokerManager.getRegistry().printStructure());
+  }
+
+  public void initLocalAddress() {
+    if (hashRegistry.getLocalAdvertiseAddress()==null) {
+      String physicalAddresses = embeddedCacheManager.getCacheManagerInfo()
+        .getPhysicalAddressesRaw()
+        .getFirst();
+      String addressWithoutPort = physicalAddresses.split(":")[0];
+      logger.debug("physicalAddresses {}", addressWithoutPort);
+      hashRegistry.setLocalAdvertiseAddress(addressWithoutPort);
+    }
+  }
+
+  @Produces
+  @ApplicationScoped
+  ContentUrlGenerator contentUrlGenerator(InvokerConfig config) {
+    if (config.useSaOnly()) {
+      return new DefaultContentUrlGenerator(config.sa().url());
+    } else {
+      initLocalAddress();
+      var localAddress = hashRegistry.getLocalAdvertiseAddress();
+      var port = ConfigProvider.getConfig()
+        .getValue("quarkus.http.port", Integer.class);
+      return new UnifyContentUrlGenerator(
+        "http://%s:%d".formatted(localAddress, port),
+        DatastoreConfRegistry.getDefault()
+          .getOrDefault("S3DEFAULT"));
+    }
   }
 }

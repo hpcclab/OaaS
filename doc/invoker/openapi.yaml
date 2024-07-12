@@ -9,6 +9,78 @@ servers:
 - url: http://0.0.0.0:8080
   description: Auto generated value
 paths:
+  /allocate:
+    post:
+      tags:
+      - Data Allocate Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/DataAllocateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataAllocateResponse"
+  /allocate/{oid}:
+    get:
+      tags:
+      - Data Allocate Resource
+      parameters:
+      - name: oid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contextKey
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+    post:
+      tags:
+      - Data Allocate Resource
+      parameters:
+      - name: oid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: contextKey
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
   /api/allocate/{oid}:
     get:
       tags:
@@ -263,6 +335,30 @@ paths:
                 $ref: "#/components/schemas/InvocationResponse"
 components:
   schemas:
+    DataAllocateRequest:
+      type: object
+      properties:
+        oid:
+          type: string
+        vid:
+          type: string
+        keys:
+          type: array
+          items:
+            type: string
+        provider:
+          type: string
+        publicUrl:
+          type: boolean
+    DataAllocateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        urlKeys:
+          type: object
+          additionalProperties:
+            type: string
     GOObject:
       type: object
       properties:

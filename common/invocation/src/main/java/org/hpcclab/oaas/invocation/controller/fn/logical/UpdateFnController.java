@@ -38,7 +38,7 @@ public class UpdateFnController extends AbstractFunctionController
     update.setData(body);
     ctx.setStateOperations(List.of(
       SimpleStateOperation.updateObjs(
-        List.of(update), cls
+        update, cls
       )));
     return Uni.createFrom().item(ctx);
   }

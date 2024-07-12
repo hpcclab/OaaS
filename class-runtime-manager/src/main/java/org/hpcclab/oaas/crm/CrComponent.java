@@ -3,6 +3,7 @@ package org.hpcclab.oaas.crm;
 public enum CrComponent {
   LOADBALANCER("lb"),
   INVOKER("invoker"),
+  @Deprecated
   STORAGE_ADAPTER("storage-adapter"),
   CONFIG("config");
 

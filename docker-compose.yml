@@ -42,27 +42,6 @@ services:
       retries: 5
       timeout: 10s
 
-  sa:
-    build:
-      context: storage-adapter
-      dockerfile: src/main/docker/Dockerfile.jvm
-    image: ghcr.io/hpcclab/oaas/storage-adapter
-    ports:
-      - "8090:8080"
-    environment:
-      QUARKUS_CONSOLE_COLOR: 'true'
-      OPRC_SA_S3_URL: http://s3:9000
-      OPRC_SA_S3_BUCKET: oaas-bkt
-      OPRC_SA_S3_ACCESSKEY: minio_access_key
-      OPRC_SA_S3_SECRETKEY: minio_secret_key
-      OPRC_SA_S3_PUBLICURL: http://localhost:9000
-      OPRC_DB_PKG_HOST: arangodb
-      OPRC_DB_PKG_PORT: "8529"
-      OPRC_DB_PKG_DB: oaas
-      OPRC_DB_PKG_USER: root
-      OPRC_DB_PKG_PASS: changeme
-    healthcheck: *oaas-healthcheck
-    restart: on-failure
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.1.13

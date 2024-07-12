@@ -90,7 +90,7 @@ public class SegmentCoordinator {
         }
         return Uni.createFrom().nullItem();
       })
-      .invoke(__ -> initLocal())
+//      .invoke(__ -> initLocal())
       .call(__ -> registry.updateManaged(cls.getKey(), cache, port))
       .invoke(__ -> {
         if (!localParts.isEmpty()) runnable.run();

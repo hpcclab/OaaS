@@ -1,7 +1,6 @@
 package org.hpcclab.oaas.invocation.controller;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.enterprise.context.ApplicationScoped;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
 /**

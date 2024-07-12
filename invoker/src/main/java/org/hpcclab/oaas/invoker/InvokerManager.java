@@ -27,17 +27,17 @@ public class InvokerManager {
   final InvokerConfig config;
   final KafkaAdminClient adminClient;
   final AbsClassControllerBuilder classControllerBuilder;
-  private final ClassControllerRegistry registry;
+  private final ClassControllerRegistry controllerRegistry;
   private final VerticleDeployer verticleDeployer;
   private final Set<String> managedCls = Sets.mutable.empty();
 
   @Inject
-  public InvokerManager(ClassControllerRegistry registry,
+  public InvokerManager(ClassControllerRegistry controllerRegistry,
                         VerticleDeployer verticleDeployer,
                         InvokerConfig config,
                         KafkaAdminClient adminClient,
                         AbsClassControllerBuilder classControllerBuilder) {
-    this.registry = registry;
+    this.controllerRegistry = controllerRegistry;
     this.verticleDeployer = verticleDeployer;
     this.config = config;
     this.adminClient = adminClient;
@@ -48,7 +48,7 @@ public class InvokerManager {
     managedCls.add(cls.getKey());
     return
       classControllerBuilder.build(cls)
-        .invoke(registry::register)
+        .invoke(controllerRegistry::register)
         .call(() -> createTopic(cls))
         .call(() -> verticleDeployer.deployVerticleIfNew(cls));
   }
@@ -56,20 +56,20 @@ public class InvokerManager {
   Uni<Void> update(OClass cls) {
     return
       classControllerBuilder.build(cls)
-        .invoke(registry::register)
+        .invoke(controllerRegistry::register)
         .replaceWithVoid();
   }
 
   Uni<Void> update(ProtoOClass cls) {
     return
       classControllerBuilder.build(cls)
-        .invoke(registry::register)
+        .invoke(controllerRegistry::register)
       .replaceWithVoid();
   }
 
   Uni<Void> update(OFunction fn) {
     UnaryOperator<FunctionController> updator = classControllerBuilder.createUpdator(fn);
-    registry.updateFunction(fn, updator);
+    controllerRegistry.updateFunction(fn, updator);
     return Uni.createFrom().nullItem();
   }
 
@@ -91,7 +91,7 @@ public class InvokerManager {
   }
 
   public ClassControllerRegistry getRegistry() {
-    return registry;
+    return controllerRegistry;
   }
 
   public Set<String> getManagedCls() {

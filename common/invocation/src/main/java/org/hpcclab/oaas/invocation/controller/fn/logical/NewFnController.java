@@ -75,7 +75,7 @@ public class NewFnController extends AbstractFunctionController
     meta.setRefs(construct.refs());
     ctx.setOutput(obj);
     ctx.setStateOperations(List.of(
-      SimpleStateOperation.createObjs(List.of(obj), cls)
+      SimpleStateOperation.createObjs(obj, cls)
     ));
     var fileKeys = construct.keys()==null ? Set.of():construct.keys();
     var ks = Lists.fixedSize.ofAll(cls.getStateSpec().getKeySpecs())

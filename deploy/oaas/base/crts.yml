@@ -18,18 +18,6 @@ templates:
         limitMemory: 2Gi
         maxReplicas: 20
         objectiveMissThreshold: 0.4
-      storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter
-        imagePullPolicy: IfNotPresent
-        stabilizationWindow: 30000
-        maxScaleStep: 2
-        env: {}
-        requestCpu: 500m
-        requestMemory: 256Mi
-        limitCpu: '2'
-        limitMemory: 1Gi
-        maxReplicas: 20
-        objectiveMissThreshold: 0.4
     optimizerConf:
       thresholdUpper: 1.8
       thresholdLower: 0.5
@@ -68,20 +56,6 @@ templates:
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005
         idleFilterThreshold: 0.5
-      storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter
-        imagePullPolicy: IfNotPresent
-        stabilizationWindow: 30000
-        maxScaleStep: 1
-        env: {}
-        requestCpu: '2'
-        requestMemory: 512Mi
-        limitCpu: '2'
-        limitMemory: 2Gi
-        maxReplicas: 20
-        objectiveMissThreshold: 0.4
-        startReplicasToTpRatio: 0.00005
-        idleFilterThreshold: 0.5
     optimizerConf:
       thresholdUpper: 1.8
       thresholdLower: 0.3
@@ -114,20 +88,6 @@ templates:
         requestMemory: 1Gi
         limitCpu: '2'
         limitMemory: 2Gi
-        maxReplicas: 20
-        objectiveMissThreshold: 0.4
-        filters:
-          - {type: 'PodAffinityInjecting', key: 'app', values: 'arango-cluster'}
-      storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter
-        imagePullPolicy: IfNotPresent
-        stabilizationWindow: 30000
-        maxScaleStep: 2
-        env: { }
-        requestCpu: 500m
-        requestMemory: 256Mi
-        limitCpu: '2'
-        limitMemory: 1Gi
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         filters:

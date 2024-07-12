@@ -17,18 +17,6 @@ templates:
         limitMemory: 2Gi
         maxReplicas: 20
         objectiveMissThreshold: 0.4
-      storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter
-        imagePullPolicy: IfNotPresent
-        stabilizationWindow: 30000
-        maxScaleStep: 2
-        env: {}
-        requestCpu: 500m
-        requestMemory: 256Mi
-        limitCpu: '2'
-        limitMemory: 1Gi
-        maxReplicas: 20
-        objectiveMissThreshold: 0.4
     optimizerConf:
       thresholdUpper: 1.8
       thresholdLower: 0.5
@@ -66,20 +54,6 @@ templates:
         requestMemory: 2Gi
         limitCpu: '4'
         limitMemory: 4Gi
-        maxReplicas: 20
-        objectiveMissThreshold: 0.4
-        startReplicasToTpRatio: 0.00005
-        idleFilterThreshold: 0.5
-      storage-adapter:
-        image: ghcr.io/hpcclab/oaas/storage-adapter
-        imagePullPolicy: IfNotPresent
-        stabilizationWindow: 30000
-        maxScaleStep: 1
-        env: {}
-        requestCpu: '2'
-        requestMemory: 512Mi
-        limitCpu: '2'
-        limitMemory: 2Gi
         maxReplicas: 20
         objectiveMissThreshold: 0.4
         startReplicasToTpRatio: 0.00005

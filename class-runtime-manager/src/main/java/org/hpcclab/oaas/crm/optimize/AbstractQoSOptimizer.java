@@ -11,7 +11,6 @@ import org.hpcclab.oaas.crm.observe.CrPerformanceMetrics.SvcPerformanceMetrics;
 import org.hpcclab.oaas.proto.DeploymentUnit;
 import org.hpcclab.oaas.proto.ProtoOFunction;
 import org.hpcclab.oaas.proto.ProtoQosRequirement;
-import org.hpcclab.oaas.proto.ProtoStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,8 +132,6 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
     }
     CrtMappingConfig.CrComponentConfig invoker = crtConfig.services()
       .get(CrComponent.INVOKER.getSvc());
-    CrtMappingConfig.CrComponentConfig sa = crtConfig.services()
-      .get(CrComponent.STORAGE_ADAPTER.getSvc());
     CrInstanceSpec invokerSpec = CrInstanceSpec.builder()
       .minInstance(getStartReplica(invoker, qos, minInstance))
       .maxInstance(invoker.maxReplicas())
@@ -149,26 +146,7 @@ public abstract class AbstractQoSOptimizer implements QosOptimizer {
       .build();
 
     var instances = Maps.mutable.of(CrComponent.INVOKER, invokerSpec);
-    if (sa!=null) {
-      var minSa = getStartReplica(sa, qos, 1);
-      CrInstanceSpec saSpec = CrInstanceSpec.builder()
-        .minInstance(minSa)
-        .maxInstance(sa.maxReplicas())
-        .scaleDownDelay(null)
-        .targetConcurrency(-1)
-        .requestsCpu(parseCpu(sa.requestCpu()))
-        .requestsMemory(parseMem(sa.requestMemory()))
-        .limitsCpu(parseCpu(sa.limitCpu()))
-        .limitsMemory(parseMem(sa.limitMemory()))
-        .minAvail(minAvail)
-        .enableHpa(sa.enableHpa())
-        .disable((unit.getCls().getStateSpec().getKeySpecsCount()==0
-          && unit.getCls().getStateType()!=ProtoStateType.PROTO_STATE_TYPE_COLLECTION)
-          || minSa==0
-        )
-        .build();
-      instances.put(CrComponent.STORAGE_ADAPTER, saSpec);
-    }
+
     var fnInstances = unit.getFnListList()
       .stream()
       .map(f -> Map.entry(f.getKey(), resolve(f)))

@@ -19,6 +19,7 @@ import static org.hpcclab.oaas.crm.controller.K8SCrController.CR_LABEL_KEY;
 /**
  * @author Pawissanutt
  */
+@Deprecated
 public class SaK8sCrComponentController extends AbstractK8sCrComponentController {
   public SaK8sCrComponentController(CrtMappingConfig.CrComponentConfig svcConfig,
                                     OprcEnvironment.Config envConfig) {
