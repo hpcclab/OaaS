@@ -9,13 +9,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.UriInfo;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
-import org.hpcclab.oaas.invoker.InvokerManager;
 import org.hpcclab.oaas.invoker.metrics.RequestCounterMap;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.object.JsonBytes;
-import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
 
@@ -29,19 +27,16 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class ClassResource {
-  final InvokerManager invokerManager;
+public class ClassInvocationResource {
   final HashAwareInvocationHandler hashAwareInvocationHandler;
   final InvocationReqHandler invocationReqHandler;
   final ObjectRepoManager objectRepoManager;
   final RequestCounterMap requestCounterMap;
 
-  public ClassResource(InvokerManager invokerManager,
-                       HashAwareInvocationHandler hashAwareInvocationHandler,
-                       InvocationReqHandler invocationReqHandler,
-                       ObjectRepoManager objectRepoManager,
-                       RequestCounterMap requestCounterMap) {
-    this.invokerManager = invokerManager;
+  public ClassInvocationResource(HashAwareInvocationHandler hashAwareInvocationHandler,
+                                 InvocationReqHandler invocationReqHandler,
+                                 ObjectRepoManager objectRepoManager,
+                                 RequestCounterMap requestCounterMap) {
     this.hashAwareInvocationHandler = hashAwareInvocationHandler;
     this.invocationReqHandler = invocationReqHandler;
     this.objectRepoManager = objectRepoManager;
@@ -99,4 +94,5 @@ public class ClassResource {
     return hashAwareInvocationHandler.invoke(oal)
       .map(params::filter);
   }
+
 }

@@ -115,7 +115,7 @@ paths:
   /api/classes/{cls}/invokes/{fb}:
     get:
       tags:
-      - Class Resource
+      - Class Invocation Resource
       parameters:
       - name: cls
         in: path
@@ -141,7 +141,7 @@ paths:
                 $ref: "#/components/schemas/InvocationResponse"
     post:
       tags:
-      - Class Resource
+      - Class Invocation Resource
       parameters:
       - name: cls
         in: path

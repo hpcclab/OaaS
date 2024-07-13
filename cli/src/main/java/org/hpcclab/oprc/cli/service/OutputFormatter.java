@@ -1,6 +1,7 @@
 package org.hpcclab.oprc.cli.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.vertx.core.json.Json;
@@ -9,8 +10,8 @@ import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
+import org.hpcclab.oaas.model.OprcJsonUtil;
 import org.hpcclab.oprc.cli.conf.OutputFormat;
-import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
 
 import java.util.Collection;
 
@@ -20,14 +21,20 @@ import static org.hpcclab.oprc.cli.conf.OutputFormat.NDJSON;
 @ApplicationScoped
 public class OutputFormatter {
   ObjectMapper yamlMapper;
+  ObjectMapper jsonMapper;
+  ObjectMapper jsonPrettyMapper;
 
 
   @Inject
   public OutputFormatter(ObjectMapper mapper) {
+    mapper.registerModule(OprcJsonUtil.createModule());
+    this.jsonMapper = mapper;
+    this.jsonPrettyMapper = mapper.enable(SerializationFeature.INDENT_OUTPUT);
     yamlMapper = mapper.copyWith(new YAMLFactory()
       .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
       .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
     );
+    yamlMapper.registerModule(OprcJsonUtil.createModule());
 //    yamlMapper.registerModule(new ProtobufModule());
   }
 
@@ -50,6 +57,17 @@ public class OutputFormatter {
   public void printObject(OutputFormat format, Object val) {
     print(format, JsonObject.mapFrom(val));
   }
+
+  @SneakyThrows
+  public void printObject2(OutputFormat format, Object val) {
+    switch (format) {
+      case JSON, NDJSON -> System.out.println(jsonMapper.writeValueAsString(val));
+      case YAML -> System.out.println(yamlMapper.writeValueAsString(val));
+      case PJSON -> System.out.println(jsonPrettyMapper.writeValueAsString(val));
+    }
+  }
+
+
   @SneakyThrows
   public void printArray(OutputFormat format, Collection<Object> val) {
     print(format, JsonArray.of(val.toArray()));

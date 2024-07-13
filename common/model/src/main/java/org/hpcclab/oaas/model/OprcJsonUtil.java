@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.hpcclab.oaas.model.object.JsonBytes;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +38,12 @@ public class OprcJsonUtil {
       @Override
       public void serialize(JsonArray value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeObject(value.getList());
+      }
+    });
+    module.addSerializer(JsonBytes.class, new JsonSerializer<JsonBytes>() {
+      @Override
+      public void serialize(JsonBytes value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeObject(value.getNode());
       }
     });
 

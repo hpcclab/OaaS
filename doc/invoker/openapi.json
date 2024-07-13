@@ -171,7 +171,7 @@
     },
     "/api/classes/{cls}/invokes/{fb}" : {
       "get" : {
-        "tags" : [ "Class Resource" ],
+        "tags" : [ "Class Invocation Resource" ],
         "parameters" : [ {
           "name" : "cls",
           "in" : "path",
@@ -208,7 +208,7 @@
         }
       },
       "post" : {
-        "tags" : [ "Class Resource" ],
+        "tags" : [ "Class Invocation Resource" ],
         "parameters" : [ {
           "name" : "cls",
           "in" : "path",

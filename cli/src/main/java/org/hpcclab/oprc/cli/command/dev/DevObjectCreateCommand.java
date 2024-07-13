@@ -2,7 +2,6 @@ package org.hpcclab.oprc.cli.command.dev;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
@@ -91,7 +90,7 @@ public class DevObjectCreateCommand implements Callable<Integer> {
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();
     var constructResp = resp.body().mapToObj(NewFnController.ObjectConstructResponse.class);
     uploadFiles(files, constructResp);
-    outputFormatter.print(commonOutputMixin.getOutputFormat(), JsonObject.mapFrom(resp));
+    outputFormatter.printObject2(commonOutputMixin.getOutputFormat(), resp);
     devManager.persistObject();
     var out = resp.output();
     if (save && out!=null && !out.getKey().isEmpty()) {

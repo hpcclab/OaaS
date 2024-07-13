@@ -44,6 +44,7 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
   final int backoff;
   final int maxBackoff;
   final boolean forceInvokeLocal;
+  final boolean disableHashAware;
 
   @Inject
   public HashAwareInvocationHandler(LookupManager lookupManager,
@@ -62,8 +63,8 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
     this.maxBackoff = invokerConfig.syncMaxRetryBackOff();
     this.forceInvokeLocal = invokerConfig.forceInvokeLocal();
     this.invocationSender = invocationSender;
+    this.disableHashAware = invokerConfig.disableHashAware();
   }
-
 
 
   public Uni<InvocationResponse> invoke(InvocationRequest request) {
@@ -75,7 +76,10 @@ public class HashAwareInvocationHandler implements LocationAwareInvocationForwar
       return invocationReqHandler.invoke(request);
     }
     ObjLocalResolver resolver = resolveAddr(request.cls());
-    Supplier<CrHash.ApiAddress> supplier = resolver.createSupplier(request.main());
+
+    Supplier<CrHash.ApiAddress> supplier = disableHashAware?
+      resolver.createSupplier(null):
+      resolver.createSupplier(request.main());
     CrHash.ApiAddress addr = supplier.get();
     if (lookupManager.isLocal(addr)) {
       logger.debug("invoke local {}~{}:{}",

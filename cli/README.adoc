@@ -56,7 +56,7 @@ You can install this cli by using https://www.jbang.dev/[jbang] and run the foll
 ----
 ./mvnw package -DskipTests
 cd cli
-jbang app install --name=ocli --force target/oprc-cli-999-SNAPSHOT-runner.jar
+jbang app install --name=ocli --force target/quarkus-app/quarkus-run.jar
 ----
 
 == Usage

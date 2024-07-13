@@ -13,6 +13,7 @@ import org.hpcclab.oaas.model.task.OTask;
 import org.hpcclab.oaas.model.task.OTaskCompletion;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
+import org.hpcclab.oprc.cli.service.DevServerService;
 import org.hpcclab.oprc.cli.service.OutputFormatter;
 import org.hpcclab.oprc.cli.state.LocalDevManager;
 import org.slf4j.Logger;
@@ -55,8 +56,6 @@ public class DevInvocationCommand implements Callable<Integer> {
   String data;
   @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
   boolean save;
-  @CommandLine.Option(names = {"-a", "--async"}, defaultValue = "false")
-  boolean async;
   @Inject
   OutputFormatter outputFormatter;
   @Inject
@@ -65,10 +64,13 @@ public class DevInvocationCommand implements Callable<Integer> {
   InvocationManager invocationManager;
   @Inject
   LocalDevManager devManager;
+  @Inject
+  DevServerService devServerService;
 
   @Override
   public Integer call() throws Exception {
     var conf = fileManager.dev();
+    int port = fileManager.getOrCreate().getLocalDev().port();
     if (cls==null) cls = conf.getDefaultClass();
     if (main==null) main = conf.getDefaultObject();
     JsonBytes body;
@@ -88,6 +90,7 @@ public class DevInvocationCommand implements Callable<Integer> {
       .args(args)
       .body(body)
       .build();
+    devServerService.start(port);
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();
     outputFormatter.print(commonOutputMixin.getOutputFormat(), JsonObject.mapFrom(resp));
     var out = resp.output();

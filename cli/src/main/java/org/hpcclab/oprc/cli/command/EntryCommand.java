@@ -55,7 +55,8 @@ public class EntryCommand {
       DevObjectCleanCommand.class,
       DevObjectFileCommand.class,
       DevObjectCatFileCommand.class,
-      DevConfigCommand.class
+      DevConfigCommand.class,
+      DevServerCommand.class
     }
   )
   public static class DevEntryCommand {
