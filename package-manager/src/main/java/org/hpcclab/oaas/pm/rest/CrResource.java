@@ -7,10 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.model.cr.OClassRuntime;
-import org.hpcclab.oaas.pm.service.CrStateManager;
 import org.hpcclab.oaas.model.Pagination;
+import org.hpcclab.oaas.model.cr.OClassRuntime;
 import org.hpcclab.oaas.model.exception.StdOaasException;
+import org.hpcclab.oaas.pm.service.CrStateManager;
 import org.hpcclab.oaas.proto.CrManagerGrpc;
 import org.jboss.resteasy.reactive.RestQuery;
 
@@ -47,7 +47,8 @@ public class CrResource {
       stateManager.getCrRepo().delete(id);
       if (!res.getSuccess())
         throw StdOaasException.format("Error deleting cr %s", id);
+    } else {
+      throw new NotFoundException();
     }
-    throw new NotFoundException();
   }
 }
