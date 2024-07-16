@@ -6,6 +6,7 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.http.HttpServer;
 import io.vertx.mutiny.ext.web.Router;
 import io.vertx.mutiny.ext.web.handler.BodyHandler;
+import io.vertx.mutiny.ext.web.handler.LoggerHandler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -38,7 +39,9 @@ public class DevServerService {
     Router router = Router.router(vertx);
     Router subRouter = Router.router(vertx);
     vertxInvocationService.mountRouter(subRouter);
-    router.route().handler(BodyHandler.create());
+    router.route().handler(BodyHandler.create())
+      .handler(LoggerHandler.create())
+      ;
     router.route("/api/*")
       .subRouter(subRouter);
     httpServer.requestHandler(router)

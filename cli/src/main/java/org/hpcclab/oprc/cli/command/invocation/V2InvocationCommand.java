@@ -56,10 +56,13 @@ public class V2InvocationCommand implements Callable<Integer> {
   boolean async;
   @CommandLine.Option(names = {"--all"}, defaultValue = "false")
   boolean showAll;
+  @CommandLine.Option(names = {"--dev"}, description = "Target the local dev server")
+  boolean dev;
 
   @Override
   public Integer call() throws Exception {
-    var conf = fileManager.current();
+    FileCliConfig.FileCliContext conf = dev?
+      fileManager.dev(): fileManager.current();
     if (cls==null) cls = conf.getDefaultClass();
     String url;
     if (main==null)

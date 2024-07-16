@@ -39,6 +39,8 @@ public class ObjectCreateCommand implements Callable<Integer> {
 
   @CommandLine.Option(names = {"-s", "--save"}, description = "save the object id to config file")
   boolean save;
+  @CommandLine.Option(names = {"--dev"}, description = "Target the local dev server")
+  boolean dev;
 
   @Inject
   ConfigFileManager fileManager;
@@ -50,7 +52,8 @@ public class ObjectCreateCommand implements Callable<Integer> {
   @Override
   public Integer call() throws Exception {
     try {
-      FileCliConfig.FileCliContext current = fileManager.current();
+      FileCliConfig.FileCliContext current = dev?
+        fileManager.dev(): fileManager.current();
       oaasObjectCreator.setConf(current);
       if (cls.isBlank())
         cls = current.getDefaultClass();

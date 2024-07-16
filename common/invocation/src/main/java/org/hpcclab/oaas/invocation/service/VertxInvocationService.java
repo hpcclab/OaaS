@@ -8,6 +8,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.MultiMap;
+import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.Router;
 import io.vertx.mutiny.ext.web.RoutingContext;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
@@ -74,9 +75,10 @@ public class VertxInvocationService {
     String fb = context.pathParam("fb");
     var params = InvokeParameters.create(context);
     JsonBytes body = null;
-    if (context.body().available()) {
+    Buffer buffer = context.body().buffer();
+    if (buffer != null && buffer.length() > 0) {
       try {
-        body = mapper.readValue(context.body().buffer().getBytes(), JsonBytes.class);
+        body = mapper.readValue(buffer.getBytes(), JsonBytes.class);
       } catch (IOException e) {
         return Uni.createFrom().failure(new StdOaasException("Failed to parse body as JSON", e, false, 400));
       }

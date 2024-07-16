@@ -38,6 +38,9 @@ public class DevServerCommand implements Callable<Integer> {
     } else {
       port = localDev.port();
     }
+    FileCliConfig.FileCliContext dev = fileManager.dev();
+    dev.setInvUrl("http://%s:%d".formatted(localDev.localhost(), port));
+    fileManager.updateDev(dev);
     devServerService.start(port);
     System.out.println("Start dev server on port: " + port);
     Thread.sleep(Long.MAX_VALUE);

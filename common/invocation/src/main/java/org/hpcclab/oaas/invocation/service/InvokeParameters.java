@@ -45,7 +45,7 @@ public record InvokeParameters(
     return context.queryParam(name)
       .stream()
       .findAny()
-      .map(s -> s.equals("false"))
+      .map(s -> !s.equals("false"))
       .orElse(defaultBool);
   }
 }
