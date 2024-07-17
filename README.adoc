@@ -20,7 +20,7 @@ Object as a Service (OaaS) is a new serverless paradigm, that borrows the object
 .FaaS
 image::doc/diagrams/faas_concept_v4s.dio.png[faas_concept,480]
 .OaaS
-image::doc/diagrams/oaas_concept_v5.dio.png[ oaas_concept,480]
+image::doc/diagrams/oaas_concept_v6a.dio.png[ oaas_concept,480]
 
 
 == Architecture
