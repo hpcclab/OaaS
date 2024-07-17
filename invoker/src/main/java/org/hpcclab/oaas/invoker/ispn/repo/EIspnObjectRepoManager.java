@@ -7,14 +7,19 @@ import org.hpcclab.oaas.invoker.ispn.GJValueMapper;
 import org.hpcclab.oaas.invoker.ispn.IspnCacheCreator;
 import org.hpcclab.oaas.invoker.ispn.store.ArgConnectionFactory;
 import org.hpcclab.oaas.model.cls.OClass;
+import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JOObject;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
+import org.hpcclab.oaas.repository.store.DatastoreConf;
+import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
+
+import java.util.Optional;
 
 public class EIspnObjectRepoManager extends ObjectRepoManager {
-  ClassControllerRegistry controllerRegistry;
-  IspnCacheCreator cacheCreator;
-  ArgConnectionFactory factory;
+  final ClassControllerRegistry controllerRegistry;
+  final IspnCacheCreator cacheCreator;
+  final DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
 
   public EIspnObjectRepoManager(ClassControllerRegistry controllerRegistry,
                                 IspnCacheCreator cacheCreator) {
@@ -24,7 +29,12 @@ public class EIspnObjectRepoManager extends ObjectRepoManager {
 
   @Override
   public EIspnObjectRepository createRepo(OClass cls) {
-    var objCache = cacheCreator.getObjectCache(cls);
+    DatastoreConf datastoreConf = confRegistry
+      .getOrDefault(Optional.ofNullable(cls.getConfig())
+        .map(OClassConfig::getStructStore)
+        .orElse(DatastoreConfRegistry.DEFAULT));
+    var objCache = cacheCreator.getObjectCache(cls, datastoreConf);
+    var factory = new ArgConnectionFactory(datastoreConf);
     ArangoCollectionAsync connectionAsync = factory.getConnection(cls.getKey());
     ArangoCollection connection = factory.getConnectionSync(cls.getKey());
     ArgQueryService<GOObject, JOObject> queryService = new ArgQueryService<>(

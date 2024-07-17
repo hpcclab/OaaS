@@ -9,7 +9,6 @@ import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JOObject;
 import org.hpcclab.oaas.repository.store.DatastoreConf;
-import org.hpcclab.oaas.repository.store.DatastoreConfRegistry;
 import org.infinispan.Cache;
 import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.configuration.cache.*;
@@ -20,8 +19,6 @@ import org.infinispan.transaction.TransactionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 import static org.infinispan.commons.dataconversion.MediaType.*;
 
 @ApplicationScoped
@@ -30,7 +27,6 @@ public class IspnCacheCreator {
   final InvokerConfig invokerConfig;
   final IspnConfig ispnConfig;
   final EmbeddedCacheManager cacheManager;
-  DatastoreConfRegistry confRegistry = DatastoreConfRegistry.getDefault();
 
   @Inject
   public IspnCacheCreator(InvokerConfig invokerConfig,
@@ -65,11 +61,8 @@ public class IspnCacheCreator {
     }
   }
 
-  public Cache<String, GOObject> getObjectCache(OClass cls) {
-    DatastoreConf datastoreConf = confRegistry
-      .getOrDefault(Optional.ofNullable(cls.getConfig())
-        .map(OClassConfig::getStructStore)
-        .orElse(DatastoreConfRegistry.DEFAULT));
+  public Cache<String, GOObject> getObjectCache(OClass cls,
+                                                DatastoreConf datastoreConf) {
     Configuration config;
     config = getCacheConfig(cls,
       ispnConfig.objStore(),
