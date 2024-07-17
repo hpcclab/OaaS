@@ -2,7 +2,6 @@ package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.BaseArangoCursor;
 import com.arangodb.model.AqlQueryOptions;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.arango.ArgDataAccessException;
 import org.hpcclab.oaas.model.Pagination;

@@ -92,9 +92,9 @@ In thie mode, you can:
 
 The state will be keep in the local file storage. By the default, it will store at `%HOME/.oprc/local`. You can configure the location by editing `$HOME/.oprc/config.yml`.
 
+
 === Common Usages
-Suppose you have the function run at http://localhost:10001.
-In this example, we can start json-update-fn locally via docker.
+
 
 [source,bash]
 ----
@@ -104,18 +104,50 @@ docker compose up -d json-update-fn
 Example:
 [source,bash]
 ----
-# First, configure function URL
-ocli dev conf --fn-dev-url "http://localhost:10001"
 
 # Apply package to local
 ocli dev pa example/pkg/record.yml
 
 # Create object to local
 ocli dev oc example.record -s -d '{"hello":"world"}'
+----
 
+=== One-shot Invocation
+
+
+.Dev-mode: one-shot invocation
+image::../doc/diagrams/oaas_development_tools_v1.dio.png[ocli_one_shot,480]
+
+You can invoke the object function via below command. `ocli` will offload the task into your function server, based on the configuration.
+
+Suppose you have the function run at http://localhost:10001.
+In this example, we can start json-update-fn locally via docker.
+
+[source,bash]
+----
+# First, configure function URL
+ocli dev conf --fn-dev-url "http://localhost:10001"
 # Invoke the object function
 ocli dev i random -s
 ----
+
+=== Run as server
+
+.Dev-mode: ran as server
+image::../doc/diagrams/oaas_development_tools_v2.dio.png[ocli_server,480]
+
+In the case that you want to access the OaaS invocation API via your own code, you can run `ocli` to emulate the class runtime server.
+
+[source,bash]
+----
+ocli dev server
+# terminate server by ctrl+c
+----
+
+When terminated the program, it will write the new object data to local file as same as `ocli dev i` command.
+
+NOTE: If you update the configuration, you have to restart the server for it to reflect on the configuration.
+
 === Unstructured Data
 Currently, `ocli` not provide the object storage emulation out of the box. You have to run the local object storage manually.
 [source,bash]

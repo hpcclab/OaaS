@@ -2,6 +2,8 @@ package org.hpcclab.oaas.model.exception;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 
+import java.io.IOException;
+
 public class DataAccessException extends StdOaasException {
   public DataAccessException(String message) {
     super(message);
@@ -21,6 +23,10 @@ public class DataAccessException extends StdOaasException {
 
   public DataAccessException(String message, Throwable cause, boolean writableStack, int code) {
     super(message, cause, writableStack, code);
+  }
+
+  public DataAccessException(IOException e) {
+    super(null, e, true, 500);
   }
 
   public static DataAccessException concurrentMod(){

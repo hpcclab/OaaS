@@ -19,6 +19,7 @@ import static org.hpcclab.oaas.repository.ConversionUtils.toUni;
 public abstract class AbsEIspnRepository<V> implements EntityRepository<String, V>, AsyncEntityRepository<String, V> {
 
   protected EIspnAtomicOperationService<V> atomicService;
+  protected ArgQueryService<V, ?> queryService;
 
   abstract String extractKey(V v);
 
@@ -38,7 +39,8 @@ public abstract class AbsEIspnRepository<V> implements EntityRepository<String, 
 
   @Override
   public QueryService<String, V> getQueryService() {
-    throw new UnsupportedOperationException();
+    if (queryService == null) throw new UnsupportedOperationException();
+    return queryService;
   }
 
   @Override

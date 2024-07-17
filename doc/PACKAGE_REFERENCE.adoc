@@ -5,11 +5,6 @@
 
 {empty}
 
-== Concepts
-
-.Class representation
-image::diagrams/oaas_class_representation_v2.dio.png[cls_rep,480]
-
 == Package Structure
 
 [source,yaml]

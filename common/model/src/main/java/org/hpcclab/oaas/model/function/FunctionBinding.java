@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hpcclab.oaas.model.proto.DSMap;
 import org.infinispan.protostream.annotations.ProtoFactory;
 
 import java.util.Map;
@@ -16,7 +15,7 @@ public class FunctionBinding {
   FunctionAccessModifier access = FunctionAccessModifier.PUBLIC;
   String function;
   String name;
-  DSMap defaultArgs;
+  Map<String, String> defaultArgs;
   String description;
   String outputCls;
   @JsonAlias("forceImmutable")
@@ -32,7 +31,7 @@ public class FunctionBinding {
   public FunctionBinding(FunctionAccessModifier access,
                          String function,
                          String name,
-                         DSMap defaultArgs,
+                         Map<String, String> defaultArgs,
                          String description,
                          String outputCls,
                          boolean immutable,
