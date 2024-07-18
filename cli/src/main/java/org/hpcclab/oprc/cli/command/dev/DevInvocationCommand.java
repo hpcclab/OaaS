@@ -1,7 +1,6 @@
 package org.hpcclab.oprc.cli.command.dev;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.hpcclab.oaas.invocation.InvocationManager;
 import org.hpcclab.oaas.invocation.InvocationReqHandler;
@@ -92,7 +91,7 @@ public class DevInvocationCommand implements Callable<Integer> {
       .build();
     devServerService.start(port);
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();
-    outputFormatter.print(commonOutputMixin.getOutputFormat(), JsonObject.mapFrom(resp));
+    outputFormatter.printObject2(commonOutputMixin.getOutputFormat(), resp);
     var out = resp.output();
     devManager.persistObject();
     if (save && out != null && !out.getKey().isEmpty()) {

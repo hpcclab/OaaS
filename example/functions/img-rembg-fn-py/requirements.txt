@@ -5,3 +5,4 @@ uvicorn
 gunicorn
 oaas-sdk-py==0.3.3
 pillow
+rembg

@@ -75,7 +75,7 @@ public abstract class AbstractFunctionController implements FunctionController {
       .invoke(ctx -> invocationTimer.recordTime(Duration.ofMillis(System.currentTimeMillis() - ctx.getInitTime())));
   }
 
-  protected abstract void validate(InvocationCtx ctx);
+  protected void validate(InvocationCtx ctx){}
 
   protected abstract Uni<InvocationCtx> exec(InvocationCtx ctx);
 

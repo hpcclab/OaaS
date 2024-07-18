@@ -46,6 +46,12 @@ public interface Dataflows {
     }
   }
 
+  record Condition(String path, ConditionOperation op, String val) {
+  }
+
+  enum ConditionOperation {
+    EQ
+  }
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @Builder(toBuilder = true)
