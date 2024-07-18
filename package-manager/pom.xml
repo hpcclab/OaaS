@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>arango-repository</artifactId>
+      <artifactId>oprc-arango-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -128,7 +128,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>test-util</artifactId>
+      <artifactId>oprc-test-util</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

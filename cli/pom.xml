@@ -42,12 +42,12 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>invocation</artifactId>
+      <artifactId>oprc-invocation</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>common-storage</artifactId>
+      <artifactId>oprc-common-storage</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -40,7 +40,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>repository</artifactId>
+      <artifactId>oprc-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

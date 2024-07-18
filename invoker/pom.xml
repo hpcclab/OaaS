@@ -45,6 +45,21 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-repository</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-invocation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hpcclab.oaas</groupId>
+      <artifactId>oprc-common-storage</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.arangodb</groupId>
       <artifactId>arangodb-java-driver-shaded</artifactId>
       <version>${arangodb.version}</version>
@@ -71,21 +86,6 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>oprc-repository</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>oprc-invocation</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>oprc-common-storage</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
