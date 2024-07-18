@@ -1,8 +1,10 @@
-package org.hpcclab.oaas.invocation.controller.fn;
+package org.hpcclab.oaas.invocation.controller.fn.logical;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
+import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
+import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.repository.ObjectRepoManager;
@@ -16,7 +18,7 @@ import java.util.Map;
 /**
  * @author Pawissanutt
  */
-public class NativeQueryFnController extends AbstractFunctionController {
+public class NativeQueryFnController extends AbstractFunctionController implements BuiltinFunctionController {
   ObjectRepository repo;
   String query;
   final ObjectRepoManager repoManager;
@@ -55,5 +57,11 @@ public class NativeQueryFnController extends AbstractFunctionController {
       .map(list -> ctx.setRespBody(
         mapper.valueToTree(Map.of("items", list)))
       );
+  }
+
+
+  @Override
+  public String getFnKey() {
+    return "builtin.native-query";
   }
 }

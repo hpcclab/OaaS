@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invocation.dataflow.DataflowOrchestrator;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.OffLoaderFactory;
 import org.hpcclab.oaas.invoker.service.HashAwareInvocationHandler;
+import org.hpcclab.oaas.repository.ObjectRepoManager;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 /**
@@ -81,6 +82,14 @@ public class FunctionControllerProducer {
                                     ContentUrlGenerator generator,
                                     ObjectMapper objectMapper) {
     return new FileFnController(idGenerator, mapper, generator, objectMapper);
+  }
+
+
+  @Produces
+  NativeQueryFnController nativeQueryFnController(IdGenerator idGenerator,
+                                                  ObjectMapper mapper,
+                                                  ObjectRepoManager repoManager) {
+    return new NativeQueryFnController(idGenerator, mapper, repoManager);
   }
 
   @Produces

@@ -207,14 +207,6 @@ components:
       - SEQUENTIAL
       - LINEARIZATION
       type: string
-    DSMap:
-      type: array
-      items:
-        type: string
-    DSMap_Public:
-      type: array
-      items:
-        type: string
     DataMapping:
       type: object
       properties:
@@ -283,7 +275,9 @@ components:
         name:
           type: string
         defaultArgs:
-          $ref: "#/components/schemas/DSMap"
+          type: object
+          additionalProperties:
+            type: string
         description:
           type: string
         outputCls:
@@ -307,7 +301,9 @@ components:
         name:
           type: string
         defaultArgs:
-          $ref: "#/components/schemas/DSMap_Public"
+          type: object
+          additionalProperties:
+            type: string
         description:
           type: string
         outputCls:

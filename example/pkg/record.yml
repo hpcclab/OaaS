@@ -53,7 +53,7 @@ classes:
         defaultArgs:
           INPLACE: "true"
       - name: random
-        function: .record.random
+        function: .record.random-grpc
         outputCls: .record
         immutable: true
         defaultArgs:

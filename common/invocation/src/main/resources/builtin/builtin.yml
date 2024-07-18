@@ -13,6 +13,8 @@ functions:
     type: BUILTIN
   - name: project
     type: BUILTIN
+  - name: native-query
+    type: BUILTIN
 classes:
   - name: base
     stateType: FILES

@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.invocation.controller.fn;
 
 import jakarta.enterprise.inject.Instance;
+import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.function.OFunction;
 
@@ -29,7 +30,9 @@ public class CdiFunctionControllerFactory implements FunctionControllerFactory {
         .stream()
         .filter(fc -> fc.getFnKey().equals(function.getKey()))
         .findFirst()
-        .orElseThrow();
+        .orElseThrow(() -> new StdOaasException("No function controller with key '%s' available"
+          .formatted(function.getKey()))
+        );
     } else if (function.getType() == FunctionType.MACRO) {
       return macroFunctionControllerInstance
         .get();
