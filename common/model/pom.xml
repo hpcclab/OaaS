@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>model</artifactId>
+  <artifactId>oprc-model</artifactId>
 
   <properties>
     <infinispan.version>15.0.4.Final</infinispan.version>

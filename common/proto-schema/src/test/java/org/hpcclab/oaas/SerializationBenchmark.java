@@ -7,7 +7,6 @@ import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
-import org.hpcclab.oaas.model.object.OObjectConverter;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.proto.OaasSchemaImpl;
 import org.hpcclab.oaas.proto.ProtoPOObject;

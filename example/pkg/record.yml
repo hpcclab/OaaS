@@ -61,3 +61,14 @@ classes:
       - name: chain
         function: .record.chain-random
         outputCls: .record
+      - name: list
+        function: builtin.native-query
+        noMain: true
+        defaultArgs:
+          offset: 0
+          lim: 10
+        override:
+          query: |
+            FOR doc IN @@col
+            LIMIT @offset, @lim
+            RETURN doc

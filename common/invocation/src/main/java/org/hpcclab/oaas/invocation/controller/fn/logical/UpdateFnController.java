@@ -9,6 +9,7 @@ import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Pawissanutt
@@ -16,14 +17,26 @@ import java.util.List;
 public class UpdateFnController extends AbstractFunctionController
   implements BuiltinFunctionController {
 
+  boolean merge = false;
+
   public UpdateFnController(IdGenerator idGenerator,
                             ObjectMapper mapper) {
     super(idGenerator, mapper);
   }
 
   @Override
-  protected void validate(InvocationCtx ctx) {
+  protected void afterBind() {
+    Map<String, Object> override = functionBinding.getOverride();
+    if (override== null)
+      return;
+    Object mergeOverride = override.get("merge");
+    if (mergeOverride== Boolean.TRUE) {
+      merge = true;
+    }
+  }
 
+  @Override
+  protected void validate(InvocationCtx ctx) {
   }
 
   @Override

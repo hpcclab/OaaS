@@ -8,7 +8,7 @@
     <artifactId>oaas-parent</artifactId>
     <version>999-SNAPSHOT</version>
   </parent>
-  <artifactId>class-runtime-manager</artifactId>
+  <artifactId>oprc-class-runtime-manager</artifactId>
   <properties>
     <tsid-creator.version>5.2.5</tsid-creator.version>
     <jayway.version>2.9.0</jayway.version>
@@ -28,12 +28,12 @@
   <dependencies>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>model</artifactId>
+      <artifactId>oprc-model</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>repository</artifactId>
+      <artifactId>oprc-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

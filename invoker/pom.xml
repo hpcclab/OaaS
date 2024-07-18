@@ -7,7 +7,7 @@
     <version>999-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>invoker</artifactId>
+  <artifactId>oprc-invoker</artifactId>
 
   <properties>
     <infinispan.version>15.0.5.Final</infinispan.version>
@@ -36,7 +36,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>model</artifactId>
+      <artifactId>oprc-model</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -74,17 +74,17 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>repository</artifactId>
+      <artifactId>oprc-repository</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>invocation</artifactId>
+      <artifactId>oprc-invocation</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>common-storage</artifactId>
+      <artifactId>oprc-common-storage</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -187,7 +187,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>test-util</artifactId>
+      <artifactId>oprc-test-util</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

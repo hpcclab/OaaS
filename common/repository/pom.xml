@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>repository</artifactId>
+  <artifactId>oprc-repository</artifactId>
 
   <properties>
     <tsid-creator.version>5.2.6</tsid-creator.version>
@@ -30,7 +30,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>model</artifactId>
+      <artifactId>oprc-model</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

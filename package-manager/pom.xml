@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>package-manager</artifactId>
+  <artifactId>oprc-package-manager</artifactId>
 
   <properties>
   </properties>
@@ -28,7 +28,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>model</artifactId>
+      <artifactId>oprc-model</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -38,7 +38,7 @@
     </dependency>
     <dependency>
       <groupId>org.hpcclab.oaas</groupId>
-      <artifactId>invocation</artifactId>
+      <artifactId>oprc-invocation</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
