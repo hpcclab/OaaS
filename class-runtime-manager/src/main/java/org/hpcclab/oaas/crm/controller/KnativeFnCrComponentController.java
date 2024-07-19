@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-import static org.hpcclab.oaas.crm.CrmConfig.LABEL_KEY;
 import static org.hpcclab.oaas.crm.controller.K8SCrController.*;
 import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeAnnotation;
 import static org.hpcclab.oaas.crm.controller.K8sResourceUtil.makeResourceRequirements;
@@ -103,7 +102,7 @@ public class KnativeFnCrComponentController extends AbstractK8sCrComponentContro
       .withNewTemplate()
       .withNewMetadata()
       .withAnnotations(annotation)
-      .addToLabels(LABEL_KEY, function.getKey())
+      .addToLabels(labels)
       .endMetadata()
       .withNewSpec()
       .withTimeoutSeconds(600L)

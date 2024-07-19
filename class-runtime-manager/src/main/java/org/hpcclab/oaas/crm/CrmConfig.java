@@ -26,8 +26,6 @@ public interface CrmConfig {
 
   Optional<String> templateOverride();
 
-  String LABEL_KEY = "oaas.functions";
-
   @WithDefault("0.99")
   double uptimePercentage();
 
