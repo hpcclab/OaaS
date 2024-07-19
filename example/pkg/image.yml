@@ -1,8 +1,6 @@
 name: example
 functions:
   - name: image.resize
-    type: TASK
-    outputCls: .image
     provision:
       knative:
         image: ghcr.io/hpcclab/oaas/img-resize-fn-py:latest
@@ -12,6 +10,21 @@ functions:
     variableDescriptions:
       - name: size
       - name: ratio
+  - name: image.bg-remove
+    provision:
+      knative:
+        image: ghcr.io/hpcclab/oaas/img-rembg-fn-py:latest
+    config:
+      custom:
+        LOG_LEVEL: DEBUG
+  - name: image.obj-detect
+    provision:
+      knative:
+        image: ghcr.io/hpcclab/oaas/img-obj-detect-fn-py:latest
+    config:
+      custom:
+        LOG_LEVEL: DEBUG
+
 classes:
   - name: image
     stateSpec:
@@ -19,14 +32,23 @@ classes:
         - name: image
     parents: ['builtin.base']
     functions:
-      - access: PUBLIC
-        name: resize
+      - name: resize
         function: .image.resize
         outputCls: .image
         immutable: true
-      - access: PUBLIC
+      - name: resize-inplace
         function: .image.resize
-        name: resize-inplace
         outputCls: void
+      - name: bg-remove
+        function: .image.bg-remove
+        outputCls: .image
+        immutable: true
+      - name: bg-remove-inplace
+        function: .image.bg-remove
+        outputCls: void
+      - name: obj-detect
+        function: .image.obj-detect
+        outputCls: .image
+        immutable: true
 
 

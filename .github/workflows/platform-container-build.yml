@@ -69,8 +69,6 @@ jobs:
       with:
         draft: true
         generate_release_notes: true
-        files: |
-          cli/target/oprc-cli-${{ env.RELEASE_VERSION }}-runner.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
