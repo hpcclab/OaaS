@@ -1,12 +1,7 @@
 #FROM python:3.11-buster
 FROM python:3.11-slim
 
-RUN apt update -y && \
-    apt install -y ffmpeg && \
-    python3 -m ensurepip && \
-    mkdir -p "/opt/app" && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
-
+RUN mkdir -p "/opt/app"
 WORKDIR /opt/app
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
