@@ -7,9 +7,22 @@
 // Need some preamble to get TOC:
 {empty}
 
-== Notes
-The OaaS platform still does not have SDK for function implementation. The example functions provided in this directory are implemented from scratch. That means the code can be more simplified in the future.
+== Guides
+
+Check on the guides:
+
+* https://github.com/pawissanutt/oaas-tutorial[tutorial the cover from the basic to deployment]
+* link:../../cli/README.adoc[ocli installation and usage guide]
+* link:../../doc/FUNCTION_GUIDE.adoc[function development]
+* link:../../doc/PACKAGE_REFERENCE.adoc[package definition guide]
 
 == Examples
-* link:transcode-fn-py[Video transcoding function]
-* link:concat-fn-java[String concatenation function]
+* Java
+** link:concat-fn-java[String concatenation]
+* Python
+** link:transcode-fn-py[Video transcoding]
+** link:concat-fn-java[String concatenation]
+** link:img-obj-detect-fn-py[Image object detection]
+** link:img-rembg-fn-py[Image background removing]
+** link:img-resize-fn-py[Image resizing]
+** link:json-update-fn-py[JSON randomization]
