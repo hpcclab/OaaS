@@ -69,11 +69,13 @@ public class DevPackageApplyCommand implements Callable<Integer> {
     var changedClasses = classResolver.resolveInheritance(clsMap);
     for (OFunction function : functions) {
       if (function.getType()!=FunctionType.TASK) continue;
+      String invocationUrl = localDev.fnDevUrl();
+      if (function.getConfig().getStaticUrl() != null && !function.getConfig().getStaticUrl().isEmpty())
+        invocationUrl = function.getConfig().getStaticUrl();
       function.setStatus(new OFunctionDeploymentStatus()
         .setCondition(DeploymentCondition.RUNNING)
-        .setInvocationUrl(localDev.fnDevUrl())
+        .setInvocationUrl(invocationUrl)
       );
-      logger.debug("func {}", function);
     }
     devManager.getClsRepo().persist(changedClasses.values().stream().toList());
     devManager.getFnRepo().persist(functions);

@@ -18,6 +18,7 @@ public class OFunctionConfig {
   boolean http2;
   Map<String, Object> custom = Map.of();
   String apiPath = "";
+  String staticUrl;
 
   public enum OffloadingMode{
     JSON,PROTOBUF,GRPC

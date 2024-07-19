@@ -13,6 +13,8 @@ import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.FunctionType;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.repository.id.IdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -21,6 +23,7 @@ import java.util.function.UnaryOperator;
  * @author Pawissanutt
  */
 public class BaseClassController implements ClassController {
+  private static final Logger logger = LoggerFactory.getLogger( BaseClassController.class );
 
   final OClass cls;
   final StateManager stateManager;
@@ -53,6 +56,7 @@ public class BaseClassController implements ClassController {
     var fn = functionMap.get(req.fb());
     if (fn==null)
       return Uni.createFrom().failure(InvocationException.notFoundFnInCls(req.fb(), cls.getKey()));
+    logger.debug("invoke fb={} to {} in cls {} (out={})", req.fb(), req.main(), req.cls(), req.outId());
     return fn.invoke(context)
       .flatMap(this::handleStateOperations)
       .call(chainProcessor::handle);

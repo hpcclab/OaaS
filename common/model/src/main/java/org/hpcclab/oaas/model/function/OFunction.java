@@ -113,9 +113,9 @@ public class OFunction implements Copyable<OFunction>, HasKey<String>, SelfValid
       outputCls = null;
     }
 
-    if (provision!=null && provision.getStaticUrl()!=null) {
+    if (config.getStaticUrl() != null && !config.getStaticUrl().isEmpty()) {
       status.setCondition(DeploymentCondition.RUNNING)
-        .setInvocationUrl(provision.getStaticUrl().getUrl());
+        .setInvocationUrl(config.getStaticUrl());
     }
 
   }

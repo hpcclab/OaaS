@@ -719,6 +719,8 @@ components:
           additionalProperties: {}
         apiPath:
           type: string
+        staticUrl:
+          type: string
     OFunctionConfig_Public:
       type: object
       properties:
@@ -734,6 +736,8 @@ components:
           type: object
           additionalProperties: {}
         apiPath:
+          type: string
+        staticUrl:
           type: string
     OFunctionDeploymentStatus:
       type: object
@@ -918,8 +922,6 @@ components:
           $ref: "#/components/schemas/KnativeProvision"
         deployment:
           $ref: "#/components/schemas/KDeploymentProvision"
-        staticUrl:
-          $ref: "#/components/schemas/StaticUrlProvision"
     ProvisionConfig_Public:
       type: object
       properties:
@@ -927,8 +929,6 @@ components:
           $ref: "#/components/schemas/KnativeProvision_Public"
         deployment:
           $ref: "#/components/schemas/KDeploymentProvision_Public"
-        staticUrl:
-          $ref: "#/components/schemas/StaticUrlProvision_Public"
     QosConstraint:
       type: object
       properties:
@@ -1089,16 +1089,6 @@ components:
       - FILES
       - COLLECTION
       type: string
-    StaticUrlProvision:
-      type: object
-      properties:
-        url:
-          type: string
-    StaticUrlProvision_Public:
-      type: object
-      properties:
-        url:
-          type: string
     Step:
       type: object
       properties:

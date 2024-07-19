@@ -22,6 +22,8 @@ jobs:
             dir_path: example/functions/concat-fn-py
           - func_name: img-resize-fn-py
             dir_path: example/functions/img-resize-fn-py
+          - func_name: img-rembg-fn-py
+            dir_path: example/functions/img-rembg-fn-py
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

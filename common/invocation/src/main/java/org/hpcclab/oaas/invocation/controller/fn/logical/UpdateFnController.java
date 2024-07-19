@@ -32,7 +32,7 @@ public class UpdateFnController extends AbstractFunctionController
   protected void afterBind() {
     merge = customConfig.getBoolean("merge", false);
     logger.debug("cls '{}', fb '{}' use merge={}",
-      cls, functionBinding.getName(), merge);
+      cls.getKey(), functionBinding.getName(), merge);
   }
 
   @Override

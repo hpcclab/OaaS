@@ -1,6 +1,7 @@
 package org.hpcclab.oprc.cli.command.dev;
 
 import jakarta.inject.Inject;
+import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.MapEntityRepository;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.mixin.CommonOutputMixin;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -38,12 +40,14 @@ public class DevClsDeleteCommand implements Callable<Integer> {
   @Override
   public Integer call() throws Exception {
     MapEntityRepository.MapClsRepository clsRepo = devManager.getClsRepo();
-    if (clsRepo.getMap().contains(clsKey)) {
-      clsRepo.remove(clsKey);
+    OClass removed = clsRepo.remove(clsKey);
+    if (removed != null) {
       System.out.printf("class '%s' is deleted%n", clsKey);
       devManager.persistPkg();
     } else {
       System.out.printf("class '%s' does not exist in local state%n", clsKey);
+      Set<String> keys = clsRepo.getMap().keySet();
+      System.out.printf("found %s%n", keys);
     }
     return 0;
   }

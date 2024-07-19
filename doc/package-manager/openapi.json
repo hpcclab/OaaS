@@ -973,6 +973,9 @@
           },
           "apiPath" : {
             "type" : "string"
+          },
+          "staticUrl" : {
+            "type" : "string"
           }
         }
       },
@@ -996,6 +999,9 @@
             "additionalProperties" : { }
           },
           "apiPath" : {
+            "type" : "string"
+          },
+          "staticUrl" : {
             "type" : "string"
           }
         }
@@ -1250,9 +1256,6 @@
           },
           "deployment" : {
             "$ref" : "#/components/schemas/KDeploymentProvision"
-          },
-          "staticUrl" : {
-            "$ref" : "#/components/schemas/StaticUrlProvision"
           }
         }
       },
@@ -1264,9 +1267,6 @@
           },
           "deployment" : {
             "$ref" : "#/components/schemas/KDeploymentProvision_Public"
-          },
-          "staticUrl" : {
-            "$ref" : "#/components/schemas/StaticUrlProvision_Public"
           }
         }
       },
@@ -1504,22 +1504,6 @@
       "StateType_Public" : {
         "enum" : [ "FILES", "COLLECTION" ],
         "type" : "string"
-      },
-      "StaticUrlProvision" : {
-        "type" : "object",
-        "properties" : {
-          "url" : {
-            "type" : "string"
-          }
-        }
-      },
-      "StaticUrlProvision_Public" : {
-        "type" : "object",
-        "properties" : {
-          "url" : {
-            "type" : "string"
-          }
-        }
       },
       "Step" : {
         "type" : "object",

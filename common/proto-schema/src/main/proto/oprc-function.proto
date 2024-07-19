@@ -27,7 +27,6 @@ message ProtoOFunction{
 message ProtoProvisionConfig {
   optional KnativeProvision knative = 1;
   optional KDeploymentProvision deployment = 2;
-  optional StaticUrlProvision staticUrl = 3;
 }
 
 message KnativeProvision{
@@ -53,9 +52,6 @@ message KDeploymentProvision{
   optional string limitsMemory = 6;
   int32 port = 9;
   string pullPolicy = 10;
-}
-message StaticUrlProvision{
-  string url = 1;
 }
 
 message VariableDescription {
@@ -112,6 +108,7 @@ message ProtoOFunctionConfig {
   bool http2 = 2;
   bytes custom = 3;
   ProtoOffloadingMode offloadingMode = 4;
+  string staticUrl = 5;
 }
 
 

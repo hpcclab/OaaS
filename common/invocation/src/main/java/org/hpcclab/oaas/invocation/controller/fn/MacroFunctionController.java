@@ -33,6 +33,16 @@ public class MacroFunctionController extends AbstractFunctionController {
 
   @Override
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
+    ensureOutId(ctx);
     return orchestrator.execute(ctx, semantic);
+  }
+
+  void ensureOutId(final InvocationCtx ctx) {
+    String outId = ctx.getRequest().outId();
+    if (outId == null || outId.isEmpty()) return;
+    String outputNode = function.getMacro()
+      .output();
+    if (outputNode != null)
+      ctx.getMacroIds().put(outputNode, outId);
   }
 }

@@ -50,6 +50,8 @@ public class DataflowOrchestrator {
       .map(__ -> createResp(ctx, dataflowSemantic, state));
   }
 
+
+
   Uni<DataflowState> branch(InvocationCtx ctx,
                             DataflowNode node,
                             DataflowState state) {
@@ -111,11 +113,10 @@ public class DataflowOrchestrator {
       }
     }
     var invId = idGenerator.generate();
-    var outId = idGenerator.generate();
-    ctx.getMacroIds().put(step.as(), outId);
+    var outId = ctx.getMacroIds().computeIfAbsent(step.as(), k -> idGenerator.generate());
     Map<String,String> args = Maps.mutable.ofMap(step.args());
     Map<String,String> argRefs = step.argRefs() == null? Map.of() : step.argRefs();
-    Map<String, String> ctxArgs = ctx.getArgs() == null? Map.of(): ctx.getArgs();
+    Map<String,String> ctxArgs = ctx.getArgs() == null? Map.of(): ctx.getArgs();
     for (var argRef : argRefs.entrySet()) {
       args.put(argRef.getKey(), ctxArgs.get(argRef.getValue()));
     }
