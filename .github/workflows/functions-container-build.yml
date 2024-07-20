@@ -24,6 +24,8 @@ jobs:
             dir_path: example/functions/img-resize-fn-py
           - func_name: img-rembg-fn-py
             dir_path: example/functions/img-rembg-fn-py
+          - func_name: img-obj-detect-fn-py
+            dir_path: example/functions/img-obj-detect-fn-py
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
