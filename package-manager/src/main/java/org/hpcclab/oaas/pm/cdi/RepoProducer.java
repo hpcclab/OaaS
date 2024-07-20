@@ -6,10 +6,9 @@ import jakarta.inject.Singleton;
 import org.hpcclab.oaas.arango.AutoRepoBuilder;
 import org.hpcclab.oaas.arango.repo.ArgClsRepository;
 import org.hpcclab.oaas.arango.repo.ArgFunctionRepository;
-import org.hpcclab.oaas.repository.ClassRepository;
-import org.hpcclab.oaas.repository.ClassResolver;
-import org.hpcclab.oaas.repository.FunctionRepository;
-import org.hpcclab.oaas.repository.PackageValidator;
+import org.hpcclab.oaas.invocation.service.VertxPackageRoutes;
+import org.hpcclab.oaas.mapper.ProtoMapper;
+import org.hpcclab.oaas.repository.*;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.hpcclab.oaas.repository.id.TsidGenerator;
 
@@ -43,5 +42,23 @@ public class RepoProducer {
   @ApplicationScoped
   PackageValidator packageValidator(FunctionRepository functionRepository) {
     return new PackageValidator(functionRepository);
+  }
+
+  @Produces
+  @ApplicationScoped
+  VertxPackageRoutes vertxPackageService(ClassRepository classRepo,
+                                         FunctionRepository funcRepo,
+                                         PackageValidator validator,
+                                         ClassResolver classResolver,
+                                         ProtoMapper protoMapper,
+                                         PackageDeployer packageDeployer) {
+    return new VertxPackageRoutes(
+      classRepo,
+      funcRepo,
+      validator,
+      classResolver,
+      protoMapper,
+      packageDeployer
+    );
   }
 }

@@ -11,7 +11,6 @@ import org.hpcclab.oaas.repository.store.DatastoreConf;
 import java.util.function.Function;
 
 public class RepoFactory {
-  static final String CACHE_TIMEOUT = "CACHETIMEOUT";
   static final String COLLECTION = "COL";
   DatastoreConf conf;
 
@@ -44,24 +43,20 @@ public class RepoFactory {
     var db = arangoDB();
     var database = arangoDatabase(db);
     var databaseAsync = arangoDatabase(db.async());
-    var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
     var colName = conf.options().getOrDefault(COLLECTION, "OprcClass");
     return new ArgClsRepository(
       database.collection(colName),
-      databaseAsync.collection(colName),
-      cf);
+      databaseAsync.collection(colName));
   }
 
   public ArgFunctionRepository fnRepository() {
     var db = arangoDB();
     var database = arangoDatabase(db);
     var databaseAsync = arangoDatabase(db.async());
-    var cf = new CacheFactory(Integer.parseInt(conf.options().getOrDefault(CACHE_TIMEOUT, "10000")));
     var colName = conf.options().getOrDefault(COLLECTION, "OprcFunction");
     return new ArgFunctionRepository(
       database.collection(colName),
-      databaseAsync.collection(colName),
-      cf);
+      databaseAsync.collection(colName));
   }
 
   public <V> GenericArgRepository<V> createGenericRepo(Class<V> cls,
@@ -84,14 +79,8 @@ public class RepoFactory {
     if (!database.exists()) {
       database.create();
     }
-    var col = database.collection(conf.options().getOrDefault(COLLECTION, "OprcClass"));
-    if (!col.exists()) {
-      col.create();
-    }
-    col = database.collection(conf.options().getOrDefault(COLLECTION, "OprcFunction"));
-    if (!col.exists()) {
-      col.create();
-    }
+    createIfNotExist(database, conf.options().getOrDefault("CLS_COL", "OprcClass"));
+    createIfNotExist(database, conf.options().getOrDefault("FN_COL", "OprcFunction"));
   }
 
   public static void createIfNotExist(ArangoDatabase database, String colName) {

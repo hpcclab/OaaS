@@ -11,7 +11,10 @@ public class GenericArgRepository<V> extends AbstractArgRepository<V>{
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
 
-  public GenericArgRepository(Class<V> valueCls, Function<V, String> keyExtractor, ArangoCollection collection, ArangoCollectionAsync collectionAsync) {
+  public GenericArgRepository(Class<V> valueCls,
+                              Function<V, String> keyExtractor,
+                              ArangoCollection collection,
+                              ArangoCollectionAsync collectionAsync) {
     this.valueCls = valueCls;
     this.keyExtractor = keyExtractor;
     this.collection = collection;

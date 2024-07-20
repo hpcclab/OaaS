@@ -5,12 +5,12 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.Record;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.model.pkg.OPackage;
-
-import jakarta.enterprise.context.ApplicationScoped;
+import org.hpcclab.oaas.pm.PkgManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,11 @@ public class PackagePublisher {
   MutinyEmitter<Record<String, OFunction>> fnProvisionEmitter;
   @Channel("clsProvisions")
   MutinyEmitter<Record<String, OClass>> clsProvisionEmitter;
+  final boolean enabled;
 
+  public PackagePublisher(PkgManagerConfig config) {
+    enabled = config.kafkaEnabled();
+  }
 
   public Uni<Void> submitNewFunction(OFunction function) {
     return fnProvisionEmitter
@@ -63,6 +67,9 @@ public class PackagePublisher {
   }
 
   public Uni<Void> submitNewPkg(OPackage packageContainer) {
+    if (!enabled) {
+      return Uni.createFrom().nullItem();
+    }
     logger.debug("publish pkg {}", packageContainer.getName());
     return submitNewFunction(packageContainer.getFunctions().stream())
       .flatMap(__ -> submitNewCls(packageContainer.getClasses().stream()));

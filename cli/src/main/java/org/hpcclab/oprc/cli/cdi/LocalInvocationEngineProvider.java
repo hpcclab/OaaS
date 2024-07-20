@@ -1,4 +1,4 @@
-package org.hpcclab.oprc.cli.state;
+package org.hpcclab.oprc.cli.cdi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
@@ -27,6 +27,7 @@ import org.hpcclab.oaas.repository.store.DatastoreConf;
 import org.hpcclab.oaas.storage.UnifyContentUrlGenerator;
 import org.hpcclab.oprc.cli.conf.ConfigFileManager;
 import org.hpcclab.oprc.cli.conf.FileCliConfig;
+import org.hpcclab.oprc.cli.state.LocalDevManager;
 
 import java.io.IOException;
 

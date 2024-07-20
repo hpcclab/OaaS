@@ -72,7 +72,7 @@ public class TestUtils {
       .statusCode(200)
       .log().ifValidationFails()
       .extract().body().as( new TypeRef<Pagination<OClass>>() {})
-      .getItems();
+      .items();
   }
 
   public static OClass getClass(String name) {

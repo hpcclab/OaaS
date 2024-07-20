@@ -4,7 +4,7 @@ import org.hpcclab.oaas.model.cls.OClass;
 
 import java.util.List;
 
-public interface ClassRepository extends CachedEntityRepository<String, OClass> {
+public interface ClassRepository extends EntityRepository<String, OClass> {
   default List<OClass> listSubCls(String clsKey){
     throw new UnsupportedOperationException();
   }

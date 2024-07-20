@@ -2,8 +2,6 @@ package org.hpcclab.oaas.arango.repo;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoCollectionAsync;
-import com.github.benmanes.caffeine.cache.Cache;
-import jakarta.inject.Inject;
 import org.hpcclab.oaas.arango.CacheFactory;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.repository.ClassRepository;
@@ -15,19 +13,14 @@ import java.util.Map;
 public class ArgClsRepository extends AbstractArgRepository<OClass> implements ClassRepository {
 
 
-  private final Cache<String, OClass> cache;
   ArangoCollection collection;
   ArangoCollectionAsync collectionAsync;
   CacheFactory cacheFactory;
 
-  @Inject
   public ArgClsRepository(ArangoCollection collection,
-                          ArangoCollectionAsync collectionAsync,
-                          CacheFactory cacheFactory) {
+                          ArangoCollectionAsync collectionAsync) {
     this.collection = collection;
     this.collectionAsync = collectionAsync;
-    this.cacheFactory = cacheFactory;
-    cache = cacheFactory.get();
   }
 
 
@@ -50,9 +43,7 @@ public class ArgClsRepository extends AbstractArgRepository<OClass> implements C
   public String extractKey(OClass cls) {
     return cls.getKey();
   }
-  Cache<String, OClass> cache() {
-    return cache;
-  }
+
 
   @Override
   public List<OClass> listSubCls(String clsKey) {

@@ -114,7 +114,7 @@ public class CrStateManager {
     return crRepo.getQueryService()
       .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
-      .flatMap(p -> Multi.createFrom().iterable(p.getItems()))
+      .flatMap(p -> Multi.createFrom().iterable(p.items()))
       .onItem().transformToUniAndConcatenate(this::refreshFn)
       .map(doc -> protoMapper.toProto(doc));
   }
@@ -123,7 +123,7 @@ public class CrStateManager {
     return hashRepo.getQueryService()
       .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
-      .flatMap(p -> Multi.createFrom().iterable(p.getItems()))
+      .flatMap(p -> Multi.createFrom().iterable(p.items()))
       .map(doc -> protoMapper.toProto(doc));
   }
 

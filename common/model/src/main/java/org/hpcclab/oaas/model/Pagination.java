@@ -1,24 +1,24 @@
 package org.hpcclab.oaas.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.util.List;
 
-@Data
-@Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class Pagination <T>{
-  long total = -1;
-  long offset = -1;
-  long itemCount = -1;
-  List<T> items;
+public record Pagination <T>(long total,
+                             long offset,
+                             long itemCount,
+                             List<T> items){
 
-  public Pagination(Number total, long start, long itemCount, List<T> items) {
-    this.total = total == null? -1: total.longValue();
-    this.offset = start;
-    this.itemCount = itemCount;
-    this.items = items;
+  public Pagination(Number total,
+                    long start,
+                    long itemCount,
+                    List<T> items) {
+    this(
+      total == null? -1: total.longValue(),
+      start,
+      itemCount,
+      items
+    );
   }
 }

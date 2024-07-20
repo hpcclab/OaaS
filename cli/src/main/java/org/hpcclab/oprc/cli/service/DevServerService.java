@@ -1,6 +1,7 @@
 package org.hpcclab.oprc.cli.service;
 
 import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.http.HttpServer;
@@ -10,7 +11,9 @@ import io.vertx.mutiny.ext.web.handler.LoggerHandler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import org.hpcclab.oaas.invocation.service.VertxInvocationService;
+import org.hpcclab.oaas.invocation.service.VertxInvocationRoutes;
+import org.hpcclab.oaas.invocation.service.VertxPackageRoutes;
+import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oprc.cli.state.LocalDevManager;
 import org.slf4j.Logger;
@@ -22,13 +25,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Pawissanutt
  */
+@RegisterForReflection(
+  targets = {Pagination.class}
+)
 @ApplicationScoped
 public class DevServerService {
   private static final Logger logger = LoggerFactory.getLogger( DevServerService.class );
   @Inject
   Vertx vertx;
   @Inject
-  VertxInvocationService vertxInvocationService;
+  VertxInvocationRoutes vertxInvocationRoutes;
+  @Inject
+  VertxPackageRoutes vertxPackageRoutes;
   @Inject
   LocalDevManager localDevManager;
   AtomicBoolean running = new AtomicBoolean(false);
@@ -37,13 +45,17 @@ public class DevServerService {
     localDevManager.init();
     HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setPort(port));
     Router router = Router.router(vertx);
-    Router subRouter = Router.router(vertx);
-    vertxInvocationService.mountRouter(subRouter);
+    Router invocationSubRouter = Router.router(vertx);
+    vertxInvocationRoutes.mountRouter(invocationSubRouter);
+    Router packageSubRouter = Router.router(vertx);
+    vertxPackageRoutes.mountRouter(packageSubRouter);
     router.route().handler(BodyHandler.create())
       .handler(LoggerHandler.create())
       ;
     router.route("/api/*")
-      .subRouter(subRouter);
+      .subRouter(invocationSubRouter);
+    router.route("/api/*")
+      .subRouter(packageSubRouter);
     httpServer.requestHandler(router)
       .listenAndAwait();
     running.set(true);

@@ -6,7 +6,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.MultiMap;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.Router;
@@ -28,19 +27,20 @@ import java.util.Optional;
 /**
  * @author Pawissanutt
  */
-public class VertxInvocationService {
+public class VertxInvocationRoutes implements VertxRouteService{
   final LocationAwareInvocationForwarder invocationForwarder;
   final InvocationReqHandler invocationReqHandler;
   final ObjectMapper mapper;
 
-  public VertxInvocationService(LocationAwareInvocationForwarder invocationForwarder,
-                                InvocationReqHandler invocationReqHandler,
-                                ObjectMapper mapper) {
+  public VertxInvocationRoutes(LocationAwareInvocationForwarder invocationForwarder,
+                               InvocationReqHandler invocationReqHandler,
+                               ObjectMapper mapper) {
     this.invocationForwarder = invocationForwarder;
     this.invocationReqHandler = invocationReqHandler;
     this.mapper = mapper;
   }
 
+  @Override
   public void mountRouter(Router router) {
     router.route().failureHandler(this::handleException);
     router.route("/classes/:cls/invokes/:fb")
@@ -57,15 +57,6 @@ public class VertxInvocationService {
       .method(HttpMethod.GET)
       .method(HttpMethod.POST)
       .respond(this::invoke);
-  }
-
-
-  void handleException(RoutingContext ctx) {
-    Throwable failure = ctx.failure();
-    if (failure instanceof StdOaasException std) {
-      ctx.response().setStatusCode(std.getCode());
-      ctx.jsonAndForget(JsonObject.of("msg", std.getMessage()));
-    }
   }
 
 

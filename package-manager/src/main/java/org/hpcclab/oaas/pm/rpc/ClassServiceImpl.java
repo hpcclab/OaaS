@@ -29,7 +29,7 @@ public class ClassServiceImpl implements ClassService {
     return clsRepo.getQueryService()
       .paginationAsync(request.getOffset(), request.getLimit())
       .toMulti()
-      .flatMap(page -> Multi.createFrom().iterable(page.getItems()))
+      .flatMap(page -> Multi.createFrom().iterable(page.items()))
       .map(mapper::toProto);
   }
 

@@ -1,16 +1,17 @@
 package org.hpcclab.oaas.pm.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.hpcclab.oaas.pm.service.PackagePublisher;
 import org.hpcclab.oaas.model.Pagination;
 import org.hpcclab.oaas.model.Views;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.FunctionRepository;
+import org.hpcclab.oaas.repository.PackageDeployer;
 import org.jboss.resteasy.reactive.RestQuery;
 
 @RequestScoped
@@ -21,7 +22,7 @@ public class FunctionResource {
   @Inject
   FunctionRepository funcRepo;
   @Inject
-  PackagePublisher packagePublisher;
+  PackageDeployer packageDeployer;
 
   @GET
   @JsonView(Views.Public.class)
@@ -47,9 +48,12 @@ public class FunctionResource {
   @DELETE
   @Path("{funcKey}")
   @JsonView(Views.Public.class)
-  public Uni<OFunction> delete(String funcKey) {
-    return funcRepo.async().removeAsync(funcKey)
-      .onItem().ifNull().failWith(NotFoundException::new)
-      .call(__ -> packagePublisher.submitDeleteFn(funcKey));
+  @RunOnVirtualThread
+  public OFunction delete(String funcKey) {
+    OFunction removed = funcRepo.remove(funcKey);
+    if (removed == null)
+      throw new NotFoundException();
+    packageDeployer.detach(removed);
+    return removed;
   }
 }
