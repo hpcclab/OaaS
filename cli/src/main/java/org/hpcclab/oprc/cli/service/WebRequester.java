@@ -35,7 +35,7 @@ public class WebRequester {
     if (virtualHost!=null) request.virtualHost(virtualHost);
     var res = request
       .sendAndAwait();
-    if (res.statusCode()!=200) {
+    if (res.statusCode()>299) {
       logger.error("error response: code={}, body={}",
         res.statusCode(),
         res.bodyAsString());
