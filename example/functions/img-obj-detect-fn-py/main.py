@@ -28,12 +28,13 @@ class ObjectDetectHandler(oaas.Handler):
                 with Image.open(BytesIO(image_bytes)) as img:
                     results = model(img)
                     result = results[0]
+                    img_format = img.format
                 summary = result.summary()
                 im_bgr = result.plot()  # BGR-order numpy array
                 with Image.fromarray(im_bgr[..., ::-1]) as output_image:
                     byte_io = BytesIO()
-                    output_image.save(byte_io, format=output_image.format)
-                    record['format'] = output_image.format
+                    output_image.save(byte_io, format=img_format)
+                    record['format'] = img_format
                     output_image_bytes = byte_io.getvalue()
                     await ctx.upload_byte_data(session, IMAGE_KEY, output_image_bytes)
                 record['result'] = summary
