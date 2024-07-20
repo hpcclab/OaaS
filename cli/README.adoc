@@ -16,6 +16,16 @@ Download the executable file from the artifacts of GitHub Action buid (https://g
 
 image::../doc/images/ocli-download.png[]
 
+=== Install via Jbang
+
+First, you need to install https://www.jbang.dev/download/[jbang]. Then, run the below commands for installing `ocli`.
+
+[source,bash]
+----
+jbang catalog add --name oaas https://github.com/hpcclab/OaaS/blob/main/jbang-catalog.json
+bang app install --force ocli@oaas
+----
+
 === Build from source
 
 ==== Native Image
