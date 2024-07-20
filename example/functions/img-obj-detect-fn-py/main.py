@@ -27,20 +27,20 @@ class ObjectDetectHandler(oaas.Handler):
                 image_bytes = await resp.read()
                 with Image.open(BytesIO(image_bytes)) as img:
                     results = model(img)
-                    for result in results:
-                        summary = result.summary()
-                        im_bgr = result.plot()  # BGR-order numpy array
-                        output_image = Image.fromarray(im_bgr[..., ::-1])
-
+                    result = results[0]
+                summary = result.summary()
+                im_bgr = result.plot()  # BGR-order numpy array
+                with Image.fromarray(im_bgr[..., ::-1]) as output_image:
                     byte_io = BytesIO()
-                    output_image.save(byte_io, format=img.format)
+                    output_image.save(byte_io, format=output_image.format)
+                    record['format'] = output_image.format
                     output_image_bytes = byte_io.getvalue()
                     await ctx.upload_byte_data(session, IMAGE_KEY, output_image_bytes)
-                    record['result'] = summary
-                    if inplace:
-                        ctx.task.main_obj.data = record
-                    else:
-                        ctx.task.output_obj.data = record
+                record['result'] = summary
+                if inplace:
+                    ctx.task.main_obj.data = record
+                else:
+                    ctx.task.output_obj.data = record
 
 
 app = FastAPI()
