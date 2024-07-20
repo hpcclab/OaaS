@@ -35,7 +35,7 @@ Oparaca came with `ocli` commandline tool with the dev mode for local developmen
 
 Check on the guides:
 
-* https://github.com/pawissanutt/oaas-tutorial[tutorial the cover from the basic to deployment]
+* https://github.com/hpcclab/OaaS-Tutorial[tutorial the cover from the basic to deployment]
 * link:cli/README.adoc[ocli installation and usage guide]
 * link:doc/FUNCTION_GUIDE.adoc[function development]
 * link:doc/PACKAGE_REFERENCE.adoc[package definition guide]
