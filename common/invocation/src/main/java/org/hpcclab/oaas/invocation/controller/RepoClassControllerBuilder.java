@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
+import org.hpcclab.oaas.invocation.state.StateManager;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.function.OFunction;
 import org.hpcclab.oaas.repository.ClassRepository;

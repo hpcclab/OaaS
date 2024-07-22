@@ -3,16 +3,22 @@ disabled: true
 functions:
   - name: copy
     type: BUILTIN
+    immutable: true
   - name: new
     type: BUILTIN
   - name: update
     type: BUILTIN
   - name: get
     type: BUILTIN
+    immutable: true
+  - name: delete
+    type: BUILTIN
   - name: file
     type: BUILTIN
+    immutable: true
   - name: project
     type: BUILTIN
+    immutable: true
   - name: native-query
     type: BUILTIN
 classes:

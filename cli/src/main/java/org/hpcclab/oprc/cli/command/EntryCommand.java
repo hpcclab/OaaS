@@ -11,7 +11,7 @@ import org.hpcclab.oprc.cli.command.ctx.ContextSetCommand;
 import org.hpcclab.oprc.cli.command.dev.*;
 import org.hpcclab.oprc.cli.command.fn.FnListCommand;
 import org.hpcclab.oprc.cli.command.invocation.GrpcInvocationCommand;
-import org.hpcclab.oprc.cli.command.invocation.V2InvocationCommand;
+import org.hpcclab.oprc.cli.command.invocation.InvocationCommand;
 import org.hpcclab.oprc.cli.command.obj.ObjectEntryCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageApplyCommand;
 import org.hpcclab.oprc.cli.command.pkg.PackageDeleteCommand;
@@ -29,7 +29,7 @@ import picocli.CommandLine.Command;
     EntryCommand.DevEntryCommand.class,
     EntryCommand.FnEntryCommand.class,
     EntryCommand.PackageEntryCommand.class,
-    V2InvocationCommand.class,
+    InvocationCommand.class,
     GrpcInvocationCommand.class,
     AutoComplete.GenerateCompletion.class,
   },

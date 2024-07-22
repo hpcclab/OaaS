@@ -71,6 +71,12 @@ public class FunctionControllerProducer {
   }
 
   @Produces
+  DeleteFnController deleteFnController(IdGenerator idGenerator,
+                                        ObjectMapper mapper) {
+    return new DeleteFnController(idGenerator, mapper);
+  }
+
+  @Produces
   ProjectFnController projectFnController(IdGenerator idGenerator,
                                           ObjectMapper mapper) {
     return new ProjectFnController(idGenerator, mapper);

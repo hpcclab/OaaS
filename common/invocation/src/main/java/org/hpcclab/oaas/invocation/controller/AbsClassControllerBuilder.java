@@ -6,6 +6,7 @@ import org.hpcclab.oaas.invocation.controller.fn.ErrorFnController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionControllerFactory;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
+import org.hpcclab.oaas.invocation.state.StateManager;
 import org.hpcclab.oaas.mapper.ProtoMapper;
 import org.hpcclab.oaas.mapper.ProtoMapperImpl;
 import org.hpcclab.oaas.model.cls.OClass;

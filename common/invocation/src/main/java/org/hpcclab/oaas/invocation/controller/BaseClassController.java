@@ -8,6 +8,10 @@ import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.InvocationQueueProducer;
 import org.hpcclab.oaas.invocation.controller.fn.FunctionController;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
+import org.hpcclab.oaas.invocation.state.DeleteStateOperation;
+import org.hpcclab.oaas.invocation.state.SimpleStateOperation;
+import org.hpcclab.oaas.invocation.state.StateManager;
+import org.hpcclab.oaas.invocation.state.StateOperation;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.model.function.FunctionType;
@@ -122,6 +126,7 @@ public class BaseClassController implements ClassController {
   Uni<Void> handleStateOperation(StateOperation stateOperation) {
     return switch (stateOperation) {
       case SimpleStateOperation sso -> stateManager.applySimple(sso);
+      case DeleteStateOperation dso -> stateManager.applyDelete(dso);
       default -> throw new IllegalStateException("Unexpected value:" + stateOperation);
     };
   }

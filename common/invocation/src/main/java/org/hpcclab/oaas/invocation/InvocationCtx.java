@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.controller.InvocationLog;
-import org.hpcclab.oaas.invocation.controller.StateOperation;
+import org.hpcclab.oaas.invocation.state.StateOperation;
 import org.hpcclab.oaas.model.invocation.InvocationChain;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;

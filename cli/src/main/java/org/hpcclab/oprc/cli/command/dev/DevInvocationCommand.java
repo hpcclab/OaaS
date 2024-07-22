@@ -72,6 +72,8 @@ public class DevInvocationCommand implements Callable<Integer> {
     int port = fileManager.getOrCreate().getLocalDev().port();
     if (cls==null) cls = conf.getDefaultClass();
     if (main==null) main = conf.getDefaultObject();
+    else if (main.isBlank() || main.equals("none") || main.equals("null")) main = null;
+
     JsonBytes body;
     if (pipeBody) {
       var inData = System.in.readAllBytes();
@@ -85,10 +87,11 @@ public class DevInvocationCommand implements Callable<Integer> {
     InvocationRequest req = InvocationRequest.builder()
       .cls(cls)
       .fb(fb)
-      .main(main.isBlank()? null: main)
+      .main(main)
       .args(args)
       .body(body)
       .build();
+    logger.debug("use {}", req);
     devServerService.start(port);
     InvocationResponse resp = reqHandler.invoke(req).await().indefinitely();
     outputFormatter.printObject2(commonOutputMixin.getOutputFormat(), resp);

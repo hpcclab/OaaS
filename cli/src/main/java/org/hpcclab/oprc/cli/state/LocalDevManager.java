@@ -11,6 +11,9 @@ import org.hpcclab.oaas.invocation.BuiltInLoader;
 import org.hpcclab.oaas.invocation.controller.*;
 import org.hpcclab.oaas.invocation.controller.fn.CdiFunctionControllerFactory;
 import org.hpcclab.oaas.invocation.metrics.MetricFactory;
+import org.hpcclab.oaas.invocation.state.DeleteStateOperation;
+import org.hpcclab.oaas.invocation.state.SimpleStateOperation;
+import org.hpcclab.oaas.invocation.state.StateManager;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.exception.StdOaasException;
 import org.hpcclab.oaas.model.function.OFunction;
@@ -166,13 +169,21 @@ public class LocalDevManager {
 
     @Override
     public Uni<Void> applySimple(SimpleStateOperation operation) {
-      if (operation.getUpdateCls()!=null) {
-        dirtyCls.add(operation.getUpdateCls().getKey());
+      if (operation.updateCls()!=null) {
+        dirtyCls.add(operation.updateCls().getKey());
       }
-      if (operation.getCreateCls()!=null) {
-        dirtyCls.add(operation.getCreateCls().getKey());
+      if (operation.createCls()!=null) {
+        dirtyCls.add(operation.createCls().getKey());
       }
       return internal.applySimple(operation);
+    }
+
+    @Override
+    public Uni<Void> applyDelete(DeleteStateOperation operation) {
+      if (operation.cls()!=null) {
+        dirtyCls.add(operation.cls().getKey());
+      }
+      return internal.applyDelete(operation);
     }
   }
 }

@@ -1,4 +1,4 @@
-package org.hpcclab.oaas.invocation.controller;
+package org.hpcclab.oaas.invocation.state;
 
 import io.smallrye.mutiny.Uni;
 
@@ -7,4 +7,5 @@ import io.smallrye.mutiny.Uni;
  */
 public interface StateManager {
   Uni<Void> applySimple(SimpleStateOperation operation);
+  Uni<Void> applyDelete(DeleteStateOperation operation);
 }

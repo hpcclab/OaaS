@@ -147,6 +147,20 @@ public class LocalInvocationEngineProvider {
   }
 
 
+  @Produces
+  DeleteFnController deleteFnController(IdGenerator idGenerator,
+                                        ObjectMapper mapper) {
+    return new DeleteFnController(idGenerator, mapper);
+  }
+
+  @Produces
+  NativeQueryFnController nativeQueryFnController(IdGenerator idGenerator,
+                                                  ObjectMapper mapper,
+                                                  LocalDevManager devManager) {
+    return new NativeQueryFnController(idGenerator, mapper,
+      devManager.getObjRepoManager());
+  }
+
 
   @Produces
   @ApplicationScoped

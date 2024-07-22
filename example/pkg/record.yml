@@ -53,7 +53,7 @@ classes:
         defaultArgs:
           INPLACE: "true"
       - name: random
-        function: .record.random-grpc
+        function: .record.random
         outputCls: .record
         immutable: true
         defaultArgs:
@@ -61,6 +61,8 @@ classes:
       - name: chain
         function: .record.chain-random
         outputCls: .record
+      - name: delete
+        function: builtin.delete
       - name: list
         function: builtin.native-query
         noMain: true

@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.controller.fn.AbstractFunctionController;
 import org.hpcclab.oaas.invocation.controller.fn.BuiltinFunctionController;
+import org.hpcclab.oaas.model.exception.InvocationException;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 
 /**
@@ -19,7 +20,9 @@ public class GetFnController
 
   @Override
   protected void validate(InvocationCtx ctx) {
-
+    String main = ctx.getRequest().main();
+    if (main== null || main.isBlank())
+      throw new InvocationException("function '%s' require main object".formatted(function.getKey()));
   }
 
   @Override

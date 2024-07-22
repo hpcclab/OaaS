@@ -5,7 +5,7 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.InvocationCtx;
-import org.hpcclab.oaas.invocation.controller.SimpleStateOperation;
+import org.hpcclab.oaas.invocation.state.SimpleStateOperation;
 import org.hpcclab.oaas.invocation.task.ContentUrlGenerator;
 import org.hpcclab.oaas.invocation.task.InvokingDetail;
 import org.hpcclab.oaas.invocation.task.OffLoader;
