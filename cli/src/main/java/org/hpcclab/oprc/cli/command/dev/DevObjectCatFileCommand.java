@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
-  name = "cat file",
+  name = "object-cat-file",
   aliases = {"ocf"},
   description = "Cat the loaded file from object",
   mixinStandardHelpOptions = true

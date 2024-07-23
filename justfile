@@ -94,7 +94,7 @@ k8s-clean:
   kubectl delete -n oaas -k deploy/oaas/base || true
 
 k3d-create:
-  K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"  --memory 8G
+  K3D_FIX_DNS=1 k3d cluster create -p "80:80@loadbalancer"  --servers-memory 8G
 
 k3d-install-all: k3d-create
   just k8s-deploy-preq
