@@ -2,7 +2,6 @@ package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,24 +13,24 @@ import java.io.IOException;
 /**
  * @author Pawissanutt
  */
-public class JsonBytes {
+public class JsonObjectBytes {
   public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-  public static final JsonBytes EMPTY = new JsonBytes();
+  public static final JsonObjectBytes EMPTY = new JsonObjectBytes();
   byte[] bytes;
   JsonNode objectNode;
 
-  public JsonBytes(byte[] bytes) {
+  public JsonObjectBytes(byte[] bytes) {
     this.bytes = bytes;
   }
-  public JsonBytes(String json) {
+  public JsonObjectBytes(String json) {
     this.bytes = json.getBytes();
   }
 
-  public JsonBytes() {
+  public JsonObjectBytes() {
   }
 
   @JsonCreator
-  public JsonBytes(JsonNode objectNode) {
+  public JsonObjectBytes(JsonNode objectNode) {
     this.objectNode = objectNode;
   }
 
@@ -51,6 +50,7 @@ public class JsonBytes {
     return null;
   }
 
+  @JsonValue
   public JsonNode getJsonNode() {
     if (bytes==null && objectNode==null) {
       return null;
@@ -68,8 +68,6 @@ public class JsonBytes {
     return OObjectConverter.getInstance().createEmpty();
   }
 
-  @JsonRawValue
-  @JsonValue
   public String getRaw() {
     if (bytes!=null && bytes.length != 0)
       return new String(getBytes());

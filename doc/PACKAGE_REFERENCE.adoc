@@ -188,16 +188,10 @@ The example of macro function of `record` class is below:
       # return record3
       output: record3
       # {step1: <record1>,step2: <record2>,step3: <record3>}
-      respBody:
-        - fromObj: record1
-          transforms:
-            - inject: step1
-        - fromObj: record2
-          transforms:
-            - inject: step2
-        - fromObj: record3
-          transforms:
-            - inject: step3
+      bodyTemplate:
+        step1: ${record1:output}
+        step2: ${record2:output}
+        step3: ${record3:output}
 ----
 
 On each item in `steps`, we define:
@@ -205,49 +199,45 @@ On each item in `steps`, we define:
 * `target` is the target object for this invocation step. If it is the main object, you have to put `@`.
 * `as` is the name of temporary output object. You can use this name as the invocation target in the later step.
 * `function` is the name of function binding for invocation.
-* `args` is the map (dictionary) of `args` for this invocation steps.
-
+* `args` is the map (dictionary) of `args` for this invocation step.
+* `bodyTemplate` is the request body for this invocation step.
 
 
 To make this macro function return the object, you can set the `output` to the name of temporary output of any step.
 
-To construct the response body, you can create the list of `DataMapping`.
+To construct the response body, you can create the template with the data substitution from the result of any steps.
 
-==== Defining DataMapping Blocks
+
+==== Data substitution
+
+Example:
 [source, yaml, lines]
 ----
-- fromObj: <step name>
-  transforms:
-    - inject: 'newStore' # key to inject
-      path: '$.store' # json path
-    - inject: 'secondAuthor'
-      path: '$.book[1].author'
+  - name: <name>
+    type: MACRO
+    macro:
+      steps:
+        # var book = self.createBook(title=args['title'], author=args['author'])
+        - target: '@'
+          as: book
+          function: createBook
+          args:
+            title: ${@|args|title}
+            author: ${@|args|author}
+          bodyTemplate:
+            content: ${@|body|content}
+            pages: ${@|body|page}
+        # var store = self.assign(store=args['store'], bookId=book.bookId, bookPrice=book.price)
+        - target: book
+          as: store
+          function: assign
+          bodyTemplate:
+            store: ${@|args|store}
+            bookId: ${book|output|$.bookId}
+            bookPrice: ${book|output|$.price}
+      bodyTemplate:
+        book: ${book|output}
+        store: ${store|output}
 
-- fromBody: <step name>
-  mapAll: true
 ----
-`DataMapping` is used for combine data from one or more sources. The source can be either object data or the response body of any invocation step.
 
-To define the `DataMapping`, each item has to contain either `fromObj` or `fromBody`. The DataMapping also allow you to transform the data using `transforms` field. Otherwise, setting `mapAll = true` will make this block simply copy the entire JSON data.
-
-To define the `transforms` field, you create the list of mapping between injection key and JSON path (see https://github.com/json-path/JsonPath[reference] for JSON path). The original JSON data will be extracted by each step of transform step and inject to new key.
-
-For example, if the input JSON object is:
-[source, json]
-----
-{
-  "store": "store name",
-  "books": [
-    {"title": "t1","author": "a1"},
-    {"title": "t2","author": "a2"}
-  ]
-}
-----
-The output of the first `DataMapping` step will be:
-[source, json]
-----
-{
-  "newStore": "store name",
-  "secondAuthor": "a2"
-}
-----

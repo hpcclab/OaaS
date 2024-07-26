@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
-  name = "file",
+  name = "object-file",
   aliases = {"of"},
   description = "Load file from object",
   mixinStandardHelpOptions = true

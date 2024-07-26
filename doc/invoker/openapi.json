@@ -610,10 +610,13 @@
             "type" : "string"
           },
           "objectNode" : {
-            "$ref" : "#/components/schemas/ObjectNode"
+            "$ref" : "#/components/schemas/JsonNode"
           },
           "node" : {
             "$ref" : "#/components/schemas/ObjectNode"
+          },
+          "jsonNode" : {
+            "$ref" : "#/components/schemas/JsonNode"
           },
           "raw" : {
             "type" : "string"

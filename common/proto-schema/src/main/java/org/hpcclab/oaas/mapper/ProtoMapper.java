@@ -14,6 +14,7 @@ import org.hpcclab.oaas.model.invocation.InvocationResponse;
 import org.hpcclab.oaas.model.invocation.InvocationStatus;
 import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
+import org.hpcclab.oaas.model.object.JsonObjectBytes;
 import org.hpcclab.oaas.model.object.OMeta;
 import org.hpcclab.oaas.model.pkg.OPackage;
 import org.hpcclab.oaas.model.proto.DSMap;
@@ -120,6 +121,16 @@ public interface ProtoMapper {
     return ByteString.copyFrom(jsonBytes.getBytes());
   }
 
+  default JsonObjectBytes toJsonObjectBytes(ByteString bytes) {
+    if (bytes == null) return JsonObjectBytes.EMPTY;
+    return new JsonObjectBytes(bytes.toByteArray());
+  }
+
+  default ByteString fromJsonObjectBytes(JsonObjectBytes jsonBytes) {
+    if (jsonBytes == null) return ByteString.EMPTY;
+    return ByteString.copyFrom(jsonBytes.getBytes());
+  }
+
   default Map<String, Object> toJsonMap(ByteString bytes) {
     if (bytes == null) return Map.of();
     if (bytes.isEmpty()) return Map.of();
@@ -129,6 +140,4 @@ public interface ProtoMapper {
     if (map == null) return ByteString.EMPTY;
     return ByteString.copyFromUtf8(new JsonObject(map).toString());
   }
-
-
 }

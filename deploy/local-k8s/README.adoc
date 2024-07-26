@@ -37,7 +37,7 @@ NOTE: The installation scripts should work with most of local Kubernetes environ
 +
 [source,bash]
 ----
-k3d cluster create -p "80:80@loadbalancer"
+k3d cluster create -p "80:80@loadbalancer" --servers-memory 8G
 # or using just (after clone this project)
 just k3d-create
 ----

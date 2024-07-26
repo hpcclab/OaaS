@@ -32,7 +32,7 @@ class DataflowSemanticTest {
     assertThat(semantic.getEndNode().require())
       .size().isEqualTo(1);
     assertThat(semantic.getAllNode())
-      .size().isEqualTo(3);
+      .size().isEqualTo(5);
     System.out.println(semantic.getEndNode());
   }
 }

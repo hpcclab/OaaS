@@ -35,7 +35,8 @@ import picocli.CommandLine.Command;
   },
   description = """
     The CLI of Oparaca platform (aka OaaS).
-    """
+    """,
+  version = "0.2.2-SNAPSHOT"
 )
 public class EntryCommand {
 

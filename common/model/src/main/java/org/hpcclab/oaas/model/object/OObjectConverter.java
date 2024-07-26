@@ -1,6 +1,7 @@
 package org.hpcclab.oaas.model.object;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hpcclab.oaas.model.exception.InvocationException;
@@ -38,16 +39,16 @@ public class OObjectConverter {
   }
 
 
-  public ObjectNode convert(byte[] bytes) {
+  public JsonNode convert(byte[] bytes) {
     if (bytes == null || bytes.length == 0) return null;
     try {
-      return  objectMapper.readValue(bytes, ObjectNode.class);
+      return  objectMapper.readTree(bytes);
     } catch (IOException e) {
       throw new InvocationException("Json parsing error",e);
     }
   }
 
-  public byte[] convert(ObjectNode objectNode) {
+  public byte[] convert(JsonNode objectNode) {
     if (objectNode == null) return new byte[0];
     try {
       return objectMapper.writeValueAsBytes(objectNode);
@@ -56,24 +57,6 @@ public class OObjectConverter {
     }
   }
 
-  public JOObject toJ(IOObject<?> o) {
-    return switch (o) {
-      case null -> null;
-      case JOObject j -> j;
-      case GOObject g -> new JOObject(g.meta, g.data.getNode());
-      default -> (JOObject) o;
-    };
-  }
-
-
-  public GOObject toG(IOObject<?> o) {
-    return switch (o) {
-      case null -> null;
-      case JOObject j -> new GOObject(j.meta, j.data);
-      case GOObject g -> g;
-      default -> (GOObject) o;
-    };
-  }
 
   public ObjectNode createEmpty() {
     return objectMapper.createObjectNode();
