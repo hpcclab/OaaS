@@ -19,7 +19,7 @@ class JsonBytesTest {
     String jsonString = """
       {"test":"aaaa"}
       """;
-    JsonBytes jb = new JsonBytes(jsonString.getBytes());
+    JsonBytes jb = new JsonBytes(jsonString);
     String s = mapper.writeValueAsString(jb);
     JsonBytes jb2 = mapper.readValue(s, JsonBytes.class);
     assertEquals("aaaa", jb2.objectNode.get("test").textValue());

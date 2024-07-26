@@ -1,24 +1,21 @@
 package org.hpcclab.oaas.invocation.dataflow;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import lombok.Builder;
-import org.eclipse.collections.api.factory.Maps;
 import org.hpcclab.oaas.invocation.InvocationCtx;
 import org.hpcclab.oaas.invocation.LocationAwareInvocationForwarder;
 import org.hpcclab.oaas.invocation.dataflow.DataflowSemantic.DataflowNode;
-import org.hpcclab.oaas.invocation.transform.ODataTransformer;
+import org.hpcclab.oaas.invocation.dataflow.DataflowState.StepState;
 import org.hpcclab.oaas.model.function.Dataflows;
 import org.hpcclab.oaas.model.invocation.InvocationRequest;
 import org.hpcclab.oaas.model.invocation.InvocationResponse;
-import org.hpcclab.oaas.model.object.GOObject;
 import org.hpcclab.oaas.model.object.JsonBytes;
 import org.hpcclab.oaas.repository.id.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,11 +50,11 @@ public class DataflowOrchestrator {
 
 
   Uni<DataflowState> branch(InvocationCtx ctx,
-                            DataflowNode node,
+                            DataflowNode preNode,
                             DataflowState state) {
-    Set<DataflowNode> next = node.next();
+    Set<DataflowNode> next = preNode.next();
     return Multi.createFrom().iterable(next)
-      .filter(n -> ready(state, n))
+      .filter(n -> isReady(state, n))
       .onItem()
       .transformToUniAndMerge(nextNode -> {
         InvocationRequest req = createReq(nextNode, ctx, state);
@@ -73,8 +70,8 @@ public class DataflowOrchestrator {
                                  DataflowNode node,
                                  DataflowState state,
                                  InvocationResponse resp) {
-    StepState stepState = state.stepStates[node.stepIndex() + 1];
-    state.stepStates[node.stepIndex() + 1] = stepState
+    StepState stepState = state.stepStates()[node.stepIndex()];
+    state.stepStates()[node.stepIndex()] = stepState
       .toBuilder()
       .completed(true)
       .sent(true)
@@ -91,10 +88,10 @@ public class DataflowOrchestrator {
     DataflowNode endNode = semantic.getEndNode();
     int mainRefStepIndex = endNode.mainRefStepIndex();
     if (mainRefStepIndex >= -1) {
-      var obj = state.stepStates[mainRefStepIndex + 1].obj;
+      var obj = state.stepStates()[mainRefStepIndex].obj();
       ctx.setOutput(obj);
     }
-    var body = createReqBody(endNode, state);
+    var body = createReqBody(endNode, ctx, state);
     ctx.setRespBody(body.getNode());
     return ctx;
   }
@@ -106,7 +103,7 @@ public class DataflowOrchestrator {
     String mainId = null;
     String mainCls = null;
     if (node.mainRefStepIndex() >= -1) {
-      StepState stepState = state.stepStates()[node.mainRefStepIndex() + 1];
+      StepState stepState = state.stepStates()[node.mainRefStepIndex()];
       if (stepState.obj()!=null) {
         mainId = stepState.obj().getKey();
         mainCls = stepState.obj().getMeta().getCls();
@@ -114,74 +111,42 @@ public class DataflowOrchestrator {
     }
     var invId = idGenerator.generate();
     var outId = ctx.getMacroIds().computeIfAbsent(step.as(), k -> idGenerator.generate());
-    Map<String,String> args = Maps.mutable.ofMap(step.args());
-    Map<String,String> argRefs = step.argRefs() == null? Map.of() : step.argRefs();
-    Map<String,String> ctxArgs = ctx.getArgs() == null? Map.of(): ctx.getArgs();
-    for (var argRef : argRefs.entrySet()) {
-      args.put(argRef.getKey(), ctxArgs.get(argRef.getValue()));
-    }
+    Map<String, String> args = node.argsReplacer().getReplaceVal(ctx, state);
+    JsonBytes reqBody = createReqBody(node, ctx, state);
     InvocationRequest.InvocationRequestBuilder builder = InvocationRequest.builder()
       .invId(invId)
       .outId(outId)
       .main(mainId)
-      .body(createReqBody(node, state))
+      .body(reqBody)
       .cls(mainCls!=null ? mainCls:step.targetCls())
       .args(args)
       .fb(step.function());
     return builder.build();
   }
 
-  JsonBytes createReqBody(DataflowNode node, DataflowState state) {
-    JsonBytes resultBody = new JsonBytes(mapper.createObjectNode());
-    for (var dmat : node.dmats()) {
-      int stepIndex = dmat.node().stepIndex();
-      if (stepIndex + 1 < 0)
-        continue;
-      var stepState = state.stepStates[stepIndex + 1];
-      ODataTransformer transformer = dmat.transformer();
-      String fromBody = dmat.mapping().fromBody();
-      if (fromBody!= null && !fromBody.isEmpty())
-        resultBody = transformer.transformMerge(resultBody, stepState.body);
-      else if (stepState.obj!=null)
-        resultBody = transformer.transformMerge(resultBody, stepState.obj.getData());
-    }
-    return resultBody;
+  JsonBytes createReqBody(DataflowNode node,
+                          InvocationCtx ctx,
+                          DataflowState state) {
+    TemplateProcessor.Replacer<JsonNode> jsonNodeReplacer = node.bodyReplacer();
+    if (jsonNodeReplacer == null) return JsonBytes.EMPTY;
+    return new JsonBytes(jsonNodeReplacer
+      .getReplaceVal(ctx, state));
   }
 
-  boolean ready(DataflowState state,
-                DataflowNode node) {
+  boolean isReady(DataflowState state,
+                  DataflowNode node) {
     Set<DataflowNode> require = node.require();
-    StepState stepState = state.stepStates[node.stepIndex() + 1];
+    StepState stepState = state.stepStates()[node.stepIndex()];
     if (stepState.sent()) return false;
     if (require.isEmpty()) return true;
     for (DataflowNode prerequisite : require) {
-      if (!state.stepStates[prerequisite.stepIndex() + 1].completed)
+      if (!state.stepStates()[prerequisite.stepIndex()].completed())
         return false;
     }
-    state.stepStates[node.stepIndex() + 1] = stepState
+    state.stepStates()[node.stepIndex()] = stepState
       .toBuilder()
       .sent(true)
       .build();
     return true;
-  }
-
-  @Builder(toBuilder = true)
-  record DataflowState(StepState[] stepStates) {
-    @Override
-    public String toString() {
-      return "DataflowState{" +
-        "stepStates=" + Arrays.toString(stepStates) +
-        '}';
-    }
-  }
-
-  @Builder(toBuilder = true)
-  record StepState(boolean sent,
-                   boolean completed,
-                   GOObject obj,
-                   JsonBytes body,
-                   InvocationResponse resp) {
-    static StepState NULL = new StepState(false, false,
-      null, null, null);
   }
 }

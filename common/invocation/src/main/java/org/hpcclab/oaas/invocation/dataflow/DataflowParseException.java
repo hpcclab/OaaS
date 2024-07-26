@@ -10,6 +10,10 @@ public class DataflowParseException extends StdOaasException {
     super(400);
   }
 
+  public DataflowParseException(String message) {
+    super(message, 400);
+  }
+
   public DataflowParseException(String message, int code) {
     super(message, 400);
   }

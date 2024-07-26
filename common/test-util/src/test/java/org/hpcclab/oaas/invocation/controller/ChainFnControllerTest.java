@@ -62,12 +62,15 @@ class ChainFnControllerTest {
     assertThat(invocationRequests)
       .size().isEqualTo(1);
     InvocationRequest step1 = invocationRequests.getOnly();
+    System.out.println("step1 : " + step1);
     assertThat(step1.chains())
       .size().isEqualTo(1);
     var step2 = testProcessFlow(step1).getOnly();
+    System.out.println("step2 : " + step2);
     assertThat(step2.chains())
       .size().isEqualTo(1);
     var step3 = testProcessFlow(step2).getOnly();
+    System.out.println("step3 : " + step3);
     assertThat(step3.chains())
       .size().isZero();
 

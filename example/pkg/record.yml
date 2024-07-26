@@ -30,16 +30,10 @@ functions:
       # return record3
       output: record3
       # {step1: <record1>,step2: <record2>,step3: <record3>}
-      respBody:
-        - fromObj: record1
-          transforms:
-            - inject: step1
-        - fromObj: record2
-          transforms:
-            - inject: step2
-        - fromObj: record3
-          transforms:
-            - inject: step3
+      bodyTemplate:
+        step1: ${record1|output}
+        step2: ${record2|output}
+        step3: ${record3|output}
 
 classes:
   - name: record

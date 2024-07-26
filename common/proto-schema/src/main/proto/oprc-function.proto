@@ -63,7 +63,7 @@ message VariableDescription {
 
 message ProtoDataflowSpec {
   repeated DataflowStep steps = 1;
-  repeated ProtoDataMapping respBody = 2;
+  bytes bodyTemplate = 2;
   optional string output = 3;
 }
 
@@ -73,9 +73,8 @@ message DataflowStep {
   string target = 2;
   string targetCls = 3;
   optional string as = 4;
-  repeated  ProtoDataMapping mappings = 5;
+  bytes bodyTemplate = 5;
   map<string, string> args = 6;
-  map<string, string> argRefs = 7;
 }
 
 message ProtoDataMapping {

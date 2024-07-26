@@ -5,8 +5,7 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.hpcclab.oaas.model.cls.OClass;
 import org.hpcclab.oaas.model.cls.OClassConfig;
 import org.hpcclab.oaas.model.function.*;
-import org.hpcclab.oaas.model.function.Dataflows.DataMapping;
-import org.hpcclab.oaas.model.function.Dataflows.Transformation;
+import org.hpcclab.oaas.model.object.JsonObjectBytes;
 import org.hpcclab.oaas.model.object.OObjectType;
 import org.hpcclab.oaas.model.proto.DSMap;
 import org.hpcclab.oaas.model.qos.QosConstraint;
@@ -54,9 +53,8 @@ public class MockupData {
         Dataflows.Step.builder()
           .function("f1")
           .target("@")
-          .argRefs(DSMap.of("key1", "arg1"))
           .as("tmp1")
-          .args(DSMap.of("STEP", "1"))
+          .args(DSMap.of("STEP", "1", "key1", "${@|args|arg1}"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
@@ -72,29 +70,13 @@ public class MockupData {
           .build()
       ))
       .output("tmp3")
-      .respBody(List.of(
-        DataMapping.builder()
-          .fromBody("tmp1")
-          .transforms(
-            List.of(
-              new Transformation("$.n", "step1")
-            )
-          ).build(),
-        DataMapping.builder()
-          .fromBody("tmp2")
-          .transforms(
-            List.of(
-              new Transformation("$.n", "step2")
-            )
-          ).build(),
-        DataMapping.builder()
-          .fromBody("tmp3")
-          .transforms(
-            List.of(
-              new Transformation("$.n", "step3")
-            )
-          ).build()
-      ))
+      .bodyTemplate(new JsonObjectBytes("""
+        {
+          "step1": "${tmp1|body|$.n}",
+          "step2": "${tmp2|body|$.n}",
+          "step3": "${tmp3|body|$.n}"
+        }
+        """))
       .build()
     );
 
@@ -107,32 +89,31 @@ public class MockupData {
         Dataflows.Step.builder()
           .function("f3")
           .target("@")
-          .argRefs(DSMap.of("ADD", "ADD1"))
           .as("tmp1")
-          .args(DSMap.of("STEP", "1.1"))
+          .args(DSMap.of("STEP", "1.1", "ADD", "${@|args|ADD1}"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
           .target("@")
-          .argRefs(DSMap.of("ADD", "ADD2"))
           .as("tmp2")
-          .args(DSMap.of("STEP", "1.2"))
+          .args(DSMap.of("STEP", "1.2", "ADD", "${@|args|ADD2}"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
           .target("@")
-          .argRefs(DSMap.of("ADD", "ADD3"))
           .as("tmp3")
-          .args(DSMap.of("STEP", "1.3"))
+          .args(DSMap.of("STEP", "1.3", "ADD", "${@|args|ADD3}"))
           .build(),
         Dataflows.Step.builder()
           .function("f3")
           .target("tmp1")
           .as("tmp4")
-          .mappings(List.of(
-            DataMapping.builder().fromObj("tmp2").transforms(List.of(new Transformation("$.n", "tmp2"))).build(),
-            DataMapping.builder().fromObj("tmp3").transforms(List.of(new Transformation("$.n", "tmp3"))).build()
-          ))
+          .bodyTemplate(new JsonObjectBytes("""
+            {
+              "tmp2": "${tmp2|output|$.n}",
+              "tmp3": "${tmp3|output|$.n}"
+            }
+            """))
           .args(DSMap.of("STEP", "2", "ADD", "0"))
           .build()
       ))

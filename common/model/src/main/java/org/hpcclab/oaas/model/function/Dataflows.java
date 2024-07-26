@@ -3,6 +3,7 @@ package org.hpcclab.oaas.model.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+import org.hpcclab.oaas.model.object.JsonObjectBytes;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ public interface Dataflows {
   @Builder(toBuilder = true)
   record Spec (
     List<Dataflows.Step> steps,
-    List<DataMapping> respBody,
+    JsonObjectBytes bodyTemplate,
     String output
   ){
     public Spec cleanNull() {
@@ -32,16 +33,13 @@ public interface Dataflows {
     String target,
     String targetCls,
     String as,
-    List<DataMapping> mappings,
-    Map<String,String> args,
-    Map<String,String> argRefs
+    JsonObjectBytes bodyTemplate,
+    Map<String,String> args
   ) {
 
     public Step cleanNull() {
       return toBuilder()
-        .mappings(mappings == null? List.of(): mappings)
         .args(args == null? Map.of(): args)
-        .argRefs(argRefs == null? Map.of(): argRefs)
         .build();
     }
   }
@@ -110,5 +108,9 @@ public interface Dataflows {
         return "step[%d]:Detect unresolvable main name('%s')".formatted(i, target);
     }
     return null;
+  }
+
+  record DataSubstitution(String[] src, String jsonPath){
+
   }
 }

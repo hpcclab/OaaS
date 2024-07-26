@@ -207,36 +207,6 @@ components:
       - SEQUENTIAL
       - LINEARIZATION
       type: string
-    DataMapping:
-      type: object
-      properties:
-        fromObj:
-          type: string
-        fromBody:
-          type: string
-        transforms:
-          type: array
-          items:
-            $ref: "#/components/schemas/Transformation"
-        failOnError:
-          type: boolean
-        mapAll:
-          type: boolean
-    DataMapping_Public:
-      type: object
-      properties:
-        fromObj:
-          type: string
-        fromBody:
-          type: string
-        transforms:
-          type: array
-          items:
-            $ref: "#/components/schemas/Transformation_Public"
-        failOnError:
-          type: boolean
-        mapAll:
-          type: boolean
     DeploymentCondition:
       enum:
       - PENDING
@@ -343,6 +313,152 @@ components:
       - MACRO
       - CHAIN
       type: string
+    JsonNode:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        valueNode:
+          type: boolean
+        containerNode:
+          type: boolean
+        missingNode:
+          type: boolean
+        array:
+          type: boolean
+        object:
+          type: boolean
+        nodeType:
+          $ref: "#/components/schemas/JsonNodeType"
+        pojo:
+          type: boolean
+        number:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        float:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+        boolean:
+          type: boolean
+        "null":
+          type: boolean
+        binary:
+          type: boolean
+    JsonNodeType:
+      enum:
+      - ARRAY
+      - BINARY
+      - BOOLEAN
+      - MISSING
+      - "NULL"
+      - NUMBER
+      - OBJECT
+      - POJO
+      - STRING
+      type: string
+    JsonNodeType_Public:
+      enum:
+      - ARRAY
+      - BINARY
+      - BOOLEAN
+      - MISSING
+      - "NULL"
+      - NUMBER
+      - OBJECT
+      - POJO
+      - STRING
+      type: string
+    JsonNode_Public:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        valueNode:
+          type: boolean
+        containerNode:
+          type: boolean
+        missingNode:
+          type: boolean
+        array:
+          type: boolean
+        object:
+          type: boolean
+        nodeType:
+          $ref: "#/components/schemas/JsonNodeType_Public"
+        pojo:
+          type: boolean
+        number:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        float:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+        boolean:
+          type: boolean
+        "null":
+          type: boolean
+        binary:
+          type: boolean
+    JsonObjectBytes:
+      type: object
+      properties:
+        bytes:
+          format: binary
+          type: string
+        objectNode:
+          $ref: "#/components/schemas/JsonNode"
+        node:
+          $ref: "#/components/schemas/ObjectNode"
+        jsonNode:
+          $ref: "#/components/schemas/JsonNode"
+        raw:
+          type: string
+    JsonObjectBytes_Public:
+      type: object
+      properties:
+        bytes:
+          format: binary
+          type: string
+        objectNode:
+          $ref: "#/components/schemas/JsonNode_Public"
+        node:
+          $ref: "#/components/schemas/ObjectNode_Public"
+        jsonNode:
+          $ref: "#/components/schemas/JsonNode_Public"
+        raw:
+          type: string
     KDeploymentProvision:
       type: object
       properties:
@@ -850,6 +966,14 @@ components:
             type: string
         disabled:
           type: boolean
+    ObjectNode:
+      type: array
+      items:
+        $ref: "#/components/schemas/JsonNode"
+    ObjectNode_Public:
+      type: array
+      items:
+        $ref: "#/components/schemas/JsonNode_Public"
     OffloadingMode:
       enum:
       - JSON
@@ -1042,10 +1166,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Step"
-        respBody:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataMapping"
+        bodyTemplate:
+          $ref: "#/components/schemas/JsonObjectBytes"
         output:
           type: string
     Spec_Public:
@@ -1055,10 +1177,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Step_Public"
-        respBody:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataMapping_Public"
+        bodyTemplate:
+          $ref: "#/components/schemas/JsonObjectBytes_Public"
         output:
           type: string
     StateSpecification:
@@ -1100,15 +1220,9 @@ components:
           type: string
         as:
           type: string
-        mappings:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataMapping"
+        bodyTemplate:
+          $ref: "#/components/schemas/JsonObjectBytes"
         args:
-          type: object
-          additionalProperties:
-            type: string
-        argRefs:
           type: object
           additionalProperties:
             type: string
@@ -1123,32 +1237,12 @@ components:
           type: string
         as:
           type: string
-        mappings:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataMapping_Public"
+        bodyTemplate:
+          $ref: "#/components/schemas/JsonObjectBytes_Public"
         args:
           type: object
           additionalProperties:
             type: string
-        argRefs:
-          type: object
-          additionalProperties:
-            type: string
-    Transformation:
-      type: object
-      properties:
-        path:
-          type: string
-        inject:
-          type: string
-    Transformation_Public:
-      type: object
-      properties:
-        path:
-          type: string
-        inject:
-          type: string
     VariableDescription:
       type: object
       properties:

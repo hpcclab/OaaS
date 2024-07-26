@@ -85,9 +85,9 @@ public class ChainFunctionController extends AbstractFunctionController {
                          InvocationCtx ctx,
                          InvocationChain[] step2Chain) {
     int stepIndex = node.mainRefStepIndex();
-    if (stepIndex < -1) {
+    if (stepIndex < 0) {
       return ObjectTarget.NULL;
-    } else if (stepIndex==-1) {
+    } else if (stepIndex==0) {
       return new ObjectTarget(ctx.getRequest().main(), ctx.getRequest().cls());
     } else if (step2Chain[stepIndex]!=null) {
       var chain = step2Chain[stepIndex];
