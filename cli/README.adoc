@@ -10,9 +10,14 @@ The commandline interface for Oparaca.
 
 == Installation
 
+=== Download from Release 
+
+Download the executable file from the release (https://github.com/hpcclab/OaaS/releases[link]).
+Then, copy the executable file to any directory that is assigned to the PATH variable (ex. `/usr/local/bin`).
+
 === Download from GitHub Action
 
-Download the executable file from the artifacts of GitHub Action buid (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually in the bottom of summary page. Then, copy the executable file to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
+Download the executable file from the GitHub Action build artifacts (https://github.com/hpcclab/OaaS/actions/workflows/platform-container-build.yml[link]). They are usually at the bottom of the summary page. Then, copy the executable file to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
 
 image::../doc/images/ocli-download.png[]
 
@@ -29,7 +34,7 @@ bang app install --force ocli@oaas
 === Build from source
 
 ==== Native Image
-The native image is preferable than the jar file because it has a much faster startup time. First, make sure to install the prerequisite programs for GraalVM. You can check on the prerequisites section of this link:https://quarkus.io/guides/building-native-image[guide].
+The native image is preferable to the jar file because it has a much faster startup time. First, make sure to install the prerequisite programs for GraalVM. You can check the prerequisites section at this link:https://quarkus.io/guides/building-native-image[guide].
 
 [source,bash]
 ----
@@ -42,7 +47,7 @@ just build-native
 # OR
 ./mvnw install -Pnative -DskipTests
 ----
-NOTE: For Windows user, there is some issue that the Microsoft Native Tools for Visual Studio must first be initialized before packaging. You can work around by run the following command instead: `just build-native-window`
+NOTE: For Windows users, there is some issue that the Microsoft Native Tools for Visual Studio must first be initialized before packaging. You can work around this by run the following command instead: `just build-native-window`
 
 
 Then, copy the output binary to any directory that assigned to PATH variable (ex. `/usr/local/bin`).
@@ -70,7 +75,7 @@ jbang app install --name=ocli --force target/quarkus-app/quarkus-run.jar
 ----
 
 == Usage
-You can check the usage instruction by running `ocli -h`.
+You can check the usage instructions by running `ocli -h`.
 
 EXAMPLE
 [source,bash]
@@ -100,7 +105,7 @@ In thie mode, you can:
 * invoke object function
 ** If you invoke the custom function, you can configure `ocli` to offload the task to your function that run locally.
 
-The state will be keep in the local file storage. By the default, it will store at `%HOME/.oprc/local`. You can configure the location by editing `$HOME/.oprc/config.yml`.
+The state will be kept in the local file storage. By the default, it will store at `%HOME/.oprc/local`. You can configure the location by editing `$HOME/.oprc/config.yml`.
 
 
 === Common Usages
@@ -146,7 +151,7 @@ ocli dev i random -s
 .Dev-mode: ran as server
 image::../doc/diagrams/oaas_development_tools_v2.dio.png[ocli_server,480]
 
-In the case that you want to access the OaaS invocation API via your own code, you can run `ocli` to emulate the class runtime server.
+If you want to access the OaaS invocation API via your own code, you can run `ocli` to emulate the class runtime server.
 
 [source,bash]
 ----
@@ -159,7 +164,7 @@ When terminated the program, it will write the new object data to local file as 
 NOTE: If you update the configuration, you have to restart the server for it to reflect on the configuration.
 
 === Unstructured Data
-Currently, `ocli` not provide the object storage emulation out of the box. You have to run the local object storage manually.
+Currently, `ocli` does not provide the object storage emulation out of the box. You have to run the local object storage manually.
 [source,bash]
 ----
 docker run -d -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=admin -e MINIO_ROOT_PASSWORD=changethis -e MINIO_DEFAULT_BUCKETS=oaas-bkt -e MINIO_API_CORS_ALLOW_ORIGIN=* --name="minio" bitnami/minio
@@ -170,8 +175,8 @@ docker rm minio
 ----
 NOTE: You can change the port of `minio`, but you have to update `$HOME/.oprc/config.yml` to change `localDev.dataConf.options.PUBLICURL` and `localDev.dataConf.options.URL`
 
-=== Multi functions
-In the case of having multiple function run locally on the difference port, you have to manually editing the file `$HOME/.oprc/local/pkg.yml` by changing the `functions[].status.invocationUrl` on each function
+=== Multi-functions
+In the case of having multiple functions run locally on the difference port, you have to manually edit the file `$HOME/.oprc/local/pkg.yml` by changing the `functions[].status.invocationUrl` on each function
 [source, yaml]
 ----
 - name: "record.random"

@@ -15,7 +15,7 @@ Oparaca (**O**bject **Para**digm on Serverless **C**loud **A**bstraction) is the
 
 === What is OaaS?
 
-Object as a Service (OaaS) is a new serverless paradigm, that borrows the object-oriented programming concepts to encapsulate application logic and data in addition to non-functional requirements (QoS and constraints) into a single deployment package, thereby, streamlining cloud-native application development.
+Object as a Service (OaaS) is a new serverless paradigm that borrows the object-oriented programming concepts to encapsulate application logic and data in addition to non-functional requirements (QoS and constraints) into a single deployment package, thereby streamlining cloud-native application development.
 
 .FaaS
 image::doc/diagrams/faas_concept_v4s.dio.png[faas_concept,480]
@@ -31,7 +31,7 @@ image::doc/diagrams/qos_oaas_architecture_v15_2s.dio.png[architecture2,480]
 
 == Getting start with Dev mode for local development
 
-Oparaca came with `ocli` commandline tool with the dev mode for local development.  This Dev mode allow to interact with Oparaca similar to the cluster mode but without the need of Kubernetes.
+Oparaca came with `ocli` commandline tool with the dev mode for local development.  This Dev mode allows us to interact with Oparaca like the cluster mode but without Kubernetes.
 
 Check on the guides:
 
