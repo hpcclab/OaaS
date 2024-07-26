@@ -2,7 +2,7 @@
   "catalogs": {},
   "aliases": {
     "ocli": {
-      "script-ref": "https://github.com/hpcclab/OaaS/releases/download/0.2.1/ocli.jar"
+      "script-ref": "https://github.com/hpcclab/OaaS/releases/download/0.2.2/ocli.jar"
     }
   }
 }
