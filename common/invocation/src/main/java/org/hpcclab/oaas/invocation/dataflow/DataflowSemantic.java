@@ -73,7 +73,7 @@ public class DataflowSemantic {
                                  DataflowSemantic semantic,
                                  TemplateProcessor templateProcessor) {
     var template = step.bodyTemplate();
-    TemplateProcessor.Replacer<JsonNode> bodyReplacer = template == null?
+    TemplateProcessor.Replacer<JsonNode> bodyReplacer = template == null || template.getJsonNode() == null?
       null:
       templateProcessor.createReplacer(stateMap, template.getJsonNode());
     var argsTemplate  = step.args();
