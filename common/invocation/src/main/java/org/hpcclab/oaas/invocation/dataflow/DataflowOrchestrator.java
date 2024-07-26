@@ -87,7 +87,7 @@ public class DataflowOrchestrator {
                            DataflowState state) {
     DataflowNode endNode = semantic.getEndNode();
     int mainRefStepIndex = endNode.mainRefStepIndex();
-    if (mainRefStepIndex >= -1) {
+    if (mainRefStepIndex >= 0) {
       var obj = state.stepStates()[mainRefStepIndex].obj();
       ctx.setOutput(obj);
     }
@@ -102,7 +102,7 @@ public class DataflowOrchestrator {
     Dataflows.Step step = node.step();
     String mainId = null;
     String mainCls = null;
-    if (node.mainRefStepIndex() >= -1) {
+    if (node.mainRefStepIndex() >= 0) {
       StepState stepState = state.stepStates()[node.mainRefStepIndex()];
       if (stepState.obj()!=null) {
         mainId = stepState.obj().getKey();

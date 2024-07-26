@@ -39,7 +39,7 @@ public class ErrorFnController
   protected Uni<InvocationCtx> exec(InvocationCtx ctx) {
     ctx.initLog().setStatus(InvocationStatus.FAILED);
     ObjectNode objectNode = mapper.createObjectNode();
-    objectNode.put("msg", "Function controller is failed to initial");
+    objectNode.put("msg", "The function controller is failed to initiate");
     objectNode.put("reason", error);
     ctx.setRespBody(objectNode);
     return Uni.createFrom().item(ctx);
