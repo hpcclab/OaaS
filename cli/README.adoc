@@ -28,7 +28,7 @@ First, you need to install https://www.jbang.dev/download/[jbang]. Then, run the
 [source,bash]
 ----
 jbang catalog add --name oaas https://github.com/hpcclab/OaaS/blob/main/jbang-catalog.json
-bang app install --force ocli@oaas
+jbang app install --force ocli@oaas
 ----
 
 === Build from source
