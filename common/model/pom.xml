@@ -12,7 +12,7 @@
   <artifactId>oprc-model</artifactId>
 
   <properties>
-    <infinispan.version>15.0.6.Final</infinispan.version>
+    <infinispan.version>15.0.8.Final</infinispan.version>
     <tsid-creator.version>5.2.6</tsid-creator.version>
   </properties>
 
