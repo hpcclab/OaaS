@@ -24,7 +24,7 @@
     <quarkus.platform.version>3.13.2</quarkus.platform.version>
     <surefire-plugin.version>3.5.0</surefire-plugin.version>
     <org.projectlombok.version>1.18.34</org.projectlombok.version>
-    <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+    <org.mapstruct.version>1.6.2</org.mapstruct.version>
     <eclipse.collections.version>11.1.0</eclipse.collections.version>
   </properties>
 </project>
