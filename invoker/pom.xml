@@ -10,7 +10,7 @@
   <artifactId>oprc-invoker</artifactId>
 
   <properties>
-    <infinispan.version>15.0.6.Final</infinispan.version>
+    <infinispan.version>15.1.0.Dev03</infinispan.version>
     <arangodb.version>7.7.1</arangodb.version>
   </properties>
 
